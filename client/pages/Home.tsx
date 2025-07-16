@@ -199,15 +199,21 @@ export default function HomeScreen() {
           </div>
 
           {/* Search Bar */}
-          <div className="max-w-[200px]">
+          <div className="max-w-[200px] relative group">
             <div
               className="relative cursor-pointer"
               onClick={() => navigate("/search")}
+              title="Go to Search"
             >
-              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 text-gray-400" />
-              <div className="w-full bg-white/10 border border-white/20 rounded-full py-1 pl-6 pr-3 text-xs placeholder-gray-400 hover:bg-white/15 transition-colors">
-                <span className="text-gray-400">Search...</span>
+              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 text-gray-400 group-hover:text-neon-green transition-colors" />
+              <div className="w-full bg-white/10 border border-white/20 rounded-full py-1 pl-6 pr-3 text-xs placeholder-gray-400 hover:bg-white/15 hover:border-neon-green/30 transition-all duration-200">
+                <span className="text-gray-400 group-hover:text-white transition-colors">
+                  Search...
+                </span>
               </div>
+            </div>
+            <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+              Search Music
             </div>
           </div>
         </motion.div>
