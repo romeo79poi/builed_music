@@ -62,6 +62,12 @@ export function MusicCatchLogo({
 
         {/* Main logo container */}
         <div className="relative w-15 justify-center flex flex-row items-start">
+          {/* Side dots */}
+          <motion.div
+            variants={barVariants}
+            className="absolute -left-8 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-neon-green rounded-full"
+          />
+
           {/* Left side bars */}
           <div className="absolute left-0 flex items-end space-x-1">
             <motion.div
