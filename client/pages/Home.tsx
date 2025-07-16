@@ -177,9 +177,16 @@ export default function HomeScreen() {
           className="flex items-center justify-between p-4 md:p-6 bg-black/60 backdrop-blur-sm sticky top-0 z-20"
         >
           {/* Profile Icon */}
-          <Link to="/profile" className="hover:scale-110 transition-transform">
-            <div className="w-10 h-10 bg-gradient-to-br from-neon-green to-neon-blue rounded-full flex items-center justify-center">
+          <Link
+            to="/profile"
+            className="hover:scale-110 transition-transform relative group"
+            title="Go to Profile"
+          >
+            <div className="w-10 h-10 bg-gradient-to-br from-neon-green to-neon-blue rounded-full flex items-center justify-center shadow-lg group-hover:shadow-neon-green/50">
               <User className="w-5 h-5 text-black" />
+            </div>
+            <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+              Profile
             </div>
           </Link>
 
