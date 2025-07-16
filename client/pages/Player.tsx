@@ -25,6 +25,21 @@ export default function Player() {
   const [duration, setDuration] = useState(180);
   const [volume, setVolume] = useState(75);
 
+  const handleSkipBack = () => {
+    setCurrentTime(Math.max(0, currentTime - 10));
+  };
+
+  const handleSkipForward = () => {
+    setCurrentTime(Math.min(duration, currentTime + 10));
+  };
+
+  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const newTime = (clickX / rect.width) * duration;
+    setCurrentTime(Math.floor(newTime));
+  };
+
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
