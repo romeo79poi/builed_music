@@ -125,7 +125,10 @@ export default function Player() {
           className="px-8 py-6"
         >
           <div className="relative">
-            <div className="h-1 bg-white/20 rounded-full">
+            <div
+              className="h-1 bg-white/20 rounded-full cursor-pointer"
+              onClick={handleProgressClick}
+            >
               <div
                 className="h-full bg-gradient-to-r from-neon-green to-neon-blue rounded-full"
                 style={{ width: `${(currentTime / duration) * 100}%` }}
