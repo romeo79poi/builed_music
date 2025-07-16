@@ -174,7 +174,10 @@ export default function Player() {
               )}
             </button>
 
-            <button className="p-4 text-white">
+            <button
+              onClick={handleSkipForward}
+              className="p-4 text-white hover:text-neon-green transition-colors"
+            >
               <SkipForward className="w-8 h-8" />
             </button>
 
