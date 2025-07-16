@@ -185,16 +185,15 @@ export default function HomeScreen() {
           </div>
 
           {/* Search Bar */}
-          <div className="flex-1 max-w-xs mx-4">
-            <div className="relative">
+          <div className="max-w-[200px] mx-4">
+            <div
+              className="relative cursor-pointer"
+              onClick={() => navigate("/search")}
+            >
               <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 text-gray-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search..."
-                className="w-full bg-white/10 border border-white/20 rounded-full py-1.5 pl-7 pr-3 text-xs focus:outline-none focus:ring-2 focus:ring-neon-green/50 focus:border-neon-green/50 placeholder-gray-400"
-              />
+              <div className="w-full bg-white/10 border border-white/20 rounded-full py-1 pl-6 pr-3 text-xs placeholder-gray-400 hover:bg-white/15 transition-colors">
+                <span className="text-gray-400">Search...</span>
+              </div>
             </div>
           </div>
 
