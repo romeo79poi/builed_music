@@ -384,6 +384,12 @@ export default function HomeScreen() {
           </div>
         </div>
 
+        {/* Mini Player */}
+        <MiniPlayer
+          isPlaying={isPlaying}
+          onTogglePlay={() => setIsPlaying(!isPlaying)}
+        />
+
         {/* Bottom Navigation */}
         <div className="fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur-sm border-t border-white/10 px-4 py-2 z-20">
           <div className="flex items-center justify-around max-w-md mx-auto">
