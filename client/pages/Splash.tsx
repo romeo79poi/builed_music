@@ -24,7 +24,7 @@ export default function Splash() {
         <div className="absolute bottom-10 right-10 w-28 h-28 border border-slate-600 rotate-45 rounded-lg"></div>
       </div>
 
-            {/* Background glow effect */}
+      {/* Background glow effect */}
       <div className="absolute inset-0 bg-gradient-to-br from-neon-green/10 via-transparent to-neon-blue/10"></div>
 
       {/* Main content */}
@@ -49,7 +49,7 @@ export default function Splash() {
             className="text-neon-green text-sm tracking-[0.2em] font-medium"
           >
             APPS
-          </p>
+          </motion.p>
         </motion.div>
 
         {/* Loading animation */}
