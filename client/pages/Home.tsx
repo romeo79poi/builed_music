@@ -340,7 +340,14 @@ export default function HomeScreen() {
                           alt={song.title}
                           className="w-12 h-12 object-cover rounded"
                         />
-                        <button className="absolute inset-0 bg-black/60 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setIsPlaying(true);
+                          }}
+                          className="absolute inset-0 bg-black/60 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
                           <Play className="w-5 h-5 text-white ml-0.5" />
                         </button>
                       </div>
