@@ -217,7 +217,7 @@ export default function HomeScreen() {
               <h1 className="text-3xl md:text-4xl font-bold mb-2">
                 {greeting}
               </h1>
-              <p className="text-gray-400">Ready to discover some music?</p>
+              <p className="text-gray-400">Feel The Music_Catch Beats</p>
             </motion.div>
 
             {/* Recently Played */}
