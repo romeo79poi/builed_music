@@ -248,6 +248,7 @@ export default function Search() {
             {moodResults.map((result, index) => (
               <div
                 key={result.id}
+                onClick={() => playTrack(result.id)}
                 className="bg-slate-800/50 rounded-lg p-4 backdrop-blur-sm hover:bg-slate-700/50 transition-colors cursor-pointer"
               >
                 <div className="flex items-center justify-between mb-3">
