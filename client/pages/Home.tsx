@@ -212,7 +212,7 @@ export default function HomeScreen() {
           <div className="max-w-[200px] relative group">
             <div
               className="relative cursor-pointer"
-              onClick={() => navigate("/search")}
+              onClick={handleSearchClick}
               title="Go to Search"
             >
               <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 text-gray-400 group-hover:text-neon-green transition-colors" />
