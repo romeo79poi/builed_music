@@ -13,7 +13,9 @@ import Home from "./pages/Home";
 import Search from "./pages/Search";
 import Player from "./pages/Player";
 import Profile from "./pages/Profile";
-import { PlaceholderPage } from "./components/PlaceholderPage";
+import Library from "./pages/Library";
+import History from "./pages/History";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
