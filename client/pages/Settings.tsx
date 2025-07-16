@@ -19,7 +19,6 @@ import {
   CreditCard,
   LogOut,
   ChevronRight,
-  Toggle,
   User,
 } from "lucide-react";
 
