@@ -65,22 +65,22 @@ export function MusicCatchLogo({
           {/* Side dots */}
           <motion.div
             variants={barVariants}
-            className="absolute -left-8 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-neon-green rounded-full"
+            className="absolute -left-6 top-1/2 transform -translate-y-1/2 w-1.5 h-1.5 bg-neon-green rounded-full"
           />
 
           {/* Left side bars */}
-          <div className="absolute left-0 flex items-end space-x-1">
+          <div className="absolute left-0 flex items-end space-x-0.5">
             <motion.div
               variants={barVariants}
-              className="w-1 h-3 bg-gradient-to-t from-neon-green to-emerald-400 rounded-full"
+              className="w-0.5 h-2 bg-gradient-to-t from-neon-green to-emerald-400 rounded-full"
             />
             <motion.div
               variants={barVariants}
-              className="w-1 h-6 bg-gradient-to-t from-neon-green to-emerald-400 rounded-full"
+              className="w-0.5 h-4 bg-gradient-to-t from-neon-green to-emerald-400 rounded-full"
             />
             <motion.div
               variants={barVariants}
-              className="w-1 h-4 bg-gradient-to-t from-neon-green to-emerald-400 rounded-full"
+              className="w-0.5 h-3 bg-gradient-to-t from-neon-green to-emerald-400 rounded-full"
             />
           </div>
 
@@ -88,43 +88,43 @@ export function MusicCatchLogo({
           <div className="relative">
             <motion.div
               variants={diamondVariants}
-              className="w-6 h-6 bg-gradient-to-br from-neon-green to-emerald-400 rotate-45 rounded-sm"
+              className="w-4 h-4 bg-gradient-to-br from-neon-green to-emerald-400 rotate-45 rounded-sm"
             />
 
             {/* Curved wave elements */}
-            <div className="absolute -left-3 top-1/2 transform -translate-y-1/2">
+            <div className="absolute -left-2 top-1/2 transform -translate-y-1/2">
               <motion.div
                 variants={barVariants}
-                className="w-8 h-1 bg-gradient-to-r from-neon-green to-transparent rounded-full transform -rotate-12"
+                className="w-5 h-0.5 bg-gradient-to-r from-neon-green to-transparent rounded-full transform -rotate-12"
               />
             </div>
-            <div className="absolute -right-3 top-1/2 transform -translate-y-1/2">
+            <div className="absolute -right-2 top-1/2 transform -translate-y-1/2">
               <motion.div
                 variants={barVariants}
-                className="w-8 h-1 bg-gradient-to-r from-transparent to-neon-blue rounded-full transform rotate-12"
+                className="w-5 h-0.5 bg-gradient-to-r from-transparent to-neon-blue rounded-full transform rotate-12"
               />
             </div>
           </div>
 
           {/* Right side bars */}
-          <div className="absolute right-0 flex items-end space-x-1">
+          <div className="absolute right-0 flex items-end space-x-0.5">
             <motion.div
               variants={barVariants}
-              className="w-1 h-5 bg-gradient-to-t from-neon-blue to-cyan-400 rounded-full"
+              className="w-0.5 h-3 bg-gradient-to-t from-neon-blue to-cyan-400 rounded-full"
             />
             <motion.div
               variants={barVariants}
-              className="w-1 h-7 bg-gradient-to-t from-neon-blue to-cyan-400 rounded-full"
+              className="w-0.5 h-5 bg-gradient-to-t from-neon-blue to-cyan-400 rounded-full"
             />
             <motion.div
               variants={barVariants}
-              className="w-1 h-4 bg-gradient-to-t from-neon-blue to-cyan-400 rounded-full"
+              className="w-0.5 h-2 bg-gradient-to-t from-neon-blue to-cyan-400 rounded-full"
             />
           </div>
 
           <motion.div
             variants={barVariants}
-            className="absolute -right-8 top-1/2 transform -translate-y-1/2 w-3 h-3 bg-neon-blue rounded-full"
+            className="absolute -right-6 top-1/2 transform -translate-y-1/2 w-1.5 h-1.5 bg-neon-blue rounded-full"
           />
         </div>
       </div>
