@@ -179,7 +179,7 @@ export default function Profile() {
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="bg-gray-900 rounded-3xl p-6 max-w-md w-full max-h-[80vh] overflow-y-auto"
+              className="bg-black rounded-3xl p-6 max-w-md w-full max-h-[80vh] overflow-y-auto"
             >
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold">Choose Your Plan</h2>
