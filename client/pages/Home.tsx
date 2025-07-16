@@ -175,7 +175,7 @@ export default function HomeScreen() {
         >
           {/* Logo */}
           <div className="flex items-center">
-            <MusicCatchLogo animationState="static" className="w-10 h-10" />
+            <MusicCatchLogo animated={false} className="w-8 h-8" />
             <span className="ml-3 text-xl font-bold hidden sm:block">
               Music Catch
             </span>
