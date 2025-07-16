@@ -156,7 +156,10 @@ export default function Player() {
               <Shuffle className="w-6 h-6" />
             </button>
 
-            <button className="p-4 text-white">
+            <button
+              onClick={handleSkipBack}
+              className="p-4 text-white hover:text-neon-green transition-colors"
+            >
               <SkipBack className="w-8 h-8" />
             </button>
 
