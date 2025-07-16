@@ -11,6 +11,10 @@ import {
   SkipBack,
   SkipForward,
   MoreHorizontal,
+  Home,
+  Library,
+  Clock,
+  User,
 } from "lucide-react";
 
 export default function Search() {
