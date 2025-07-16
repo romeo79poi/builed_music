@@ -176,8 +176,15 @@ export default function HomeScreen() {
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center justify-between p-4 md:p-6 bg-black/60 backdrop-blur-sm sticky top-0 z-20"
         >
+          {/* Profile Icon */}
+          <Link to="/profile" className="hover:scale-110 transition-transform">
+            <div className="w-10 h-10 bg-gradient-to-br from-neon-green to-neon-blue rounded-full flex items-center justify-center">
+              <User className="w-5 h-5 text-black" />
+            </div>
+          </Link>
+
           {/* Logo */}
-          <div className="flex items-center">
+          <div className="flex items-center absolute left-1/2 transform -translate-x-1/2">
             <MusicCatchLogo animated={false} className="w-8 h-8" />
             <span className="ml-3 text-xl font-bold hidden sm:block">
               Music Catch
@@ -185,7 +192,7 @@ export default function HomeScreen() {
           </div>
 
           {/* Search Bar */}
-          <div className="max-w-[200px] mx-4">
+          <div className="max-w-[200px]">
             <div
               className="relative cursor-pointer"
               onClick={() => navigate("/search")}
@@ -196,13 +203,6 @@ export default function HomeScreen() {
               </div>
             </div>
           </div>
-
-          {/* Profile Icon */}
-          <Link to="/profile" className="hover:scale-110 transition-transform">
-            <div className="w-10 h-10 bg-gradient-to-br from-neon-green to-neon-blue rounded-full flex items-center justify-center">
-              <User className="w-5 h-5 text-black" />
-            </div>
-          </Link>
         </motion.div>
 
         {/* Main Content */}
