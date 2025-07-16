@@ -33,6 +33,15 @@ const App = () => (
           <Route path="/player" element={<Player />} />
           <Route path="/profile" element={<Profile />} />
           <Route
+            path="/library"
+            element={
+              <PlaceholderPage
+                title="Your Library"
+                description="View your playlists, liked songs, and saved albums."
+              />
+            }
+          />
+          <Route
             path="/history"
             element={
               <PlaceholderPage
