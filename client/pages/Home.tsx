@@ -1,213 +1,413 @@
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Headphones, User, Search, Clock, Settings } from "lucide-react";
+import {
+  Search,
+  User,
+  Play,
+  Pause,
+  MoreHorizontal,
+  ChevronRight,
+  Home,
+  Library,
+  Heart,
+  Clock,
+} from "lucide-react";
+import { MusicCatchLogo } from "../components/MusicCatchLogo";
 
-export default function Home() {
-  const trendingItems = [
+export default function HomeScreen() {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [greeting, setGreeting] = useState("");
+
+  useEffect(() => {
+    const hour = new Date().getHours();
+    if (hour < 12) setGreeting("Good Morning");
+    else if (hour < 18) setGreeting("Good Afternoon");
+    else setGreeting("Good Evening");
+  }, []);
+
+  const recentlyPlayed = [
     {
       id: 1,
-      title: "Trending",
-      artist: "Therropaun",
+      title: "Blinding Lights",
+      artist: "The Weeknd",
       image:
         "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
-      category: "Trending",
+      isPlaying: false,
     },
     {
       id: 2,
-      title: "Recently Played",
-      artist: "Soumy Pasic",
+      title: "Watermelon Sugar",
+      artist: "Harry Styles",
       image:
         "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop",
-      category: "Recently Played",
+      isPlaying: true,
     },
     {
       id: 3,
-      title: "Recently",
-      artist: "Selilance P",
+      title: "Levitating",
+      artist: "Dua Lipa",
       image:
         "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop",
-      category: "Recently",
+      isPlaying: false,
+    },
+    {
+      id: 4,
+      title: "Good 4 U",
+      artist: "Olivia Rodrigo",
+      image:
+        "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop",
+      isPlaying: false,
+    },
+    {
+      id: 5,
+      title: "Stay",
+      artist: "The Kid LAROI",
+      image:
+        "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&h=300&fit=crop",
+      isPlaying: false,
+    },
+    {
+      id: 6,
+      title: "Heat Waves",
+      artist: "Glass Animals",
+      image:
+        "https://images.unsplash.com/photo-1571974599782-87624638275c?w=300&h=300&fit=crop",
+      isPlaying: false,
     },
   ];
 
-  const featuredPlaylists = [
+  const topMixes = [
     {
       id: 1,
-      title: "Flancley Playand",
-      subtitle: "Projest 2015",
+      title: "Daily Mix 1",
+      description: "The Weeknd, Dua Lipa, Harry Styles and more",
       image:
-        "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=100&h=100&fit=crop",
-      percentage: "5.1%",
+        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
     },
     {
       id: 2,
-      title: "Waria'-Intiyamo",
-      subtitle: "Arejest 2014",
+      title: "Daily Mix 2",
+      description: "Pop hits you can't stop playing",
       image:
-        "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=100&h=100&fit=crop",
-      percentage: "5.1%",
+        "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop",
+    },
+    {
+      id: 3,
+      title: "Discover Weekly",
+      description: "Your weekly mixtape of fresh music",
+      image:
+        "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&h=300&fit=crop",
+    },
+    {
+      id: 4,
+      title: "Release Radar",
+      description: "Catch all the latest music from artists you follow",
+      image:
+        "https://images.unsplash.com/photo-1571974599782-87624638275c?w=300&h=300&fit=crop",
     },
   ];
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 relative overflow-hidden">
-      {/* Background image overlay */}
-      <div
-        className="absolute inset-0 opacity-30"
-        style={{
-          backgroundImage:
-            "url('https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=1200&h=800&fit=crop')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      />
+  const recommendations = [
+    {
+      id: 1,
+      title: "Anti-Hero",
+      artist: "Taylor Swift",
+      album: "Midnights",
+      image:
+        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
+      duration: "3:20",
+    },
+    {
+      id: 2,
+      title: "Flowers",
+      artist: "Miley Cyrus",
+      album: "Endless Summer Vacation",
+      image:
+        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop",
+      duration: "3:20",
+    },
+    {
+      id: 3,
+      title: "Unholy",
+      artist: "Sam Smith",
+      album: "Gloria",
+      image:
+        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop",
+      duration: "2:36",
+    },
+    {
+      id: 4,
+      title: "As It Was",
+      artist: "Harry Styles",
+      album: "Harry's House",
+      image:
+        "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop",
+      duration: "2:47",
+    },
+  ];
 
-      {/* Content */}
-      <div className="relative z-10 flex flex-col h-screen">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6">
-          <Headphones className="w-8 h-8 text-white" />
+  const genres = [
+    { id: 1, name: "Pop", color: "from-pink-500 to-purple-600" },
+    { id: 2, name: "Hip-Hop", color: "from-orange-500 to-red-600" },
+    { id: 3, name: "Rock", color: "from-gray-600 to-gray-800" },
+    { id: 4, name: "Electronic", color: "from-blue-500 to-cyan-600" },
+    { id: 5, name: "Jazz", color: "from-yellow-500 to-orange-600" },
+    { id: 6, name: "Classical", color: "from-indigo-500 to-purple-600" },
+    { id: 7, name: "R&B", color: "from-green-500 to-teal-600" },
+    { id: 8, name: "Country", color: "from-amber-500 to-yellow-600" },
+  ];
+
+  return (
+    <div className="min-h-screen bg-black text-white">
+      {/* Background Glow Effects */}
+      <div className="fixed inset-0 bg-black">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-neon-green/5 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-neon-blue/5 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="relative z-10 flex flex-col min-h-screen">
+        {/* Top Bar */}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center justify-between p-4 md:p-6 bg-black/60 backdrop-blur-sm sticky top-0 z-20"
+        >
+          {/* Logo */}
+          <div className="flex items-center">
+            <MusicCatchLogo animationState="static" className="w-10 h-10" />
+            <span className="ml-3 text-xl font-bold hidden sm:block">
+              Music Catch
+            </span>
+          </div>
+
+          {/* Search Bar */}
+          <div className="flex-1 max-w-md mx-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="What do you want to listen to?"
+                className="w-full bg-white/10 border border-white/20 rounded-full py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-neon-green/50 focus:border-neon-green/50 placeholder-gray-400"
+              />
+            </div>
+          </div>
+
+          {/* Profile Icon */}
           <Link to="/profile" className="hover:scale-110 transition-transform">
-            <User className="w-8 h-8 text-slate-300" />
+            <div className="w-10 h-10 bg-gradient-to-br from-neon-green to-neon-blue rounded-full flex items-center justify-center">
+              <User className="w-5 h-5 text-black" />
+            </div>
           </Link>
-        </div>
+        </motion.div>
 
         {/* Main Content */}
-        <div className="flex-1 px-6">
-          {/* Hero Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-            className="mb-8"
-          >
-            <h1 className="text-4xl font-bold text-white mb-2">Trending</h1>
-            <p className="text-slate-300 mb-4">
-              Some arythors. <span className="text-slate-400">Sterrice</span>
-            </p>
-            <Link
-              to="/search"
-              className="bg-gradient-to-r from-neon-green to-emerald-400 px-8 py-3 rounded-full text-slate-900 font-bold hover:from-emerald-400 hover:to-neon-green transition-all inline-block"
+        <div className="flex-1 overflow-y-auto pb-24">
+          <div className="p-4 md:p-6 space-y-8">
+            {/* Greeting */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
             >
-              Searn now
-            </Link>
-          </motion.div>
+              <h1 className="text-3xl md:text-4xl font-bold mb-2">
+                {greeting}
+              </h1>
+              <p className="text-gray-400">Ready to discover some music?</p>
+            </motion.div>
 
-          {/* Trending Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3, duration: 0.8 }}
-            className="mb-8"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-white">Trending</h2>
-              <span className="text-neon-green text-sm">19tnrt</span>
-            </div>
-
-            <div className="grid grid-cols-3 gap-4">
-              {trendingItems.map((item, index) => (
-                <Link to="/player" key={item.id}>
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 + index * 0.1, duration: 0.8 }}
-                    className="relative aspect-square rounded-lg overflow-hidden group cursor-pointer"
-                  >
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                    <div className="absolute bottom-2 left-2">
-                      <p className="text-white font-medium text-sm">
-                        {item.category}
-                      </p>
-                      <p className="text-slate-300 text-xs">{item.artist}</p>
-                    </div>
-                  </motion.div>
-                </Link>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Featured Playlists */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7, duration: 0.8 }}
-            className="mb-8"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-2xl font-bold text-white">
-                Featured Playlists
-              </h2>
-              <span className="text-neon-green text-sm">142115</span>
-            </div>
-
-            <div className="space-y-3">
-              {featuredPlaylists.map((playlist, index) => (
-                <Link to="/player" key={playlist.id}>
-                  <motion.div
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.9 + index * 0.1, duration: 0.8 }}
-                    className="flex items-center bg-slate-800/30 rounded-lg p-3 backdrop-blur-sm hover:bg-slate-700/30 transition-colors cursor-pointer"
-                  >
-                    <img
-                      src={playlist.image}
-                      alt={playlist.title}
-                      className="w-12 h-12 rounded-lg object-cover mr-3"
-                    />
-                    <div className="flex-1">
-                      <h3 className="text-white font-medium">
-                        {playlist.title}
+            {/* Recently Played */}
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl md:text-2xl font-bold">
+                  Recently Played
+                </h2>
+                <button className="text-gray-400 hover:text-white text-sm">
+                  Show all
+                </button>
+              </div>
+              <div className="flex overflow-x-auto space-x-4 pb-4 scrollbar-hide">
+                {recentlyPlayed.map((item) => (
+                  <Link to="/player" key={item.id} className="flex-shrink-0">
+                    <div className="group relative w-40 bg-white/5 rounded-lg p-4 hover:bg-white/10 transition-all cursor-pointer">
+                      <div className="relative mb-3">
+                        <img
+                          src={item.image}
+                          alt={item.title}
+                          className="w-full aspect-square object-cover rounded-md"
+                        />
+                        <button className="absolute bottom-2 right-2 w-10 h-10 bg-neon-green rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all">
+                          {item.isPlaying ? (
+                            <Pause className="w-5 h-5 text-black" />
+                          ) : (
+                            <Play className="w-5 h-5 text-black ml-0.5" />
+                          )}
+                        </button>
+                      </div>
+                      <h3 className="font-medium text-sm truncate">
+                        {item.title}
                       </h3>
-                      <p className="text-slate-400 text-sm">
-                        {playlist.subtitle}
+                      <p className="text-gray-400 text-xs truncate">
+                        {item.artist}
                       </p>
                     </div>
-                    <span className="text-neon-green text-sm font-medium">
-                      {playlist.percentage}
-                    </span>
-                  </motion.div>
-                </Link>
-              ))}
-            </div>
-          </motion.div>
+                  </Link>
+                ))}
+              </div>
+            </motion.section>
+
+            {/* Your Top Mixes */}
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl md:text-2xl font-bold">
+                  Your Top Mixes
+                </h2>
+                <button className="text-gray-400 hover:text-white text-sm">
+                  Show all
+                </button>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {topMixes.map((mix) => (
+                  <Link to="/player" key={mix.id}>
+                    <div className="group bg-white/5 rounded-lg p-4 hover:bg-white/10 transition-all cursor-pointer">
+                      <div className="relative mb-3">
+                        <img
+                          src={mix.image}
+                          alt={mix.title}
+                          className="w-full aspect-square object-cover rounded-md"
+                        />
+                        <button className="absolute bottom-2 right-2 w-10 h-10 bg-neon-green rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all">
+                          <Play className="w-5 h-5 text-black ml-0.5" />
+                        </button>
+                      </div>
+                      <h3 className="font-medium text-sm mb-1">{mix.title}</h3>
+                      <p className="text-gray-400 text-xs line-clamp-2">
+                        {mix.description}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </motion.section>
+
+            {/* Recommended for You */}
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5 }}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl md:text-2xl font-bold">
+                  Recommended for You
+                </h2>
+                <button className="text-gray-400 hover:text-white text-sm">
+                  Show all
+                </button>
+              </div>
+              <div className="space-y-2">
+                {recommendations.map((song, index) => (
+                  <Link to="/player" key={song.id}>
+                    <div className="flex items-center space-x-3 p-2 rounded-lg hover:bg-white/5 transition-all group cursor-pointer">
+                      <div className="relative flex-shrink-0">
+                        <img
+                          src={song.image}
+                          alt={song.title}
+                          className="w-12 h-12 object-cover rounded"
+                        />
+                        <button className="absolute inset-0 bg-black/60 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Play className="w-5 h-5 text-white ml-0.5" />
+                        </button>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-medium text-sm truncate">
+                          {song.title}
+                        </h3>
+                        <p className="text-gray-400 text-xs truncate">
+                          {song.artist}
+                        </p>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <button className="opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Heart className="w-4 h-4 text-gray-400 hover:text-neon-green" />
+                        </button>
+                        <span className="text-gray-400 text-xs">
+                          {song.duration}
+                        </span>
+                        <button className="opacity-0 group-hover:opacity-100 transition-opacity">
+                          <MoreHorizontal className="w-4 h-4 text-gray-400 hover:text-white" />
+                        </button>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </motion.section>
+
+            {/* Genres */}
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+            >
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl md:text-2xl font-bold">Browse Genres</h2>
+                <button className="text-gray-400 hover:text-white text-sm">
+                  Show all
+                </button>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {genres.map((genre) => (
+                  <Link to="/search" key={genre.id}>
+                    <div
+                      className={`bg-gradient-to-br ${genre.color} rounded-lg p-4 h-24 flex items-end cursor-pointer hover:scale-105 transition-transform`}
+                    >
+                      <h3 className="font-bold text-white text-lg">
+                        {genre.name}
+                      </h3>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </motion.section>
+          </div>
         </div>
 
         {/* Bottom Navigation */}
-        <div className="bg-slate-900/90 backdrop-blur-sm border-t border-slate-700 px-6 py-4">
-          <div className="flex items-center justify-around">
-            <Link to="/home" className="flex flex-col items-center">
-              <div className="w-8 h-8 bg-neon-green rounded-lg flex items-center justify-center mb-1">
-                <div className="w-4 h-4 bg-slate-900 rounded"></div>
-              </div>
-              <span className="text-neon-green text-xs font-medium">
-                Pussir
-              </span>
+        <div className="fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur-sm border-t border-white/10 px-4 py-2 z-20">
+          <div className="flex items-center justify-around max-w-md mx-auto">
+            <Link to="/home" className="flex flex-col items-center py-2">
+              <Home className="w-6 h-6 text-neon-green mb-1" />
+              <span className="text-neon-green text-xs font-medium">Home</span>
             </Link>
 
-            <Link to="/history" className="flex flex-col items-center">
-              <Clock className="w-6 h-6 text-slate-400 mb-1" />
-              <span className="text-slate-400 text-xs">Carticcal</span>
+            <Link to="/search" className="flex flex-col items-center py-2">
+              <Search className="w-6 h-6 text-gray-400 mb-1" />
+              <span className="text-gray-400 text-xs">Search</span>
             </Link>
 
-            <Link to="/search" className="flex flex-col items-center">
-              <Search className="w-6 h-6 text-slate-400 mb-1" />
-              <span className="text-slate-400 text-xs">Antect</span>
+            <Link to="/library" className="flex flex-col items-center py-2">
+              <Library className="w-6 h-6 text-gray-400 mb-1" />
+              <span className="text-gray-400 text-xs">Library</span>
             </Link>
 
-            <Link to="/states" className="flex flex-col items-center">
-              <div className="w-6 h-6 rounded-full border-2 border-slate-400 mb-1"></div>
-              <span className="text-slate-400 text-xs">States</span>
+            <Link to="/history" className="flex flex-col items-center py-2">
+              <Clock className="w-6 h-6 text-gray-400 mb-1" />
+              <span className="text-gray-400 text-xs">History</span>
             </Link>
 
-            <Link to="/settings" className="flex flex-col items-center">
-              <Settings className="w-6 h-6 text-slate-400 mb-1" />
-              <span className="text-slate-400 text-xs">Roerled</span>
+            <Link to="/profile" className="flex flex-col items-center py-2">
+              <User className="w-6 h-6 text-gray-400 mb-1" />
+              <span className="text-gray-400 text-xs">Profile</span>
             </Link>
           </div>
         </div>
