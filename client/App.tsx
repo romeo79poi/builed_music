@@ -13,9 +13,7 @@ import Home from "./pages/Home";
 import Search from "./pages/Search";
 import Player from "./pages/Player";
 import Profile from "./pages/Profile";
-import Library from "./pages/Library";
-import History from "./pages/History";
-import Settings from "./pages/Settings";
+import { PlaceholderPage } from "./components/PlaceholderPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -34,9 +32,42 @@ const App = () => (
           <Route path="/search" element={<Search />} />
           <Route path="/player" element={<Player />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/library" element={<Library />} />
-          <Route path="/history" element={<History />} />
-          <Route path="/settings" element={<Settings />} />
+          <Route
+            path="/library"
+            element={
+              <PlaceholderPage
+                title="Your Library"
+                description="View your playlists, liked songs, and saved albums."
+              />
+            }
+          />
+          <Route
+            path="/history"
+            element={
+              <PlaceholderPage
+                title="History"
+                description="View your recently played tracks and listening history."
+              />
+            }
+          />
+          <Route
+            path="/states"
+            element={
+              <PlaceholderPage
+                title="States"
+                description="View your music statistics and insights."
+              />
+            }
+          />
+          <Route
+            path="/settings"
+            element={
+              <PlaceholderPage
+                title="Settings"
+                description="Customize your Music Catch experience."
+              />
+            }
+          />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
