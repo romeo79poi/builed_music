@@ -27,15 +27,7 @@ const App = () => (
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/home" element={<Home />} />
-          <Route
-            path="/search"
-            element={
-              <PlaceholderPage
-                title="Search"
-                description="Find your favorite songs, artists, and playlists. Continue prompting to build the search functionality."
-              />
-            }
-          />
+          <Route path="/search" element={<Search />} />
           <Route
             path="/player"
             element={
