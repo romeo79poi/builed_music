@@ -93,7 +93,10 @@ export default function Login() {
             />
           </div>
 
-          <button className="w-full h-14 bg-gradient-to-r from-neon-green to-emerald-400 rounded-full text-slate-900 font-bold text-lg hover:from-emerald-400 hover:to-neon-green transition-all transform hover:scale-105">
+          <button
+            onClick={handleLogin}
+            className="w-full h-14 bg-gradient-to-r from-neon-green to-emerald-400 rounded-full text-slate-900 font-bold text-lg hover:from-emerald-400 hover:to-neon-green transition-all transform hover:scale-105"
+          >
             Continue
           </button>
         </motion.div>
