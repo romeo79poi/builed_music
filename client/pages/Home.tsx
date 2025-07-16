@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   Search,
   User,
@@ -14,10 +14,23 @@ import {
   Clock,
 } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
+import { MiniPlayer } from "../components/MiniPlayer";
 
 export default function HomeScreen() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [greeting, setGreeting] = useState("");
+  const [isPlaying, setIsPlaying] = useState(true);
+
+  const handleSearchClick = () => {
+    console.log("Navigating to search page...");
+    navigate("/search");
+  };
+
+  const handleProfileClick = () => {
+    console.log("Navigating to profile page...");
+    navigate("/profile");
+  };
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -173,34 +186,46 @@ export default function HomeScreen() {
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center justify-between p-4 md:p-6 bg-black/60 backdrop-blur-sm sticky top-0 z-20"
         >
+          {/* Profile Icon */}
+          <button
+            onClick={handleProfileClick}
+            className="hover:scale-110 transition-transform relative group"
+            title="Go to Profile"
+          >
+            <div className="w-10 h-10 bg-gradient-to-br from-neon-green to-neon-blue rounded-full flex items-center justify-center shadow-lg group-hover:shadow-neon-green/50">
+              <User className="w-5 h-5 text-black" />
+            </div>
+            <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+              Profile
+            </div>
+          </button>
+
           {/* Logo */}
-          <div className="flex items-center">
-            <MusicCatchLogo animationState="static" className="w-10 h-10" />
+          <div className="flex items-center absolute left-1/2 transform -translate-x-1/2">
+            <MusicCatchLogo animated={false} className="w-8 h-8" />
             <span className="ml-3 text-xl font-bold hidden sm:block">
               Music Catch
             </span>
           </div>
 
           {/* Search Bar */}
-          <div className="flex-1 max-w-md mx-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="What do you want to listen to?"
-                className="w-full bg-white/10 border border-white/20 rounded-full py-2 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-neon-green/50 focus:border-neon-green/50 placeholder-gray-400"
-              />
+          <div className="max-w-[200px] relative group">
+            <div
+              className="relative cursor-pointer"
+              onClick={handleSearchClick}
+              title="Go to Search"
+            >
+              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 text-gray-400 group-hover:text-neon-green transition-colors" />
+              <div className="w-full bg-white/10 border border-white/20 rounded-full py-1 pl-6 pr-3 text-xs placeholder-gray-400 hover:bg-white/15 hover:border-neon-green/30 transition-all duration-200">
+                <span className="text-gray-400 group-hover:text-white transition-colors">
+                  Search...
+                </span>
+              </div>
+            </div>
+            <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+              Search Music
             </div>
           </div>
-
-          {/* Profile Icon */}
-          <Link to="/profile" className="hover:scale-110 transition-transform">
-            <div className="w-10 h-10 bg-gradient-to-br from-neon-green to-neon-blue rounded-full flex items-center justify-center">
-              <User className="w-5 h-5 text-black" />
-            </div>
-          </Link>
         </motion.div>
 
         {/* Main Content */}
@@ -215,7 +240,7 @@ export default function HomeScreen() {
               <h1 className="text-3xl md:text-4xl font-bold mb-2">
                 {greeting}
               </h1>
-              <p className="text-gray-400">Ready to discover some music?</p>
+              <p className="text-gray-400">Feel The Music_Catch Beats</p>
             </motion.div>
 
             {/* Recently Played */}
@@ -242,7 +267,14 @@ export default function HomeScreen() {
                           alt={item.title}
                           className="w-full aspect-square object-cover rounded-md"
                         />
-                        <button className="absolute bottom-2 right-2 w-10 h-10 bg-neon-green rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all">
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setIsPlaying(!isPlaying);
+                          }}
+                          className="absolute bottom-2 right-2 w-10 h-10 bg-neon-green rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all"
+                        >
                           {item.isPlaying ? (
                             <Pause className="w-5 h-5 text-black" />
                           ) : (
@@ -286,7 +318,14 @@ export default function HomeScreen() {
                           alt={mix.title}
                           className="w-full aspect-square object-cover rounded-md"
                         />
-                        <button className="absolute bottom-2 right-2 w-10 h-10 bg-neon-green rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all">
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setIsPlaying(true);
+                          }}
+                          className="absolute bottom-2 right-2 w-10 h-10 bg-neon-green rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all"
+                        >
                           <Play className="w-5 h-5 text-black ml-0.5" />
                         </button>
                       </div>
@@ -324,7 +363,14 @@ export default function HomeScreen() {
                           alt={song.title}
                           className="w-12 h-12 object-cover rounded"
                         />
-                        <button className="absolute inset-0 bg-black/60 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setIsPlaying(true);
+                          }}
+                          className="absolute inset-0 bg-black/60 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
                           <Play className="w-5 h-5 text-white ml-0.5" />
                         </button>
                       </div>
@@ -381,6 +427,12 @@ export default function HomeScreen() {
             </motion.section>
           </div>
         </div>
+
+        {/* Mini Player */}
+        <MiniPlayer
+          isPlaying={isPlaying}
+          onTogglePlay={() => setIsPlaying(!isPlaying)}
+        />
 
         {/* Bottom Navigation */}
         <div className="fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur-sm border-t border-white/10 px-4 py-2 z-20">
