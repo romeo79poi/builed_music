@@ -295,7 +295,14 @@ export default function HomeScreen() {
                           alt={mix.title}
                           className="w-full aspect-square object-cover rounded-md"
                         />
-                        <button className="absolute bottom-2 right-2 w-10 h-10 bg-neon-green rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all">
+                        <button
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setIsPlaying(true);
+                          }}
+                          className="absolute bottom-2 right-2 w-10 h-10 bg-neon-green rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all"
+                        >
                           <Play className="w-5 h-5 text-black ml-0.5" />
                         </button>
                       </div>
