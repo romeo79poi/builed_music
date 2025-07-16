@@ -122,11 +122,6 @@ export function MusicCatchLogo({
             />
           </div>
 
-          {/* Side dots */}
-          <motion.div
-            variants={barVariants}
-            className="absolute -left-8 top-1/2 transform -translate-y-1/2 w-2 h-2 bg-neon-green rounded-full"
-          />
           <motion.div
             variants={barVariants}
             className="absolute -right-8 top-1/2 transform -translate-y-1/2 w-3 h-3 bg-neon-blue rounded-full"
