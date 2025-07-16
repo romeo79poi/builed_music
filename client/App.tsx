@@ -11,6 +11,8 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Home from "./pages/Home";
 import Search from "./pages/Search";
+import Player from "./pages/Player";
+import Profile from "./pages/Profile";
 import { PlaceholderPage } from "./components/PlaceholderPage";
 import NotFound from "./pages/NotFound";
 
@@ -28,24 +30,8 @@ const App = () => (
           <Route path="/signup" element={<Signup />} />
           <Route path="/home" element={<Home />} />
           <Route path="/search" element={<Search />} />
-          <Route
-            path="/player"
-            element={
-              <PlaceholderPage
-                title="Music Player"
-                description="Control your music playback with beautiful visualizations. Continue prompting to build the player interface."
-              />
-            }
-          />
-          <Route
-            path="/profile"
-            element={
-              <PlaceholderPage
-                title="Your Profile"
-                description="Manage your subscription, settings, and preferences. Continue prompting to build the profile screen."
-              />
-            }
-          />
+          <Route path="/player" element={<Player />} />
+          <Route path="/profile" element={<Profile />} />
           <Route
             path="/history"
             element={
