@@ -19,6 +19,7 @@ import { MiniPlayer } from "../components/MiniPlayer";
 export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [greeting, setGreeting] = useState("");
+  const [isPlaying, setIsPlaying] = useState(true);
 
   useEffect(() => {
     const hour = new Date().getHours();
