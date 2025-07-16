@@ -333,6 +333,38 @@ export default function Search() {
             </div>
           </motion.div>
         </div>
+
+        {/* Bottom Navigation */}
+        <div className="fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur-sm border-t border-white/10 px-4 py-2 z-20">
+          <div className="flex items-center justify-around max-w-md mx-auto">
+            <Link to="/home" className="flex flex-col items-center py-2">
+              <Home className="w-6 h-6 text-gray-400 mb-1" />
+              <span className="text-gray-400 text-xs">Home</span>
+            </Link>
+
+            <Link to="/search" className="flex flex-col items-center py-2">
+              <SearchIcon className="w-6 h-6 text-neon-green mb-1" />
+              <span className="text-neon-green text-xs font-medium">
+                Search
+              </span>
+            </Link>
+
+            <Link to="/library" className="flex flex-col items-center py-2">
+              <Library className="w-6 h-6 text-gray-400 mb-1" />
+              <span className="text-gray-400 text-xs">Library</span>
+            </Link>
+
+            <Link to="/history" className="flex flex-col items-center py-2">
+              <Clock className="w-6 h-6 text-gray-400 mb-1" />
+              <span className="text-gray-400 text-xs">History</span>
+            </Link>
+
+            <Link to="/profile" className="flex flex-col items-center py-2">
+              <User className="w-6 h-6 text-gray-400 mb-1" />
+              <span className="text-gray-400 text-xs">Profile</span>
+            </Link>
+          </div>
+        </div>
       </div>
     </div>
   );
