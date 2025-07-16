@@ -45,21 +45,30 @@ export default function Login() {
           transition={{ delay: 0.5, duration: 0.8 }}
           className="space-y-4 mb-8"
         >
-          <button className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-full flex items-center justify-center text-white font-medium hover:bg-slate-700/50 transition-colors">
+          <button
+            onClick={handleLogin}
+            className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-full flex items-center justify-center text-white font-medium hover:bg-slate-700/50 transition-colors"
+          >
             <div className="w-6 h-6 mr-3 bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 rounded-full flex items-center justify-center">
               <span className="text-white text-sm font-bold">G</span>
             </div>
             Continue with Google
           </button>
 
-          <button className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-full flex items-center justify-center text-white font-medium hover:bg-slate-700/50 transition-colors">
+          <button
+            onClick={handleLogin}
+            className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-full flex items-center justify-center text-white font-medium hover:bg-slate-700/50 transition-colors"
+          >
             <div className="w-6 h-6 mr-3 bg-blue-600 rounded-full flex items-center justify-center">
               <span className="text-white text-sm font-bold">f</span>
             </div>
             Continue with Facebook
           </button>
 
-          <button className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-full flex items-center justify-center text-white font-medium hover:bg-slate-700/50 transition-colors">
+          <button
+            onClick={handleLogin}
+            className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-full flex items-center justify-center text-white font-medium hover:bg-slate-700/50 transition-colors"
+          >
             Continue with phone number
           </button>
         </motion.div>
