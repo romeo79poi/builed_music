@@ -56,7 +56,7 @@ export function MusicCatchLogo({
       initial="hidden"
       animate="visible"
     >
-      <div className="relative">
+      <div className="relative flex flex-col">
         {/* Circular background with gradient */}
         <div className="w-32 h-32 rounded-full bg-gradient-to-br from-neon-green via-emerald-400 to-neon-blue opacity-20 absolute -inset-4 blur-xl"></div>
 
