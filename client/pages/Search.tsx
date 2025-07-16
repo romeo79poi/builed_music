@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -11,25 +11,11 @@ import {
   SkipBack,
   SkipForward,
   MoreHorizontal,
-  Home,
-  Library,
-  Clock,
-  User,
 } from "lucide-react";
 
 export default function Search() {
-  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTab, setSelectedTab] = useState("MOODS");
-
-  const handleSearch = () => {
-    // In a real app, you'd perform the actual search here
-    console.log("Searching for:", searchQuery);
-  };
-
-  const playTrack = (trackId: number) => {
-    navigate("/player");
-  };
 
   const tabs = ["MOODS", "MODEMS", "CATGOIRS", "MAUIO", "NIFAUDS"];
 
@@ -152,15 +138,12 @@ export default function Search() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                onKeyPress={(e) => e.key === "Enter" && handleSearch()}
                 placeholder="Search Catch"
                 className="w-full h-12 bg-white rounded-full pl-12 pr-4 text-black placeholder-slate-500 focus:outline-none"
               />
+              <SearchIcon className="absolute right-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
             </div>
-            <button
-              onClick={handleSearch}
-              className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center hover:bg-purple-700 transition-colors"
-            >
+            <button className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center">
               <SearchIcon className="w-5 h-5 text-white" />
             </button>
           </motion.div>
@@ -233,7 +216,6 @@ export default function Search() {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.5 + index * 0.1, duration: 0.6 }}
-                  onClick={() => setSelectedTab(category.title.toUpperCase())}
                   className={`aspect-square rounded-2xl ${category.bgColor} ${category.textColor} flex flex-col items-center justify-center cursor-pointer hover:scale-105 transition-transform`}
                 >
                   <div className="text-3xl mb-2">{category.icon}</div>
@@ -253,7 +235,6 @@ export default function Search() {
             {moodResults.map((result, index) => (
               <div
                 key={result.id}
-                onClick={() => playTrack(result.id)}
                 className="bg-slate-800/50 rounded-lg p-4 backdrop-blur-sm hover:bg-slate-700/50 transition-colors cursor-pointer"
               >
                 <div className="flex items-center justify-between mb-3">
@@ -332,38 +313,6 @@ export default function Search() {
               ))}
             </div>
           </motion.div>
-        </div>
-
-        {/* Bottom Navigation */}
-        <div className="fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur-sm border-t border-white/10 px-4 py-2 z-20">
-          <div className="flex items-center justify-around max-w-md mx-auto">
-            <Link to="/home" className="flex flex-col items-center py-2">
-              <Home className="w-6 h-6 text-gray-400 mb-1" />
-              <span className="text-gray-400 text-xs">Home</span>
-            </Link>
-
-            <Link to="/search" className="flex flex-col items-center py-2">
-              <SearchIcon className="w-6 h-6 text-neon-green mb-1" />
-              <span className="text-neon-green text-xs font-medium">
-                Search
-              </span>
-            </Link>
-
-            <Link to="/library" className="flex flex-col items-center py-2">
-              <Library className="w-6 h-6 text-gray-400 mb-1" />
-              <span className="text-gray-400 text-xs">Library</span>
-            </Link>
-
-            <Link to="/history" className="flex flex-col items-center py-2">
-              <Clock className="w-6 h-6 text-gray-400 mb-1" />
-              <span className="text-gray-400 text-xs">History</span>
-            </Link>
-
-            <Link to="/profile" className="flex flex-col items-center py-2">
-              <User className="w-6 h-6 text-gray-400 mb-1" />
-              <span className="text-gray-400 text-xs">Profile</span>
-            </Link>
-          </div>
         </div>
       </div>
     </div>
