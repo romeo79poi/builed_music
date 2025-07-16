@@ -22,6 +22,16 @@ export default function HomeScreen() {
   const [greeting, setGreeting] = useState("");
   const [isPlaying, setIsPlaying] = useState(true);
 
+  const handleSearchClick = () => {
+    console.log("Navigating to search page...");
+    navigate("/search");
+  };
+
+  const handleProfileClick = () => {
+    console.log("Navigating to profile page...");
+    navigate("/profile");
+  };
+
   useEffect(() => {
     const hour = new Date().getHours();
     if (hour < 12) setGreeting("Good Morning");
