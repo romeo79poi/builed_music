@@ -14,8 +14,18 @@ import {
 } from "lucide-react";
 
 export default function Search() {
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTab, setSelectedTab] = useState("MOODS");
+
+  const handleSearch = () => {
+    // In a real app, you'd perform the actual search here
+    console.log("Searching for:", searchQuery);
+  };
+
+  const playTrack = (trackId: number) => {
+    navigate("/player");
+  };
 
   const tabs = ["MOODS", "MODEMS", "CATGOIRS", "MAUIO", "NIFAUDS"];
 
