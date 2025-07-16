@@ -9,7 +9,7 @@ export default function Signup() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 flex flex-col items-center justify-center p-6 relative overflow-hidden">
       {/* Background glow effect */}
-      <div className="absolute inset-0 bg-gradient-to-br from-neon-green/5 via-transparent to-neon-blue/5"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-neon-green/5 via-transparent to-neon-blue/5 bg-black"></div>
 
       <div className="relative z-10 w-full max-w-md">
         {/* Header */}
@@ -72,9 +72,9 @@ export default function Signup() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7, duration: 0.8 }}
-          className="mb-8"
+          className="mb-8 flex flex-col"
         >
-          <button className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-full flex items-center justify-center text-white font-medium hover:bg-slate-700/50 transition-colors">
+          <button className="w-full bg-slate-800/50 rounded-full flex justify-center text-white font-medium hover:bg-slate-700/50 transition-colors flex-row border-[0.727273px] border-slate-500">
             <div className="w-6 h-6 mr-3 bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 rounded-full flex items-center justify-center">
               <span className="text-white text-sm font-bold">G</span>
             </div>
