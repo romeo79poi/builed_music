@@ -4,7 +4,13 @@ import { motion } from "framer-motion";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 
 export default function Login() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
+
+  const handleLogin = () => {
+    // In a real app, you'd validate credentials here
+    navigate("/home");
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 flex flex-col items-center justify-center p-6 relative overflow-hidden">
