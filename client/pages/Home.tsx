@@ -14,6 +14,7 @@ import {
   Clock,
 } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
+import { MiniPlayer } from "../components/MiniPlayer";
 
 export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState("");
