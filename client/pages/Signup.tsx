@@ -4,7 +4,13 @@ import { motion } from "framer-motion";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 
 export default function Signup() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
+
+  const handleSignup = () => {
+    // In a real app, you'd create account here
+    navigate("/home");
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 flex flex-col items-center justify-center p-6 relative overflow-hidden">
@@ -50,7 +56,10 @@ export default function Signup() {
             Use phone number instead.
           </p>
 
-          <button className="w-full h-14 bg-gradient-to-r from-neon-green to-emerald-400 rounded-full text-slate-900 font-bold text-lg hover:from-emerald-400 hover:to-neon-green transition-all transform hover:scale-105">
+          <button
+            onClick={handleSignup}
+            className="w-full h-14 bg-gradient-to-r from-neon-green to-emerald-400 rounded-full text-slate-900 font-bold text-lg hover:from-emerald-400 hover:to-neon-green transition-all transform hover:scale-105"
+          >
             Next
           </button>
         </motion.div>
@@ -74,7 +83,10 @@ export default function Signup() {
           transition={{ delay: 0.7, duration: 0.8 }}
           className="mb-8 flex flex-col"
         >
-          <button className="w-full bg-slate-800/50 rounded-full flex justify-center text-white font-medium hover:bg-slate-700/50 transition-colors flex-row border-[0.727273px] border-slate-500">
+          <button
+            onClick={handleSignup}
+            className="w-full h-14 bg-slate-800/50 rounded-full flex justify-center items-center text-white font-medium hover:bg-slate-700/50 transition-colors border-[0.727273px] border-slate-500"
+          >
             <div className="w-6 h-6 mr-3 bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 rounded-full flex items-center justify-center">
               <span className="text-white text-sm font-bold">G</span>
             </div>
