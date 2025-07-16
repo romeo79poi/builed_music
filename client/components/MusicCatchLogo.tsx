@@ -61,7 +61,7 @@ export function MusicCatchLogo({
         <div className="w-32 h-32 rounded-full bg-gradient-to-br from-neon-green via-emerald-400 to-neon-blue opacity-20 absolute -inset-4 blur-xl"></div>
 
         {/* Main logo container */}
-        <div className="relative w-24 h-24 flex items-center justify-center">
+        <div className="relative w-15 justify-center flex flex-row items-start">
           {/* Left side bars */}
           <div className="absolute left-0 flex items-end space-x-1">
             <motion.div
