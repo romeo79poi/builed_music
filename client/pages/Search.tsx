@@ -229,6 +229,7 @@ export default function Search() {
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.5 + index * 0.1, duration: 0.6 }}
+                  onClick={() => setSelectedTab(category.title.toUpperCase())}
                   className={`aspect-square rounded-2xl ${category.bgColor} ${category.textColor} flex flex-col items-center justify-center cursor-pointer hover:scale-105 transition-transform`}
                 >
                   <div className="text-3xl mb-2">{category.icon}</div>
