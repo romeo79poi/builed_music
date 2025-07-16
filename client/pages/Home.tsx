@@ -67,7 +67,9 @@ export default function Home() {
         {/* Header */}
         <div className="flex items-center justify-between p-6">
           <Headphones className="w-8 h-8 text-white" />
-          <User className="w-8 h-8 text-slate-300" />
+          <Link to="/profile" className="hover:scale-110 transition-transform">
+            <User className="w-8 h-8 text-slate-300" />
+          </Link>
         </div>
 
         {/* Main Content */}
@@ -83,9 +85,12 @@ export default function Home() {
             <p className="text-slate-300 mb-4">
               Some arythors. <span className="text-slate-400">Sterrice</span>
             </p>
-            <button className="bg-gradient-to-r from-neon-green to-emerald-400 px-8 py-3 rounded-full text-slate-900 font-bold hover:from-emerald-400 hover:to-neon-green transition-all">
+            <Link
+              to="/search"
+              className="bg-gradient-to-r from-neon-green to-emerald-400 px-8 py-3 rounded-full text-slate-900 font-bold hover:from-emerald-400 hover:to-neon-green transition-all inline-block"
+            >
               Searn now
-            </button>
+            </Link>
           </motion.div>
 
           {/* Trending Section */}
@@ -102,26 +107,27 @@ export default function Home() {
 
             <div className="grid grid-cols-3 gap-4">
               {trendingItems.map((item, index) => (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 + index * 0.1, duration: 0.8 }}
-                  className="relative aspect-square rounded-lg overflow-hidden group cursor-pointer"
-                >
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                  <div className="absolute bottom-2 left-2">
-                    <p className="text-white font-medium text-sm">
-                      {item.category}
-                    </p>
-                    <p className="text-slate-300 text-xs">{item.artist}</p>
-                  </div>
-                </motion.div>
+                <Link to="/player" key={item.id}>
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.5 + index * 0.1, duration: 0.8 }}
+                    className="relative aspect-square rounded-lg overflow-hidden group cursor-pointer"
+                  >
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                    <div className="absolute bottom-2 left-2">
+                      <p className="text-white font-medium text-sm">
+                        {item.category}
+                      </p>
+                      <p className="text-slate-300 text-xs">{item.artist}</p>
+                    </div>
+                  </motion.div>
+                </Link>
               ))}
             </div>
           </motion.div>
@@ -142,28 +148,31 @@ export default function Home() {
 
             <div className="space-y-3">
               {featuredPlaylists.map((playlist, index) => (
-                <motion.div
-                  key={playlist.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.9 + index * 0.1, duration: 0.8 }}
-                  className="flex items-center bg-slate-800/30 rounded-lg p-3 backdrop-blur-sm hover:bg-slate-700/30 transition-colors cursor-pointer"
-                >
-                  <img
-                    src={playlist.image}
-                    alt={playlist.title}
-                    className="w-12 h-12 rounded-lg object-cover mr-3"
-                  />
-                  <div className="flex-1">
-                    <h3 className="text-white font-medium">{playlist.title}</h3>
-                    <p className="text-slate-400 text-sm">
-                      {playlist.subtitle}
-                    </p>
-                  </div>
-                  <span className="text-neon-green text-sm font-medium">
-                    {playlist.percentage}
-                  </span>
-                </motion.div>
+                <Link to="/player" key={playlist.id}>
+                  <motion.div
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.9 + index * 0.1, duration: 0.8 }}
+                    className="flex items-center bg-slate-800/30 rounded-lg p-3 backdrop-blur-sm hover:bg-slate-700/30 transition-colors cursor-pointer"
+                  >
+                    <img
+                      src={playlist.image}
+                      alt={playlist.title}
+                      className="w-12 h-12 rounded-lg object-cover mr-3"
+                    />
+                    <div className="flex-1">
+                      <h3 className="text-white font-medium">
+                        {playlist.title}
+                      </h3>
+                      <p className="text-slate-400 text-sm">
+                        {playlist.subtitle}
+                      </p>
+                    </div>
+                    <span className="text-neon-green text-sm font-medium">
+                      {playlist.percentage}
+                    </span>
+                  </motion.div>
+                </Link>
               ))}
             </div>
           </motion.div>
