@@ -206,7 +206,14 @@ export default function HomeScreen() {
         {/* Top Bar */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
+          animate={{
+            opacity: 1,
+            y: isTopBarVisible ? 0 : -100,
+          }}
+          transition={{
+            duration: 0.3,
+            ease: "easeInOut",
+          }}
           className="flex items-center justify-between p-4 md:p-6 bg-black/60 backdrop-blur-sm sticky top-0 z-20"
         >
           {/* Profile Icon */}
