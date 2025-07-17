@@ -250,18 +250,6 @@ export default function HomeScreen() {
             title="Go to Search"
           >
             <div className="relative">
-              {/* Animated background rings */}
-              <div
-                className="absolute inset-0 w-10 h-10 bg-gradient-to-br from-cyan-400 via-blue-500 to-purple-600 rounded-full animate-spin"
-                style={{ animationDuration: "2.5s" }}
-              ></div>
-              <div
-                className="absolute inset-0.5 w-9 h-9 bg-gradient-to-br from-pink-500 via-red-500 to-orange-500 rounded-full animate-spin"
-                style={{
-                  animationDuration: "1.8s",
-                  animationDirection: "reverse",
-                }}
-              ></div>
               <div className="relative w-10 h-10 flex items-center justify-center">
                 <Search className="w-5 h-5 text-white z-10" />
               </div>
