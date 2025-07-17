@@ -247,22 +247,33 @@ export default function Signup() {
     setIsLoading(true);
 
     try {
-      await firebaseUser.reload();
-
-      if (firebaseUser.emailVerified) {
+      if (!isFirebaseConfigured) {
+        // Mock verification for development
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         setUserData((prev) => ({ ...prev, isEmailVerified: true }));
         setCurrentStep("profile-setup");
         toast({
-          title: "Email verified!",
+          title: "Email verified! (Development Mode)",
           description: "Your email has been successfully verified.",
         });
       } else {
-        toast({
-          title: "Email not verified yet",
-          description:
-            "Please check your email and click the verification link.",
-          variant: "destructive",
-        });
+        await firebaseUser.reload();
+
+        if (firebaseUser.emailVerified) {
+          setUserData((prev) => ({ ...prev, isEmailVerified: true }));
+          setCurrentStep("profile-setup");
+          toast({
+            title: "Email verified!",
+            description: "Your email has been successfully verified.",
+          });
+        } else {
+          toast({
+            title: "Email not verified yet",
+            description:
+              "Please check your email and click the verification link.",
+            variant: "destructive",
+          });
+        }
       }
     } catch (error) {
       toast({
