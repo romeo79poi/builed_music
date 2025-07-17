@@ -303,6 +303,7 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({
   const value: ProfileContextType = {
     profile,
     isEditing,
+    isLoading,
     editedProfile,
     setProfile,
     setIsEditing,
@@ -313,6 +314,7 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({
     addLikedSong,
     removeLikedSong,
     toggleLikedSong,
+    loadProfile,
   };
 
   return (
