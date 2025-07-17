@@ -482,21 +482,65 @@ export default function Profile() {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h3 className="text-lg font-semibold">Current Plan</h3>
-                <p className="text-gray-400 capitalize">{currentPlan}</p>
+                <div className="flex items-center space-x-2">
+                  <p className="text-gray-400 capitalize">
+                    {profile.subscription.plan}
+                  </p>
+                  {profile.subscription.plan === "premium" && (
+                    <Crown className="w-4 h-4 text-yellow-500" />
+                  )}
+                  {profile.subscription.status === "active" && (
+                    <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full">
+                      Active
+                    </span>
+                  )}
+                </div>
               </div>
-              {currentPlan === "free" && (
+              {profile.subscription.plan === "free" && (
                 <button
                   onClick={() => setShowUpgrade(true)}
-                  className="px-6 py-2 bg-gradient-to-r from-neon-green to-neon-blue rounded-full font-semibold text-black"
+                  className="px-6 py-2 bg-gradient-to-r from-neon-green to-neon-blue rounded-full font-semibold text-black hover:scale-105 transition-transform"
+                  disabled={isUpdatingSubscription}
                 >
-                  Upgrade
+                  {isUpdatingSubscription ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    "Upgrade"
+                  )}
                 </button>
               )}
             </div>
+
+            {/* Features List */}
+            <div className="mb-4">
+              <div className="flex flex-wrap gap-1">
+                {profile.subscription.features
+                  .slice(0, 3)
+                  .map((feature, index) => (
+                    <span
+                      key={index}
+                      className="text-xs bg-white/10 text-gray-300 px-2 py-1 rounded-full"
+                    >
+                      {feature}
+                    </span>
+                  ))}
+                {profile.subscription.features.length > 3 && (
+                  <span className="text-xs text-gray-400">
+                    +{profile.subscription.features.length - 3} more
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Stats */}
             <div className="flex items-center space-x-4 text-sm text-gray-400">
               <div className="flex items-center space-x-2">
                 <Headphones className="w-4 h-4" />
-                <span>{profile.recentlyPlayed.length + 429} songs played</span>
+                <span>
+                  {userStats?.totalSongsPlayed ||
+                    profile.recentlyPlayed.length + 429}{" "}
+                  songs played
+                </span>
               </div>
               <div className="flex items-center space-x-2">
                 <Heart className="w-4 h-4" />
