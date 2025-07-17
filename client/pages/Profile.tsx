@@ -19,6 +19,8 @@ import {
   MapPin,
   Calendar,
   Link as LinkIcon,
+  Instagram,
+  Twitter,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useProfileContext } from "../context/ProfileContext";
@@ -162,7 +164,64 @@ export default function Profile() {
           <h2 className="text-2xl font-bold mt-4">{profile.displayName}</h2>
           <p className="text-gray-400">@{profile.username}</p>
           {profile.bio && (
-            <p className="text-gray-300 mt-2 max-w-xs mx-auto">{profile.bio}</p>
+            <div className="mt-2 max-w-xs mx-auto">
+              <p className="text-gray-300 text-center leading-relaxed">
+                {profile.bio}
+              </p>
+
+              {/* Social Media Icons in Bio */}
+              {(profile.socialLinks.instagram ||
+                profile.socialLinks.twitter ||
+                profile.socialLinks.spotify ||
+                profile.socialLinks.appleMusic) && (
+                <div className="flex justify-center space-x-3 mt-3">
+                  {profile.socialLinks.instagram && (
+                    <a
+                      href={`https://instagram.com/${profile.socialLinks.instagram.replace("@", "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-8 h-8 bg-gradient-to-br from-pink-500 to-orange-500 rounded-full flex items-center justify-center text-white hover:scale-110 transition-transform shadow-lg"
+                      title="Follow on Instagram"
+                    >
+                      <Instagram className="w-4 h-4" />
+                    </a>
+                  )}
+                  {profile.socialLinks.twitter && (
+                    <a
+                      href={`https://twitter.com/${profile.socialLinks.twitter.replace("@", "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white hover:scale-110 transition-transform shadow-lg"
+                      title="Follow on Twitter"
+                    >
+                      <Twitter className="w-4 h-4" />
+                    </a>
+                  )}
+                  {profile.socialLinks.spotify && (
+                    <a
+                      href={`https://open.spotify.com/user/${profile.socialLinks.spotify}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-8 h-8 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white hover:scale-110 transition-transform shadow-lg"
+                      title="Follow on Spotify"
+                    >
+                      <Music className="w-4 h-4" />
+                    </a>
+                  )}
+                  {profile.socialLinks.appleMusic && (
+                    <a
+                      href={`https://music.apple.com/profile/${profile.socialLinks.appleMusic}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-8 h-8 bg-gradient-to-br from-gray-500 to-gray-700 rounded-full flex items-center justify-center text-white hover:scale-110 transition-transform shadow-lg"
+                      title="Follow on Apple Music"
+                    >
+                      <Music className="w-4 h-4" />
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
           )}
 
           {/* Stats */}
@@ -186,44 +245,6 @@ export default function Profile() {
               <p className="text-xs text-gray-400">Liked</p>
             </div>
           </div>
-
-          {/* Social Links */}
-          {(profile.socialLinks.instagram ||
-            profile.socialLinks.twitter ||
-            profile.socialLinks.spotify) && (
-            <div className="flex justify-center space-x-4 mt-4">
-              {profile.socialLinks.instagram && (
-                <a
-                  href={`https://instagram.com/${profile.socialLinks.instagram.replace("@", "")}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-8 h-8 bg-pink-500/20 rounded-full flex items-center justify-center text-pink-400 hover:bg-pink-500/30"
-                >
-                  <LinkIcon className="w-4 h-4" />
-                </a>
-              )}
-              {profile.socialLinks.twitter && (
-                <a
-                  href={`https://twitter.com/${profile.socialLinks.twitter.replace("@", "")}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center text-blue-400 hover:bg-blue-500/30"
-                >
-                  <LinkIcon className="w-4 h-4" />
-                </a>
-              )}
-              {profile.socialLinks.spotify && (
-                <a
-                  href={`https://open.spotify.com/user/${profile.socialLinks.spotify}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center text-green-400 hover:bg-green-500/30"
-                >
-                  <LinkIcon className="w-4 h-4" />
-                </a>
-              )}
-            </div>
-          )}
         </motion.div>
 
         {/* Recently Played */}
