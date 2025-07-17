@@ -17,25 +17,30 @@ import {
 } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useToast } from "../hooks/use-toast";
+import { auth } from "../lib/firebase";
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+  updateProfile,
+  onAuthStateChanged,
+  User as FirebaseUser,
+} from "firebase/auth";
 
 type SignupStep =
   | "email-input"
-  | "phone-input"
   | "email-verification"
-  | "phone-verification"
   | "profile-setup"
+  | "password-setup"
   | "google-connecting"
   | "success";
 
 interface UserData {
   email?: string;
-  phone?: string;
-  countryCode?: string;
+  name?: string;
   username?: string;
   password?: string;
   isGoogleUser?: boolean;
   isEmailVerified?: boolean;
-  isPhoneVerified?: boolean;
 }
 
 // Country codes data
@@ -57,14 +62,11 @@ export default function Signup() {
   const { toast } = useToast();
 
   const [currentStep, setCurrentStep] = useState<SignupStep>("email-input");
-  const [isPhoneMode, setIsPhoneMode] = useState(false);
   const [userData, setUserData] = useState<UserData>({});
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [verificationCode, setVerificationCode] = useState("");
   const [resendTimer, setResendTimer] = useState(0);
-  const [selectedCountry, setSelectedCountry] = useState(countryCodes[0]);
-  const [showCountryList, setShowCountryList] = useState(false);
+  const [firebaseUser, setFirebaseUser] = useState<FirebaseUser | null>(null);
 
   // Validation states
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -77,16 +79,27 @@ export default function Signup() {
     }
   }, [resendTimer]);
 
+  // Listen for auth state changes
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setFirebaseUser(user);
+      if (user && user.emailVerified && currentStep === "email-verification") {
+        setUserData((prev) => ({ ...prev, isEmailVerified: true }));
+        setCurrentStep("profile-setup");
+        toast({
+          title: "Email verified!",
+          description: "Your email has been successfully verified.",
+        });
+      }
+    });
+
+    return () => unsubscribe();
+  }, [currentStep, toast]);
+
   // Email validation
   const validateEmail = (email: string): boolean => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
-  };
-
-  // Phone validation
-  const validatePhone = (phone: string): boolean => {
-    const phoneRegex = /^\d{10,15}$/;
-    return phoneRegex.test(phone.replace(/\D/g, ""));
   };
 
   // Password validation
@@ -99,48 +112,55 @@ export default function Signup() {
     );
   };
 
-  // Handle email/phone signup
-  const handleSignup = async () => {
-    if (isPhoneMode) {
-      const phone = userData.phone?.trim();
-      if (!phone) {
-        setErrors({ phone: "Phone number is required" });
-        return;
-      }
-      if (!validatePhone(phone)) {
-        setErrors({ phone: "Please enter a valid phone number" });
-        return;
-      }
-    } else {
-      const email = userData.email?.trim();
-      if (!email) {
-        setErrors({ email: "Email is required" });
-        return;
-      }
-      if (!validateEmail(email)) {
-        setErrors({ email: "Please enter a valid email address" });
-        return;
-      }
+  // Handle email signup and send verification
+  const handleEmailSignup = async () => {
+    const email = userData.email?.trim();
+    if (!email) {
+      setErrors({ email: "Email is required" });
+      return;
+    }
+    if (!validateEmail(email)) {
+      setErrors({ email: "Please enter a valid email address" });
+      return;
     }
 
     setIsLoading(true);
     setErrors({});
 
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Create a temporary password for Firebase user creation
+      const tempPassword = Math.random().toString(36).slice(-8) + "A1!";
+
+      // Create user with email and temporary password
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        email,
+        tempPassword,
+      );
+
+      // Send email verification
+      await sendEmailVerification(userCredential.user);
 
       toast({
-        title: `Verification ${isPhoneMode ? "SMS" : "email"} sent!`,
-        description: `We've sent a verification code to your ${isPhoneMode ? "phone" : "email"}`,
+        title: "Verification email sent!",
+        description: "Please check your email and click the verification link.",
       });
 
       setResendTimer(60);
-      setCurrentStep(isPhoneMode ? "phone-verification" : "email-verification");
-    } catch (error) {
+      setCurrentStep("email-verification");
+    } catch (error: any) {
+      let errorMessage = "Failed to send verification email. Please try again.";
+
+      if (error.code === "auth/email-already-in-use") {
+        errorMessage =
+          "This email is already registered. Please try logging in instead.";
+      } else if (error.code === "auth/invalid-email") {
+        errorMessage = "Please enter a valid email address.";
+      }
+
       toast({
         title: "Error",
-        description: `Failed to send verification ${isPhoneMode ? "SMS" : "email"}. Please try again.`,
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -189,47 +209,62 @@ export default function Signup() {
     }
   };
 
-  // Handle verification code submission
-  const handleVerifyCode = async () => {
-    if (!verificationCode.trim() || verificationCode.length !== 6) {
-      setErrors({ code: "Please enter a valid 6-digit code" });
-      return;
-    }
+  // Handle email verification check
+  const handleCheckEmailVerification = async () => {
+    if (!firebaseUser) return;
 
     setIsLoading(true);
-    setErrors({});
 
     try {
-      // Simulate API verification
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await firebaseUser.reload();
 
-      if (isPhoneMode) {
-        setUserData((prev) => ({ ...prev, isPhoneVerified: true }));
-      } else {
+      if (firebaseUser.emailVerified) {
         setUserData((prev) => ({ ...prev, isEmailVerified: true }));
+        setCurrentStep("profile-setup");
+        toast({
+          title: "Email verified!",
+          description: "Your email has been successfully verified.",
+        });
+      } else {
+        toast({
+          title: "Email not verified yet",
+          description:
+            "Please check your email and click the verification link.",
+          variant: "destructive",
+        });
       }
-
-      toast({
-        title: "Verification successful!",
-        description: `Your ${isPhoneMode ? "phone" : "email"} has been verified`,
-      });
-
-      setCurrentStep("profile-setup");
     } catch (error) {
-      setErrors({ code: "Invalid verification code. Please try again." });
+      toast({
+        title: "Error",
+        description: "Failed to check verification status. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Handle profile completion
-  const handleCompleteSignup = async () => {
-    const { username, password } = userData;
+  // Handle profile setup
+  const handleProfileSetup = () => {
+    const { username, name } = userData;
 
     if (!username?.trim()) {
       setErrors({ username: "Username is required" });
       return;
     }
+
+    if (!name?.trim()) {
+      setErrors({ name: "Name is required" });
+      return;
+    }
+
+    setErrors({});
+    setCurrentStep("password-setup");
+  };
+
+  // Handle password setup and complete signup
+  const handleCompleteSignup = async () => {
+    const { password, username, name } = userData;
 
     if (!password?.trim()) {
       setErrors({ password: "Password is required" });
@@ -244,12 +279,19 @@ export default function Signup() {
       return;
     }
 
+    if (!firebaseUser) {
+      setErrors({ password: "Authentication error. Please try again." });
+      return;
+    }
+
     setIsLoading(true);
     setErrors({});
 
     try {
-      // Simulate account creation
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Update user profile with display name
+      await updateProfile(firebaseUser, {
+        displayName: name,
+      });
 
       toast({
         title: "Account created successfully!",
@@ -265,7 +307,7 @@ export default function Signup() {
     } catch (error) {
       toast({
         title: "Signup failed",
-        description: "Failed to create account. Please try again.",
+        description: "Failed to complete account setup. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -273,24 +315,24 @@ export default function Signup() {
     }
   };
 
-  // Handle resend verification
+  // Handle resend verification email
   const handleResendVerification = async () => {
-    if (resendTimer > 0) return;
+    if (resendTimer > 0 || !firebaseUser) return;
 
     setIsLoading(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await sendEmailVerification(firebaseUser);
 
       toast({
-        title: "Verification code resent!",
-        description: `New code sent to your ${isPhoneMode ? "phone" : "email"}`,
+        title: "Verification email resent!",
+        description: "Please check your email for the verification link.",
       });
 
       setResendTimer(60);
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to resend code. Please try again.",
+        description: "Failed to resend verification email. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -298,29 +340,13 @@ export default function Signup() {
     }
   };
 
-  // Switch between email and phone mode
-  const switchToPhoneMode = () => {
-    setIsPhoneMode(true);
-    setCurrentStep("phone-input");
-    setErrors({});
-  };
-
-  const switchToEmailMode = () => {
-    setIsPhoneMode(false);
-    setCurrentStep("email-input");
-    setErrors({});
-  };
-
   const goBack = () => {
-    if (currentStep === "phone-input") {
-      switchToEmailMode();
-    } else if (
-      currentStep === "email-verification" ||
-      currentStep === "phone-verification"
-    ) {
-      setCurrentStep(isPhoneMode ? "phone-input" : "email-input");
+    if (currentStep === "email-verification") {
+      setCurrentStep("email-input");
     } else if (currentStep === "profile-setup") {
-      setCurrentStep(isPhoneMode ? "phone-verification" : "email-verification");
+      setCurrentStep("email-verification");
+    } else if (currentStep === "password-setup") {
+      setCurrentStep("profile-setup");
     }
   };
 
