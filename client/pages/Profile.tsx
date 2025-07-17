@@ -623,15 +623,20 @@ export default function Profile() {
                       ))}
                     </ul>
 
-                    {currentPlan !== plan.id && (
+                    {profile.subscription.plan !== plan.id && (
                       <button
-                        onClick={() => {
-                          setCurrentPlan(plan.id);
-                          setShowUpgrade(false);
-                        }}
-                        className="w-full py-3 bg-gradient-to-r from-neon-green to-neon-blue rounded-xl font-semibold text-black"
+                        onClick={() => handleSubscriptionChange(plan.id)}
+                        disabled={isUpdatingSubscription}
+                        className="w-full py-3 bg-gradient-to-r from-neon-green to-neon-blue rounded-xl font-semibold text-black hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        Choose {plan.name}
+                        {isUpdatingSubscription ? (
+                          <div className="flex items-center justify-center space-x-2">
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span>Updating...</span>
+                          </div>
+                        ) : (
+                          `Choose ${plan.name}`
+                        )}
                       </button>
                     )}
                   </div>
