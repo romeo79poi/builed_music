@@ -43,6 +43,25 @@ export default function HomeScreen() {
     else setGreeting("Good Evening");
   }, []);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY < lastScrollY || currentScrollY < 50) {
+        // Scrolling up or near the top - show top bar
+        setIsTopBarVisible(true);
+      } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // Scrolling down and past threshold - hide top bar
+        setIsTopBarVisible(false);
+      }
+
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
+
   const recentlyPlayed = [
     {
       id: 1,
