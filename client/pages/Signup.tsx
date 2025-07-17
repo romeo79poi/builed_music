@@ -153,14 +153,15 @@ export default function Signup() {
       const tempPassword = Math.random().toString(36).slice(-8) + "A1!";
 
       // Create user with email and temporary password
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        tempPassword,
-      );
+      const userCredential =
+        await firebaseFunctions.createUserWithEmailAndPassword(
+          auth,
+          email,
+          tempPassword,
+        );
 
       // Send email verification
-      await sendEmailVerification(userCredential.user);
+      await firebaseFunctions.sendEmailVerification(userCredential.user);
 
       toast({
         title: "Verification email sent!",
