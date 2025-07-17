@@ -209,17 +209,23 @@ export default function HomeScreen() {
           </div>
 
           {/* Search Bar */}
-          <div className="max-w-[200px] relative group">
+          <div className="max-w-[240px] relative group">
             <div
               className="relative cursor-pointer"
               onClick={handleSearchClick}
               title="Go to Search"
             >
-              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 text-gray-400 group-hover:text-neon-green transition-colors" />
-              <div className="w-full bg-white/10 border border-white/20 rounded-full py-1 pl-6 pr-3 text-xs placeholder-gray-400 hover:bg-white/15 hover:border-neon-green/30 transition-all duration-200">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 group-hover:text-neon-green transition-colors z-10" />
+              <div className="w-full bg-white/10 border border-white/20 rounded-full py-2 pl-10 pr-4 text-sm placeholder-gray-400 hover:bg-white/15 hover:border-neon-green/30 transition-all duration-200 backdrop-blur-sm">
                 <span className="text-gray-400 group-hover:text-white transition-colors">
-                  Search...
+                  Search songs, artists...
                 </span>
+              </div>
+              {/* Enhanced search icon button */}
+              <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
+                <div className="w-6 h-6 bg-neon-green/20 hover:bg-neon-green/30 rounded-full flex items-center justify-center transition-all group-hover:scale-110">
+                  <Search className="w-3 h-3 text-neon-green" />
+                </div>
               </div>
             </div>
             <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
