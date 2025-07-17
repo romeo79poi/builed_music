@@ -194,7 +194,7 @@ export default function HomeScreen() {
             className="hover:scale-110 transition-transform relative group"
             title="Go to Profile"
           >
-            <div className="w-10 h-10 bg-gradient-to-br from-neon-green to-neon-blue rounded-full flex items-center justify-center shadow-lg group-hover:shadow-neon-green/50 p-0.5">
+            <div className="w-[42px] h-[42px] bg-gradient-to-br from-neon-green to-neon-blue rounded-full flex items-center justify-center shadow-lg group-hover:shadow-neon-green/50 p-0.5">
               {profile.profilePicture ? (
                 <div className="w-full h-full rounded-full overflow-hidden">
                   <img
