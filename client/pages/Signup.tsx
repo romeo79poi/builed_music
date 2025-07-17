@@ -343,7 +343,7 @@ export default function Signup() {
 
     setIsLoading(true);
     try {
-      await sendEmailVerification(firebaseUser);
+      await firebaseFunctions.sendEmailVerification(firebaseUser);
 
       toast({
         title: "Verification email resent!",
