@@ -136,6 +136,63 @@ export default function Profile() {
     navigate("/edit-profile");
   };
 
+  const handleRefreshProfile = async () => {
+    try {
+      await loadProfile();
+      await loadUserStats();
+      toast({
+        title: "Profile Refreshed",
+        description: "Profile data has been updated",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to refresh profile data",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDownloadedMusic = () => {
+    // Mock downloaded music functionality
+    toast({
+      title: "Downloaded Music",
+      description: `You have ${profile.subscription.plan === "free" ? 0 : 23} downloaded songs`,
+    });
+  };
+
+  const handleNotifications = () => {
+    // Mock notifications functionality
+    toast({
+      title: "Notifications",
+      description: "You have 3 new notifications",
+    });
+  };
+
+  const handleSettings = () => {
+    // Mock settings functionality
+    toast({
+      title: "Settings",
+      description: "Settings page will open here",
+    });
+  };
+
+  const handleHelp = () => {
+    // Mock help functionality
+    toast({
+      title: "Help & Support",
+      description: "Contact support at help@musiccatch.com",
+    });
+  };
+
+  const handleLogout = () => {
+    toast({
+      title: "Logged Out",
+      description: "You have been successfully logged out",
+    });
+    navigate("/login");
+  };
+
   const menuItems = [
     { icon: Edit3, label: "Edit Profile", action: handleEditProfile },
     {
@@ -148,11 +205,16 @@ export default function Profile() {
       label: "Recently Played",
       action: () => navigate("/history"),
     },
-    { icon: Download, label: "Downloaded Music", action: () => {} },
-    { icon: Bell, label: "Notifications", action: () => {} },
-    { icon: Settings, label: "Settings", action: () => {} },
-    { icon: HelpCircle, label: "Help & Support", action: () => {} },
-    { icon: LogOut, label: "Log Out", action: () => navigate("/login") },
+    {
+      icon: Download,
+      label: "Downloaded Music",
+      action: handleDownloadedMusic,
+    },
+    { icon: Bell, label: "Notifications", action: handleNotifications },
+    { icon: Settings, label: "Settings", action: handleSettings },
+    { icon: HelpCircle, label: "Help & Support", action: handleHelp },
+    { icon: RefreshCw, label: "Refresh Profile", action: handleRefreshProfile },
+    { icon: LogOut, label: "Log Out", action: handleLogout },
   ];
 
   return (
