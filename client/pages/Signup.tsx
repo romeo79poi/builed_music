@@ -14,13 +14,52 @@ import {
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useToast } from "../hooks/use-toast";
 import { auth } from "../lib/firebase";
-import {
-  createUserWithEmailAndPassword,
-  sendEmailVerification,
-  updateProfile,
-  onAuthStateChanged,
-  User as FirebaseUser,
-} from "firebase/auth";
+
+// Mock Firebase functions for development when Firebase is not configured
+const createMockUser = (email: string) => ({
+  uid: "mock-uid-" + Date.now(),
+  email,
+  emailVerified: false,
+  displayName: null,
+  reload: () => Promise.resolve(),
+});
+
+// Check if Firebase is properly configured
+const isFirebaseConfigured =
+  auth && typeof auth.onAuthStateChanged === "function";
+
+const mockFirebaseFunctions = {
+  createUserWithEmailAndPassword: (
+    auth: any,
+    email: string,
+    password: string,
+  ) => Promise.resolve({ user: createMockUser(email) }),
+  sendEmailVerification: (user: any) => {
+    console.log("Mock: Email verification sent to", user.email);
+    return Promise.resolve();
+  },
+  updateProfile: (user: any, profile: any) => {
+    console.log("Mock: Profile updated", profile);
+    return Promise.resolve();
+  },
+  onAuthStateChanged: (auth: any, callback: any) => {
+    // Return unsubscribe function
+    return () => {};
+  },
+};
+
+// Use real Firebase functions if configured, otherwise use mocks
+const firebaseFunctions = isFirebaseConfigured
+  ? {
+      createUserWithEmailAndPassword:
+        require("firebase/auth").createUserWithEmailAndPassword,
+      sendEmailVerification: require("firebase/auth").sendEmailVerification,
+      updateProfile: require("firebase/auth").updateProfile,
+      onAuthStateChanged: require("firebase/auth").onAuthStateChanged,
+    }
+  : mockFirebaseFunctions;
+
+type FirebaseUser = any;
 
 type SignupStep =
   | "email-input"
