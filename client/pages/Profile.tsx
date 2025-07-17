@@ -226,11 +226,120 @@ export default function Profile() {
           )}
         </motion.div>
 
+        {/* Recently Played */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mx-6 mb-6"
+        >
+          <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm border border-white/10">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Recently Played</h3>
+              <button
+                onClick={() => navigate("/history")}
+                className="text-neon-green text-sm hover:text-neon-blue transition-colors"
+              >
+                View All
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {profile.recentlyPlayed.slice(0, 3).map((songId, index) => {
+                // Mock recent songs data
+                const recentSongs = [
+                  {
+                    id: "1",
+                    title: "Blinding Lights",
+                    artist: "The Weeknd",
+                    image:
+                      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop",
+                    playedAt: "2 hours ago",
+                  },
+                  {
+                    id: "2",
+                    title: "Levitating",
+                    artist: "Dua Lipa",
+                    image:
+                      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=400&fit=crop",
+                    playedAt: "5 hours ago",
+                  },
+                  {
+                    id: "3",
+                    title: "Good 4 U",
+                    artist: "Olivia Rodrigo",
+                    image:
+                      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=400&fit=crop",
+                    playedAt: "1 day ago",
+                  },
+                ];
+                const song = recentSongs[index];
+                if (!song) return null;
+
+                return (
+                  <div key={song.id} className="flex items-center space-x-3">
+                    <img
+                      src={song.image}
+                      alt={song.title}
+                      className="w-12 h-12 rounded-lg object-cover"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium text-white truncate">
+                        {song.title}
+                      </h4>
+                      <p className="text-sm text-gray-400 truncate">
+                        {song.artist}
+                      </p>
+                    </div>
+                    <span className="text-xs text-gray-500">
+                      {song.playedAt}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* My Playlists Preview */}
+            <div className="mt-6 pt-4 border-t border-white/10">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="font-semibold">My Playlists</h4>
+                <button
+                  onClick={() => navigate("/library")}
+                  className="text-neon-green text-sm hover:text-neon-blue transition-colors"
+                >
+                  View All
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                {profile.playlists.slice(0, 2).map((playlist) => (
+                  <div
+                    key={playlist.id}
+                    className="bg-white/5 rounded-lg p-3 hover:bg-white/10 transition-colors cursor-pointer"
+                  >
+                    <img
+                      src={playlist.coverImage}
+                      alt={playlist.name}
+                      className="w-full aspect-square rounded-md object-cover mb-2"
+                    />
+                    <h5 className="font-medium text-sm truncate">
+                      {playlist.name}
+                    </h5>
+                    <p className="text-xs text-gray-400 truncate">
+                      {playlist.songs.length} songs
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
         {/* Subscription Status */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+          transition={{ delay: 0.5 }}
           className="mx-6 mb-6"
         >
           <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm border border-white/10">
@@ -356,7 +465,7 @@ export default function Profile() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
+          transition={{ delay: 0.7 }}
           className="px-6 space-y-2"
         >
           {menuItems.map((item, index) => (
@@ -376,7 +485,7 @@ export default function Profile() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
+          transition={{ delay: 0.9 }}
           className="px-6 py-8 text-center text-gray-500 text-sm"
         >
           <p>Music Catch v2.1.0</p>
