@@ -270,7 +270,7 @@ export default function Profile() {
                 <Check className="w-4 h-4 text-white" />
               </div>
             )}
-            {currentPlan === "premium" && (
+            {profile.subscription.plan === "premium" && (
               <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
                 <Crown className="w-4 h-4 text-black" />
               </div>
