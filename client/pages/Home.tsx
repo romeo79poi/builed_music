@@ -194,41 +194,27 @@ export default function HomeScreen() {
             className="hover:scale-110 transition-transform relative group"
             title="Go to Profile"
           >
-            <div className="relative">
-              {/* Animated background rings */}
-              <div
-                className="absolute inset-0 w-12 h-12 bg-gradient-to-br from-neon-green via-neon-blue to-purple-500 rounded-full animate-spin"
-                style={{ animationDuration: "3s" }}
-              ></div>
-              <div
-                className="absolute inset-0.5 w-11 h-11 bg-gradient-to-br from-purple-500 via-pink-500 to-neon-green rounded-full animate-spin"
-                style={{
-                  animationDuration: "2s",
-                  animationDirection: "reverse",
-                }}
-              ></div>
-              <div className="relative w-12 h-12 bg-gradient-to-br from-neon-green to-neon-blue rounded-full flex items-center justify-center shadow-lg group-hover:shadow-neon-green/50 p-0.5">
-                {profile.profilePicture ? (
-                  <div className="w-full h-full rounded-full overflow-hidden bg-gray-800">
-                    <img
-                      src={profile.profilePicture}
-                      alt={profile.displayName}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        console.log(
-                          "Image failed to load:",
-                          profile.profilePicture,
-                        );
-                        e.currentTarget.style.display = "none";
-                      }}
-                    />
-                  </div>
-                ) : (
-                  <div className="w-full h-full bg-black rounded-full flex items-center justify-center">
-                    <User className="w-6 h-6 text-white" />
-                  </div>
-                )}
-              </div>
+            <div className="w-12 h-12 bg-gradient-to-br from-neon-green to-neon-blue rounded-full flex items-center justify-center shadow-lg group-hover:shadow-neon-green/50 p-0.5">
+              {profile.profilePicture ? (
+                <div className="w-full h-full rounded-full overflow-hidden bg-gray-800">
+                  <img
+                    src={profile.profilePicture}
+                    alt={profile.displayName}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      console.log(
+                        "Image failed to load:",
+                        profile.profilePicture,
+                      );
+                      e.currentTarget.style.display = "none";
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className="w-full h-full bg-black rounded-full flex items-center justify-center">
+                  <User className="w-6 h-6 text-white" />
+                </div>
+              )}
             </div>
             <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
               Profile
