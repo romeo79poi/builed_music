@@ -311,7 +311,7 @@ export default function Signup() {
 
     try {
       // Update user profile with display name
-      await updateProfile(firebaseUser, {
+      await firebaseFunctions.updateProfile(firebaseUser, {
         displayName: name,
       });
 
