@@ -403,13 +403,6 @@ export default function Signup() {
                 )}
               </div>
 
-              <p
-                onClick={switchToPhoneMode}
-                className="text-neon-green text-sm underline hover:text-emerald-400 transition-colors cursor-pointer"
-              >
-                Use phone number instead.
-              </p>
-
               <button
                 onClick={handleSignup}
                 disabled={isLoading}
