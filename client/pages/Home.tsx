@@ -214,10 +214,14 @@ export default function HomeScreen() {
             className="hover:scale-110 transition-transform relative group"
             title="Go to Search"
           >
-            <div className="w-10 h-10 bg-gradient-to-br from-neon-green to-neon-blue rounded-full flex items-center justify-center shadow-lg group-hover:shadow-neon-green/50">
-              <Search className="w-5 h-5 text-black" />
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-purple-500/50 relative overflow-hidden">
+              {/* Animated background glow */}
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-400 via-pink-400 to-red-400 rounded-full opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+              {/* Inner glow ring */}
+              <div className="absolute inset-0.5 bg-gradient-to-br from-purple-300 via-pink-300 to-red-300 rounded-full opacity-30 group-hover:opacity-50 transition-opacity"></div>
+              <Search className="w-5 h-5 text-white relative z-10 drop-shadow-sm" />
             </div>
-            <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+            <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-purple-900/90 to-pink-900/90 text-white text-xs px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap backdrop-blur-sm">
               Search
             </div>
           </button>
