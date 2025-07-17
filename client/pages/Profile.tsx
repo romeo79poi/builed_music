@@ -137,17 +137,26 @@ export default function Profile() {
           className="px-6 py-8 text-center"
         >
           <div className="relative inline-block">
-            <div className="w-24 h-24 bg-gradient-to-br from-neon-green to-neon-blue rounded-full p-1">
-              <div className="w-full h-full bg-gray-800 rounded-full flex items-center justify-center overflow-hidden">
-                {profile.profilePicture ? (
-                  <img
-                    src={profile.profilePicture}
-                    alt={profile.displayName}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <User className="w-12 h-12 text-gray-400" />
-                )}
+            <div className="w-24 h-24 relative">
+              {/* Slow animated rotating border */}
+              <div
+                className="absolute inset-0 rounded-full bg-gradient-to-r from-neon-green via-neon-blue to-purple-400 opacity-70"
+                style={{ animation: "spin 3s linear infinite" }}
+              ></div>
+
+              {/* Main profile container */}
+              <div className="absolute inset-0.5 bg-gradient-to-br from-neon-green to-neon-blue rounded-full p-1">
+                <div className="w-full h-full bg-gray-800 rounded-full flex items-center justify-center overflow-hidden">
+                  {profile.profilePicture ? (
+                    <img
+                      src={profile.profilePicture}
+                      alt={profile.displayName}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <User className="w-12 h-12 text-gray-400" />
+                  )}
+                </div>
               </div>
             </div>
             {profile.isVerified && (
