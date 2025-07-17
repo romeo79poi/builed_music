@@ -15,11 +15,19 @@ import {
   Bell,
   HelpCircle,
   LogOut,
+  Edit3,
+  MapPin,
+  Calendar,
+  Link as LinkIcon,
+  Instagram,
+  Twitter,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useProfileContext } from "../context/ProfileContext";
 
 export default function Profile() {
   const navigate = useNavigate();
+  const { profile, setIsEditing } = useProfileContext();
   const [currentPlan, setCurrentPlan] = useState("free");
   const [showUpgrade, setShowUpgrade] = useState(false);
 
@@ -70,10 +78,23 @@ export default function Profile() {
     },
   ];
 
+  const handleEditProfile = () => {
+    setIsEditing(true);
+    navigate("/edit-profile");
+  };
+
   const menuItems = [
-    { icon: User, label: "Edit Profile", action: () => {} },
-    { icon: Heart, label: "Liked Songs", action: () => {} },
-    { icon: History, label: "Recently Played", action: () => {} },
+    { icon: Edit3, label: "Edit Profile", action: handleEditProfile },
+    {
+      icon: Heart,
+      label: "Liked Songs",
+      action: () => navigate("/liked-songs"),
+    },
+    {
+      icon: History,
+      label: "Recently Played",
+      action: () => navigate("/history"),
+    },
     { icon: Download, label: "Downloaded Music", action: () => {} },
     { icon: Bell, label: "Notifications", action: () => {} },
     { icon: Settings, label: "Settings", action: () => {} },
@@ -117,28 +138,229 @@ export default function Profile() {
         >
           <div className="relative inline-block">
             <div className="w-24 h-24 bg-gradient-to-br from-neon-green to-neon-blue rounded-full p-1">
-              <div className="w-full h-full bg-gray-800 rounded-full flex items-center justify-center">
-                <User className="w-12 h-12 text-gray-400" />
+              <div className="w-full h-full bg-gray-800 rounded-full flex items-center justify-center overflow-hidden">
+                {profile.profilePicture ? (
+                  <img
+                    src={profile.profilePicture}
+                    alt={profile.displayName}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <User className="w-12 h-12 text-gray-400" />
+                )}
               </div>
             </div>
+            {profile.isVerified && (
+              <div className="absolute -top-1 -right-1 w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center">
+                <Check className="w-4 h-4 text-white" />
+              </div>
+            )}
             {currentPlan === "premium" && (
-              <div className="absolute -top-1 -right-1 w-8 h-8 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
+              <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
                 <Crown className="w-4 h-4 text-black" />
               </div>
             )}
           </div>
-          <h2 className="text-2xl font-bold mt-4">Bio Spectra</h2>
-          <p className="text-gray-400 capitalize">
-            {currentPlan} Member
-            {currentPlan === "premium" && " 👑"}
-          </p>
+          <h2 className="text-2xl font-bold mt-4">{profile.displayName}</h2>
+          <p className="text-gray-400">@{profile.username}</p>
+          {profile.bio && (
+            <div className="mt-2 max-w-xs mx-auto">
+              <p className="text-gray-300 text-center leading-relaxed">
+                {profile.bio}
+              </p>
+
+              {/* Social Media Icons in Bio */}
+              {(profile.socialLinks.instagram ||
+                profile.socialLinks.twitter ||
+                profile.socialLinks.spotify ||
+                profile.socialLinks.appleMusic) && (
+                <div className="flex justify-center space-x-3 mt-3">
+                  {profile.socialLinks.instagram && (
+                    <a
+                      href={`https://instagram.com/${profile.socialLinks.instagram.replace("@", "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-8 h-8 bg-gradient-to-br from-pink-500 to-orange-500 rounded-full flex items-center justify-center text-white hover:scale-110 transition-transform shadow-lg"
+                      title="Follow on Instagram"
+                    >
+                      <Instagram className="w-4 h-4" />
+                    </a>
+                  )}
+                  {profile.socialLinks.twitter && (
+                    <a
+                      href={`https://twitter.com/${profile.socialLinks.twitter.replace("@", "")}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white hover:scale-110 transition-transform shadow-lg"
+                      title="Follow on Twitter"
+                    >
+                      <Twitter className="w-4 h-4" />
+                    </a>
+                  )}
+                  {profile.socialLinks.spotify && (
+                    <a
+                      href={`https://open.spotify.com/user/${profile.socialLinks.spotify}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-8 h-8 bg-gradient-to-br from-green-400 to-green-600 rounded-full flex items-center justify-center text-white hover:scale-110 transition-transform shadow-lg"
+                      title="Follow on Spotify"
+                    >
+                      <Music className="w-4 h-4" />
+                    </a>
+                  )}
+                  {profile.socialLinks.appleMusic && (
+                    <a
+                      href={`https://music.apple.com/profile/${profile.socialLinks.appleMusic}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-8 h-8 bg-gradient-to-br from-gray-500 to-gray-700 rounded-full flex items-center justify-center text-white hover:scale-110 transition-transform shadow-lg"
+                      title="Follow on Apple Music"
+                    >
+                      <Music className="w-4 h-4" />
+                    </a>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Stats */}
+          <div className="flex justify-center space-x-8 mt-4">
+            <div className="text-center">
+              <p className="text-lg font-bold text-white">
+                {profile.followers.toLocaleString()}
+              </p>
+              <p className="text-xs text-gray-400">Followers</p>
+            </div>
+            <div className="text-center">
+              <p className="text-lg font-bold text-white">
+                {profile.following.toLocaleString()}
+              </p>
+              <p className="text-xs text-gray-400">Following</p>
+            </div>
+            <div className="text-center">
+              <p className="text-lg font-bold text-white">
+                {profile.likedSongs.length}
+              </p>
+              <p className="text-xs text-gray-400">Liked</p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Recently Played */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3 }}
+          className="mx-6 mb-6"
+        >
+          <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm border border-white/10">
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold">Recently Played</h3>
+              <button
+                onClick={() => navigate("/history")}
+                className="text-neon-green text-sm hover:text-neon-blue transition-colors"
+              >
+                View All
+              </button>
+            </div>
+
+            <div className="space-y-3">
+              {profile.recentlyPlayed.slice(0, 3).map((songId, index) => {
+                // Mock recent songs data
+                const recentSongs = [
+                  {
+                    id: "1",
+                    title: "Blinding Lights",
+                    artist: "The Weeknd",
+                    image:
+                      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop",
+                    playedAt: "2 hours ago",
+                  },
+                  {
+                    id: "2",
+                    title: "Levitating",
+                    artist: "Dua Lipa",
+                    image:
+                      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=400&fit=crop",
+                    playedAt: "5 hours ago",
+                  },
+                  {
+                    id: "3",
+                    title: "Good 4 U",
+                    artist: "Olivia Rodrigo",
+                    image:
+                      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&h=400&fit=crop",
+                    playedAt: "1 day ago",
+                  },
+                ];
+                const song = recentSongs[index];
+                if (!song) return null;
+
+                return (
+                  <div key={song.id} className="flex items-center space-x-3">
+                    <img
+                      src={song.image}
+                      alt={song.title}
+                      className="w-12 h-12 rounded-lg object-cover"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="font-medium text-white truncate">
+                        {song.title}
+                      </h4>
+                      <p className="text-sm text-gray-400 truncate">
+                        {song.artist}
+                      </p>
+                    </div>
+                    <span className="text-xs text-gray-500">
+                      {song.playedAt}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* My Playlists Preview */}
+            <div className="mt-6 pt-4 border-t border-white/10">
+              <div className="flex items-center justify-between mb-4">
+                <h4 className="font-semibold">My Playlists</h4>
+                <button
+                  onClick={() => navigate("/library")}
+                  className="text-neon-green text-sm hover:text-neon-blue transition-colors"
+                >
+                  View All
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                {profile.playlists.slice(0, 2).map((playlist) => (
+                  <div
+                    key={playlist.id}
+                    className="bg-white/5 rounded-lg p-3 hover:bg-white/10 transition-colors cursor-pointer"
+                  >
+                    <img
+                      src={playlist.coverImage}
+                      alt={playlist.name}
+                      className="w-full aspect-square rounded-md object-cover mb-2"
+                    />
+                    <h5 className="font-medium text-sm truncate">
+                      {playlist.name}
+                    </h5>
+                    <p className="text-xs text-gray-400 truncate">
+                      {playlist.songs.length} songs
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
         </motion.div>
 
         {/* Subscription Status */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+          transition={{ delay: 0.5 }}
           className="mx-6 mb-6"
         >
           <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm border border-white/10">
@@ -159,11 +381,15 @@ export default function Profile() {
             <div className="flex items-center space-x-4 text-sm text-gray-400">
               <div className="flex items-center space-x-2">
                 <Headphones className="w-4 h-4" />
-                <span>432 songs played</span>
+                <span>{profile.recentlyPlayed.length + 429} songs played</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Heart className="w-4 h-4" />
-                <span>89 liked</span>
+                <span>{profile.likedSongs.length} liked</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Music className="w-4 h-4" />
+                <span>{profile.playlists.length} playlists</span>
               </div>
             </div>
           </div>
@@ -260,7 +486,7 @@ export default function Profile() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
+          transition={{ delay: 0.7 }}
           className="px-6 space-y-2"
         >
           {menuItems.map((item, index) => (
@@ -280,7 +506,7 @@ export default function Profile() {
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
+          transition={{ delay: 0.9 }}
           className="px-6 py-8 text-center text-gray-500 text-sm"
         >
           <p>Music Catch v2.1.0</p>
