@@ -163,10 +163,19 @@ export default function Signup() {
       // Send email verification
       await firebaseFunctions.sendEmailVerification(userCredential.user);
 
-      toast({
-        title: "Verification email sent!",
-        description: "Please check your email and click the verification link.",
-      });
+      if (!isFirebaseConfigured) {
+        toast({
+          title: "Development Mode",
+          description:
+            "Email verification is mocked. Click 'I've verified my email' to continue.",
+        });
+      } else {
+        toast({
+          title: "Verification email sent!",
+          description:
+            "Please check your email and click the verification link.",
+        });
+      }
 
       setResendTimer(60);
       setCurrentStep("email-verification");
