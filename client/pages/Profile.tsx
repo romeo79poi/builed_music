@@ -493,50 +493,11 @@ export default function Profile() {
             <button
               key={index}
               onClick={item.action}
-              className={`w-full p-4 rounded-xl backdrop-blur-sm border border-white/10 flex items-center space-x-4 transition-all ${
-                item.label === "Edit Profile"
-                  ? "bg-white/5 hover:bg-white/10 relative overflow-hidden"
-                  : "bg-white/5 hover:bg-white/10"
-              }`}
+              className="w-full p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-white/10 flex items-center space-x-4 hover:bg-white/10 transition-all"
             >
-              {item.label === "Edit Profile" && (
-                <>
-                  {/* Animated background rings for Edit Profile */}
-                  <div
-                    className="absolute inset-0 bg-gradient-to-br from-neon-green via-neon-blue to-purple-500 rounded-xl animate-spin"
-                    style={{ animationDuration: "3s" }}
-                  ></div>
-                  <div
-                    className="absolute inset-0.5 bg-gradient-to-br from-purple-500 via-pink-500 to-neon-green rounded-xl animate-spin"
-                    style={{
-                      animationDuration: "2s",
-                      animationDirection: "reverse",
-                    }}
-                  ></div>
-                  <div className="absolute inset-1 bg-black/90 rounded-xl"></div>
-                </>
-              )}
-              <item.icon
-                className={`w-5 h-5 relative z-10 ${
-                  item.label === "Edit Profile"
-                    ? "text-neon-green"
-                    : "text-gray-400"
-                }`}
-              />
-              <span
-                className={`flex-1 text-left relative z-10 ${
-                  item.label === "Edit Profile" ? "text-white font-medium" : ""
-                }`}
-              >
-                {item.label}
-              </span>
-              <ArrowLeft
-                className={`w-4 h-4 rotate-180 relative z-10 ${
-                  item.label === "Edit Profile"
-                    ? "text-neon-green"
-                    : "text-gray-400"
-                }`}
-              />
+              <item.icon className="w-5 h-5 text-gray-400" />
+              <span className="flex-1 text-left">{item.label}</span>
+              <ArrowLeft className="w-4 h-4 text-gray-400 rotate-180" />
             </button>
           ))}
         </motion.div>
