@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -21,9 +21,13 @@ import {
   Link as LinkIcon,
   Instagram,
   Twitter,
+  Loader2,
+  RefreshCw,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useProfileContext } from "../context/ProfileContext";
+import { api } from "../lib/api";
+import { useToast } from "../hooks/use-toast";
 
 export default function Profile() {
   const navigate = useNavigate();
