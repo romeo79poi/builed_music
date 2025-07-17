@@ -581,7 +581,7 @@ export default function Profile() {
                   <div
                     key={plan.id}
                     className={`relative p-4 rounded-2xl border-2 transition-all ${
-                      currentPlan === plan.id
+                      profile.subscription.plan === plan.id
                         ? "border-neon-green bg-neon-green/10"
                         : "border-white/10 bg-white/5"
                     }`}
