@@ -185,19 +185,29 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({
 
   const saveProfile = async () => {
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setIsLoading(true);
+      const response = await api.profile.updateProfile(editedProfile);
 
-      const updatedProfile = { ...profile, ...editedProfile };
-      setProfile(updatedProfile);
-      setEditedProfile({});
-      setIsEditing(false);
+      if (response.success && response.profile) {
+        setProfile(response.profile);
+        setEditedProfile({});
+        setIsEditing(false);
 
-      // You would typically make an API call here
-      console.log("Profile saved:", updatedProfile);
+        toast({
+          title: "Success",
+          description: "Profile updated successfully",
+        });
+      }
     } catch (error) {
       console.error("Failed to save profile:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save profile changes",
+        variant: "destructive",
+      });
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -208,38 +218,83 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({
 
   const uploadProfilePicture = async (file: File): Promise<string> => {
     try {
-      // Simulate file upload
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      setIsLoading(true);
+      const response = await api.upload.uploadProfilePicture(file);
 
-      // Create a URL for the uploaded file (in real app, this would be from your CDN)
-      const imageUrl = URL.createObjectURL(file);
+      if (response.success && response.url) {
+        updateEditedProfile({ profilePicture: response.url });
 
-      updateEditedProfile({ profilePicture: imageUrl });
+        toast({
+          title: "Success",
+          description: "Profile picture uploaded successfully",
+        });
 
-      return imageUrl;
+        return response.url;
+      }
+
+      throw new Error("Upload failed");
     } catch (error) {
       console.error("Failed to upload profile picture:", error);
+      toast({
+        title: "Error",
+        description: "Failed to upload profile picture",
+        variant: "destructive",
+      });
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const addLikedSong = (songId: string) => {
-    if (!profile.likedSongs.includes(songId)) {
-      const updatedLikedSongs = [...profile.likedSongs, songId];
+  const addLikedSong = async (songId: string) => {
+    try {
+      if (!profile.likedSongs.includes(songId)) {
+        await api.profile.toggleLikedSong(songId);
+        const updatedLikedSongs = [...profile.likedSongs, songId];
+        setProfile((prev) => ({ ...prev, likedSongs: updatedLikedSongs }));
+
+        toast({
+          title: "Added to liked songs",
+          description: "Song added to your liked songs",
+        });
+      }
+    } catch (error) {
+      console.error("Failed to add liked song:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add song to liked songs",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const removeLikedSong = async (songId: string) => {
+    try {
+      await api.profile.toggleLikedSong(songId);
+      const updatedLikedSongs = profile.likedSongs.filter(
+        (id) => id !== songId,
+      );
       setProfile((prev) => ({ ...prev, likedSongs: updatedLikedSongs }));
+
+      toast({
+        title: "Removed from liked songs",
+        description: "Song removed from your liked songs",
+      });
+    } catch (error) {
+      console.error("Failed to remove liked song:", error);
+      toast({
+        title: "Error",
+        description: "Failed to remove song from liked songs",
+        variant: "destructive",
+      });
     }
   };
 
-  const removeLikedSong = (songId: string) => {
-    const updatedLikedSongs = profile.likedSongs.filter((id) => id !== songId);
-    setProfile((prev) => ({ ...prev, likedSongs: updatedLikedSongs }));
-  };
-
-  const toggleLikedSong = (songId: string) => {
+  const toggleLikedSong = async (songId: string) => {
     if (profile.likedSongs.includes(songId)) {
-      removeLikedSong(songId);
+      await removeLikedSong(songId);
     } else {
-      addLikedSong(songId);
+      await addLikedSong(songId);
     }
   };
 
