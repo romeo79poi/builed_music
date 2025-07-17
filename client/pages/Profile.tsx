@@ -609,7 +609,7 @@ export default function Profile() {
                           </span>
                         </div>
                       </div>
-                      {currentPlan === plan.id && (
+                      {profile.subscription.plan === plan.id && (
                         <Check className="w-6 h-6 text-neon-green" />
                       )}
                     </div>
