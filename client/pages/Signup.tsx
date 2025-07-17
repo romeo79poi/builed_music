@@ -14,6 +14,13 @@ import {
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useToast } from "../hooks/use-toast";
 import { auth } from "../lib/firebase";
+import {
+  createUserWithEmailAndPassword,
+  sendEmailVerification,
+  updateProfile,
+  onAuthStateChanged,
+  User as FirebaseUser,
+} from "firebase/auth";
 
 // Mock Firebase functions for development when Firebase is not configured
 const createMockUser = (email: string) => ({
@@ -51,15 +58,12 @@ const mockFirebaseFunctions = {
 // Use real Firebase functions if configured, otherwise use mocks
 const firebaseFunctions = isFirebaseConfigured
   ? {
-      createUserWithEmailAndPassword:
-        require("firebase/auth").createUserWithEmailAndPassword,
-      sendEmailVerification: require("firebase/auth").sendEmailVerification,
-      updateProfile: require("firebase/auth").updateProfile,
-      onAuthStateChanged: require("firebase/auth").onAuthStateChanged,
+      createUserWithEmailAndPassword,
+      sendEmailVerification,
+      updateProfile,
+      onAuthStateChanged,
     }
   : mockFirebaseFunctions;
-
-type FirebaseUser = any;
 
 type SignupStep =
   | "email-input"
