@@ -137,26 +137,32 @@ export default function Profile() {
           className="px-6 py-8 text-center"
         >
           <div className="relative inline-block">
-            {/* Animated background rings */}
-            <div
-              className="absolute inset-0 w-24 h-24 bg-gradient-to-br from-neon-green via-neon-blue to-purple-500 rounded-full animate-spin"
-              style={{ animationDuration: "4s" }}
-            ></div>
-            <div
-              className="absolute inset-1 w-22 h-22 bg-gradient-to-br from-purple-500 via-pink-500 to-neon-green rounded-full animate-spin"
-              style={{ animationDuration: "3s", animationDirection: "reverse" }}
-            ></div>
-            <div className="absolute inset-2 w-20 h-20 bg-gradient-to-br from-cyan-400 via-neon-blue to-neon-green rounded-full animate-pulse"></div>
-            <div className="relative w-24 h-24 flex items-center justify-center p-1">
-              <div className="w-22 h-22 bg-gray-800 rounded-full flex items-center justify-center overflow-hidden">
+            <div className="relative">
+              {/* Animated background rings */}
+              <div
+                className="absolute inset-0 w-24 h-24 bg-gradient-to-br from-neon-green via-neon-blue to-purple-500 rounded-full animate-spin"
+                style={{ animationDuration: "3s" }}
+              ></div>
+              <div
+                className="absolute inset-1 w-22 h-22 bg-gradient-to-br from-purple-500 via-pink-500 to-neon-green rounded-full animate-spin"
+                style={{
+                  animationDuration: "2s",
+                  animationDirection: "reverse",
+                }}
+              ></div>
+              <div className="relative w-24 h-24 flex items-center justify-center p-1">
                 {profile.profilePicture ? (
-                  <img
-                    src={profile.profilePicture}
-                    alt={profile.displayName}
-                    className="w-full h-full object-cover"
-                  />
+                  <div className="w-22 h-22 rounded-full overflow-hidden bg-gray-800">
+                    <img
+                      src={profile.profilePicture}
+                      alt={profile.displayName}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
                 ) : (
-                  <User className="w-12 h-12 text-gray-400" />
+                  <div className="w-22 h-22 bg-black rounded-full flex items-center justify-center">
+                    <User className="w-12 h-12 text-white" />
+                  </div>
                 )}
               </div>
             </div>
