@@ -137,17 +137,7 @@ export default function Profile() {
           className="px-6 py-8 text-center"
         >
           <div className="relative inline-block">
-            {/* Animated background rings */}
-            <div
-              className="absolute inset-0 w-24 h-24 bg-gradient-to-br from-neon-green via-neon-blue to-purple-500 rounded-full animate-spin"
-              style={{ animationDuration: "4s" }}
-            ></div>
-            <div
-              className="absolute inset-1 w-22 h-22 bg-gradient-to-br from-purple-500 via-pink-500 to-neon-green rounded-full animate-spin"
-              style={{ animationDuration: "3s", animationDirection: "reverse" }}
-            ></div>
-            <div className="absolute inset-2 w-20 h-20 bg-gradient-to-br from-cyan-400 via-neon-blue to-neon-green rounded-full animate-pulse"></div>
-            <div className="relative w-24 h-24 bg-gradient-to-br from-neon-green to-neon-blue rounded-full p-1">
+            <div className="w-24 h-24 bg-gradient-to-br from-neon-green to-neon-blue rounded-full p-1">
               <div className="w-full h-full bg-gray-800 rounded-full flex items-center justify-center overflow-hidden">
                 {profile.profilePicture ? (
                   <img
