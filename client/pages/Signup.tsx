@@ -9,55 +9,62 @@ import {
   EyeOff,
   Check,
   ArrowLeft,
-  ArrowRight,
   Shield,
   Loader2,
   User,
-  Calendar,
+  Globe,
   AlertCircle,
 } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
 import { useToast } from "../hooks/use-toast";
 
 type SignupStep =
-  | "method-selection"
-  | "email-signup"
-  | "phone-signup"
+  | "email-input"
+  | "phone-input"
   | "email-verification"
   | "phone-verification"
   | "profile-setup"
-  | "password-setup"
   | "google-connecting"
   | "success";
 
 interface UserData {
   email?: string;
   phone?: string;
-  firstName?: string;
-  lastName?: string;
-  birthDate?: string;
+  countryCode?: string;
+  username?: string;
   password?: string;
   isGoogleUser?: boolean;
   isEmailVerified?: boolean;
   isPhoneVerified?: boolean;
 }
 
+// Country codes data
+const countryCodes = [
+  { code: "+1", country: "US", flag: "🇺🇸" },
+  { code: "+1", country: "CA", flag: "🇨🇦" },
+  { code: "+44", country: "GB", flag: "🇬🇧" },
+  { code: "+33", country: "FR", flag: "🇫🇷" },
+  { code: "+49", country: "DE", flag: "🇩🇪" },
+  { code: "+81", country: "JP", flag: "🇯🇵" },
+  { code: "+86", country: "CN", flag: "🇨🇳" },
+  { code: "+91", country: "IN", flag: "🇮🇳" },
+  { code: "+55", country: "BR", flag: "🇧🇷" },
+  { code: "+61", country: "AU", flag: "🇦🇺" },
+];
+
 export default function Signup() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const [currentStep, setCurrentStep] =
-    useState<SignupStep>("method-selection");
-  const [signupMethod, setSignupMethod] = useState<
-    "email" | "phone" | "google" | null
-  >(null);
+  const [currentStep, setCurrentStep] = useState<SignupStep>("email-input");
+  const [isPhoneMode, setIsPhoneMode] = useState(false);
   const [userData, setUserData] = useState<UserData>({});
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [verificationCode, setVerificationCode] = useState("");
   const [resendTimer, setResendTimer] = useState(0);
+  const [selectedCountry, setSelectedCountry] = useState(countryCodes[0]);
+  const [showCountryList, setShowCountryList] = useState(false);
 
   // Validation states
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -78,8 +85,8 @@ export default function Signup() {
 
   // Phone validation
   const validatePhone = (phone: string): boolean => {
-    const phoneRegex = /^\+?[\d\s\-\(\)]{10,}$/;
-    return phoneRegex.test(phone);
+    const phoneRegex = /^\d{10,15}$/;
+    return phoneRegex.test(phone.replace(/\D/g, ""));
   };
 
   // Password validation
@@ -92,90 +99,48 @@ export default function Signup() {
     );
   };
 
-  // Handle method selection
-  const handleMethodSelection = (method: "email" | "phone" | "google") => {
-    setSignupMethod(method);
-
-    if (method === "google") {
-      handleGoogleSignup();
-    } else if (method === "email") {
-      setCurrentStep("email-signup");
+  // Handle email/phone signup
+  const handleSignup = async () => {
+    if (isPhoneMode) {
+      const phone = userData.phone?.trim();
+      if (!phone) {
+        setErrors({ phone: "Phone number is required" });
+        return;
+      }
+      if (!validatePhone(phone)) {
+        setErrors({ phone: "Please enter a valid phone number" });
+        return;
+      }
     } else {
-      setCurrentStep("phone-signup");
-    }
-  };
-
-  // Handle email signup
-  const handleEmailSignup = async () => {
-    const email = userData.email?.trim();
-
-    if (!email) {
-      setErrors({ email: "Email is required" });
-      return;
-    }
-
-    if (!validateEmail(email)) {
-      setErrors({ email: "Please enter a valid email address" });
-      return;
+      const email = userData.email?.trim();
+      if (!email) {
+        setErrors({ email: "Email is required" });
+        return;
+      }
+      if (!validateEmail(email)) {
+        setErrors({ email: "Please enter a valid email address" });
+        return;
+      }
     }
 
     setIsLoading(true);
     setErrors({});
 
     try {
-      // Simulate API call to send verification email
+      // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 2000));
 
       toast({
-        title: "Verification email sent!",
-        description: `We've sent a verification code to ${email}`,
+        title: `Verification ${isPhoneMode ? "SMS" : "email"} sent!`,
+        description: `We've sent a verification code to your ${isPhoneMode ? "phone" : "email"}`,
       });
 
       setResendTimer(60);
-      setCurrentStep("email-verification");
+      setCurrentStep(isPhoneMode ? "phone-verification" : "email-verification");
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to send verification email. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  // Handle phone signup
-  const handlePhoneSignup = async () => {
-    const phone = userData.phone?.trim();
-
-    if (!phone) {
-      setErrors({ phone: "Phone number is required" });
-      return;
-    }
-
-    if (!validatePhone(phone)) {
-      setErrors({ phone: "Please enter a valid phone number" });
-      return;
-    }
-
-    setIsLoading(true);
-    setErrors({});
-
-    try {
-      // Simulate API call to send SMS verification
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      toast({
-        title: "Verification SMS sent!",
-        description: `We've sent a verification code to ${phone}`,
-      });
-
-      setResendTimer(60);
-      setCurrentStep("phone-verification");
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to send verification SMS. Please try again.",
+        description: `Failed to send verification ${isPhoneMode ? "SMS" : "email"}. Please try again.`,
         variant: "destructive",
       });
     } finally {
@@ -195,8 +160,7 @@ export default function Signup() {
       // Simulate successful Google authentication
       const googleUserData = {
         email: "user@gmail.com",
-        firstName: "John",
-        lastName: "Doe",
+        username: "user123",
         isGoogleUser: true,
         isEmailVerified: true,
       };
@@ -219,7 +183,7 @@ export default function Signup() {
         description: "Failed to connect with Google. Please try again.",
         variant: "destructive",
       });
-      setCurrentStep("method-selection");
+      setCurrentStep("email-input");
     } finally {
       setIsLoading(false);
     }
@@ -239,15 +203,15 @@ export default function Signup() {
       // Simulate API verification
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
-      if (signupMethod === "email") {
-        setUserData((prev) => ({ ...prev, isEmailVerified: true }));
-      } else {
+      if (isPhoneMode) {
         setUserData((prev) => ({ ...prev, isPhoneVerified: true }));
+      } else {
+        setUserData((prev) => ({ ...prev, isEmailVerified: true }));
       }
 
       toast({
         title: "Verification successful!",
-        description: `Your ${signupMethod} has been verified`,
+        description: `Your ${isPhoneMode ? "phone" : "email"} has been verified`,
       });
 
       setCurrentStep("profile-setup");
@@ -258,44 +222,16 @@ export default function Signup() {
     }
   };
 
-  // Handle profile setup
-  const handleProfileSetup = () => {
-    const { firstName, lastName, birthDate } = userData;
+  // Handle profile completion
+  const handleCompleteSignup = async () => {
+    const { username, password } = userData;
 
-    if (!firstName?.trim()) {
-      setErrors({ firstName: "First name is required" });
+    if (!username?.trim()) {
+      setErrors({ username: "Username is required" });
       return;
     }
 
-    if (!lastName?.trim()) {
-      setErrors({ lastName: "Last name is required" });
-      return;
-    }
-
-    if (!birthDate) {
-      setErrors({ birthDate: "Birth date is required" });
-      return;
-    }
-
-    // Validate age (must be 13+)
-    const birth = new Date(birthDate);
-    const today = new Date();
-    const age = today.getFullYear() - birth.getFullYear();
-
-    if (age < 13) {
-      setErrors({ birthDate: "You must be at least 13 years old to sign up" });
-      return;
-    }
-
-    setErrors({});
-    setCurrentStep("password-setup");
-  };
-
-  // Handle password setup
-  const handlePasswordSetup = async () => {
-    const password = userData.password?.trim();
-
-    if (!password) {
+    if (!password?.trim()) {
       setErrors({ password: "Password is required" });
       return;
     }
@@ -347,7 +283,7 @@ export default function Signup() {
 
       toast({
         title: "Verification code resent!",
-        description: `New code sent to your ${signupMethod}`,
+        description: `New code sent to your ${isPhoneMode ? "phone" : "email"}`,
       });
 
       setResendTimer(60);
@@ -362,37 +298,36 @@ export default function Signup() {
     }
   };
 
+  // Switch between email and phone mode
+  const switchToPhoneMode = () => {
+    setIsPhoneMode(true);
+    setCurrentStep("phone-input");
+    setErrors({});
+  };
+
+  const switchToEmailMode = () => {
+    setIsPhoneMode(false);
+    setCurrentStep("email-input");
+    setErrors({});
+  };
+
   const goBack = () => {
-    switch (currentStep) {
-      case "email-signup":
-      case "phone-signup":
-        setCurrentStep("method-selection");
-        break;
-      case "email-verification":
-        setCurrentStep("email-signup");
-        break;
-      case "phone-verification":
-        setCurrentStep("phone-signup");
-        break;
-      case "profile-setup":
-        setCurrentStep(
-          signupMethod === "email"
-            ? "email-verification"
-            : "phone-verification",
-        );
-        break;
-      case "password-setup":
-        setCurrentStep("profile-setup");
-        break;
-      default:
-        setCurrentStep("method-selection");
+    if (currentStep === "phone-input") {
+      switchToEmailMode();
+    } else if (
+      currentStep === "email-verification" ||
+      currentStep === "phone-verification"
+    ) {
+      setCurrentStep(isPhoneMode ? "phone-input" : "email-input");
+    } else if (currentStep === "profile-setup") {
+      setCurrentStep(isPhoneMode ? "phone-verification" : "email-verification");
     }
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 flex flex-col items-center justify-center p-6 relative overflow-hidden">
       {/* Background glow effect */}
-      <div className="absolute inset-0 bg-gradient-to-br from-neon-green/5 via-transparent to-neon-blue/5"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-neon-green/5 via-transparent to-neon-blue/5 bg-black"></div>
 
       <div className="relative z-10 w-full max-w-md">
         {/* Header */}
@@ -410,100 +345,28 @@ export default function Signup() {
         </motion.div>
 
         <AnimatePresence mode="wait">
-          {/* Method Selection */}
-          {currentStep === "method-selection" && (
+          {/* Email Input */}
+          {currentStep === "email-input" && (
             <motion.div
-              key="method-selection"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-4"
+              key="email-input"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ delay: 0.3, duration: 0.8 }}
+              className="space-y-4 mb-6"
             >
-              <div className="text-center mb-6">
-                <h3 className="text-xl font-semibold text-white mb-2">
-                  Choose signup method
-                </h3>
-                <p className="text-slate-400">
-                  How would you like to create your account?
-                </p>
-              </div>
-
-              <Button
-                onClick={() => handleMethodSelection("google")}
-                className="w-full h-14 bg-white text-slate-900 font-medium hover:bg-slate-100 transition-colors"
-              >
-                <div className="w-6 h-6 mr-3 bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 rounded-full flex items-center justify-center">
-                  <span className="text-white text-sm font-bold">G</span>
-                </div>
-                Continue with Google
-              </Button>
-
-              <div className="flex items-center my-6">
-                <div className="flex-1 h-px bg-slate-600"></div>
-                <span className="px-4 text-slate-400 text-sm">or</span>
-                <div className="flex-1 h-px bg-slate-600"></div>
-              </div>
-
-              <Button
-                onClick={() => handleMethodSelection("email")}
-                variant="outline"
-                className="w-full h-14 border-slate-600 text-white hover:bg-slate-800"
-              >
-                <Mail className="w-5 h-5 mr-3" />
-                Sign up with Email
-              </Button>
-
-              <Button
-                onClick={() => handleMethodSelection("phone")}
-                variant="outline"
-                className="w-full h-14 border-slate-600 text-white hover:bg-slate-800"
-              >
-                <Phone className="w-5 h-5 mr-3" />
-                Sign up with Phone
-              </Button>
-            </motion.div>
-          )}
-
-          {/* Email Signup */}
-          {currentStep === "email-signup" && (
-            <motion.div
-              key="email-signup"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-6"
-            >
-              <div className="flex items-center mb-6">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={goBack}
-                  className="mr-4 text-white"
-                >
-                  <ArrowLeft className="w-5 h-5" />
-                </Button>
-                <div>
-                  <h3 className="text-xl font-semibold text-white">
-                    Enter your email
-                  </h3>
-                  <p className="text-slate-400 text-sm">
-                    We'll send you a verification code
-                  </p>
-                </div>
-              </div>
-
               <div>
                 <label className="block text-white text-sm font-medium mb-2">
                   Email address
                 </label>
-                <Input
+                <input
                   type="email"
                   value={userData.email || ""}
                   onChange={(e) =>
                     setUserData((prev) => ({ ...prev, email: e.target.value }))
                   }
                   placeholder="name@domain.com"
-                  className="w-full h-14 bg-slate-800/50 border-slate-600 text-white"
+                  className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors"
                   disabled={isLoading}
                 />
                 {errors.email && (
@@ -514,65 +377,105 @@ export default function Signup() {
                 )}
               </div>
 
-              <Button
-                onClick={handleEmailSignup}
-                disabled={isLoading || !userData.email?.trim()}
-                className="w-full h-14 bg-gradient-to-r from-neon-green to-emerald-400 text-slate-900 font-bold"
+              <p
+                onClick={switchToPhoneMode}
+                className="text-neon-green text-sm underline hover:text-emerald-400 transition-colors cursor-pointer"
+              >
+                Use phone number instead.
+              </p>
+
+              <button
+                onClick={handleSignup}
+                disabled={isLoading}
+                className="w-full h-14 bg-gradient-to-r from-neon-green to-emerald-400 rounded-full text-slate-900 font-bold text-lg hover:from-emerald-400 hover:to-neon-green transition-all transform hover:scale-105 disabled:opacity-50"
               >
                 {isLoading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Loader2 className="w-5 h-5 animate-spin mx-auto" />
                 ) : (
-                  <>
-                    Continue
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </>
+                  "Next"
                 )}
-              </Button>
+              </button>
             </motion.div>
           )}
 
-          {/* Phone Signup */}
-          {currentStep === "phone-signup" && (
+          {/* Phone Input */}
+          {currentStep === "phone-input" && (
             <motion.div
-              key="phone-signup"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-6"
+              key="phone-input"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ delay: 0.3, duration: 0.8 }}
+              className="space-y-4 mb-6"
             >
-              <div className="flex items-center mb-6">
-                <Button
-                  variant="ghost"
-                  size="sm"
+              <div className="flex items-center mb-4">
+                <button
                   onClick={goBack}
-                  className="mr-4 text-white"
+                  className="w-10 h-10 bg-slate-800/50 rounded-full flex items-center justify-center mr-4"
                 >
-                  <ArrowLeft className="w-5 h-5" />
-                </Button>
-                <div>
-                  <h3 className="text-xl font-semibold text-white">
-                    Enter your phone
-                  </h3>
-                  <p className="text-slate-400 text-sm">
-                    We'll send you a verification SMS
-                  </p>
-                </div>
+                  <ArrowLeft className="w-5 h-5 text-white" />
+                </button>
+                <h3 className="text-lg font-semibold text-white">
+                  Enter your phone number
+                </h3>
               </div>
 
               <div>
                 <label className="block text-white text-sm font-medium mb-2">
                   Phone number
                 </label>
-                <Input
-                  type="tel"
-                  value={userData.phone || ""}
-                  onChange={(e) =>
-                    setUserData((prev) => ({ ...prev, phone: e.target.value }))
-                  }
-                  placeholder="+1 (555) 123-4567"
-                  className="w-full h-14 bg-slate-800/50 border-slate-600 text-white"
-                  disabled={isLoading}
-                />
+                <div className="flex">
+                  {/* Country Code Selector */}
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => setShowCountryList(!showCountryList)}
+                      className="h-14 px-3 bg-slate-800/50 border border-slate-600 rounded-l-lg flex items-center space-x-2 text-white hover:bg-slate-700/50"
+                    >
+                      <span className="text-lg">{selectedCountry.flag}</span>
+                      <span className="text-sm">{selectedCountry.code}</span>
+                    </button>
+
+                    {/* Country Code Dropdown */}
+                    {showCountryList && (
+                      <div className="absolute top-full left-0 mt-1 bg-slate-800 border border-slate-600 rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto">
+                        {countryCodes.map((country, index) => (
+                          <button
+                            key={index}
+                            onClick={() => {
+                              setSelectedCountry(country);
+                              setUserData((prev) => ({
+                                ...prev,
+                                countryCode: country.code,
+                              }));
+                              setShowCountryList(false);
+                            }}
+                            className="w-full px-4 py-3 text-left hover:bg-slate-700 flex items-center space-x-3 text-white"
+                          >
+                            <span className="text-lg">{country.flag}</span>
+                            <span className="text-sm">
+                              {country.code} {country.country}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <input
+                    type="tel"
+                    value={userData.phone || ""}
+                    onChange={(e) =>
+                      setUserData((prev) => ({
+                        ...prev,
+                        phone: e.target.value.replace(/\D/g, ""),
+                      }))
+                    }
+                    placeholder="1234567890"
+                    className="flex-1 h-14 bg-slate-800/50 border border-slate-600 rounded-r-lg px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors"
+                    disabled={isLoading}
+                  />
+                </div>
                 {errors.phone && (
                   <p className="text-red-400 text-sm mt-2 flex items-center">
                     <AlertCircle className="w-4 h-4 mr-1" />
@@ -581,49 +484,50 @@ export default function Signup() {
                 )}
               </div>
 
-              <Button
-                onClick={handlePhoneSignup}
-                disabled={isLoading || !userData.phone?.trim()}
-                className="w-full h-14 bg-gradient-to-r from-neon-green to-emerald-400 text-slate-900 font-bold"
+              <p
+                onClick={switchToEmailMode}
+                className="text-neon-green text-sm underline hover:text-emerald-400 transition-colors cursor-pointer"
+              >
+                Use email instead.
+              </p>
+
+              <button
+                onClick={handleSignup}
+                disabled={isLoading}
+                className="w-full h-14 bg-gradient-to-r from-neon-green to-emerald-400 rounded-full text-slate-900 font-bold text-lg hover:from-emerald-400 hover:to-neon-green transition-all transform hover:scale-105 disabled:opacity-50"
               >
                 {isLoading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Loader2 className="w-5 h-5 animate-spin mx-auto" />
                 ) : (
-                  <>
-                    Continue
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                  </>
+                  "Next"
                 )}
-              </Button>
+              </button>
             </motion.div>
           )}
 
-          {/* Email/Phone Verification */}
+          {/* Verification Steps */}
           {(currentStep === "email-verification" ||
             currentStep === "phone-verification") && (
             <motion.div
               key="verification"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
               className="space-y-6"
             >
               <div className="flex items-center mb-6">
-                <Button
-                  variant="ghost"
-                  size="sm"
+                <button
                   onClick={goBack}
-                  className="mr-4 text-white"
+                  className="w-10 h-10 bg-slate-800/50 rounded-full flex items-center justify-center mr-4"
                 >
-                  <ArrowLeft className="w-5 h-5" />
-                </Button>
+                  <ArrowLeft className="w-5 h-5 text-white" />
+                </button>
                 <div>
-                  <h3 className="text-xl font-semibold text-white">
-                    Verify your {signupMethod}
+                  <h3 className="text-lg font-semibold text-white">
+                    Verify your {isPhoneMode ? "phone" : "email"}
                   </h3>
                   <p className="text-slate-400 text-sm">
-                    Enter the 6-digit code sent to{" "}
-                    {signupMethod === "email" ? userData.email : userData.phone}
+                    Enter the 6-digit code we sent
                   </p>
                 </div>
               </div>
@@ -635,10 +539,7 @@ export default function Signup() {
               </div>
 
               <div>
-                <label className="block text-white text-sm font-medium mb-2">
-                  Verification Code
-                </label>
-                <Input
+                <input
                   type="text"
                   value={verificationCode}
                   onChange={(e) =>
@@ -647,12 +548,12 @@ export default function Signup() {
                     )
                   }
                   placeholder="000000"
-                  className="w-full h-14 bg-slate-800/50 border-slate-600 text-white text-center text-2xl tracking-widest"
+                  className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-4 text-white text-center text-2xl tracking-widest focus:outline-none focus:border-neon-green"
                   maxLength={6}
                   disabled={isLoading}
                 />
                 {errors.code && (
-                  <p className="text-red-400 text-sm mt-2 flex items-center">
+                  <p className="text-red-400 text-sm mt-2 flex items-center justify-center">
                     <AlertCircle className="w-4 h-4 mr-1" />
                     {errors.code}
                   </p>
@@ -663,32 +564,28 @@ export default function Signup() {
                 <p className="text-slate-400 text-sm mb-2">
                   Didn't receive the code?
                 </p>
-                <Button
-                  variant="ghost"
+                <button
                   onClick={handleResendVerification}
                   disabled={resendTimer > 0 || isLoading}
-                  className="text-neon-green hover:text-emerald-400"
+                  className="text-neon-green hover:text-emerald-400 text-sm disabled:opacity-50"
                 >
                   {resendTimer > 0
                     ? `Resend in ${resendTimer}s`
                     : "Resend code"}
-                </Button>
+                </button>
               </div>
 
-              <Button
+              <button
                 onClick={handleVerifyCode}
                 disabled={isLoading || verificationCode.length !== 6}
-                className="w-full h-14 bg-gradient-to-r from-neon-green to-emerald-400 text-slate-900 font-bold"
+                className="w-full h-14 bg-gradient-to-r from-neon-green to-emerald-400 rounded-full text-slate-900 font-bold text-lg disabled:opacity-50"
               >
                 {isLoading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Loader2 className="w-5 h-5 animate-spin mx-auto" />
                 ) : (
-                  <>
-                    Verify
-                    <Check className="w-5 h-5 ml-2" />
-                  </>
+                  "Verify"
                 )}
-              </Button>
+              </button>
             </motion.div>
           )}
 
@@ -696,149 +593,50 @@ export default function Signup() {
           {currentStep === "profile-setup" && (
             <motion.div
               key="profile-setup"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-6"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="space-y-4 mb-6"
             >
               <div className="flex items-center mb-6">
-                <Button
-                  variant="ghost"
-                  size="sm"
+                <button
                   onClick={goBack}
-                  className="mr-4 text-white"
+                  className="w-10 h-10 bg-slate-800/50 rounded-full flex items-center justify-center mr-4"
                 >
-                  <ArrowLeft className="w-5 h-5" />
-                </Button>
+                  <ArrowLeft className="w-5 h-5 text-white" />
+                </button>
                 <div>
-                  <h3 className="text-xl font-semibold text-white">
+                  <h3 className="text-lg font-semibold text-white">
                     Complete your profile
                   </h3>
                   <p className="text-slate-400 text-sm">
-                    Tell us about yourself
+                    Create your username and password
                   </p>
-                </div>
-              </div>
-
-              <div className="text-center mb-6">
-                <div className="w-20 h-20 bg-gradient-to-br from-neon-green to-neon-blue rounded-full flex items-center justify-center mx-auto">
-                  <User className="w-10 h-10 text-white" />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-white text-sm font-medium mb-2">
-                    First Name
-                  </label>
-                  <Input
-                    type="text"
-                    value={userData.firstName || ""}
-                    onChange={(e) =>
-                      setUserData((prev) => ({
-                        ...prev,
-                        firstName: e.target.value,
-                      }))
-                    }
-                    placeholder="John"
-                    className="w-full h-12 bg-slate-800/50 border-slate-600 text-white"
-                  />
-                  {errors.firstName && (
-                    <p className="text-red-400 text-xs mt-1">
-                      {errors.firstName}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-white text-sm font-medium mb-2">
-                    Last Name
-                  </label>
-                  <Input
-                    type="text"
-                    value={userData.lastName || ""}
-                    onChange={(e) =>
-                      setUserData((prev) => ({
-                        ...prev,
-                        lastName: e.target.value,
-                      }))
-                    }
-                    placeholder="Doe"
-                    className="w-full h-12 bg-slate-800/50 border-slate-600 text-white"
-                  />
-                  {errors.lastName && (
-                    <p className="text-red-400 text-xs mt-1">
-                      {errors.lastName}
-                    </p>
-                  )}
                 </div>
               </div>
 
               <div>
                 <label className="block text-white text-sm font-medium mb-2">
-                  Birth Date
+                  Username
                 </label>
-                <Input
-                  type="date"
-                  value={userData.birthDate || ""}
+                <input
+                  type="text"
+                  value={userData.username || ""}
                   onChange={(e) =>
                     setUserData((prev) => ({
                       ...prev,
-                      birthDate: e.target.value,
+                      username: e.target.value,
                     }))
                   }
-                  className="w-full h-12 bg-slate-800/50 border-slate-600 text-white"
+                  placeholder="Choose a username"
+                  className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors"
                 />
-                {errors.birthDate && (
+                {errors.username && (
                   <p className="text-red-400 text-sm mt-2 flex items-center">
                     <AlertCircle className="w-4 h-4 mr-1" />
-                    {errors.birthDate}
+                    {errors.username}
                   </p>
                 )}
-              </div>
-
-              <Button
-                onClick={handleProfileSetup}
-                className="w-full h-14 bg-gradient-to-r from-neon-green to-emerald-400 text-slate-900 font-bold"
-              >
-                Continue
-                <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
-            </motion.div>
-          )}
-
-          {/* Password Setup */}
-          {currentStep === "password-setup" && (
-            <motion.div
-              key="password-setup"
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              className="space-y-6"
-            >
-              <div className="flex items-center mb-6">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={goBack}
-                  className="mr-4 text-white"
-                >
-                  <ArrowLeft className="w-5 h-5" />
-                </Button>
-                <div>
-                  <h3 className="text-xl font-semibold text-white">
-                    Create a password
-                  </h3>
-                  <p className="text-slate-400 text-sm">
-                    Choose a secure password for your account
-                  </p>
-                </div>
-              </div>
-
-              <div className="text-center mb-6">
-                <div className="w-16 h-16 bg-neon-green/20 rounded-full flex items-center justify-center mx-auto">
-                  <Lock className="w-8 h-8 text-neon-green" />
-                </div>
               </div>
 
               <div>
@@ -846,7 +644,7 @@ export default function Signup() {
                   Password
                 </label>
                 <div className="relative">
-                  <Input
+                  <input
                     type={showPassword ? "text" : "password"}
                     value={userData.password || ""}
                     onChange={(e) =>
@@ -855,22 +653,20 @@ export default function Signup() {
                         password: e.target.value,
                       }))
                     }
-                    placeholder="Enter your password"
-                    className="w-full h-14 bg-slate-800/50 border-slate-600 text-white pr-12"
+                    placeholder="Create a password"
+                    className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-4 pr-12 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors"
                   />
-                  <Button
+                  <button
                     type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white"
                     onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white"
                   >
                     {showPassword ? (
                       <EyeOff className="w-5 h-5" />
                     ) : (
                       <Eye className="w-5 h-5" />
                     )}
-                  </Button>
+                  </button>
                 </div>
                 {errors.password && (
                   <p className="text-red-400 text-sm mt-2 flex items-center">
@@ -878,84 +674,22 @@ export default function Signup() {
                     {errors.password}
                   </p>
                 )}
-
-                <div className="mt-3 space-y-1">
-                  <p className="text-slate-400 text-xs">
-                    Password must contain:
-                  </p>
-                  <div className="flex items-center text-xs">
-                    <div
-                      className={`w-2 h-2 rounded-full mr-2 ${userData.password && userData.password.length >= 8 ? "bg-green-500" : "bg-slate-600"}`}
-                    ></div>
-                    <span
-                      className={
-                        userData.password && userData.password.length >= 8
-                          ? "text-green-400"
-                          : "text-slate-400"
-                      }
-                    >
-                      At least 8 characters
-                    </span>
-                  </div>
-                  <div className="flex items-center text-xs">
-                    <div
-                      className={`w-2 h-2 rounded-full mr-2 ${userData.password && /[A-Z]/.test(userData.password) ? "bg-green-500" : "bg-slate-600"}`}
-                    ></div>
-                    <span
-                      className={
-                        userData.password && /[A-Z]/.test(userData.password)
-                          ? "text-green-400"
-                          : "text-slate-400"
-                      }
-                    >
-                      One uppercase letter
-                    </span>
-                  </div>
-                  <div className="flex items-center text-xs">
-                    <div
-                      className={`w-2 h-2 rounded-full mr-2 ${userData.password && /[a-z]/.test(userData.password) ? "bg-green-500" : "bg-slate-600"}`}
-                    ></div>
-                    <span
-                      className={
-                        userData.password && /[a-z]/.test(userData.password)
-                          ? "text-green-400"
-                          : "text-slate-400"
-                      }
-                    >
-                      One lowercase letter
-                    </span>
-                  </div>
-                  <div className="flex items-center text-xs">
-                    <div
-                      className={`w-2 h-2 rounded-full mr-2 ${userData.password && /\d/.test(userData.password) ? "bg-green-500" : "bg-slate-600"}`}
-                    ></div>
-                    <span
-                      className={
-                        userData.password && /\d/.test(userData.password)
-                          ? "text-green-400"
-                          : "text-slate-400"
-                      }
-                    >
-                      One number
-                    </span>
-                  </div>
-                </div>
+                <p className="text-slate-400 text-xs mt-1">
+                  Must be 8+ characters with uppercase, lowercase, and number
+                </p>
               </div>
 
-              <Button
-                onClick={handlePasswordSetup}
-                disabled={isLoading || !userData.password?.trim()}
-                className="w-full h-14 bg-gradient-to-r from-neon-green to-emerald-400 text-slate-900 font-bold"
+              <button
+                onClick={handleCompleteSignup}
+                disabled={isLoading}
+                className="w-full h-14 bg-gradient-to-r from-neon-green to-emerald-400 rounded-full text-slate-900 font-bold text-lg hover:from-emerald-400 hover:to-neon-green transition-all transform hover:scale-105 disabled:opacity-50"
               >
                 {isLoading ? (
-                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <Loader2 className="w-5 h-5 animate-spin mx-auto" />
                 ) : (
-                  <>
-                    Create Account
-                    <Check className="w-5 h-5 ml-2" />
-                  </>
+                  "Create Account"
                 )}
-              </Button>
+              </button>
             </motion.div>
           )}
 
@@ -996,8 +730,7 @@ export default function Signup() {
                 Welcome to Music Catch!
               </h3>
               <p className="text-slate-400 mb-6">
-                Your account has been created successfully
-                {userData.firstName && `, ${userData.firstName}`}!
+                Your account has been created successfully!
               </p>
               <div className="text-sm text-slate-500">
                 Redirecting to home page...
@@ -1006,13 +739,48 @@ export default function Signup() {
           )}
         </AnimatePresence>
 
-        {/* Footer */}
-        {currentStep === "method-selection" && (
+        {/* Divider - Only show on main email input screen */}
+        {currentStep === "email-input" && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
+            className="flex items-center my-6"
+          >
+            <div className="flex-1 h-px bg-slate-600"></div>
+            <span className="px-4 text-slate-400 text-sm">or</span>
+            <div className="flex-1 h-px bg-slate-600"></div>
+          </motion.div>
+        )}
+
+        {/* Google Signup Button - Only show on main email input screen */}
+        {currentStep === "email-input" && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7, duration: 0.8 }}
+            className="mb-8"
+          >
+            <button
+              onClick={handleGoogleSignup}
+              disabled={isLoading}
+              className="w-full h-14 bg-slate-800/50 rounded-full flex justify-center items-center text-white font-medium hover:bg-slate-700/50 transition-colors border-[0.727273px] border-slate-500 disabled:opacity-50"
+            >
+              <div className="w-6 h-6 mr-3 bg-gradient-to-r from-red-500 via-yellow-500 to-green-500 rounded-full flex items-center justify-center">
+                <span className="text-white text-sm font-bold">G</span>
+              </div>
+              Sign up with Google
+            </button>
+          </motion.div>
+        )}
+
+        {/* Footer - Only show on main email input screen */}
+        {currentStep === "email-input" && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 1, duration: 0.8 }}
-            className="text-center mt-8"
+            className="text-center"
           >
             <p className="text-slate-400 text-sm">
               Already have an account?{" "}
