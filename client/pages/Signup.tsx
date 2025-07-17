@@ -102,7 +102,7 @@ export default function Signup() {
 
   // Listen for auth state changes
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribe = firebaseFunctions.onAuthStateChanged(auth, (user) => {
       setFirebaseUser(user);
       if (user && user.emailVerified && currentStep === "email-verification") {
         setUserData((prev) => ({ ...prev, isEmailVerified: true }));
