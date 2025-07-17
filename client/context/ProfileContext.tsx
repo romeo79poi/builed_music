@@ -53,6 +53,7 @@ export interface SocialLinks {
 interface ProfileContextType {
   profile: UserProfile;
   isEditing: boolean;
+  isLoading: boolean;
   editedProfile: Partial<UserProfile>;
   setProfile: (profile: UserProfile) => void;
   setIsEditing: (editing: boolean) => void;
@@ -60,9 +61,10 @@ interface ProfileContextType {
   saveProfile: () => Promise<void>;
   cancelEditing: () => void;
   uploadProfilePicture: (file: File) => Promise<string>;
-  addLikedSong: (songId: string) => void;
-  removeLikedSong: (songId: string) => void;
-  toggleLikedSong: (songId: string) => void;
+  addLikedSong: (songId: string) => Promise<void>;
+  removeLikedSong: (songId: string) => Promise<void>;
+  toggleLikedSong: (songId: string) => Promise<void>;
+  loadProfile: () => Promise<void>;
 }
 
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
