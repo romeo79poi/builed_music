@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { MiniPlayer } from "../components/MiniPlayer";
+import { useProfileContext } from "../context/ProfileContext";
 
 export default function HomeScreen() {
   const navigate = useNavigate();
