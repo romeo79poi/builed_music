@@ -19,6 +19,7 @@ import { useProfileContext } from "../context/ProfileContext";
 
 export default function HomeScreen() {
   const navigate = useNavigate();
+  const { profile } = useProfileContext();
   const [searchQuery, setSearchQuery] = useState("");
   const [greeting, setGreeting] = useState("");
   const [isPlaying, setIsPlaying] = useState(true);
