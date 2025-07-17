@@ -15,11 +15,17 @@ import {
   Bell,
   HelpCircle,
   LogOut,
+  Edit3,
+  MapPin,
+  Calendar,
+  Link as LinkIcon,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useProfileContext } from "../context/ProfileContext";
 
 export default function Profile() {
   const navigate = useNavigate();
+  const { profile, setIsEditing } = useProfileContext();
   const [currentPlan, setCurrentPlan] = useState("free");
   const [showUpgrade, setShowUpgrade] = useState(false);
 
@@ -70,10 +76,23 @@ export default function Profile() {
     },
   ];
 
+  const handleEditProfile = () => {
+    setIsEditing(true);
+    navigate("/edit-profile");
+  };
+
   const menuItems = [
-    { icon: User, label: "Edit Profile", action: () => {} },
-    { icon: Heart, label: "Liked Songs", action: () => {} },
-    { icon: History, label: "Recently Played", action: () => {} },
+    { icon: Edit3, label: "Edit Profile", action: handleEditProfile },
+    {
+      icon: Heart,
+      label: "Liked Songs",
+      action: () => navigate("/liked-songs"),
+    },
+    {
+      icon: History,
+      label: "Recently Played",
+      action: () => navigate("/history"),
+    },
     { icon: Download, label: "Downloaded Music", action: () => {} },
     { icon: Bell, label: "Notifications", action: () => {} },
     { icon: Settings, label: "Settings", action: () => {} },
@@ -117,21 +136,94 @@ export default function Profile() {
         >
           <div className="relative inline-block">
             <div className="w-24 h-24 bg-gradient-to-br from-neon-green to-neon-blue rounded-full p-1">
-              <div className="w-full h-full bg-gray-800 rounded-full flex items-center justify-center">
-                <User className="w-12 h-12 text-gray-400" />
+              <div className="w-full h-full bg-gray-800 rounded-full flex items-center justify-center overflow-hidden">
+                {profile.profilePicture ? (
+                  <img
+                    src={profile.profilePicture}
+                    alt={profile.displayName}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <User className="w-12 h-12 text-gray-400" />
+                )}
               </div>
             </div>
+            {profile.isVerified && (
+              <div className="absolute -top-1 -right-1 w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center">
+                <Check className="w-4 h-4 text-white" />
+              </div>
+            )}
             {currentPlan === "premium" && (
-              <div className="absolute -top-1 -right-1 w-8 h-8 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
+              <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
                 <Crown className="w-4 h-4 text-black" />
               </div>
             )}
           </div>
-          <h2 className="text-2xl font-bold mt-4">Bio Spectra</h2>
-          <p className="text-gray-400 capitalize">
-            {currentPlan} Member
-            {currentPlan === "premium" && " 👑"}
-          </p>
+          <h2 className="text-2xl font-bold mt-4">{profile.displayName}</h2>
+          <p className="text-gray-400">@{profile.username}</p>
+          {profile.bio && (
+            <p className="text-gray-300 mt-2 max-w-xs mx-auto">{profile.bio}</p>
+          )}
+
+          {/* Stats */}
+          <div className="flex justify-center space-x-8 mt-4">
+            <div className="text-center">
+              <p className="text-lg font-bold text-white">
+                {profile.followers.toLocaleString()}
+              </p>
+              <p className="text-xs text-gray-400">Followers</p>
+            </div>
+            <div className="text-center">
+              <p className="text-lg font-bold text-white">
+                {profile.following.toLocaleString()}
+              </p>
+              <p className="text-xs text-gray-400">Following</p>
+            </div>
+            <div className="text-center">
+              <p className="text-lg font-bold text-white">
+                {profile.likedSongs.length}
+              </p>
+              <p className="text-xs text-gray-400">Liked</p>
+            </div>
+          </div>
+
+          {/* Social Links */}
+          {(profile.socialLinks.instagram ||
+            profile.socialLinks.twitter ||
+            profile.socialLinks.spotify) && (
+            <div className="flex justify-center space-x-4 mt-4">
+              {profile.socialLinks.instagram && (
+                <a
+                  href={`https://instagram.com/${profile.socialLinks.instagram.replace("@", "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-8 h-8 bg-pink-500/20 rounded-full flex items-center justify-center text-pink-400 hover:bg-pink-500/30"
+                >
+                  <LinkIcon className="w-4 h-4" />
+                </a>
+              )}
+              {profile.socialLinks.twitter && (
+                <a
+                  href={`https://twitter.com/${profile.socialLinks.twitter.replace("@", "")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-8 h-8 bg-blue-500/20 rounded-full flex items-center justify-center text-blue-400 hover:bg-blue-500/30"
+                >
+                  <LinkIcon className="w-4 h-4" />
+                </a>
+              )}
+              {profile.socialLinks.spotify && (
+                <a
+                  href={`https://open.spotify.com/user/${profile.socialLinks.spotify}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center text-green-400 hover:bg-green-500/30"
+                >
+                  <LinkIcon className="w-4 h-4" />
+                </a>
+              )}
+            </div>
+          )}
         </motion.div>
 
         {/* Subscription Status */}
@@ -159,11 +251,15 @@ export default function Profile() {
             <div className="flex items-center space-x-4 text-sm text-gray-400">
               <div className="flex items-center space-x-2">
                 <Headphones className="w-4 h-4" />
-                <span>432 songs played</span>
+                <span>{profile.recentlyPlayed.length + 429} songs played</span>
               </div>
               <div className="flex items-center space-x-2">
                 <Heart className="w-4 h-4" />
-                <span>89 liked</span>
+                <span>{profile.likedSongs.length} liked</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Music className="w-4 h-4" />
+                <span>{profile.playlists.length} playlists</span>
               </div>
             </div>
           </div>
