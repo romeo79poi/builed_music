@@ -195,9 +195,11 @@ export default function HomeScreen() {
             title="Go to Profile"
           >
             <div className="w-12 h-12 relative">
-              {/* Animated rotating border */}
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-neon-green via-neon-blue to-purple-500 animate-spin opacity-80"></div>
-              <div className="absolute inset-0 rounded-full bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 animate-pulse opacity-60"></div>
+              {/* Slow animated rotating border */}
+              <div
+                className="absolute inset-0 rounded-full bg-gradient-to-r from-neon-green via-neon-blue to-purple-400 opacity-70"
+                style={{ animation: "spin 3s linear infinite" }}
+              ></div>
 
               {/* Main profile container */}
               <div className="absolute inset-0.5 bg-gradient-to-br from-neon-green to-neon-blue rounded-full flex items-center justify-center shadow-lg group-hover:shadow-neon-green/50 p-0.5">
