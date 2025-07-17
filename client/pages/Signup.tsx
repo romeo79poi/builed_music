@@ -3,16 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Mail,
-  Phone,
   Lock,
   Eye,
   EyeOff,
   Check,
   ArrowLeft,
-  Shield,
   Loader2,
-  User,
-  Globe,
   AlertCircle,
 } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
@@ -42,20 +38,6 @@ interface UserData {
   isGoogleUser?: boolean;
   isEmailVerified?: boolean;
 }
-
-// Country codes data
-const countryCodes = [
-  { code: "+1", country: "US", flag: "🇺🇸" },
-  { code: "+1", country: "CA", flag: "🇨🇦" },
-  { code: "+44", country: "GB", flag: "🇬🇧" },
-  { code: "+33", country: "FR", flag: "🇫🇷" },
-  { code: "+49", country: "DE", flag: "🇩🇪" },
-  { code: "+81", country: "JP", flag: "🇯🇵" },
-  { code: "+86", country: "CN", flag: "🇨🇳" },
-  { code: "+91", country: "IN", flag: "🇮🇳" },
-  { code: "+55", country: "BR", flag: "🇧🇷" },
-  { code: "+61", country: "AU", flag: "🇦🇺" },
-];
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -98,7 +80,7 @@ export default function Signup() {
 
   // Email validation
   const validateEmail = (email: string): boolean => {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;
     return emailRegex.test(email);
   };
 
@@ -108,7 +90,7 @@ export default function Signup() {
       password.length >= 8 &&
       /[A-Z]/.test(password) &&
       /[a-z]/.test(password) &&
-      /\d/.test(password)
+      /\\d/.test(password)
     );
   };
 
@@ -404,129 +386,21 @@ export default function Signup() {
               </div>
 
               <button
-                onClick={handleSignup}
+                onClick={handleEmailSignup}
                 disabled={isLoading}
                 className="w-full h-14 bg-gradient-to-r from-neon-green to-emerald-400 rounded-full text-slate-900 font-bold text-lg hover:from-emerald-400 hover:to-neon-green transition-all transform hover:scale-105 disabled:opacity-50"
               >
                 {isLoading ? (
                   <Loader2 className="w-5 h-5 animate-spin mx-auto" />
                 ) : (
-                  "Next"
+                  "Send Verification Email"
                 )}
               </button>
             </motion.div>
           )}
 
-          {/* Phone Input */}
-          {currentStep === "phone-input" && (
-            <motion.div
-              key="phone-input"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ delay: 0.3, duration: 0.8 }}
-              className="space-y-4 mb-6"
-            >
-              <div className="flex items-center mb-4">
-                <button
-                  onClick={goBack}
-                  className="w-10 h-10 bg-slate-800/50 rounded-full flex items-center justify-center mr-4"
-                >
-                  <ArrowLeft className="w-5 h-5 text-white" />
-                </button>
-                <h3 className="text-lg font-semibold text-white">
-                  Enter your phone number
-                </h3>
-              </div>
-
-              <div>
-                <label className="block text-white text-sm font-medium mb-2">
-                  Phone number
-                </label>
-                <div className="flex">
-                  {/* Country Code Selector */}
-                  <div className="relative">
-                    <button
-                      type="button"
-                      onClick={() => setShowCountryList(!showCountryList)}
-                      className="h-14 px-3 bg-slate-800/50 border border-slate-600 rounded-l-lg flex items-center space-x-2 text-white hover:bg-slate-700/50"
-                    >
-                      <span className="text-lg">{selectedCountry.flag}</span>
-                      <span className="text-sm">{selectedCountry.code}</span>
-                    </button>
-
-                    {/* Country Code Dropdown */}
-                    {showCountryList && (
-                      <div className="absolute top-full left-0 mt-1 bg-slate-800 border border-slate-600 rounded-lg shadow-lg z-50 max-h-48 overflow-y-auto">
-                        {countryCodes.map((country, index) => (
-                          <button
-                            key={index}
-                            onClick={() => {
-                              setSelectedCountry(country);
-                              setUserData((prev) => ({
-                                ...prev,
-                                countryCode: country.code,
-                              }));
-                              setShowCountryList(false);
-                            }}
-                            className="w-full px-4 py-3 text-left hover:bg-slate-700 flex items-center space-x-3 text-white"
-                          >
-                            <span className="text-lg">{country.flag}</span>
-                            <span className="text-sm">
-                              {country.code} {country.country}
-                            </span>
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  <input
-                    type="tel"
-                    value={userData.phone || ""}
-                    onChange={(e) =>
-                      setUserData((prev) => ({
-                        ...prev,
-                        phone: e.target.value.replace(/\D/g, ""),
-                      }))
-                    }
-                    placeholder="1234567890"
-                    className="flex-1 h-14 bg-slate-800/50 border border-slate-600 rounded-r-lg px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors"
-                    disabled={isLoading}
-                  />
-                </div>
-                {errors.phone && (
-                  <p className="text-red-400 text-sm mt-2 flex items-center">
-                    <AlertCircle className="w-4 h-4 mr-1" />
-                    {errors.phone}
-                  </p>
-                )}
-              </div>
-
-              <p
-                onClick={switchToEmailMode}
-                className="text-neon-green text-sm underline hover:text-emerald-400 transition-colors cursor-pointer"
-              >
-                Use email instead.
-              </p>
-
-              <button
-                onClick={handleSignup}
-                disabled={isLoading}
-                className="w-full h-14 bg-gradient-to-r from-neon-green to-emerald-400 rounded-full text-slate-900 font-bold text-lg hover:from-emerald-400 hover:to-neon-green transition-all transform hover:scale-105 disabled:opacity-50"
-              >
-                {isLoading ? (
-                  <Loader2 className="w-5 h-5 animate-spin mx-auto" />
-                ) : (
-                  "Next"
-                )}
-              </button>
-            </motion.div>
-          )}
-
-          {/* Verification Steps */}
-          {(currentStep === "email-verification" ||
-            currentStep === "phone-verification") && (
+          {/* Email Verification */}
+          {currentStep === "email-verification" && (
             <motion.div
               key="verification"
               initial={{ opacity: 0, y: 20 }}
@@ -543,45 +417,43 @@ export default function Signup() {
                 </button>
                 <div>
                   <h3 className="text-lg font-semibold text-white">
-                    Verify your {isPhoneMode ? "phone" : "email"}
+                    Verify your email
                   </h3>
                   <p className="text-slate-400 text-sm">
-                    Enter the 6-digit code we sent
+                    Check your email and click the verification link
                   </p>
                 </div>
               </div>
 
               <div className="text-center">
                 <div className="w-16 h-16 bg-neon-green/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Shield className="w-8 h-8 text-neon-green" />
+                  <Mail className="w-8 h-8 text-neon-green" />
                 </div>
+                <p className="text-white mb-2">Verification email sent to:</p>
+                <p className="text-neon-green font-medium">{userData.email}</p>
               </div>
 
-              <div>
-                <input
-                  type="text"
-                  value={verificationCode}
-                  onChange={(e) =>
-                    setVerificationCode(
-                      e.target.value.replace(/\D/g, "").slice(0, 6),
-                    )
-                  }
-                  placeholder="000000"
-                  className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-4 text-white text-center text-2xl tracking-widest focus:outline-none focus:border-neon-green"
-                  maxLength={6}
+              <div className="text-center">
+                <p className="text-slate-400 text-sm mb-4">
+                  After clicking the verification link in your email, click the
+                  button below.
+                </p>
+                <button
+                  onClick={handleCheckEmailVerification}
                   disabled={isLoading}
-                />
-                {errors.code && (
-                  <p className="text-red-400 text-sm mt-2 flex items-center justify-center">
-                    <AlertCircle className="w-4 h-4 mr-1" />
-                    {errors.code}
-                  </p>
-                )}
+                  className="w-full h-14 bg-gradient-to-r from-neon-green to-emerald-400 rounded-full text-slate-900 font-bold text-lg hover:from-emerald-400 hover:to-neon-green transition-all transform hover:scale-105 disabled:opacity-50 mb-4"
+                >
+                  {isLoading ? (
+                    <Loader2 className="w-5 h-5 animate-spin mx-auto" />
+                  ) : (
+                    "I've verified my email"
+                  )}
+                </button>
               </div>
 
               <div className="text-center">
                 <p className="text-slate-400 text-sm mb-2">
-                  Didn't receive the code?
+                  Didn't receive the email?
                 </p>
                 <button
                   onClick={handleResendVerification}
@@ -590,21 +462,9 @@ export default function Signup() {
                 >
                   {resendTimer > 0
                     ? `Resend in ${resendTimer}s`
-                    : "Resend code"}
+                    : "Resend email"}
                 </button>
               </div>
-
-              <button
-                onClick={handleVerifyCode}
-                disabled={isLoading || verificationCode.length !== 6}
-                className="w-full h-14 bg-gradient-to-r from-neon-green to-emerald-400 rounded-full text-slate-900 font-bold text-lg disabled:opacity-50"
-              >
-                {isLoading ? (
-                  <Loader2 className="w-5 h-5 animate-spin mx-auto" />
-                ) : (
-                  "Verify"
-                )}
-              </button>
             </motion.div>
           )}
 
@@ -626,12 +486,36 @@ export default function Signup() {
                 </button>
                 <div>
                   <h3 className="text-lg font-semibold text-white">
-                    Complete your profile
+                    Set up your profile
                   </h3>
                   <p className="text-slate-400 text-sm">
-                    Create your username and password
+                    Tell us about yourself
                   </p>
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-white text-sm font-medium mb-2">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  value={userData.name || ""}
+                  onChange={(e) =>
+                    setUserData((prev) => ({
+                      ...prev,
+                      name: e.target.value,
+                    }))
+                  }
+                  placeholder="Enter your full name"
+                  className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors"
+                />
+                {errors.name && (
+                  <p className="text-red-400 text-sm mt-2 flex items-center">
+                    <AlertCircle className="w-4 h-4 mr-1" />
+                    {errors.name}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -656,6 +540,42 @@ export default function Signup() {
                     {errors.username}
                   </p>
                 )}
+              </div>
+
+              <button
+                onClick={handleProfileSetup}
+                disabled={isLoading}
+                className="w-full h-14 bg-gradient-to-r from-neon-green to-emerald-400 rounded-full text-slate-900 font-bold text-lg hover:from-emerald-400 hover:to-neon-green transition-all transform hover:scale-105 disabled:opacity-50"
+              >
+                Next
+              </button>
+            </motion.div>
+          )}
+
+          {/* Password Setup */}
+          {currentStep === "password-setup" && (
+            <motion.div
+              key="password-setup"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="space-y-4 mb-6"
+            >
+              <div className="flex items-center mb-6">
+                <button
+                  onClick={goBack}
+                  className="w-10 h-10 bg-slate-800/50 rounded-full flex items-center justify-center mr-4"
+                >
+                  <ArrowLeft className="w-5 h-5 text-white" />
+                </button>
+                <div>
+                  <h3 className="text-lg font-semibold text-white">
+                    Create your password
+                  </h3>
+                  <p className="text-slate-400 text-sm">
+                    Choose a secure password for your account
+                  </p>
+                </div>
               </div>
 
               <div>
