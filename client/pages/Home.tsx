@@ -23,6 +23,8 @@ export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [greeting, setGreeting] = useState("");
   const [isPlaying, setIsPlaying] = useState(true);
+  const [isTopBarVisible, setIsTopBarVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
 
   const handleSearchClick = () => {
     console.log("Navigating to search page...");
