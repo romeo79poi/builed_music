@@ -15,9 +15,11 @@ import {
 } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { MiniPlayer } from "../components/MiniPlayer";
+import { useProfileContext } from "../context/ProfileContext";
 
 export default function HomeScreen() {
   const navigate = useNavigate();
+  const { profile } = useProfileContext();
   const [searchQuery, setSearchQuery] = useState("");
   const [greeting, setGreeting] = useState("");
   const [isPlaying, setIsPlaying] = useState(true);
@@ -192,8 +194,27 @@ export default function HomeScreen() {
             className="hover:scale-110 transition-transform relative group"
             title="Go to Profile"
           >
-            <div className="w-10 h-10 bg-gradient-to-br from-neon-green to-neon-blue rounded-full flex items-center justify-center shadow-lg group-hover:shadow-neon-green/50">
-              <User className="w-5 h-5 text-black" />
+            <div className="w-12 h-12 bg-gradient-to-br from-neon-green to-neon-blue rounded-full flex items-center justify-center shadow-lg group-hover:shadow-neon-green/50 p-0.5">
+              {profile.profilePicture ? (
+                <div className="w-full h-full rounded-full overflow-hidden bg-gray-800">
+                  <img
+                    src={profile.profilePicture}
+                    alt={profile.displayName}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      console.log(
+                        "Image failed to load:",
+                        profile.profilePicture,
+                      );
+                      e.currentTarget.style.display = "none";
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className="w-full h-full bg-black rounded-full flex items-center justify-center">
+                  <User className="w-6 h-6 text-white" />
+                </div>
+              )}
             </div>
             <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
               Profile
@@ -208,24 +229,23 @@ export default function HomeScreen() {
             </span>
           </div>
 
-          {/* Search Bar */}
-          <div className="max-w-[200px] relative group">
-            <div
-              className="relative cursor-pointer"
-              onClick={handleSearchClick}
-              title="Go to Search"
-            >
-              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 text-gray-400 group-hover:text-neon-green transition-colors" />
-              <div className="w-full bg-white/10 border border-white/20 rounded-full py-1 pl-6 pr-3 text-xs placeholder-gray-400 hover:bg-white/15 hover:border-neon-green/30 transition-all duration-200">
-                <span className="text-gray-400 group-hover:text-white transition-colors">
-                  Search...
-                </span>
-              </div>
+          {/* Search Icon */}
+          <button
+            onClick={handleSearchClick}
+            className="hover:scale-110 transition-transform relative group"
+            title="Go to Search"
+          >
+            <div className="w-10 h-10 bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 rounded-full flex items-center justify-center shadow-lg group-hover:shadow-purple-500/50 relative overflow-hidden">
+              {/* Animated background glow */}
+              <div className="absolute inset-0 bg-gradient-to-br from-purple-400 via-pink-400 to-red-400 rounded-full opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+              {/* Inner glow ring */}
+              <div className="absolute inset-0.5 bg-gradient-to-br from-purple-300 via-pink-300 to-red-300 rounded-full opacity-30 group-hover:opacity-50 transition-opacity"></div>
+              <Search className="w-5 h-5 text-white relative z-10 drop-shadow-sm" />
             </div>
-            <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-              Search Music
+            <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-purple-900/90 to-pink-900/90 text-white text-xs px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap backdrop-blur-sm">
+              Search
             </div>
-          </div>
+          </button>
         </motion.div>
 
         {/* Main Content */}
