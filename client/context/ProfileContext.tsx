@@ -82,8 +82,9 @@ interface ProfileProviderProps {
 export const ProfileProvider: React.FC<ProfileProviderProps> = ({
   children,
 }) => {
+  const { toast } = useToast();
   const [profile, setProfile] = useState<UserProfile>({
-    id: "1",
+    id: "user1",
     username: "biospectra",
     displayName: "Bio Spectra",
     bio: "Music lover 🎵 | Producer | Always discovering new sounds ✨",
@@ -93,45 +94,90 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({
     isVerified: true,
     followers: 1248,
     following: 567,
-    likedSongs: ["1", "2", "3", "4", "5"],
-    recentlyPlayed: ["1", "2", "3"],
-    playlists: [
-      {
-        id: "1",
-        name: "My Vibes",
-        description: "Songs that match my mood",
-        coverImage:
-          "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop",
-        songs: ["1", "2", "3"],
-        isPublic: true,
-        createdAt: "2023-12-01",
-      },
-      {
-        id: "2",
-        name: "Late Night Sessions",
-        description: "Perfect for coding and creating",
-        coverImage:
-          "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=400&fit=crop",
-        songs: ["4", "5", "6"],
-        isPublic: false,
-        createdAt: "2023-11-15",
-      },
-    ],
+    likedSongs: ["song1", "song2", "song3"],
+    recentlyPlayed: ["song1", "song2", "song3"],
+    playlists: [],
     musicPreferences: {
       favoriteGenres: ["Electronic", "Indie", "Alternative", "Lo-fi"],
       favoriteArtists: ["The Weeknd", "Daft Punk", "Tame Impala", "ODESZA"],
       mood: "Chill",
       language: ["English", "French"],
+      autoPlay: true,
+      crossfade: false,
+      soundQuality: "high",
     },
     socialLinks: {
       instagram: "@biospectra",
       twitter: "@biospectramusic",
       spotify: "biospectra",
     },
+    subscription: {
+      plan: "premium",
+      status: "active",
+      startDate: "2023-01-15",
+      features: [
+        "Unlimited skips",
+        "Ad-free listening",
+        "High-quality audio",
+        "Offline downloads",
+      ],
+      autoRenew: true,
+    },
+    settings: {
+      theme: "dark",
+      language: "en",
+      notifications: {
+        email: true,
+        push: true,
+        newFollowers: true,
+        newMusic: true,
+        recommendations: true,
+        socialActivity: false,
+      },
+      privacy: {
+        profileVisibility: "public",
+        showRecentlyPlayed: true,
+        showLikedSongs: true,
+        showPlaylists: true,
+        allowFollowers: true,
+      },
+      playback: {
+        volume: 80,
+        shuffle: false,
+        repeat: "off",
+        gaplessPlayback: true,
+        normalization: true,
+      },
+    },
   });
 
   const [isEditing, setIsEditing] = useState(false);
   const [editedProfile, setEditedProfile] = useState<Partial<UserProfile>>({});
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Load profile data on component mount
+  useEffect(() => {
+    loadProfile();
+  }, []);
+
+  const loadProfile = async () => {
+    try {
+      setIsLoading(true);
+      const response = await api.profile.getProfile();
+      if (response.success && response.profile) {
+        setProfile(response.profile);
+      }
+    } catch (error) {
+      console.error("Failed to load profile:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load profile data",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const updateEditedProfile = (updates: Partial<UserProfile>) => {
     setEditedProfile((prev) => ({ ...prev, ...updates }));
