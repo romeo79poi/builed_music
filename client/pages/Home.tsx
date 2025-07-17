@@ -208,30 +208,19 @@ export default function HomeScreen() {
             </span>
           </div>
 
-          {/* Search Bar */}
-          <div className="max-w-[240px] relative group">
-            <div
-              className="relative cursor-pointer"
-              onClick={handleSearchClick}
-              title="Go to Search"
-            >
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 group-hover:text-neon-green transition-colors z-10" />
-              <div className="w-full bg-white/10 border border-white/20 rounded-full py-2 pl-10 pr-4 text-sm placeholder-gray-400 hover:bg-white/15 hover:border-neon-green/30 transition-all duration-200 backdrop-blur-sm">
-                <span className="text-gray-400 group-hover:text-white transition-colors">
-                  Search songs, artists...
-                </span>
-              </div>
-              {/* Enhanced search icon button */}
-              <div className="absolute right-2 top-1/2 transform -translate-y-1/2">
-                <div className="w-6 h-6 bg-neon-green/20 hover:bg-neon-green/30 rounded-full flex items-center justify-center transition-all group-hover:scale-110">
-                  <Search className="w-3 h-3 text-neon-green" />
-                </div>
-              </div>
+          {/* Search Icon */}
+          <button
+            onClick={handleSearchClick}
+            className="hover:scale-110 transition-transform relative group"
+            title="Go to Search"
+          >
+            <div className="w-10 h-10 bg-gradient-to-br from-neon-green to-neon-blue rounded-full flex items-center justify-center shadow-lg group-hover:shadow-neon-green/50">
+              <Search className="w-5 h-5 text-black" />
             </div>
             <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-              Search Music
+              Search
             </div>
-          </div>
+          </button>
         </motion.div>
 
         {/* Main Content */}
