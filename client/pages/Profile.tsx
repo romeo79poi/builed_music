@@ -37,6 +37,53 @@ export default function Profile() {
   const [isUpdatingSubscription, setIsUpdatingSubscription] = useState(false);
   const [userStats, setUserStats] = useState<any>(null);
 
+  useEffect(() => {
+    loadUserStats();
+  }, [profile.id]);
+
+  const loadUserStats = async () => {
+    try {
+      const statsResponse = await api.profile.getUserStats();
+      if (statsResponse.success) {
+        setUserStats(statsResponse.stats);
+      }
+    } catch (error) {
+      console.error("Failed to load user stats:", error);
+    }
+  };
+
+  const handleSubscriptionChange = async (planId: string) => {
+    if (planId === profile.subscription.plan) return;
+
+    try {
+      setIsUpdatingSubscription(true);
+      const response = await api.subscription.updateSubscription({
+        plan: planId as any,
+      });
+
+      if (response.success) {
+        // Reload profile to get updated subscription info
+        await loadProfile();
+        setShowUpgrade(false);
+
+        toast({
+          title: "Subscription Updated",
+          description:
+            response.message || `Successfully updated to ${planId} plan`,
+        });
+      }
+    } catch (error) {
+      console.error("Failed to update subscription:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update subscription. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdatingSubscription(false);
+    }
+  };
+
   const subscriptionPlans = [
     {
       id: "free",
