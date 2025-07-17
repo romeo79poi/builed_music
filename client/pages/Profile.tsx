@@ -31,9 +31,11 @@ import { useToast } from "../hooks/use-toast";
 
 export default function Profile() {
   const navigate = useNavigate();
-  const { profile, setIsEditing } = useProfileContext();
-  const [currentPlan, setCurrentPlan] = useState("free");
+  const { toast } = useToast();
+  const { profile, setIsEditing, isLoading, loadProfile } = useProfileContext();
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [isUpdatingSubscription, setIsUpdatingSubscription] = useState(false);
+  const [userStats, setUserStats] = useState<any>(null);
 
   const subscriptionPlans = [
     {
