@@ -741,6 +741,303 @@ export default function Settings() {
           </motion.div>
         )}
 
+        {/* Professional Analytics Modal */}
+        {showAnalyticsModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="bg-black rounded-3xl p-6 max-w-6xl w-full max-h-[90vh] overflow-y-auto border border-white/10"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-3xl font-bold flex items-center">
+                  <SettingsIcon className="w-8 h-8 mr-3 text-neon-green" />
+                  Professional Analytics Dashboard
+                </h2>
+                <button
+                  onClick={() => setShowAnalyticsModal(false)}
+                  className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors"
+                >
+                  ×
+                </button>
+              </div>
+
+              {/* Overview Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
+                <div className="bg-gradient-to-br from-neon-green/20 to-neon-green/5 rounded-xl p-4 border border-neon-green/20">
+                  <div className="flex items-center justify-between mb-2">
+                    <Music className="w-6 h-6 text-neon-green" />
+                    <span className="text-xs text-neon-green bg-neon-green/20 px-2 py-1 rounded-full">
+                      +{analyticsData.growth.streamGrowth}
+                    </span>
+                  </div>
+                  <p className="text-2xl font-bold text-white">
+                    {analyticsData.overview.totalStreams.toLocaleString()}
+                  </p>
+                  <p className="text-sm text-gray-400">Total Streams</p>
+                </div>
+
+                <div className="bg-gradient-to-br from-neon-blue/20 to-neon-blue/5 rounded-xl p-4 border border-neon-blue/20">
+                  <div className="flex items-center justify-between mb-2">
+                    <User className="w-6 h-6 text-neon-blue" />
+                    <span className="text-xs text-neon-blue bg-neon-blue/20 px-2 py-1 rounded-full">
+                      +{analyticsData.growth.engagementGrowth}
+                    </span>
+                  </div>
+                  <p className="text-2xl font-bold text-white">
+                    {analyticsData.overview.uniqueListeners.toLocaleString()}
+                  </p>
+                  <p className="text-sm text-gray-400">Unique Listeners</p>
+                </div>
+
+                <div className="bg-gradient-to-br from-purple-500/20 to-purple-500/5 rounded-xl p-4 border border-purple-500/20">
+                  <div className="flex items-center justify-between mb-2">
+                    <Eye className="w-6 h-6 text-purple-400" />
+                    <span className="text-xs text-purple-400 bg-purple-500/20 px-2 py-1 rounded-full">
+                      AVG
+                    </span>
+                  </div>
+                  <p className="text-2xl font-bold text-white">
+                    {analyticsData.overview.averagePlayTime}
+                  </p>
+                  <p className="text-sm text-gray-400">Avg Play Time</p>
+                </div>
+
+                <div className="bg-gradient-to-br from-orange-500/20 to-orange-500/5 rounded-xl p-4 border border-orange-500/20">
+                  <div className="flex items-center justify-between mb-2">
+                    <Heart className="w-6 h-6 text-orange-400" />
+                    <span className="text-xs text-orange-400 bg-orange-500/20 px-2 py-1 rounded-full">
+                      RATE
+                    </span>
+                  </div>
+                  <p className="text-2xl font-bold text-white">
+                    {analyticsData.overview.engagement}
+                  </p>
+                  <p className="text-sm text-gray-400">Engagement</p>
+                </div>
+
+                <div className="bg-gradient-to-br from-green-500/20 to-green-500/5 rounded-xl p-4 border border-green-500/20">
+                  <div className="flex items-center justify-between mb-2">
+                    <CreditCard className="w-6 h-6 text-green-400" />
+                    <span className="text-xs text-green-400 bg-green-500/20 px-2 py-1 rounded-full">
+                      +{analyticsData.growth.revenueGrowth}
+                    </span>
+                  </div>
+                  <p className="text-2xl font-bold text-white">
+                    {analyticsData.overview.revenue}
+                  </p>
+                  <p className="text-sm text-gray-400">Revenue</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Top Tracks */}
+                <div className="bg-white/5 rounded-xl p-6 border border-white/10">
+                  <h3 className="text-xl font-bold mb-4 flex items-center">
+                    <Music className="w-5 h-5 mr-2 text-neon-green" />
+                    Top Performing Tracks
+                  </h3>
+                  <div className="space-y-3">
+                    {analyticsData.performance.topTracks.map((track, index) => (
+                      <div
+                        key={track.title}
+                        className="flex items-center justify-between p-3 bg-white/5 rounded-lg"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <span className="w-6 h-6 bg-neon-green/20 text-neon-green rounded-full flex items-center justify-center text-sm font-bold">
+                            {index + 1}
+                          </span>
+                          <div>
+                            <p className="font-medium text-white">
+                              {track.title}
+                            </p>
+                            <p className="text-sm text-gray-400">
+                              {track.plays.toLocaleString()} plays
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Heart className="w-4 h-4 text-red-400" />
+                          <span className="text-sm text-gray-300">
+                            {track.likes}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Demographics */}
+                <div className="bg-white/5 rounded-xl p-6 border border-white/10">
+                  <h3 className="text-xl font-bold mb-4 flex items-center">
+                    <Globe className="w-5 h-5 mr-2 text-neon-blue" />
+                    Audience Demographics
+                  </h3>
+
+                  {/* Top Countries */}
+                  <div className="mb-6">
+                    <h4 className="font-semibold mb-3 text-gray-300">
+                      Top Countries
+                    </h4>
+                    <div className="space-y-2">
+                      {analyticsData.demographics.topCountries.map(
+                        (country) => (
+                          <div
+                            key={country.country}
+                            className="flex items-center justify-between"
+                          >
+                            <span className="text-sm text-gray-300">
+                              {country.country}
+                            </span>
+                            <div className="flex items-center space-x-2">
+                              <div className="w-20 bg-gray-700 rounded-full h-2">
+                                <div
+                                  className="bg-neon-blue h-2 rounded-full"
+                                  style={{ width: `${country.percentage}%` }}
+                                />
+                              </div>
+                              <span className="text-xs text-gray-400 w-8">
+                                {country.percentage}%
+                              </span>
+                            </div>
+                          </div>
+                        ),
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Age Groups */}
+                  <div>
+                    <h4 className="font-semibold mb-3 text-gray-300">
+                      Age Distribution
+                    </h4>
+                    <div className="grid grid-cols-2 gap-2">
+                      {analyticsData.demographics.ageGroups.map((group) => (
+                        <div
+                          key={group.age}
+                          className="bg-white/5 rounded-lg p-3 text-center"
+                        >
+                          <p className="text-lg font-bold text-neon-green">
+                            {group.percentage}%
+                          </p>
+                          <p className="text-xs text-gray-400">{group.age}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Weekly Performance */}
+                <div className="bg-white/5 rounded-xl p-6 border border-white/10">
+                  <h3 className="text-xl font-bold mb-4 flex items-center">
+                    <SettingsIcon className="w-5 h-5 mr-2 text-purple-400" />
+                    Weekly Performance
+                  </h3>
+                  <div className="space-y-3">
+                    {analyticsData.performance.weeklyStats.map(
+                      (week, index) => (
+                        <div
+                          key={week.week}
+                          className="flex items-center justify-between p-3 bg-white/5 rounded-lg"
+                        >
+                          <span className="text-gray-300">{week.week}</span>
+                          <div className="flex items-center space-x-4">
+                            <div className="flex items-center space-x-1">
+                              <Volume2 className="w-4 h-4 text-neon-green" />
+                              <span className="text-sm text-white">
+                                {week.streams.toLocaleString()}
+                              </span>
+                            </div>
+                            <div className="flex items-center space-x-1">
+                              <Heart className="w-4 h-4 text-red-400" />
+                              <span className="text-sm text-white">
+                                {week.likes}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      ),
+                    )}
+                  </div>
+                </div>
+
+                {/* Follower Growth */}
+                <div className="bg-white/5 rounded-xl p-6 border border-white/10">
+                  <h3 className="text-xl font-bold mb-4 flex items-center">
+                    <User className="w-5 h-5 mr-2 text-orange-400" />
+                    Follower Growth
+                  </h3>
+                  <div className="space-y-3">
+                    {analyticsData.growth.followerGrowth.map((month, index) => (
+                      <div
+                        key={month.month}
+                        className="flex items-center justify-between p-3 bg-white/5 rounded-lg"
+                      >
+                        <span className="text-gray-300">{month.month}</span>
+                        <div className="flex items-center space-x-2">
+                          <div className="w-16 bg-gray-700 rounded-full h-2">
+                            <div
+                              className="bg-orange-400 h-2 rounded-full"
+                              style={{ width: `${(month.count / 500) * 100}%` }}
+                            />
+                          </div>
+                          <span className="text-sm text-white">
+                            {month.count}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-4 p-3 bg-gradient-to-r from-neon-green/20 to-neon-blue/20 rounded-lg border border-neon-green/20">
+                    <p className="text-center text-sm">
+                      <span className="text-neon-green font-semibold">
+                        +
+                        {(
+                          ((analyticsData.growth.followerGrowth[4].count -
+                            analyticsData.growth.followerGrowth[0].count) /
+                            analyticsData.growth.followerGrowth[0].count) *
+                          100
+                        ).toFixed(1)}
+                        %
+                      </span>
+                      <span className="text-gray-300">
+                        {" "}
+                        growth since January
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex justify-end space-x-3 mt-6 pt-6 border-t border-white/10">
+                <button
+                  onClick={() => {
+                    toast({
+                      title: "Analytics Export",
+                      description: "Analytics report exported successfully",
+                    });
+                  }}
+                  className="px-6 py-3 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-colors"
+                >
+                  Export Report
+                </button>
+                <button
+                  onClick={() => setShowAnalyticsModal(false)}
+                  className="px-6 py-3 bg-gradient-to-r from-neon-green to-neon-blue text-black font-semibold rounded-xl hover:scale-105 transition-transform"
+                >
+                  Close Dashboard
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+
         {/* Password Change Modal */}
         {showPasswordModal && (
           <motion.div
