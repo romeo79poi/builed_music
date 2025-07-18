@@ -239,9 +239,7 @@ export default function Profile() {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <h1 className="text-xl font-bold">Profile</h1>
-          <button className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm">
-            <Settings className="w-5 h-5" />
-          </button>
+          <div className="w-10 h-10"></div>
         </motion.div>
 
         {/* User Info */}
