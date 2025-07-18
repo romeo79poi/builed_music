@@ -672,28 +672,28 @@ export default function Settings() {
           </motion.div>
         )}
 
-        {/* Full Screen Analytics Overview */}
+        {/* Dreams Listening - Horizontal Analytics Slideshow */}
         {showAnalyticsModal && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="fixed inset-0 bg-black/95 backdrop-blur-lg z-50"
+            className="fixed inset-0 bg-gradient-to-br from-purple-900/20 via-black to-blue-900/20 backdrop-blur-xl z-50"
           >
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
-              className="w-full h-full overflow-y-auto p-8"
+              className="w-full h-full overflow-hidden flex flex-col"
             >
-              {/* Full Screen Header */}
-              <div className="flex items-center justify-between mb-10 bg-black/50 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+              {/* Dreams Header */}
+              <div className="flex items-center justify-between p-8 bg-black/30 backdrop-blur-sm border-b border-white/10">
                 <div className="flex items-center space-x-6">
                   <motion.button
                     initial={{ x: -20, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
                     onClick={() => setShowAnalyticsModal(false)}
-                    className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center hover:bg-white/20 transition-all duration-300 group"
+                    className="w-14 h-14 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-2xl flex items-center justify-center hover:from-purple-500/30 hover:to-blue-500/30 transition-all duration-300 group"
                   >
-                    <ArrowLeft className="w-6 h-6 text-white group-hover:text-neon-green transition-colors" />
+                    <ArrowLeft className="w-6 h-6 text-white group-hover:text-purple-300 transition-colors" />
                   </motion.button>
                   <motion.div
                     initial={{ x: -20, opacity: 0 }}
@@ -701,29 +701,30 @@ export default function Settings() {
                     transition={{ delay: 0.1 }}
                     className="flex items-center"
                   >
-                    <div className="w-16 h-16 bg-gradient-to-r from-neon-green to-neon-blue rounded-2xl flex items-center justify-center mr-4">
-                      <BarChart3 className="w-8 h-8 text-black" />
+                    <div className="w-16 h-16 bg-gradient-to-br from-purple-500 via-pink-500 to-blue-500 rounded-3xl flex items-center justify-center mr-6 relative">
+                      <Music className="w-8 h-8 text-white" />
+                      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/50 to-blue-500/50 rounded-3xl animate-pulse"></div>
                     </div>
                     <div>
-                      <h1 className="text-4xl font-bold bg-gradient-to-r from-neon-green to-neon-blue bg-clip-text text-transparent">
-                        Analytics Dashboard
+                      <h1 className="text-5xl font-black bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
+                        Dreams Listening
                       </h1>
-                      <p className="text-gray-400 text-lg">
-                        Comprehensive insights into your music performance
+                      <p className="text-purple-300 text-xl font-medium">
+                        Your Musical Journey Analytics
                       </p>
                     </div>
                   </motion.div>
                 </div>
                 <div className="flex items-center space-x-4">
                   <div className="text-right">
-                    <p className="text-sm text-gray-400">Last updated</p>
-                    <p className="text-white font-semibold">2 minutes ago</p>
+                    <p className="text-purple-300 text-sm">Now Playing</p>
+                    <p className="text-white font-bold">Analytics Stream</p>
                   </div>
                   <button
                     onClick={() => setShowAnalyticsModal(false)}
-                    className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center hover:bg-white/20 transition-all duration-300 group"
+                    className="w-14 h-14 bg-gradient-to-r from-red-500/20 to-pink-500/20 rounded-2xl flex items-center justify-center hover:from-red-500/30 hover:to-pink-500/30 transition-all duration-300 group"
                   >
-                    <span className="text-2xl group-hover:rotate-90 transition-transform duration-300">
+                    <span className="text-2xl text-white group-hover:rotate-90 transition-transform duration-300">
                       ×
                     </span>
                   </button>
