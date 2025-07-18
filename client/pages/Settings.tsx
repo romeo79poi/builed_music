@@ -1064,62 +1064,37 @@ export default function Settings() {
                 </div>
               </div>
 
-              {/* Enhanced Action Buttons */}
+              {/* Compact Action Buttons */}
               <motion.div
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 1.3 }}
-                className="flex flex-wrap justify-end gap-4 mt-8 pt-6 border-t border-white/10"
+                className="flex justify-center gap-3 mt-6 pt-4 border-t border-white/20"
               >
                 <button
                   onClick={() => {
                     toast({
-                      title: "Analytics Export Started",
-                      description:
-                        "Detailed analytics report is being generated and will be downloaded shortly...",
+                      title: "Export Complete!",
+                      description: "Analytics report exported successfully",
                     });
-
-                    // Simulate export process
-                    setTimeout(() => {
-                      toast({
-                        title: "Export Complete!",
-                        description:
-                          "Analytics report exported successfully to your downloads folder",
-                      });
-                    }, 2000);
                   }}
-                  className="group px-6 py-3 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-all duration-300 flex items-center space-x-2 hover:scale-105"
+                  className="group px-4 py-2 bg-neon-green/20 text-neon-green rounded-lg hover:bg-neon-green/30 transition-all duration-300 flex items-center space-x-2"
                 >
-                  <Download className="w-4 h-4 group-hover:animate-bounce" />
-                  <span>Export Report</span>
+                  <Activity className="w-4 h-4 group-hover:animate-pulse" />
+                  <span>Export</span>
                 </button>
 
                 <button
                   onClick={() => {
                     toast({
                       title: "Analytics Shared",
-                      description:
-                        "Analytics summary shared to your social networks",
+                      description: "Shared to your networks",
                     });
                   }}
-                  className="group px-6 py-3 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-all duration-300 flex items-center space-x-2 hover:scale-105"
+                  className="group px-4 py-2 bg-neon-blue/20 text-neon-blue rounded-lg hover:bg-neon-blue/30 transition-all duration-300 flex items-center space-x-2"
                 >
                   <Share2 className="w-4 h-4 group-hover:rotate-12 transition-transform" />
-                  <span>Share Analytics</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    toast({
-                      title: "Dashboard Closed",
-                      description: "Analytics dashboard has been closed",
-                    });
-                    setShowAnalyticsModal(false);
-                  }}
-                  className="group px-8 py-3 bg-gradient-to-r from-neon-green to-neon-blue text-black font-semibold rounded-xl hover:scale-105 transition-all duration-300 flex items-center space-x-2 shadow-lg shadow-neon-green/25"
-                >
-                  <BarChart3 className="w-4 h-4 group-hover:rotate-12 transition-transform" />
-                  <span>Close Dashboard</span>
+                  <span>Share</span>
                 </button>
               </motion.div>
             </motion.div>
