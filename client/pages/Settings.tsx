@@ -684,16 +684,16 @@ export default function Settings() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               className="w-full h-full overflow-y-auto p-8"
             >
-              {/* Compact Header */}
-              <div className="flex items-center justify-between mb-6">
-                <div className="flex items-center space-x-3">
+              {/* Full Screen Header */}
+              <div className="flex items-center justify-between mb-10 bg-black/50 backdrop-blur-sm rounded-2xl p-6 border border-white/20">
+                <div className="flex items-center space-x-6">
                   <motion.button
                     initial={{ x: -20, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
                     onClick={() => setShowAnalyticsModal(false)}
-                    className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center hover:bg-white/20 transition-all duration-300 group"
+                    className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center hover:bg-white/20 transition-all duration-300 group"
                   >
-                    <ArrowLeft className="w-4 h-4 text-white group-hover:text-neon-green transition-colors" />
+                    <ArrowLeft className="w-6 h-6 text-white group-hover:text-neon-green transition-colors" />
                   </motion.button>
                   <motion.div
                     initial={{ x: -20, opacity: 0 }}
@@ -701,27 +701,33 @@ export default function Settings() {
                     transition={{ delay: 0.1 }}
                     className="flex items-center"
                   >
-                    <div className="w-8 h-8 bg-gradient-to-r from-neon-green to-neon-blue rounded-lg flex items-center justify-center mr-3">
-                      <BarChart3 className="w-4 h-4 text-black" />
+                    <div className="w-16 h-16 bg-gradient-to-r from-neon-green to-neon-blue rounded-2xl flex items-center justify-center mr-4">
+                      <BarChart3 className="w-8 h-8 text-black" />
                     </div>
                     <div>
-                      <h2 className="text-xl font-bold bg-gradient-to-r from-neon-green to-neon-blue bg-clip-text text-transparent">
-                        Analytics Overview
-                      </h2>
-                      <p className="text-gray-400 text-xs">
-                        Performance insights
+                      <h1 className="text-4xl font-bold bg-gradient-to-r from-neon-green to-neon-blue bg-clip-text text-transparent">
+                        Analytics Dashboard
+                      </h1>
+                      <p className="text-gray-400 text-lg">
+                        Comprehensive insights into your music performance
                       </p>
                     </div>
                   </motion.div>
                 </div>
-                <button
-                  onClick={() => setShowAnalyticsModal(false)}
-                  className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center hover:bg-white/20 transition-all duration-300 group"
-                >
-                  <span className="text-lg group-hover:rotate-90 transition-transform duration-300">
-                    ×
-                  </span>
-                </button>
+                <div className="flex items-center space-x-4">
+                  <div className="text-right">
+                    <p className="text-sm text-gray-400">Last updated</p>
+                    <p className="text-white font-semibold">2 minutes ago</p>
+                  </div>
+                  <button
+                    onClick={() => setShowAnalyticsModal(false)}
+                    className="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center hover:bg-white/20 transition-all duration-300 group"
+                  >
+                    <span className="text-2xl group-hover:rotate-90 transition-transform duration-300">
+                      ×
+                    </span>
+                  </button>
+                </div>
               </div>
 
               {/* Compact Metrics Grid */}
