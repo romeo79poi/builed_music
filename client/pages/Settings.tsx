@@ -730,54 +730,36 @@ export default function Settings() {
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.1 }}
-                  className="col-span-2 bg-gradient-to-br from-neon-green/20 via-neon-green/10 to-transparent rounded-2xl p-6 border border-neon-green/30 relative overflow-hidden"
+                  className="bg-gradient-to-br from-neon-green/20 to-neon-green/5 rounded-xl p-3 border border-neon-green/30"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-neon-green/5 to-transparent rounded-2xl"></div>
-                  <div className="relative">
-                    <div className="flex items-center justify-between mb-3">
-                      <Headphones className="w-8 h-8 text-neon-green" />
-                      <span className="text-xs text-neon-green bg-neon-green/20 px-3 py-1 rounded-full font-semibold">
-                        +{analyticsData.growth.streamGrowth}
-                      </span>
-                    </div>
-                    <p className="text-3xl font-black text-white mb-1">
-                      {analyticsData.overview.totalStreams.toLocaleString()}
-                    </p>
-                    <p className="text-sm text-gray-300 font-medium">
-                      Total Streams
-                    </p>
-                    <div className="mt-3 flex items-center text-xs text-neon-green">
-                      <TrendingUp className="w-3 h-3 mr-1" />
-                      <span>+2.3K this week</span>
-                    </div>
+                  <div className="flex items-center justify-between mb-2">
+                    <Headphones className="w-4 h-4 text-neon-green" />
+                    <span className="text-xs text-neon-green bg-neon-green/20 px-2 py-1 rounded-full">
+                      +{analyticsData.growth.streamGrowth}
+                    </span>
                   </div>
+                  <p className="text-lg font-bold text-white">
+                    {analyticsData.overview.totalStreams.toLocaleString()}
+                  </p>
+                  <p className="text-xs text-gray-300">Streams</p>
                 </motion.div>
 
                 <motion.div
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.2 }}
-                  className="col-span-2 bg-gradient-to-br from-neon-blue/20 via-neon-blue/10 to-transparent rounded-2xl p-6 border border-neon-blue/30 relative overflow-hidden"
+                  className="bg-gradient-to-br from-neon-blue/20 to-neon-blue/5 rounded-xl p-3 border border-neon-blue/30"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-neon-blue/5 to-transparent rounded-2xl"></div>
-                  <div className="relative">
-                    <div className="flex items-center justify-between mb-3">
-                      <User className="w-8 h-8 text-neon-blue" />
-                      <span className="text-xs text-neon-blue bg-neon-blue/20 px-3 py-1 rounded-full font-semibold">
-                        +{analyticsData.growth.engagementGrowth}
-                      </span>
-                    </div>
-                    <p className="text-3xl font-black text-white mb-1">
-                      {analyticsData.overview.uniqueListeners.toLocaleString()}
-                    </p>
-                    <p className="text-sm text-gray-300 font-medium">
-                      Unique Listeners
-                    </p>
-                    <div className="mt-3 flex items-center text-xs text-neon-blue">
-                      <Activity className="w-3 h-3 mr-1" />
-                      <span>67% returning</span>
-                    </div>
+                  <div className="flex items-center justify-between mb-2">
+                    <User className="w-4 h-4 text-neon-blue" />
+                    <span className="text-xs text-neon-blue bg-neon-blue/20 px-2 py-1 rounded-full">
+                      +{analyticsData.growth.engagementGrowth}
+                    </span>
                   </div>
+                  <p className="text-lg font-bold text-white">
+                    {analyticsData.overview.uniqueListeners.toLocaleString()}
+                  </p>
+                  <p className="text-xs text-gray-300">Listeners</p>
                 </motion.div>
 
                 <motion.div
@@ -1165,7 +1147,8 @@ export default function Settings() {
                     <strong>Password requirements:</strong>
                     <br />• At least 8 characters long
                     <br />• Contains uppercase and lowercase letters
-                    <br />• Contains at least one number
+                    <br />
+                    ��� Contains at least one number
                   </p>
                 </div>
 
