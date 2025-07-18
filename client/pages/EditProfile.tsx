@@ -48,6 +48,7 @@ export default function EditProfile() {
   const [newGenre, setNewGenre] = useState("");
   const [newArtist, setNewArtist] = useState("");
   const [newLanguage, setNewLanguage] = useState("");
+  const [imageLoadError, setImageLoadError] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const currentProfile = { ...profile, ...editedProfile };
