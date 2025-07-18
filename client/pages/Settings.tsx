@@ -682,7 +682,7 @@ export default function Settings() {
             <motion.div
               initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
-              className="bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-3xl p-8 max-w-6xl w-full max-h-[90vh] overflow-y-auto border border-white/20 shadow-2xl"
+              className="bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-3xl p-8 w-full h-full max-w-[95vw] max-h-[95vh] overflow-y-auto border border-white/20 shadow-2xl"
             >
               {/* Header */}
               <div className="flex items-center justify-between mb-8">
