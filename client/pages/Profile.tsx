@@ -358,7 +358,11 @@ export default function Profile() {
           className="px-6 py-8 text-center"
         >
           <div className="relative inline-block">
-            <div className="w-24 h-24 bg-gradient-to-br from-neon-green to-neon-blue rounded-full p-1">
+            <button
+              onClick={handleEditProfile}
+              className="w-24 h-24 bg-gradient-to-br from-neon-green to-neon-blue rounded-full p-1 hover:scale-105 transition-transform cursor-pointer"
+              title="Click to edit profile"
+            >
               <div className="w-full h-full bg-gray-800 rounded-full flex items-center justify-center overflow-hidden">
                 {profile.profilePicture ? (
                   <img
@@ -370,7 +374,7 @@ export default function Profile() {
                   <User className="w-12 h-12 text-gray-400" />
                 )}
               </div>
-            </div>
+            </button>
             {profile.isVerified && (
               <div className="absolute -top-1 -right-1 w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center">
                 <Check className="w-4 h-4 text-white" />
@@ -381,15 +385,6 @@ export default function Profile() {
                 <Crown className="w-4 h-4 text-black" />
               </div>
             )}
-
-            {/* Edit Profile Button */}
-            <button
-              onClick={handleEditProfile}
-              className="absolute -bottom-1 -left-1 w-8 h-8 bg-gradient-to-br from-neon-green to-neon-blue rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
-              title="Edit Profile"
-            >
-              <Edit3 className="w-4 h-4 text-black" />
-            </button>
           </div>
           <h2 className="text-2xl font-bold mt-4">{profile.displayName}</h2>
           <p className="text-gray-400">@{profile.username}</p>
