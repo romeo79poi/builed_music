@@ -91,7 +91,7 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({
     displayName: "Bio Spectra",
     bio: "Music lover 🎵 | Producer | Always discovering new sounds ✨",
     profilePicture:
-      "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300&h=300&fit=crop&crop=face",
+      "https://api.dicebear.com/7.x/avataaars/svg?seed=biospectra&size=300",
     email: "bio.spectra@musiccatch.com",
     joinDate: "2023-01-15",
     isVerified: true,
@@ -225,7 +225,9 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({
       const response = await api.upload.uploadProfilePicture(file);
 
       if (response.success && response.url) {
+        // Update both the edited profile and main profile state immediately
         updateEditedProfile({ profilePicture: response.url });
+        setProfile((prev) => ({ ...prev, profilePicture: response.url }));
 
         toast({
           title: "Success",

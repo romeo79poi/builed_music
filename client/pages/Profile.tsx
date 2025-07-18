@@ -36,29 +36,16 @@ export default function Profile() {
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [isUpdatingSubscription, setIsUpdatingSubscription] = useState(false);
   const [userStats, setUserStats] = useState<any>(null);
-  const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
   const [profileImageError, setProfileImageError] = useState(false);
 
   useEffect(() => {
     loadUserStats();
   }, [profile.id]);
 
-  // Close dropdown when clicking outside
+  // Reset image error when profile picture changes
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (showSettingsDropdown) {
-        setShowSettingsDropdown(false);
-      }
-    };
-
-    if (showSettingsDropdown) {
-      document.addEventListener("click", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("click", handleClickOutside);
-    };
-  }, [showSettingsDropdown]);
+    setProfileImageError(false);
+  }, [profile.profilePicture]);
 
   const loadUserStats = async () => {
     try {
@@ -172,68 +159,6 @@ export default function Profile() {
     }
   };
 
-  const handleDownloadedMusic = () => {
-    // Mock downloaded music functionality
-    toast({
-      title: "Downloaded Music",
-      description: `You have ${profile.subscription.plan === "free" ? 0 : 23} downloaded songs`,
-    });
-  };
-
-  const handleNotifications = () => {
-    // Mock notifications functionality
-    toast({
-      title: "Notifications",
-      description: "You have 3 new notifications",
-    });
-  };
-
-  const handleSettings = () => {
-    // Mock settings functionality
-    toast({
-      title: "Settings",
-      description: "Settings page will open here",
-    });
-  };
-
-  const handleHelp = () => {
-    // Mock help functionality
-    toast({
-      title: "Help & Support",
-      description: "Contact support at help@musiccatch.com",
-    });
-  };
-
-  const handleLogout = () => {
-    toast({
-      title: "Logged Out",
-      description: "You have been successfully logged out",
-    });
-    navigate("/login");
-  };
-
-  const menuItems = [
-    { icon: Edit3, label: "Edit Profile", action: handleEditProfile },
-    {
-      icon: Heart,
-      label: "Liked Songs",
-      action: () => navigate("/liked-songs"),
-    },
-    {
-      icon: History,
-      label: "Recently Played",
-      action: () => navigate("/history"),
-    },
-    {
-      icon: Download,
-      label: "Downloaded Music",
-      action: handleDownloadedMusic,
-    },
-    { icon: Bell, label: "Notifications", action: handleNotifications },
-    { icon: HelpCircle, label: "Help & Support", action: handleHelp },
-    { icon: LogOut, label: "Log Out", action: handleLogout },
-  ];
-
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
       {/* Background Glow Effects */}
@@ -251,104 +176,19 @@ export default function Profile() {
         >
           <button
             onClick={() => navigate("/home")}
-            className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm"
+            className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm hover:bg-white/20 transition-colors"
+            title="Back to Home"
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
           <h1 className="text-xl font-bold">Profile</h1>
-          <div className="relative">
-            <button
-              onClick={() => setShowSettingsDropdown(!showSettingsDropdown)}
-              className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm hover:bg-white/20 transition-colors"
-              title="Settings"
-            >
-              <Settings className="w-5 h-5" />
-            </button>
-
-            {/* Settings Dropdown */}
-            {showSettingsDropdown && (
-              <div className="absolute right-0 top-12 w-52 bg-black/90 backdrop-blur-sm rounded-xl border border-white/10 py-2 z-50">
-                <button
-                  onClick={() => {
-                    handleEditProfile();
-                    setShowSettingsDropdown(false);
-                  }}
-                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
-                >
-                  <Edit3 className="w-4 h-4" />
-                  <span>Edit Profile</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    navigate("/liked-songs");
-                    setShowSettingsDropdown(false);
-                  }}
-                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
-                >
-                  <Heart className="w-4 h-4" />
-                  <span>Liked Songs</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    navigate("/history");
-                    setShowSettingsDropdown(false);
-                  }}
-                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
-                >
-                  <History className="w-4 h-4" />
-                  <span>Recently Played</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    handleDownloadedMusic();
-                    setShowSettingsDropdown(false);
-                  }}
-                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
-                >
-                  <Download className="w-4 h-4" />
-                  <span>Downloaded Music</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    handleNotifications();
-                    setShowSettingsDropdown(false);
-                  }}
-                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
-                >
-                  <Bell className="w-4 h-4" />
-                  <span>Notifications</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    handleHelp();
-                    setShowSettingsDropdown(false);
-                  }}
-                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
-                >
-                  <HelpCircle className="w-4 h-4" />
-                  <span>Help & Support</span>
-                </button>
-
-                <div className="border-t border-white/10 my-1"></div>
-
-                <button
-                  onClick={() => {
-                    handleLogout();
-                    setShowSettingsDropdown(false);
-                  }}
-                  className="w-full px-4 py-3 text-left text-red-400 hover:bg-red-500/10 transition-colors flex items-center space-x-3"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span>Log Out</span>
-                </button>
-              </div>
-            )}
-          </div>
+          <button
+            onClick={() => navigate("/settings")}
+            className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm hover:bg-white/20 transition-colors"
+            title="Settings"
+          >
+            <Settings className="w-5 h-5" />
+          </button>
         </motion.div>
 
         {/* User Info */}
@@ -764,26 +604,6 @@ export default function Profile() {
             </motion.div>
           </motion.div>
         )}
-
-        {/* Menu Items */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-          className="px-6 space-y-2"
-        >
-          {menuItems.map((item, index) => (
-            <button
-              key={index}
-              onClick={item.action}
-              className="w-full p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-white/10 flex items-center space-x-4 hover:bg-white/10 transition-all"
-            >
-              <item.icon className="w-5 h-5 text-gray-400" />
-              <span className="flex-1 text-left">{item.label}</span>
-              <ArrowLeft className="w-4 h-4 text-gray-400 rotate-180" />
-            </button>
-          ))}
-        </motion.div>
 
         {/* Footer */}
         <motion.div

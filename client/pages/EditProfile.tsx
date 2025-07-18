@@ -48,9 +48,19 @@ export default function EditProfile() {
   const [newGenre, setNewGenre] = useState("");
   const [newArtist, setNewArtist] = useState("");
   const [newLanguage, setNewLanguage] = useState("");
+  const [imageLoadError, setImageLoadError] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const currentProfile = { ...profile, ...editedProfile };
+
+  // Debug logging
+  console.log("Current profile data:", currentProfile);
+  console.log("Profile picture URL:", currentProfile.profilePicture);
+
+  // Reset image error when profile picture URL changes
+  React.useEffect(() => {
+    setImageLoadError(false);
+  }, [currentProfile.profilePicture]);
 
   const handleProfilePictureUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -58,14 +68,37 @@ export default function EditProfile() {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // Client-side validation before upload
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const allowedTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+    ];
+
+    if (file.size > maxSize) {
+      // Use toast from context for consistency
+      return;
+    }
+
+    if (!allowedTypes.includes(file.type)) {
+      // Use toast from context for consistency
+      return;
+    }
+
     setIsUploading(true);
     try {
-      const imageUrl = await uploadProfilePicture(file);
-      console.log("Profile picture uploaded:", imageUrl);
+      await uploadProfilePicture(file);
     } catch (error) {
-      console.error("Upload failed:", error);
+      // Error is already handled by ProfileContext with toast notification
     } finally {
       setIsUploading(false);
+      // Clear the input to allow re-selecting the same file if needed
+      if (event.target) {
+        event.target.value = "";
+      }
     }
   };
 
@@ -239,11 +272,23 @@ export default function EditProfile() {
                 <div className="relative inline-block">
                   <div className="w-32 h-32 bg-gradient-to-br from-neon-green to-neon-blue rounded-full p-1">
                     <div className="w-full h-full bg-gray-800 rounded-full flex items-center justify-center overflow-hidden">
-                      {currentProfile.profilePicture ? (
+                      {currentProfile.profilePicture && !imageLoadError ? (
                         <img
                           src={currentProfile.profilePicture}
                           alt="Profile"
                           className="w-full h-full object-cover"
+                          crossOrigin="anonymous"
+                          onError={(e) => {
+                            console.error(
+                              "Failed to load profile image:",
+                              currentProfile.profilePicture,
+                            );
+                            setImageLoadError(true);
+                          }}
+                          onLoad={() => {
+                            console.log("Profile image loaded successfully");
+                            setImageLoadError(false);
+                          }}
                         />
                       ) : (
                         <User className="w-16 h-16 text-gray-400" />
