@@ -44,6 +44,11 @@ export default function HomeScreen() {
     else setGreeting("Good Evening");
   }, []);
 
+  // Reset image error when profile picture changes
+  useEffect(() => {
+    setProfileImageError(false);
+  }, [profile.profilePicture]);
+
   useEffect(() => {
     const handleScroll = () => {
       const currentScrollY = window.scrollY;
