@@ -672,17 +672,17 @@ export default function Settings() {
           </motion.div>
         )}
 
-        {/* Enhanced Professional Analytics Modal */}
+        {/* Compact Analytics Overview */}
         {showAnalyticsModal && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="fixed inset-0 bg-black/90 backdrop-blur-lg z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-6"
           >
             <motion.div
-              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
-              className="bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-3xl p-8 w-full h-full max-w-[95vw] max-h-[95vh] overflow-y-auto border border-white/20 shadow-2xl"
+              className="bg-black/80 backdrop-blur-sm rounded-2xl p-6 w-full max-w-4xl max-h-[85vh] overflow-y-auto border border-white/30 shadow-xl"
             >
               {/* Header */}
               <div className="flex items-center justify-between mb-8">
