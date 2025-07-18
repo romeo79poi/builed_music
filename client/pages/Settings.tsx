@@ -766,7 +766,7 @@ export default function Settings() {
                   initial={{ y: 20, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.3 }}
-                  className="col-span-2 bg-gradient-to-br from-purple-500/20 via-purple-500/10 to-transparent rounded-2xl p-6 border border-purple-500/30 relative overflow-hidden"
+                  className="bg-gradient-to-br from-purple-500/20 to-purple-500/5 rounded-xl p-3 border border-purple-500/30"
                 >
                   <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent rounded-2xl"></div>
                   <div className="relative">
@@ -1147,8 +1147,7 @@ export default function Settings() {
                     <strong>Password requirements:</strong>
                     <br />• At least 8 characters long
                     <br />• Contains uppercase and lowercase letters
-                    <br />
-                    ��� Contains at least one number
+                    <br />• Contains at least one number
                   </p>
                 </div>
 
