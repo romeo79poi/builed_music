@@ -36,7 +36,6 @@ export default function Profile() {
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [isUpdatingSubscription, setIsUpdatingSubscription] = useState(false);
   const [userStats, setUserStats] = useState<any>(null);
-  const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
   const [profileImageError, setProfileImageError] = useState(false);
 
   useEffect(() => {
