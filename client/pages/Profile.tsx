@@ -314,49 +314,79 @@ export default function Profile() {
 
             {/* Settings Dropdown */}
             {showSettingsDropdown && (
-              <div className="absolute right-0 top-12 w-52 bg-black/90 backdrop-blur-sm rounded-xl border border-white/10 py-2 z-50">
+              <div className="absolute right-0 top-12 w-64 bg-black/95 backdrop-blur-sm rounded-xl border border-white/10 py-2 z-50 shadow-2xl">
+                {/* Profile Section */}
+                <div className="px-4 py-2 border-b border-white/10">
+                  <p className="text-xs text-gray-400 uppercase tracking-wider">
+                    Profile
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => {
+                    handleAccountInfo();
+                  }}
+                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center justify-between"
+                >
+                  <div className="flex items-center space-x-3">
+                    <User className="w-4 h-4" />
+                    <span>Account overview</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-gray-400" />
+                </button>
+
                 <button
                   onClick={() => {
                     handleEditProfile();
                     setShowSettingsDropdown(false);
                   }}
-                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
+                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center justify-between"
                 >
-                  <Edit3 className="w-4 h-4" />
-                  <span>Edit Profile</span>
+                  <div className="flex items-center space-x-3">
+                    <Edit3 className="w-4 h-4" />
+                    <span>Edit profile</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-gray-400" />
                 </button>
 
                 <button
-                  onClick={() => {
-                    navigate("/liked-songs");
-                    setShowSettingsDropdown(false);
-                  }}
-                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
+                  onClick={handleChangePassword}
+                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center justify-between"
                 >
-                  <Heart className="w-4 h-4" />
-                  <span>Liked Songs</span>
+                  <div className="flex items-center space-x-3">
+                    <Key className="w-4 h-4" />
+                    <span>Change password</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-gray-400" />
+                </button>
+
+                {/* Privacy & Security Section */}
+                <div className="px-4 py-2 border-b border-t border-white/10 mt-2">
+                  <p className="text-xs text-gray-400 uppercase tracking-wider">
+                    Privacy & Security
+                  </p>
+                </div>
+
+                <button
+                  onClick={handleSecurity}
+                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center justify-between"
+                >
+                  <div className="flex items-center space-x-3">
+                    <Shield className="w-4 h-4" />
+                    <span>Security & privacy</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-gray-400" />
                 </button>
 
                 <button
-                  onClick={() => {
-                    navigate("/history");
-                    setShowSettingsDropdown(false);
-                  }}
-                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
+                  onClick={handlePrivacySettings}
+                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center justify-between"
                 >
-                  <History className="w-4 h-4" />
-                  <span>Recently Played</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    handleDownloadedMusic();
-                    setShowSettingsDropdown(false);
-                  }}
-                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
-                >
-                  <Download className="w-4 h-4" />
-                  <span>Downloaded Music</span>
+                  <div className="flex items-center space-x-3">
+                    <UserX className="w-4 h-4" />
+                    <span>Privacy settings</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-gray-400" />
                 </button>
 
                 <button
@@ -364,21 +394,101 @@ export default function Profile() {
                     handleNotifications();
                     setShowSettingsDropdown(false);
                   }}
-                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
+                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center justify-between"
                 >
-                  <Bell className="w-4 h-4" />
-                  <span>Notifications</span>
+                  <div className="flex items-center space-x-3">
+                    <Bell className="w-4 h-4" />
+                    <span>Notifications</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-gray-400" />
                 </button>
+
+                {/* Music & Library Section */}
+                <div className="px-4 py-2 border-b border-t border-white/10 mt-2">
+                  <p className="text-xs text-gray-400 uppercase tracking-wider">
+                    Music & Library
+                  </p>
+                </div>
+
+                <button
+                  onClick={() => {
+                    navigate("/liked-songs");
+                    setShowSettingsDropdown(false);
+                  }}
+                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center justify-between"
+                >
+                  <div className="flex items-center space-x-3">
+                    <Heart className="w-4 h-4" />
+                    <span>Liked Songs</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-gray-400" />
+                </button>
+
+                <button
+                  onClick={() => {
+                    navigate("/history");
+                    setShowSettingsDropdown(false);
+                  }}
+                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center justify-between"
+                >
+                  <div className="flex items-center space-x-3">
+                    <History className="w-4 h-4" />
+                    <span>Recently played</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-gray-400" />
+                </button>
+
+                <button
+                  onClick={() => {
+                    handleDownloadedMusic();
+                    setShowSettingsDropdown(false);
+                  }}
+                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center justify-between"
+                >
+                  <div className="flex items-center space-x-3">
+                    <Download className="w-4 h-4" />
+                    <span>Downloaded music</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-gray-400" />
+                </button>
+
+                {/* Payment Section */}
+                <div className="px-4 py-2 border-b border-t border-white/10 mt-2">
+                  <p className="text-xs text-gray-400 uppercase tracking-wider">
+                    Payment
+                  </p>
+                </div>
+
+                <button
+                  onClick={handlePaymentInfo}
+                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center justify-between"
+                >
+                  <div className="flex items-center space-x-3">
+                    <CreditCard className="w-4 h-4" />
+                    <span>Payment information</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-gray-400" />
+                </button>
+
+                {/* Support Section */}
+                <div className="px-4 py-2 border-b border-t border-white/10 mt-2">
+                  <p className="text-xs text-gray-400 uppercase tracking-wider">
+                    Support
+                  </p>
+                </div>
 
                 <button
                   onClick={() => {
                     handleHelp();
                     setShowSettingsDropdown(false);
                   }}
-                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
+                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center justify-between"
                 >
-                  <HelpCircle className="w-4 h-4" />
-                  <span>Help & Support</span>
+                  <div className="flex items-center space-x-3">
+                    <HelpCircle className="w-4 h-4" />
+                    <span>Help & Support</span>
+                  </div>
+                  <ChevronRight className="w-4 h-4 text-gray-400" />
                 </button>
 
                 <div className="border-t border-white/10 my-1"></div>
@@ -391,7 +501,7 @@ export default function Profile() {
                   className="w-full px-4 py-3 text-left text-red-400 hover:bg-red-500/10 transition-colors flex items-center space-x-3"
                 >
                   <LogOut className="w-4 h-4" />
-                  <span>Log Out</span>
+                  <span>Log out</span>
                 </button>
               </div>
             )}
