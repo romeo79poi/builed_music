@@ -591,7 +591,7 @@ export default function Settings() {
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="bg-black rounded-3xl p-6 max-w-6xl w-full max-h-[90vh] overflow-y-auto border border-white/10"
+              className="bg-black rounded-3xl p-6 max-w-4xl w-full max-h-[85vh] overflow-y-auto border border-white/10"
             >
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-3xl font-bold flex items-center">
