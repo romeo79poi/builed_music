@@ -287,85 +287,8 @@ export default function Profile() {
               </div>
             )}
             {profile.subscription.plan === "premium" && (
-              <div className="absolute right-0 top-12 w-52 bg-black/90 backdrop-blur-sm rounded-xl border border-white/10 py-2 z-50">
-                <button
-                  onClick={() => {
-                    handleEditProfile();
-                    setShowSettingsDropdown(false);
-                  }}
-                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
-                >
-                  <Edit3 className="w-4 h-4" />
-                  <span>Edit Profile</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    navigate("/liked-songs");
-                    setShowSettingsDropdown(false);
-                  }}
-                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
-                >
-                  <Heart className="w-4 h-4" />
-                  <span>Liked Songs</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    navigate("/history");
-                    setShowSettingsDropdown(false);
-                  }}
-                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
-                >
-                  <History className="w-4 h-4" />
-                  <span>Recently Played</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    handleDownloadedMusic();
-                    setShowSettingsDropdown(false);
-                  }}
-                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
-                >
-                  <Download className="w-4 h-4" />
-                  <span>Downloaded Music</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    handleNotifications();
-                    setShowSettingsDropdown(false);
-                  }}
-                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
-                >
-                  <Bell className="w-4 h-4" />
-                  <span>Notifications</span>
-                </button>
-
-                <button
-                  onClick={() => {
-                    handleHelp();
-                    setShowSettingsDropdown(false);
-                  }}
-                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
-                >
-                  <HelpCircle className="w-4 h-4" />
-                  <span>Help & Support</span>
-                </button>
-
-                <div className="border-t border-white/10 my-1"></div>
-
-                <button
-                  onClick={() => {
-                    handleLogout();
-                    setShowSettingsDropdown(false);
-                  }}
-                  className="w-full px-4 py-3 text-left text-red-400 hover:bg-red-500/10 transition-colors flex items-center space-x-3"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span>Log Out</span>
-                </button>
+              <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
+                <Crown className="w-4 h-4 text-black" />
               </div>
             )}
           </div>
