@@ -257,16 +257,54 @@ export default function Profile() {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <h1 className="text-xl font-bold">Profile</h1>
-                    <button
+          <button
             onClick={() => navigate("/settings")}
             className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm hover:bg-white/20 transition-colors"
             title="Settings"
           >
             <Settings className="w-5 h-5" />
           </button>
+        </motion.div>
 
-            {/* Settings Dropdown */}
-            {showSettingsDropdown && (
+        {/* User Info */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+          className="px-6 py-8 text-center"
+        >
+          <div className="relative inline-block">
+            <button
+              onClick={handleEditProfile}
+              className="w-24 h-24 bg-gradient-to-br from-neon-green to-neon-blue rounded-full p-1 hover:scale-105 transition-transform cursor-pointer"
+              title="Click to edit profile"
+            >
+              <div className="w-full h-full bg-gray-800 rounded-full flex items-center justify-center overflow-hidden">
+                {profile.profilePicture && !profileImageError ? (
+                  <img
+                    src={profile.profilePicture}
+                    alt={profile.displayName}
+                    className="w-full h-full object-cover"
+                    onError={() => {
+                      console.log(
+                        "Profile image failed to load:",
+                        profile.profilePicture,
+                      );
+                      setProfileImageError(true);
+                    }}
+                    onLoad={() => setProfileImageError(false)}
+                  />
+                ) : (
+                  <User className="w-12 h-12 text-gray-400" />
+                )}
+              </div>
+            </button>
+            {profile.isVerified && (
+              <div className="absolute -top-1 -right-1 w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center">
+                <Check className="w-4 h-4 text-white" />
+              </div>
+            )}
+            {profile.subscription.plan === "premium" && (
               <div className="absolute right-0 top-12 w-52 bg-black/90 backdrop-blur-sm rounded-xl border border-white/10 py-2 z-50">
                 <button
                   onClick={() => {
