@@ -55,6 +55,16 @@ export default function Settings() {
     }));
   };
 
+  // Profile Analytics State
+  const [profileStats] = useState({
+    profileViews: 2847,
+    followers: 456,
+    following: 123,
+    isProfessional: true,
+    monthlyListeners: 1234,
+    totalPlays: 15672,
+  });
+
   // Profile Settings
   const profileSettings = [
     {
