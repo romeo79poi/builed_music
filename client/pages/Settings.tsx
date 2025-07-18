@@ -713,72 +713,113 @@ export default function Settings() {
                 </button>
               </div>
 
-              {/* Overview Stats */}
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
-                <div className="bg-gradient-to-br from-neon-green/20 to-neon-green/5 rounded-xl p-4 border border-neon-green/20">
-                  <div className="flex items-center justify-between mb-2">
-                    <Music className="w-6 h-6 text-neon-green" />
-                    <span className="text-xs text-neon-green bg-neon-green/20 px-2 py-1 rounded-full">
-                      +{analyticsData.growth.streamGrowth}
-                    </span>
+              {/* Key Metrics Grid */}
+              <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-8">
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.1 }}
+                  className="col-span-2 bg-gradient-to-br from-neon-green/20 via-neon-green/10 to-transparent rounded-2xl p-6 border border-neon-green/30 relative overflow-hidden"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-neon-green/5 to-transparent rounded-2xl"></div>
+                  <div className="relative">
+                    <div className="flex items-center justify-between mb-3">
+                      <Headphones className="w-8 h-8 text-neon-green" />
+                      <span className="text-xs text-neon-green bg-neon-green/20 px-3 py-1 rounded-full font-semibold">
+                        +{analyticsData.growth.streamGrowth}
+                      </span>
+                    </div>
+                    <p className="text-3xl font-black text-white mb-1">
+                      {analyticsData.overview.totalStreams.toLocaleString()}
+                    </p>
+                    <p className="text-sm text-gray-300 font-medium">
+                      Total Streams
+                    </p>
+                    <div className="mt-3 flex items-center text-xs text-neon-green">
+                      <TrendingUp className="w-3 h-3 mr-1" />
+                      <span>+2.3K this week</span>
+                    </div>
                   </div>
-                  <p className="text-2xl font-bold text-white">
-                    {analyticsData.overview.totalStreams.toLocaleString()}
-                  </p>
-                  <p className="text-sm text-gray-400">Total Streams</p>
-                </div>
+                </motion.div>
 
-                <div className="bg-gradient-to-br from-neon-blue/20 to-neon-blue/5 rounded-xl p-4 border border-neon-blue/20">
-                  <div className="flex items-center justify-between mb-2">
-                    <User className="w-6 h-6 text-neon-blue" />
-                    <span className="text-xs text-neon-blue bg-neon-blue/20 px-2 py-1 rounded-full">
-                      +{analyticsData.growth.engagementGrowth}
-                    </span>
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="col-span-2 bg-gradient-to-br from-neon-blue/20 via-neon-blue/10 to-transparent rounded-2xl p-6 border border-neon-blue/30 relative overflow-hidden"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-neon-blue/5 to-transparent rounded-2xl"></div>
+                  <div className="relative">
+                    <div className="flex items-center justify-between mb-3">
+                      <User className="w-8 h-8 text-neon-blue" />
+                      <span className="text-xs text-neon-blue bg-neon-blue/20 px-3 py-1 rounded-full font-semibold">
+                        +{analyticsData.growth.engagementGrowth}
+                      </span>
+                    </div>
+                    <p className="text-3xl font-black text-white mb-1">
+                      {analyticsData.overview.uniqueListeners.toLocaleString()}
+                    </p>
+                    <p className="text-sm text-gray-300 font-medium">
+                      Unique Listeners
+                    </p>
+                    <div className="mt-3 flex items-center text-xs text-neon-blue">
+                      <Activity className="w-3 h-3 mr-1" />
+                      <span>67% returning</span>
+                    </div>
                   </div>
-                  <p className="text-2xl font-bold text-white">
-                    {analyticsData.overview.uniqueListeners.toLocaleString()}
-                  </p>
-                  <p className="text-sm text-gray-400">Unique Listeners</p>
-                </div>
+                </motion.div>
 
-                <div className="bg-gradient-to-br from-purple-500/20 to-purple-500/5 rounded-xl p-4 border border-purple-500/20">
-                  <div className="flex items-center justify-between mb-2">
-                    <Eye className="w-6 h-6 text-purple-400" />
-                    <span className="text-xs text-purple-400 bg-purple-500/20 px-2 py-1 rounded-full">
-                      AVG
-                    </span>
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.3 }}
+                  className="col-span-2 bg-gradient-to-br from-purple-500/20 via-purple-500/10 to-transparent rounded-2xl p-6 border border-purple-500/30 relative overflow-hidden"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent rounded-2xl"></div>
+                  <div className="relative">
+                    <div className="flex items-center justify-between mb-3">
+                      <Eye className="w-8 h-8 text-purple-400" />
+                      <span className="text-xs text-purple-400 bg-purple-500/20 px-3 py-1 rounded-full font-semibold">
+                        +{analyticsData.growth.viewsGrowth}
+                      </span>
+                    </div>
+                    <p className="text-3xl font-black text-white mb-1">
+                      {analyticsData.overview.profileViews.toLocaleString()}
+                    </p>
+                    <p className="text-sm text-gray-300 font-medium">
+                      Profile Views
+                    </p>
+                    <div className="mt-3 flex items-center text-xs text-purple-400">
+                      <Zap className="w-3 h-3 mr-1" />
+                      <span>Peak: 2-6 PM</span>
+                    </div>
                   </div>
-                  <p className="text-2xl font-bold text-white">
-                    {analyticsData.overview.averagePlayTime}
-                  </p>
-                  <p className="text-sm text-gray-400">Avg Play Time</p>
-                </div>
+                </motion.div>
 
-                <div className="bg-gradient-to-br from-orange-500/20 to-orange-500/5 rounded-xl p-4 border border-orange-500/20">
-                  <div className="flex items-center justify-between mb-2">
-                    <Heart className="w-6 h-6 text-orange-400" />
-                    <span className="text-xs text-orange-400 bg-orange-500/20 px-2 py-1 rounded-full">
-                      RATE
-                    </span>
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                  className="col-span-2 bg-gradient-to-br from-orange-500/20 via-orange-500/10 to-transparent rounded-2xl p-6 border border-orange-500/30 relative overflow-hidden"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent rounded-2xl"></div>
+                  <div className="relative">
+                    <div className="flex items-center justify-between mb-3">
+                      <CreditCard className="w-8 h-8 text-orange-400" />
+                      <span className="text-xs text-orange-400 bg-orange-500/20 px-3 py-1 rounded-full font-semibold">
+                        +{analyticsData.growth.revenueGrowth}
+                      </span>
+                    </div>
+                    <p className="text-3xl font-black text-white mb-1">
+                      {analyticsData.overview.revenue}
+                    </p>
+                    <p className="text-sm text-gray-300 font-medium">Revenue</p>
+                    <div className="mt-3 flex items-center text-xs text-orange-400">
+                      <Target className="w-3 h-3 mr-1" />
+                      <span>$500 goal</span>
+                    </div>
                   </div>
-                  <p className="text-2xl font-bold text-white">
-                    {analyticsData.overview.engagement}
-                  </p>
-                  <p className="text-sm text-gray-400">Engagement</p>
-                </div>
-
-                <div className="bg-gradient-to-br from-green-500/20 to-green-500/5 rounded-xl p-4 border border-green-500/20">
-                  <div className="flex items-center justify-between mb-2">
-                    <CreditCard className="w-6 h-6 text-green-400" />
-                    <span className="text-xs text-green-400 bg-green-500/20 px-2 py-1 rounded-full">
-                      +{analyticsData.growth.revenueGrowth}
-                    </span>
-                  </div>
-                  <p className="text-2xl font-bold text-white">
-                    {analyticsData.overview.revenue}
-                  </p>
-                  <p className="text-sm text-gray-400">Revenue</p>
-                </div>
+                </motion.div>
               </div>
 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
