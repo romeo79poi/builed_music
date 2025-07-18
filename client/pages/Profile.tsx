@@ -44,6 +44,8 @@ export default function Profile() {
   const [userStats, setUserStats] = useState<any>(null);
   const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
   const [profileImageError, setProfileImageError] = useState(false);
+  const [showSecurityModal, setShowSecurityModal] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   useEffect(() => {
     loadUserStats();
