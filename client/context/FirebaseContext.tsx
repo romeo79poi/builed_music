@@ -98,3 +98,7 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
     </FirebaseContext.Provider>
   );
 };
+
+// Export Firebase instances
+export const firebaseApp = app;
+export { firebaseAuth };
