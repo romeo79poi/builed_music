@@ -159,42 +159,6 @@ export default function Profile() {
     }
   };
 
-  const handleDownloadedMusic = () => {
-    // Mock downloaded music functionality
-    toast({
-      title: "Downloaded Music",
-      description: `You have ${profile.subscription.plan === "free" ? 0 : 23} downloaded songs`,
-    });
-  };
-
-  const handleNotifications = () => {
-    // Mock notifications functionality
-    toast({
-      title: "Notifications",
-      description: "You have 3 new notifications",
-    });
-  };
-
-  const handleSettings = () => {
-    navigate("/settings");
-  };
-
-  const handleHelp = () => {
-    // Mock help functionality
-    toast({
-      title: "Help & Support",
-      description: "Contact support at help@musiccatch.com",
-    });
-  };
-
-  const handleLogout = () => {
-    toast({
-      title: "Logged Out",
-      description: "You have been successfully logged out",
-    });
-    navigate("/login");
-  };
-
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
       {/* Background Glow Effects */}
