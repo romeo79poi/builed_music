@@ -635,26 +635,6 @@ export default function Profile() {
           </motion.div>
         )}
 
-        {/* Menu Items */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7 }}
-          className="px-6 space-y-2"
-        >
-          {menuItems.map((item, index) => (
-            <button
-              key={index}
-              onClick={item.action}
-              className="w-full p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-white/10 flex items-center space-x-4 hover:bg-white/10 transition-all"
-            >
-              <item.icon className="w-5 h-5 text-gray-400" />
-              <span className="flex-1 text-left">{item.label}</span>
-              <ArrowLeft className="w-4 h-4 text-gray-400 rotate-180" />
-            </button>
-          ))}
-        </motion.div>
-
         {/* Footer */}
         <motion.div
           initial={{ opacity: 0 }}
