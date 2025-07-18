@@ -41,8 +41,11 @@ export default function Profile() {
   const { profile, setIsEditing, isLoading, loadProfile } = useProfileContext();
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [isUpdatingSubscription, setIsUpdatingSubscription] = useState(false);
-      const [userStats, setUserStats] = useState<any>(null);
+  const [userStats, setUserStats] = useState<any>(null);
+  const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
   const [profileImageError, setProfileImageError] = useState(false);
+  const [showSecurityModal, setShowSecurityModal] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   useEffect(() => {
     loadUserStats();
@@ -53,10 +56,22 @@ export default function Profile() {
     setProfileImageError(false);
   }, [profile.profilePicture]);
 
-    // Navigate to settings page
-  const handleSettings = () => {
-    navigate("/settings");
-  };
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showSettingsDropdown) {
+        setShowSettingsDropdown(false);
+      }
+    };
+
+    if (showSettingsDropdown) {
+      document.addEventListener("click", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [showSettingsDropdown]);
 
   const loadUserStats = async () => {
     try {
@@ -202,7 +217,47 @@ export default function Profile() {
     });
   };
 
-    
+  const handleLogout = () => {
+    toast({
+      title: "Logged Out",
+      description: "You have been successfully logged out",
+    });
+    navigate("/login");
+  };
+
+  const handleSecurity = () => {
+    setShowSecurityModal(true);
+    setShowSettingsDropdown(false);
+  };
+
+  const handleChangePassword = () => {
+    setShowPasswordModal(true);
+    setShowSettingsDropdown(false);
+  };
+
+  const handleAccountInfo = () => {
+    toast({
+      title: "Account Information",
+      description: "View and manage your account details",
+    });
+    setShowSettingsDropdown(false);
+  };
+
+  const handlePaymentInfo = () => {
+    toast({
+      title: "Payment Information",
+      description: "Manage your payment methods and billing",
+    });
+    setShowSettingsDropdown(false);
+  };
+
+  const handlePrivacySettings = () => {
+    toast({
+      title: "Privacy Settings",
+      description: "Control your privacy and data settings",
+    });
+    setShowSettingsDropdown(false);
+  };
 
   const menuItems = [
     { icon: Edit3, label: "Edit Profile", action: handleEditProfile },
@@ -235,7 +290,7 @@ export default function Profile() {
       </div>
 
       <div className="relative z-10">
-                {/* Header */}
+        {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -248,21 +303,23 @@ export default function Profile() {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <h1 className="text-xl font-bold">Profile</h1>
-          <button
-            onClick={handleSettings}
-            className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm hover:bg-white/20 transition-colors"
-            title="Settings"
-          >
-            <Settings className="w-5 h-5" />
-          </button>
-        </motion.div>
+          <div className="relative">
+            <button
+              onClick={() => setShowSettingsDropdown(!showSettingsDropdown)}
+              className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm hover:bg-white/20 transition-colors"
+              title="Settings"
+            >
+              <Settings className="w-5 h-5" />
+            </button>
 
-                        {/* Settings Dropdown */}
+            {/* Settings Dropdown */}
             {showSettingsDropdown && (
               <div className="absolute right-0 top-12 w-64 bg-black/95 backdrop-blur-sm rounded-xl border border-white/10 py-2 z-50 shadow-2xl">
                 {/* Profile Section */}
                 <div className="px-4 py-2 border-b border-white/10">
-                  <p className="text-xs text-gray-400 uppercase tracking-wider">Profile</p>
+                  <p className="text-xs text-gray-400 uppercase tracking-wider">
+                    Profile
+                  </p>
                 </div>
 
                 <button
@@ -305,7 +362,9 @@ export default function Profile() {
 
                 {/* Privacy & Security Section */}
                 <div className="px-4 py-2 border-b border-t border-white/10 mt-2">
-                  <p className="text-xs text-gray-400 uppercase tracking-wider">Privacy & Security</p>
+                  <p className="text-xs text-gray-400 uppercase tracking-wider">
+                    Privacy & Security
+                  </p>
                 </div>
 
                 <button
@@ -346,7 +405,9 @@ export default function Profile() {
 
                 {/* Music & Library Section */}
                 <div className="px-4 py-2 border-b border-t border-white/10 mt-2">
-                  <p className="text-xs text-gray-400 uppercase tracking-wider">Music & Library</p>
+                  <p className="text-xs text-gray-400 uppercase tracking-wider">
+                    Music & Library
+                  </p>
                 </div>
 
                 <button
@@ -393,7 +454,9 @@ export default function Profile() {
 
                 {/* Payment Section */}
                 <div className="px-4 py-2 border-b border-t border-white/10 mt-2">
-                  <p className="text-xs text-gray-400 uppercase tracking-wider">Payment</p>
+                  <p className="text-xs text-gray-400 uppercase tracking-wider">
+                    Payment
+                  </p>
                 </div>
 
                 <button
@@ -409,7 +472,9 @@ export default function Profile() {
 
                 {/* Support Section */}
                 <div className="px-4 py-2 border-b border-t border-white/10 mt-2">
-                  <p className="text-xs text-gray-400 uppercase tracking-wider">Support</p>
+                  <p className="text-xs text-gray-400 uppercase tracking-wider">
+                    Support
+                  </p>
                 </div>
 
                 <button
@@ -877,7 +942,7 @@ export default function Profile() {
           ))}
         </motion.div>
 
-                {/* Security Modal */}
+        {/* Security Modal */}
         {showSecurityModal && (
           <motion.div
             initial={{ opacity: 0 }}
@@ -909,7 +974,9 @@ export default function Profile() {
                       <Key className="w-5 h-5 text-blue-400" />
                       <div>
                         <h3 className="font-semibold">Password</h3>
-                        <p className="text-sm text-gray-400">Last changed 3 months ago</p>
+                        <p className="text-sm text-gray-400">
+                          Last changed 3 months ago
+                        </p>
                       </div>
                     </div>
                     <button
@@ -929,7 +996,9 @@ export default function Profile() {
                     <div className="flex items-center space-x-3">
                       <Smartphone className="w-5 h-5 text-green-400" />
                       <div>
-                        <h3 className="font-semibold">Two-factor authentication</h3>
+                        <h3 className="font-semibold">
+                          Two-factor authentication
+                        </h3>
                         <p className="text-sm text-gray-400">Not enabled</p>
                       </div>
                     </div>
@@ -945,7 +1014,9 @@ export default function Profile() {
                       <UserX className="w-5 h-5 text-purple-400" />
                       <div>
                         <h3 className="font-semibold">Data & Privacy</h3>
-                        <p className="text-sm text-gray-400">Manage your data</p>
+                        <p className="text-sm text-gray-400">
+                          Manage your data
+                        </p>
                       </div>
                     </div>
                     <button className="px-4 py-2 bg-white/10 text-white rounded-lg text-sm hover:bg-white/20 transition-colors">
@@ -1040,7 +1111,8 @@ export default function Profile() {
                       e.preventDefault();
                       toast({
                         title: "Password Changed",
-                        description: "Your password has been updated successfully",
+                        description:
+                          "Your password has been updated successfully",
                       });
                       setShowPasswordModal(false);
                     }}

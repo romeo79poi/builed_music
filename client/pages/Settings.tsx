@@ -20,11 +20,6 @@ import {
   LogOut,
   ChevronRight,
   User,
-  Key,
-  UserX,
-  Edit3,
-  Heart,
-  History,
 } from "lucide-react";
 
 export default function Settings() {
@@ -38,12 +33,7 @@ export default function Settings() {
     showExplicit: true,
     crossfade: true,
     normalize: false,
-    twoFactorAuth: false,
-    privateSession: false,
   });
-
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [showSecurityModal, setShowSecurityModal] = useState(false);
 
   const toggleSetting = (key: keyof typeof settings) => {
     setSettings((prev) => ({
@@ -51,62 +41,6 @@ export default function Settings() {
       [key]: !prev[key],
     }));
   };
-
-  const profileSettings = [
-    {
-      icon: User,
-      title: "Account overview",
-      subtitle: "View and manage your account details",
-      action: () => navigate("/profile"),
-    },
-    {
-      icon: Edit3,
-      title: "Edit profile",
-      subtitle: "Update your profile information",
-      action: () => navigate("/edit-profile"),
-    },
-    {
-      icon: Heart,
-      title: "Liked Songs",
-      subtitle: "View your liked songs",
-      action: () => navigate("/liked-songs"),
-    },
-    {
-      icon: History,
-      title: "Recently played",
-      subtitle: "View your listening history",
-      action: () => navigate("/history"),
-    },
-  ];
-
-  const securitySettings = [
-    {
-      icon: Key,
-      title: "Change password",
-      subtitle: "Update your account password",
-      action: () => setShowPasswordModal(true),
-    },
-    {
-      icon: Shield,
-      title: "Security & privacy",
-      subtitle: "Manage your security settings",
-      action: () => setShowSecurityModal(true),
-    },
-    {
-      icon: UserX,
-      title: "Two-factor authentication",
-      subtitle: settings.twoFactorAuth ? "Enabled" : "Not enabled",
-      toggle: true,
-      key: "twoFactorAuth" as const,
-    },
-    {
-      icon: Lock,
-      title: "Private session",
-      subtitle: "Hide your activity from friends",
-      toggle: true,
-      key: "privateSession" as const,
-    },
-  ];
 
   const generalSettings = [
     {
@@ -193,25 +127,25 @@ export default function Settings() {
       key: "showExplicit" as const,
     },
     {
+      icon: Lock,
+      title: "Private Session",
+      subtitle: "Hide your activity from friends",
+      action: () => {},
+    },
+    {
       icon: Shield,
       title: "Privacy Policy",
       subtitle: "Learn how we protect your data",
       action: () => {},
     },
-    {
-      icon: UserX,
-      title: "Data & Privacy",
-      subtitle: "Control how your data is used",
-      action: () => {},
-    },
   ];
 
-  const paymentSettings = [
+  const accountSettings = [
     {
-      icon: CreditCard,
-      title: "Payment information",
-      subtitle: "Manage your payment methods",
-      action: () => {},
+      icon: User,
+      title: "Account Information",
+      subtitle: "Update your profile and preferences",
+      action: () => navigate("/profile"),
     },
     {
       icon: CreditCard,
@@ -219,9 +153,6 @@ export default function Settings() {
       subtitle: "Manage your Music Catch plan",
       action: () => navigate("/profile"),
     },
-  ];
-
-  const supportSettings = [
     {
       icon: HelpCircle,
       title: "Help & Support",
@@ -344,14 +275,11 @@ export default function Settings() {
 
         {/* Content */}
         <div className="flex-1 px-4 md:px-6 pb-8">
-          <SettingSection title="Profile" items={profileSettings} />
-          <SettingSection title="Security & Privacy" items={securitySettings} />
           <SettingSection title="General" items={generalSettings} />
           <SettingSection title="Audio" items={audioSettings} />
           <SettingSection title="Downloads" items={downloadSettings} />
           <SettingSection title="Privacy" items={privacySettings} />
-          <SettingSection title="Payment" items={paymentSettings} />
-          <SettingSection title="Support" items={supportSettings} />
+          <SettingSection title="Account" items={accountSettings} />
 
           {/* App Info */}
           <motion.div
@@ -364,194 +292,6 @@ export default function Settings() {
             <p className="mt-2">Made with ❤️ for music lovers</p>
           </motion.div>
         </div>
-
-        {/* Security Modal */}
-        {showSecurityModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="bg-black rounded-3xl p-6 max-w-md w-full border border-white/10"
-            >
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold flex items-center">
-                  <Shield className="w-6 h-6 mr-3 text-neon-green" />
-                  Security & Privacy
-                </h2>
-                <button
-                  onClick={() => setShowSecurityModal(false)}
-                  className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center"
-                >
-                  ×
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                <div className="bg-white/5 rounded-xl p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <Key className="w-5 h-5 text-blue-400" />
-                      <div>
-                        <h3 className="font-semibold">Password</h3>
-                        <p className="text-sm text-gray-400">
-                          Last changed 3 months ago
-                        </p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setShowSecurityModal(false);
-                        setShowPasswordModal(true);
-                      }}
-                      className="px-4 py-2 bg-neon-green/20 text-neon-green rounded-lg text-sm hover:bg-neon-green/30 transition-colors"
-                    >
-                      Change
-                    </button>
-                  </div>
-                </div>
-
-                <div className="bg-white/5 rounded-xl p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <Smartphone className="w-5 h-5 text-green-400" />
-                      <div>
-                        <h3 className="font-semibold">
-                          Two-factor authentication
-                        </h3>
-                        <p className="text-sm text-gray-400">
-                          {settings.twoFactorAuth ? "Enabled" : "Not enabled"}
-                        </p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => toggleSetting("twoFactorAuth")}
-                      className={`px-4 py-2 rounded-lg text-sm transition-colors ${
-                        settings.twoFactorAuth
-                          ? "bg-red-500/20 text-red-400 hover:bg-red-500/30"
-                          : "bg-neon-green/20 text-neon-green hover:bg-neon-green/30"
-                      }`}
-                    >
-                      {settings.twoFactorAuth ? "Disable" : "Enable"}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="bg-white/5 rounded-xl p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <UserX className="w-5 h-5 text-purple-400" />
-                      <div>
-                        <h3 className="font-semibold">Data & Privacy</h3>
-                        <p className="text-sm text-gray-400">
-                          Manage your data
-                        </p>
-                      </div>
-                    </div>
-                    <button className="px-4 py-2 bg-white/10 text-white rounded-lg text-sm hover:bg-white/20 transition-colors">
-                      Manage
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-
-        {/* Password Change Modal */}
-        {showPasswordModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="bg-black rounded-3xl p-6 max-w-md w-full border border-white/10"
-            >
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold flex items-center">
-                  <Key className="w-6 h-6 mr-3 text-neon-blue" />
-                  Change Password
-                </h2>
-                <button
-                  onClick={() => setShowPasswordModal(false)}
-                  className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center"
-                >
-                  ×
-                </button>
-              </div>
-
-              <form className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Current Password
-                  </label>
-                  <input
-                    type="password"
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-neon-green focus:border-transparent"
-                    placeholder="Enter current password"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    New Password
-                  </label>
-                  <input
-                    type="password"
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-neon-green focus:border-transparent"
-                    placeholder="Enter new password"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Confirm New Password
-                  </label>
-                  <input
-                    type="password"
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-neon-green focus:border-transparent"
-                    placeholder="Confirm new password"
-                  />
-                </div>
-
-                <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4">
-                  <p className="text-yellow-400 text-sm">
-                    <strong>Password requirements:</strong>
-                    <br />• At least 8 characters long
-                    <br />• Contains uppercase and lowercase letters
-                    <br />• Contains at least one number
-                  </p>
-                </div>
-
-                <div className="flex space-x-3 pt-4">
-                  <button
-                    type="button"
-                    onClick={() => setShowPasswordModal(false)}
-                    className="flex-1 px-4 py-3 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setShowPasswordModal(false);
-                    }}
-                    className="flex-1 px-4 py-3 bg-gradient-to-r from-neon-green to-neon-blue text-black font-semibold rounded-xl hover:scale-105 transition-transform"
-                  >
-                    Change Password
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </motion.div>
-        )}
       </div>
     </div>
   );
