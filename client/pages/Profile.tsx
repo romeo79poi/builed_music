@@ -212,7 +212,6 @@ export default function Profile() {
     },
     { icon: Bell, label: "Notifications", action: handleNotifications },
     { icon: HelpCircle, label: "Help & Support", action: handleHelp },
-    { icon: RefreshCw, label: "Refresh Profile", action: handleRefreshProfile },
     { icon: LogOut, label: "Log Out", action: handleLogout },
   ];
 
