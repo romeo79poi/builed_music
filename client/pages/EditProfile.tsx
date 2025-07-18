@@ -273,15 +273,25 @@ export default function EditProfile() {
                               currentProfile.profilePicture,
                             );
                             e.currentTarget.style.display = "none";
+                            const parent = e.currentTarget.parentElement;
+                            if (
+                              parent &&
+                              !parent.querySelector(".fallback-icon")
+                            ) {
+                              const fallbackIcon =
+                                document.createElement("div");
+                              fallbackIcon.className =
+                                "fallback-icon w-16 h-16 text-gray-400 flex items-center justify-center";
+                              fallbackIcon.innerHTML =
+                                '<svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>';
+                              parent.appendChild(fallbackIcon);
+                            }
                           }}
                           onLoad={() =>
                             console.log("Profile image loaded successfully")
                           }
                         />
                       ) : (
-                        <User className="w-16 h-16 text-gray-400" />
-                      )}
-                      {!currentProfile.profilePicture && (
                         <User className="w-16 h-16 text-gray-400" />
                       )}
                     </div>
