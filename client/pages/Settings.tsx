@@ -125,8 +125,8 @@ export default function Settings() {
     {
       icon: User,
       title: "Account overview",
-      subtitle: "View and manage your account details",
-      action: () => navigate("/profile"),
+      subtitle: "Professional analytics and account insights",
+      action: () => setShowAnalyticsModal(true),
     },
     {
       icon: Edit3,
