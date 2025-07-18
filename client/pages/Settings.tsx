@@ -684,16 +684,16 @@ export default function Settings() {
               animate={{ scale: 1, opacity: 1, y: 0 }}
               className="bg-black/80 backdrop-blur-sm rounded-2xl p-6 w-full max-w-4xl max-h-[85vh] overflow-y-auto border border-white/30 shadow-xl"
             >
-              {/* Header */}
-              <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center space-x-4">
+              {/* Compact Header */}
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center space-x-3">
                   <motion.button
                     initial={{ x: -20, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
                     onClick={() => setShowAnalyticsModal(false)}
-                    className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center hover:bg-white/20 transition-all duration-300 group"
+                    className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center hover:bg-white/20 transition-all duration-300 group"
                   >
-                    <ArrowLeft className="w-5 h-5 text-white group-hover:text-neon-green transition-colors" />
+                    <ArrowLeft className="w-4 h-4 text-white group-hover:text-neon-green transition-colors" />
                   </motion.button>
                   <motion.div
                     initial={{ x: -20, opacity: 0 }}
@@ -701,24 +701,24 @@ export default function Settings() {
                     transition={{ delay: 0.1 }}
                     className="flex items-center"
                   >
-                    <div className="w-12 h-12 bg-gradient-to-r from-neon-green to-neon-blue rounded-2xl flex items-center justify-center mr-4">
-                      <BarChart3 className="w-6 h-6 text-black" />
+                    <div className="w-8 h-8 bg-gradient-to-r from-neon-green to-neon-blue rounded-lg flex items-center justify-center mr-3">
+                      <BarChart3 className="w-4 h-4 text-black" />
                     </div>
                     <div>
-                      <h2 className="text-3xl font-bold bg-gradient-to-r from-neon-green to-neon-blue bg-clip-text text-transparent">
-                        Analytics Dashboard
+                      <h2 className="text-xl font-bold bg-gradient-to-r from-neon-green to-neon-blue bg-clip-text text-transparent">
+                        Analytics Overview
                       </h2>
-                      <p className="text-gray-400 text-sm">
-                        Comprehensive insights into your music performance
+                      <p className="text-gray-400 text-xs">
+                        Performance insights
                       </p>
                     </div>
                   </motion.div>
                 </div>
                 <button
                   onClick={() => setShowAnalyticsModal(false)}
-                  className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center hover:bg-white/20 transition-all duration-300 group"
+                  className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center hover:bg-white/20 transition-all duration-300 group"
                 >
-                  <span className="text-xl group-hover:rotate-90 transition-transform duration-300">
+                  <span className="text-lg group-hover:rotate-90 transition-transform duration-300">
                     ×
                   </span>
                 </button>
