@@ -862,8 +862,8 @@ export default function Settings() {
                 </motion.div>
               </div>
 
-              {/* Content Sections */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+              {/* Full Screen Content Layout */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-12">
                 {/* Top Tracks */}
                 <div className="bg-white/5 rounded-xl p-6 border border-white/10">
                   <h3 className="text-xl font-bold mb-4 flex items-center">
