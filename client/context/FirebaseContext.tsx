@@ -73,7 +73,7 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    await signInWithEmailAndPassword(auth, email, password);
+    await signInWithEmailAndPassword(firebaseAuth, email, password);
   };
 
   const signUp = async (email: string, password: string) => {
