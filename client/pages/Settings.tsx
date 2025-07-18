@@ -38,7 +38,12 @@ export default function Settings() {
     showExplicit: true,
     crossfade: true,
     normalize: false,
+    twoFactorAuth: false,
+    privateSession: false,
   });
+
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [showSecurityModal, setShowSecurityModal] = useState(false);
 
   const toggleSetting = (key: keyof typeof settings) => {
     setSettings((prev) => ({
