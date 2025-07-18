@@ -23,6 +23,12 @@ import {
   Twitter,
   Loader2,
   RefreshCw,
+  Shield,
+  Key,
+  Smartphone,
+  CreditCard,
+  UserX,
+  ChevronRight,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useProfileContext } from "../context/ProfileContext";
