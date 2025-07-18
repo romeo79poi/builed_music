@@ -672,28 +672,44 @@ export default function Settings() {
           </motion.div>
         )}
 
-        {/* Professional Analytics Modal */}
+        {/* Enhanced Professional Analytics Modal */}
         {showAnalyticsModal && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/90 backdrop-blur-lg z-50 flex items-center justify-center p-4"
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="bg-black rounded-3xl p-6 max-w-4xl w-full max-h-[85vh] overflow-y-auto border border-white/10"
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              className="bg-gradient-to-br from-gray-900 via-black to-gray-900 rounded-3xl p-8 max-w-6xl w-full max-h-[90vh] overflow-y-auto border border-white/20 shadow-2xl"
             >
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold flex items-center">
-                  <SettingsIcon className="w-6 h-6 mr-3 text-neon-green" />
-                  Analytics Dashboard
-                </h2>
+              {/* Header */}
+              <div className="flex items-center justify-between mb-8">
+                <motion.div
+                  initial={{ x: -20, opacity: 0 }}
+                  animate={{ x: 0, opacity: 1 }}
+                  className="flex items-center"
+                >
+                  <div className="w-12 h-12 bg-gradient-to-r from-neon-green to-neon-blue rounded-2xl flex items-center justify-center mr-4">
+                    <BarChart3 className="w-6 h-6 text-black" />
+                  </div>
+                  <div>
+                    <h2 className="text-3xl font-bold bg-gradient-to-r from-neon-green to-neon-blue bg-clip-text text-transparent">
+                      Analytics Dashboard
+                    </h2>
+                    <p className="text-gray-400 text-sm">
+                      Comprehensive insights into your music performance
+                    </p>
+                  </div>
+                </motion.div>
                 <button
                   onClick={() => setShowAnalyticsModal(false)}
-                  className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center hover:bg-white/20 transition-colors"
+                  className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center hover:bg-white/20 transition-all duration-300 group"
                 >
-                  ×
+                  <span className="text-xl group-hover:rotate-90 transition-transform duration-300">
+                    ×
+                  </span>
                 </button>
               </div>
 
