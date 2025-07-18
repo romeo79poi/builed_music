@@ -20,6 +20,11 @@ import {
   LogOut,
   ChevronRight,
   User,
+  Key,
+  UserX,
+  Edit3,
+  Heart,
+  History,
 } from "lucide-react";
 
 export default function Settings() {
