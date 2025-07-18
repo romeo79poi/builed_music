@@ -66,6 +66,60 @@ export default function Settings() {
     totalPlays: 15672,
   });
 
+  // Detailed Analytics Data
+  const [analyticsData] = useState({
+    overview: {
+      totalStreams: 45672,
+      uniqueListeners: 3421,
+      averagePlayTime: "3:24",
+      engagement: "12.4%",
+      revenue: "$342.50",
+    },
+    demographics: {
+      topCountries: [
+        { country: "United States", percentage: 35, listeners: 1197 },
+        { country: "United Kingdom", percentage: 22, listeners: 753 },
+        { country: "Canada", percentage: 18, listeners: 616 },
+        { country: "Australia", percentage: 15, listeners: 513 },
+        { country: "Germany", percentage: 10, listeners: 342 },
+      ],
+      ageGroups: [
+        { age: "18-24", percentage: 28 },
+        { age: "25-34", percentage: 45 },
+        { age: "35-44", percentage: 18 },
+        { age: "45+", percentage: 9 },
+      ],
+      genderSplit: { male: 58, female: 42 },
+    },
+    performance: {
+      weeklyStats: [
+        { week: "Week 1", streams: 1234, likes: 89 },
+        { week: "Week 2", streams: 1456, likes: 102 },
+        { week: "Week 3", streams: 1123, likes: 76 },
+        { week: "Week 4", streams: 1890, likes: 134 },
+      ],
+      topTracks: [
+        { title: "Midnight Dreams", plays: 8934, likes: 456 },
+        { title: "Electric Nights", plays: 7621, likes: 398 },
+        { title: "Ocean Waves", plays: 6754, likes: 321 },
+        { title: "City Lights", plays: 5432, likes: 287 },
+        { title: "Summer Vibes", plays: 4567, likes: 234 },
+      ],
+    },
+    growth: {
+      followerGrowth: [
+        { month: "Jan", count: 280 },
+        { month: "Feb", count: 320 },
+        { month: "Mar", count: 375 },
+        { month: "Apr", count: 420 },
+        { month: "May", count: 456 },
+      ],
+      streamGrowth: "+23.5%",
+      engagementGrowth: "+15.2%",
+      revenueGrowth: "+18.7%",
+    },
+  });
+
   // Profile Settings
   const profileSettings = [
     {
