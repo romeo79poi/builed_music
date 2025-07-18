@@ -225,6 +225,40 @@ export default function Profile() {
     navigate("/login");
   };
 
+  const handleSecurity = () => {
+    setShowSecurityModal(true);
+    setShowSettingsDropdown(false);
+  };
+
+  const handleChangePassword = () => {
+    setShowPasswordModal(true);
+    setShowSettingsDropdown(false);
+  };
+
+  const handleAccountInfo = () => {
+    toast({
+      title: "Account Information",
+      description: "View and manage your account details",
+    });
+    setShowSettingsDropdown(false);
+  };
+
+  const handlePaymentInfo = () => {
+    toast({
+      title: "Payment Information",
+      description: "Manage your payment methods and billing",
+    });
+    setShowSettingsDropdown(false);
+  };
+
+  const handlePrivacySettings = () => {
+    toast({
+      title: "Privacy Settings",
+      description: "Control your privacy and data settings",
+    });
+    setShowSettingsDropdown(false);
+  };
+
   const menuItems = [
     { icon: Edit3, label: "Edit Profile", action: handleEditProfile },
     {
