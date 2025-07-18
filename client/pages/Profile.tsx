@@ -194,11 +194,7 @@ export default function Profile() {
   };
 
   const handleSettings = () => {
-    // Mock settings functionality
-    toast({
-      title: "Settings",
-      description: "Settings page will open here",
-    });
+    navigate("/settings");
   };
 
   const handleHelp = () => {
