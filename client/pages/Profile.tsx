@@ -238,13 +238,66 @@ export default function Profile() {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <h1 className="text-xl font-bold">Profile</h1>
-          <button
-            onClick={handleSettings}
-            className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm hover:bg-white/20 transition-colors"
-            title="Settings"
-          >
-            <Settings className="w-5 h-5" />
-          </button>
+          <div className="relative">
+            <button
+              onClick={() => setShowSettingsDropdown(!showSettingsDropdown)}
+              className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm hover:bg-white/20 transition-colors"
+              title="Settings"
+            >
+              <Settings className="w-5 h-5" />
+            </button>
+
+            {/* Settings Dropdown */}
+            {showSettingsDropdown && (
+              <div className="absolute right-0 top-12 w-48 bg-black/90 backdrop-blur-sm rounded-xl border border-white/10 py-2 z-50">
+                <button
+                  onClick={() => {
+                    handleEditProfile();
+                    setShowSettingsDropdown(false);
+                  }}
+                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
+                >
+                  <Edit3 className="w-4 h-4" />
+                  <span>Edit Profile</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    handleNotifications();
+                    setShowSettingsDropdown(false);
+                  }}
+                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
+                >
+                  <Bell className="w-4 h-4" />
+                  <span>Notifications</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    handleHelp();
+                    setShowSettingsDropdown(false);
+                  }}
+                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
+                >
+                  <HelpCircle className="w-4 h-4" />
+                  <span>Help & Support</span>
+                </button>
+
+                <div className="border-t border-white/10 my-1"></div>
+
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setShowSettingsDropdown(false);
+                  }}
+                  className="w-full px-4 py-3 text-left text-red-400 hover:bg-red-500/10 transition-colors flex items-center space-x-3"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Log Out</span>
+                </button>
+              </div>
+            )}
+          </div>
         </motion.div>
 
         {/* User Info */}
