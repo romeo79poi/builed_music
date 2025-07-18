@@ -8,6 +8,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { MusicProvider } from "./context/MusicContext";
 import { ProfileProvider } from "./context/ProfileContext";
+import {
+  FirebaseProvider,
+  firebaseApp,
+  firebaseAuth,
+} from "./context/FirebaseContext";
 import Splash from "./pages/Splash";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
