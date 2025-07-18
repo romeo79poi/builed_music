@@ -672,17 +672,17 @@ export default function Settings() {
           </motion.div>
         )}
 
-        {/* Compact Analytics Overview */}
+        {/* Full Screen Analytics Overview */}
         {showAnalyticsModal && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-6"
+            className="fixed inset-0 bg-black/95 backdrop-blur-lg z-50"
           >
             <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              initial={{ scale: 0.95, opacity: 0, y: 20 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
-              className="bg-black/80 backdrop-blur-sm rounded-2xl p-6 w-full max-w-4xl max-h-[85vh] overflow-y-auto border border-white/30 shadow-xl"
+              className="w-full h-full overflow-y-auto p-8"
             >
               {/* Compact Header */}
               <div className="flex items-center justify-between mb-6">
