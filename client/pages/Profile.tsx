@@ -23,12 +23,6 @@ import {
   Twitter,
   Loader2,
   RefreshCw,
-  Shield,
-  Key,
-  Smartphone,
-  CreditCard,
-  UserX,
-  ChevronRight,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useProfileContext } from "../context/ProfileContext";
@@ -44,8 +38,6 @@ export default function Profile() {
   const [userStats, setUserStats] = useState<any>(null);
   const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
   const [profileImageError, setProfileImageError] = useState(false);
-  const [showSecurityModal, setShowSecurityModal] = useState(false);
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   useEffect(() => {
     loadUserStats();
@@ -225,40 +217,6 @@ export default function Profile() {
     navigate("/login");
   };
 
-  const handleSecurity = () => {
-    setShowSecurityModal(true);
-    setShowSettingsDropdown(false);
-  };
-
-  const handleChangePassword = () => {
-    setShowPasswordModal(true);
-    setShowSettingsDropdown(false);
-  };
-
-  const handleAccountInfo = () => {
-    toast({
-      title: "Account Information",
-      description: "View and manage your account details",
-    });
-    setShowSettingsDropdown(false);
-  };
-
-  const handlePaymentInfo = () => {
-    toast({
-      title: "Payment Information",
-      description: "Manage your payment methods and billing",
-    });
-    setShowSettingsDropdown(false);
-  };
-
-  const handlePrivacySettings = () => {
-    toast({
-      title: "Privacy Settings",
-      description: "Control your privacy and data settings",
-    });
-    setShowSettingsDropdown(false);
-  };
-
   const menuItems = [
     { icon: Edit3, label: "Edit Profile", action: handleEditProfile },
     {
@@ -303,15 +261,98 @@ export default function Profile() {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <h1 className="text-xl font-bold">Profile</h1>
-                    <button
-            onClick={() => navigate("/settings")}
-            className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm hover:bg-white/20 transition-colors"
-            title="Settings"
-          >
-            <Settings className="w-5 h-5" />
-          </button>
+          <div className="relative">
+            <button
+              onClick={() => setShowSettingsDropdown(!showSettingsDropdown)}
+              className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm hover:bg-white/20 transition-colors"
+              title="Settings"
+            >
+              <Settings className="w-5 h-5" />
+            </button>
 
-            
+            {/* Settings Dropdown */}
+            {showSettingsDropdown && (
+              <div className="absolute right-0 top-12 w-52 bg-black/90 backdrop-blur-sm rounded-xl border border-white/10 py-2 z-50">
+                <button
+                  onClick={() => {
+                    handleEditProfile();
+                    setShowSettingsDropdown(false);
+                  }}
+                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
+                >
+                  <Edit3 className="w-4 h-4" />
+                  <span>Edit Profile</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    navigate("/liked-songs");
+                    setShowSettingsDropdown(false);
+                  }}
+                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
+                >
+                  <Heart className="w-4 h-4" />
+                  <span>Liked Songs</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    navigate("/history");
+                    setShowSettingsDropdown(false);
+                  }}
+                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
+                >
+                  <History className="w-4 h-4" />
+                  <span>Recently Played</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    handleDownloadedMusic();
+                    setShowSettingsDropdown(false);
+                  }}
+                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Downloaded Music</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    handleNotifications();
+                    setShowSettingsDropdown(false);
+                  }}
+                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
+                >
+                  <Bell className="w-4 h-4" />
+                  <span>Notifications</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    handleHelp();
+                    setShowSettingsDropdown(false);
+                  }}
+                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
+                >
+                  <HelpCircle className="w-4 h-4" />
+                  <span>Help & Support</span>
+                </button>
+
+                <div className="border-t border-white/10 my-1"></div>
+
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setShowSettingsDropdown(false);
+                  }}
+                  className="w-full px-4 py-3 text-left text-red-400 hover:bg-red-500/10 transition-colors flex items-center space-x-3"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Log Out</span>
+                </button>
+              </div>
+            )}
           </div>
         </motion.div>
 
@@ -748,190 +789,6 @@ export default function Profile() {
             </button>
           ))}
         </motion.div>
-
-        {/* Security Modal */}
-        {showSecurityModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="bg-black rounded-3xl p-6 max-w-md w-full border border-white/10"
-            >
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold flex items-center">
-                  <Shield className="w-6 h-6 mr-3 text-neon-green" />
-                  Security & Privacy
-                </h2>
-                <button
-                  onClick={() => setShowSecurityModal(false)}
-                  className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center"
-                >
-                  ×
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                <div className="bg-white/5 rounded-xl p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <Key className="w-5 h-5 text-blue-400" />
-                      <div>
-                        <h3 className="font-semibold">Password</h3>
-                        <p className="text-sm text-gray-400">
-                          Last changed 3 months ago
-                        </p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setShowSecurityModal(false);
-                        setShowPasswordModal(true);
-                      }}
-                      className="px-4 py-2 bg-neon-green/20 text-neon-green rounded-lg text-sm hover:bg-neon-green/30 transition-colors"
-                    >
-                      Change
-                    </button>
-                  </div>
-                </div>
-
-                <div className="bg-white/5 rounded-xl p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <Smartphone className="w-5 h-5 text-green-400" />
-                      <div>
-                        <h3 className="font-semibold">
-                          Two-factor authentication
-                        </h3>
-                        <p className="text-sm text-gray-400">Not enabled</p>
-                      </div>
-                    </div>
-                    <button className="px-4 py-2 bg-white/10 text-white rounded-lg text-sm hover:bg-white/20 transition-colors">
-                      Enable
-                    </button>
-                  </div>
-                </div>
-
-                <div className="bg-white/5 rounded-xl p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <UserX className="w-5 h-5 text-purple-400" />
-                      <div>
-                        <h3 className="font-semibold">Data & Privacy</h3>
-                        <p className="text-sm text-gray-400">
-                          Manage your data
-                        </p>
-                      </div>
-                    </div>
-                    <button className="px-4 py-2 bg-white/10 text-white rounded-lg text-sm hover:bg-white/20 transition-colors">
-                      Manage
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-
-        {/* Password Change Modal */}
-        {showPasswordModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="bg-black rounded-3xl p-6 max-w-md w-full border border-white/10"
-            >
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold flex items-center">
-                  <Key className="w-6 h-6 mr-3 text-neon-blue" />
-                  Change Password
-                </h2>
-                <button
-                  onClick={() => setShowPasswordModal(false)}
-                  className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center"
-                >
-                  ×
-                </button>
-              </div>
-
-              <form className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Current Password
-                  </label>
-                  <input
-                    type="password"
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-neon-green focus:border-transparent"
-                    placeholder="Enter current password"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    New Password
-                  </label>
-                  <input
-                    type="password"
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-neon-green focus:border-transparent"
-                    placeholder="Enter new password"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Confirm New Password
-                  </label>
-                  <input
-                    type="password"
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-neon-green focus:border-transparent"
-                    placeholder="Confirm new password"
-                  />
-                </div>
-
-                <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4">
-                  <p className="text-yellow-400 text-sm">
-                    <strong>Password requirements:</strong>
-                    <br />• At least 8 characters long
-                    <br />• Contains uppercase and lowercase letters
-                    <br />• Contains at least one number
-                  </p>
-                </div>
-
-                <div className="flex space-x-3 pt-4">
-                  <button
-                    type="button"
-                    onClick={() => setShowPasswordModal(false)}
-                    className="flex-1 px-4 py-3 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      toast({
-                        title: "Password Changed",
-                        description:
-                          "Your password has been updated successfully",
-                      });
-                      setShowPasswordModal(false);
-                    }}
-                    className="flex-1 px-4 py-3 bg-gradient-to-r from-neon-green to-neon-blue text-black font-semibold rounded-xl hover:scale-105 transition-transform"
-                  >
-                    Change Password
-                  </button>
-                </div>
-              </form>
-            </motion.div>
-          </motion.div>
-        )}
 
         {/* Footer */}
         <motion.div
