@@ -195,28 +195,6 @@ export default function Profile() {
     navigate("/login");
   };
 
-  const menuItems = [
-    { icon: Edit3, label: "Edit Profile", action: handleEditProfile },
-    {
-      icon: Heart,
-      label: "Liked Songs",
-      action: () => navigate("/liked-songs"),
-    },
-    {
-      icon: History,
-      label: "Recently Played",
-      action: () => navigate("/history"),
-    },
-    {
-      icon: Download,
-      label: "Downloaded Music",
-      action: handleDownloadedMusic,
-    },
-    { icon: Bell, label: "Notifications", action: handleNotifications },
-    { icon: HelpCircle, label: "Help & Support", action: handleHelp },
-    { icon: LogOut, label: "Log Out", action: handleLogout },
-  ];
-
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
       {/* Background Glow Effects */}
