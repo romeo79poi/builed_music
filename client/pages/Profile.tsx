@@ -232,12 +232,7 @@ export default function Profile() {
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center justify-between p-6 pt-12"
         >
-          <button
-            onClick={() => navigate("/home")}
-            className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
+          <div className="w-10 h-10"></div>
           <h1 className="text-xl font-bold">Profile</h1>
           <button
             onClick={() => navigate("/settings")}
@@ -246,52 +241,6 @@ export default function Profile() {
           >
             <Settings className="w-5 h-5" />
           </button>
-        </motion.div>
-
-        {/* User Info */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="px-6 py-8 text-center"
-        >
-          <div className="relative inline-block">
-            <button
-              onClick={handleEditProfile}
-              className="w-24 h-24 bg-gradient-to-br from-neon-green to-neon-blue rounded-full p-1 hover:scale-105 transition-transform cursor-pointer"
-              title="Click to edit profile"
-            >
-              <div className="w-full h-full bg-gray-800 rounded-full flex items-center justify-center overflow-hidden">
-                {profile.profilePicture && !profileImageError ? (
-                  <img
-                    src={profile.profilePicture}
-                    alt={profile.displayName}
-                    className="w-full h-full object-cover"
-                    onError={() => {
-                      console.log(
-                        "Profile image failed to load:",
-                        profile.profilePicture,
-                      );
-                      setProfileImageError(true);
-                    }}
-                    onLoad={() => setProfileImageError(false)}
-                  />
-                ) : (
-                  <User className="w-12 h-12 text-gray-400" />
-                )}
-              </div>
-            </button>
-            {profile.isVerified && (
-              <div className="absolute -top-1 -right-1 w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center">
-                <Check className="w-4 h-4 text-white" />
-              </div>
-            )}
-            {profile.subscription.plan === "premium" && (
-              <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
-                <Crown className="w-4 h-4 text-black" />
-              </div>
-            )}
-          </div>
         </motion.div>
 
         {/* User Info */}
