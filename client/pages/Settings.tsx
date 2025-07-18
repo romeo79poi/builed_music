@@ -193,25 +193,25 @@ export default function Settings() {
       key: "showExplicit" as const,
     },
     {
-      icon: Lock,
-      title: "Private Session",
-      subtitle: "Hide your activity from friends",
-      action: () => {},
-    },
-    {
       icon: Shield,
       title: "Privacy Policy",
       subtitle: "Learn how we protect your data",
       action: () => {},
     },
+    {
+      icon: UserX,
+      title: "Data & Privacy",
+      subtitle: "Control how your data is used",
+      action: () => {},
+    },
   ];
 
-  const accountSettings = [
+  const paymentSettings = [
     {
-      icon: User,
-      title: "Account Information",
-      subtitle: "Update your profile and preferences",
-      action: () => navigate("/profile"),
+      icon: CreditCard,
+      title: "Payment information",
+      subtitle: "Manage your payment methods",
+      action: () => {},
     },
     {
       icon: CreditCard,
@@ -219,6 +219,9 @@ export default function Settings() {
       subtitle: "Manage your Music Catch plan",
       action: () => navigate("/profile"),
     },
+  ];
+
+  const supportSettings = [
     {
       icon: HelpCircle,
       title: "Help & Support",
