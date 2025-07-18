@@ -43,6 +43,11 @@ export default function Profile() {
     loadUserStats();
   }, [profile.id]);
 
+  // Reset image error when profile picture changes
+  useEffect(() => {
+    setProfileImageError(false);
+  }, [profile.profilePicture]);
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
