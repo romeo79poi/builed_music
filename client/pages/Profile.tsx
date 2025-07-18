@@ -211,7 +211,6 @@ export default function Profile() {
       action: handleDownloadedMusic,
     },
     { icon: Bell, label: "Notifications", action: handleNotifications },
-    { icon: Settings, label: "Settings", action: handleSettings },
     { icon: HelpCircle, label: "Help & Support", action: handleHelp },
     { icon: RefreshCw, label: "Refresh Profile", action: handleRefreshProfile },
     { icon: LogOut, label: "Log Out", action: handleLogout },
