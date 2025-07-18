@@ -942,6 +942,190 @@ export default function Profile() {
           ))}
         </motion.div>
 
+        {/* Security Modal */}
+        {showSecurityModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="bg-black rounded-3xl p-6 max-w-md w-full border border-white/10"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold flex items-center">
+                  <Shield className="w-6 h-6 mr-3 text-neon-green" />
+                  Security & Privacy
+                </h2>
+                <button
+                  onClick={() => setShowSecurityModal(false)}
+                  className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center"
+                >
+                  ×
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div className="bg-white/5 rounded-xl p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <Key className="w-5 h-5 text-blue-400" />
+                      <div>
+                        <h3 className="font-semibold">Password</h3>
+                        <p className="text-sm text-gray-400">
+                          Last changed 3 months ago
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setShowSecurityModal(false);
+                        setShowPasswordModal(true);
+                      }}
+                      className="px-4 py-2 bg-neon-green/20 text-neon-green rounded-lg text-sm hover:bg-neon-green/30 transition-colors"
+                    >
+                      Change
+                    </button>
+                  </div>
+                </div>
+
+                <div className="bg-white/5 rounded-xl p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <Smartphone className="w-5 h-5 text-green-400" />
+                      <div>
+                        <h3 className="font-semibold">
+                          Two-factor authentication
+                        </h3>
+                        <p className="text-sm text-gray-400">Not enabled</p>
+                      </div>
+                    </div>
+                    <button className="px-4 py-2 bg-white/10 text-white rounded-lg text-sm hover:bg-white/20 transition-colors">
+                      Enable
+                    </button>
+                  </div>
+                </div>
+
+                <div className="bg-white/5 rounded-xl p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <UserX className="w-5 h-5 text-purple-400" />
+                      <div>
+                        <h3 className="font-semibold">Data & Privacy</h3>
+                        <p className="text-sm text-gray-400">
+                          Manage your data
+                        </p>
+                      </div>
+                    </div>
+                    <button className="px-4 py-2 bg-white/10 text-white rounded-lg text-sm hover:bg-white/20 transition-colors">
+                      Manage
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+
+        {/* Password Change Modal */}
+        {showPasswordModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              className="bg-black rounded-3xl p-6 max-w-md w-full border border-white/10"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold flex items-center">
+                  <Key className="w-6 h-6 mr-3 text-neon-blue" />
+                  Change Password
+                </h2>
+                <button
+                  onClick={() => setShowPasswordModal(false)}
+                  className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center"
+                >
+                  ×
+                </button>
+              </div>
+
+              <form className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Current Password
+                  </label>
+                  <input
+                    type="password"
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-neon-green focus:border-transparent"
+                    placeholder="Enter current password"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    New Password
+                  </label>
+                  <input
+                    type="password"
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-neon-green focus:border-transparent"
+                    placeholder="Enter new password"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Confirm New Password
+                  </label>
+                  <input
+                    type="password"
+                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-neon-green focus:border-transparent"
+                    placeholder="Confirm new password"
+                  />
+                </div>
+
+                <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4">
+                  <p className="text-yellow-400 text-sm">
+                    <strong>Password requirements:</strong>
+                    <br />• At least 8 characters long
+                    <br />• Contains uppercase and lowercase letters
+                    <br />• Contains at least one number
+                  </p>
+                </div>
+
+                <div className="flex space-x-3 pt-4">
+                  <button
+                    type="button"
+                    onClick={() => setShowPasswordModal(false)}
+                    className="flex-1 px-4 py-3 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      toast({
+                        title: "Password Changed",
+                        description:
+                          "Your password has been updated successfully",
+                      });
+                      setShowPasswordModal(false);
+                    }}
+                    className="flex-1 px-4 py-3 bg-gradient-to-r from-neon-green to-neon-blue text-black font-semibold rounded-xl hover:scale-105 transition-transform"
+                  >
+                    Change Password
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+
         {/* Footer */}
         <motion.div
           initial={{ opacity: 0 }}
