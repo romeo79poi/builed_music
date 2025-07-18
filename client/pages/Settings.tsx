@@ -674,7 +674,7 @@ export default function Settings() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 {/* Top Tracks */}
                 <div className="bg-white/5 rounded-xl p-6 border border-white/10">
                   <h3 className="text-xl font-bold mb-4 flex items-center">
