@@ -238,22 +238,21 @@ export default function HomeScreen() {
               ></div>
               <div className="relative w-12 h-12 flex items-center justify-center p-0.5">
                 <div className="w-11 h-11 rounded-full overflow-hidden bg-gray-800 flex items-center justify-center">
-                  {profile.profilePicture ? (
+                  {profile.profilePicture && !profileImageError ? (
                     <img
                       src={profile.profilePicture}
                       alt={profile.displayName}
                       className="w-full h-full object-cover"
-                      onError={(e) => {
+                      onError={() => {
                         console.log(
                           "Image failed to load:",
                           profile.profilePicture,
                         );
-                        e.currentTarget.src = "";
-                        e.currentTarget.style.display = "none";
+                        setProfileImageError(true);
                       }}
+                      onLoad={() => setProfileImageError(false)}
                     />
-                  ) : null}
-                  {!profile.profilePicture && (
+                  ) : (
                     <User className="w-6 h-6 text-white" />
                   )}
                 </div>
