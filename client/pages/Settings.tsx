@@ -52,6 +52,62 @@ export default function Settings() {
     }));
   };
 
+  const profileSettings = [
+    {
+      icon: User,
+      title: "Account overview",
+      subtitle: "View and manage your account details",
+      action: () => navigate("/profile"),
+    },
+    {
+      icon: Edit3,
+      title: "Edit profile",
+      subtitle: "Update your profile information",
+      action: () => navigate("/edit-profile"),
+    },
+    {
+      icon: Heart,
+      title: "Liked Songs",
+      subtitle: "View your liked songs",
+      action: () => navigate("/liked-songs"),
+    },
+    {
+      icon: History,
+      title: "Recently played",
+      subtitle: "View your listening history",
+      action: () => navigate("/history"),
+    },
+  ];
+
+  const securitySettings = [
+    {
+      icon: Key,
+      title: "Change password",
+      subtitle: "Update your account password",
+      action: () => setShowPasswordModal(true),
+    },
+    {
+      icon: Shield,
+      title: "Security & privacy",
+      subtitle: "Manage your security settings",
+      action: () => setShowSecurityModal(true),
+    },
+    {
+      icon: UserX,
+      title: "Two-factor authentication",
+      subtitle: settings.twoFactorAuth ? "Enabled" : "Not enabled",
+      toggle: true,
+      key: "twoFactorAuth" as const,
+    },
+    {
+      icon: Lock,
+      title: "Private session",
+      subtitle: "Hide your activity from friends",
+      toggle: true,
+      key: "privateSession" as const,
+    },
+  ];
+
   const generalSettings = [
     {
       icon: Moon,
