@@ -1043,38 +1043,56 @@ export default function Settings() {
                 </div>
               </div>
 
-              {/* Compact Action Buttons */}
+              {/* Full Screen Action Bar */}
               <motion.div
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 1.3 }}
-                className="flex justify-center gap-3 mt-6 pt-4 border-t border-white/20"
+                className="fixed bottom-8 left-8 right-8 bg-black/80 backdrop-blur-lg rounded-2xl p-6 border border-white/20 shadow-2xl"
               >
-                <button
-                  onClick={() => {
-                    toast({
-                      title: "Export Complete!",
-                      description: "Analytics report exported successfully",
-                    });
-                  }}
-                  className="group px-4 py-2 bg-neon-green/20 text-neon-green rounded-lg hover:bg-neon-green/30 transition-all duration-300 flex items-center space-x-2"
-                >
-                  <Activity className="w-4 h-4 group-hover:animate-pulse" />
-                  <span>Export</span>
-                </button>
+                <div className="flex justify-between items-center">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-r from-neon-green to-neon-blue rounded-xl flex items-center justify-center">
+                      <BarChart3 className="w-6 h-6 text-black" />
+                    </div>
+                    <div>
+                      <p className="text-white font-semibold">
+                        Analytics Dashboard
+                      </p>
+                      <p className="text-gray-400 text-sm">
+                        Real-time performance data
+                      </p>
+                    </div>
+                  </div>
 
-                <button
-                  onClick={() => {
-                    toast({
-                      title: "Analytics Shared",
-                      description: "Shared to your networks",
-                    });
-                  }}
-                  className="group px-4 py-2 bg-neon-blue/20 text-neon-blue rounded-lg hover:bg-neon-blue/30 transition-all duration-300 flex items-center space-x-2"
-                >
-                  <Share2 className="w-4 h-4 group-hover:rotate-12 transition-transform" />
-                  <span>Share</span>
-                </button>
+                  <div className="flex items-center gap-4">
+                    <button
+                      onClick={() => {
+                        toast({
+                          title: "Export Complete!",
+                          description: "Analytics report exported successfully",
+                        });
+                      }}
+                      className="group px-6 py-3 bg-neon-green/20 text-neon-green rounded-xl hover:bg-neon-green/30 transition-all duration-300 flex items-center space-x-3"
+                    >
+                      <Activity className="w-5 h-5 group-hover:animate-pulse" />
+                      <span className="font-semibold">Export Report</span>
+                    </button>
+
+                    <button
+                      onClick={() => {
+                        toast({
+                          title: "Analytics Shared",
+                          description: "Shared to your networks",
+                        });
+                      }}
+                      className="group px-6 py-3 bg-neon-blue/20 text-neon-blue rounded-xl hover:bg-neon-blue/30 transition-all duration-300 flex items-center space-x-3"
+                    >
+                      <Share2 className="w-5 h-5 group-hover:rotate-12 transition-transform" />
+                      <span className="font-semibold">Share Analytics</span>
+                    </button>
+                  </div>
+                </div>
               </motion.div>
             </motion.div>
           </motion.div>
