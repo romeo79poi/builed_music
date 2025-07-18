@@ -28,7 +28,10 @@ import {
   createUserWithEmailAndPassword,
   signOut as firebaseSignOut,
 } from "firebase/auth";
-import { auth } from "@/lib/firebase";
+import { getAuth } from "firebase/auth";
+
+// Initialize Firebase Auth
+const firebaseAuth = getAuth(app);
 
 interface FirebaseContextType {
   user: User | null;
