@@ -235,7 +235,7 @@ export default function Profile() {
       </div>
 
       <div className="relative z-10">
-        {/* Header */}
+                {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -247,7 +247,7 @@ export default function Profile() {
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-                    <h1 className="text-xl font-bold">Profile</h1>
+          <h1 className="text-xl font-bold">Profile</h1>
           <button
             onClick={handleSettings}
             className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm hover:bg-white/20 transition-colors"
@@ -255,6 +255,7 @@ export default function Profile() {
           >
             <Settings className="w-5 h-5" />
           </button>
+        </motion.div>
 
                         {/* Settings Dropdown */}
             {showSettingsDropdown && (
