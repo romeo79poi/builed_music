@@ -180,17 +180,30 @@ export const playlistApi = {
 export const uploadApi = {
   // Upload profile picture
   uploadProfilePicture: async (file: File): Promise<UploadResponse> => {
-    // In a real implementation, you would create FormData and send the actual file
-    // For this demo, we'll send file metadata
-    const fileData = {
-      fileName: file.name,
-      fileSize: file.size,
-      fileType: file.type,
-    };
+    // Create a data URL from the uploaded file for demo purposes
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const dataUrl = e.target?.result as string;
+          const fileData = {
+            fileName: file.name,
+            fileSize: file.size,
+            fileType: file.type,
+            dataUrl: dataUrl, // Include the actual image data
+          };
 
-    return apiRequest(`/upload/profile-picture`, {
-      method: "POST",
-      body: JSON.stringify(fileData),
+          const response = await apiRequest(`/upload/profile-picture`, {
+            method: "POST",
+            body: JSON.stringify(fileData),
+          });
+          resolve(response);
+        } catch (error) {
+          reject(error);
+        }
+      };
+      reader.onerror = () => reject(new Error("Failed to read file"));
+      reader.readAsDataURL(file);
     });
   },
 
