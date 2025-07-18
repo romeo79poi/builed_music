@@ -174,7 +174,13 @@ export default function Profile() {
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center justify-between p-6 pt-12"
         >
-          <div className="w-10 h-10"></div>
+          <button
+            onClick={() => navigate("/home")}
+            className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm hover:bg-white/20 transition-colors"
+            title="Back to Home"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </button>
           <h1 className="text-xl font-bold">Profile</h1>
           <button
             onClick={() => navigate("/settings")}
