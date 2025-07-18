@@ -26,6 +26,20 @@ import {
   Heart,
   History,
   Settings as SettingsIcon,
+  TrendingUp,
+  Calendar,
+  Target,
+  Award,
+  Star,
+  Share2,
+  Clock,
+  MapPin,
+  Headphones,
+  Play,
+  BarChart3,
+  PieChart,
+  Activity,
+  Zap,
 } from "lucide-react";
 
 export default function Settings() {
