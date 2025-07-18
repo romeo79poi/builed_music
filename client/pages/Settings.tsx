@@ -768,25 +768,16 @@ export default function Settings() {
                   transition={{ delay: 0.3 }}
                   className="bg-gradient-to-br from-purple-500/20 to-purple-500/5 rounded-xl p-3 border border-purple-500/30"
                 >
-                  <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent rounded-2xl"></div>
-                  <div className="relative">
-                    <div className="flex items-center justify-between mb-3">
-                      <Eye className="w-8 h-8 text-purple-400" />
-                      <span className="text-xs text-purple-400 bg-purple-500/20 px-3 py-1 rounded-full font-semibold">
-                        +{analyticsData.growth.viewsGrowth}
-                      </span>
-                    </div>
-                    <p className="text-3xl font-black text-white mb-1">
-                      {analyticsData.overview.profileViews.toLocaleString()}
-                    </p>
-                    <p className="text-sm text-gray-300 font-medium">
-                      Profile Views
-                    </p>
-                    <div className="mt-3 flex items-center text-xs text-purple-400">
-                      <Zap className="w-3 h-3 mr-1" />
-                      <span>Peak: 2-6 PM</span>
-                    </div>
+                  <div className="flex items-center justify-between mb-2">
+                    <Eye className="w-4 h-4 text-purple-400" />
+                    <span className="text-xs text-purple-400 bg-purple-500/20 px-2 py-1 rounded-full">
+                      +{analyticsData.growth.viewsGrowth}
+                    </span>
                   </div>
+                  <p className="text-lg font-bold text-white">
+                    {analyticsData.overview.profileViews.toLocaleString()}
+                  </p>
+                  <p className="text-xs text-gray-300">Views</p>
                 </motion.div>
 
                 <motion.div
