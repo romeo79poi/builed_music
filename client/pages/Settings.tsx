@@ -831,9 +831,60 @@ export default function Settings() {
                     </div>
                   </div>
                 </motion.div>
+
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.5 }}
+                  className="col-span-2 bg-gradient-to-br from-green-500/20 via-green-500/10 to-transparent rounded-2xl p-6 border border-green-500/30 relative overflow-hidden"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent rounded-2xl"></div>
+                  <div className="relative">
+                    <div className="flex items-center justify-between mb-3">
+                      <Heart className="w-8 h-8 text-green-400" />
+                      <span className="text-xs text-green-400 bg-green-500/20 px-3 py-1 rounded-full font-semibold">
+                        +{analyticsData.growth.engagementGrowth}
+                      </span>
+                    </div>
+                    <p className="text-3xl font-black text-white mb-1">
+                      {analyticsData.overview.saves.toLocaleString()}
+                    </p>
+                    <p className="text-sm text-gray-300 font-medium">Saves</p>
+                    <div className="mt-3 flex items-center text-xs text-green-400">
+                      <Star className="w-3 h-3 mr-1" />
+                      <span>High retention</span>
+                    </div>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  initial={{ y: 20, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  transition={{ delay: 0.6 }}
+                  className="col-span-2 bg-gradient-to-br from-pink-500/20 via-pink-500/10 to-transparent rounded-2xl p-6 border border-pink-500/30 relative overflow-hidden"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-pink-500/5 to-transparent rounded-2xl"></div>
+                  <div className="relative">
+                    <div className="flex items-center justify-between mb-3">
+                      <Share2 className="w-8 h-8 text-pink-400" />
+                      <span className="text-xs text-pink-400 bg-pink-500/20 px-3 py-1 rounded-full font-semibold">
+                        +24.3%
+                      </span>
+                    </div>
+                    <p className="text-3xl font-black text-white mb-1">
+                      {analyticsData.overview.shares.toLocaleString()}
+                    </p>
+                    <p className="text-sm text-gray-300 font-medium">Shares</p>
+                    <div className="mt-3 flex items-center text-xs text-pink-400">
+                      <TrendingUp className="w-3 h-3 mr-1" />
+                      <span>Viral potential</span>
+                    </div>
+                  </div>
+                </motion.div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {/* Main Content Grid */}
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
                 {/* Top Tracks */}
                 <div className="bg-white/5 rounded-xl p-6 border border-white/10">
                   <h3 className="text-xl font-bold mb-4 flex items-center">
