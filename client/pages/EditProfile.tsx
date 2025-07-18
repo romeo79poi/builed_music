@@ -266,9 +266,22 @@ export default function EditProfile() {
                         <img
                           src={currentProfile.profilePicture}
                           alt="Profile"
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover rounded-full"
+                          onError={(e) => {
+                            console.error(
+                              "Failed to load profile image:",
+                              currentProfile.profilePicture,
+                            );
+                            e.currentTarget.style.display = "none";
+                          }}
+                          onLoad={() =>
+                            console.log("Profile image loaded successfully")
+                          }
                         />
                       ) : (
+                        <User className="w-16 h-16 text-gray-400" />
+                      )}
+                      {!currentProfile.profilePicture && (
                         <User className="w-16 h-16 text-gray-400" />
                       )}
                     </div>
