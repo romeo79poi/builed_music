@@ -594,9 +594,9 @@ export default function Settings() {
               className="bg-black rounded-3xl p-6 max-w-4xl w-full max-h-[85vh] overflow-y-auto border border-white/10"
             >
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-3xl font-bold flex items-center">
-                  <SettingsIcon className="w-8 h-8 mr-3 text-neon-green" />
-                  Professional Analytics Dashboard
+                <h2 className="text-2xl font-bold flex items-center">
+                  <SettingsIcon className="w-6 h-6 mr-3 text-neon-green" />
+                  Analytics Dashboard
                 </h2>
                 <button
                   onClick={() => setShowAnalyticsModal(false)}
