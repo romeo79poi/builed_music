@@ -58,6 +58,26 @@ export default function EditProfile() {
     const file = event.target.files?.[0];
     if (!file) return;
 
+    // Client-side validation before upload
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const allowedTypes = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+    ];
+
+    if (file.size > maxSize) {
+      // Use toast from context for consistency
+      return;
+    }
+
+    if (!allowedTypes.includes(file.type)) {
+      // Use toast from context for consistency
+      return;
+    }
+
     setIsUploading(true);
     try {
       await uploadProfilePicture(file);
@@ -65,6 +85,10 @@ export default function EditProfile() {
       // Error is already handled by ProfileContext with toast notification
     } finally {
       setIsUploading(false);
+      // Clear the input to allow re-selecting the same file if needed
+      if (event.target) {
+        event.target.value = "";
+      }
     }
   };
 
