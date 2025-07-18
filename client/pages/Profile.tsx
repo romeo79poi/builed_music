@@ -47,23 +47,6 @@ export default function Profile() {
     setProfileImageError(false);
   }, [profile.profilePicture]);
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (showSettingsDropdown) {
-        setShowSettingsDropdown(false);
-      }
-    };
-
-    if (showSettingsDropdown) {
-      document.addEventListener("click", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("click", handleClickOutside);
-    };
-  }, [showSettingsDropdown]);
-
   const loadUserStats = async () => {
     try {
       const statsResponse = await api.profile.getUserStats();
