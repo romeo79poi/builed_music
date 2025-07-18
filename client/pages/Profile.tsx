@@ -381,6 +381,15 @@ export default function Profile() {
                 <Crown className="w-4 h-4 text-black" />
               </div>
             )}
+
+            {/* Edit Profile Button */}
+            <button
+              onClick={handleEditProfile}
+              className="absolute -bottom-1 -left-1 w-8 h-8 bg-gradient-to-br from-neon-green to-neon-blue rounded-full flex items-center justify-center hover:scale-110 transition-transform shadow-lg"
+              title="Edit Profile"
+            >
+              <Edit3 className="w-4 h-4 text-black" />
+            </button>
           </div>
           <h2 className="text-2xl font-bold mt-4">{profile.displayName}</h2>
           <p className="text-gray-400">@{profile.username}</p>
