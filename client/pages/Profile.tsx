@@ -365,11 +365,19 @@ export default function Profile() {
               title="Click to edit profile"
             >
               <div className="w-full h-full bg-gray-800 rounded-full flex items-center justify-center overflow-hidden">
-                {profile.profilePicture ? (
+                {profile.profilePicture && !profileImageError ? (
                   <img
                     src={profile.profilePicture}
                     alt={profile.displayName}
                     className="w-full h-full object-cover"
+                    onError={() => {
+                      console.log(
+                        "Profile image failed to load:",
+                        profile.profilePicture,
+                      );
+                      setProfileImageError(true);
+                    }}
+                    onLoad={() => setProfileImageError(false)}
                   />
                 ) : (
                   <User className="w-12 h-12 text-gray-400" />
