@@ -686,23 +686,34 @@ export default function Settings() {
             >
               {/* Header */}
               <div className="flex items-center justify-between mb-8">
-                <motion.div
-                  initial={{ x: -20, opacity: 0 }}
-                  animate={{ x: 0, opacity: 1 }}
-                  className="flex items-center"
-                >
-                  <div className="w-12 h-12 bg-gradient-to-r from-neon-green to-neon-blue rounded-2xl flex items-center justify-center mr-4">
-                    <BarChart3 className="w-6 h-6 text-black" />
-                  </div>
-                  <div>
-                    <h2 className="text-3xl font-bold bg-gradient-to-r from-neon-green to-neon-blue bg-clip-text text-transparent">
-                      Analytics Dashboard
-                    </h2>
-                    <p className="text-gray-400 text-sm">
-                      Comprehensive insights into your music performance
-                    </p>
-                  </div>
-                </motion.div>
+                <div className="flex items-center space-x-4">
+                  <motion.button
+                    initial={{ x: -20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    onClick={() => setShowAnalyticsModal(false)}
+                    className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center hover:bg-white/20 transition-all duration-300 group"
+                  >
+                    <ArrowLeft className="w-5 h-5 text-white group-hover:text-neon-green transition-colors" />
+                  </motion.button>
+                  <motion.div
+                    initial={{ x: -20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ delay: 0.1 }}
+                    className="flex items-center"
+                  >
+                    <div className="w-12 h-12 bg-gradient-to-r from-neon-green to-neon-blue rounded-2xl flex items-center justify-center mr-4">
+                      <BarChart3 className="w-6 h-6 text-black" />
+                    </div>
+                    <div>
+                      <h2 className="text-3xl font-bold bg-gradient-to-r from-neon-green to-neon-blue bg-clip-text text-transparent">
+                        Analytics Dashboard
+                      </h2>
+                      <p className="text-gray-400 text-sm">
+                        Comprehensive insights into your music performance
+                      </p>
+                    </div>
+                  </motion.div>
+                </div>
                 <button
                   onClick={() => setShowAnalyticsModal(false)}
                   className="w-12 h-12 bg-white/10 rounded-2xl flex items-center justify-center hover:bg-white/20 transition-all duration-300 group"
