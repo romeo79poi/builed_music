@@ -1,3 +1,25 @@
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getAnalytics } from "firebase/analytics";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyBHgFXBalLyzs_Li2ApkmUNVrtkCWyKmzM",
+  authDomain: "music-catch.firebaseapp.com",
+  projectId: "music-catch",
+  storageBucket: "music-catch.firebasestorage.app",
+  messagingSenderId: "75793608464",
+  appId: "1:75793608464:web:ee96c2079f2b3353ab3f95",
+  measurementId: "G-J8D7LKCMPB",
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
+
 import React, { createContext, useContext, useEffect, useState } from "react";
 import {
   User,
