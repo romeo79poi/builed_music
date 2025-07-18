@@ -327,21 +327,6 @@ export default function EditProfile() {
                     {currentProfile.bio.length}/150 characters
                   </p>
                 </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Email
-                  </label>
-                  <Input
-                    value={currentProfile.email}
-                    onChange={(e) =>
-                      updateEditedProfile({ email: e.target.value })
-                    }
-                    className="bg-white/5 border-white/10 text-white"
-                    placeholder="your.email@example.com"
-                    type="email"
-                  />
-                </div>
               </motion.div>
             </TabsContent>
 

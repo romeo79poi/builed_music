@@ -165,7 +165,9 @@ export default function Signup() {
         );
 
       // Send email verification
-      await firebaseFunctions.sendEmailVerification(userCredential.user);
+      await firebaseFunctions.sendEmailVerification(
+        userCredential.user as FirebaseUser,
+      );
 
       if (!isFirebaseConfigured) {
         toast({

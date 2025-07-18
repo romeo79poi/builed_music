@@ -23,6 +23,9 @@ export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [greeting, setGreeting] = useState("");
   const [isPlaying, setIsPlaying] = useState(true);
+  const [isTopBarVisible, setIsTopBarVisible] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+  const [profileImageError, setProfileImageError] = useState(false);
 
   const handleSearchClick = () => {
     console.log("Navigating to search page...");
@@ -40,6 +43,25 @@ export default function HomeScreen() {
     else if (hour < 18) setGreeting("Good Afternoon");
     else setGreeting("Good Evening");
   }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      if (currentScrollY < lastScrollY || currentScrollY < 50) {
+        // Scrolling up or near the top - show top bar
+        setIsTopBarVisible(true);
+      } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
+        // Scrolling down and past threshold - hide top bar
+        setIsTopBarVisible(false);
+      }
+
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
 
   const recentlyPlayed = [
     {
@@ -185,7 +207,14 @@ export default function HomeScreen() {
         {/* Top Bar */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
+          animate={{
+            opacity: 1,
+            y: isTopBarVisible ? 0 : -100,
+          }}
+          transition={{
+            duration: 0.3,
+            ease: "easeInOut",
+          }}
           className="flex items-center justify-between p-4 md:p-6 bg-black/60 backdrop-blur-sm sticky top-0 z-20"
         >
           {/* Profile Icon */}
@@ -208,26 +237,25 @@ export default function HomeScreen() {
                 }}
               ></div>
               <div className="relative w-12 h-12 flex items-center justify-center p-0.5">
-                {profile.profilePicture ? (
-                  <div className="w-11 h-11 rounded-full overflow-hidden bg-gray-800">
+                <div className="w-11 h-11 rounded-full overflow-hidden bg-gray-800 flex items-center justify-center">
+                  {profile.profilePicture && !profileImageError ? (
                     <img
                       src={profile.profilePicture}
                       alt={profile.displayName}
                       className="w-full h-full object-cover"
-                      onError={(e) => {
+                      onError={() => {
                         console.log(
                           "Image failed to load:",
                           profile.profilePicture,
                         );
-                        e.currentTarget.style.display = "none";
+                        setProfileImageError(true);
                       }}
+                      onLoad={() => setProfileImageError(false)}
                     />
-                  </div>
-                ) : (
-                  <div className="w-11 h-11 bg-black rounded-full flex items-center justify-center">
+                  ) : (
                     <User className="w-6 h-6 text-white" />
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
             </div>
             <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
@@ -250,18 +278,6 @@ export default function HomeScreen() {
             title="Go to Search"
           >
             <div className="relative">
-              {/* Animated background rings */}
-              <div
-                className="absolute inset-0 w-10 h-10 bg-gradient-to-br from-cyan-400 via-blue-500 to-purple-600 rounded-full animate-spin"
-                style={{ animationDuration: "2.5s" }}
-              ></div>
-              <div
-                className="absolute inset-0.5 w-9 h-9 bg-gradient-to-br from-pink-500 via-red-500 to-orange-500 rounded-full animate-spin"
-                style={{
-                  animationDuration: "1.8s",
-                  animationDirection: "reverse",
-                }}
-              ></div>
               <div className="relative w-10 h-10 flex items-center justify-center">
                 <Search className="w-5 h-5 text-white z-10" />
               </div>

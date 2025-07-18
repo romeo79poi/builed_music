@@ -1,4 +1,12 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
+import { api } from "../lib/api";
+import { useToast } from "../hooks/use-toast";
 
 export interface UserProfile {
   id: string;
@@ -45,6 +53,7 @@ export interface SocialLinks {
 interface ProfileContextType {
   profile: UserProfile;
   isEditing: boolean;
+  isLoading: boolean;
   editedProfile: Partial<UserProfile>;
   setProfile: (profile: UserProfile) => void;
   setIsEditing: (editing: boolean) => void;
@@ -52,9 +61,10 @@ interface ProfileContextType {
   saveProfile: () => Promise<void>;
   cancelEditing: () => void;
   uploadProfilePicture: (file: File) => Promise<string>;
-  addLikedSong: (songId: string) => void;
-  removeLikedSong: (songId: string) => void;
-  toggleLikedSong: (songId: string) => void;
+  addLikedSong: (songId: string) => Promise<void>;
+  removeLikedSong: (songId: string) => Promise<void>;
+  toggleLikedSong: (songId: string) => Promise<void>;
+  loadProfile: () => Promise<void>;
 }
 
 const ProfileContext = createContext<ProfileContextType | undefined>(undefined);
@@ -74,56 +84,103 @@ interface ProfileProviderProps {
 export const ProfileProvider: React.FC<ProfileProviderProps> = ({
   children,
 }) => {
+  const { toast } = useToast();
   const [profile, setProfile] = useState<UserProfile>({
-    id: "1",
+    id: "user1",
     username: "biospectra",
     displayName: "Bio Spectra",
     bio: "Music lover 🎵 | Producer | Always discovering new sounds ✨",
-    profilePicture: "",
+    profilePicture:
+      "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300&h=300&fit=crop&crop=face",
     email: "bio.spectra@musiccatch.com",
     joinDate: "2023-01-15",
     isVerified: true,
     followers: 1248,
     following: 567,
-    likedSongs: ["1", "2", "3", "4", "5"],
-    recentlyPlayed: ["1", "2", "3"],
-    playlists: [
-      {
-        id: "1",
-        name: "My Vibes",
-        description: "Songs that match my mood",
-        coverImage:
-          "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop",
-        songs: ["1", "2", "3"],
-        isPublic: true,
-        createdAt: "2023-12-01",
-      },
-      {
-        id: "2",
-        name: "Late Night Sessions",
-        description: "Perfect for coding and creating",
-        coverImage:
-          "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=400&fit=crop",
-        songs: ["4", "5", "6"],
-        isPublic: false,
-        createdAt: "2023-11-15",
-      },
-    ],
+    likedSongs: ["song1", "song2", "song3"],
+    recentlyPlayed: ["song1", "song2", "song3"],
+    playlists: [],
     musicPreferences: {
       favoriteGenres: ["Electronic", "Indie", "Alternative", "Lo-fi"],
       favoriteArtists: ["The Weeknd", "Daft Punk", "Tame Impala", "ODESZA"],
       mood: "Chill",
       language: ["English", "French"],
+      autoPlay: true,
+      crossfade: false,
+      soundQuality: "high",
     },
     socialLinks: {
       instagram: "@biospectra",
       twitter: "@biospectramusic",
       spotify: "biospectra",
     },
+    subscription: {
+      plan: "premium",
+      status: "active",
+      startDate: "2023-01-15",
+      features: [
+        "Unlimited skips",
+        "Ad-free listening",
+        "High-quality audio",
+        "Offline downloads",
+      ],
+      autoRenew: true,
+    },
+    settings: {
+      theme: "dark",
+      language: "en",
+      notifications: {
+        email: true,
+        push: true,
+        newFollowers: true,
+        newMusic: true,
+        recommendations: true,
+        socialActivity: false,
+      },
+      privacy: {
+        profileVisibility: "public",
+        showRecentlyPlayed: true,
+        showLikedSongs: true,
+        showPlaylists: true,
+        allowFollowers: true,
+      },
+      playback: {
+        volume: 80,
+        shuffle: false,
+        repeat: "off",
+        gaplessPlayback: true,
+        normalization: true,
+      },
+    },
   });
 
   const [isEditing, setIsEditing] = useState(false);
   const [editedProfile, setEditedProfile] = useState<Partial<UserProfile>>({});
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Load profile data on component mount
+  useEffect(() => {
+    loadProfile();
+  }, []);
+
+  const loadProfile = async () => {
+    try {
+      setIsLoading(true);
+      const response = await api.profile.getProfile();
+      if (response.success && response.profile) {
+        setProfile(response.profile);
+      }
+    } catch (error) {
+      console.error("Failed to load profile:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load profile data",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const updateEditedProfile = (updates: Partial<UserProfile>) => {
     setEditedProfile((prev) => ({ ...prev, ...updates }));
@@ -131,19 +188,29 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({
 
   const saveProfile = async () => {
     try {
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setIsLoading(true);
+      const response = await api.profile.updateProfile(editedProfile);
 
-      const updatedProfile = { ...profile, ...editedProfile };
-      setProfile(updatedProfile);
-      setEditedProfile({});
-      setIsEditing(false);
+      if (response.success && response.profile) {
+        setProfile(response.profile);
+        setEditedProfile({});
+        setIsEditing(false);
 
-      // You would typically make an API call here
-      console.log("Profile saved:", updatedProfile);
+        toast({
+          title: "Success",
+          description: "Profile updated successfully",
+        });
+      }
     } catch (error) {
       console.error("Failed to save profile:", error);
+      toast({
+        title: "Error",
+        description: "Failed to save profile changes",
+        variant: "destructive",
+      });
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -154,44 +221,90 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({
 
   const uploadProfilePicture = async (file: File): Promise<string> => {
     try {
-      // Simulate file upload
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      setIsLoading(true);
+      const response = await api.upload.uploadProfilePicture(file);
 
-      // Create a URL for the uploaded file (in real app, this would be from your CDN)
-      const imageUrl = URL.createObjectURL(file);
+      if (response.success && response.url) {
+        updateEditedProfile({ profilePicture: response.url });
 
-      updateEditedProfile({ profilePicture: imageUrl });
+        toast({
+          title: "Success",
+          description: "Profile picture uploaded successfully",
+        });
 
-      return imageUrl;
+        return response.url;
+      }
+
+      throw new Error("Upload failed");
     } catch (error) {
       console.error("Failed to upload profile picture:", error);
+      toast({
+        title: "Error",
+        description: "Failed to upload profile picture",
+        variant: "destructive",
+      });
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const addLikedSong = (songId: string) => {
-    if (!profile.likedSongs.includes(songId)) {
-      const updatedLikedSongs = [...profile.likedSongs, songId];
+  const addLikedSong = async (songId: string) => {
+    try {
+      if (!profile.likedSongs.includes(songId)) {
+        await api.profile.toggleLikedSong(songId);
+        const updatedLikedSongs = [...profile.likedSongs, songId];
+        setProfile((prev) => ({ ...prev, likedSongs: updatedLikedSongs }));
+
+        toast({
+          title: "Added to liked songs",
+          description: "Song added to your liked songs",
+        });
+      }
+    } catch (error) {
+      console.error("Failed to add liked song:", error);
+      toast({
+        title: "Error",
+        description: "Failed to add song to liked songs",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const removeLikedSong = async (songId: string) => {
+    try {
+      await api.profile.toggleLikedSong(songId);
+      const updatedLikedSongs = profile.likedSongs.filter(
+        (id) => id !== songId,
+      );
       setProfile((prev) => ({ ...prev, likedSongs: updatedLikedSongs }));
+
+      toast({
+        title: "Removed from liked songs",
+        description: "Song removed from your liked songs",
+      });
+    } catch (error) {
+      console.error("Failed to remove liked song:", error);
+      toast({
+        title: "Error",
+        description: "Failed to remove song from liked songs",
+        variant: "destructive",
+      });
     }
   };
 
-  const removeLikedSong = (songId: string) => {
-    const updatedLikedSongs = profile.likedSongs.filter((id) => id !== songId);
-    setProfile((prev) => ({ ...prev, likedSongs: updatedLikedSongs }));
-  };
-
-  const toggleLikedSong = (songId: string) => {
+  const toggleLikedSong = async (songId: string) => {
     if (profile.likedSongs.includes(songId)) {
-      removeLikedSong(songId);
+      await removeLikedSong(songId);
     } else {
-      addLikedSong(songId);
+      await addLikedSong(songId);
     }
   };
 
   const value: ProfileContextType = {
     profile,
     isEditing,
+    isLoading,
     editedProfile,
     setProfile,
     setIsEditing,
@@ -202,6 +315,7 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({
     addLikedSong,
     removeLikedSong,
     toggleLikedSong,
+    loadProfile,
   };
 
   return (

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -21,15 +21,87 @@ import {
   Link as LinkIcon,
   Instagram,
   Twitter,
+  Loader2,
+  RefreshCw,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useProfileContext } from "../context/ProfileContext";
+import { api } from "../lib/api";
+import { useToast } from "../hooks/use-toast";
 
 export default function Profile() {
   const navigate = useNavigate();
-  const { profile, setIsEditing } = useProfileContext();
-  const [currentPlan, setCurrentPlan] = useState("free");
+  const { toast } = useToast();
+  const { profile, setIsEditing, isLoading, loadProfile } = useProfileContext();
   const [showUpgrade, setShowUpgrade] = useState(false);
+  const [isUpdatingSubscription, setIsUpdatingSubscription] = useState(false);
+  const [userStats, setUserStats] = useState<any>(null);
+  const [showSettingsDropdown, setShowSettingsDropdown] = useState(false);
+  const [profileImageError, setProfileImageError] = useState(false);
+
+  useEffect(() => {
+    loadUserStats();
+  }, [profile.id]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (showSettingsDropdown) {
+        setShowSettingsDropdown(false);
+      }
+    };
+
+    if (showSettingsDropdown) {
+      document.addEventListener("click", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [showSettingsDropdown]);
+
+  const loadUserStats = async () => {
+    try {
+      const statsResponse = await api.profile.getUserStats();
+      if (statsResponse.success) {
+        setUserStats(statsResponse.stats);
+      }
+    } catch (error) {
+      console.error("Failed to load user stats:", error);
+    }
+  };
+
+  const handleSubscriptionChange = async (planId: string) => {
+    if (planId === profile.subscription.plan) return;
+
+    try {
+      setIsUpdatingSubscription(true);
+      const response = await api.subscription.updateSubscription({
+        plan: planId as any,
+      });
+
+      if (response.success) {
+        // Reload profile to get updated subscription info
+        await loadProfile();
+        setShowUpgrade(false);
+
+        toast({
+          title: "Subscription Updated",
+          description:
+            response.message || `Successfully updated to ${planId} plan`,
+        });
+      }
+    } catch (error) {
+      console.error("Failed to update subscription:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update subscription. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdatingSubscription(false);
+    }
+  };
 
   const subscriptionPlans = [
     {
@@ -83,6 +155,63 @@ export default function Profile() {
     navigate("/edit-profile");
   };
 
+  const handleRefreshProfile = async () => {
+    try {
+      await loadProfile();
+      await loadUserStats();
+      toast({
+        title: "Profile Refreshed",
+        description: "Profile data has been updated",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to refresh profile data",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDownloadedMusic = () => {
+    // Mock downloaded music functionality
+    toast({
+      title: "Downloaded Music",
+      description: `You have ${profile.subscription.plan === "free" ? 0 : 23} downloaded songs`,
+    });
+  };
+
+  const handleNotifications = () => {
+    // Mock notifications functionality
+    toast({
+      title: "Notifications",
+      description: "You have 3 new notifications",
+    });
+  };
+
+  const handleSettings = () => {
+    // Mock settings functionality
+    toast({
+      title: "Settings",
+      description: "Settings page will open here",
+    });
+  };
+
+  const handleHelp = () => {
+    // Mock help functionality
+    toast({
+      title: "Help & Support",
+      description: "Contact support at help@musiccatch.com",
+    });
+  };
+
+  const handleLogout = () => {
+    toast({
+      title: "Logged Out",
+      description: "You have been successfully logged out",
+    });
+    navigate("/login");
+  };
+
   const menuItems = [
     { icon: Edit3, label: "Edit Profile", action: handleEditProfile },
     {
@@ -95,11 +224,14 @@ export default function Profile() {
       label: "Recently Played",
       action: () => navigate("/history"),
     },
-    { icon: Download, label: "Downloaded Music", action: () => {} },
-    { icon: Bell, label: "Notifications", action: () => {} },
-    { icon: Settings, label: "Settings", action: () => {} },
-    { icon: HelpCircle, label: "Help & Support", action: () => {} },
-    { icon: LogOut, label: "Log Out", action: () => navigate("/login") },
+    {
+      icon: Download,
+      label: "Downloaded Music",
+      action: handleDownloadedMusic,
+    },
+    { icon: Bell, label: "Notifications", action: handleNotifications },
+    { icon: HelpCircle, label: "Help & Support", action: handleHelp },
+    { icon: LogOut, label: "Log Out", action: handleLogout },
   ];
 
   return (
@@ -124,9 +256,99 @@ export default function Profile() {
             <ArrowLeft className="w-5 h-5" />
           </button>
           <h1 className="text-xl font-bold">Profile</h1>
-          <button className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm">
-            <Settings className="w-5 h-5" />
-          </button>
+          <div className="relative">
+            <button
+              onClick={() => setShowSettingsDropdown(!showSettingsDropdown)}
+              className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm hover:bg-white/20 transition-colors"
+              title="Settings"
+            >
+              <Settings className="w-5 h-5" />
+            </button>
+
+            {/* Settings Dropdown */}
+            {showSettingsDropdown && (
+              <div className="absolute right-0 top-12 w-52 bg-black/90 backdrop-blur-sm rounded-xl border border-white/10 py-2 z-50">
+                <button
+                  onClick={() => {
+                    handleEditProfile();
+                    setShowSettingsDropdown(false);
+                  }}
+                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
+                >
+                  <Edit3 className="w-4 h-4" />
+                  <span>Edit Profile</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    navigate("/liked-songs");
+                    setShowSettingsDropdown(false);
+                  }}
+                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
+                >
+                  <Heart className="w-4 h-4" />
+                  <span>Liked Songs</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    navigate("/history");
+                    setShowSettingsDropdown(false);
+                  }}
+                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
+                >
+                  <History className="w-4 h-4" />
+                  <span>Recently Played</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    handleDownloadedMusic();
+                    setShowSettingsDropdown(false);
+                  }}
+                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Downloaded Music</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    handleNotifications();
+                    setShowSettingsDropdown(false);
+                  }}
+                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
+                >
+                  <Bell className="w-4 h-4" />
+                  <span>Notifications</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    handleHelp();
+                    setShowSettingsDropdown(false);
+                  }}
+                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
+                >
+                  <HelpCircle className="w-4 h-4" />
+                  <span>Help & Support</span>
+                </button>
+
+                <div className="border-t border-white/10 my-1"></div>
+
+                <button
+                  onClick={() => {
+                    handleLogout();
+                    setShowSettingsDropdown(false);
+                  }}
+                  className="w-full px-4 py-3 text-left text-red-400 hover:bg-red-500/10 transition-colors flex items-center space-x-3"
+                >
+                  <LogOut className="w-4 h-4" />
+                  <span>Log Out</span>
+                </button>
+              </div>
+            )}
+          </div>
         </motion.div>
 
         {/* User Info */}
@@ -137,25 +359,37 @@ export default function Profile() {
           className="px-6 py-8 text-center"
         >
           <div className="relative inline-block">
-            <div className="w-24 h-24 bg-gradient-to-br from-neon-green to-neon-blue rounded-full p-1">
+            <button
+              onClick={handleEditProfile}
+              className="w-24 h-24 bg-gradient-to-br from-neon-green to-neon-blue rounded-full p-1 hover:scale-105 transition-transform cursor-pointer"
+              title="Click to edit profile"
+            >
               <div className="w-full h-full bg-gray-800 rounded-full flex items-center justify-center overflow-hidden">
-                {profile.profilePicture ? (
+                {profile.profilePicture && !profileImageError ? (
                   <img
                     src={profile.profilePicture}
                     alt={profile.displayName}
                     className="w-full h-full object-cover"
+                    onError={() => {
+                      console.log(
+                        "Profile image failed to load:",
+                        profile.profilePicture,
+                      );
+                      setProfileImageError(true);
+                    }}
+                    onLoad={() => setProfileImageError(false)}
                   />
                 ) : (
                   <User className="w-12 h-12 text-gray-400" />
                 )}
               </div>
-            </div>
+            </button>
             {profile.isVerified && (
               <div className="absolute -top-1 -right-1 w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center">
                 <Check className="w-4 h-4 text-white" />
               </div>
             )}
-            {currentPlan === "premium" && (
+            {profile.subscription.plan === "premium" && (
               <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-gradient-to-br from-yellow-400 to-yellow-600 rounded-full flex items-center justify-center">
                 <Crown className="w-4 h-4 text-black" />
               </div>
@@ -247,11 +481,94 @@ export default function Profile() {
           </div>
         </motion.div>
 
-        {/* Recently Played */}
+        {/* Current Plan */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
+          className="mx-6 mb-6"
+        >
+          <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm border border-white/10">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-lg font-semibold">Current Plan</h3>
+                <div className="flex items-center space-x-2">
+                  <p className="text-gray-400 capitalize">
+                    {profile.subscription.plan}
+                  </p>
+                  {profile.subscription.plan === "premium" && (
+                    <Crown className="w-4 h-4 text-yellow-500" />
+                  )}
+                  {profile.subscription.status === "active" && (
+                    <span className="text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded-full">
+                      Active
+                    </span>
+                  )}
+                </div>
+              </div>
+              {profile.subscription.plan === "free" && (
+                <button
+                  onClick={() => setShowUpgrade(true)}
+                  className="px-6 py-2 bg-gradient-to-r from-neon-green to-neon-blue rounded-full font-semibold text-black hover:scale-105 transition-transform"
+                  disabled={isUpdatingSubscription}
+                >
+                  {isUpdatingSubscription ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    "Upgrade"
+                  )}
+                </button>
+              )}
+            </div>
+
+            {/* Features List */}
+            <div className="mb-4">
+              <div className="flex flex-wrap gap-1">
+                {profile.subscription.features
+                  .slice(0, 3)
+                  .map((feature, index) => (
+                    <span
+                      key={index}
+                      className="text-xs bg-white/10 text-gray-300 px-2 py-1 rounded-full"
+                    >
+                      {feature}
+                    </span>
+                  ))}
+                {profile.subscription.features.length > 3 && (
+                  <span className="text-xs text-gray-400">
+                    +{profile.subscription.features.length - 3} more
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Stats */}
+            <div className="flex items-center space-x-4 text-sm text-gray-400">
+              <div className="flex items-center space-x-2">
+                <Headphones className="w-4 h-4" />
+                <span>
+                  {userStats?.totalSongsPlayed ||
+                    profile.recentlyPlayed.length + 429}{" "}
+                  songs played
+                </span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Heart className="w-4 h-4" />
+                <span>{profile.likedSongs.length} liked</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Music className="w-4 h-4" />
+                <span>{profile.playlists.length} playlists</span>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* Recently Played */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
           className="mx-6 mb-6"
         >
           <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm border border-white/10">
@@ -356,45 +673,6 @@ export default function Profile() {
           </div>
         </motion.div>
 
-        {/* Subscription Status */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="mx-6 mb-6"
-        >
-          <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm border border-white/10">
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="text-lg font-semibold">Current Plan</h3>
-                <p className="text-gray-400 capitalize">{currentPlan}</p>
-              </div>
-              {currentPlan === "free" && (
-                <button
-                  onClick={() => setShowUpgrade(true)}
-                  className="px-6 py-2 bg-gradient-to-r from-neon-green to-neon-blue rounded-full font-semibold text-black"
-                >
-                  Upgrade
-                </button>
-              )}
-            </div>
-            <div className="flex items-center space-x-4 text-sm text-gray-400">
-              <div className="flex items-center space-x-2">
-                <Headphones className="w-4 h-4" />
-                <span>{profile.recentlyPlayed.length + 429} songs played</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Heart className="w-4 h-4" />
-                <span>{profile.likedSongs.length} liked</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Music className="w-4 h-4" />
-                <span>{profile.playlists.length} playlists</span>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
         {/* Subscription Plans Modal */}
         {showUpgrade && (
           <motion.div
@@ -422,7 +700,7 @@ export default function Profile() {
                   <div
                     key={plan.id}
                     className={`relative p-4 rounded-2xl border-2 transition-all ${
-                      currentPlan === plan.id
+                      profile.subscription.plan === plan.id
                         ? "border-neon-green bg-neon-green/10"
                         : "border-white/10 bg-white/5"
                     }`}
@@ -450,7 +728,7 @@ export default function Profile() {
                           </span>
                         </div>
                       </div>
-                      {currentPlan === plan.id && (
+                      {profile.subscription.plan === plan.id && (
                         <Check className="w-6 h-6 text-neon-green" />
                       )}
                     </div>
@@ -464,15 +742,20 @@ export default function Profile() {
                       ))}
                     </ul>
 
-                    {currentPlan !== plan.id && (
+                    {profile.subscription.plan !== plan.id && (
                       <button
-                        onClick={() => {
-                          setCurrentPlan(plan.id);
-                          setShowUpgrade(false);
-                        }}
-                        className="w-full py-3 bg-gradient-to-r from-neon-green to-neon-blue rounded-xl font-semibold text-black"
+                        onClick={() => handleSubscriptionChange(plan.id)}
+                        disabled={isUpdatingSubscription}
+                        className="w-full py-3 bg-gradient-to-r from-neon-green to-neon-blue rounded-xl font-semibold text-black hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        Choose {plan.name}
+                        {isUpdatingSubscription ? (
+                          <div className="flex items-center justify-center space-x-2">
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            <span>Updating...</span>
+                          </div>
+                        ) : (
+                          `Choose ${plan.name}`
+                        )}
                       </button>
                     )}
                   </div>
