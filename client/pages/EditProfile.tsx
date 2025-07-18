@@ -60,10 +60,9 @@ export default function EditProfile() {
 
     setIsUploading(true);
     try {
-      const imageUrl = await uploadProfilePicture(file);
-      console.log("Profile picture uploaded:", imageUrl);
+      await uploadProfilePicture(file);
     } catch (error) {
-      console.error("Upload failed:", error);
+      // Error is already handled by ProfileContext with toast notification
     } finally {
       setIsUploading(false);
     }
