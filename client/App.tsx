@@ -8,7 +8,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { MusicProvider } from "./context/MusicContext";
 import { ProfileProvider } from "./context/ProfileContext";
-import { FirebaseProvider, firebaseApp, firebaseAuth } from './context/FirebaseContext';
+import {
+  FirebaseProvider,
+  firebaseApp,
+  firebaseAuth,
+} from "./context/FirebaseContext";
 import Splash from "./pages/Splash";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -33,30 +37,32 @@ const App = () => {
         <FirebaseProvider>
           <MusicProvider>
             <ProfileProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Splash />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/home" element={<Home />} />
-              <Route path="/search" element={<Search />} />
-              <Route path="/player" element={<Player />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/edit-profile" element={<EditProfile />} />
-              <Route path="/liked-songs" element={<LikedSongs />} />
-              <Route path="/library" element={<Library />} />
-              <Route path="/history" element={<History />} />
-              <Route path="/settings" element={<Settings />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </ProfileProvider>
-      </MusicProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={<Splash />} />
+                  <Route path="/login" element={<Login />} />
+                  <Route path="/signup" element={<Signup />} />
+                  <Route path="/home" element={<Home />} />
+                  <Route path="/search" element={<Search />} />
+                  <Route path="/player" element={<Player />} />
+                  <Route path="/profile" element={<Profile />} />
+                  <Route path="/edit-profile" element={<EditProfile />} />
+                  <Route path="/liked-songs" element={<LikedSongs />} />
+                  <Route path="/library" element={<Library />} />
+                  <Route path="/history" element={<History />} />
+                  <Route path="/settings" element={<Settings />} />
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </BrowserRouter>
+            </ProfileProvider>
+          </MusicProvider>
+        </FirebaseProvider>
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 createRoot(document.getElementById("root")!).render(<App />);
