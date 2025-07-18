@@ -267,7 +267,7 @@ export default function EditProfile() {
                 <div className="relative inline-block">
                   <div className="w-32 h-32 bg-gradient-to-br from-neon-green to-neon-blue rounded-full p-1">
                     <div className="w-full h-full bg-gray-800 rounded-full flex items-center justify-center overflow-hidden">
-                      {currentProfile.profilePicture ? (
+                      {currentProfile.profilePicture && !imageLoadError ? (
                         <img
                           src={currentProfile.profilePicture}
                           alt="Profile"
@@ -278,14 +278,14 @@ export default function EditProfile() {
                               "Failed to load profile image:",
                               currentProfile.profilePicture,
                             );
-                            console.error("Image error event:", e);
+                            setImageLoadError(true);
                           }}
-                          onLoad={() =>
-                            console.log("Profile image loaded successfully")
-                          }
+                          onLoad={() => {
+                            console.log("Profile image loaded successfully");
+                            setImageLoadError(false);
+                          }}
                         />
-                      ) : null}
-                      {!currentProfile.profilePicture && (
+                      ) : (
                         <User className="w-16 h-16 text-gray-400" />
                       )}
                     </div>
