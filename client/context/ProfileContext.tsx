@@ -90,7 +90,8 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({
     username: "biospectra",
     displayName: "Bio Spectra",
     bio: "Music lover 🎵 | Producer | Always discovering new sounds ✨",
-    profilePicture: "",
+    profilePicture:
+      "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=300&h=300&fit=crop&crop=face",
     email: "bio.spectra@musiccatch.com",
     joinDate: "2023-01-15",
     isVerified: true,
