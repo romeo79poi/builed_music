@@ -266,7 +266,7 @@ export default function Profile() {
 
             {/* Settings Dropdown */}
             {showSettingsDropdown && (
-              <div className="absolute right-0 top-12 w-48 bg-black/90 backdrop-blur-sm rounded-xl border border-white/10 py-2 z-50">
+              <div className="absolute right-0 top-12 w-52 bg-black/90 backdrop-blur-sm rounded-xl border border-white/10 py-2 z-50">
                 <button
                   onClick={() => {
                     handleEditProfile();
@@ -276,6 +276,39 @@ export default function Profile() {
                 >
                   <Edit3 className="w-4 h-4" />
                   <span>Edit Profile</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    navigate("/liked-songs");
+                    setShowSettingsDropdown(false);
+                  }}
+                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
+                >
+                  <Heart className="w-4 h-4" />
+                  <span>Liked Songs</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    navigate("/history");
+                    setShowSettingsDropdown(false);
+                  }}
+                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
+                >
+                  <History className="w-4 h-4" />
+                  <span>Recently Played</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    handleDownloadedMusic();
+                    setShowSettingsDropdown(false);
+                  }}
+                  className="w-full px-4 py-3 text-left text-white hover:bg-white/10 transition-colors flex items-center space-x-3"
+                >
+                  <Download className="w-4 h-4" />
+                  <span>Downloaded Music</span>
                 </button>
 
                 <button
