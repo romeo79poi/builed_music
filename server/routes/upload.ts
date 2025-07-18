@@ -56,8 +56,8 @@ export const uploadProfilePicture: RequestHandler = async (req, res) => {
     const uniqueFileName = `profile_${timestamp}_${randomString}${extension}`;
 
     // In production, upload to cloud storage
-    // For demo, we'll return a mock URL
-    const mockUrl = `https://api.musiccatch.com/uploads/profile-pictures/${uniqueFileName}`;
+    // For demo, we'll return a working placeholder image URL
+    const mockUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${uniqueFileName}&size=300`;
 
     // Simulate upload delay
     await new Promise((resolve) => setTimeout(resolve, 1000));
