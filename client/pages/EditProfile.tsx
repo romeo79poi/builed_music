@@ -57,6 +57,11 @@ export default function EditProfile() {
   console.log("Current profile data:", currentProfile);
   console.log("Profile picture URL:", currentProfile.profilePicture);
 
+  // Reset image error when profile picture URL changes
+  React.useEffect(() => {
+    setImageLoadError(false);
+  }, [currentProfile.profilePicture]);
+
   const handleProfilePictureUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
