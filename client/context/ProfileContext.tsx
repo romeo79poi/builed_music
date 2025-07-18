@@ -225,7 +225,9 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({
       const response = await api.upload.uploadProfilePicture(file);
 
       if (response.success && response.url) {
+        // Update both the edited profile and main profile state immediately
         updateEditedProfile({ profilePicture: response.url });
+        setProfile((prev) => ({ ...prev, profilePicture: response.url }));
 
         toast({
           title: "Success",
