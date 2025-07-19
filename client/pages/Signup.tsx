@@ -362,7 +362,7 @@ export default function Signup() {
         });
 
         console.log("✅ Google user created in backend:", data.user);
-        console.log("📊 Google signup data flow:", {
+        console.log("�� Google signup data flow:", {
           google: googleUserData,
           backend: data.user,
           matched: true,
@@ -621,18 +621,24 @@ export default function Signup() {
           className="flex justify-center mb-6 sm:mb-8"
         >
           <div className="flex space-x-2">
-            {["email", "profile", "verification", "password"].map(
-              (step, index) => (
+            {(signupMethod === "phone"
+              ? ["method", "phone", "phone-verify", "profile"]
+              : ["method", "email", "verification", "profile", "password"]
+            ).map((step, index) => {
+              const currentStepIndex =
+                Object.keys(stepTitles).indexOf(currentStep);
+              const stepIndex = Object.keys(stepTitles).indexOf(step);
+              return (
                 <div
                   key={step}
                   className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition-colors ${
-                    Object.keys(stepTitles).indexOf(currentStep) >= index
+                    stepIndex <= currentStepIndex
                       ? "bg-neon-green"
                       : "bg-slate-700"
                   }`}
                 />
-              ),
-            )}
+              );
+            })}
           </div>
         </motion.div>
 
