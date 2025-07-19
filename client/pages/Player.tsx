@@ -34,6 +34,9 @@ import {
   WifiOff,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useMusicContext } from "../context/MusicContext";
+import { useProfileContext } from "../context/ProfileContext";
+import { useToast } from "../hooks/use-toast";
 
 export default function Player() {
   const navigate = useNavigate();
