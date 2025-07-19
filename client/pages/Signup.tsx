@@ -1,17 +1,21 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Eye,
   EyeOff,
-  Check,
-  X,
+  ArrowLeft,
   Loader2,
   AlertCircle,
   CheckCircle,
+  Mail,
+  User,
+  Lock,
 } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useToast } from "../hooks/use-toast";
+
+type SignupStep = "email" | "profile" | "verification" | "password";
 
 interface FormData {
   email: string;
@@ -29,15 +33,11 @@ interface ValidationErrors {
   confirmPassword?: string;
 }
 
-interface FieldValidation {
-  isValid: boolean;
-  message: string;
-}
-
 export default function Signup() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const [currentStep, setCurrentStep] = useState<SignupStep>("email");
   const [formData, setFormData] = useState<FormData>({
     email: "",
     username: "",
@@ -54,81 +54,89 @@ export default function Signup() {
     email?: boolean;
     username?: boolean;
   }>({});
+  const [resendTimer, setResendTimer] = useState(0);
 
-  // Real-time validation
-  const validateEmail = (email: string): FieldValidation => {
-    if (!email) return { isValid: false, message: "Email is required" };
+  // Validation functions
+  const validateEmail = (email: string): boolean => {
+    if (!email) {
+      setErrors((prev) => ({ ...prev, email: "Email is required" }));
+      return false;
+    }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return { isValid: false, message: "Invalid email format" };
+      setErrors((prev) => ({ ...prev, email: "Invalid email format" }));
+      return false;
     }
-    return { isValid: true, message: "Valid email format" };
+    setErrors((prev) => ({ ...prev, email: undefined }));
+    return true;
   };
 
-  const validateUsername = (username: string): FieldValidation => {
-    if (!username) return { isValid: false, message: "Username is required" };
-    if (username.length < 3) {
-      return {
-        isValid: false,
-        message: "Username must be at least 3 characters",
-      };
+  const validateProfile = (): boolean => {
+    let isValid = true;
+    const newErrors: ValidationErrors = {};
+
+    if (!formData.name.trim()) {
+      newErrors.name = "Name is required";
+      isValid = false;
+    } else if (formData.name.length < 2) {
+      newErrors.name = "Name must be at least 2 characters";
+      isValid = false;
     }
-    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-      return {
-        isValid: false,
-        message: "Username can only contain letters, numbers, and underscores",
-      };
+
+    if (!formData.username.trim()) {
+      newErrors.username = "Username is required";
+      isValid = false;
+    } else if (formData.username.length < 3) {
+      newErrors.username = "Username must be at least 3 characters";
+      isValid = false;
+    } else if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) {
+      newErrors.username =
+        "Username can only contain letters, numbers, and underscores";
+      isValid = false;
     }
-    return { isValid: true, message: "Valid username format" };
+
+    if (availability.username === false) {
+      newErrors.username = "Username is already taken";
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
   };
 
-  const validateName = (name: string): FieldValidation => {
-    if (!name) return { isValid: false, message: "Name is required" };
-    if (name.length < 2) {
-      return { isValid: false, message: "Name must be at least 2 characters" };
-    }
-    return { isValid: true, message: "Valid name" };
-  };
+  const validatePassword = (): boolean => {
+    let isValid = true;
+    const newErrors: ValidationErrors = {};
 
-  const validatePassword = (password: string): FieldValidation => {
-    if (!password) return { isValid: false, message: "Password is required" };
-    if (password.length < 8) {
-      return {
-        isValid: false,
-        message: "Password must be at least 8 characters",
-      };
+    if (!formData.password) {
+      newErrors.password = "Password is required";
+      isValid = false;
+    } else if (formData.password.length < 8) {
+      newErrors.password = "Password must be at least 8 characters";
+      isValid = false;
+    } else if (!/(?=.*[a-z])/.test(formData.password)) {
+      newErrors.password =
+        "Password must contain at least one lowercase letter";
+      isValid = false;
+    } else if (!/(?=.*[A-Z])/.test(formData.password)) {
+      newErrors.password =
+        "Password must contain at least one uppercase letter";
+      isValid = false;
+    } else if (!/(?=.*\d)/.test(formData.password)) {
+      newErrors.password = "Password must contain at least one number";
+      isValid = false;
     }
-    if (!/(?=.*[a-z])/.test(password)) {
-      return {
-        isValid: false,
-        message: "Password must contain at least one lowercase letter",
-      };
-    }
-    if (!/(?=.*[A-Z])/.test(password)) {
-      return {
-        isValid: false,
-        message: "Password must contain at least one uppercase letter",
-      };
-    }
-    if (!/(?=.*\d)/.test(password)) {
-      return {
-        isValid: false,
-        message: "Password must contain at least one number",
-      };
-    }
-    return { isValid: true, message: "Strong password" };
-  };
 
-  const validateConfirmPassword = (
-    confirmPassword: string,
-    password: string,
-  ): FieldValidation => {
-    if (!confirmPassword)
-      return { isValid: false, message: "Please confirm your password" };
-    if (confirmPassword !== password) {
-      return { isValid: false, message: "Passwords do not match" };
+    if (!formData.confirmPassword) {
+      newErrors.confirmPassword = "Please confirm your password";
+      isValid = false;
+    } else if (formData.confirmPassword !== formData.password) {
+      newErrors.confirmPassword = "Passwords do not match";
+      isValid = false;
     }
-    return { isValid: true, message: "Passwords match" };
+
+    setErrors(newErrors);
+    return isValid;
   };
 
   // Check availability with backend
@@ -150,102 +158,63 @@ export default function Signup() {
           [field]:
             field === "email" ? data.emailAvailable : data.usernameAvailable,
         }));
+
+        if (field === "email" && !data.emailAvailable) {
+          setErrors((prev) => ({
+            ...prev,
+            email: "Email is already registered",
+          }));
+        }
       }
     } catch (error) {
       console.error("Availability check failed:", error);
     }
   };
 
-  // Handle form field changes
-  const handleFieldChange = (field: keyof FormData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+  // Step handlers
+  const handleEmailStep = async () => {
+    if (!validateEmail(formData.email)) return;
 
-    // Clear errors for this field
-    setErrors((prev) => ({ ...prev, [field]: undefined }));
+    setIsLoading(true);
+    await checkAvailability("email", formData.email);
+    setIsLoading(false);
 
-    // Real-time validation
-    let validation: FieldValidation;
-    switch (field) {
-      case "email":
-        validation = validateEmail(value);
-        if (validation.isValid) {
-          checkAvailability("email", value);
-        }
-        break;
-      case "username":
-        validation = validateUsername(value);
-        if (validation.isValid) {
-          checkAvailability("username", value);
-        }
-        break;
-      case "name":
-        validation = validateName(value);
-        break;
-      case "password":
-        validation = validatePassword(value);
-        // Also re-validate confirm password if it exists
-        if (formData.confirmPassword) {
-          const confirmValidation = validateConfirmPassword(
-            formData.confirmPassword,
-            value,
-          );
-          setErrors((prev) => ({
-            ...prev,
-            confirmPassword: confirmValidation.isValid
-              ? undefined
-              : confirmValidation.message,
-          }));
-        }
-        break;
-      case "confirmPassword":
-        validation = validateConfirmPassword(value, formData.password);
-        break;
-      default:
-        return;
-    }
-
-    // Set error if validation failed
-    if (!validation.isValid) {
-      setErrors((prev) => ({ ...prev, [field]: validation.message }));
+    if (availability.email !== false) {
+      setCurrentStep("profile");
     }
   };
 
-  // Handle form submission
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleProfileStep = async () => {
+    if (!validateProfile()) return;
+
     setIsLoading(true);
+    await checkAvailability("username", formData.username);
+    setIsLoading(false);
 
-    // Validate all fields
-    const emailValidation = validateEmail(formData.email);
-    const usernameValidation = validateUsername(formData.username);
-    const nameValidation = validateName(formData.name);
-    const passwordValidation = validatePassword(formData.password);
-    const confirmPasswordValidation = validateConfirmPassword(
-      formData.confirmPassword,
-      formData.password,
-    );
-
-    const newErrors: ValidationErrors = {};
-    if (!emailValidation.isValid) newErrors.email = emailValidation.message;
-    if (!usernameValidation.isValid)
-      newErrors.username = usernameValidation.message;
-    if (!nameValidation.isValid) newErrors.name = nameValidation.message;
-    if (!passwordValidation.isValid)
-      newErrors.password = passwordValidation.message;
-    if (!confirmPasswordValidation.isValid)
-      newErrors.confirmPassword = confirmPasswordValidation.message;
-
-    // Check availability
-    if (availability.email === false)
-      newErrors.email = "Email is already registered";
-    if (availability.username === false)
-      newErrors.username = "Username is already taken";
-
-    if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      setIsLoading(false);
-      return;
+    if (availability.username !== false) {
+      setCurrentStep("verification");
+      // Simulate sending verification email
+      toast({
+        title: "Verification email sent!",
+        description: "Please check your email and verify your account.",
+      });
+      setResendTimer(60);
     }
+  };
+
+  const handleVerificationStep = () => {
+    // Simulate email verification
+    toast({
+      title: "Email verified!",
+      description: "Your email has been successfully verified.",
+    });
+    setCurrentStep("password");
+  };
+
+  const handlePasswordStep = async () => {
+    if (!validatePassword()) return;
+
+    setIsLoading(true);
 
     try {
       // Submit to backend
@@ -267,10 +236,9 @@ export default function Signup() {
       if (data.success) {
         toast({
           title: "Account created successfully! 🎉",
-          description: `Welcome to Music Catch, ${data.user.name || data.user.username}!`,
+          description: `Welcome to Music Catch, ${data.user.name}!`,
         });
 
-        // Log the backend data for demonstration
         console.log("✅ User created in backend:", data.user);
         console.log("📊 Frontend data matched to backend:", {
           frontend: formData,
@@ -278,7 +246,6 @@ export default function Signup() {
           matched: true,
         });
 
-        // Navigate to login or home
         setTimeout(() => {
           navigate("/login");
         }, 2000);
@@ -301,21 +268,46 @@ export default function Signup() {
     }
   };
 
-  // Get field validation status
-  const getFieldStatus = (field: keyof FormData) => {
-    const hasError = !!errors[field];
-    const hasValue = !!formData[field];
-
-    if (field === "email" || field === "username") {
-      const isAvailable = availability[field];
-      if (hasValue && !hasError && isAvailable !== undefined) {
-        return isAvailable ? "success" : "error";
-      }
+  const goBack = () => {
+    if (currentStep === "profile") {
+      setCurrentStep("email");
+    } else if (currentStep === "verification") {
+      setCurrentStep("profile");
+    } else if (currentStep === "password") {
+      setCurrentStep("verification");
     }
+  };
 
-    if (hasValue && !hasError) return "success";
-    if (hasError) return "error";
-    return "default";
+  const handleResendVerification = () => {
+    if (resendTimer > 0) return;
+
+    toast({
+      title: "Verification email resent!",
+      description: "Please check your email for the verification link.",
+    });
+    setResendTimer(60);
+  };
+
+  // Timer for resend functionality
+  React.useEffect(() => {
+    if (resendTimer > 0) {
+      const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendTimer]);
+
+  const stepTitles = {
+    email: "What's your email?",
+    profile: "Tell us about yourself",
+    verification: "Verify your email",
+    password: "Create your password",
+  };
+
+  const stepDescriptions = {
+    email: "We'll send you a verification email",
+    profile: "Help others find you on Music Catch",
+    verification: "Check your email and click the verification link",
+    password: "Choose a secure password for your account",
   };
 
   return (
@@ -334,244 +326,394 @@ export default function Signup() {
           <div className="flex justify-center mb-4">
             <MusicCatchLogo animated={false} />
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Create Account</h1>
-          <p className="text-slate-400">Join Music Catch today</p>
+          <h1 className="text-3xl font-bold text-white mb-2">Sign up to</h1>
+          <h2 className="text-3xl font-bold text-white">MUSIC CATCH</h2>
         </motion.div>
 
-        {/* Form */}
-        <motion.form
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.8 }}
-          onSubmit={handleSubmit}
-          className="space-y-4"
-        >
-          {/* Email Field */}
-          <div>
-            <label className="block text-white text-sm font-medium mb-2">
-              Email Address
-            </label>
-            <div className="relative">
-              <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => handleFieldChange("email", e.target.value)}
-                placeholder="your@email.com"
-                className={`w-full h-14 bg-slate-800/50 border rounded-lg px-4 pr-12 text-white placeholder-slate-400 focus:outline-none transition-colors ${
-                  getFieldStatus("email") === "success"
-                    ? "border-neon-green focus:border-neon-green"
-                    : getFieldStatus("email") === "error"
-                      ? "border-red-400 focus:border-red-400"
-                      : "border-slate-600 focus:border-neon-green"
-                }`}
-                disabled={isLoading}
-              />
-              {formData.email && (
-                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                  {getFieldStatus("email") === "success" ? (
-                    <CheckCircle className="w-5 h-5 text-neon-green" />
-                  ) : getFieldStatus("email") === "error" ? (
-                    <X className="w-5 h-5 text-red-400" />
-                  ) : null}
-                </div>
-              )}
-            </div>
-            {errors.email && (
-              <p className="text-red-400 text-sm mt-2 flex items-center">
-                <AlertCircle className="w-4 h-4 mr-1" />
-                {errors.email}
-              </p>
-            )}
-          </div>
-
-          {/* Username Field */}
-          <div>
-            <label className="block text-white text-sm font-medium mb-2">
-              Username
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                value={formData.username}
-                onChange={(e) => handleFieldChange("username", e.target.value)}
-                placeholder="your_username"
-                className={`w-full h-14 bg-slate-800/50 border rounded-lg px-4 pr-12 text-white placeholder-slate-400 focus:outline-none transition-colors ${
-                  getFieldStatus("username") === "success"
-                    ? "border-neon-green focus:border-neon-green"
-                    : getFieldStatus("username") === "error"
-                      ? "border-red-400 focus:border-red-400"
-                      : "border-slate-600 focus:border-neon-green"
-                }`}
-                disabled={isLoading}
-              />
-              {formData.username && (
-                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                  {getFieldStatus("username") === "success" ? (
-                    <CheckCircle className="w-5 h-5 text-neon-green" />
-                  ) : getFieldStatus("username") === "error" ? (
-                    <X className="w-5 h-5 text-red-400" />
-                  ) : null}
-                </div>
-              )}
-            </div>
-            {errors.username && (
-              <p className="text-red-400 text-sm mt-2 flex items-center">
-                <AlertCircle className="w-4 h-4 mr-1" />
-                {errors.username}
-              </p>
-            )}
-          </div>
-
-          {/* Name Field */}
-          <div>
-            <label className="block text-white text-sm font-medium mb-2">
-              Full Name
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                value={formData.name}
-                onChange={(e) => handleFieldChange("name", e.target.value)}
-                placeholder="Your full name"
-                className={`w-full h-14 bg-slate-800/50 border rounded-lg px-4 pr-12 text-white placeholder-slate-400 focus:outline-none transition-colors ${
-                  getFieldStatus("name") === "success"
-                    ? "border-neon-green focus:border-neon-green"
-                    : getFieldStatus("name") === "error"
-                      ? "border-red-400 focus:border-red-400"
-                      : "border-slate-600 focus:border-neon-green"
-                }`}
-                disabled={isLoading}
-              />
-              {formData.name && !errors.name && (
-                <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                  <CheckCircle className="w-5 h-5 text-neon-green" />
-                </div>
-              )}
-            </div>
-            {errors.name && (
-              <p className="text-red-400 text-sm mt-2 flex items-center">
-                <AlertCircle className="w-4 h-4 mr-1" />
-                {errors.name}
-              </p>
-            )}
-          </div>
-
-          {/* Password Field */}
-          <div>
-            <label className="block text-white text-sm font-medium mb-2">
-              Password
-            </label>
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                value={formData.password}
-                onChange={(e) => handleFieldChange("password", e.target.value)}
-                placeholder="Create a strong password"
-                className={`w-full h-14 bg-slate-800/50 border rounded-lg px-4 pr-12 text-white placeholder-slate-400 focus:outline-none transition-colors ${
-                  getFieldStatus("password") === "success"
-                    ? "border-neon-green focus:border-neon-green"
-                    : getFieldStatus("password") === "error"
-                      ? "border-red-400 focus:border-red-400"
-                      : "border-slate-600 focus:border-neon-green"
-                }`}
-                disabled={isLoading}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white"
-              >
-                {showPassword ? (
-                  <EyeOff className="w-5 h-5" />
-                ) : (
-                  <Eye className="w-5 h-5" />
-                )}
-              </button>
-            </div>
-            {errors.password && (
-              <p className="text-red-400 text-sm mt-2 flex items-center">
-                <AlertCircle className="w-4 h-4 mr-1" />
-                {errors.password}
-              </p>
-            )}
-            <p className="text-slate-400 text-xs mt-1">
-              At least 8 characters with uppercase, lowercase, and number
-            </p>
-          </div>
-
-          {/* Confirm Password Field */}
-          <div>
-            <label className="block text-white text-sm font-medium mb-2">
-              Confirm Password
-            </label>
-            <div className="relative">
-              <input
-                type={showConfirmPassword ? "text" : "password"}
-                value={formData.confirmPassword}
-                onChange={(e) =>
-                  handleFieldChange("confirmPassword", e.target.value)
-                }
-                placeholder="Confirm your password"
-                className={`w-full h-14 bg-slate-800/50 border rounded-lg px-4 pr-12 text-white placeholder-slate-400 focus:outline-none transition-colors ${
-                  getFieldStatus("confirmPassword") === "success"
-                    ? "border-neon-green focus:border-neon-green"
-                    : getFieldStatus("confirmPassword") === "error"
-                      ? "border-red-400 focus:border-red-400"
-                      : "border-slate-600 focus:border-neon-green"
-                }`}
-                disabled={isLoading}
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white"
-              >
-                {showConfirmPassword ? (
-                  <EyeOff className="w-5 h-5" />
-                ) : (
-                  <Eye className="w-5 h-5" />
-                )}
-              </button>
-            </div>
-            {errors.confirmPassword && (
-              <p className="text-red-400 text-sm mt-2 flex items-center">
-                <AlertCircle className="w-4 h-4 mr-1" />
-                {errors.confirmPassword}
-              </p>
-            )}
-          </div>
-
-          {/* Submit Button */}
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full h-14 bg-gradient-to-r from-neon-green to-neon-blue hover:from-neon-green/80 hover:to-neon-blue/80 text-black font-bold text-lg rounded-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none mt-6"
-          >
-            {isLoading ? (
-              <Loader2 className="w-5 h-5 animate-spin mx-auto" />
-            ) : (
-              "Create Account"
-            )}
-          </button>
-        </motion.form>
-
-        {/* Footer */}
+        {/* Progress indicator */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.6, duration: 0.8 }}
-          className="text-center mt-8"
+          transition={{ delay: 0.3, duration: 0.8 }}
+          className="flex justify-center mb-8"
         >
-          <p className="text-slate-400 text-sm">
-            Already have an account?{" "}
-            <Link
-              to="/login"
-              className="text-neon-green hover:text-neon-blue transition-colors underline"
-            >
-              Log in here
-            </Link>
-          </p>
+          <div className="flex space-x-2">
+            {["email", "profile", "verification", "password"].map(
+              (step, index) => (
+                <div
+                  key={step}
+                  className={`w-3 h-3 rounded-full transition-colors ${
+                    Object.keys(stepTitles).indexOf(currentStep) >= index
+                      ? "bg-neon-green"
+                      : "bg-slate-700"
+                  }`}
+                />
+              ),
+            )}
+          </div>
         </motion.div>
+
+        <AnimatePresence mode="wait">
+          {/* Email Step */}
+          {currentStep === "email" && (
+            <motion.div
+              key="email"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-6"
+            >
+              <div className="text-center mb-6">
+                <div className="w-16 h-16 bg-neon-green/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Mail className="w-8 h-8 text-neon-green" />
+                </div>
+                <h3 className="text-xl font-semibold text-white mb-2">
+                  {stepTitles.email}
+                </h3>
+                <p className="text-slate-400 text-sm">
+                  {stepDescriptions.email}
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-white text-sm font-medium mb-2">
+                  Email address
+                </label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, email: e.target.value }))
+                  }
+                  placeholder="your@email.com"
+                  className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors"
+                  disabled={isLoading}
+                />
+                {errors.email && (
+                  <p className="text-red-400 text-sm mt-2 flex items-center">
+                    <AlertCircle className="w-4 h-4 mr-1" />
+                    {errors.email}
+                  </p>
+                )}
+              </div>
+
+              <button
+                onClick={handleEmailStep}
+                disabled={isLoading || !formData.email}
+                className="w-full h-14 bg-gradient-to-r from-neon-green to-neon-blue hover:from-neon-green/80 hover:to-neon-blue/80 text-black font-bold text-lg rounded-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin mx-auto" />
+                ) : (
+                  "Continue"
+                )}
+              </button>
+            </motion.div>
+          )}
+
+          {/* Profile Step */}
+          {currentStep === "profile" && (
+            <motion.div
+              key="profile"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-6"
+            >
+              <div className="flex items-center mb-6">
+                <button
+                  onClick={goBack}
+                  className="w-10 h-10 bg-slate-800/50 rounded-full flex items-center justify-center mr-4"
+                >
+                  <ArrowLeft className="w-5 h-5 text-white" />
+                </button>
+                <div className="text-center flex-1">
+                  <div className="w-16 h-16 bg-neon-blue/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <User className="w-8 h-8 text-neon-blue" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-white mb-2">
+                    {stepTitles.profile}
+                  </h3>
+                  <p className="text-slate-400 text-sm">
+                    {stepDescriptions.profile}
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-white text-sm font-medium mb-2">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, name: e.target.value }))
+                  }
+                  placeholder="Your full name"
+                  className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors"
+                  disabled={isLoading}
+                />
+                {errors.name && (
+                  <p className="text-red-400 text-sm mt-2 flex items-center">
+                    <AlertCircle className="w-4 h-4 mr-1" />
+                    {errors.name}
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-white text-sm font-medium mb-2">
+                  Username
+                </label>
+                <input
+                  type="text"
+                  value={formData.username}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      username: e.target.value,
+                    }))
+                  }
+                  placeholder="your_username"
+                  className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors"
+                  disabled={isLoading}
+                />
+                {errors.username && (
+                  <p className="text-red-400 text-sm mt-2 flex items-center">
+                    <AlertCircle className="w-4 h-4 mr-1" />
+                    {errors.username}
+                  </p>
+                )}
+              </div>
+
+              <button
+                onClick={handleProfileStep}
+                disabled={isLoading || !formData.name || !formData.username}
+                className="w-full h-14 bg-gradient-to-r from-neon-green to-neon-blue hover:from-neon-green/80 hover:to-neon-blue/80 text-black font-bold text-lg rounded-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin mx-auto" />
+                ) : (
+                  "Continue"
+                )}
+              </button>
+            </motion.div>
+          )}
+
+          {/* Verification Step */}
+          {currentStep === "verification" && (
+            <motion.div
+              key="verification"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-6"
+            >
+              <div className="flex items-center mb-6">
+                <button
+                  onClick={goBack}
+                  className="w-10 h-10 bg-slate-800/50 rounded-full flex items-center justify-center mr-4"
+                >
+                  <ArrowLeft className="w-5 h-5 text-white" />
+                </button>
+                <div className="text-center flex-1">
+                  <div className="w-16 h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Mail className="w-8 h-8 text-yellow-500" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-white mb-2">
+                    {stepTitles.verification}
+                  </h3>
+                  <p className="text-slate-400 text-sm">
+                    {stepDescriptions.verification}
+                  </p>
+                </div>
+              </div>
+
+              <div className="text-center">
+                <p className="text-white mb-2">Verification email sent to:</p>
+                <p className="text-neon-green font-medium">{formData.email}</p>
+              </div>
+
+              <div className="text-center">
+                <p className="text-slate-400 text-sm mb-4">
+                  After clicking the verification link in your email, click the
+                  button below.
+                </p>
+                <button
+                  onClick={handleVerificationStep}
+                  disabled={isLoading}
+                  className="w-full h-14 bg-gradient-to-r from-neon-green to-neon-blue hover:from-neon-green/80 hover:to-neon-blue/80 text-black font-bold text-lg rounded-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none mb-4"
+                >
+                  {isLoading ? (
+                    <Loader2 className="w-5 h-5 animate-spin mx-auto" />
+                  ) : (
+                    "I've verified my email"
+                  )}
+                </button>
+              </div>
+
+              <div className="text-center">
+                <p className="text-slate-400 text-sm mb-2">
+                  Didn't receive the email?
+                </p>
+                <button
+                  onClick={handleResendVerification}
+                  disabled={resendTimer > 0 || isLoading}
+                  className="text-neon-green hover:text-emerald-400 text-sm disabled:opacity-50"
+                >
+                  {resendTimer > 0
+                    ? `Resend in ${resendTimer}s`
+                    : "Resend email"}
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Password Step */}
+          {currentStep === "password" && (
+            <motion.div
+              key="password"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-6"
+            >
+              <div className="flex items-center mb-6">
+                <button
+                  onClick={goBack}
+                  className="w-10 h-10 bg-slate-800/50 rounded-full flex items-center justify-center mr-4"
+                >
+                  <ArrowLeft className="w-5 h-5 text-white" />
+                </button>
+                <div className="text-center flex-1">
+                  <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Lock className="w-8 h-8 text-purple-500" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-white mb-2">
+                    {stepTitles.password}
+                  </h3>
+                  <p className="text-slate-400 text-sm">
+                    {stepDescriptions.password}
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-white text-sm font-medium mb-2">
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={formData.password}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        password: e.target.value,
+                      }))
+                    }
+                    placeholder="Create a strong password"
+                    className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-4 pr-12 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors"
+                    disabled={isLoading}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
+                {errors.password && (
+                  <p className="text-red-400 text-sm mt-2 flex items-center">
+                    <AlertCircle className="w-4 h-4 mr-1" />
+                    {errors.password}
+                  </p>
+                )}
+                <p className="text-slate-400 text-xs mt-1">
+                  At least 8 characters with uppercase, lowercase, and number
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-white text-sm font-medium mb-2">
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <input
+                    type={showConfirmPassword ? "text" : "password"}
+                    value={formData.confirmPassword}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        confirmPassword: e.target.value,
+                      }))
+                    }
+                    placeholder="Confirm your password"
+                    className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-4 pr-12 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors"
+                    disabled={isLoading}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="w-5 h-5" />
+                    ) : (
+                      <Eye className="w-5 h-5" />
+                    )}
+                  </button>
+                </div>
+                {errors.confirmPassword && (
+                  <p className="text-red-400 text-sm mt-2 flex items-center">
+                    <AlertCircle className="w-4 h-4 mr-1" />
+                    {errors.confirmPassword}
+                  </p>
+                )}
+              </div>
+
+              <button
+                onClick={handlePasswordStep}
+                disabled={
+                  isLoading || !formData.password || !formData.confirmPassword
+                }
+                className="w-full h-14 bg-gradient-to-r from-neon-green to-neon-blue hover:from-neon-green/80 hover:to-neon-blue/80 text-black font-bold text-lg rounded-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin mx-auto" />
+                ) : (
+                  "Create Account"
+                )}
+              </button>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Footer - Only show on first step */}
+        {currentStep === "email" && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6, duration: 0.8 }}
+            className="text-center mt-8"
+          >
+            <p className="text-slate-400 text-sm">
+              Already have an account?{" "}
+              <Link
+                to="/login"
+                className="text-neon-green hover:text-neon-blue transition-colors underline"
+              >
+                Log in here
+              </Link>
+            </p>
+          </motion.div>
+        )}
       </div>
     </div>
   );
