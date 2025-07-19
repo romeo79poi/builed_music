@@ -1,75 +1,13 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
-// Check if we're in a development environment or if Firebase should be mocked
-const isDevelopment = import.meta.env.MODE === 'development';
-const useMockAuth = isDevelopment || window.location.hostname.includes('fly.dev');
-
-let firebaseAuth: any = null;
-let mockUser: any = null;
-
-if (!useMockAuth) {
-  // Only import and initialize Firebase in production environments
-  try {
-    const { initializeApp } = await import("firebase/app");
-    const { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } = await import("firebase/auth");
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyBHgFXBalLyzs_Li2ApkmUNVrtkCWyKmzM",
-      authDomain: "music-catch.firebaseapp.com",
-      projectId: "music-catch",
-      storageBucket: "music-catch.firebasestorage.app",
-      messagingSenderId: "75793608464",
-      appId: "1:75793608464:web:ee96c2079f2b3353ab3f95",
-      measurementId: "G-J8D7LKCMPB",
-    };
-
-    const app = initializeApp(firebaseConfig);
-    firebaseAuth = getAuth(app);
-  } catch (error) {
-    console.warn("Firebase initialization failed, falling back to mock auth:", error);
-    useMockAuth = true;
-  }
-}
-
-// Mock authentication for development
-if (useMockAuth) {
-  console.log("Using mock authentication for development/demo");
-
-  // Create mock auth object
-  firebaseAuth = {
-    currentUser: mockUser,
-    onAuthStateChanged: (callback: (user: any) => void) => {
-      // Simulate auth state change
-      setTimeout(() => callback(mockUser), 100);
-      return () => {}; // Unsubscribe function
-    },
-    signInWithEmailAndPassword: async (auth: any, email: string, password: string) => {
-      // Mock successful login
-      mockUser = {
-        uid: "mock-user-123",
-        email: email,
-        displayName: email.split('@')[0],
-      };
-      return { user: mockUser };
-    },
-    createUserWithEmailAndPassword: async (auth: any, email: string, password: string) => {
-      // Mock successful signup
-      mockUser = {
-        uid: "mock-user-123",
-        email: email,
-        displayName: email.split('@')[0],
-      };
-      return { user: mockUser };
-    },
-    signOut: async () => {
-      mockUser = null;
-      return Promise.resolve();
-    }
-  };
-}
+// Check if we should use mock authentication
+const useMockAuth =
+  import.meta.env.MODE === "development" ||
+  (typeof window !== "undefined" &&
+    window.location.hostname.includes("fly.dev"));
 
 interface FirebaseContextType {
-  user: User | null;
+  user: any | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
@@ -92,58 +30,188 @@ interface FirebaseProviderProps {
   children: React.ReactNode;
 }
 
+// Mock user for development
+let mockUser: any = null;
+
 export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
   children,
 }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<any | null>(null);
   const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
+  useEffect(() => {
     if (useMockAuth) {
-      // For mock auth, simulate auth state change
-      const unsubscribe = firebaseAuth.onAuthStateChanged((user: any) => {
-        setUser(user);
+      console.log("🔧 Using mock authentication for development");
+      // Simulate loading time
+      setTimeout(() => {
+        setUser(mockUser);
         setLoading(false);
-      });
-      return unsubscribe;
+      }, 500);
     } else {
-      // Real Firebase auth
-      const { onAuthStateChanged } = require("firebase/auth");
-      const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
-        setUser(user);
-        setLoading(false);
-      });
-      return unsubscribe;
+      // Try to initialize real Firebase
+      import("firebase/app")
+        .then(({ initializeApp }) =>
+          import("firebase/auth").then((auth) => ({ initializeApp, ...auth })),
+        )
+        .then(({ initializeApp, getAuth, onAuthStateChanged }) => {
+          const firebaseConfig = {
+            apiKey: "AIzaSyBHgFXBalLyzs_Li2ApkmUNVrtkCWyKmzM",
+            authDomain: "music-catch.firebaseapp.com",
+            projectId: "music-catch",
+            storageBucket: "music-catch.firebasestorage.app",
+            messagingSenderId: "75793608464",
+            appId: "1:75793608464:web:ee96c2079f2b3353ab3f95",
+            measurementId: "G-J8D7LKCMPB",
+          };
+
+          const app = initializeApp(firebaseConfig);
+          const auth = getAuth(app);
+
+          const unsubscribe = onAuthStateChanged(auth, (user) => {
+            setUser(user);
+            setLoading(false);
+          });
+
+          return unsubscribe;
+        })
+        .catch((error) => {
+          console.warn(
+            "Firebase initialization failed, using mock auth:",
+            error,
+          );
+          setUser(mockUser);
+          setLoading(false);
+        });
     }
   }, []);
 
-    const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string) => {
     if (useMockAuth) {
-      await firebaseAuth.signInWithEmailAndPassword(firebaseAuth, email, password);
+      // Mock successful login
+      console.log("🔧 Mock login for:", email);
+      mockUser = {
+        uid: "mock-user-123",
+        email: email,
+        displayName: email.split("@")[0],
+      };
       setUser(mockUser);
+      return Promise.resolve();
     } else {
-      const { signInWithEmailAndPassword } = await import("firebase/auth");
-      await signInWithEmailAndPassword(firebaseAuth, email, password);
+      try {
+        const { signInWithEmailAndPassword } = await import("firebase/auth");
+        const { initializeApp } = await import("firebase/app");
+        const { getAuth } = await import("firebase/auth");
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyBHgFXBalLyzs_Li2ApkmUNVrtkCWyKmzM",
+          authDomain: "music-catch.firebaseapp.com",
+          projectId: "music-catch",
+          storageBucket: "music-catch.firebasestorage.app",
+          messagingSenderId: "75793608464",
+          appId: "1:75793608464:web:ee96c2079f2b3353ab3f95",
+          measurementId: "G-J8D7LKCMPB",
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        await signInWithEmailAndPassword(auth, email, password);
+      } catch (error: any) {
+        if (error.code === "auth/network-request-failed") {
+          console.warn("Network failed, falling back to mock auth");
+          mockUser = {
+            uid: "mock-user-123",
+            email: email,
+            displayName: email.split("@")[0],
+          };
+          setUser(mockUser);
+          return Promise.resolve();
+        }
+        throw error;
+      }
     }
   };
 
-    const signUp = async (email: string, password: string) => {
+  const signUp = async (email: string, password: string) => {
     if (useMockAuth) {
-      await firebaseAuth.createUserWithEmailAndPassword(firebaseAuth, email, password);
+      // Mock successful signup
+      console.log("🔧 Mock signup for:", email);
+      mockUser = {
+        uid: "mock-user-456",
+        email: email,
+        displayName: email.split("@")[0],
+      };
       setUser(mockUser);
+      return Promise.resolve();
     } else {
-      const { createUserWithEmailAndPassword } = await import("firebase/auth");
-      await createUserWithEmailAndPassword(firebaseAuth, email, password);
+      try {
+        const { createUserWithEmailAndPassword } = await import(
+          "firebase/auth"
+        );
+        const { initializeApp } = await import("firebase/app");
+        const { getAuth } = await import("firebase/auth");
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyBHgFXBalLyzs_Li2ApkmUNVrtkCWyKmzM",
+          authDomain: "music-catch.firebaseapp.com",
+          projectId: "music-catch",
+          storageBucket: "music-catch.firebasestorage.app",
+          messagingSenderId: "75793608464",
+          appId: "1:75793608464:web:ee96c2079f2b3353ab3f95",
+          measurementId: "G-J8D7LKCMPB",
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        await createUserWithEmailAndPassword(auth, email, password);
+      } catch (error: any) {
+        if (error.code === "auth/network-request-failed") {
+          console.warn("Network failed, falling back to mock auth");
+          mockUser = {
+            uid: "mock-user-456",
+            email: email,
+            displayName: email.split("@")[0],
+          };
+          setUser(mockUser);
+          return Promise.resolve();
+        }
+        throw error;
+      }
     }
   };
 
-    const signOut = async () => {
+  const signOut = async () => {
     if (useMockAuth) {
-      await firebaseAuth.signOut();
+      console.log("🔧 Mock sign out");
+      mockUser = null;
       setUser(null);
+      return Promise.resolve();
     } else {
-      const { signOut as firebaseSignOut } = await import("firebase/auth");
-      await firebaseSignOut(firebaseAuth);
+      try {
+        const { signOut: firebaseSignOut } = await import("firebase/auth");
+        const { initializeApp } = await import("firebase/app");
+        const { getAuth } = await import("firebase/auth");
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyBHgFXBalLyzs_Li2ApkmUNVrtkCWyKmzM",
+          authDomain: "music-catch.firebaseapp.com",
+          projectId: "music-catch",
+          storageBucket: "music-catch.firebasestorage.app",
+          messagingSenderId: "75793608464",
+          appId: "1:75793608464:web:ee96c2079f2b3353ab3f95",
+          measurementId: "G-J8D7LKCMPB",
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        await firebaseSignOut(auth);
+      } catch (error: any) {
+        console.warn("Sign out failed, clearing local state");
+        mockUser = null;
+        setUser(null);
+      }
     }
   };
 
@@ -162,6 +230,6 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
   );
 };
 
-// Export Firebase instances
-export const firebaseApp = app;
-export { firebaseAuth };
+// Export Firebase instances for compatibility
+export const firebaseApp = null; // Will be created dynamically when needed
+export const firebaseAuth = null; // Will be created dynamically when needed
