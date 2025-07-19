@@ -60,9 +60,9 @@ export default function Login() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="flex justify-center mb-8"
+          className="flex justify-center mb-6 sm:mb-8"
         >
-          <MusicCatchLogo animated={false} />
+          <MusicCatchLogo animated={false} className="scale-90 sm:scale-100" />
         </motion.div>
 
         {/* Title */}
@@ -70,7 +70,7 @@ export default function Login() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.8 }}
-          className="text-3xl font-bold text-white text-center mb-8"
+          className="text-2xl sm:text-3xl font-bold text-white text-center mb-6 sm:mb-8"
         >
           Log in to Catch
         </motion.h1>
