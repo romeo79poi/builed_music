@@ -14,7 +14,7 @@ const users: Array<{
 // User registration endpoint
 export const registerUser: RequestHandler = async (req, res) => {
   try {
-    const { email, username, name, password } = req.body;
+    const { email, username, name, password, provider = "email" } = req.body;
 
     // Validation
     if (!email || !username || !password) {
