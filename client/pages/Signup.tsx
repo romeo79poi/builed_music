@@ -1281,8 +1281,8 @@ export default function Signup() {
           )}
         </AnimatePresence>
 
-        {/* Footer - Only show on first step */}
-        {currentStep === "email" && (
+        {/* Footer - Only show on method step */}
+        {currentStep === "method" && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
