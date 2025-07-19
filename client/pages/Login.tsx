@@ -11,6 +11,11 @@ export default function Login() {
   const [password, setPassword] = useState("");
 
   const handleLogin = async () => {
+    if (!email || !password) {
+      alert("Please enter both email and password");
+      return;
+    }
+
     try {
       const user = await signInWithEmailAndPassword(
         firebaseAuth,
@@ -20,7 +25,26 @@ export default function Login() {
       alert("Login successful 🎉");
       navigate("/home");
     } catch (err: any) {
-      alert("Login failed ❌: " + err.message);
+      console.error("Login error:", err);
+
+      // Provide more user-friendly error messages
+      let errorMessage = "Login failed";
+      if (err.code === "auth/network-request-failed") {
+        errorMessage =
+          "Network error. Please check your connection and try again.";
+      } else if (err.code === "auth/user-not-found") {
+        errorMessage = "No account found with this email.";
+      } else if (err.code === "auth/wrong-password") {
+        errorMessage = "Incorrect password.";
+      } else if (err.code === "auth/invalid-email") {
+        errorMessage = "Invalid email address.";
+      } else if (err.code === "auth/too-many-requests") {
+        errorMessage = "Too many failed attempts. Try again later.";
+      } else {
+        errorMessage = err.message || "An unexpected error occurred.";
+      }
+
+      alert("❌ " + errorMessage);
     }
   };
 
