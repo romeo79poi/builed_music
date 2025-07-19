@@ -826,6 +826,166 @@ export default function Signup() {
             </motion.div>
           )}
 
+          {/* Phone Step */}
+          {currentStep === "phone" && (
+            <motion.div
+              key="phone"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-4 sm:space-y-6"
+            >
+              <div className="flex items-center mb-4 sm:mb-6">
+                <button
+                  onClick={goBack}
+                  className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-800/50 rounded-full flex items-center justify-center mr-3 sm:mr-4"
+                >
+                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                </button>
+                <div className="text-center flex-1">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-neon-blue/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                    <Phone className="w-6 h-6 sm:w-8 sm:h-8 text-neon-blue" />
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">
+                    {stepTitles.phone}
+                  </h3>
+                  <p className="text-slate-400 text-xs sm:text-sm px-2">
+                    {stepDescriptions.phone}
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-white text-sm font-medium mb-2">
+                  Phone number
+                </label>
+                <input
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => {
+                    const formatted = formatPhoneInput(
+                      e.target.value,
+                      formData.phone,
+                    );
+                    setFormData((prev) => ({ ...prev, phone: formatted }));
+                  }}
+                  placeholder="(555) 123-4567"
+                  className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors text-sm sm:text-base"
+                  disabled={isLoading}
+                />
+                {errors.phone && (
+                  <p className="text-red-400 text-xs sm:text-sm mt-2 flex items-center">
+                    <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                    {errors.phone}
+                  </p>
+                )}
+              </div>
+
+              <button
+                onClick={handlePhoneStep}
+                disabled={isLoading || !formData.phone}
+                className="w-full h-12 sm:h-14 bg-gradient-to-r from-neon-green to-neon-blue hover:from-neon-green/80 hover:to-neon-blue/80 text-black font-bold text-sm sm:text-lg rounded-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mx-auto" />
+                ) : (
+                  "Send Code"
+                )}
+              </button>
+            </motion.div>
+          )}
+
+          {/* Phone Verification Step */}
+          {currentStep === "phone-verify" && (
+            <motion.div
+              key="phone-verify"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-4 sm:space-y-6"
+            >
+              <div className="flex items-center mb-4 sm:mb-6">
+                <button
+                  onClick={goBack}
+                  className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-800/50 rounded-full flex items-center justify-center mr-3 sm:mr-4"
+                >
+                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                </button>
+                <div className="text-center flex-1">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                    <Phone className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-500" />
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">
+                    {stepTitles["phone-verify"]}
+                  </h3>
+                  <p className="text-slate-400 text-xs sm:text-sm px-2">
+                    {stepDescriptions["phone-verify"]}
+                  </p>
+                </div>
+              </div>
+
+              <div className="text-center">
+                <p className="text-white mb-2 text-sm sm:text-base">
+                  Code sent to:
+                </p>
+                <p className="text-neon-green font-medium text-sm sm:text-base">
+                  {formatPhoneDisplay(formData.phone)}
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-white text-sm font-medium mb-2">
+                  Verification code
+                </label>
+                <input
+                  type="text"
+                  value={formData.otp}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, "").slice(0, 6);
+                    setFormData((prev) => ({ ...prev, otp: value }));
+                  }}
+                  placeholder="123456"
+                  className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors text-sm sm:text-base text-center tracking-wider"
+                  disabled={isLoading}
+                  maxLength={6}
+                />
+                {errors.otp && (
+                  <p className="text-red-400 text-xs sm:text-sm mt-2 flex items-center">
+                    <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                    {errors.otp}
+                  </p>
+                )}
+              </div>
+
+              <button
+                onClick={handlePhoneVerifyStep}
+                disabled={isLoading || formData.otp.length !== 6}
+                className="w-full h-12 sm:h-14 bg-gradient-to-r from-neon-green to-neon-blue hover:from-neon-green/80 hover:to-neon-blue/80 text-black font-bold text-sm sm:text-lg rounded-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mx-auto" />
+                ) : (
+                  "Verify Code"
+                )}
+              </button>
+
+              <div className="text-center">
+                <p className="text-slate-400 text-xs sm:text-sm mb-2">
+                  Didn't receive the code?
+                </p>
+                <button
+                  onClick={sendOTP}
+                  disabled={resendTimer > 0 || isLoading}
+                  className="text-neon-green hover:text-emerald-400 text-xs sm:text-sm disabled:opacity-50"
+                >
+                  {resendTimer > 0
+                    ? `Resend in ${resendTimer}s`
+                    : "Resend code"}
+                </button>
+              </div>
+            </motion.div>
+          )}
+
           {/* Profile Step */}
           {currentStep === "profile" && (
             <motion.div
