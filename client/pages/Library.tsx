@@ -315,7 +315,7 @@ export default function Library() {
     }
   };
 
-  const recentlyAdded = [
+  const fallbackRecentlyAdded = [
     {
       id: 1,
       title: "Blinding Lights",
