@@ -387,6 +387,15 @@ export default function Signup() {
   };
 
   // Step handlers
+  const handleMethodStep = (method: SignupMethod) => {
+    setSignupMethod(method);
+    if (method === "email") {
+      setCurrentStep("email");
+    } else {
+      setCurrentStep("phone");
+    }
+  };
+
   const handleEmailStep = async () => {
     if (!validateEmail(formData.email)) return;
 
@@ -395,7 +404,26 @@ export default function Signup() {
     setIsLoading(false);
 
     if (availability.email !== false) {
-      setCurrentStep("profile");
+      setCurrentStep("verification");
+      // Simulate sending verification email
+      toast({
+        title: "Verification email sent!",
+        description: "Please check your email and verify your account.",
+      });
+      setResendTimer(60);
+    }
+  };
+
+  const handlePhoneStep = async () => {
+    if (!validatePhone(formData.phone)) return;
+
+    setIsLoading(true);
+    await checkAvailability("phone", formData.phone);
+    setIsLoading(false);
+
+    if (availability.phone !== false) {
+      setCurrentStep("phone-verify");
+      await sendOTP();
     }
   };
 
@@ -418,12 +446,18 @@ export default function Signup() {
   };
 
   const handleVerificationStep = () => {
-    // Simulate email verification
-    toast({
-      title: "Email verified!",
-      description: "Your email has been successfully verified.",
-    });
+    if (signupMethod === "email") {
+      // Simulate email verification
+      toast({
+        title: "Email verified!",
+        description: "Your email has been successfully verified.",
+      });
+    }
     setCurrentStep("password");
+  };
+
+  const handlePhoneVerifyStep = async () => {
+    await verifyOTP();
   };
 
   const handlePasswordStep = async () => {
@@ -433,19 +467,35 @@ export default function Signup() {
 
     try {
       // Submit to backend
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          username: formData.username,
-          name: formData.name,
-          password: formData.password,
-          provider: "email",
-        }),
-      });
+      let response;
+
+      if (signupMethod === "phone") {
+        response = await fetch("/api/phone/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            phoneNumber: formData.phone,
+            name: formData.name,
+            username: formData.username,
+          }),
+        });
+      } else {
+        response = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: formData.email,
+            username: formData.username,
+            name: formData.name,
+            password: formData.password,
+            provider: "email",
+          }),
+        });
+      }
 
       const data = await response.json();
 
@@ -485,12 +535,22 @@ export default function Signup() {
   };
 
   const goBack = () => {
-    if (currentStep === "profile") {
-      setCurrentStep("email");
+    if (currentStep === "email") {
+      setCurrentStep("method");
+    } else if (currentStep === "phone") {
+      setCurrentStep("method");
+    } else if (currentStep === "phone-verify") {
+      setCurrentStep("phone");
+    } else if (currentStep === "profile") {
+      if (signupMethod === "email") {
+        setCurrentStep("verification");
+      } else {
+        setCurrentStep("phone-verify");
+      }
     } else if (currentStep === "verification") {
-      setCurrentStep("profile");
+      setCurrentStep("email");
     } else if (currentStep === "password") {
-      setCurrentStep("verification");
+      setCurrentStep("profile");
     }
   };
 
