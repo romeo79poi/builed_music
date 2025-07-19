@@ -8,10 +8,20 @@ import { firebaseAuth } from "../context/FirebaseContext";
 export default function Login() {
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
-    // In a real app, you'd validate credentials here
-    navigate("/home");
+  const handleLogin = async (email: string, password: string) => {
+    try {
+      const user = await signInWithEmailAndPassword(
+        firebaseAuth,
+        email,
+        password,
+      );
+      alert("Login successful 🎉");
+      navigate("/home");
+    } catch (err: any) {
+      alert("Login failed ❌: " + err.message);
+    }
   };
 
   return (
