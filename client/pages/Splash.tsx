@@ -27,7 +27,7 @@ export default function Splash() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5 }}
-            className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 flex flex-col items-center justify-center relative"
+            className="min-h-screen bg-black flex flex-col items-center justify-center relative"
           >
             {/* Background geometric patterns */}
             <div className="absolute inset-0 opacity-20">
