@@ -40,7 +40,16 @@ import { useToast } from "../hooks/use-toast";
 
 export default function Player() {
   const navigate = useNavigate();
-  const [isPlaying, setIsPlaying] = useState(true);
+  const {
+    currentSong,
+    isPlaying,
+    togglePlay,
+    setCurrentSong,
+    queue,
+    setQueue,
+  } = useMusicContext();
+  const { profile, toggleLikedSong } = useProfileContext();
+  const { toast } = useToast();
   const [isLiked, setIsLiked] = useState(false);
   const [isShuffle, setIsShuffle] = useState(false);
   const [repeatMode, setRepeatMode] = useState(0); // 0: off, 1: all, 2: one
