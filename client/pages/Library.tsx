@@ -154,7 +154,10 @@ export default function Library() {
       case "Recently Added":
         return (
           <div className="space-y-2">
-            {recentlyAdded.map((song: any) => (
+            {(recentlyAdded.length > 0
+              ? recentlyAdded
+              : fallbackRecentlyAdded
+            ).map((song: any) => (
               <div
                 key={song.id}
                 className="flex items-center space-x-3 p-3 rounded-lg hover:bg-white/5 transition-all group cursor-pointer"
