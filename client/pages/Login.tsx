@@ -109,19 +109,32 @@ export default function Login() {
         >
           <div>
             <label className="block text-white text-sm font-medium mb-2">
-              Email or username
+              Email
             </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email or username"
+              placeholder="Email"
+              className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors"
+            />
+          </div>
+
+          <div>
+            <label className="block text-white text-sm font-medium mb-2">
+              Password
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
               className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors"
             />
           </div>
 
           <button
-            onClick={handleLogin}
+            onClick={() => handleLogin(email, password)}
             className="w-full h-14 bg-gradient-to-r from-neon-green to-emerald-400 rounded-full text-slate-900 font-bold text-lg hover:from-emerald-400 hover:to-neon-green transition-all transform hover:scale-105"
           >
             Continue
