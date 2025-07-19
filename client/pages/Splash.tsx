@@ -135,11 +135,11 @@ export default function Splash() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6, duration: 0.8 }}
-                className="flex flex-col gap-6 w-full"
+                className="flex flex-col gap-4 sm:gap-6 w-full"
               >
                 <Button
                   onClick={() => navigate("/signup")}
-                  className="w-full bg-gradient-to-r from-neon-green to-neon-blue hover:from-neon-green/80 hover:to-neon-blue/80 text-black font-semibold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 text-lg"
+                  className="w-full bg-gradient-to-r from-neon-green to-neon-blue hover:from-neon-green/80 hover:to-neon-blue/80 text-black font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-all duration-300 transform hover:scale-105 text-base sm:text-lg"
                 >
                   Sign Up
                 </Button>
@@ -147,7 +147,7 @@ export default function Splash() {
                 <Button
                   onClick={() => navigate("/login")}
                   variant="outline"
-                  className="w-full border-2 border-neon-green text-neon-green hover:bg-neon-green hover:text-black font-semibold py-4 px-8 rounded-lg transition-all duration-300 transform hover:scale-105 text-lg"
+                  className="w-full border-2 border-neon-green text-neon-green hover:bg-neon-green hover:text-black font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-all duration-300 transform hover:scale-105 text-base sm:text-lg"
                 >
                   Log In
                 </Button>
