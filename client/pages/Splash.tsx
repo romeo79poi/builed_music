@@ -135,7 +135,7 @@ export default function Splash() {
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.6, duration: 0.8 }}
-                className="flex flex-col gap-6 w-full max-w-sm"
+                className="flex flex-col gap-6 w-full"
               >
                 <Button
                   onClick={() => navigate("/signup")}
