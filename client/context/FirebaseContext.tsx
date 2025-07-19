@@ -117,12 +117,22 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
-      setUser(user);
-      setLoading(false);
-    });
-
-    return unsubscribe;
+    if (useMockAuth) {
+      // For mock auth, simulate auth state change
+      const unsubscribe = firebaseAuth.onAuthStateChanged((user: any) => {
+        setUser(user);
+        setLoading(false);
+      });
+      return unsubscribe;
+    } else {
+      // Real Firebase auth
+      const { onAuthStateChanged } = require("firebase/auth");
+      const unsubscribe = onAuthStateChanged(firebaseAuth, (user) => {
+        setUser(user);
+        setLoading(false);
+      });
+      return unsubscribe;
+    }
   }, []);
 
   const signIn = async (email: string, password: string) => {
