@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { firebaseAuth } from "../context/FirebaseContext";
 
 export default function Login() {
   const navigate = useNavigate();
