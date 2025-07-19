@@ -160,7 +160,7 @@ export default function Login() {
 
           <button
             onClick={handleLogin}
-            className="w-full h-14 bg-gradient-to-r from-neon-green to-emerald-400 rounded-full text-slate-900 font-bold text-lg hover:from-emerald-400 hover:to-neon-green transition-all transform hover:scale-105"
+            className="w-full h-12 sm:h-14 bg-gradient-to-r from-neon-green to-emerald-400 rounded-full text-slate-900 font-bold text-sm sm:text-lg hover:from-emerald-400 hover:to-neon-green transition-all transform hover:scale-105"
           >
             Continue
           </button>
