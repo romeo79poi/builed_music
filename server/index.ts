@@ -49,6 +49,31 @@ import {
 // Auth routes
 import { registerUser, checkAvailability, getUsers } from "./routes/auth";
 
+// Music routes
+import {
+  getTrendingSongs,
+  searchMusic,
+  getSongById,
+  getArtistById,
+  getFeaturedPlaylists,
+  getPlaylistById,
+  getGenres,
+  getSongsByGenre,
+  getRecommendations,
+  getRecentlyPlayed,
+  playSong,
+} from "./routes/music";
+
+// Analytics routes
+import {
+  getUserAnalytics,
+  getListeningHistory,
+  getEngagementMetrics,
+  getRecommendationAnalytics,
+  exportAnalytics,
+  getSocialAnalytics,
+} from "./routes/analytics";
+
 export function createServer() {
   const app = express();
 
