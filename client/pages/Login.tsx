@@ -17,11 +17,7 @@ export default function Login() {
     }
 
     try {
-      const user = await signInWithEmailAndPassword(
-        firebaseAuth,
-        email,
-        password,
-      );
+      await signIn(email, password);
       alert("Login successful 🎉");
       navigate("/home");
     } catch (err: any) {
