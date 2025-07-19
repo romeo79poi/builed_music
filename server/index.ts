@@ -155,7 +155,7 @@ export function createServer() {
   app.get("/api/music/genres", getGenres);
   app.get("/api/music/genre/:genre", getSongsByGenre);
   app.get("/api/music/recommendations", getRecommendations);
-  app.get("/api/music/recently-played", getRecentlyPlayed);
+  app.get("/api/music/recently-played", getMusicRecentlyPlayed);
   app.post("/api/music/play/:songId", playSong);
 
   // Analytics API routes
