@@ -10,7 +10,7 @@ export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = async (email: string, password: string) => {
+  const handleLogin = async () => {
     try {
       const user = await signInWithEmailAndPassword(
         firebaseAuth,
@@ -22,6 +22,11 @@ export default function Login() {
     } catch (err: any) {
       alert("Login failed ❌: " + err.message);
     }
+  };
+
+  const handleSocialLogin = () => {
+    // For now, just navigate to home - social login can be implemented later
+    navigate("/home");
   };
 
   return (
