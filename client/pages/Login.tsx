@@ -6,6 +6,7 @@ import { useFirebase } from "../context/FirebaseContext";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { signIn } = useFirebase();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
