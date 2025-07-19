@@ -109,7 +109,7 @@ export default function Splash() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1 }}
-            className="min-h-screen bg-black flex flex-col items-center justify-center relative"
+            className="min-h-screen bg-black flex flex-col items-center justify-center relative pt-20"
           >
             {/* Subtle background glow */}
             <div className="absolute inset-0 bg-gradient-to-br from-neon-green/5 via-transparent to-neon-blue/5"></div>
