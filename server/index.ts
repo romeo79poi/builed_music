@@ -145,5 +145,26 @@ export function createServer() {
   app.put("/api/subscription/:userId?", updateSubscription);
   app.delete("/api/subscription/:userId?", cancelSubscription);
 
+  // Music API routes
+  app.get("/api/music/trending", getTrendingSongs);
+  app.get("/api/music/search", searchMusic);
+  app.get("/api/music/song/:songId", getSongById);
+  app.get("/api/music/artist/:artistId", getArtistById);
+  app.get("/api/music/playlists/featured", getFeaturedPlaylists);
+  app.get("/api/music/playlist/:playlistId", getPlaylistById);
+  app.get("/api/music/genres", getGenres);
+  app.get("/api/music/genre/:genre", getSongsByGenre);
+  app.get("/api/music/recommendations", getRecommendations);
+  app.get("/api/music/recently-played", getRecentlyPlayed);
+  app.post("/api/music/play/:songId", playSong);
+
+  // Analytics API routes
+  app.get("/api/analytics/:userId", getUserAnalytics);
+  app.get("/api/analytics/:userId/history", getListeningHistory);
+  app.get("/api/analytics/:userId/engagement", getEngagementMetrics);
+  app.get("/api/analytics/:userId/recommendations", getRecommendationAnalytics);
+  app.get("/api/analytics/:userId/export", exportAnalytics);
+  app.get("/api/analytics/:userId/social", getSocialAnalytics);
+
   return app;
 }
