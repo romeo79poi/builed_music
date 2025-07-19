@@ -136,7 +136,17 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
   }, []);
 
   const signIn = async (email: string, password: string) => {
-    await signInWithEmailAndPassword(firebaseAuth, email, password);
+    if (useMockAuth) {
+      await firebaseAuth.signInWithEmailAndPassword(
+        firebaseAuth,
+        email,
+        password,
+      );
+      setUser(mockUser);
+    } else {
+      const { signInWithEmailAndPassword } = await import("firebase/auth");
+      await signInWithEmailAndPassword(firebaseAuth, email, password);
+    }
   };
 
   const signUp = async (email: string, password: string) => {
