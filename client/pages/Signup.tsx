@@ -192,33 +192,127 @@ export default function Signup() {
 
   // Check availability with backend
   const checkAvailability = async (
-    field: "email" | "username",
+    field: "email" | "username" | "phone",
     value: string,
   ) => {
     if (!value) return;
 
     try {
-      const response = await fetch(
-        `/api/auth/check-availability?${field}=${encodeURIComponent(value)}`,
-      );
-      const data = await response.json();
+      let response, data;
 
-      if (data.success) {
-        setAvailability((prev) => ({
-          ...prev,
-          [field]:
-            field === "email" ? data.emailAvailable : data.usernameAvailable,
-        }));
+      if (field === "phone") {
+        response = await fetch(
+          `/api/phone/check-availability?phone=${encodeURIComponent(value)}`,
+        );
+        data = await response.json();
 
-        if (field === "email" && !data.emailAvailable) {
-          setErrors((prev) => ({
+        if (data.success) {
+          setAvailability((prev) => ({
             ...prev,
-            email: "Email is already registered",
+            phone: data.phoneAvailable,
           }));
+
+          if (!data.phoneAvailable) {
+            setErrors((prev) => ({
+              ...prev,
+              phone: "Phone number is already registered",
+            }));
+          }
+        }
+      } else {
+        response = await fetch(
+          `/api/auth/check-availability?${field}=${encodeURIComponent(value)}`,
+        );
+        data = await response.json();
+
+        if (data.success) {
+          setAvailability((prev) => ({
+            ...prev,
+            [field]:
+              field === "email" ? data.emailAvailable : data.usernameAvailable,
+          }));
+
+          if (field === "email" && !data.emailAvailable) {
+            setErrors((prev) => ({
+              ...prev,
+              email: "Email is already registered",
+            }));
+          }
         }
       }
     } catch (error) {
       console.error("Availability check failed:", error);
+    }
+  };
+
+  // Send OTP to phone
+  const sendOTP = async () => {
+    if (!validatePhone(formData.phone)) return;
+
+    setIsLoading(true);
+    try {
+      const result = await phoneAPI.sendOTP(formData.phone);
+
+      if (result.success) {
+        setOtpSent(true);
+        setResendTimer(60);
+        toast({
+          title: "Verification code sent!",
+          description: `We sent a 6-digit code to ${formatPhoneDisplay(formData.phone)}`,
+        });
+
+        // For development, show OTP in console
+        if (result.debugOtp) {
+          console.log(`📱 OTP for ${formData.phone}: ${result.debugOtp}`);
+        }
+      } else {
+        toast({
+          title: "Failed to send code",
+          description: result.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Send OTP error:", error);
+      toast({
+        title: "Failed to send code",
+        description: "Network error. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Verify OTP
+  const verifyOTP = async () => {
+    if (!validateOTP(formData.otp)) return;
+
+    setIsLoading(true);
+    try {
+      const result = await phoneAPI.verifyOTP(formData.phone, formData.otp);
+
+      if (result.success) {
+        setPhoneVerified(true);
+        toast({
+          title: "Phone verified!",
+          description: "Your phone number has been successfully verified.",
+        });
+
+        if (signupMethod === "phone") {
+          setCurrentStep("profile");
+        }
+      } else {
+        setErrors((prev) => ({ ...prev, otp: result.message }));
+      }
+    } catch (error) {
+      console.error("Verify OTP error:", error);
+      setErrors((prev) => ({
+        ...prev,
+        otp: "Verification failed. Please try again.",
+      }));
+    } finally {
+      setIsLoading(false);
     }
   };
 
