@@ -1,9 +1,8 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 // Check if we're in a development environment or if Firebase should be mocked
-const isDevelopment = import.meta.env.MODE === "development";
-const useMockAuth =
-  isDevelopment || window.location.hostname.includes("fly.dev");
+const isDevelopment = import.meta.env.MODE === 'development';
+const useMockAuth = isDevelopment || window.location.hostname.includes('fly.dev');
 
 let firebaseAuth: any = null;
 let mockUser: any = null;
@@ -12,13 +11,7 @@ if (!useMockAuth) {
   // Only import and initialize Firebase in production environments
   try {
     const { initializeApp } = await import("firebase/app");
-    const {
-      getAuth,
-      signInWithEmailAndPassword,
-      createUserWithEmailAndPassword,
-      signOut,
-      onAuthStateChanged,
-    } = await import("firebase/auth");
+    const { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } = await import("firebase/auth");
 
     const firebaseConfig = {
       apiKey: "AIzaSyBHgFXBalLyzs_Li2ApkmUNVrtkCWyKmzM",
@@ -33,10 +26,7 @@ if (!useMockAuth) {
     const app = initializeApp(firebaseConfig);
     firebaseAuth = getAuth(app);
   } catch (error) {
-    console.warn(
-      "Firebase initialization failed, falling back to mock auth:",
-      error,
-    );
+    console.warn("Firebase initialization failed, falling back to mock auth:", error);
     useMockAuth = true;
   }
 }
@@ -53,36 +43,28 @@ if (useMockAuth) {
       setTimeout(() => callback(mockUser), 100);
       return () => {}; // Unsubscribe function
     },
-    signInWithEmailAndPassword: async (
-      auth: any,
-      email: string,
-      password: string,
-    ) => {
+    signInWithEmailAndPassword: async (auth: any, email: string, password: string) => {
       // Mock successful login
       mockUser = {
         uid: "mock-user-123",
         email: email,
-        displayName: email.split("@")[0],
+        displayName: email.split('@')[0],
       };
       return { user: mockUser };
     },
-    createUserWithEmailAndPassword: async (
-      auth: any,
-      email: string,
-      password: string,
-    ) => {
+    createUserWithEmailAndPassword: async (auth: any, email: string, password: string) => {
       // Mock successful signup
       mockUser = {
         uid: "mock-user-123",
         email: email,
-        displayName: email.split("@")[0],
+        displayName: email.split('@')[0],
       };
       return { user: mockUser };
     },
     signOut: async () => {
       mockUser = null;
       return Promise.resolve();
-    },
+    }
   };
 }
 
@@ -116,7 +98,7 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+    useEffect(() => {
     if (useMockAuth) {
       // For mock auth, simulate auth state change
       const unsubscribe = firebaseAuth.onAuthStateChanged((user: any) => {
@@ -135,13 +117,9 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
     }
   }, []);
 
-  const signIn = async (email: string, password: string) => {
+    const signIn = async (email: string, password: string) => {
     if (useMockAuth) {
-      await firebaseAuth.signInWithEmailAndPassword(
-        firebaseAuth,
-        email,
-        password,
-      );
+      await firebaseAuth.signInWithEmailAndPassword(firebaseAuth, email, password);
       setUser(mockUser);
     } else {
       const { signInWithEmailAndPassword } = await import("firebase/auth");
@@ -149,13 +127,9 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
     }
   };
 
-  const signUp = async (email: string, password: string) => {
+    const signUp = async (email: string, password: string) => {
     if (useMockAuth) {
-      await firebaseAuth.createUserWithEmailAndPassword(
-        firebaseAuth,
-        email,
-        password,
-      );
+      await firebaseAuth.createUserWithEmailAndPassword(firebaseAuth, email, password);
       setUser(mockUser);
     } else {
       const { createUserWithEmailAndPassword } = await import("firebase/auth");
@@ -163,8 +137,14 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
     }
   };
 
-  const signOut = async () => {
-    await firebaseSignOut(firebaseAuth);
+    const signOut = async () => {
+    if (useMockAuth) {
+      await firebaseAuth.signOut();
+      setUser(null);
+    } else {
+      const { signOut as firebaseSignOut } = await import("firebase/auth");
+      await firebaseSignOut(firebaseAuth);
+    }
   };
 
   const value = {
