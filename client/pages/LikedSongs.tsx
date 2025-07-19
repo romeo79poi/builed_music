@@ -35,8 +35,35 @@ export default function LikedSongs() {
     useMusicContext();
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Mock liked songs data - in real app, this would come from API
-  const likedSongs: Song[] = [
+  const [likedSongs, setLikedSongs] = useState<Song[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    loadLikedSongs();
+  }, []);
+
+  const loadLikedSongs = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch(`/api/profile/${profile.id}/liked-songs`);
+      const data = await response.json();
+
+      if (data.success) {
+        setLikedSongs(data.likedSongs || []);
+      } else {
+        // Fallback to mock data
+        setLikedSongs(mockLikedSongs);
+      }
+    } catch (error) {
+      console.error("Failed to load liked songs:", error);
+      setLikedSongs(mockLikedSongs);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Mock liked songs data as fallback
+  const mockLikedSongs: Song[] = [
     {
       id: "1",
       title: "Blinding Lights",
