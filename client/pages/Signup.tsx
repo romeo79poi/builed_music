@@ -435,13 +435,18 @@ export default function Signup() {
     setIsLoading(false);
 
     if (availability.username !== false) {
-      setCurrentStep("verification");
-      // Simulate sending verification email
-      toast({
-        title: "Verification email sent!",
-        description: "Please check your email and verify your account.",
-      });
-      setResendTimer(60);
+      if (signupMethod === "phone") {
+        // Complete phone signup
+        await handlePasswordStep();
+      } else {
+        setCurrentStep("verification");
+        // Simulate sending verification email
+        toast({
+          title: "Verification email sent!",
+          description: "Please check your email and verify your account.",
+        });
+        setResendTimer(60);
+      }
     }
   };
 
