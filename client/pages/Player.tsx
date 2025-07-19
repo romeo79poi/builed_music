@@ -368,7 +368,7 @@ export default function Player() {
                 </button>
 
                 <button
-                  onClick={() => setIsPlaying(!isPlaying)}
+                  onClick={togglePlay}
                   className="w-20 h-20 bg-gradient-to-r from-neon-green to-neon-blue rounded-full flex items-center justify-center hover:scale-105 transition-transform"
                 >
                   {isPlaying ? (
