@@ -114,13 +114,13 @@ export default function Splash() {
             {/* Subtle background glow */}
             <div className="absolute inset-0 bg-gradient-to-br from-neon-green/5 via-transparent to-neon-blue/5"></div>
 
-            <div className="relative z-10 flex flex-col items-center">
+            <div className="relative z-10 flex flex-col items-center max-w-md mx-auto px-6">
               {/* Welcome text */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.8 }}
-                className="text-center mb-12"
+                className="text-center mb-16"
               >
                 <h2 className="text-3xl md:text-4xl font-bold text-white mb-4 tracking-wide">
                   Welcome to Music Catch
