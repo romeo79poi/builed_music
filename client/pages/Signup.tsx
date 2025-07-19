@@ -289,7 +289,7 @@ export default function Signup() {
   };
 
   // Timer for resend functionality
-  React.useEffect(() => {
+  useEffect(() => {
     if (resendTimer > 0) {
       const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
       return () => clearTimeout(timer);
