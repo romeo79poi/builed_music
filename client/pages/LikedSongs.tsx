@@ -140,8 +140,14 @@ export default function LikedSongs() {
     }
   };
 
-  const handleUnlikeSong = (songId: string) => {
-    toggleLikedSong(songId);
+  const handleUnlikeSong = async (songId: string) => {
+    try {
+      await toggleLikedSong(songId);
+      // Remove from local state
+      setLikedSongs((prev) => prev.filter((song) => song.id !== songId));
+    } catch (error) {
+      console.error("Failed to unlike song:", error);
+    }
   };
 
   const formatDate = (dateString: string) => {
