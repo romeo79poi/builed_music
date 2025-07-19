@@ -2,30 +2,67 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
+import { useFirebase } from "../context/FirebaseContext";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { signIn } = useFirebase();
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
-    // In a real app, you'd validate credentials here
+  const handleLogin = async () => {
+    if (!email || !password) {
+      alert("Please enter both email and password");
+      return;
+    }
+
+    try {
+      await signIn(email, password);
+      alert("Login successful 🎉");
+      navigate("/home");
+    } catch (err: any) {
+      console.error("Login error:", err);
+
+      // Provide more user-friendly error messages
+      let errorMessage = "Login failed";
+      if (err.code === "auth/network-request-failed") {
+        errorMessage =
+          "Network error. Please check your connection and try again.";
+      } else if (err.code === "auth/user-not-found") {
+        errorMessage = "No account found with this email.";
+      } else if (err.code === "auth/wrong-password") {
+        errorMessage = "Incorrect password.";
+      } else if (err.code === "auth/invalid-email") {
+        errorMessage = "Invalid email address.";
+      } else if (err.code === "auth/too-many-requests") {
+        errorMessage = "Too many failed attempts. Try again later.";
+      } else {
+        errorMessage = err.message || "An unexpected error occurred.";
+      }
+
+      alert("❌ " + errorMessage);
+    }
+  };
+
+  const handleSocialLogin = () => {
+    // For now, just navigate to home - social login can be implemented later
     navigate("/home");
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 flex flex-col items-center justify-center p-6 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 flex flex-col items-center justify-center p-3 sm:p-6 relative overflow-hidden">
       {/* Background glow effect */}
       <div className="absolute inset-0 bg-gradient-to-br from-neon-green/5 via-transparent to-neon-blue/5 bg-black"></div>
 
-      <div className="relative z-10 w-full max-w-md">
+      <div className="relative z-10 w-full max-w-md px-2 sm:px-0">
         {/* Logo */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="flex justify-center mb-8"
+          className="flex justify-center mb-6 sm:mb-8"
         >
-          <MusicCatchLogo animated={false} />
+          <MusicCatchLogo animated={false} className="scale-90 sm:scale-100" />
         </motion.div>
 
         {/* Title */}
@@ -33,7 +70,7 @@ export default function Login() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.8 }}
-          className="text-3xl font-bold text-white text-center mb-8"
+          className="text-2xl sm:text-3xl font-bold text-white text-center mb-6 sm:mb-8"
         >
           Log in to Catch
         </motion.h1>
@@ -46,7 +83,7 @@ export default function Login() {
           className="space-y-4 mb-8"
         >
           <button
-            onClick={handleLogin}
+            onClick={handleSocialLogin}
             className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-full flex items-center justify-center text-white font-medium hover:bg-slate-700/50 transition-colors"
           >
             <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
@@ -71,7 +108,7 @@ export default function Login() {
           </button>
 
           <button
-            onClick={handleLogin}
+            onClick={handleSocialLogin}
             className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-full flex items-center justify-center text-white font-medium hover:bg-slate-700/50 transition-colors"
           >
             <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="#1877F2">
@@ -81,7 +118,7 @@ export default function Login() {
           </button>
 
           <button
-            onClick={handleLogin}
+            onClick={handleSocialLogin}
             className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-full flex items-center justify-center text-white font-medium hover:bg-slate-700/50 transition-colors"
           >
             Continue with phone number
@@ -97,20 +134,33 @@ export default function Login() {
         >
           <div>
             <label className="block text-white text-sm font-medium mb-2">
-              Email or username
+              Email
             </label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email or username"
-              className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors"
+              placeholder="Email"
+              className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors text-sm sm:text-base"
+            />
+          </div>
+
+          <div>
+            <label className="block text-white text-sm font-medium mb-2">
+              Password
+            </label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Password"
+              className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors text-sm sm:text-base"
             />
           </div>
 
           <button
             onClick={handleLogin}
-            className="w-full h-14 bg-gradient-to-r from-neon-green to-emerald-400 rounded-full text-slate-900 font-bold text-lg hover:from-emerald-400 hover:to-neon-green transition-all transform hover:scale-105"
+            className="w-full h-12 sm:h-14 bg-gradient-to-r from-neon-green to-emerald-400 rounded-full text-slate-900 font-bold text-sm sm:text-lg hover:from-emerald-400 hover:to-neon-green transition-all transform hover:scale-105"
           >
             Continue
           </button>

@@ -46,6 +46,9 @@ import {
   resetSettings,
 } from "./routes/settings";
 
+// Auth routes
+import { registerUser, checkAvailability, getUsers } from "./routes/auth";
+
 export function createServer() {
   const app = express();
 
@@ -60,6 +63,11 @@ export function createServer() {
   });
 
   app.get("/api/demo", handleDemo);
+
+  // Authentication API routes
+  app.post("/api/auth/register", registerUser);
+  app.get("/api/auth/check-availability", checkAvailability);
+  app.get("/api/auth/users", getUsers); // For demo purposes
 
   // Profile API routes
   app.get("/api/profile/:userId?", getProfile);
