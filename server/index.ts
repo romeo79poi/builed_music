@@ -60,7 +60,7 @@ import {
   getGenres,
   getSongsByGenre,
   getRecommendations,
-  getRecentlyPlayed,
+  getRecentlyPlayed as getMusicRecentlyPlayed,
   playSong,
 } from "./routes/music";
 
