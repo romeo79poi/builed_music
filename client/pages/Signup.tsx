@@ -11,39 +11,61 @@ import {
   Mail,
   User,
   Lock,
+  Phone,
 } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useToast } from "../hooks/use-toast";
+import {
+  validatePhoneNumber,
+  formatPhoneInput,
+  formatPhoneDisplay,
+  phoneAPI,
+} from "../lib/phone";
 
-type SignupStep = "email" | "profile" | "verification" | "password";
+type SignupStep =
+  | "method"
+  | "email"
+  | "phone"
+  | "phone-verify"
+  | "profile"
+  | "verification"
+  | "password";
+type SignupMethod = "email" | "phone";
 
 interface FormData {
   email: string;
+  phone: string;
   username: string;
   name: string;
   password: string;
   confirmPassword: string;
+  otp: string;
 }
 
 interface ValidationErrors {
   email?: string;
+  phone?: string;
   username?: string;
   name?: string;
   password?: string;
   confirmPassword?: string;
+  otp?: string;
 }
 
 export default function Signup() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const [currentStep, setCurrentStep] = useState<SignupStep>("email");
+  const [currentStep, setCurrentStep] = useState<SignupStep>("method");
+  const [signupMethod, setSignupMethod] = useState<SignupMethod>("email");
   const [formData, setFormData] = useState<FormData>({
     email: "",
+    phone: "",
     username: "",
     name: "",
     password: "",
     confirmPassword: "",
+    otp: "",
   });
 
   const [errors, setErrors] = useState<ValidationErrors>({});
@@ -52,8 +74,11 @@ export default function Signup() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [availability, setAvailability] = useState<{
     email?: boolean;
+    phone?: boolean;
     username?: boolean;
   }>({});
+  const [phoneVerified, setPhoneVerified] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
 
   // Validation functions
@@ -68,6 +93,32 @@ export default function Signup() {
       return false;
     }
     setErrors((prev) => ({ ...prev, email: undefined }));
+    return true;
+  };
+
+  const validatePhone = (phone: string): boolean => {
+    const result = validatePhoneNumber(phone);
+    if (!result.isValid) {
+      setErrors((prev) => ({ ...prev, phone: result.error }));
+      return false;
+    }
+    setErrors((prev) => ({ ...prev, phone: undefined }));
+    return true;
+  };
+
+  const validateOTP = (otp: string): boolean => {
+    if (!otp) {
+      setErrors((prev) => ({ ...prev, otp: "Verification code is required" }));
+      return false;
+    }
+    if (otp.length !== 6) {
+      setErrors((prev) => ({
+        ...prev,
+        otp: "Verification code must be 6 digits",
+      }));
+      return false;
+    }
+    setErrors((prev) => ({ ...prev, otp: undefined }));
     return true;
   };
 
