@@ -123,15 +123,20 @@ export default function Player() {
   };
 
   const handlePrevious = () => {
-    if (currentTrackIndex > 0) {
-      setCurrentTrackIndex(currentTrackIndex - 1);
+    const currentIndex = queue.findIndex((song) => song.id === currentSong?.id);
+    if (currentIndex > 0) {
+      setCurrentSong(queue[currentIndex - 1]);
       setCurrentTime(0);
     }
   };
 
   const handleNext = () => {
-    if (currentTrackIndex < queue.length - 1) {
-      setCurrentTrackIndex(currentTrackIndex + 1);
+    const currentIndex = queue.findIndex((song) => song.id === currentSong?.id);
+    if (currentIndex < queue.length - 1) {
+      setCurrentSong(queue[currentIndex + 1]);
+      setCurrentTime(0);
+    } else if (recommendations.length > 0) {
+      setCurrentSong(recommendations[0]);
       setCurrentTime(0);
     }
   };
@@ -249,7 +254,10 @@ export default function Player() {
                 <div className="w-80 h-80 bg-gradient-to-br from-neon-green to-neon-blue rounded-3xl p-1">
                   <div className="w-full h-full bg-gray-800 rounded-3xl overflow-hidden">
                     <img
-                      src={currentTrack.image}
+                      src={
+                        currentSong?.image ||
+                        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop"
+                      }
                       alt="Album Art"
                       className="w-full h-full object-cover"
                     />
@@ -281,9 +289,15 @@ export default function Player() {
               transition={{ delay: 0.4 }}
               className="px-8 text-center"
             >
-              <h2 className="text-2xl font-bold mb-2">{currentTrack.title}</h2>
-              <p className="text-gray-400 text-lg">{currentTrack.artist}</p>
-              <p className="text-gray-500 text-sm">{currentTrack.album}</p>
+              <h2 className="text-2xl font-bold mb-2">
+                {currentSong?.title || "No Song Selected"}
+              </h2>
+              <p className="text-gray-400 text-lg">
+                {currentSong?.artist || "Unknown Artist"}
+              </p>
+              <p className="text-gray-500 text-sm">
+                {currentSong?.album || "Unknown Album"}
+              </p>
             </motion.div>
 
             {/* Lyrics Display */}
@@ -346,7 +360,9 @@ export default function Player() {
                 <button
                   onClick={handlePrevious}
                   className="p-4 text-white hover:text-neon-green transition-colors"
-                  disabled={currentTrackIndex === 0}
+                  disabled={
+                    queue.findIndex((song) => song.id === currentSong?.id) === 0
+                  }
                 >
                   <SkipBack className="w-8 h-8" />
                 </button>
@@ -365,7 +381,7 @@ export default function Player() {
                 <button
                   onClick={handleNext}
                   className="p-4 text-white hover:text-neon-green transition-colors"
-                  disabled={currentTrackIndex === queue.length - 1}
+                  disabled={false}
                 >
                   <SkipForward className="w-8 h-8" />
                 </button>
@@ -540,9 +556,9 @@ export default function Player() {
                   {queue.map((track, index) => (
                     <div
                       key={track.id}
-                      onClick={() => setCurrentTrackIndex(index)}
+                      onClick={() => setCurrentSong(track)}
                       className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition-colors ${
-                        index === currentTrackIndex
+                        track.id === currentSong?.id
                           ? "bg-neon-green/20 border border-neon-green/30"
                           : "hover:bg-white/10"
                       }`}
