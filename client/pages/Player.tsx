@@ -65,6 +65,8 @@ export default function Player() {
   const [isOffline, setIsOffline] = useState(false);
   const [audioQuality, setAudioQuality] = useState("High");
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [recommendations, setRecommendations] = useState([]);
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
 
   // Equalizer bands
   const [eqBands, setEqBands] = useState([0, 0, 0, 0, 0, 0, 0, 0]);
@@ -78,43 +80,6 @@ export default function Player() {
     "6kHz",
     "12kHz",
   ];
-
-  // Queue management
-  const [queue, setQueue] = useState([
-    {
-      id: 1,
-      title: "Blinding Lights",
-      artist: "The Weeknd",
-      album: "After Hours",
-      duration: "3:20",
-      image:
-        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop",
-      isLiked: true,
-    },
-    {
-      id: 2,
-      title: "Watermelon Sugar",
-      artist: "Harry Styles",
-      album: "Fine Line",
-      duration: "2:54",
-      image:
-        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop",
-      isLiked: false,
-    },
-    {
-      id: 3,
-      title: "Levitating",
-      artist: "Dua Lipa",
-      album: "Future Nostalgia",
-      duration: "3:23",
-      image:
-        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
-      isLiked: true,
-    },
-  ]);
-
-  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
-  const currentTrack = queue[currentTrackIndex];
 
   // Lyrics data
   const lyrics = [
