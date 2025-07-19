@@ -84,7 +84,9 @@ export const registerUser: RequestHandler = async (req, res) => {
       email,
       username,
       name,
+      provider,
       createdAt: newUser.createdAt,
+      isVerified: newUser.isVerified,
     });
   } catch (error) {
     console.error("Registration error:", error);
