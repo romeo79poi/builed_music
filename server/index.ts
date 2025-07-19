@@ -97,6 +97,9 @@ export function createServer() {
   app.get("/api/auth/check-availability", checkAvailability);
   app.get("/api/auth/users", getUsers); // For demo purposes
 
+  // Phone verification API routes
+  app.use("/api/phone", phoneRoutes);
+
   // Profile API routes
   app.get("/api/profile/:userId?", getProfile);
   app.put("/api/profile/:userId?", updateProfile);
