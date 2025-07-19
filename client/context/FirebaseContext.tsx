@@ -1,36 +1,90 @@
-// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyBHgFXBalLyzs_Li2ApkmUNVrtkCWyKmzM",
-  authDomain: "music-catch.firebaseapp.com",
-  projectId: "music-catch",
-  storageBucket: "music-catch.firebasestorage.app",
-  messagingSenderId: "75793608464",
-  appId: "1:75793608464:web:ee96c2079f2b3353ab3f95",
-  measurementId: "G-J8D7LKCMPB",
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-// Removed analytics initialization to prevent network issues
-
 import React, { createContext, useContext, useEffect, useState } from "react";
-import {
-  User,
-  onAuthStateChanged,
-  signInWithEmailAndPassword,
-  createUserWithEmailAndPassword,
-  signOut as firebaseSignOut,
-} from "firebase/auth";
-import { getAuth } from "firebase/auth";
 
-// Initialize Firebase Auth
-const firebaseAuth = getAuth(app);
+// Check if we're in a development environment or if Firebase should be mocked
+const isDevelopment = import.meta.env.MODE === "development";
+const useMockAuth =
+  isDevelopment || window.location.hostname.includes("fly.dev");
+
+let firebaseAuth: any = null;
+let mockUser: any = null;
+
+if (!useMockAuth) {
+  // Only import and initialize Firebase in production environments
+  try {
+    const { initializeApp } = await import("firebase/app");
+    const {
+      getAuth,
+      signInWithEmailAndPassword,
+      createUserWithEmailAndPassword,
+      signOut,
+      onAuthStateChanged,
+    } = await import("firebase/auth");
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyBHgFXBalLyzs_Li2ApkmUNVrtkCWyKmzM",
+      authDomain: "music-catch.firebaseapp.com",
+      projectId: "music-catch",
+      storageBucket: "music-catch.firebasestorage.app",
+      messagingSenderId: "75793608464",
+      appId: "1:75793608464:web:ee96c2079f2b3353ab3f95",
+      measurementId: "G-J8D7LKCMPB",
+    };
+
+    const app = initializeApp(firebaseConfig);
+    firebaseAuth = getAuth(app);
+  } catch (error) {
+    console.warn(
+      "Firebase initialization failed, falling back to mock auth:",
+      error,
+    );
+    useMockAuth = true;
+  }
+}
+
+// Mock authentication for development
+if (useMockAuth) {
+  console.log("Using mock authentication for development/demo");
+
+  // Create mock auth object
+  firebaseAuth = {
+    currentUser: mockUser,
+    onAuthStateChanged: (callback: (user: any) => void) => {
+      // Simulate auth state change
+      setTimeout(() => callback(mockUser), 100);
+      return () => {}; // Unsubscribe function
+    },
+    signInWithEmailAndPassword: async (
+      auth: any,
+      email: string,
+      password: string,
+    ) => {
+      // Mock successful login
+      mockUser = {
+        uid: "mock-user-123",
+        email: email,
+        displayName: email.split("@")[0],
+      };
+      return { user: mockUser };
+    },
+    createUserWithEmailAndPassword: async (
+      auth: any,
+      email: string,
+      password: string,
+    ) => {
+      // Mock successful signup
+      mockUser = {
+        uid: "mock-user-123",
+        email: email,
+        displayName: email.split("@")[0],
+      };
+      return { user: mockUser };
+    },
+    signOut: async () => {
+      mockUser = null;
+      return Promise.resolve();
+    },
+  };
+}
 
 interface FirebaseContextType {
   user: User | null;
