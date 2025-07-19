@@ -63,8 +63,9 @@ export const registerUser: RequestHandler = async (req, res) => {
       username,
       name,
       password, // In production, hash this password
+      provider,
       createdAt: new Date(),
-      isVerified: false,
+      isVerified: provider === "google", // Google users are pre-verified
     };
 
     users.push(newUser);
