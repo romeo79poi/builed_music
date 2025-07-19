@@ -46,6 +46,9 @@ import {
   resetSettings,
 } from "./routes/settings";
 
+// Auth routes
+import { registerUser, checkAvailability, getUsers } from "./routes/auth";
+
 export function createServer() {
   const app = express();
 
