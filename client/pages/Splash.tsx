@@ -1,10 +1,20 @@
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { Button } from "../components/ui/button";
 
 export default function Splash() {
   const navigate = useNavigate();
+  const [showButtons, setShowButtons] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowButtons(true);
+    }, 3000); // Show buttons after 3 seconds
+
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 flex flex-col items-center justify-center relative overflow-hidden">
