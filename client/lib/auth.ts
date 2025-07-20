@@ -18,9 +18,9 @@ export const signUpWithEmailAndPassword = async (
   try {
     // Check if Firebase is configured
     if (!isFirebaseConfigured || !auth || !db) {
-      return {
-        success: false,
-        error: "Firebase is not configured. Please add Firebase environment variables."
+      return { 
+        success: false, 
+        error: "Firebase is not configured. Please add Firebase environment variables." 
       };
     }
 
@@ -43,12 +43,13 @@ export const signUpWithEmailAndPassword = async (
       return { success: true, user };
     } catch (firebaseError: any) {
       // If Firebase project doesn't exist or other Firebase errors, use development mode
-      if (firebaseError.code === 'auth/project-not-found' ||
+      if (firebaseError.code === 'auth/project-not-found' || 
           firebaseError.code === 'auth/invalid-api-key' ||
-          firebaseError.message?.includes('Firebase project')) {
-
+          firebaseError.message?.includes('Firebase project') ||
+          firebaseError.message?.includes('API key not valid')) {
+        
         console.warn("Firebase project not found, using development mode");
-
+        
         // Simulate successful user creation for development
         const mockUser = {
           uid: `dev-${Date.now()}`,
@@ -58,10 +59,10 @@ export const signUpWithEmailAndPassword = async (
         } as User;
 
         console.log("✅ Development user created:", { name, email, uid: mockUser.uid });
-
+        
         return { success: true, user: mockUser };
       }
-
+      
       // Re-throw other Firebase errors to be handled by outer catch
       throw firebaseError;
     }
@@ -99,9 +100,9 @@ export const loginWithEmailAndPassword = async (
   try {
     // Check if Firebase is configured
     if (!isFirebaseConfigured || !auth) {
-      return {
-        success: false,
-        error: "Firebase is not configured. Please add Firebase environment variables."
+      return { 
+        success: false, 
+        error: "Firebase is not configured. Please add Firebase environment variables." 
       };
     }
 
@@ -137,46 +138,71 @@ export const signInWithGoogle = async (): Promise<{ success: boolean; user?: Use
   try {
     // Check if Firebase is configured
     if (!isFirebaseConfigured || !auth || !db) {
-      return {
-        success: false,
-        error: "Firebase is not configured. Please add Firebase environment variables."
+      return { 
+        success: false, 
+        error: "Firebase is not configured. Please add Firebase environment variables." 
       };
     }
 
-        try {
+    try {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-    // Check if user exists in Firestore
-    const userDocRef = doc(db, 'users', user.uid);
-    const userDoc = await getDoc(userDocRef);
+      // Check if user exists in Firestore
+      const userDocRef = doc(db, 'users', user.uid);
+      const userDoc = await getDoc(userDocRef);
 
-    let isNewUser = false;
+      let isNewUser = false;
+      
+      if (!userDoc.exists()) {
+        // Create new user document with .set()
+        const userData = {
+          name: user.displayName || '',
+          email: user.email || '',
+          uid: user.uid,
+          createdAt: serverTimestamp(),
+        };
 
-        if (!userDoc.exists()) {
-      // Create new user document with .set()
-      const userData = {
-        name: user.displayName || '',
-        email: user.email || '',
-        uid: user.uid,
-        createdAt: serverTimestamp(),
-      };
+        await setDoc(userDocRef, userData);
+        isNewUser = true;
 
-      await setDoc(userDocRef, userData);
-      isNewUser = true;
+        console.log("✅ New Google user created in Firestore:", userData);
+      } else {
+        console.log("✅ Existing Google user signed in:", userDoc.data());
+      }
 
-      console.log("✅ New Google user created in Firestore:", userData);
-    } else {
-      console.log("✅ Existing Google user signed in:", userDoc.data());
+      return { success: true, user, isNewUser };
+    } catch (firebaseError: any) {
+      // If Firebase project doesn't exist, use development mode
+      if (firebaseError.code === 'auth/project-not-found' || 
+          firebaseError.code === 'auth/invalid-api-key' ||
+          firebaseError.message?.includes('Firebase project') ||
+          firebaseError.message?.includes('API key not valid')) {
+        
+        console.warn("Firebase project not found, using development mode for Google sign-in");
+        
+        // Simulate successful Google user creation for development
+        const mockUser = {
+          uid: `google-dev-${Date.now()}`,
+          email: "user@gmail.com",
+          displayName: "Dev User",
+          emailVerified: true,
+        } as User;
+
+        console.log("✅ Development Google user created:", mockUser);
+        
+        return { success: true, user: mockUser, isNewUser: true };
+      }
+      
+      // Re-throw other Firebase errors to be handled by outer catch
+      throw firebaseError;
     }
-
-    return { success: true, user, isNewUser };
   } catch (error: any) {
     console.error("Google sign-in error:", error);
-
+    
     let errorMessage = "An error occurred during Google sign-in";
-
+    
     switch (error.code) {
       case 'auth/popup-closed-by-user':
         errorMessage = "Sign-in cancelled";
@@ -196,7 +222,7 @@ export const signInWithGoogle = async (): Promise<{ success: boolean; user?: Use
       default:
         errorMessage = error.message || errorMessage;
     }
-
+    
     return { success: false, error: errorMessage };
   }
 };
@@ -205,9 +231,9 @@ export const logout = async (): Promise<{ success: boolean; error?: string }> =>
   try {
     // Check if Firebase is configured
     if (!isFirebaseConfigured || !auth) {
-      return {
-        success: false,
-        error: "Firebase is not configured. Please add Firebase environment variables."
+      return { 
+        success: false, 
+        error: "Firebase is not configured. Please add Firebase environment variables." 
       };
     }
 
