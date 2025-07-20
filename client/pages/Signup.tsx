@@ -481,16 +481,15 @@ export default function Signup() {
             variant: "destructive",
           });
         }
-      } else {
+            } else {
+        // Clear any previous errors
+        setErrorAlert(null);
+
         // Use Firebase Auth for email registration
         const result = await signUpWithEmailAndPassword(
           formData.email,
           formData.password,
-          {
-            name: formData.name,
-            username: formData.username,
-            phoneNumber: formData.phone,
-          }
+          formData.name
         );
 
         if (result.success) {
@@ -502,20 +501,17 @@ export default function Signup() {
           console.log("✅ User created with Firebase:", result.user);
           console.log("📊 User data stored in Firestore:", {
             name: formData.name,
-            username: formData.username,
             email: formData.email,
-            phoneNumber: formData.phone,
+            uid: result.user?.uid,
+            createdAt: "server timestamp"
           });
 
           setTimeout(() => {
             navigate("/profile");
           }, 2000);
         } else {
-          toast({
-            title: "Registration failed",
-            description: result.error || "Please try again",
-            variant: "destructive",
-          });
+          // Show error in red alert box
+          setErrorAlert(result.error || "Registration failed. Please try again.");
         }
       }
     } catch (error) {
