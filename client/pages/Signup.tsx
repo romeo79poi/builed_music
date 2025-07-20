@@ -80,7 +80,8 @@ export default function Signup() {
   }>({});
   const [phoneVerified, setPhoneVerified] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
-  const [resendTimer, setResendTimer] = useState(0);
+    const [resendTimer, setResendTimer] = useState(0);
+  const [errorAlert, setErrorAlert] = useState<string | null>(null);
 
   // Validation functions
   const validateEmail = (email: string): boolean => {
