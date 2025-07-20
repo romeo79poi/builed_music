@@ -514,13 +514,9 @@ export default function Signup() {
           setErrorAlert(result.error || "Registration failed. Please try again.");
         }
       }
-    } catch (error) {
+        } catch (error) {
       console.error("Registration error:", error);
-      toast({
-        title: "Registration failed",
-        description: "Network error. Please try again.",
-        variant: "destructive",
-      });
+      setErrorAlert("Network error. Please try again.");
     } finally {
       setIsLoading(false);
     }
