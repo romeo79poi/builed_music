@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
-  ArrowLeft,
   Search,
   MoreHorizontal,
   Play,
@@ -20,6 +19,7 @@ import {
 import { useProfileContext } from "../context/ProfileContext";
 import { useMusicContext } from "../context/MusicContext";
 import { useToast } from "../hooks/use-toast";
+import { BackButton } from "../components/ui/back-button";
 
 export default function Library() {
   const { profile } = useProfileContext();
