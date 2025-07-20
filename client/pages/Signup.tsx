@@ -680,7 +680,8 @@ export default function Signup() {
                 <span className="px-3 text-slate-400 text-xs sm:text-sm">
                   or
                 </span>
-                <div className="flex-1 h-px bg-slate-600">              </div>
+                <div className="flex-1 h-px bg-slate-600"></div>
+              </div>
 
               {/* Method Selection Buttons */}
               <div className="space-y-3">
@@ -771,7 +772,14 @@ export default function Signup() {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-4 sm:space-y-6"
             >
-                            <div className="text-center mb-4 sm:mb-6">
+              <div className="flex items-center mb-4 sm:mb-6">
+                <button
+                  onClick={goBack}
+                  className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-800/50 rounded-full flex items-center justify-center mr-3 sm:mr-4"
+                >
+                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                </button>
+                <div className="text-center flex-1">
                   <div className="w-12 h-12 sm:w-16 sm:h-16 bg-neon-blue/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                     <Phone className="w-6 h-6 sm:w-8 sm:h-8 text-neon-blue" />
                   </div>
@@ -781,7 +789,8 @@ export default function Signup() {
                   <p className="text-slate-400 text-xs sm:text-sm px-2">
                     {stepDescriptions.phone}
                   </p>
-                              </div>
+                </div>
+              </div>
 
               <div>
                 <label className="block text-white text-sm font-medium mb-2">
@@ -832,7 +841,14 @@ export default function Signup() {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-4 sm:space-y-6"
             >
-                            <div className="text-center mb-4 sm:mb-6">
+              <div className="flex items-center mb-4 sm:mb-6">
+                <button
+                  onClick={goBack}
+                  className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-800/50 rounded-full flex items-center justify-center mr-3 sm:mr-4"
+                >
+                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                </button>
+                <div className="text-center flex-1">
                   <div className="w-12 h-12 sm:w-16 sm:h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                     <Phone className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-500" />
                   </div>
@@ -842,7 +858,8 @@ export default function Signup() {
                   <p className="text-slate-400 text-xs sm:text-sm px-2">
                     {stepDescriptions["phone-verify"]}
                   </p>
-                              </div>
+                </div>
+              </div>
 
               <div className="text-center">
                 <p className="text-white mb-2 text-sm sm:text-base">
@@ -915,7 +932,14 @@ export default function Signup() {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-4 sm:space-y-6"
             >
-                            <div className="text-center mb-4 sm:mb-6">
+              <div className="flex items-center mb-4 sm:mb-6">
+                <button
+                  onClick={goBack}
+                  className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-800/50 rounded-full flex items-center justify-center mr-3 sm:mr-4"
+                >
+                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                </button>
+                <div className="text-center flex-1">
                   <div className="w-12 h-12 sm:w-16 sm:h-16 bg-neon-blue/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                     <User className="w-6 h-6 sm:w-8 sm:h-8 text-neon-blue" />
                   </div>
@@ -925,7 +949,8 @@ export default function Signup() {
                   <p className="text-slate-400 text-xs sm:text-sm px-2">
                     {stepDescriptions.profile}
                   </p>
-                              </div>
+                </div>
+              </div>
 
               <div>
                 <label className="block text-white text-sm font-medium mb-2">
@@ -999,7 +1024,14 @@ export default function Signup() {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-4 sm:space-y-6"
             >
-                            <div className="text-center mb-4 sm:mb-6">
+              <div className="flex items-center mb-4 sm:mb-6">
+                <button
+                  onClick={goBack}
+                  className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-800/50 rounded-full flex items-center justify-center mr-3 sm:mr-4"
+                >
+                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                </button>
+                <div className="text-center flex-1">
                   <div className="w-12 h-12 sm:w-16 sm:h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                     <Mail className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-500" />
                   </div>
@@ -1009,7 +1041,8 @@ export default function Signup() {
                   <p className="text-slate-400 text-xs sm:text-sm px-2">
                     {stepDescriptions.verification}
                   </p>
-                              </div>
+                </div>
+              </div>
 
               <div className="text-center">
                 <p className="text-white mb-2 text-sm sm:text-base">
@@ -1064,7 +1097,14 @@ export default function Signup() {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-4 sm:space-y-6"
             >
-                            <div className="text-center mb-4 sm:mb-6">
+              <div className="flex items-center mb-4 sm:mb-6">
+                <button
+                  onClick={goBack}
+                  className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-800/50 rounded-full flex items-center justify-center mr-3 sm:mr-4"
+                >
+                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                </button>
+                <div className="text-center flex-1">
                   <div className="w-12 h-12 sm:w-16 sm:h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                     <Lock className="w-6 h-6 sm:w-8 sm:h-8 text-purple-500" />
                   </div>
@@ -1074,7 +1114,8 @@ export default function Signup() {
                   <p className="text-slate-400 text-xs sm:text-sm px-2">
                     {stepDescriptions.password}
                   </p>
-                              </div>
+                </div>
+              </div>
 
               <div>
                 <label className="block text-white text-sm font-medium mb-2">
