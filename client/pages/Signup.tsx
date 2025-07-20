@@ -21,7 +21,7 @@ import {
   formatPhoneDisplay,
   phoneAPI,
 } from "../lib/phone";
-import { signUpWithEmailAndPassword } from "../lib/auth";
+import { signUpWithEmailAndPassword, signInWithGoogle } from "../lib/auth";
 
 type SignupStep =
   | "method"
