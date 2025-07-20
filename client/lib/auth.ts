@@ -143,9 +143,10 @@ export const signInWithGoogle = async (): Promise<{ success: boolean; user?: Use
       };
     }
 
-    const provider = new GoogleAuthProvider();
-    const result = await signInWithPopup(auth, provider);
-    const user = result.user;
+        try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
 
     // Check if user exists in Firestore
     const userDocRef = doc(db, 'users', user.uid);
