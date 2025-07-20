@@ -29,23 +29,23 @@ export interface BackendAuthResult {
 export const signInWithGoogleEnhanced = async (): Promise<GoogleAuthResult> => {
   try {
     console.log("🔑 Starting enhanced Google authentication...");
-    
+
     // Step 1: Firebase Google Authentication
     const firebaseResult = await firebaseSignInWithGoogle();
-    
+
     if (!firebaseResult.success) {
       return {
         success: false,
-        error: firebaseResult.error || "Firebase Google authentication failed"
+        error: firebaseResult.error || "Firebase Google authentication failed",
       };
     }
-    
+
     console.log("✅ Firebase Google auth successful");
-    
+
     // Step 2: Get ID token from Firebase user
     let idToken: string | undefined;
     let accessToken: string | undefined;
-    
+
     try {
       if (firebaseResult.user) {
         idToken = await firebaseResult.user.getIdToken();
@@ -54,45 +54,53 @@ export const signInWithGoogleEnhanced = async (): Promise<GoogleAuthResult> => {
     } catch (tokenError) {
       console.warn("⚠️ Could not get Firebase ID token:", tokenError);
     }
-    
+
     // Step 3: Verify with backend
     try {
       const backendResult = await verifyWithBackend({
         idToken,
         accessToken,
-        firebaseUser: firebaseResult.user
+        firebaseUser: firebaseResult.user,
       });
-      
+
       if (backendResult.success) {
         console.log("✅ Backend verification successful");
-        
+
         // Store session token for future requests
         if (backendResult.sessionToken) {
-          localStorage.setItem("musiccatch_session", backendResult.sessionToken);
-          localStorage.setItem("musiccatch_user", JSON.stringify(backendResult.user));
+          localStorage.setItem(
+            "musiccatch_session",
+            backendResult.sessionToken,
+          );
+          localStorage.setItem(
+            "musiccatch_user",
+            JSON.stringify(backendResult.user),
+          );
         }
-        
+
         return {
           success: true,
           user: backendResult.user,
           isNewUser: backendResult.isNewUser,
           sessionToken: backendResult.sessionToken,
-          googleUserInfo: backendResult.googleUserInfo
+          googleUserInfo: backendResult.googleUserInfo,
         };
       } else {
         console.warn("⚠️ Backend verification failed, using Firebase user");
         return firebaseResult;
       }
     } catch (backendError) {
-      console.warn("⚠️ Backend verification error, using Firebase user:", backendError);
+      console.warn(
+        "⚠️ Backend verification error, using Firebase user:",
+        backendError,
+      );
       return firebaseResult;
     }
-    
   } catch (error) {
     console.error("❌ Enhanced Google authentication error:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Authentication failed"
+      error: error instanceof Error ? error.message : "Authentication failed",
     };
   }
 };
@@ -104,7 +112,7 @@ async function verifyWithBackend(params: {
   firebaseUser?: User | any;
 }): Promise<BackendAuthResult> {
   const { idToken, accessToken, firebaseUser } = params;
-  
+
   const response = await fetch("/api/auth/google", {
     method: "POST",
     headers: {
@@ -116,14 +124,14 @@ async function verifyWithBackend(params: {
       firebaseUid: firebaseUser?.uid,
       firebaseEmail: firebaseUser?.email,
       firebaseDisplayName: firebaseUser?.displayName,
-      firebasePhotoURL: firebaseUser?.photoURL
+      firebasePhotoURL: firebaseUser?.photoURL,
     }),
   });
-  
+
   if (!response.ok) {
     throw new Error(`Backend verification failed: ${response.statusText}`);
   }
-  
+
   const result = await response.json();
   return result;
 }
@@ -136,14 +144,14 @@ export const verifySession = async (): Promise<{
 }> => {
   try {
     const sessionToken = localStorage.getItem("musiccatch_session");
-    
+
     if (!sessionToken) {
       return {
         success: false,
-        error: "No session token found"
+        error: "No session token found",
       };
     }
-    
+
     const response = await fetch("/api/auth/google/verify", {
       method: "POST",
       headers: {
@@ -151,9 +159,9 @@ export const verifySession = async (): Promise<{
       },
       body: JSON.stringify({ sessionToken }),
     });
-    
+
     const result = await response.json();
-    
+
     if (result.success) {
       // Update stored user data
       localStorage.setItem("musiccatch_user", JSON.stringify(result.user));
@@ -162,19 +170,21 @@ export const verifySession = async (): Promise<{
       localStorage.removeItem("musiccatch_session");
       localStorage.removeItem("musiccatch_user");
     }
-    
+
     return result;
   } catch (error) {
     console.error("Session verification error:", error);
     return {
       success: false,
-      error: "Session verification failed"
+      error: "Session verification failed",
     };
   }
 };
 
 // Link Google account to existing user
-export const linkGoogleAccount = async (userId: string): Promise<{
+export const linkGoogleAccount = async (
+  userId: string,
+): Promise<{
   success: boolean;
   user?: any;
   error?: string;
@@ -182,14 +192,14 @@ export const linkGoogleAccount = async (userId: string): Promise<{
   try {
     // First, authenticate with Google
     const firebaseResult = await firebaseSignInWithGoogle();
-    
+
     if (!firebaseResult.success) {
       return {
         success: false,
-        error: firebaseResult.error || "Google authentication failed"
+        error: firebaseResult.error || "Google authentication failed",
       };
     }
-    
+
     // Get ID token
     let idToken: string | undefined;
     try {
@@ -199,7 +209,7 @@ export const linkGoogleAccount = async (userId: string): Promise<{
     } catch (tokenError) {
       console.warn("Could not get ID token:", tokenError);
     }
-    
+
     // Link with backend
     const response = await fetch("/api/auth/google/link", {
       method: "POST",
@@ -208,29 +218,31 @@ export const linkGoogleAccount = async (userId: string): Promise<{
       },
       body: JSON.stringify({
         userId,
-        idToken
+        idToken,
       }),
     });
-    
+
     const result = await response.json();
-    
+
     if (result.success) {
       // Update stored user data
       localStorage.setItem("musiccatch_user", JSON.stringify(result.user));
     }
-    
+
     return result;
   } catch (error) {
     console.error("Link Google account error:", error);
     return {
       success: false,
-      error: "Failed to link Google account"
+      error: "Failed to link Google account",
     };
   }
 };
 
 // Unlink Google account
-export const unlinkGoogleAccount = async (userId: string): Promise<{
+export const unlinkGoogleAccount = async (
+  userId: string,
+): Promise<{
   success: boolean;
   user?: any;
   error?: string;
@@ -242,20 +254,20 @@ export const unlinkGoogleAccount = async (userId: string): Promise<{
         "Content-Type": "application/json",
       },
     });
-    
+
     const result = await response.json();
-    
+
     if (result.success) {
       // Update stored user data
       localStorage.setItem("musiccatch_user", JSON.stringify(result.user));
     }
-    
+
     return result;
   } catch (error) {
     console.error("Unlink Google account error:", error);
     return {
       success: false,
-      error: "Failed to unlink Google account"
+      error: "Failed to unlink Google account",
     };
   }
 };
@@ -267,11 +279,11 @@ export const logoutEnhanced = async (): Promise<{
 }> => {
   try {
     const sessionToken = localStorage.getItem("musiccatch_session");
-    
+
     // Clear local storage first
     localStorage.removeItem("musiccatch_session");
     localStorage.removeItem("musiccatch_user");
-    
+
     // Notify backend to invalidate session
     if (sessionToken) {
       try {
@@ -287,13 +299,13 @@ export const logoutEnhanced = async (): Promise<{
         // Continue with local logout even if backend fails
       }
     }
-    
+
     return { success: true };
   } catch (error) {
     console.error("Enhanced logout error:", error);
     return {
       success: false,
-      error: "Logout failed"
+      error: "Logout failed",
     };
   }
 };
@@ -317,7 +329,9 @@ export const isAuthenticated = (): boolean => {
 };
 
 // Get user profile with Google info
-export const getUserProfile = async (userId: string): Promise<{
+export const getUserProfile = async (
+  userId: string,
+): Promise<{
   success: boolean;
   user?: any;
   hasGoogleAccount?: boolean;
@@ -332,7 +346,7 @@ export const getUserProfile = async (userId: string): Promise<{
     console.error("Get user profile error:", error);
     return {
       success: false,
-      error: "Failed to get user profile"
+      error: "Failed to get user profile",
     };
   }
 };

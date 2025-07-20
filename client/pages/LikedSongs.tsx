@@ -177,10 +177,7 @@ export default function LikedSongs() {
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center justify-between p-6 pt-12"
         >
-                    <BackButton
-            onClick={() => navigate("/profile")}
-            variant="glass"
-          />
+          <BackButton onClick={() => navigate("/profile")} variant="glass" />
           <h1 className="text-xl font-bold">Liked Songs</h1>
           <div className="w-10" />
         </motion.div>

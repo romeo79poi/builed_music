@@ -201,7 +201,7 @@ export default function Player() {
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center justify-between p-6 pt-12"
         >
-                    <BackButton
+          <BackButton
             onClick={() => navigate(-1)}
             variant="glass"
             className="hover:bg-white/20"

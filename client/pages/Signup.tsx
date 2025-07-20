@@ -319,7 +319,7 @@ export default function Signup() {
     }
   };
 
-    // Google signup handler with enhanced backend verification
+  // Google signup handler with enhanced backend verification
   const handleGoogleSignup = async () => {
     setIsLoading(true);
 
@@ -345,7 +345,7 @@ export default function Signup() {
           name: result.user.name || result.user.displayName,
           hasSessionToken: !!result.sessionToken,
           hasGoogleInfo: !!result.googleUserInfo,
-          backendVerified: true
+          backendVerified: true,
         });
 
         // Show success details for demo
@@ -354,7 +354,7 @@ export default function Signup() {
             googleId: result.googleUserInfo.sub,
             email: result.googleUserInfo.email,
             emailVerified: result.googleUserInfo.emailVerified,
-            profilePicture: result.googleUserInfo.picture
+            profilePicture: result.googleUserInfo.picture,
           });
         }
 
@@ -362,7 +362,8 @@ export default function Signup() {
           navigate("/profile");
         }, 1500);
       } else {
-        const errorMessage = result.error || "Failed to connect with Google. Please try again.";
+        const errorMessage =
+          result.error || "Failed to connect with Google. Please try again.";
 
         toast({
           title: "Google sign-in failed",
@@ -372,7 +373,7 @@ export default function Signup() {
 
         console.error("❌ Enhanced Google authentication failed:", {
           error: result.error,
-          hasUser: !!result.user
+          hasUser: !!result.user,
         });
       }
     } catch (error) {
@@ -600,7 +601,7 @@ export default function Signup() {
   };
 
   return (
-        <div className="min-h-screen bg-black flex flex-col items-center justify-center p-3 sm:p-6 relative overflow-hidden">
+    <div className="min-h-screen bg-black flex flex-col items-center justify-center p-3 sm:p-6 relative overflow-hidden">
       {/* Background glow effect */}
       <div className="absolute inset-0 bg-gradient-to-br from-neon-green/5 via-transparent to-neon-blue/5"></div>
 
@@ -632,8 +633,6 @@ export default function Signup() {
             MUSIC CATCH
           </h2>
         </motion.div>
-
-        
 
         <AnimatePresence mode="wait">
           {/* Method Selection Step */}
@@ -828,7 +827,7 @@ export default function Signup() {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-4 sm:space-y-6"
             >
-                            <div className="flex items-center mb-4 sm:mb-6">
+              <div className="flex items-center mb-4 sm:mb-6">
                 <BackButton
                   onClick={goBack}
                   className="mr-3 sm:mr-4"
@@ -896,7 +895,7 @@ export default function Signup() {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-4 sm:space-y-6"
             >
-                            <div className="flex items-center mb-4 sm:mb-6">
+              <div className="flex items-center mb-4 sm:mb-6">
                 <BackButton
                   onClick={goBack}
                   className="mr-3 sm:mr-4"
@@ -986,7 +985,7 @@ export default function Signup() {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-4 sm:space-y-6"
             >
-                            <div className="flex items-center mb-4 sm:mb-6">
+              <div className="flex items-center mb-4 sm:mb-6">
                 <BackButton
                   onClick={goBack}
                   className="mr-3 sm:mr-4"
@@ -1077,7 +1076,7 @@ export default function Signup() {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-4 sm:space-y-6"
             >
-                            <div className="flex items-center mb-4 sm:mb-6">
+              <div className="flex items-center mb-4 sm:mb-6">
                 <BackButton
                   onClick={goBack}
                   className="mr-3 sm:mr-4"
@@ -1149,7 +1148,7 @@ export default function Signup() {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-4 sm:space-y-6"
             >
-                            <div className="flex items-center mb-4 sm:mb-6">
+              <div className="flex items-center mb-4 sm:mb-6">
                 <BackButton
                   onClick={goBack}
                   className="mr-3 sm:mr-4"

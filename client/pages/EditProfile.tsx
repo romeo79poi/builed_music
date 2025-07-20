@@ -223,10 +223,7 @@ export default function EditProfile() {
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center justify-between p-6 pt-12"
         >
-                    <BackButton
-            onClick={handleCancel}
-            variant="glass"
-          />
+          <BackButton onClick={handleCancel} variant="glass" />
           <h1 className="text-xl font-bold">Edit Profile</h1>
           <Button
             onClick={handleSave}

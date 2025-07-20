@@ -57,7 +57,7 @@ import {
   unlinkGoogleAccount,
   getGoogleUserProfile,
   logoutGoogleUser,
-  getAllGoogleUsers
+  getAllGoogleUsers,
 } from "./routes/google-auth";
 
 // Phone routes
@@ -103,7 +103,7 @@ export function createServer() {
 
   app.get("/api/demo", handleDemo);
 
-    // Authentication API routes
+  // Authentication API routes
   app.post("/api/auth/register", registerUser);
   app.get("/api/auth/check-availability", checkAvailability);
   app.get("/api/auth/users", getUsers); // For demo purposes

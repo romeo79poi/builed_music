@@ -49,7 +49,7 @@ export default function Login() {
     }
   };
 
-    const handleGoogleLogin = async () => {
+  const handleGoogleLogin = async () => {
     setIsGoogleLoading(true);
 
     try {
@@ -73,14 +73,15 @@ export default function Login() {
           email: result.user.email,
           name: result.user.name || result.user.displayName,
           hasSessionToken: !!result.sessionToken,
-          backendVerified: true
+          backendVerified: true,
         });
 
         setTimeout(() => {
           navigate("/home");
         }, 1500);
       } else {
-        const errorMessage = result.error || "Failed to connect with Google. Please try again.";
+        const errorMessage =
+          result.error || "Failed to connect with Google. Please try again.";
 
         toast({
           title: "Google sign-in failed",
@@ -90,7 +91,7 @@ export default function Login() {
 
         console.error("❌ Enhanced Google authentication failed:", {
           error: result.error,
-          hasUser: !!result.user
+          hasUser: !!result.user,
         });
       }
     } catch (error) {
@@ -111,7 +112,7 @@ export default function Login() {
   };
 
   return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 flex flex-col items-center justify-center p-3 sm:p-6 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 flex flex-col items-center justify-center p-3 sm:p-6 relative overflow-hidden">
       {/* Background glow effect */}
       <div className="absolute inset-0 bg-gradient-to-br from-neon-green/5 via-transparent to-neon-blue/5 bg-black"></div>
 
@@ -148,7 +149,7 @@ export default function Login() {
           transition={{ delay: 0.5, duration: 0.8 }}
           className="space-y-4 mb-8"
         >
-                    <button
+          <button
             onClick={handleGoogleLogin}
             disabled={isGoogleLoading}
             className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-full flex items-center justify-center text-white font-medium hover:bg-slate-700/50 transition-colors disabled:opacity-50"

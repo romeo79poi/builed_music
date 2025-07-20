@@ -543,10 +543,7 @@ export default function Settings() {
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center justify-between p-6 pt-12"
         >
-                    <BackButton
-            onClick={() => navigate("/profile")}
-            variant="glass"
-          />
+          <BackButton onClick={() => navigate("/profile")} variant="glass" />
           <h1 className="text-xl font-bold">Settings</h1>
           <div className="w-10 h-10"></div>
         </motion.div>
@@ -685,7 +682,7 @@ export default function Settings() {
               {/* Dreams Header */}
               <div className="flex items-center justify-between p-8 bg-black/30 backdrop-blur-sm border-b border-white/10">
                 <div className="flex items-center space-x-6">
-                                    <motion.div
+                  <motion.div
                     initial={{ x: -20, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
                   >
