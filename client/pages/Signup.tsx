@@ -462,15 +462,19 @@ export default function Signup() {
     }
   };
 
-  const handleVerificationStep = () => {
+    const handleVerificationStep = () => {
+    if (!validateOTP(formData.otp)) return;
+
     if (signupMethod === "email") {
       // Simulate email verification
       toast({
         title: "Email verified!",
         description: "Your email has been successfully verified.",
       });
+      setCurrentStep("profile");
+    } else {
+      setCurrentStep("password");
     }
-    setCurrentStep("password");
   };
 
   const handlePhoneVerifyStep = async () => {
