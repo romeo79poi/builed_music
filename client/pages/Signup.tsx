@@ -1245,7 +1245,17 @@ export default function Signup() {
                     {errors.confirmPassword}
                   </p>
                 )}
-              </div>
+                            </div>
+
+              {/* Red Error Alert Box */}
+              {errorAlert && (
+                <div className="bg-red-500/10 border border-red-500 rounded-lg p-4 mb-4">
+                  <div className="flex items-center">
+                    <AlertCircle className="w-5 h-5 text-red-500 mr-3" />
+                    <p className="text-red-500 text-sm font-medium">{errorAlert}</p>
+                  </div>
+                </div>
+              )}
 
               <button
                 onClick={handlePasswordStep}
