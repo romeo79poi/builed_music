@@ -265,7 +265,7 @@ export default function Signup() {
 
         // For development, show OTP in console
         if (result.debugOtp) {
-          console.log(`📱 OTP for ${formData.phone}: ${result.debugOtp}`);
+          console.log(`�� OTP for ${formData.phone}: ${result.debugOtp}`);
         }
       } else {
         toast({
@@ -695,17 +695,7 @@ export default function Signup() {
           </button>
         </motion.div>
 
-        {/* Divider */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.5, duration: 0.8 }}
-          className="flex items-center mb-6"
-        >
-          <div className="flex-1 h-px bg-slate-600"></div>
-          <span className="px-3 text-slate-400 text-xs sm:text-sm">or</span>
-          <div className="flex-1 h-px bg-slate-600"></div>
-        </motion.div>
+        
 
         <AnimatePresence mode="wait">
           {/* Method Selection Step */}
