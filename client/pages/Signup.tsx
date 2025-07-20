@@ -408,7 +408,7 @@ export default function Signup() {
     }
   };
 
-  const handleEmailStep = async () => {
+    const handleEmailStep = async () => {
     if (!validateEmail(formData.email)) return;
 
     setIsLoading(true);
@@ -416,7 +416,13 @@ export default function Signup() {
     setIsLoading(false);
 
     if (availability.email !== false) {
-      setCurrentStep("profile");
+      setCurrentStep("verification");
+      // Simulate sending verification email
+      toast({
+        title: "Verification code sent!",
+        description: "Please check your email for the 6-digit verification code.",
+      });
+      setResendTimer(60);
     }
   };
 
