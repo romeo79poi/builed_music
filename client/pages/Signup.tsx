@@ -324,6 +324,7 @@ export default function Signup() {
     console.log("🚀 Starting Google sign-up process...");
 
     try {
+      // Try Firebase first, then fallback to backend simulation
       const result = await signInWithGoogle();
 
       console.log("📋 Google sign-in result:", {
@@ -357,6 +358,41 @@ export default function Signup() {
           isNewUser: result.isNewUser,
           emailVerified: result.user.emailVerified,
         });
+
+        // If this is a new user and we're in development mode, also register with backend
+        if (
+          (result.isNewUser && result.user.email?.includes("demo")) ||
+          result.user.email?.includes("dev")
+        ) {
+          try {
+            const backendResponse = await fetch("/api/auth/register", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                email: result.user.email,
+                username: result.user.email.split("@")[0] + "_google",
+                name: displayName,
+                password: "google_auth_" + Date.now(), // Dummy password for Google users
+                provider: "google",
+              }),
+            });
+
+            const backendData = await backendResponse.json();
+            if (backendData.success) {
+              console.log(
+                "✅ Google user also registered in backend:",
+                backendData.user,
+              );
+            }
+          } catch (backendError) {
+            console.warn(
+              "Backend registration failed for Google user, continuing:",
+              backendError,
+            );
+          }
+        }
 
         // Navigate after a short delay to show success message
         setTimeout(() => {
@@ -412,11 +448,57 @@ export default function Signup() {
     if (!validateEmail(formData.email)) return;
 
     setIsLoading(true);
-    await checkAvailability("email", formData.email);
-    setIsLoading(false);
 
-    if (availability.email !== false) {
-      setCurrentStep("profile");
+    try {
+      // Check email availability first
+      await checkAvailability("email", formData.email);
+
+      if (availability.email === false) {
+        setIsLoading(false);
+        return;
+      }
+
+      // Send email verification code
+      const response = await fetch("/api/auth/send-email-verification", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: formData.email }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setCurrentStep("verification");
+        toast({
+          title: "Verification code sent!",
+          description:
+            "Please check your email for the 6-digit verification code.",
+        });
+
+        // For development, show code in console
+        if (data.debugCode) {
+          console.log(`📧 Email verification code: ${data.debugCode}`);
+        }
+
+        setResendTimer(60);
+      } else {
+        toast({
+          title: "Failed to send verification code",
+          description: data.message || "Please try again",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Email verification error:", error);
+      toast({
+        title: "Network error",
+        description: "Please check your connection and try again",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -445,26 +527,61 @@ export default function Signup() {
         // Complete phone signup
         await handlePasswordStep();
       } else {
-        setCurrentStep("verification");
-        // Simulate sending verification email
-        toast({
-          title: "Verification email sent!",
-          description: "Please check your email and verify your account.",
-        });
-        setResendTimer(60);
+        setCurrentStep("password");
       }
     }
   };
 
-  const handleVerificationStep = () => {
+  const handleVerificationStep = async () => {
+    if (!validateOTP(formData.otp)) return;
+
     if (signupMethod === "email") {
-      // Simulate email verification
-      toast({
-        title: "Email verified!",
-        description: "Your email has been successfully verified.",
-      });
+      setIsLoading(true);
+
+      try {
+        // Verify email code with backend
+        const response = await fetch("/api/auth/verify-email", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: formData.email,
+            code: formData.otp,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          toast({
+            title: "Email verified!",
+            description: "Your email has been successfully verified.",
+          });
+          setCurrentStep("profile");
+        } else {
+          setErrors((prev) => ({ ...prev, otp: data.message }));
+
+          if (data.attemptsRemaining !== undefined) {
+            toast({
+              title: "Invalid code",
+              description: `${data.attemptsRemaining} attempts remaining`,
+              variant: "destructive",
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Email verification error:", error);
+        setErrors((prev) => ({
+          ...prev,
+          otp: "Verification failed. Please try again.",
+        }));
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      setCurrentStep("password");
     }
-    setCurrentStep("password");
   };
 
   const handlePhoneVerifyStep = async () => {
@@ -513,35 +630,43 @@ export default function Signup() {
         // Clear any previous errors
         setErrorAlert(null);
 
-        // Use Firebase Auth for email registration
-        const result = await signUpWithEmailAndPassword(
-          formData.email,
-          formData.password,
-          formData.name,
-        );
-
-        if (result.success) {
-          toast({
-            title: "Account created successfully! 🎉",
-            description: `Welcome to Music Catch, ${formData.name}!`,
+        try {
+          // Use backend API for email registration
+          const response = await fetch("/api/auth/complete-registration", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: formData.email,
+              username: formData.username,
+              name: formData.name,
+              password: formData.password,
+            }),
           });
 
-          console.log("✅ User created with Firebase:", result.user);
-          console.log("📊 User data stored in Firestore:", {
-            name: formData.name,
-            email: formData.email,
-            uid: result.user?.uid,
-            createdAt: "server timestamp",
-          });
+          const data = await response.json();
 
-          setTimeout(() => {
-            navigate("/profile");
-          }, 2000);
-        } else {
-          // Show error in red alert box
-          setErrorAlert(
-            result.error || "Registration failed. Please try again.",
-          );
+          if (data.success) {
+            toast({
+              title: "Account created successfully! 🎉",
+              description: `Welcome to Music Catch, ${formData.name}!`,
+            });
+
+            console.log("✅ User created with backend:", data.user);
+
+            setTimeout(() => {
+              navigate("/profile");
+            }, 2000);
+          } else {
+            // Show error in red alert box
+            setErrorAlert(
+              data.message || "Registration failed. Please try again.",
+            );
+          }
+        } catch (error) {
+          console.error("Registration error:", error);
+          setErrorAlert("Network error. Please try again.");
         }
       }
     } catch (error) {
@@ -572,14 +697,52 @@ export default function Signup() {
     }
   };
 
-  const handleResendVerification = () => {
+  const handleResendVerification = async () => {
     if (resendTimer > 0) return;
 
-    toast({
-      title: "Verification email resent!",
-      description: "Please check your email for the verification link.",
-    });
-    setResendTimer(60);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/auth/send-email-verification", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: formData.email }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast({
+          title: "Verification code resent!",
+          description:
+            "Please check your email for the new 6-digit verification code.",
+        });
+
+        // For development, show code in console
+        if (data.debugCode) {
+          console.log(`📧 Resent email verification code: ${data.debugCode}`);
+        }
+
+        setResendTimer(60);
+      } else {
+        toast({
+          title: "Failed to resend code",
+          description: data.message || "Please try again",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Resend verification error:", error);
+      toast({
+        title: "Network error",
+        description: "Please check your connection and try again",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Timer for resend functionality
@@ -653,45 +816,47 @@ export default function Signup() {
           </h2>
         </motion.div>
 
-        {/* Google Signup Button - Always visible */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.8 }}
-          className="mb-6"
-        >
-          <button
-            onClick={handleGoogleSignup}
-            disabled={isLoading}
-            className="w-full h-12 sm:h-14 bg-slate-800/70 hover:bg-slate-700/70 rounded-lg flex items-center justify-center text-white font-medium transition-colors border border-slate-600 disabled:opacity-50"
+        {/* Google Signup Button - Only visible on method step */}
+        {currentStep === "method" && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4, duration: 0.8 }}
+            className="mb-6"
           >
-            {isLoading ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : (
-              <>
-                <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
-                  <path
-                    fill="#4285F4"
-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                  />
-                  <path
-                    fill="#34A853"
-                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                  />
-                  <path
-                    fill="#FBBC05"
-                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                  />
-                  <path
-                    fill="#EA4335"
-                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                  />
-                </svg>
-                Continue with Google
-              </>
-            )}
-          </button>
-        </motion.div>
+            <button
+              onClick={handleGoogleSignup}
+              disabled={isLoading}
+              className="w-full h-12 sm:h-14 bg-slate-800/70 hover:bg-slate-700/70 rounded-lg flex items-center justify-center text-white font-medium transition-colors border border-slate-600 disabled:opacity-50"
+            >
+              {isLoading ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <>
+                  <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
+                    <path
+                      fill="#4285F4"
+                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                    />
+                    <path
+                      fill="#EA4335"
+                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                    />
+                  </svg>
+                  Continue with Google
+                </>
+              )}
+            </button>
+          </motion.div>
+        )}
 
         <AnimatePresence mode="wait">
           {/* Method Selection Step */}
@@ -1027,7 +1192,7 @@ export default function Signup() {
             </motion.div>
           )}
 
-          {/* Verification Step */}
+          {/* Email Verification Step */}
           {currentStep === "verification" && (
             <motion.div
               key="verification"
@@ -1041,43 +1206,61 @@ export default function Signup() {
                   <Mail className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-500" />
                 </div>
                 <h3 className="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">
-                  {stepTitles.verification}
+                  Verify your email
                 </h3>
                 <p className="text-slate-400 text-xs sm:text-sm px-2">
-                  {stepDescriptions.verification}
+                  Enter the 6-digit code we sent to your email
                 </p>
               </div>
 
               <div className="text-center">
                 <p className="text-white mb-2 text-sm sm:text-base">
-                  Verification email sent to:
+                  Verification code sent to:
                 </p>
                 <p className="text-neon-green font-medium text-sm sm:text-base break-all">
                   {formData.email}
                 </p>
               </div>
 
-              <div className="text-center">
-                <p className="text-slate-400 text-xs sm:text-sm mb-4 px-2">
-                  After clicking the verification link in your email, click the
-                  button below.
-                </p>
-                <button
-                  onClick={handleVerificationStep}
+              <div>
+                <label className="block text-white text-sm font-medium mb-2">
+                  Verification code
+                </label>
+                <input
+                  type="text"
+                  value={formData.otp}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, "").slice(0, 6);
+                    setFormData((prev) => ({ ...prev, otp: value }));
+                  }}
+                  placeholder="123456"
+                  className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors text-sm sm:text-base text-center tracking-wider"
                   disabled={isLoading}
-                  className="w-full h-12 sm:h-14 bg-gradient-to-r from-neon-green to-neon-blue hover:from-neon-green/80 hover:to-neon-blue/80 text-black font-bold text-sm sm:text-lg rounded-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none mb-4"
-                >
-                  {isLoading ? (
-                    <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mx-auto" />
-                  ) : (
-                    "I've verified my email"
-                  )}
-                </button>
+                  maxLength={6}
+                />
+                {errors.otp && (
+                  <p className="text-red-400 text-xs sm:text-sm mt-2 flex items-center">
+                    <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                    {errors.otp}
+                  </p>
+                )}
               </div>
+
+              <button
+                onClick={handleVerificationStep}
+                disabled={isLoading || formData.otp.length !== 6}
+                className="w-full h-12 sm:h-14 bg-gradient-to-r from-neon-green to-neon-blue hover:from-neon-green/80 hover:to-neon-blue/80 text-black font-bold text-sm sm:text-lg rounded-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mx-auto" />
+                ) : (
+                  "Verify Code"
+                )}
+              </button>
 
               <div className="text-center">
                 <p className="text-slate-400 text-xs sm:text-sm mb-2">
-                  Didn't receive the email?
+                  Didn't receive the code?
                 </p>
                 <button
                   onClick={handleResendVerification}
@@ -1086,7 +1269,7 @@ export default function Signup() {
                 >
                   {resendTimer > 0
                     ? `Resend in ${resendTimer}s`
-                    : "Resend email"}
+                    : "Resend code"}
                 </button>
               </div>
             </motion.div>

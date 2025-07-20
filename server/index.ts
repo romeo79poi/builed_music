@@ -47,7 +47,15 @@ import {
 } from "./routes/settings";
 
 // Auth routes
-import { registerUser, checkAvailability, getUsers } from "./routes/auth";
+import {
+  registerUser,
+  checkAvailability,
+  getUsers,
+  sendEmailVerification,
+  verifyEmailCode,
+  completeRegistration,
+  loginUser,
+} from "./routes/auth";
 
 // Phone routes
 import phoneRoutes from "./routes/phone";
@@ -96,6 +104,14 @@ export function createServer() {
   app.post("/api/auth/register", registerUser);
   app.get("/api/auth/check-availability", checkAvailability);
   app.get("/api/auth/users", getUsers); // For demo purposes
+
+  // Email verification routes
+  app.post("/api/auth/send-email-verification", sendEmailVerification);
+  app.post("/api/auth/verify-email", verifyEmailCode);
+  app.post("/api/auth/complete-registration", completeRegistration);
+
+  // Login route
+  app.post("/api/auth/login", loginUser);
 
   // Phone verification API routes
   app.use("/api/phone", phoneRoutes);
