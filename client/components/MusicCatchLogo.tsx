@@ -72,7 +72,7 @@ export function MusicCatchLogo({
     },
   };
 
-    const waveVariants = {
+  const waveVariants = {
     hidden: { scaleX: 0, opacity: 0 },
     visible: {
       scaleX: 1,
@@ -102,7 +102,7 @@ export function MusicCatchLogo({
     },
   };
 
-    return (
+  return (
     <motion.div
       className={`flex items-center justify-center ${className}`}
       variants={blinkMode ? blinkVariants : containerVariants}
@@ -123,7 +123,7 @@ export function MusicCatchLogo({
         {/* Main logo container */}
         <div className="relative w-12 justify-center flex flex-row items-center">
           {/* Animated side dots with pulse effect */}
-                    <motion.div
+          <motion.div
             variants={barVariants}
             className="absolute -left-6 top-1/2 transform -translate-y-1/2 w-1.5 h-1.5 bg-neon-green rounded-full shadow-lg shadow-neon-green/50"
             animate={
@@ -133,13 +133,13 @@ export function MusicCatchLogo({
                     opacity: [0.7, 1, 0.7],
                   }
                 : animated && blinkMode
-                ? {
-                    opacity: [1, 0.1, 1, 0.3, 1, 0.1, 1],
-                    scale: [1, 1.2, 1, 1.1, 1, 1.3, 1],
-                  }
-                : {}
+                  ? {
+                      opacity: [1, 0.1, 1, 0.3, 1, 0.1, 1],
+                      scale: [1, 1.2, 1, 1.1, 1, 1.3, 1],
+                    }
+                  : {}
             }
-                        transition={{
+            transition={{
               duration: blinkMode ? 1.8 : 2,
               repeat: Infinity,
               ease: "easeInOut",
@@ -168,7 +168,7 @@ export function MusicCatchLogo({
 
           {/* Center diamond with enhanced effects */}
           <div className="relative">
-                        <motion.div
+            <motion.div
               variants={diamondVariants}
               className="w-4 h-4 bg-gradient-to-br from-neon-green to-emerald-400 rotate-45 rounded-sm shadow-lg shadow-neon-green/50"
               animate={
@@ -181,18 +181,18 @@ export function MusicCatchLogo({
                       ],
                     }
                   : animated && blinkMode
-                  ? {
-                      opacity: [1, 0.2, 1, 0.4, 1],
-                      scale: [1, 0.9, 1, 0.95, 1],
-                      boxShadow: [
-                        "0 0 15px rgba(60, 221, 116, 0.8)",
-                        "0 0 5px rgba(60, 221, 116, 0.3)",
-                        "0 0 25px rgba(60, 221, 116, 1)",
-                        "0 0 8px rgba(60, 221, 116, 0.4)",
-                        "0 0 15px rgba(60, 221, 116, 0.8)",
-                      ],
-                    }
-                  : {}
+                    ? {
+                        opacity: [1, 0.2, 1, 0.4, 1],
+                        scale: [1, 0.9, 1, 0.95, 1],
+                        boxShadow: [
+                          "0 0 15px rgba(60, 221, 116, 0.8)",
+                          "0 0 5px rgba(60, 221, 116, 0.3)",
+                          "0 0 25px rgba(60, 221, 116, 1)",
+                          "0 0 8px rgba(60, 221, 116, 0.4)",
+                          "0 0 15px rgba(60, 221, 116, 0.8)",
+                        ],
+                      }
+                    : {}
               }
               transition={{
                 duration: blinkMode ? 2 : 3,
@@ -236,7 +236,7 @@ export function MusicCatchLogo({
             />
           </div>
 
-                    <motion.div
+          <motion.div
             variants={barVariants}
             className="absolute -right-6 top-1/2 transform -translate-y-1/2 w-1.5 h-1.5 bg-neon-blue rounded-full shadow-lg shadow-neon-blue/50"
             animate={
@@ -246,13 +246,13 @@ export function MusicCatchLogo({
                     opacity: [0.7, 1, 0.7],
                   }
                 : animated && blinkMode
-                ? {
-                    opacity: [1, 0.2, 1, 0.1, 1, 0.4, 1],
-                    scale: [1, 1.1, 1, 1.3, 1, 1.2, 1],
-                  }
-                : {}
+                  ? {
+                      opacity: [1, 0.2, 1, 0.1, 1, 0.4, 1],
+                      scale: [1, 1.1, 1, 1.3, 1, 1.2, 1],
+                    }
+                  : {}
             }
-                        transition={{
+            transition={{
               duration: blinkMode ? 1.8 : 2,
               repeat: Infinity,
               ease: "easeInOut",

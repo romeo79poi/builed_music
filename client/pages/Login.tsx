@@ -62,7 +62,7 @@ export default function Login() {
           transition={{ duration: 0.8 }}
           className="flex justify-center mb-6 sm:mb-8"
         >
-                    <MusicCatchLogo
+          <MusicCatchLogo
             animated={true}
             blinkMode={true}
             className="scale-90 sm:scale-100"
@@ -140,7 +140,7 @@ export default function Login() {
             <label className="block text-white text-sm font-medium mb-2">
               Email
             </label>
-                        <input
+            <input
               type="email,username"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
