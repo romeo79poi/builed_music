@@ -265,7 +265,7 @@ export default function Signup() {
 
         // For development, show OTP in console
         if (result.debugOtp) {
-          console.log(`�� OTP for ${formData.phone}: ${result.debugOtp}`);
+          console.log(`📱 OTP for ${formData.phone}: ${result.debugOtp}`);
         }
       } else {
         toast({
@@ -662,10 +662,10 @@ export default function Signup() {
           transition={{ delay: 0.4, duration: 0.8 }}
           className="mb-6"
         >
-          <button
+                    <button
             onClick={handleGoogleSignup}
             disabled={isLoading}
-            className="w-full h-12 sm:h-14 bg-white hover:bg-gray-50 rounded-lg flex items-center justify-center text-gray-700 font-medium transition-colors border border-gray-300 disabled:opacity-50"
+            className="w-full h-12 sm:h-14 bg-slate-800/70 hover:bg-slate-700/70 rounded-lg flex items-center justify-center text-white font-medium transition-colors border border-slate-600 disabled:opacity-50"
           >
             {isLoading ? (
               <Loader2 className="w-5 h-5 animate-spin" />
