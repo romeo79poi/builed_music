@@ -16,6 +16,14 @@ export const signUpWithEmailAndPassword = async (
   name: string
 ): Promise<{ success: boolean; user?: User; error?: string }> => {
   try {
+    // Check if Firebase is configured
+    if (!isFirebaseConfigured || !auth || !db) {
+      return {
+        success: false,
+        error: "Firebase is not configured. Please add Firebase environment variables."
+      };
+    }
+
     // Create user with Firebase Auth (no recaptcha)
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
