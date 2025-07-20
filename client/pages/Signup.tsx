@@ -611,34 +611,7 @@ export default function Signup() {
           </h2>
         </motion.div>
 
-        {/* Progress indicator */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.8 }}
-          className="flex justify-center mb-6 sm:mb-8"
-        >
-          <div className="flex space-x-2">
-            {(signupMethod === "phone"
-              ? ["method", "phone", "phone-verify", "profile"]
-              : ["method", "email", "verification", "profile", "password"]
-            ).map((step, index) => {
-              const currentStepIndex =
-                Object.keys(stepTitles).indexOf(currentStep);
-              const stepIndex = Object.keys(stepTitles).indexOf(step);
-              return (
-                <div
-                  key={step}
-                  className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition-colors ${
-                    stepIndex <= currentStepIndex
-                      ? "bg-neon-green"
-                      : "bg-slate-700"
-                  }`}
-                />
-              );
-            })}
-          </div>
-        </motion.div>
+        
 
         <AnimatePresence mode="wait">
           {/* Method Selection Step */}
