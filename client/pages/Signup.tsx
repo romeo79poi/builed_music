@@ -317,69 +317,45 @@ export default function Signup() {
     }
   };
 
-  // Google signup handler
+    // Google signup handler
   const handleGoogleSignup = async () => {
     setIsLoading(true);
 
     try {
-      // Simulate Google OAuth flow
-      console.log("🔍 Initiating Google OAuth flow...");
+      const result = await signInWithGoogle();
 
-      // In a real implementation, you would:
-      // 1. Redirect to Google OAuth
-      // 2. Get user info from Google
-      // 3. Send to your backend
+      if (result.success && result.user) {
+        const message = result.isNewUser
+          ? `Welcome to Music Catch, ${result.user.displayName}!`
+          : `Welcome back, ${result.user.displayName}!`;
 
-      // Simulating the flow for demo
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // Mock Google user data
-      const googleUserData = {
-        email: "user@gmail.com",
-        name: "John Doe",
-        username: "johndoe" + Math.floor(Math.random() * 1000),
-        provider: "google",
-        isVerified: true,
-      };
-
-      // Send to backend
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...googleUserData,
-          password: "google-oauth-" + Math.random().toString(36).slice(-8),
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
         toast({
-          title: "Google signup successful! 🎉",
-          description: `Welcome to Music Catch, ${data.user.name}!`,
+          title: "Google sign-in successful! 🎉",
+          description: message,
         });
 
-        console.log("✅ Google user created in backend:", data.user);
-        console.log("📊 Google signup data flow:", {
-          google: googleUserData,
-          backend: data.user,
-          matched: true,
+        console.log("✅ Google authentication successful:", {
+          user: result.user,
+          isNewUser: result.isNewUser,
+          email: result.user.email,
+          displayName: result.user.displayName,
         });
 
         setTimeout(() => {
-          navigate("/login");
-        }, 2000);
+          navigate("/profile");
+        }, 1500);
       } else {
-        throw new Error(data.message || "Google signup failed");
+        toast({
+          title: "Google sign-in failed",
+          description: result.error || "Failed to connect with Google. Please try again.",
+          variant: "destructive",
+        });
       }
     } catch (error) {
       console.error("Google signup error:", error);
       toast({
-        title: "Google signup failed",
-        description: "Failed to connect with Google. Please try again.",
+        title: "Google sign-in failed",
+        description: "Network error. Please try again.",
         variant: "destructive",
       });
     } finally {
