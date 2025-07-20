@@ -61,5 +61,5 @@ if (missingEnvVars.length > 0) {
   db = getFirestore(app);
 }
 
-export { auth };
+export { auth, db };
 export default app;
