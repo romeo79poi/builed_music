@@ -85,7 +85,7 @@ export function MusicCatchLogo({
     },
   };
 
-    return (
+  return (
     <motion.div
       className={`flex items-center justify-center ${className}`}
       variants={containerVariants}
@@ -109,14 +109,18 @@ export function MusicCatchLogo({
           <motion.div
             variants={barVariants}
             className="absolute -left-6 top-1/2 transform -translate-y-1/2 w-1.5 h-1.5 bg-neon-green rounded-full shadow-lg shadow-neon-green/50"
-            animate={animated && signupMode ? {
-              scale: [1, 1.5, 1],
-              opacity: [0.7, 1, 0.7],
-            } : {}}
+            animate={
+              animated && signupMode
+                ? {
+                    scale: [1, 1.5, 1],
+                    opacity: [0.7, 1, 0.7],
+                  }
+                : {}
+            }
             transition={{
               duration: 2,
               repeat: Infinity,
-              ease: "easeInOut"
+              ease: "easeInOut",
             }}
           />
 
@@ -144,17 +148,21 @@ export function MusicCatchLogo({
             <motion.div
               variants={diamondVariants}
               className="w-4 h-4 bg-gradient-to-br from-neon-green to-emerald-400 rotate-45 rounded-sm shadow-lg shadow-neon-green/50"
-              animate={animated && signupMode ? {
-                boxShadow: [
-                  "0 0 10px rgba(60, 221, 116, 0.5)",
-                  "0 0 20px rgba(60, 221, 116, 0.8)",
-                  "0 0 10px rgba(60, 221, 116, 0.5)"
-                ]
-              } : {}}
+              animate={
+                animated && signupMode
+                  ? {
+                      boxShadow: [
+                        "0 0 10px rgba(60, 221, 116, 0.5)",
+                        "0 0 20px rgba(60, 221, 116, 0.8)",
+                        "0 0 10px rgba(60, 221, 116, 0.5)",
+                      ],
+                    }
+                  : {}
+              }
               transition={{
                 duration: 3,
                 repeat: Infinity,
-                ease: "easeInOut"
+                ease: "easeInOut",
               }}
             />
 
@@ -195,15 +203,19 @@ export function MusicCatchLogo({
           <motion.div
             variants={barVariants}
             className="absolute -right-6 top-1/2 transform -translate-y-1/2 w-1.5 h-1.5 bg-neon-blue rounded-full shadow-lg shadow-neon-blue/50"
-            animate={animated && signupMode ? {
-              scale: [1, 1.5, 1],
-              opacity: [0.7, 1, 0.7],
-            } : {}}
+            animate={
+              animated && signupMode
+                ? {
+                    scale: [1, 1.5, 1],
+                    opacity: [0.7, 1, 0.7],
+                  }
+                : {}
+            }
             transition={{
               duration: 2,
               repeat: Infinity,
               ease: "easeInOut",
-              delay: 1
+              delay: 1,
             }}
           />
         </div>

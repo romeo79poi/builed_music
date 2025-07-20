@@ -17,9 +17,10 @@ const missingEnvVars = requiredEnvVars.filter(
 );
 
 // Check if we're using demo/development credentials
-const isDemoConfig = import.meta.env.VITE_FIREBASE_API_KEY?.includes("Demo") ||
-                     import.meta.env.VITE_FIREBASE_API_KEY?.includes("demo") ||
-                     import.meta.env.VITE_FIREBASE_PROJECT_ID?.includes("dev");
+const isDemoConfig =
+  import.meta.env.VITE_FIREBASE_API_KEY?.includes("Demo") ||
+  import.meta.env.VITE_FIREBASE_API_KEY?.includes("demo") ||
+  import.meta.env.VITE_FIREBASE_PROJECT_ID?.includes("dev");
 
 let app: any = null;
 let auth: any = null;
@@ -67,5 +68,6 @@ if (missingEnvVars.length > 0 || isDemoConfig) {
 }
 
 export { auth, db };
-export const isFirebaseConfigured = missingEnvVars.length === 0 && !isDemoConfig && app !== null;
+export const isFirebaseConfigured =
+  missingEnvVars.length === 0 && !isDemoConfig && app !== null;
 export default app;

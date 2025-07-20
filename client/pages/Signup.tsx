@@ -318,7 +318,7 @@ export default function Signup() {
     }
   };
 
-    // Google signup handler
+  // Google signup handler
   const handleGoogleSignup = async () => {
     setIsLoading(true);
     console.log("🚀 Starting Google sign-up process...");
@@ -330,7 +330,7 @@ export default function Signup() {
         success: result.success,
         hasUser: !!result.user,
         isNewUser: result.isNewUser,
-        error: result.error
+        error: result.error,
       });
 
       if (result.success && result.user) {
@@ -339,7 +339,8 @@ export default function Signup() {
           throw new Error("Google account must have a valid email address");
         }
 
-        const displayName = result.user.displayName || result.user.email?.split('@')[0] || "User";
+        const displayName =
+          result.user.displayName || result.user.email?.split("@")[0] || "User";
         const message = result.isNewUser
           ? `Welcome to Music Catch, ${displayName}!`
           : `Welcome back, ${displayName}!`;
@@ -354,7 +355,7 @@ export default function Signup() {
           email: result.user.email,
           displayName: result.user.displayName,
           isNewUser: result.isNewUser,
-          emailVerified: result.user.emailVerified
+          emailVerified: result.user.emailVerified,
         });
 
         // Navigate after a short delay to show success message
@@ -366,7 +367,8 @@ export default function Signup() {
 
         toast({
           title: "Google sign-in failed",
-          description: result.error || "Unable to sign in with Google. Please try again.",
+          description:
+            result.error || "Unable to sign in with Google. Please try again.",
           variant: "destructive",
         });
       }
@@ -379,7 +381,8 @@ export default function Signup() {
       } else if (error.message?.includes("network")) {
         errorMessage = "Network error. Please check your connection.";
       } else if (error.message?.includes("popup")) {
-        errorMessage = "Sign-in popup was blocked. Please allow popups and try again.";
+        errorMessage =
+          "Sign-in popup was blocked. Please allow popups and try again.";
       } else if (error.message) {
         errorMessage = error.message;
       }
@@ -620,7 +623,7 @@ export default function Signup() {
           transition={{ duration: 0.8 }}
           className="text-center mb-6 sm:mb-8"
         >
-                    <div className="flex justify-center mb-3 sm:mb-4">
+          <div className="flex justify-center mb-3 sm:mb-4">
             <MusicCatchLogo
               animated={true}
               signupMode={true}
@@ -635,7 +638,7 @@ export default function Signup() {
           </h2>
         </motion.div>
 
-                        {/* Progress indicator */}
+        {/* Progress indicator */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -690,7 +693,7 @@ export default function Signup() {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-4 sm:space-y-6"
             >
-                            <div className="text-center mb-4 sm:mb-6">
+              <div className="text-center mb-4 sm:mb-6">
                 <h3 className="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">
                   {stepTitles.method}
                 </h3>

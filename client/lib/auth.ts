@@ -166,8 +166,8 @@ export const signInWithGoogle = async (): Promise<{
   error?: string;
   isNewUser?: boolean;
 }> => {
-    try {
-        // Check if Firebase is configured
+  try {
+    // Check if Firebase is configured
     if (!isFirebaseConfigured || !auth || !db) {
       // Provide development mode simulation
       console.warn("🔧 Development mode: Simulating Google sign-in");
@@ -186,20 +186,20 @@ export const signInWithGoogle = async (): Promise<{
       return {
         success: true,
         user: mockUser,
-        isNewUser: true
+        isNewUser: true,
       };
     }
 
-        try {
+    try {
       const provider = new GoogleAuthProvider();
 
       // Add required scopes for Google sign-in
-      provider.addScope('email');
-      provider.addScope('profile');
+      provider.addScope("email");
+      provider.addScope("profile");
 
       // Set custom parameters to ensure we get verified accounts
       provider.setCustomParameters({
-        prompt: 'select_account'
+        prompt: "select_account",
       });
 
       console.log("🔗 Initiating Google sign-in popup...");
@@ -219,7 +219,7 @@ export const signInWithGoogle = async (): Promise<{
         uid: user.uid,
         email: user.email,
         displayName: user.displayName,
-        emailVerified: user.emailVerified
+        emailVerified: user.emailVerified,
       });
 
       // Check if user exists in Firestore
@@ -281,12 +281,13 @@ export const signInWithGoogle = async (): Promise<{
 
     let errorMessage = "An error occurred during Google sign-in";
 
-        switch (error.code) {
+    switch (error.code) {
       case "auth/popup-closed-by-user":
         errorMessage = "Sign-in cancelled by user";
         break;
       case "auth/popup-blocked":
-        errorMessage = "Sign-in popup was blocked by your browser. Please allow popups and try again.";
+        errorMessage =
+          "Sign-in popup was blocked by your browser. Please allow popups and try again.";
         break;
       case "auth/cancelled-popup-request":
         errorMessage = "Sign-in was cancelled";
@@ -298,7 +299,8 @@ export const signInWithGoogle = async (): Promise<{
         errorMessage = "This domain is not authorized for Google sign-in";
         break;
       case "auth/account-exists-with-different-credential":
-        errorMessage = "An account already exists with the same email address but different sign-in credentials";
+        errorMessage =
+          "An account already exists with the same email address but different sign-in credentials";
         break;
       case "auth/invalid-credential":
         errorMessage = "The provided Google credential is invalid or expired";
@@ -310,15 +312,19 @@ export const signInWithGoogle = async (): Promise<{
         errorMessage = "No account found with this Google account";
         break;
       case "auth/email-already-in-use":
-        errorMessage = "This email is already registered with a different sign-in method";
+        errorMessage =
+          "This email is already registered with a different sign-in method";
         break;
       default:
         if (error.message?.includes("No email address")) {
           errorMessage = "Google account must have a valid email address";
         } else if (error.message?.includes("network")) {
-          errorMessage = "Network error. Please check your connection and try again.";
+          errorMessage =
+            "Network error. Please check your connection and try again.";
         } else {
-          errorMessage = error.message || "An unexpected error occurred during Google sign-in";
+          errorMessage =
+            error.message ||
+            "An unexpected error occurred during Google sign-in";
         }
     }
 
