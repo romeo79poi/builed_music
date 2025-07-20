@@ -408,21 +408,60 @@ export default function Signup() {
     }
   };
 
-    const handleEmailStep = async () => {
+      const handleEmailStep = async () => {
     if (!validateEmail(formData.email)) return;
 
     setIsLoading(true);
-    await checkAvailability("email", formData.email);
-    setIsLoading(false);
 
-    if (availability.email !== false) {
-      setCurrentStep("verification");
-      // Simulate sending verification email
-      toast({
-        title: "Verification code sent!",
-        description: "Please check your email for the 6-digit verification code.",
+    try {
+      // Check email availability first
+      await checkAvailability("email", formData.email);
+
+      if (availability.email === false) {
+        setIsLoading(false);
+        return;
+      }
+
+      // Send email verification code
+      const response = await fetch("/api/auth/send-email-verification", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: formData.email }),
       });
-      setResendTimer(60);
+
+      const data = await response.json();
+
+      if (data.success) {
+        setCurrentStep("verification");
+        toast({
+          title: "Verification code sent!",
+          description: "Please check your email for the 6-digit verification code.",
+        });
+
+        // For development, show code in console
+        if (data.debugCode) {
+          console.log(`📧 Email verification code: ${data.debugCode}`);
+        }
+
+        setResendTimer(60);
+      } else {
+        toast({
+          title: "Failed to send verification code",
+          description: data.message || "Please try again",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Email verification error:", error);
+      toast({
+        title: "Network error",
+        description: "Please check your connection and try again",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -456,16 +495,53 @@ export default function Signup() {
     }
   };
 
-    const handleVerificationStep = () => {
+      const handleVerificationStep = async () => {
     if (!validateOTP(formData.otp)) return;
 
     if (signupMethod === "email") {
-      // Simulate email verification
-      toast({
-        title: "Email verified!",
-        description: "Your email has been successfully verified.",
-      });
-      setCurrentStep("profile");
+      setIsLoading(true);
+
+      try {
+        // Verify email code with backend
+        const response = await fetch("/api/auth/verify-email", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: formData.email,
+            code: formData.otp
+          }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          toast({
+            title: "Email verified!",
+            description: "Your email has been successfully verified.",
+          });
+          setCurrentStep("profile");
+        } else {
+          setErrors((prev) => ({ ...prev, otp: data.message }));
+
+          if (data.attemptsRemaining !== undefined) {
+            toast({
+              title: "Invalid code",
+              description: `${data.attemptsRemaining} attempts remaining`,
+              variant: "destructive",
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Email verification error:", error);
+        setErrors((prev) => ({
+          ...prev,
+          otp: "Verification failed. Please try again."
+        }));
+      } finally {
+        setIsLoading(false);
+      }
     } else {
       setCurrentStep("password");
     }
@@ -576,14 +652,51 @@ export default function Signup() {
     }
   };
 
-    const handleResendVerification = () => {
+      const handleResendVerification = async () => {
     if (resendTimer > 0) return;
 
-    toast({
-      title: "Verification code resent!",
-      description: "Please check your email for the new 6-digit verification code.",
-    });
-    setResendTimer(60);
+    setIsLoading(true);
+
+    try {
+      const response = await fetch("/api/auth/send-email-verification", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: formData.email }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        toast({
+          title: "Verification code resent!",
+          description: "Please check your email for the new 6-digit verification code.",
+        });
+
+        // For development, show code in console
+        if (data.debugCode) {
+          console.log(`📧 Resent email verification code: ${data.debugCode}`);
+        }
+
+        setResendTimer(60);
+      } else {
+        toast({
+          title: "Failed to resend code",
+          description: data.message || "Please try again",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Resend verification error:", error);
+      toast({
+        title: "Network error",
+        description: "Please check your connection and try again",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   // Timer for resend functionality
