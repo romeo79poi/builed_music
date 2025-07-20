@@ -109,6 +109,14 @@ export const loginWithEmailAndPassword = async (
 
 export const signInWithGoogle = async (): Promise<{ success: boolean; user?: User; error?: string; isNewUser?: boolean }> => {
   try {
+    // Check if Firebase is configured
+    if (!isFirebaseConfigured || !auth || !db) {
+      return {
+        success: false,
+        error: "Firebase is not configured. Please add Firebase environment variables."
+      };
+    }
+
     const provider = new GoogleAuthProvider();
     const result = await signInWithPopup(auth, provider);
     const user = result.user;
