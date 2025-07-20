@@ -34,10 +34,22 @@ import {
   WifiOff,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useMusicContext } from "../context/MusicContext";
+import { useProfileContext } from "../context/ProfileContext";
+import { useToast } from "../hooks/use-toast";
 
 export default function Player() {
   const navigate = useNavigate();
-  const [isPlaying, setIsPlaying] = useState(true);
+  const {
+    currentSong,
+    isPlaying,
+    togglePlay,
+    setCurrentSong,
+    queue,
+    setQueue,
+  } = useMusicContext();
+  const { profile, toggleLikedSong } = useProfileContext();
+  const { toast } = useToast();
   const [isLiked, setIsLiked] = useState(false);
   const [isShuffle, setIsShuffle] = useState(false);
   const [repeatMode, setRepeatMode] = useState(0); // 0: off, 1: all, 2: one
@@ -53,6 +65,8 @@ export default function Player() {
   const [isOffline, setIsOffline] = useState(false);
   const [audioQuality, setAudioQuality] = useState("High");
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [recommendations, setRecommendations] = useState([]);
+  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
 
   // Equalizer bands
   const [eqBands, setEqBands] = useState([0, 0, 0, 0, 0, 0, 0, 0]);
@@ -66,43 +80,6 @@ export default function Player() {
     "6kHz",
     "12kHz",
   ];
-
-  // Queue management
-  const [queue, setQueue] = useState([
-    {
-      id: 1,
-      title: "Blinding Lights",
-      artist: "The Weeknd",
-      album: "After Hours",
-      duration: "3:20",
-      image:
-        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop",
-      isLiked: true,
-    },
-    {
-      id: 2,
-      title: "Watermelon Sugar",
-      artist: "Harry Styles",
-      album: "Fine Line",
-      duration: "2:54",
-      image:
-        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop",
-      isLiked: false,
-    },
-    {
-      id: 3,
-      title: "Levitating",
-      artist: "Dua Lipa",
-      album: "Future Nostalgia",
-      duration: "3:23",
-      image:
-        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
-      isLiked: true,
-    },
-  ]);
-
-  const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
-  const currentTrack = queue[currentTrackIndex];
 
   // Lyrics data
   const lyrics = [
@@ -146,15 +123,20 @@ export default function Player() {
   };
 
   const handlePrevious = () => {
-    if (currentTrackIndex > 0) {
-      setCurrentTrackIndex(currentTrackIndex - 1);
+    const currentIndex = queue.findIndex((song) => song.id === currentSong?.id);
+    if (currentIndex > 0) {
+      setCurrentSong(queue[currentIndex - 1]);
       setCurrentTime(0);
     }
   };
 
   const handleNext = () => {
-    if (currentTrackIndex < queue.length - 1) {
-      setCurrentTrackIndex(currentTrackIndex + 1);
+    const currentIndex = queue.findIndex((song) => song.id === currentSong?.id);
+    if (currentIndex < queue.length - 1) {
+      setCurrentSong(queue[currentIndex + 1]);
+      setCurrentTime(0);
+    } else if (recommendations.length > 0) {
+      setCurrentSong(recommendations[0]);
       setCurrentTime(0);
     }
   };
@@ -272,7 +254,10 @@ export default function Player() {
                 <div className="w-80 h-80 bg-gradient-to-br from-neon-green to-neon-blue rounded-3xl p-1">
                   <div className="w-full h-full bg-gray-800 rounded-3xl overflow-hidden">
                     <img
-                      src={currentTrack.image}
+                      src={
+                        currentSong?.image ||
+                        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop"
+                      }
                       alt="Album Art"
                       className="w-full h-full object-cover"
                     />
@@ -304,9 +289,15 @@ export default function Player() {
               transition={{ delay: 0.4 }}
               className="px-8 text-center"
             >
-              <h2 className="text-2xl font-bold mb-2">{currentTrack.title}</h2>
-              <p className="text-gray-400 text-lg">{currentTrack.artist}</p>
-              <p className="text-gray-500 text-sm">{currentTrack.album}</p>
+              <h2 className="text-2xl font-bold mb-2">
+                {currentSong?.title || "No Song Selected"}
+              </h2>
+              <p className="text-gray-400 text-lg">
+                {currentSong?.artist || "Unknown Artist"}
+              </p>
+              <p className="text-gray-500 text-sm">
+                {currentSong?.album || "Unknown Album"}
+              </p>
             </motion.div>
 
             {/* Lyrics Display */}
@@ -369,13 +360,15 @@ export default function Player() {
                 <button
                   onClick={handlePrevious}
                   className="p-4 text-white hover:text-neon-green transition-colors"
-                  disabled={currentTrackIndex === 0}
+                  disabled={
+                    queue.findIndex((song) => song.id === currentSong?.id) === 0
+                  }
                 >
                   <SkipBack className="w-8 h-8" />
                 </button>
 
                 <button
-                  onClick={() => setIsPlaying(!isPlaying)}
+                  onClick={togglePlay}
                   className="w-20 h-20 bg-gradient-to-r from-neon-green to-neon-blue rounded-full flex items-center justify-center hover:scale-105 transition-transform"
                 >
                   {isPlaying ? (
@@ -388,7 +381,7 @@ export default function Player() {
                 <button
                   onClick={handleNext}
                   className="p-4 text-white hover:text-neon-green transition-colors"
-                  disabled={currentTrackIndex === queue.length - 1}
+                  disabled={false}
                 >
                   <SkipForward className="w-8 h-8" />
                 </button>
@@ -563,9 +556,9 @@ export default function Player() {
                   {queue.map((track, index) => (
                     <div
                       key={track.id}
-                      onClick={() => setCurrentTrackIndex(index)}
+                      onClick={() => setCurrentSong(track)}
                       className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition-colors ${
-                        index === currentTrackIndex
+                        track.id === currentSong?.id
                           ? "bg-neon-green/20 border border-neon-green/30"
                           : "hover:bg-white/10"
                       }`}
@@ -584,7 +577,7 @@ export default function Player() {
                         </p>
                       </div>
                       <div className="flex items-center space-x-2">
-                        {track.isLiked && (
+                        {profile.likedSongs?.includes(track.id.toString()) && (
                           <Heart className="w-3 h-3 text-red-500 fill-current" />
                         )}
                         <span className="text-xs text-gray-400">

@@ -159,6 +159,10 @@ export default function Profile() {
     }
   };
 
+  const handleViewAnalytics = () => {
+    navigate("/settings");
+  };
+
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
       {/* Background Glow Effects */}

@@ -12,20 +12,31 @@ import {
   Library,
   Heart,
   Clock,
+  Loader2,
 } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { MiniPlayer } from "../components/MiniPlayer";
 import { useProfileContext } from "../context/ProfileContext";
+import { useMusicContext } from "../context/MusicContext";
+import { useToast } from "../hooks/use-toast";
 
 export default function HomeScreen() {
   const navigate = useNavigate();
   const { profile } = useProfileContext();
+  const { currentSong, isPlaying, setCurrentSong, togglePlay } =
+    useMusicContext();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [greeting, setGreeting] = useState("");
-  const [isPlaying, setIsPlaying] = useState(true);
   const [isTopBarVisible, setIsTopBarVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [profileImageError, setProfileImageError] = useState(false);
+  const [trendingSongs, setTrendingSongs] = useState([]);
+  const [featuredPlaylists, setFeaturedPlaylists] = useState([]);
+  const [recommendations, setRecommendations] = useState([]);
+  const [genres, setGenres] = useState([]);
+  const [recentlyPlayed, setRecentlyPlayed] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   const handleSearchClick = () => {
     console.log("Navigating to search page...");
@@ -42,7 +53,92 @@ export default function HomeScreen() {
     if (hour < 12) setGreeting("Good Morning");
     else if (hour < 18) setGreeting("Good Afternoon");
     else setGreeting("Good Evening");
+
+    loadHomeData();
   }, []);
+
+  const loadHomeData = async () => {
+    try {
+      setIsLoading(true);
+
+      // Load all home page data concurrently
+      const [
+        trendingRes,
+        playlistsRes,
+        recommendationsRes,
+        genresRes,
+        recentRes,
+      ] = await Promise.all([
+        fetch("/api/music/trending?limit=6"),
+        fetch("/api/music/playlists/featured?limit=4"),
+        fetch("/api/music/recommendations?limit=4"),
+        fetch("/api/music/genres"),
+        fetch("/api/music/recently-played?limit=6"),
+      ]);
+
+      const [trending, playlists, recs, genresData, recent] = await Promise.all(
+        [
+          trendingRes.json(),
+          playlistsRes.json(),
+          recommendationsRes.json(),
+          genresRes.json(),
+          recentRes.json(),
+        ],
+      );
+
+      if (trending.success) setTrendingSongs(trending.songs);
+      if (playlists.success) setFeaturedPlaylists(playlists.playlists);
+      if (recs.success) setRecommendations(recs.recommendations);
+      if (genresData.success) setGenres(genresData.genres);
+      if (recent.success) setRecentlyPlayed(recent.recentlyPlayed);
+    } catch (error) {
+      console.error("Failed to load home data:", error);
+      toast({
+        title: "Error",
+        description: "Failed to load content. Using offline data.",
+        variant: "destructive",
+      });
+
+      // Fallback to static data if API fails
+      loadFallbackData();
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadFallbackData = () => {
+    // Fallback to existing static data structure
+    setTrendingSongs(recentlyPlayedFallback);
+    setFeaturedPlaylists(topMixesFallback);
+    setRecommendations(recommendationsFallback);
+    setGenres(genresFallback);
+    setRecentlyPlayed(recentlyPlayedFallback);
+  };
+
+  const handlePlaySong = async (song: any) => {
+    try {
+      // Track the play in backend
+      await fetch(`/api/music/play/${song.id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: profile.id }),
+      });
+
+      if (currentSong?.id === song.id) {
+        togglePlay();
+      } else {
+        setCurrentSong(song);
+      }
+    } catch (error) {
+      console.error("Failed to play song:", error);
+      // Still allow playing even if tracking fails
+      if (currentSong?.id === song.id) {
+        togglePlay();
+      } else {
+        setCurrentSong(song);
+      }
+    }
+  };
 
   // Reset image error when profile picture changes
   useEffect(() => {
@@ -68,14 +164,16 @@ export default function HomeScreen() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
 
-  const recentlyPlayed = [
+  // Fallback data in case API fails
+  const recentlyPlayedFallback = [
     {
       id: 1,
       title: "Blinding Lights",
       artist: "The Weeknd",
       image:
         "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
-      isPlaying: false,
+      duration: "3:20",
+      plays: 45672,
     },
     {
       id: 2,
@@ -83,7 +181,8 @@ export default function HomeScreen() {
       artist: "Harry Styles",
       image:
         "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop",
-      isPlaying: true,
+      duration: "2:54",
+      plays: 38934,
     },
     {
       id: 3,
@@ -91,66 +190,31 @@ export default function HomeScreen() {
       artist: "Dua Lipa",
       image:
         "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop",
-      isPlaying: false,
-    },
-    {
-      id: 4,
-      title: "Good 4 U",
-      artist: "Olivia Rodrigo",
-      image:
-        "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop",
-      isPlaying: false,
-    },
-    {
-      id: 5,
-      title: "Stay",
-      artist: "The Kid LAROI",
-      image:
-        "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&h=300&fit=crop",
-      isPlaying: false,
-    },
-    {
-      id: 6,
-      title: "Heat Waves",
-      artist: "Glass Animals",
-      image:
-        "https://images.unsplash.com/photo-1571974599782-87624638275c?w=300&h=300&fit=crop",
-      isPlaying: false,
+      duration: "3:23",
+      plays: 42156,
     },
   ];
 
-  const topMixes = [
+  const topMixesFallback = [
     {
       id: 1,
-      title: "Daily Mix 1",
+      name: "Daily Mix 1",
       description: "The Weeknd, Dua Lipa, Harry Styles and more",
       image:
         "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
+      songs: [],
     },
     {
       id: 2,
-      title: "Daily Mix 2",
+      name: "Daily Mix 2",
       description: "Pop hits you can't stop playing",
       image:
         "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop",
-    },
-    {
-      id: 3,
-      title: "Discover Weekly",
-      description: "Your weekly mixtape of fresh music",
-      image:
-        "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=300&h=300&fit=crop",
-    },
-    {
-      id: 4,
-      title: "Release Radar",
-      description: "Catch all the latest music from artists you follow",
-      image:
-        "https://images.unsplash.com/photo-1571974599782-87624638275c?w=300&h=300&fit=crop",
+      songs: [],
     },
   ];
 
-  const recommendations = [
+  const recommendationsFallback = [
     {
       id: 1,
       title: "Anti-Hero",
@@ -169,35 +233,13 @@ export default function HomeScreen() {
         "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop",
       duration: "3:20",
     },
-    {
-      id: 3,
-      title: "Unholy",
-      artist: "Sam Smith",
-      album: "Gloria",
-      image:
-        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop",
-      duration: "2:36",
-    },
-    {
-      id: 4,
-      title: "As It Was",
-      artist: "Harry Styles",
-      album: "Harry's House",
-      image:
-        "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop",
-      duration: "2:47",
-    },
   ];
 
-  const genres = [
+  const genresFallback = [
     { id: 1, name: "Pop", color: "from-pink-500 to-purple-600" },
     { id: 2, name: "Hip-Hop", color: "from-orange-500 to-red-600" },
     { id: 3, name: "Rock", color: "from-gray-600 to-gray-800" },
     { id: 4, name: "Electronic", color: "from-blue-500 to-cyan-600" },
-    { id: 5, name: "Jazz", color: "from-yellow-500 to-orange-600" },
-    { id: 6, name: "Classical", color: "from-indigo-500 to-purple-600" },
-    { id: 7, name: "R&B", color: "from-green-500 to-teal-600" },
-    { id: 8, name: "Country", color: "from-amber-500 to-yellow-600" },
   ];
 
   return (
@@ -296,6 +338,14 @@ export default function HomeScreen() {
         {/* Main Content */}
         <div className="flex-1 overflow-y-auto pb-24">
           <div className="p-4 md:p-6 space-y-8">
+            {isLoading && (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="w-8 h-8 text-neon-green animate-spin" />
+                <span className="ml-2 text-gray-400">
+                  Loading your music...
+                </span>
+              </div>
+            )}
             {/* Greeting */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -324,7 +374,7 @@ export default function HomeScreen() {
               </div>
               <div className="flex overflow-x-auto space-x-4 pb-4 scrollbar-hide">
                 {recentlyPlayed.map((item) => (
-                  <Link to="/player" key={item.id} className="flex-shrink-0">
+                  <div key={item.id} className="flex-shrink-0">
                     <div className="group relative w-40 bg-white/5 rounded-lg p-4 hover:bg-white/10 transition-all cursor-pointer">
                       <div className="relative mb-3">
                         <img
@@ -336,11 +386,11 @@ export default function HomeScreen() {
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            setIsPlaying(!isPlaying);
+                            handlePlaySong(item);
                           }}
                           className="absolute bottom-2 right-2 w-10 h-10 bg-neon-green rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all"
                         >
-                          {item.isPlaying ? (
+                          {currentSong?.id === item.id && isPlaying ? (
                             <Pause className="w-5 h-5 text-black" />
                           ) : (
                             <Play className="w-5 h-5 text-black ml-0.5" />
@@ -354,7 +404,7 @@ export default function HomeScreen() {
                         {item.artist}
                       </p>
                     </div>
-                  </Link>
+                  </div>
                 ))}
               </div>
             </motion.section>
@@ -374,29 +424,33 @@ export default function HomeScreen() {
                 </button>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {topMixes.map((mix) => (
-                  <Link to="/player" key={mix.id}>
+                {featuredPlaylists.map((playlist) => (
+                  <Link to={`/playlist/${playlist.id}`} key={playlist.id}>
                     <div className="group bg-white/5 rounded-lg p-4 hover:bg-white/10 transition-all cursor-pointer">
                       <div className="relative mb-3">
                         <img
-                          src={mix.image}
-                          alt={mix.title}
+                          src={playlist.image}
+                          alt={playlist.name}
                           className="w-full aspect-square object-cover rounded-md"
                         />
                         <button
                           onClick={(e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            setIsPlaying(true);
+                            if (playlist.songs && playlist.songs.length > 0) {
+                              handlePlaySong(playlist.songs[0]);
+                            }
                           }}
                           className="absolute bottom-2 right-2 w-10 h-10 bg-neon-green rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all"
                         >
                           <Play className="w-5 h-5 text-black ml-0.5" />
                         </button>
                       </div>
-                      <h3 className="font-medium text-sm mb-1">{mix.title}</h3>
+                      <h3 className="font-medium text-sm mb-1">
+                        {playlist.name}
+                      </h3>
                       <p className="text-gray-400 text-xs line-clamp-2">
-                        {mix.description}
+                        {playlist.description}
                       </p>
                     </div>
                   </Link>
@@ -420,46 +474,52 @@ export default function HomeScreen() {
               </div>
               <div className="space-y-2">
                 {recommendations.map((song, index) => (
-                  <Link to="/player" key={song.id}>
-                    <div className="flex items-center space-x-3 p-2 rounded-lg hover:bg-white/5 transition-all group cursor-pointer">
-                      <div className="relative flex-shrink-0">
-                        <img
-                          src={song.image}
-                          alt={song.title}
-                          className="w-12 h-12 object-cover rounded"
-                        />
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            setIsPlaying(true);
-                          }}
-                          className="absolute inset-0 bg-black/60 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
+                  <div
+                    key={song.id}
+                    className="flex items-center space-x-3 p-2 rounded-lg hover:bg-white/5 transition-all group cursor-pointer"
+                    onClick={() => handlePlaySong(song)}
+                  >
+                    <div className="relative flex-shrink-0">
+                      <img
+                        src={song.image}
+                        alt={song.title}
+                        className="w-12 h-12 object-cover rounded"
+                      />
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          handlePlaySong(song);
+                        }}
+                        className="absolute inset-0 bg-black/60 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        {currentSong?.id === song.id && isPlaying ? (
+                          <Pause className="w-5 h-5 text-white" />
+                        ) : (
                           <Play className="w-5 h-5 text-white ml-0.5" />
-                        </button>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="font-medium text-sm truncate">
-                          {song.title}
-                        </h3>
-                        <p className="text-gray-400 text-xs truncate">
-                          {song.artist}
-                        </p>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <button className="opacity-0 group-hover:opacity-100 transition-opacity">
-                          <Heart className="w-4 h-4 text-gray-400 hover:text-neon-green" />
-                        </button>
-                        <span className="text-gray-400 text-xs">
-                          {song.duration}
-                        </span>
-                        <button className="opacity-0 group-hover:opacity-100 transition-opacity">
-                          <MoreHorizontal className="w-4 h-4 text-gray-400 hover:text-white" />
-                        </button>
-                      </div>
+                        )}
+                      </button>
                     </div>
-                  </Link>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-sm truncate">
+                        {song.title}
+                      </h3>
+                      <p className="text-gray-400 text-xs truncate">
+                        {song.artist}
+                      </p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <button className="opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Heart className="w-4 h-4 text-gray-400 hover:text-neon-green" />
+                      </button>
+                      <span className="text-gray-400 text-xs">
+                        {song.duration}
+                      </span>
+                      <button className="opacity-0 group-hover:opacity-100 transition-opacity">
+                        <MoreHorizontal className="w-4 h-4 text-gray-400 hover:text-white" />
+                      </button>
+                    </div>
+                  </div>
                 ))}
               </div>
             </motion.section>
@@ -478,7 +538,10 @@ export default function HomeScreen() {
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {genres.map((genre) => (
-                  <Link to="/search" key={genre.id}>
+                  <Link
+                    to={`/search?genre=${genre.name.toLowerCase()}`}
+                    key={genre.id}
+                  >
                     <div
                       className={`bg-gradient-to-br ${genre.color} rounded-lg p-4 h-24 flex items-end cursor-pointer hover:scale-105 transition-transform`}
                     >
@@ -494,10 +557,7 @@ export default function HomeScreen() {
         </div>
 
         {/* Mini Player */}
-        <MiniPlayer
-          isPlaying={isPlaying}
-          onTogglePlay={() => setIsPlaying(!isPlaying)}
-        />
+        <MiniPlayer isPlaying={isPlaying} onTogglePlay={togglePlay} />
 
         {/* Bottom Navigation */}
         <div className="fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur-sm border-t border-white/10 px-4 py-2 z-20">

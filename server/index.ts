@@ -49,6 +49,34 @@ import {
 // Auth routes
 import { registerUser, checkAvailability, getUsers } from "./routes/auth";
 
+// Phone routes
+import phoneRoutes from "./routes/phone";
+
+// Music routes
+import {
+  getTrendingSongs,
+  searchMusic,
+  getSongById,
+  getArtistById,
+  getFeaturedPlaylists,
+  getPlaylistById,
+  getGenres,
+  getSongsByGenre,
+  getRecommendations,
+  getRecentlyPlayed as getMusicRecentlyPlayed,
+  playSong,
+} from "./routes/music";
+
+// Analytics routes
+import {
+  getUserAnalytics,
+  getListeningHistory,
+  getEngagementMetrics,
+  getRecommendationAnalytics,
+  exportAnalytics,
+  getSocialAnalytics,
+} from "./routes/analytics";
+
 export function createServer() {
   const app = express();
 
@@ -68,6 +96,9 @@ export function createServer() {
   app.post("/api/auth/register", registerUser);
   app.get("/api/auth/check-availability", checkAvailability);
   app.get("/api/auth/users", getUsers); // For demo purposes
+
+  // Phone verification API routes
+  app.use("/api/phone", phoneRoutes);
 
   // Profile API routes
   app.get("/api/profile/:userId?", getProfile);
@@ -119,6 +150,27 @@ export function createServer() {
   app.get("/api/subscription/:userId?", getSubscription);
   app.put("/api/subscription/:userId?", updateSubscription);
   app.delete("/api/subscription/:userId?", cancelSubscription);
+
+  // Music API routes
+  app.get("/api/music/trending", getTrendingSongs);
+  app.get("/api/music/search", searchMusic);
+  app.get("/api/music/song/:songId", getSongById);
+  app.get("/api/music/artist/:artistId", getArtistById);
+  app.get("/api/music/playlists/featured", getFeaturedPlaylists);
+  app.get("/api/music/playlist/:playlistId", getPlaylistById);
+  app.get("/api/music/genres", getGenres);
+  app.get("/api/music/genre/:genre", getSongsByGenre);
+  app.get("/api/music/recommendations", getRecommendations);
+  app.get("/api/music/recently-played", getMusicRecentlyPlayed);
+  app.post("/api/music/play/:songId", playSong);
+
+  // Analytics API routes
+  app.get("/api/analytics/:userId", getUserAnalytics);
+  app.get("/api/analytics/:userId/history", getListeningHistory);
+  app.get("/api/analytics/:userId/engagement", getEngagementMetrics);
+  app.get("/api/analytics/:userId/recommendations", getRecommendationAnalytics);
+  app.get("/api/analytics/:userId/export", exportAnalytics);
+  app.get("/api/analytics/:userId/social", getSocialAnalytics);
 
   return app;
 }

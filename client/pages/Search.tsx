@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -15,63 +15,287 @@ import {
   Library,
   Clock,
   User,
+  Loader2,
+  Heart,
+  Users,
+  Disc,
 } from "lucide-react";
+import { useMusicContext } from "../context/MusicContext";
+import { useToast } from "../hooks/use-toast";
 
 export default function Search() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { currentSong, isPlaying, setCurrentSong, togglePlay } =
+    useMusicContext();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedTab, setSelectedTab] = useState("MOODS");
+  const [selectedTab, setSelectedTab] = useState("all");
+  const [searchResults, setSearchResults] = useState<any>(null);
+  const [genres, setGenres] = useState([]);
+  const [featuredPlaylists, setFeaturedPlaylists] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
 
-  const handleSearch = () => {
-    // In a real app, you'd perform the actual search here
-    console.log("Searching for:", searchQuery);
+  const handleSearch = async () => {
+    if (!searchQuery.trim()) return;
+
+    try {
+      setIsLoading(true);
+      setHasSearched(true);
+
+      const response = await fetch(
+        `/api/music/search?q=${encodeURIComponent(searchQuery)}&type=${selectedTab}&limit=20`,
+      );
+      const data = await response.json();
+
+      if (data.success) {
+        setSearchResults(data.results);
+      } else {
+        throw new Error(data.message || "Search failed");
+      }
+    } catch (error) {
+      console.error("Search error:", error);
+      toast({
+        title: "Search Error",
+        description: "Failed to search. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const playTrack = (trackId: number) => {
-    navigate("/player");
+  const handlePlaySong = async (song: any) => {
+    try {
+      await fetch(`/api/music/play/${song.id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId: "current-user" }),
+      });
+
+      if (currentSong?.id === song.id) {
+        togglePlay();
+      } else {
+        setCurrentSong(song);
+      }
+    } catch (error) {
+      console.error("Failed to play song:", error);
+      if (currentSong?.id === song.id) {
+        togglePlay();
+      } else {
+        setCurrentSong(song);
+      }
+    }
   };
 
-  const tabs = ["MOODS", "MODEMS", "CATGOIRS", "MAUIO", "NIFAUDS"];
+  const loadGenresAndPlaylists = async () => {
+    try {
+      const [genresRes, playlistsRes] = await Promise.all([
+        fetch("/api/music/genres"),
+        fetch("/api/music/playlists/featured?limit=6"),
+      ]);
+
+      const [genresData, playlistsData] = await Promise.all([
+        genresRes.json(),
+        playlistsRes.json(),
+      ]);
+
+      if (genresData.success) setGenres(genresData.genres);
+      if (playlistsData.success) setFeaturedPlaylists(playlistsData.playlists);
+    } catch (error) {
+      console.error("Failed to load genres and playlists:", error);
+    }
+  };
+
+  useEffect(() => {
+    loadGenresAndPlaylists();
+
+    // Check if there's a genre parameter in URL
+    const genreParam = searchParams.get("genre");
+    if (genreParam) {
+      setSearchQuery(genreParam);
+      setSelectedTab("songs");
+      setTimeout(() => handleSearch(), 100);
+    }
+  }, []);
+
+  useEffect(() => {
+    // Debounced search
+    if (searchQuery.length > 2) {
+      const timeoutId = setTimeout(() => {
+        handleSearch();
+      }, 500);
+      return () => clearTimeout(timeoutId);
+    } else if (searchQuery.length === 0) {
+      setSearchResults(null);
+      setHasSearched(false);
+    }
+  }, [searchQuery, selectedTab]);
+
+  const tabs = [
+    { id: "all", label: "All", icon: SearchIcon },
+    { id: "songs", label: "Songs", icon: Music },
+    { id: "artists", label: "Artists", icon: Users },
+    { id: "playlists", label: "Playlists", icon: Disc },
+  ];
 
   const quickSearchButtons = [
-    { icon: "🔍", label: "Search" },
-    { icon: "⏹️", label: "Stop" },
-    { icon: "💲", label: "Price" },
-    { icon: "🎵", label: "Music" },
-    { icon: "➕", label: "Add" },
-    { icon: "📱", label: "Mobile" },
-    { icon: "🌐", label: "Web" },
-    { icon: "⚪", label: "Circle" },
-    { icon: "▶️", label: "Play", highlight: true },
-    { icon: "⏸️", label: "Pause" },
+    "Pop",
+    "Hip-Hop",
+    "Rock",
+    "Electronic",
+    "Jazz",
+    "Classical",
+    "R&B",
+    "Country",
   ];
 
-  const searchCategories = [
-    {
-      title: "Genres",
-      icon: "🎵",
-      bgColor: "bg-white",
-      textColor: "text-black",
-    },
-    {
-      title: "Moods",
-      icon: "🎵",
-      bgColor: "bg-gradient-to-br from-purple-600 to-purple-800",
-      textColor: "text-white",
-    },
-    {
-      title: "Artists",
-      icon: "🎵",
-      bgColor: "bg-white",
-      textColor: "text-black",
-    },
-    {
-      title: "Artists",
-      icon: "🎨",
-      bgColor: "bg-gradient-to-br from-pink-500 to-purple-600",
-      textColor: "text-white",
-    },
-  ];
+  const renderSearchResults = () => {
+    if (isLoading) {
+      return (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 text-neon-green animate-spin" />
+          <span className="ml-2 text-gray-400">Searching...</span>
+        </div>
+      );
+    }
+
+    if (!searchResults && hasSearched) {
+      return (
+        <div className="text-center py-12">
+          <SearchIcon className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-gray-400 mb-2">
+            No results found
+          </h3>
+          <p className="text-gray-500">Try searching with different keywords</p>
+        </div>
+      );
+    }
+
+    if (!searchResults) return null;
+
+    return (
+      <div className="space-y-6">
+        {/* Songs Results */}
+        {searchResults.songs && searchResults.songs.length > 0 && (
+          <div>
+            <h3 className="text-lg font-bold mb-4 flex items-center">
+              <Music className="w-5 h-5 mr-2 text-neon-green" />
+              Songs
+            </h3>
+            <div className="space-y-2">
+              {searchResults.songs.map((song: any) => (
+                <div
+                  key={song.id}
+                  className="flex items-center space-x-3 p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-all group cursor-pointer"
+                  onClick={() => handlePlaySong(song)}
+                >
+                  <div className="relative flex-shrink-0">
+                    <img
+                      src={song.image}
+                      alt={song.title}
+                      className="w-12 h-12 object-cover rounded"
+                    />
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handlePlaySong(song);
+                      }}
+                      className="absolute inset-0 bg-black/60 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      {currentSong?.id === song.id && isPlaying ? (
+                        <Pause className="w-4 h-4 text-white" />
+                      ) : (
+                        <Play className="w-4 h-4 text-white ml-0.5" />
+                      )}
+                    </button>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h4 className="font-medium text-sm truncate text-white">
+                      {song.title}
+                    </h4>
+                    <p className="text-gray-400 text-xs truncate">
+                      {song.artist} • {song.album}
+                    </p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-gray-400 text-xs">
+                      {song.duration}
+                    </span>
+                    <button className="opacity-0 group-hover:opacity-100 transition-opacity">
+                      <Heart className="w-4 h-4 text-gray-400 hover:text-red-400" />
+                    </button>
+                    <button className="opacity-0 group-hover:opacity-100 transition-opacity">
+                      <MoreHorizontal className="w-4 h-4 text-gray-400" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Artists Results */}
+        {searchResults.artists && searchResults.artists.length > 0 && (
+          <div>
+            <h3 className="text-lg font-bold mb-4 flex items-center">
+              <Users className="w-5 h-5 mr-2 text-neon-blue" />
+              Artists
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {searchResults.artists.map((artist: any) => (
+                <Link to={`/artist/${artist.id}`} key={artist.id}>
+                  <div className="bg-white/5 rounded-xl p-4 text-center hover:bg-white/10 transition-all cursor-pointer">
+                    <img
+                      src={artist.image}
+                      alt={artist.name}
+                      className="w-20 h-20 rounded-full mx-auto mb-3 object-cover"
+                    />
+                    <h4 className="font-medium text-white mb-1">
+                      {artist.name}
+                    </h4>
+                    <p className="text-xs text-gray-400">
+                      {artist.followers?.toLocaleString()} followers
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Playlists Results */}
+        {searchResults.playlists && searchResults.playlists.length > 0 && (
+          <div>
+            <h3 className="text-lg font-bold mb-4 flex items-center">
+              <Disc className="w-5 h-5 mr-2 text-purple-400" />
+              Playlists
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {searchResults.playlists.map((playlist: any) => (
+                <Link to={`/playlist/${playlist.id}`} key={playlist.id}>
+                  <div className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition-all cursor-pointer">
+                    <img
+                      src={playlist.image}
+                      alt={playlist.name}
+                      className="w-full aspect-square rounded-lg object-cover mb-3"
+                    />
+                    <h4 className="font-medium text-white mb-1 truncate">
+                      {playlist.name}
+                    </h4>
+                    <p className="text-xs text-gray-400 line-clamp-2">
+                      {playlist.description}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
 
   const moodResults = [
     {
@@ -174,15 +398,16 @@ export default function Search() {
           >
             {tabs.map((tab) => (
               <button
-                key={tab}
-                onClick={() => setSelectedTab(tab)}
-                className={`text-sm font-medium whitespace-nowrap pb-2 border-b-2 transition-colors ${
-                  selectedTab === tab
-                    ? "text-white border-white"
+                key={tab.id}
+                onClick={() => setSelectedTab(tab.id)}
+                className={`flex items-center space-x-2 text-sm font-medium whitespace-nowrap pb-2 border-b-2 transition-colors ${
+                  selectedTab === tab.id
+                    ? "text-white border-neon-green"
                     : "text-slate-400 border-transparent hover:text-white"
                 }`}
               >
-                {tab}
+                <tab.icon className="w-4 h-4" />
+                <span>{tab.label}</span>
               </button>
             ))}
           </motion.div>
@@ -194,143 +419,85 @@ export default function Search() {
             transition={{ delay: 0.3, duration: 0.8 }}
             className="flex flex-wrap gap-2 mb-6"
           >
-            {quickSearchButtons.map((button, index) => (
+            {quickSearchButtons.map((genre, index) => (
               <button
                 key={index}
-                className={`h-10 px-4 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
-                  button.highlight
-                    ? "bg-gradient-to-r from-pink-500 to-purple-600 text-white"
-                    : "bg-slate-800 text-white hover:bg-slate-700"
-                }`}
+                onClick={() => {
+                  setSearchQuery(genre);
+                  setSelectedTab("songs");
+                }}
+                className="h-10 px-4 rounded-full flex items-center justify-center text-sm font-medium transition-colors bg-slate-800 text-white hover:bg-slate-700 hover:text-neon-green"
               >
-                {button.label}
+                {genre}
               </button>
             ))}
           </motion.div>
 
-          {/* Popular Search */}
+          {/* Search Results or Browse Content */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4, duration: 0.8 }}
             className="mb-6"
           >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-white">Popular Search</h2>
-              <div className="flex items-center space-x-4">
-                <div className="w-8 h-8 bg-pink-500 rounded-full"></div>
-                <span className="text-white text-sm">♪</span>
-                <span className="text-white text-sm">#</span>
-                <span className="text-white text-sm">♪</span>
-              </div>
-            </div>
-
-            {/* Search Categories Grid */}
-            <div className="grid grid-cols-2 gap-4 mb-6">
-              {searchCategories.map((category, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.5 + index * 0.1, duration: 0.6 }}
-                  onClick={() => setSelectedTab(category.title.toUpperCase())}
-                  className={`aspect-square rounded-2xl ${category.bgColor} ${category.textColor} flex flex-col items-center justify-center cursor-pointer hover:scale-105 transition-transform`}
-                >
-                  <div className="text-3xl mb-2">{category.icon}</div>
-                  <span className="font-medium">{category.title}</span>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Search Results */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.6, duration: 0.8 }}
-            className="space-y-4 mb-6"
-          >
-            {moodResults.map((result, index) => (
-              <div
-                key={result.id}
-                onClick={() => playTrack(result.id)}
-                className="bg-slate-800/50 rounded-lg p-4 backdrop-blur-sm hover:bg-slate-700/50 transition-colors cursor-pointer"
-              >
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-purple-400 text-sm font-medium">
-                    {result.category}
-                  </span>
-                  <ChevronRight className="w-4 h-4 text-slate-400" />
+            {searchQuery || hasSearched ? (
+              renderSearchResults()
+            ) : (
+              <div>
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-xl font-bold text-white">Browse Music</h2>
                 </div>
-                <div className="flex items-center">
-                  <img
-                    src={result.image}
-                    alt={result.title}
-                    className="w-12 h-12 rounded-lg object-cover mr-3"
-                  />
-                  <div className="flex-1">
-                    <h3 className="text-white font-medium">{result.title}</h3>
-                    <p className="text-slate-400 text-sm">{result.artist}</p>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <SkipBack className="w-4 h-4 text-slate-400" />
-                    <SkipBack className="w-4 h-4 text-slate-400" />
-                    <Music className="w-4 h-4 text-slate-400" />
-                    <Music className="w-4 h-4 text-slate-400" />
-                    <SkipForward className="w-4 h-4 text-slate-400" />
-                    <Pause className="w-4 h-4 text-white" />
+
+                {/* Browse Categories Grid */}
+                <div className="grid grid-cols-2 gap-4 mb-6">
+                  {genres.slice(0, 4).map((genre: any, index) => (
+                    <motion.div
+                      key={genre.id}
+                      initial={{ opacity: 0, scale: 0.9 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.5 + index * 0.1, duration: 0.6 }}
+                      onClick={() => {
+                        setSearchQuery(genre.name);
+                        setSelectedTab("songs");
+                      }}
+                      className={`aspect-square rounded-2xl bg-gradient-to-br ${genre.color} text-white flex flex-col items-center justify-center cursor-pointer hover:scale-105 transition-transform`}
+                    >
+                      <Music className="w-8 h-8 mb-2" />
+                      <span className="font-medium">{genre.name}</span>
+                      <span className="text-xs opacity-75">
+                        {genre.songCount} songs
+                      </span>
+                    </motion.div>
+                  ))}
+                </div>
+
+                {/* Featured Playlists */}
+                <div className="mb-6">
+                  <h3 className="text-lg font-bold text-white mb-4">
+                    Featured Playlists
+                  </h3>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {featuredPlaylists.slice(0, 6).map((playlist: any) => (
+                      <Link to={`/playlist/${playlist.id}`} key={playlist.id}>
+                        <div className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition-all cursor-pointer">
+                          <img
+                            src={playlist.image}
+                            alt={playlist.name}
+                            className="w-full aspect-square rounded-lg object-cover mb-3"
+                          />
+                          <h4 className="font-medium text-white mb-1 truncate">
+                            {playlist.name}
+                          </h4>
+                          <p className="text-xs text-gray-400 line-clamp-2">
+                            {playlist.description}
+                          </p>
+                        </div>
+                      </Link>
+                    ))}
                   </div>
                 </div>
               </div>
-            ))}
-          </motion.div>
-
-          {/* Categories Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.7, duration: 0.8 }}
-            className="mb-8"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-white">Categories</h2>
-              <button className="px-4 py-1 bg-purple-600 rounded-full text-white text-sm">
-                CPFUACR
-              </button>
-            </div>
-
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold text-white">Genriess</h3>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              {categories.map((category, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.8 + index * 0.1, duration: 0.8 }}
-                  className={`${category.bgColor} rounded-2xl p-4 text-white cursor-pointer hover:scale-105 transition-transform`}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <h4 className="font-bold">{category.title}</h4>
-                    <ChevronRight className="w-4 h-4" />
-                  </div>
-                  <div className="flex items-center mb-3">
-                    <div className="w-8 h-8 bg-black/20 rounded-full flex items-center justify-center mr-2">
-                      <div className="w-4 h-4 bg-white rounded-full"></div>
-                    </div>
-                    <span className="text-xs">{category.count}</span>
-                  </div>
-                  <p className="text-xs opacity-80 leading-relaxed">
-                    {category.subtitle}
-                  </p>
-                  <div className="mt-3 text-xs">
-                    <span>mil ol lop</span>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
+            )}
           </motion.div>
         </div>
 

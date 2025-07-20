@@ -11,39 +11,61 @@ import {
   Mail,
   User,
   Lock,
+  Phone,
 } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useToast } from "../hooks/use-toast";
+import {
+  validatePhoneNumber,
+  formatPhoneInput,
+  formatPhoneDisplay,
+  phoneAPI,
+} from "../lib/phone";
 
-type SignupStep = "email" | "profile" | "verification" | "password";
+type SignupStep =
+  | "method"
+  | "email"
+  | "phone"
+  | "phone-verify"
+  | "profile"
+  | "verification"
+  | "password";
+type SignupMethod = "email" | "phone";
 
 interface FormData {
   email: string;
+  phone: string;
   username: string;
   name: string;
   password: string;
   confirmPassword: string;
+  otp: string;
 }
 
 interface ValidationErrors {
   email?: string;
+  phone?: string;
   username?: string;
   name?: string;
   password?: string;
   confirmPassword?: string;
+  otp?: string;
 }
 
 export default function Signup() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const [currentStep, setCurrentStep] = useState<SignupStep>("email");
+  const [currentStep, setCurrentStep] = useState<SignupStep>("method");
+  const [signupMethod, setSignupMethod] = useState<SignupMethod>("email");
   const [formData, setFormData] = useState<FormData>({
     email: "",
+    phone: "",
     username: "",
     name: "",
     password: "",
     confirmPassword: "",
+    otp: "",
   });
 
   const [errors, setErrors] = useState<ValidationErrors>({});
@@ -52,8 +74,11 @@ export default function Signup() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [availability, setAvailability] = useState<{
     email?: boolean;
+    phone?: boolean;
     username?: boolean;
   }>({});
+  const [phoneVerified, setPhoneVerified] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
 
   // Validation functions
@@ -68,6 +93,32 @@ export default function Signup() {
       return false;
     }
     setErrors((prev) => ({ ...prev, email: undefined }));
+    return true;
+  };
+
+  const validatePhone = (phone: string): boolean => {
+    const result = validatePhoneNumber(phone);
+    if (!result.isValid) {
+      setErrors((prev) => ({ ...prev, phone: result.error }));
+      return false;
+    }
+    setErrors((prev) => ({ ...prev, phone: undefined }));
+    return true;
+  };
+
+  const validateOTP = (otp: string): boolean => {
+    if (!otp) {
+      setErrors((prev) => ({ ...prev, otp: "Verification code is required" }));
+      return false;
+    }
+    if (otp.length !== 6) {
+      setErrors((prev) => ({
+        ...prev,
+        otp: "Verification code must be 6 digits",
+      }));
+      return false;
+    }
+    setErrors((prev) => ({ ...prev, otp: undefined }));
     return true;
   };
 
@@ -141,33 +192,127 @@ export default function Signup() {
 
   // Check availability with backend
   const checkAvailability = async (
-    field: "email" | "username",
+    field: "email" | "username" | "phone",
     value: string,
   ) => {
     if (!value) return;
 
     try {
-      const response = await fetch(
-        `/api/auth/check-availability?${field}=${encodeURIComponent(value)}`,
-      );
-      const data = await response.json();
+      let response, data;
 
-      if (data.success) {
-        setAvailability((prev) => ({
-          ...prev,
-          [field]:
-            field === "email" ? data.emailAvailable : data.usernameAvailable,
-        }));
+      if (field === "phone") {
+        response = await fetch(
+          `/api/phone/check-availability?phone=${encodeURIComponent(value)}`,
+        );
+        data = await response.json();
 
-        if (field === "email" && !data.emailAvailable) {
-          setErrors((prev) => ({
+        if (data.success) {
+          setAvailability((prev) => ({
             ...prev,
-            email: "Email is already registered",
+            phone: data.phoneAvailable,
           }));
+
+          if (!data.phoneAvailable) {
+            setErrors((prev) => ({
+              ...prev,
+              phone: "Phone number is already registered",
+            }));
+          }
+        }
+      } else {
+        response = await fetch(
+          `/api/auth/check-availability?${field}=${encodeURIComponent(value)}`,
+        );
+        data = await response.json();
+
+        if (data.success) {
+          setAvailability((prev) => ({
+            ...prev,
+            [field]:
+              field === "email" ? data.emailAvailable : data.usernameAvailable,
+          }));
+
+          if (field === "email" && !data.emailAvailable) {
+            setErrors((prev) => ({
+              ...prev,
+              email: "Email is already registered",
+            }));
+          }
         }
       }
     } catch (error) {
       console.error("Availability check failed:", error);
+    }
+  };
+
+  // Send OTP to phone
+  const sendOTP = async () => {
+    if (!validatePhone(formData.phone)) return;
+
+    setIsLoading(true);
+    try {
+      const result = await phoneAPI.sendOTP(formData.phone);
+
+      if (result.success) {
+        setOtpSent(true);
+        setResendTimer(60);
+        toast({
+          title: "Verification code sent!",
+          description: `We sent a 6-digit code to ${formatPhoneDisplay(formData.phone)}`,
+        });
+
+        // For development, show OTP in console
+        if (result.debugOtp) {
+          console.log(`📱 OTP for ${formData.phone}: ${result.debugOtp}`);
+        }
+      } else {
+        toast({
+          title: "Failed to send code",
+          description: result.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Send OTP error:", error);
+      toast({
+        title: "Failed to send code",
+        description: "Network error. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Verify OTP
+  const verifyOTP = async () => {
+    if (!validateOTP(formData.otp)) return;
+
+    setIsLoading(true);
+    try {
+      const result = await phoneAPI.verifyOTP(formData.phone, formData.otp);
+
+      if (result.success) {
+        setPhoneVerified(true);
+        toast({
+          title: "Phone verified!",
+          description: "Your phone number has been successfully verified.",
+        });
+
+        if (signupMethod === "phone") {
+          setCurrentStep("profile");
+        }
+      } else {
+        setErrors((prev) => ({ ...prev, otp: result.message }));
+      }
+    } catch (error) {
+      console.error("Verify OTP error:", error);
+      setErrors((prev) => ({
+        ...prev,
+        otp: "Verification failed. Please try again.",
+      }));
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -242,6 +387,15 @@ export default function Signup() {
   };
 
   // Step handlers
+  const handleMethodStep = (method: SignupMethod) => {
+    setSignupMethod(method);
+    if (method === "email") {
+      setCurrentStep("email");
+    } else {
+      setCurrentStep("phone");
+    }
+  };
+
   const handleEmailStep = async () => {
     if (!validateEmail(formData.email)) return;
 
@@ -250,7 +404,26 @@ export default function Signup() {
     setIsLoading(false);
 
     if (availability.email !== false) {
-      setCurrentStep("profile");
+      setCurrentStep("verification");
+      // Simulate sending verification email
+      toast({
+        title: "Verification email sent!",
+        description: "Please check your email and verify your account.",
+      });
+      setResendTimer(60);
+    }
+  };
+
+  const handlePhoneStep = async () => {
+    if (!validatePhone(formData.phone)) return;
+
+    setIsLoading(true);
+    await checkAvailability("phone", formData.phone);
+    setIsLoading(false);
+
+    if (availability.phone !== false) {
+      setCurrentStep("phone-verify");
+      await sendOTP();
     }
   };
 
@@ -262,23 +435,34 @@ export default function Signup() {
     setIsLoading(false);
 
     if (availability.username !== false) {
-      setCurrentStep("verification");
-      // Simulate sending verification email
-      toast({
-        title: "Verification email sent!",
-        description: "Please check your email and verify your account.",
-      });
-      setResendTimer(60);
+      if (signupMethod === "phone") {
+        // Complete phone signup
+        await handlePasswordStep();
+      } else {
+        setCurrentStep("verification");
+        // Simulate sending verification email
+        toast({
+          title: "Verification email sent!",
+          description: "Please check your email and verify your account.",
+        });
+        setResendTimer(60);
+      }
     }
   };
 
   const handleVerificationStep = () => {
-    // Simulate email verification
-    toast({
-      title: "Email verified!",
-      description: "Your email has been successfully verified.",
-    });
+    if (signupMethod === "email") {
+      // Simulate email verification
+      toast({
+        title: "Email verified!",
+        description: "Your email has been successfully verified.",
+      });
+    }
     setCurrentStep("password");
+  };
+
+  const handlePhoneVerifyStep = async () => {
+    await verifyOTP();
   };
 
   const handlePasswordStep = async () => {
@@ -288,19 +472,35 @@ export default function Signup() {
 
     try {
       // Submit to backend
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          username: formData.username,
-          name: formData.name,
-          password: formData.password,
-          provider: "email",
-        }),
-      });
+      let response;
+
+      if (signupMethod === "phone") {
+        response = await fetch("/api/phone/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            phoneNumber: formData.phone,
+            name: formData.name,
+            username: formData.username,
+          }),
+        });
+      } else {
+        response = await fetch("/api/auth/register", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: formData.email,
+            username: formData.username,
+            name: formData.name,
+            password: formData.password,
+            provider: "email",
+          }),
+        });
+      }
 
       const data = await response.json();
 
@@ -340,12 +540,22 @@ export default function Signup() {
   };
 
   const goBack = () => {
-    if (currentStep === "profile") {
-      setCurrentStep("email");
+    if (currentStep === "email") {
+      setCurrentStep("method");
+    } else if (currentStep === "phone") {
+      setCurrentStep("method");
+    } else if (currentStep === "phone-verify") {
+      setCurrentStep("phone");
+    } else if (currentStep === "profile") {
+      if (signupMethod === "email") {
+        setCurrentStep("verification");
+      } else {
+        setCurrentStep("phone-verify");
+      }
     } else if (currentStep === "verification") {
-      setCurrentStep("profile");
+      setCurrentStep("email");
     } else if (currentStep === "password") {
-      setCurrentStep("verification");
+      setCurrentStep("profile");
     }
   };
 
@@ -416,22 +626,112 @@ export default function Signup() {
           className="flex justify-center mb-6 sm:mb-8"
         >
           <div className="flex space-x-2">
-            {["email", "profile", "verification", "password"].map(
-              (step, index) => (
+            {(signupMethod === "phone"
+              ? ["method", "phone", "phone-verify", "profile"]
+              : ["method", "email", "verification", "profile", "password"]
+            ).map((step, index) => {
+              const currentStepIndex =
+                Object.keys(stepTitles).indexOf(currentStep);
+              const stepIndex = Object.keys(stepTitles).indexOf(step);
+              return (
                 <div
                   key={step}
                   className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition-colors ${
-                    Object.keys(stepTitles).indexOf(currentStep) >= index
+                    stepIndex <= currentStepIndex
                       ? "bg-neon-green"
                       : "bg-slate-700"
                   }`}
                 />
-              ),
-            )}
+              );
+            })}
           </div>
         </motion.div>
 
         <AnimatePresence mode="wait">
+          {/* Method Selection Step */}
+          {currentStep === "method" && (
+            <motion.div
+              key="method"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-4 sm:space-y-6"
+            >
+              <div className="text-center mb-4 sm:mb-6">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-neon-green/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <User className="w-6 h-6 sm:w-8 sm:h-8 text-neon-green" />
+                </div>
+                <h3 className="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">
+                  {stepTitles.method}
+                </h3>
+                <p className="text-slate-400 text-xs sm:text-sm px-2">
+                  {stepDescriptions.method}
+                </p>
+              </div>
+
+              {/* Google Signup Button */}
+              <button
+                onClick={handleGoogleSignup}
+                disabled={isLoading}
+                className="w-full h-12 sm:h-14 bg-white hover:bg-gray-50 rounded-lg flex items-center justify-center text-gray-700 font-medium transition-colors border border-gray-300 disabled:opacity-50 mb-4"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : (
+                  <>
+                    <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
+                      <path
+                        fill="#4285F4"
+                        d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                      />
+                      <path
+                        fill="#34A853"
+                        d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                      />
+                      <path
+                        fill="#FBBC05"
+                        d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                      />
+                      <path
+                        fill="#EA4335"
+                        d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                      />
+                    </svg>
+                    Continue with Google
+                  </>
+                )}
+              </button>
+
+              {/* Divider */}
+              <div className="flex items-center my-4">
+                <div className="flex-1 h-px bg-slate-600"></div>
+                <span className="px-3 text-slate-400 text-xs sm:text-sm">
+                  or
+                </span>
+                <div className="flex-1 h-px bg-slate-600"></div>
+              </div>
+
+              {/* Method Selection Buttons */}
+              <div className="space-y-3">
+                <button
+                  onClick={() => handleMethodStep("email")}
+                  className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg flex items-center justify-center text-white hover:bg-slate-700/50 transition-colors"
+                >
+                  <Mail className="w-5 h-5 mr-3 text-neon-green" />
+                  Continue with Email
+                </button>
+
+                <button
+                  onClick={() => handleMethodStep("phone")}
+                  className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg flex items-center justify-center text-white hover:bg-slate-700/50 transition-colors"
+                >
+                  <Phone className="w-5 h-5 mr-3 text-neon-blue" />
+                  Continue with Phone Number
+                </button>
+              </div>
+            </motion.div>
+          )}
+
           {/* Email Step */}
           {currentStep === "email" && (
             <motion.div
@@ -531,6 +831,166 @@ export default function Signup() {
             </motion.div>
           )}
 
+          {/* Phone Step */}
+          {currentStep === "phone" && (
+            <motion.div
+              key="phone"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-4 sm:space-y-6"
+            >
+              <div className="flex items-center mb-4 sm:mb-6">
+                <button
+                  onClick={goBack}
+                  className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-800/50 rounded-full flex items-center justify-center mr-3 sm:mr-4"
+                >
+                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                </button>
+                <div className="text-center flex-1">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-neon-blue/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                    <Phone className="w-6 h-6 sm:w-8 sm:h-8 text-neon-blue" />
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">
+                    {stepTitles.phone}
+                  </h3>
+                  <p className="text-slate-400 text-xs sm:text-sm px-2">
+                    {stepDescriptions.phone}
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-white text-sm font-medium mb-2">
+                  Phone number
+                </label>
+                <input
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => {
+                    const formatted = formatPhoneInput(
+                      e.target.value,
+                      formData.phone,
+                    );
+                    setFormData((prev) => ({ ...prev, phone: formatted }));
+                  }}
+                  placeholder="(555) 123-4567"
+                  className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors text-sm sm:text-base"
+                  disabled={isLoading}
+                />
+                {errors.phone && (
+                  <p className="text-red-400 text-xs sm:text-sm mt-2 flex items-center">
+                    <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                    {errors.phone}
+                  </p>
+                )}
+              </div>
+
+              <button
+                onClick={handlePhoneStep}
+                disabled={isLoading || !formData.phone}
+                className="w-full h-12 sm:h-14 bg-gradient-to-r from-neon-green to-neon-blue hover:from-neon-green/80 hover:to-neon-blue/80 text-black font-bold text-sm sm:text-lg rounded-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mx-auto" />
+                ) : (
+                  "Send Code"
+                )}
+              </button>
+            </motion.div>
+          )}
+
+          {/* Phone Verification Step */}
+          {currentStep === "phone-verify" && (
+            <motion.div
+              key="phone-verify"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-4 sm:space-y-6"
+            >
+              <div className="flex items-center mb-4 sm:mb-6">
+                <button
+                  onClick={goBack}
+                  className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-800/50 rounded-full flex items-center justify-center mr-3 sm:mr-4"
+                >
+                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                </button>
+                <div className="text-center flex-1">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                    <Phone className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-500" />
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">
+                    {stepTitles["phone-verify"]}
+                  </h3>
+                  <p className="text-slate-400 text-xs sm:text-sm px-2">
+                    {stepDescriptions["phone-verify"]}
+                  </p>
+                </div>
+              </div>
+
+              <div className="text-center">
+                <p className="text-white mb-2 text-sm sm:text-base">
+                  Code sent to:
+                </p>
+                <p className="text-neon-green font-medium text-sm sm:text-base">
+                  {formatPhoneDisplay(formData.phone)}
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-white text-sm font-medium mb-2">
+                  Verification code
+                </label>
+                <input
+                  type="text"
+                  value={formData.otp}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, "").slice(0, 6);
+                    setFormData((prev) => ({ ...prev, otp: value }));
+                  }}
+                  placeholder="123456"
+                  className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors text-sm sm:text-base text-center tracking-wider"
+                  disabled={isLoading}
+                  maxLength={6}
+                />
+                {errors.otp && (
+                  <p className="text-red-400 text-xs sm:text-sm mt-2 flex items-center">
+                    <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                    {errors.otp}
+                  </p>
+                )}
+              </div>
+
+              <button
+                onClick={handlePhoneVerifyStep}
+                disabled={isLoading || formData.otp.length !== 6}
+                className="w-full h-12 sm:h-14 bg-gradient-to-r from-neon-green to-neon-blue hover:from-neon-green/80 hover:to-neon-blue/80 text-black font-bold text-sm sm:text-lg rounded-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mx-auto" />
+                ) : (
+                  "Verify Code"
+                )}
+              </button>
+
+              <div className="text-center">
+                <p className="text-slate-400 text-xs sm:text-sm mb-2">
+                  Didn't receive the code?
+                </p>
+                <button
+                  onClick={sendOTP}
+                  disabled={resendTimer > 0 || isLoading}
+                  className="text-neon-green hover:text-emerald-400 text-xs sm:text-sm disabled:opacity-50"
+                >
+                  {resendTimer > 0
+                    ? `Resend in ${resendTimer}s`
+                    : "Resend code"}
+                </button>
+              </div>
+            </motion.div>
+          )}
+
           {/* Profile Step */}
           {currentStep === "profile" && (
             <motion.div
@@ -614,6 +1074,8 @@ export default function Signup() {
               >
                 {isLoading ? (
                   <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mx-auto" />
+                ) : signupMethod === "phone" ? (
+                  "Create Account"
                 ) : (
                   "Continue"
                 )}
@@ -819,8 +1281,8 @@ export default function Signup() {
           )}
         </AnimatePresence>
 
-        {/* Footer - Only show on first step */}
-        {currentStep === "email" && (
+        {/* Footer - Only show on method step */}
+        {currentStep === "method" && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
