@@ -339,9 +339,11 @@ export default function Search() {
       <div className="relative z-10 flex flex-col h-screen">
         {/* Header */}
         <div className="flex items-center justify-between p-6 pb-4">
-          <Link to="/home">
-            <ArrowLeft className="w-6 h-6 text-white" />
-          </Link>
+                    <BackButton
+            onClick={() => navigate("/home")}
+            variant="glass"
+            size="lg"
+          />
           <Music className="w-6 h-6 text-pink-400" />
           <div className="flex items-center space-x-2">
             <div className="w-6 h-6 border-2 border-slate-400 rounded"></div>
