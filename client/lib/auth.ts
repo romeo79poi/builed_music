@@ -176,6 +176,14 @@ export const signInWithGoogle = async (): Promise<{ success: boolean; user?: Use
 
 export const logout = async (): Promise<{ success: boolean; error?: string }> => {
   try {
+    // Check if Firebase is configured
+    if (!isFirebaseConfigured || !auth) {
+      return {
+        success: false,
+        error: "Firebase is not configured. Please add Firebase environment variables."
+      };
+    }
+
     await signOut(auth);
     return { success: true };
   } catch (error: any) {
