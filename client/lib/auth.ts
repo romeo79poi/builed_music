@@ -166,13 +166,19 @@ export const signInWithGoogle = async (): Promise<{
   error?: string;
   isNewUser?: boolean;
 }> => {
-  try {
+    try {
     // Check if Firebase is configured
     if (!isFirebaseConfigured || !auth || !db) {
       return {
         success: false,
         error:
-          "Firebase is not configured. Please add Firebase environment variables.",
+          "Firebase is not configured properly for Google sign-in. To connect with real Google accounts:\n\n" +
+          "1. Create a Firebase project at https://console.firebase.google.com/\n" +
+          "2. Enable Google authentication in Authentication > Sign-in method\n" +
+          "3. Add your domain to authorized domains\n" +
+          "4. Get your Firebase config from Project Settings\n" +
+          "5. Update the VITE_FIREBASE_* environment variables\n\n" +
+          "See .env.example for the required variables.",
       };
     }
 
