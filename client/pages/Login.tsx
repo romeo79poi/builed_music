@@ -49,8 +49,64 @@ export default function Login() {
     }
   };
 
+    const handleGoogleLogin = async () => {
+    setIsGoogleLoading(true);
+
+    try {
+      console.log("🚀 Starting Google login with enhanced verification...");
+
+      const result = await signInWithGoogleEnhanced();
+
+      if (result.success && result.user) {
+        const message = result.isNewUser
+          ? `Welcome to Music Catch, ${result.user.name || result.user.displayName}!`
+          : `Welcome back, ${result.user.name || result.user.displayName}!`;
+
+        toast({
+          title: "Google sign-in successful! 🎉",
+          description: message,
+        });
+
+        console.log("✅ Enhanced Google authentication successful:", {
+          user: result.user,
+          isNewUser: result.isNewUser,
+          email: result.user.email,
+          name: result.user.name || result.user.displayName,
+          hasSessionToken: !!result.sessionToken,
+          backendVerified: true
+        });
+
+        setTimeout(() => {
+          navigate("/home");
+        }, 1500);
+      } else {
+        const errorMessage = result.error || "Failed to connect with Google. Please try again.";
+
+        toast({
+          title: "Google sign-in failed",
+          description: errorMessage,
+          variant: "destructive",
+        });
+
+        console.error("❌ Enhanced Google authentication failed:", {
+          error: result.error,
+          hasUser: !!result.user
+        });
+      }
+    } catch (error) {
+      console.error("❌ Google login error:", error);
+      toast({
+        title: "Google sign-in failed",
+        description: "Network error. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  };
+
   const handleSocialLogin = () => {
-    // For now, just navigate to home - social login can be implemented later
+    // For non-Google social logins - placeholder
     navigate("/home");
   };
 
