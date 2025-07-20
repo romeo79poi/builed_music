@@ -49,6 +49,17 @@ import {
 // Auth routes
 import { registerUser, checkAvailability, getUsers } from "./routes/auth";
 
+// Google Auth routes
+import {
+  handleGoogleAuth,
+  verifyGoogleSession,
+  linkGoogleAccount,
+  unlinkGoogleAccount,
+  getGoogleUserProfile,
+  logoutGoogleUser,
+  getAllGoogleUsers
+} from "./routes/google-auth";
+
 // Phone routes
 import phoneRoutes from "./routes/phone";
 
