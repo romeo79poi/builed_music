@@ -3,48 +3,84 @@ import { motion } from "framer-motion";
 interface MusicCatchLogoProps {
   className?: string;
   animated?: boolean;
+  signupMode?: boolean;
 }
 
 export function MusicCatchLogo({
   className = "",
   animated = true,
+  signupMode = false,
 }: MusicCatchLogoProps) {
   const containerVariants = {
-    hidden: { opacity: 0, scale: 0.8 },
+    hidden: { opacity: 0, scale: 0.5, rotateY: -180 },
     visible: {
       opacity: 1,
       scale: 1,
+      rotateY: 0,
       transition: {
-        duration: 1,
+        duration: signupMode ? 1.2 : 1,
         ease: "easeOut",
-        staggerChildren: 0.1,
+        staggerChildren: signupMode ? 0.15 : 0.1,
       },
     },
   };
 
   const barVariants = {
-    hidden: { scaleY: 0.3, opacity: 0 },
+    hidden: { scaleY: 0.2, opacity: 0, y: 10 },
     visible: {
-      scaleY: [0.3, 1.2, 0.8, 1],
+      scaleY: signupMode ? [0.2, 1.4, 0.9, 1] : [0.3, 1.2, 0.8, 1],
       opacity: 1,
+      y: 0,
       transition: {
-        duration: 1.5,
+        duration: signupMode ? 2 : 1.5,
         ease: "easeOut",
         repeat: animated ? Infinity : 0,
         repeatType: "reverse" as const,
-        repeatDelay: 2,
+        repeatDelay: signupMode ? 3 : 2,
       },
     },
   };
 
   const diamondVariants = {
-    hidden: { scale: 0, rotate: 0 },
+    hidden: { scale: 0, rotate: -180 },
     visible: {
-      scale: 1,
-      rotate: 360,
+      scale: [0, 1.2, 1],
+      rotate: signupMode ? [0, 180, 360] : 360,
       transition: {
-        duration: 1.5,
+        duration: signupMode ? 2.5 : 1.5,
         ease: "easeOut",
+        repeat: signupMode && animated ? Infinity : 0,
+        repeatType: "loop" as const,
+        repeatDelay: signupMode ? 4 : 0,
+      },
+    },
+  };
+
+  const glowVariants = {
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: {
+      opacity: signupMode ? [0.3, 0.8, 0.3] : 0.5,
+      scale: signupMode ? [0.8, 1.2, 0.8] : 1,
+      transition: {
+        duration: signupMode ? 3 : 2,
+        ease: "easeInOut",
+        repeat: signupMode && animated ? Infinity : 0,
+        repeatType: "loop" as const,
+      },
+    },
+  };
+
+  const waveVariants = {
+    hidden: { scaleX: 0, opacity: 0 },
+    visible: {
+      scaleX: 1,
+      opacity: [0, 1, 0.7],
+      transition: {
+        duration: signupMode ? 2.5 : 1.8,
+        ease: "easeOut",
+        repeat: animated ? Infinity : 0,
+        repeatType: "reverse" as const,
+        repeatDelay: signupMode ? 2.5 : 2,
       },
     },
   };
