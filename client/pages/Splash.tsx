@@ -146,27 +146,33 @@ export default function Splash() {
                 </motion.p>
               </motion.div>
 
-              {/* Action buttons */}
+                            {/* Action buttons */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6, duration: 0.8 }}
+                transition={{ delay: 0.9, duration: 0.8 }}
                 className="flex flex-col gap-4 sm:gap-6 w-full"
               >
-                <Button
-                  onClick={() => navigate("/signup")}
-                  className="w-full bg-gradient-to-r from-neon-green to-neon-blue hover:from-neon-green/80 hover:to-neon-blue/80 text-black font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-all duration-300 transform hover:scale-105 text-base sm:text-lg"
-                >
-                  Sign Up
-                </Button>
+                <div className="relative group">
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-pink-500 via-purple-500 to-neon-blue rounded-lg blur opacity-60 group-hover:opacity-100 transition duration-300"></div>
+                  <Button
+                    onClick={() => navigate("/signup")}
+                    className="relative w-full bg-gradient-to-r from-purple-600 via-pink-500 to-red-500 hover:from-purple-700 hover:via-pink-600 hover:to-red-600 text-white font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-all duration-300 transform hover:scale-105 text-base sm:text-lg shadow-xl hover:shadow-2xl"
+                  >
+                    🎵 Start Your Journey
+                  </Button>
+                </div>
 
-                <Button
-                  onClick={() => navigate("/login")}
-                  variant="outline"
-                  className="w-full border-2 border-neon-green text-neon-green hover:bg-neon-green hover:text-black font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-all duration-300 transform hover:scale-105 text-base sm:text-lg"
-                >
-                  Log In
-                </Button>
+                <div className="relative group">
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-neon-green via-emerald-400 to-cyan-400 rounded-lg blur opacity-60 group-hover:opacity-100 transition duration-300"></div>
+                  <Button
+                    onClick={() => navigate("/login")}
+                    variant="outline"
+                    className="relative w-full border-2 border-transparent bg-gradient-to-r from-neon-green/20 to-neon-blue/20 backdrop-blur-sm text-white hover:text-black hover:bg-gradient-to-r hover:from-neon-green hover:to-cyan-400 font-bold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-all duration-300 transform hover:scale-105 text-base sm:text-lg shadow-xl hover:shadow-2xl"
+                  >
+                    🎧 Welcome Back
+                  </Button>
+                </div>
               </motion.div>
 
               {/* Additional info */}
