@@ -408,7 +408,7 @@ export default function Signup() {
     }
   };
 
-  const handleEmailStep = async () => {
+    const handleEmailStep = async () => {
     if (!validateEmail(formData.email)) return;
 
     setIsLoading(true);
@@ -416,13 +416,7 @@ export default function Signup() {
     setIsLoading(false);
 
     if (availability.email !== false) {
-      setCurrentStep("verification");
-      // Simulate sending verification email
-      toast({
-        title: "Verification email sent!",
-        description: "Please check your email and verify your account.",
-      });
-      setResendTimer(60);
+      setCurrentStep("profile");
     }
   };
 
@@ -439,7 +433,7 @@ export default function Signup() {
     }
   };
 
-  const handleProfileStep = async () => {
+    const handleProfileStep = async () => {
     if (!validateProfile()) return;
 
     setIsLoading(true);
@@ -558,7 +552,7 @@ export default function Signup() {
     }
   };
 
-  const goBack = () => {
+    const goBack = () => {
     if (currentStep === "email") {
       setCurrentStep("method");
     } else if (currentStep === "phone") {
@@ -567,14 +561,14 @@ export default function Signup() {
       setCurrentStep("phone");
     } else if (currentStep === "profile") {
       if (signupMethod === "email") {
-        setCurrentStep("verification");
+        setCurrentStep("email");
       } else {
         setCurrentStep("phone-verify");
       }
     } else if (currentStep === "verification") {
-      setCurrentStep("email");
-    } else if (currentStep === "password") {
       setCurrentStep("profile");
+    } else if (currentStep === "password") {
+      setCurrentStep("verification");
     }
   };
 
