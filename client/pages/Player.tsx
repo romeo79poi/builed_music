@@ -201,12 +201,11 @@ export default function Player() {
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center justify-between p-6 pt-12"
         >
-          <button
+                    <BackButton
             onClick={() => navigate(-1)}
-            className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm hover:bg-white/20 transition-colors"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
+            variant="glass"
+            className="hover:bg-white/20"
+          />
           <div className="text-center">
             <p className="text-sm text-gray-400">PLAYING FROM PLAYLIST</p>
             <p className="text-sm font-medium">Trending Hits 2024</p>
