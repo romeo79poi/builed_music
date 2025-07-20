@@ -252,11 +252,12 @@ export function MusicCatchLogo({
                   }
                 : {}
             }
-            transition={{
-              duration: 2,
+                        transition={{
+              duration: blinkMode ? 1.8 : 2,
               repeat: Infinity,
               ease: "easeInOut",
-              delay: 1,
+              delay: blinkMode ? 0.3 : 1,
+              repeatDelay: blinkMode ? 0.7 : 0,
             }}
           />
         </div>
