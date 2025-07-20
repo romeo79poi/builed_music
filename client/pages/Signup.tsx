@@ -318,12 +318,13 @@ export default function Signup() {
     }
   };
 
-  // Google signup handler
+    // Google signup handler
   const handleGoogleSignup = async () => {
     setIsLoading(true);
     console.log("🚀 Starting Google sign-up process...");
 
     try {
+      // Try Firebase first, then fallback to backend simulation
       const result = await signInWithGoogle();
 
       console.log("📋 Google sign-in result:", {
@@ -357,6 +358,32 @@ export default function Signup() {
           isNewUser: result.isNewUser,
           emailVerified: result.user.emailVerified,
         });
+
+        // If this is a new user and we're in development mode, also register with backend
+        if (result.isNewUser && result.user.email?.includes("demo") || result.user.email?.includes("dev")) {
+          try {
+            const backendResponse = await fetch("/api/auth/register", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                email: result.user.email,
+                username: result.user.email.split("@")[0] + "_google",
+                name: displayName,
+                password: "google_auth_" + Date.now(), // Dummy password for Google users
+                provider: "google",
+              }),
+            });
+
+            const backendData = await backendResponse.json();
+            if (backendData.success) {
+              console.log("✅ Google user also registered in backend:", backendData.user);
+            }
+          } catch (backendError) {
+            console.warn("Backend registration failed for Google user, continuing:", backendError);
+          }
+        }
 
         // Navigate after a short delay to show success message
         setTimeout(() => {
