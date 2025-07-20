@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Eye,
   EyeOff,
-  ArrowLeft,
   Loader2,
   AlertCircle,
   CheckCircle,
@@ -14,6 +13,7 @@ import {
   Phone,
 } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
+import { BackButton } from "../components/ui/back-button";
 import { useToast } from "../hooks/use-toast";
 import {
   validatePhoneNumber,
@@ -826,13 +826,12 @@ export default function Signup() {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-4 sm:space-y-6"
             >
-              <div className="flex items-center mb-4 sm:mb-6">
-                <button
+                            <div className="flex items-center mb-4 sm:mb-6">
+                <BackButton
                   onClick={goBack}
-                  className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-800/50 rounded-full flex items-center justify-center mr-3 sm:mr-4"
-                >
-                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-                </button>
+                  className="mr-3 sm:mr-4"
+                  size="md"
+                />
                 <div className="text-center flex-1">
                   <div className="w-12 h-12 sm:w-16 sm:h-16 bg-neon-blue/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                     <Phone className="w-6 h-6 sm:w-8 sm:h-8 text-neon-blue" />
