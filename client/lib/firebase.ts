@@ -27,17 +27,8 @@ if (missingEnvVars.length > 0) {
   );
   console.warn("Firebase authentication will be mocked for development");
 
-      // Create mock auth object for development
-  auth = {
-    currentUser: null,
-    onAuthStateChanged: () => () => {},
-    signOut: () => Promise.resolve(),
-    // Mock Firebase Auth methods for development
-    createUserWithEmailAndPassword: () => Promise.reject(new Error("Firebase not configured. Please add Firebase environment variables.")),
-    signInWithEmailAndPassword: () => Promise.reject(new Error("Firebase not configured. Please add Firebase environment variables.")),
-    signInWithPopup: () => Promise.reject(new Error("Firebase not configured. Please add Firebase environment variables.")),
-    _getRecaptchaConfig: () => Promise.resolve({}), // Mock recaptcha config
-  };
+        // Create mock auth object for development
+  auth = null;
 
   // Create mock Firestore object for development
   db = {
