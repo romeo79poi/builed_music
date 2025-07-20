@@ -50,7 +50,7 @@ export const signUpWithEmailAndPassword = async (
                     firebaseError.message?.includes('API key not valid') ||
           firebaseError.message?.includes('network request failed')) {
         
-        console.warn("Firebase project not found, using development mode");
+                console.warn("Firebase project not found or network error, using development mode");
         
         // Simulate successful user creation for development
         const mockUser = {
@@ -184,7 +184,7 @@ export const signInWithGoogle = async (): Promise<{ success: boolean; user?: Use
                     firebaseError.message?.includes('API key not valid') ||
           firebaseError.message?.includes('network request failed')) {
         
-        console.warn("Firebase project not found, using development mode for Google sign-in");
+                console.warn("Firebase project not found or network error, using development mode for Google sign-in");
         
         // Simulate successful Google user creation for development
         const mockUser = {
