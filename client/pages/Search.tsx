@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  ArrowLeft,
   Music,
   Search as SearchIcon,
   ChevronRight,
@@ -22,6 +21,7 @@ import {
 } from "lucide-react";
 import { useMusicContext } from "../context/MusicContext";
 import { useToast } from "../hooks/use-toast";
+import { BackButton } from "../components/ui/back-button";
 
 export default function Search() {
   const navigate = useNavigate();
