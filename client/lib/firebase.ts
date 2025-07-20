@@ -55,9 +55,10 @@ if (missingEnvVars.length > 0) {
     appId: import.meta.env.VITE_FIREBASE_APP_ID,
   };
 
-  // Initialize Firebase
+    // Initialize Firebase
   app = initializeApp(firebaseConfig);
   auth = getAuth(app);
+  db = getFirestore(app);
 }
 
 export { auth };
