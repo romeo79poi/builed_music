@@ -655,14 +655,14 @@ export default function Signup() {
 
         
 
-                {/* Google Signup Button - Always visible */}
+                        {/* Google Signup Button - Always visible */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4, duration: 0.8 }}
           className="mb-6"
         >
-                    <button
+          <button
             onClick={handleGoogleSignup}
             disabled={isLoading}
             className="w-full h-12 sm:h-14 bg-slate-800/70 hover:bg-slate-700/70 rounded-lg flex items-center justify-center text-white font-medium transition-colors border border-slate-600 disabled:opacity-50"
@@ -694,6 +694,8 @@ export default function Signup() {
             )}
           </button>
         </motion.div>
+
+
 
         
 
