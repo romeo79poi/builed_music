@@ -47,7 +47,15 @@ import {
 } from "./routes/settings";
 
 // Auth routes
-import { registerUser, checkAvailability, getUsers } from "./routes/auth";
+import {
+  registerUser,
+  checkAvailability,
+  getUsers,
+  sendEmailVerification,
+  verifyEmailCode,
+  completeRegistration,
+  loginUser
+} from "./routes/auth";
 
 // Phone routes
 import phoneRoutes from "./routes/phone";
