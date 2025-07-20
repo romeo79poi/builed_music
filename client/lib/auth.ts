@@ -13,19 +13,18 @@ export interface UserData {
 export const signUpWithEmailAndPassword = async (
   email: string,
   password: string,
-  userData: Omit<UserData, 'email' | 'createdAt'>
+  name: string
 ): Promise<{ success: boolean; user?: User; error?: string }> => {
   try {
-    // Create user with Firebase Auth
+    // Create user with Firebase Auth (no recaptcha)
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
 
-    // Store additional user data in Firestore
-    const userDocData: UserData = {
-      name: userData.name,
-      username: userData.username,
+    // Store user data in Firestore with exact required fields
+    const userDocData = {
+      name: name,
       email: user.email!,
-      phoneNumber: userData.phoneNumber || '',
+      uid: user.uid,
       createdAt: serverTimestamp(),
     };
 
