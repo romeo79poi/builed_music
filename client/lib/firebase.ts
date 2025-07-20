@@ -67,5 +67,5 @@ if (missingEnvVars.length > 0 || isDemoConfig) {
 }
 
 export { auth, db };
-export const isFirebaseConfigured = missingEnvVars.length === 0;
+export const isFirebaseConfigured = missingEnvVars.length === 0 && !isDemoConfig && app !== null;
 export default app;
