@@ -466,17 +466,15 @@ export default function Signup() {
     await verifyOTP();
   };
 
-  const handlePasswordStep = async () => {
+    const handlePasswordStep = async () => {
     if (!validatePassword()) return;
 
     setIsLoading(true);
 
     try {
-      // Submit to backend
-      let response;
-
       if (signupMethod === "phone") {
-        response = await fetch("/api/phone/register", {
+        // Keep existing phone registration logic
+        const response = await fetch("/api/phone/register", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -487,46 +485,61 @@ export default function Signup() {
             username: formData.username,
           }),
         });
+
+        const data = await response.json();
+
+        if (data.success) {
+          toast({
+            title: "Account created successfully! 🎉",
+            description: `Welcome to Music Catch, ${data.user.name}!`,
+          });
+
+          setTimeout(() => {
+            navigate("/profile");
+          }, 2000);
+        } else {
+          toast({
+            title: "Registration failed",
+            description: data.message || "Please try again",
+            variant: "destructive",
+          });
+        }
       } else {
-        response = await fetch("/api/auth/register", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: formData.email,
-            username: formData.username,
+        // Use Firebase Auth for email registration
+        const result = await signUpWithEmailAndPassword(
+          formData.email,
+          formData.password,
+          {
             name: formData.name,
-            password: formData.password,
-            provider: "email",
-          }),
-        });
-      }
+            username: formData.username,
+            phoneNumber: formData.phone,
+          }
+        );
 
-      const data = await response.json();
+        if (result.success) {
+          toast({
+            title: "Account created successfully! 🎉",
+            description: `Welcome to Music Catch, ${formData.name}!`,
+          });
 
-      if (data.success) {
-        toast({
-          title: "Account created successfully! 🎉",
-          description: `Welcome to Music Catch, ${data.user.name}!`,
-        });
+          console.log("✅ User created with Firebase:", result.user);
+          console.log("📊 User data stored in Firestore:", {
+            name: formData.name,
+            username: formData.username,
+            email: formData.email,
+            phoneNumber: formData.phone,
+          });
 
-        console.log("✅ User created in backend:", data.user);
-        console.log("📊 Frontend data matched to backend:", {
-          frontend: formData,
-          backend: data.user,
-          matched: true,
-        });
-
-        setTimeout(() => {
-          navigate("/login");
-        }, 2000);
-      } else {
-        toast({
-          title: "Registration failed",
-          description: data.message || "Please try again",
-          variant: "destructive",
-        });
+          setTimeout(() => {
+            navigate("/profile");
+          }, 2000);
+        } else {
+          toast({
+            title: "Registration failed",
+            description: result.error || "Please try again",
+            variant: "destructive",
+          });
+        }
       }
     } catch (error) {
       console.error("Registration error:", error);
