@@ -366,9 +366,11 @@ export default function Library() {
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center justify-between p-4 md:p-6 bg-black/60 backdrop-blur-sm sticky top-0 z-20"
         >
-          <Link to="/home">
-            <ArrowLeft className="w-6 h-6 text-white" />
-          </Link>
+                    <BackButton
+            onClick={() => window.location.href = "/home"}
+            variant="glass"
+            size="lg"
+          />
           <h1 className="text-xl font-bold">Your Library</h1>
           <div className="flex items-center space-x-3">
             <Search className="w-6 h-6 text-gray-400" />
