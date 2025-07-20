@@ -318,17 +318,31 @@ export default function Signup() {
     }
   };
 
-  // Google signup handler
+    // Google signup handler
   const handleGoogleSignup = async () => {
     setIsLoading(true);
+    console.log("🚀 Starting Google sign-up process...");
 
     try {
       const result = await signInWithGoogle();
 
+      console.log("📋 Google sign-in result:", {
+        success: result.success,
+        hasUser: !!result.user,
+        isNewUser: result.isNewUser,
+        error: result.error
+      });
+
       if (result.success && result.user) {
+        // Validate user data
+        if (!result.user.email) {
+          throw new Error("Google account must have a valid email address");
+        }
+
+        const displayName = result.user.displayName || result.user.email?.split('@')[0] || "User";
         const message = result.isNewUser
-          ? `Welcome to Music Catch, ${result.user.displayName}!`
-          : `Welcome back, ${result.user.displayName}!`;
+          ? `Welcome to Music Catch, ${displayName}!`
+          : `Welcome back, ${displayName}!`;
 
         toast({
           title: "Google sign-in successful! 🎉",
@@ -336,32 +350,48 @@ export default function Signup() {
         });
 
         console.log("✅ Google authentication successful:", {
-          user: result.user,
-          isNewUser: result.isNewUser,
+          uid: result.user.uid,
           email: result.user.email,
           displayName: result.user.displayName,
+          isNewUser: result.isNewUser,
+          emailVerified: result.user.emailVerified
         });
 
+        // Navigate after a short delay to show success message
         setTimeout(() => {
           navigate("/profile");
         }, 1500);
       } else {
+        console.error("❌ Google sign-in failed:", result.error);
+
         toast({
           title: "Google sign-in failed",
-          description:
-            result.error || "Failed to connect with Google. Please try again.",
+          description: result.error || "Unable to sign in with Google. Please try again.",
           variant: "destructive",
         });
       }
-    } catch (error) {
-      console.error("Google signup error:", error);
+    } catch (error: any) {
+      console.error("💥 Google signup error:", error);
+
+      let errorMessage = "An unexpected error occurred";
+      if (error.message?.includes("email")) {
+        errorMessage = "Google account must have a valid email address";
+      } else if (error.message?.includes("network")) {
+        errorMessage = "Network error. Please check your connection.";
+      } else if (error.message?.includes("popup")) {
+        errorMessage = "Sign-in popup was blocked. Please allow popups and try again.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
       toast({
-        title: "Google sign-in failed",
-        description: "Network error. Please try again.",
+        title: "Google sign-in error",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
+      console.log("🏁 Google sign-up process completed");
     }
   };
 
