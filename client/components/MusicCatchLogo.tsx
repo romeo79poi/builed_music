@@ -11,6 +11,7 @@ export function MusicCatchLogo({
   className = "",
   animated = true,
   signupMode = false,
+  blinkMode = false,
 }: MusicCatchLogoProps) {
   const containerVariants = {
     hidden: { opacity: 0, scale: 0.5, rotateY: -180 },
