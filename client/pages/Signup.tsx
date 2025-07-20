@@ -1176,12 +1176,13 @@ export default function Signup() {
                   <input
                     type={showPassword ? "text" : "password"}
                     value={formData.password}
-                    onChange={(e) =>
+                                        onChange={(e) => {
                       setFormData((prev) => ({
                         ...prev,
                         password: e.target.value,
-                      }))
-                    }
+                      }));
+                      setErrorAlert(null); // Clear error when user types
+                    }}
                     placeholder="Create a strong password"
                     className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-3 sm:px-4 pr-10 sm:pr-12 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors text-sm sm:text-base"
                     disabled={isLoading}
