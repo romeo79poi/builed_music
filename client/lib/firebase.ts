@@ -18,6 +18,7 @@ const missingEnvVars = requiredEnvVars.filter(
 
 let app: any = null;
 let auth: any = null;
+let db: any = null;
 
 if (missingEnvVars.length > 0) {
   console.warn(
