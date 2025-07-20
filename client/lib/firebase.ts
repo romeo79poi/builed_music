@@ -30,16 +30,8 @@ if (missingEnvVars.length > 0) {
         // Create mock auth object for development
   auth = null;
 
-  // Create mock Firestore object for development
-  db = {
-    collection: () => ({
-      add: () => Promise.resolve({ id: 'mock-id' }),
-      doc: () => ({
-        set: () => Promise.resolve(),
-        get: () => Promise.resolve({ exists: false }),
-      }),
-    }),
-  };
+    // Create mock Firestore object for development
+  db = null;
 } else {
   const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
