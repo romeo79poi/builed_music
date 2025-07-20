@@ -175,16 +175,18 @@ export default function Splash() {
                 </div>
               </motion.div>
 
-              {/* Additional info */}
+                            {/* Additional info */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.9, duration: 0.8 }}
+                transition={{ delay: 1.2, duration: 0.8 }}
                 className="mt-8 text-center"
               >
-                <p className="text-slate-600 text-sm">
-                  By continuing, you agree to our Terms of Service and Privacy
-                  Policy
+                <p className="text-slate-600 text-sm mb-2">
+                  By continuing, you agree to our Terms of Service and Privacy Policy
+                </p>
+                <p className="text-transparent bg-gradient-to-r from-neon-green/70 to-neon-blue/70 bg-clip-text text-xs font-medium">
+                  🎶 Where Every Beat Tells a Story 🎶
                 </p>
               </motion.div>
             </div>
