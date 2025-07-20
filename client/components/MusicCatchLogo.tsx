@@ -72,7 +72,7 @@ export function MusicCatchLogo({
     },
   };
 
-  const waveVariants = {
+    const waveVariants = {
     hidden: { scaleX: 0, opacity: 0 },
     visible: {
       scaleX: 1,
@@ -83,6 +83,21 @@ export function MusicCatchLogo({
         repeat: animated ? Infinity : 0,
         repeatType: "reverse" as const,
         repeatDelay: signupMode ? 2.5 : 2,
+      },
+    },
+  };
+
+  // Blink animation variants for login page
+  const blinkVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: blinkMode ? [1, 0.3, 1, 0.1, 1] : 1,
+      transition: {
+        duration: blinkMode ? 1.5 : 0.8,
+        ease: "easeInOut",
+        repeat: blinkMode && animated ? Infinity : 0,
+        repeatType: "loop" as const,
+        repeatDelay: blinkMode ? 2 : 0,
       },
     },
   };
