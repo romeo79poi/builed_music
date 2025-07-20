@@ -162,7 +162,7 @@ export function MusicCatchLogo({
 
           {/* Center diamond with enhanced effects */}
           <div className="relative">
-            <motion.div
+                        <motion.div
               variants={diamondVariants}
               className="w-4 h-4 bg-gradient-to-br from-neon-green to-emerald-400 rotate-45 rounded-sm shadow-lg shadow-neon-green/50"
               animate={
@@ -174,12 +174,25 @@ export function MusicCatchLogo({
                         "0 0 10px rgba(60, 221, 116, 0.5)",
                       ],
                     }
+                  : animated && blinkMode
+                  ? {
+                      opacity: [1, 0.2, 1, 0.4, 1],
+                      scale: [1, 0.9, 1, 0.95, 1],
+                      boxShadow: [
+                        "0 0 15px rgba(60, 221, 116, 0.8)",
+                        "0 0 5px rgba(60, 221, 116, 0.3)",
+                        "0 0 25px rgba(60, 221, 116, 1)",
+                        "0 0 8px rgba(60, 221, 116, 0.4)",
+                        "0 0 15px rgba(60, 221, 116, 0.8)",
+                      ],
+                    }
                   : {}
               }
               transition={{
-                duration: 3,
+                duration: blinkMode ? 2 : 3,
                 repeat: Infinity,
                 ease: "easeInOut",
+                repeatDelay: blinkMode ? 1 : 0,
               }}
             />
 
