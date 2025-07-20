@@ -85,7 +85,7 @@ export function MusicCatchLogo({
     },
   };
 
-  return (
+    return (
     <motion.div
       className={`flex items-center justify-center ${className}`}
       variants={containerVariants}
@@ -93,76 +93,154 @@ export function MusicCatchLogo({
       animate="visible"
     >
       <div className="relative flex flex-col">
-        {/* Circular background with gradient */}
-        <div className="w-16 h-16 rounded-full bg-gradient-to-br from-neon-green/30 via-emerald-400/30 to-neon-blue/30 absolute -inset-2 blur-lg"></div>
+        {/* Enhanced circular background with multiple glows */}
+        <motion.div
+          variants={glowVariants}
+          className="w-20 h-20 rounded-full bg-gradient-to-br from-neon-green/40 via-emerald-400/40 to-neon-blue/40 absolute -inset-4 blur-xl"
+        />
+        <motion.div
+          variants={glowVariants}
+          className="w-16 h-16 rounded-full bg-gradient-to-br from-neon-green/30 via-emerald-400/30 to-neon-blue/30 absolute -inset-2 blur-lg"
+        />
 
         {/* Main logo container */}
         <div className="relative w-12 justify-center flex flex-row items-center">
-          {/* Side dots */}
+          {/* Animated side dots with pulse effect */}
           <motion.div
             variants={barVariants}
-            className="absolute -left-6 top-1/2 transform -translate-y-1/2 w-1.5 h-1.5 bg-neon-green rounded-full"
+            className="absolute -left-6 top-1/2 transform -translate-y-1/2 w-1.5 h-1.5 bg-neon-green rounded-full shadow-lg shadow-neon-green/50"
+            animate={animated && signupMode ? {
+              scale: [1, 1.5, 1],
+              opacity: [0.7, 1, 0.7],
+            } : {}}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
           />
 
-          {/* Left side bars */}
+          {/* Left side bars with stagger */}
           <div className="absolute left-0 flex items-end space-x-0.5">
             <motion.div
               variants={barVariants}
-              className="w-0.5 h-2 bg-gradient-to-t from-neon-green to-emerald-400 rounded-full"
+              className="w-0.5 h-2 bg-gradient-to-t from-neon-green to-emerald-400 rounded-full shadow-sm shadow-neon-green/30"
+              style={{ animationDelay: "0.1s" }}
             />
             <motion.div
               variants={barVariants}
-              className="w-0.5 h-4 bg-gradient-to-t from-neon-green to-emerald-400 rounded-full"
+              className="w-0.5 h-4 bg-gradient-to-t from-neon-green to-emerald-400 rounded-full shadow-sm shadow-neon-green/30"
+              style={{ animationDelay: "0.2s" }}
             />
             <motion.div
               variants={barVariants}
-              className="w-0.5 h-3 bg-gradient-to-t from-neon-green to-emerald-400 rounded-full"
+              className="w-0.5 h-3 bg-gradient-to-t from-neon-green to-emerald-400 rounded-full shadow-sm shadow-neon-green/30"
+              style={{ animationDelay: "0.3s" }}
             />
           </div>
 
-          {/* Center diamond with curved elements */}
+          {/* Center diamond with enhanced effects */}
           <div className="relative">
             <motion.div
               variants={diamondVariants}
-              className="w-4 h-4 bg-gradient-to-br from-neon-green to-emerald-400 rotate-45 rounded-sm"
+              className="w-4 h-4 bg-gradient-to-br from-neon-green to-emerald-400 rotate-45 rounded-sm shadow-lg shadow-neon-green/50"
+              animate={animated && signupMode ? {
+                boxShadow: [
+                  "0 0 10px rgba(60, 221, 116, 0.5)",
+                  "0 0 20px rgba(60, 221, 116, 0.8)",
+                  "0 0 10px rgba(60, 221, 116, 0.5)"
+                ]
+              } : {}}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
             />
 
-            {/* Curved wave elements */}
+            {/* Enhanced curved wave elements */}
             <div className="absolute -left-2 top-1/2 transform -translate-y-1/2">
               <motion.div
-                variants={barVariants}
-                className="w-5 h-0.5 bg-gradient-to-r from-neon-green to-transparent rounded-full transform -rotate-12"
+                variants={waveVariants}
+                className="w-5 h-0.5 bg-gradient-to-r from-neon-green to-transparent rounded-full transform -rotate-12 shadow-sm shadow-neon-green/30"
               />
             </div>
             <div className="absolute -right-2 top-1/2 transform -translate-y-1/2">
               <motion.div
-                variants={barVariants}
-                className="w-5 h-0.5 bg-gradient-to-r from-transparent to-neon-blue rounded-full transform rotate-12"
+                variants={waveVariants}
+                className="w-5 h-0.5 bg-gradient-to-r from-transparent to-neon-blue rounded-full transform rotate-12 shadow-sm shadow-neon-blue/30"
               />
             </div>
           </div>
 
-          {/* Right side bars */}
+          {/* Right side bars with stagger */}
           <div className="absolute right-0 flex items-end space-x-0.5">
             <motion.div
               variants={barVariants}
-              className="w-0.5 h-3 bg-gradient-to-t from-neon-blue to-cyan-400 rounded-full"
+              className="w-0.5 h-3 bg-gradient-to-t from-neon-blue to-cyan-400 rounded-full shadow-sm shadow-neon-blue/30"
+              style={{ animationDelay: "0.4s" }}
             />
             <motion.div
               variants={barVariants}
-              className="w-0.5 h-5 bg-gradient-to-t from-neon-blue to-cyan-400 rounded-full"
+              className="w-0.5 h-5 bg-gradient-to-t from-neon-blue to-cyan-400 rounded-full shadow-sm shadow-neon-blue/30"
+              style={{ animationDelay: "0.5s" }}
             />
             <motion.div
               variants={barVariants}
-              className="w-0.5 h-2 bg-gradient-to-t from-neon-blue to-cyan-400 rounded-full"
+              className="w-0.5 h-2 bg-gradient-to-t from-neon-blue to-cyan-400 rounded-full shadow-sm shadow-neon-blue/30"
+              style={{ animationDelay: "0.6s" }}
             />
           </div>
 
           <motion.div
             variants={barVariants}
-            className="absolute -right-6 top-1/2 transform -translate-y-1/2 w-1.5 h-1.5 bg-neon-blue rounded-full"
+            className="absolute -right-6 top-1/2 transform -translate-y-1/2 w-1.5 h-1.5 bg-neon-blue rounded-full shadow-lg shadow-neon-blue/50"
+            animate={animated && signupMode ? {
+              scale: [1, 1.5, 1],
+              opacity: [0.7, 1, 0.7],
+            } : {}}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 1
+            }}
           />
         </div>
+
+        {/* Additional signup mode effects */}
+        {signupMode && animated && (
+          <>
+            {/* Floating particles */}
+            <motion.div
+              className="absolute -top-2 -left-2 w-1 h-1 bg-neon-green rounded-full"
+              animate={{
+                y: [-4, -8, -4],
+                x: [-2, 2, -2],
+                opacity: [0.3, 0.8, 0.3],
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut",
+              }}
+            />
+            <motion.div
+              className="absolute -bottom-1 -right-1 w-1 h-1 bg-neon-blue rounded-full"
+              animate={{
+                y: [4, 8, 4],
+                x: [2, -2, 2],
+                opacity: [0.3, 0.8, 0.3],
+              }}
+              transition={{
+                duration: 3,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: 1.5,
+              }}
+            />
+          </>
+        )}
       </div>
     </motion.div>
   );
