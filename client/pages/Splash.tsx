@@ -46,23 +46,13 @@ export default function Splash() {
               <MusicCatchLogo className="mb-8" animated />
 
               {/* App title */}
-              <motion.div
+                            <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1, duration: 0.8 }}
-                className="text-center"
+                className="text-center text-white text-5xl font-normal tracking-[2.4px] leading-[48px] pb-2"
               >
-                <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 tracking-wider">
-                  MUSIC CATCH
-                </h1>
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 1.5, duration: 0.8 }}
-                  className="text-neon-green text-sm tracking-[0.2em] font-medium"
-                >
-                  APPS
-                </motion.p>
+                MUSIC CATCH
               </motion.div>
 
               {/* Loading animation */}
