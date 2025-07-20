@@ -408,7 +408,7 @@ export default function Signup() {
     }
   };
 
-    const handleEmailStep = async () => {
+  const handleEmailStep = async () => {
     if (!validateEmail(formData.email)) return;
 
     setIsLoading(true);
@@ -433,7 +433,7 @@ export default function Signup() {
     }
   };
 
-    const handleProfileStep = async () => {
+  const handleProfileStep = async () => {
     if (!validateProfile()) return;
 
     setIsLoading(true);
@@ -552,7 +552,7 @@ export default function Signup() {
     }
   };
 
-    const goBack = () => {
+  const goBack = () => {
     if (currentStep === "email") {
       setCurrentStep("method");
     } else if (currentStep === "phone") {
@@ -609,7 +609,7 @@ export default function Signup() {
       {/* Background glow effect */}
       <div className="absolute inset-0 bg-gradient-to-br from-neon-green/5 via-transparent to-neon-blue/5"></div>
 
-            <div className="relative z-10 w-full max-w-md px-2 sm:px-0">
+      <div className="relative z-10 w-full max-w-md px-2 sm:px-0">
         {/* Back Button - Always visible */}
         <motion.div
           initial={{ opacity: 0, x: -20 }}
@@ -653,9 +653,7 @@ export default function Signup() {
           </h2>
         </motion.div>
 
-        
-
-                        {/* Google Signup Button - Always visible */}
+        {/* Google Signup Button - Always visible */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -694,10 +692,6 @@ export default function Signup() {
             )}
           </button>
         </motion.div>
-
-
-
-        
 
         <AnimatePresence mode="wait">
           {/* Method Selection Step */}
@@ -769,8 +763,6 @@ export default function Signup() {
                 </p>
               </div>
 
-              
-
               <div>
                 <label className="block text-white text-sm font-medium mb-2">
                   Email address
@@ -816,7 +808,7 @@ export default function Signup() {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-4 sm:space-y-6"
             >
-                            <div className="text-center mb-4 sm:mb-6">
+              <div className="text-center mb-4 sm:mb-6">
                 <div className="w-12 h-12 sm:w-16 sm:h-16 bg-neon-blue/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                   <Phone className="w-6 h-6 sm:w-8 sm:h-8 text-neon-blue" />
                 </div>
@@ -877,7 +869,7 @@ export default function Signup() {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-4 sm:space-y-6"
             >
-                            <div className="text-center mb-4 sm:mb-6">
+              <div className="text-center mb-4 sm:mb-6">
                 <div className="w-12 h-12 sm:w-16 sm:h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                   <Phone className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-500" />
                 </div>
@@ -960,7 +952,7 @@ export default function Signup() {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-4 sm:space-y-6"
             >
-                            <div className="text-center mb-4 sm:mb-6">
+              <div className="text-center mb-4 sm:mb-6">
                 <div className="w-12 h-12 sm:w-16 sm:h-16 bg-neon-blue/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                   <User className="w-6 h-6 sm:w-8 sm:h-8 text-neon-blue" />
                 </div>
@@ -1044,7 +1036,7 @@ export default function Signup() {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-4 sm:space-y-6"
             >
-                            <div className="text-center mb-4 sm:mb-6">
+              <div className="text-center mb-4 sm:mb-6">
                 <div className="w-12 h-12 sm:w-16 sm:h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                   <Mail className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-500" />
                 </div>
@@ -1109,7 +1101,7 @@ export default function Signup() {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-4 sm:space-y-6"
             >
-                            <div className="text-center mb-4 sm:mb-6">
+              <div className="text-center mb-4 sm:mb-6">
                 <div className="w-12 h-12 sm:w-16 sm:h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                   <Lock className="w-6 h-6 sm:w-8 sm:h-8 text-purple-500" />
                 </div>
