@@ -27,10 +27,10 @@ if (missingEnvVars.length > 0) {
   );
   console.warn("Firebase authentication will be mocked for development");
 
-        // Create mock auth object for development
+  // Create mock auth object for development
   auth = null;
 
-    // Create mock Firestore object for development
+  // Create mock Firestore object for development
   db = null;
 } else {
   const firebaseConfig = {
@@ -42,7 +42,7 @@ if (missingEnvVars.length > 0) {
     appId: import.meta.env.VITE_FIREBASE_APP_ID,
   };
 
-    // Initialize Firebase
+  // Initialize Firebase
   app = initializeApp(firebaseConfig);
   auth = getAuth(app);
   db = getFirestore(app);

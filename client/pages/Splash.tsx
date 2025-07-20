@@ -97,7 +97,7 @@ export default function Splash() {
               transition={{ delay: 2.5, duration: 0.8 }}
               className="absolute bottom-8 text-center"
             >
-                            <p className="text-transparent bg-gradient-to-r from-neon-green via-purple-400 to-neon-blue bg-clip-text text-sm font-medium">
+              <p className="text-transparent bg-gradient-to-r from-neon-green via-purple-400 to-neon-blue bg-clip-text text-sm font-medium">
                 Feel the Music, Catch the Feel ✨
               </p>
             </motion.div>
@@ -115,7 +115,7 @@ export default function Splash() {
             <div className="absolute inset-0 bg-gradient-to-br from-neon-green/5 via-transparent to-neon-blue/5"></div>
 
             <div className="relative z-10 flex flex-col items-center max-w-md mx-auto px-3 sm:px-6">
-                            {/* Welcome text with enhanced logo */}
+              {/* Welcome text with enhanced logo */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -146,7 +146,7 @@ export default function Splash() {
                 </motion.p>
               </motion.div>
 
-                                          {/* Action buttons */}
+              {/* Action buttons */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -169,7 +169,7 @@ export default function Splash() {
                 </Button>
               </motion.div>
 
-                            {/* Additional info */}
+              {/* Additional info */}
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -177,7 +177,8 @@ export default function Splash() {
                 className="mt-8 text-center"
               >
                 <p className="text-slate-600 text-sm mb-2">
-                  By continuing, you agree to our Terms of Service and Privacy Policy
+                  By continuing, you agree to our Terms of Service and Privacy
+                  Policy
                 </p>
                 <p className="text-transparent bg-gradient-to-r from-neon-green/70 to-neon-blue/70 bg-clip-text text-xs font-medium">
                   🎶 Where Every Beat Tells a Story 🎶

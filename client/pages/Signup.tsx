@@ -80,7 +80,7 @@ export default function Signup() {
   }>({});
   const [phoneVerified, setPhoneVerified] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
-    const [resendTimer, setResendTimer] = useState(0);
+  const [resendTimer, setResendTimer] = useState(0);
   const [errorAlert, setErrorAlert] = useState<string | null>(null);
 
   // Validation functions
@@ -318,7 +318,7 @@ export default function Signup() {
     }
   };
 
-    // Google signup handler
+  // Google signup handler
   const handleGoogleSignup = async () => {
     setIsLoading(true);
 
@@ -348,7 +348,8 @@ export default function Signup() {
       } else {
         toast({
           title: "Google sign-in failed",
-          description: result.error || "Failed to connect with Google. Please try again.",
+          description:
+            result.error || "Failed to connect with Google. Please try again.",
           variant: "destructive",
         });
       }
@@ -443,7 +444,7 @@ export default function Signup() {
     await verifyOTP();
   };
 
-    const handlePasswordStep = async () => {
+  const handlePasswordStep = async () => {
     if (!validatePassword()) return;
 
     setIsLoading(true);
@@ -481,7 +482,7 @@ export default function Signup() {
             variant: "destructive",
           });
         }
-            } else {
+      } else {
         // Clear any previous errors
         setErrorAlert(null);
 
@@ -489,7 +490,7 @@ export default function Signup() {
         const result = await signUpWithEmailAndPassword(
           formData.email,
           formData.password,
-          formData.name
+          formData.name,
         );
 
         if (result.success) {
@@ -503,7 +504,7 @@ export default function Signup() {
             name: formData.name,
             email: formData.email,
             uid: result.user?.uid,
-            createdAt: "server timestamp"
+            createdAt: "server timestamp",
           });
 
           setTimeout(() => {
@@ -511,10 +512,12 @@ export default function Signup() {
           }, 2000);
         } else {
           // Show error in red alert box
-          setErrorAlert(result.error || "Registration failed. Please try again.");
+          setErrorAlert(
+            result.error || "Registration failed. Please try again.",
+          );
         }
       }
-        } catch (error) {
+    } catch (error) {
       console.error("Registration error:", error);
       setErrorAlert("Network error. Please try again.");
     } finally {
@@ -1176,7 +1179,7 @@ export default function Signup() {
                   <input
                     type={showPassword ? "text" : "password"}
                     value={formData.password}
-                                        onChange={(e) => {
+                    onChange={(e) => {
                       setFormData((prev) => ({
                         ...prev,
                         password: e.target.value,
@@ -1246,14 +1249,16 @@ export default function Signup() {
                     {errors.confirmPassword}
                   </p>
                 )}
-                            </div>
+              </div>
 
               {/* Red Error Alert Box */}
               {errorAlert && (
                 <div className="bg-red-500/10 border border-red-500 rounded-lg p-4 mb-4">
                   <div className="flex items-center">
                     <AlertCircle className="w-5 h-5 text-red-500 mr-3" />
-                    <p className="text-red-500 text-sm font-medium">{errorAlert}</p>
+                    <p className="text-red-500 text-sm font-medium">
+                      {errorAlert}
+                    </p>
                   </div>
                 </div>
               )}
