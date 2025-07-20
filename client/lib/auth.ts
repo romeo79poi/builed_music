@@ -71,6 +71,14 @@ export const loginWithEmailAndPassword = async (
   password: string
 ): Promise<{ success: boolean; user?: User; error?: string }> => {
   try {
+    // Check if Firebase is configured
+    if (!isFirebaseConfigured || !auth) {
+      return {
+        success: false,
+        error: "Firebase is not configured. Please add Firebase environment variables."
+      };
+    }
+
     const userCredential = await signInWithEmailAndPassword(auth, email, password);
     return { success: true, user: userCredential.user };
   } catch (error: any) {
