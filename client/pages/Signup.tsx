@@ -578,9 +578,16 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen bg-black flex flex-col items-center justify-center p-3 sm:p-6 relative overflow-hidden">
+        <div className="min-h-screen bg-black flex flex-col items-center justify-center p-3 sm:p-6 relative overflow-hidden">
       {/* Background glow effect */}
       <div className="absolute inset-0 bg-gradient-to-br from-neon-green/5 via-transparent to-neon-blue/5"></div>
+
+      {/* Back Button - Only show on method step */}
+      {currentStep === "method" && (
+        <div className="absolute top-6 left-6 z-20">
+          <BackButton variant="glass" />
+        </div>
+      )}
 
       <div className="relative z-10 w-full max-w-md px-2 sm:px-0">
         {/* Header */}
