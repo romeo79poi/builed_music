@@ -102,10 +102,10 @@ export function MusicCatchLogo({
     },
   };
 
-  return (
+    return (
     <motion.div
       className={`flex items-center justify-center ${className}`}
-      variants={containerVariants}
+      variants={blinkMode ? blinkVariants : containerVariants}
       initial="hidden"
       animate="visible"
     >
