@@ -100,10 +100,18 @@ export function createServer() {
 
   app.get("/api/demo", handleDemo);
 
-  // Authentication API routes
+    // Authentication API routes
   app.post("/api/auth/register", registerUser);
   app.get("/api/auth/check-availability", checkAvailability);
   app.get("/api/auth/users", getUsers); // For demo purposes
+
+  // Email verification routes
+  app.post("/api/auth/send-email-verification", sendEmailVerification);
+  app.post("/api/auth/verify-email", verifyEmailCode);
+  app.post("/api/auth/complete-registration", completeRegistration);
+
+  // Login route
+  app.post("/api/auth/login", loginUser);
 
   // Phone verification API routes
   app.use("/api/phone", phoneRoutes);
