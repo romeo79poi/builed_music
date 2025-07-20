@@ -281,24 +281,45 @@ export const signInWithGoogle = async (): Promise<{
 
     let errorMessage = "An error occurred during Google sign-in";
 
-    switch (error.code) {
+        switch (error.code) {
       case "auth/popup-closed-by-user":
-        errorMessage = "Sign-in cancelled";
+        errorMessage = "Sign-in cancelled by user";
         break;
       case "auth/popup-blocked":
-        errorMessage = "Popup blocked by browser";
+        errorMessage = "Sign-in popup was blocked by your browser. Please allow popups and try again.";
         break;
       case "auth/cancelled-popup-request":
-        errorMessage = "Sign-in cancelled";
+        errorMessage = "Sign-in was cancelled";
         break;
       case "auth/operation-not-allowed":
-        errorMessage = "Google sign-in is not enabled";
+        errorMessage = "Google sign-in is not enabled for this application";
         break;
       case "auth/unauthorized-domain":
         errorMessage = "This domain is not authorized for Google sign-in";
         break;
+      case "auth/account-exists-with-different-credential":
+        errorMessage = "An account already exists with the same email address but different sign-in credentials";
+        break;
+      case "auth/invalid-credential":
+        errorMessage = "The provided Google credential is invalid or expired";
+        break;
+      case "auth/user-disabled":
+        errorMessage = "This Google account has been disabled";
+        break;
+      case "auth/user-not-found":
+        errorMessage = "No account found with this Google account";
+        break;
+      case "auth/email-already-in-use":
+        errorMessage = "This email is already registered with a different sign-in method";
+        break;
       default:
-        errorMessage = error.message || errorMessage;
+        if (error.message?.includes("No email address")) {
+          errorMessage = "Google account must have a valid email address";
+        } else if (error.message?.includes("network")) {
+          errorMessage = "Network error. Please check your connection and try again.";
+        } else {
+          errorMessage = error.message || "An unexpected error occurred during Google sign-in";
+        }
     }
 
     return { success: false, error: errorMessage };
