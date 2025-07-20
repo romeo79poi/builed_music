@@ -4,6 +4,8 @@ import { motion } from "framer-motion";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { BackButton } from "../components/ui/back-button";
 import { useFirebase } from "../context/FirebaseContext";
+import { signInWithGoogleEnhanced } from "../lib/google-auth";
+import { useToast } from "../hooks/use-toast";
 
 export default function Login() {
   const navigate = useNavigate();
