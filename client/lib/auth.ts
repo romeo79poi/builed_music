@@ -104,13 +104,12 @@ export const signInWithGoogle = async (): Promise<{ success: boolean; user?: Use
 
     let isNewUser = false;
 
-    if (!userDoc.exists()) {
-      // Create new user document
-      const userData: UserData = {
+        if (!userDoc.exists()) {
+      // Create new user document with .set()
+      const userData = {
         name: user.displayName || '',
-        username: user.email?.split('@')[0] || '',
         email: user.email || '',
-        phoneNumber: '',
+        uid: user.uid,
         createdAt: serverTimestamp(),
       };
 
