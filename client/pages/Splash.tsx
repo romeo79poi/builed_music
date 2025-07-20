@@ -50,19 +50,9 @@ export default function Splash() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1, duration: 0.8 }}
-                className="text-center"
+                className="text-center text-white text-5xl font-normal tracking-[0.15em] leading-[48px] pb-2"
               >
-                <h1 className="text-4xl md:text-5xl font-bold text-white mb-2 tracking-wider">
-                  MUSIC CATCH
-                </h1>
-                <motion.p
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 1.5, duration: 0.8 }}
-                  className="text-neon-green text-sm tracking-[0.2em] font-medium"
-                >
-                  APPS
-                </motion.p>
+                MUSIC CATCH
               </motion.div>
 
               {/* Loading animation */}
@@ -133,16 +123,13 @@ export default function Splash() {
                 <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4 tracking-wide">
                   Welcome to Music Catch
                 </h2>
-                <p className="text-slate-400 text-base sm:text-lg mb-2">
-                  Get started with your musical journey
-                </p>
                 <motion.p
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.6, duration: 0.8 }}
                   className="text-transparent bg-gradient-to-r from-neon-green via-purple-400 to-neon-blue bg-clip-text text-lg sm:text-xl font-semibold tracking-wide"
                 >
-                  Feel the Music, Catch the Feel
+                  Feel The Music
                 </motion.p>
               </motion.div>
 
@@ -181,7 +168,7 @@ export default function Splash() {
                   Policy
                 </p>
                 <p className="text-transparent bg-gradient-to-r from-neon-green/70 to-neon-blue/70 bg-clip-text text-xs font-medium">
-                  🎶 Where Every Beat Tells a Story 🎶
+                  🎶 Where Every Music Tells a Story 🎶
                 </p>
               </motion.div>
             </div>

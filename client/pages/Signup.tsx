@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Eye,
   EyeOff,
-  ArrowLeft,
   Loader2,
   AlertCircle,
   CheckCircle,
@@ -14,6 +13,7 @@ import {
   Phone,
 } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
+import { BackButton } from "../components/ui/back-button";
 import { useToast } from "../hooks/use-toast";
 import {
   validatePhoneNumber,
@@ -21,7 +21,8 @@ import {
   formatPhoneDisplay,
   phoneAPI,
 } from "../lib/phone";
-import { signUpWithEmailAndPassword, signInWithGoogle } from "../lib/auth";
+import { signUpWithEmailAndPassword } from "../lib/auth";
+import { signInWithGoogleEnhanced } from "../lib/google-auth";
 
 type SignupStep =
   | "method"
@@ -318,43 +319,65 @@ export default function Signup() {
     }
   };
 
-  // Google signup handler
+  // Google signup handler with enhanced backend verification
   const handleGoogleSignup = async () => {
     setIsLoading(true);
 
     try {
-      const result = await signInWithGoogle();
+      console.log("🚀 Starting Google signup with enhanced verification...");
+
+      const result = await signInWithGoogleEnhanced();
 
       if (result.success && result.user) {
         const message = result.isNewUser
-          ? `Welcome to Music Catch, ${result.user.displayName}!`
-          : `Welcome back, ${result.user.displayName}!`;
+          ? `Welcome to Music Catch, ${result.user.name || result.user.displayName}!`
+          : `Welcome back, ${result.user.name || result.user.displayName}!`;
 
         toast({
           title: "Google sign-in successful! 🎉",
           description: message,
         });
 
-        console.log("✅ Google authentication successful:", {
+        console.log("✅ Enhanced Google authentication successful:", {
           user: result.user,
           isNewUser: result.isNewUser,
           email: result.user.email,
-          displayName: result.user.displayName,
+          name: result.user.name || result.user.displayName,
+          hasSessionToken: !!result.sessionToken,
+          hasGoogleInfo: !!result.googleUserInfo,
+          backendVerified: true,
         });
+
+        // Show success details for demo
+        if (result.googleUserInfo) {
+          console.log("📊 Google account details:", {
+            googleId: result.googleUserInfo.sub,
+            email: result.googleUserInfo.email,
+            emailVerified: result.googleUserInfo.emailVerified,
+            profilePicture: result.googleUserInfo.picture,
+          });
+        }
 
         setTimeout(() => {
           navigate("/profile");
         }, 1500);
       } else {
+        const errorMessage =
+          result.error || "Failed to connect with Google. Please try again.";
+
         toast({
           title: "Google sign-in failed",
-          description:
-            result.error || "Failed to connect with Google. Please try again.",
+          description: errorMessage,
           variant: "destructive",
+        });
+
+        console.error("❌ Enhanced Google authentication failed:", {
+          error: result.error,
+          hasUser: !!result.user,
         });
       }
     } catch (error) {
-      console.error("Google signup error:", error);
+      console.error("❌ Google signup error:", error);
       toast({
         title: "Google sign-in failed",
         description: "Network error. Please try again.",
@@ -582,6 +605,13 @@ export default function Signup() {
       {/* Background glow effect */}
       <div className="absolute inset-0 bg-gradient-to-br from-neon-green/5 via-transparent to-neon-blue/5"></div>
 
+      {/* Back Button - Only show on method step */}
+      {currentStep === "method" && (
+        <div className="absolute top-6 left-6 z-20">
+          <BackButton variant="glass" />
+        </div>
+      )}
+
       <div className="relative z-10 w-full max-w-md px-2 sm:px-0">
         {/* Header */}
         <motion.div
@@ -602,35 +632,6 @@ export default function Signup() {
           <h2 className="text-2xl sm:text-3xl font-bold text-white">
             MUSIC CATCH
           </h2>
-        </motion.div>
-
-        {/* Progress indicator */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.8 }}
-          className="flex justify-center mb-6 sm:mb-8"
-        >
-          <div className="flex space-x-2">
-            {(signupMethod === "phone"
-              ? ["method", "phone", "phone-verify", "profile"]
-              : ["method", "email", "verification", "profile", "password"]
-            ).map((step, index) => {
-              const currentStepIndex =
-                Object.keys(stepTitles).indexOf(currentStep);
-              const stepIndex = Object.keys(stepTitles).indexOf(step);
-              return (
-                <div
-                  key={step}
-                  className={`w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full transition-colors ${
-                    stepIndex <= currentStepIndex
-                      ? "bg-neon-green"
-                      : "bg-slate-700"
-                  }`}
-                />
-              );
-            })}
-          </div>
         </motion.div>
 
         <AnimatePresence mode="wait">
@@ -827,12 +828,11 @@ export default function Signup() {
               className="space-y-4 sm:space-y-6"
             >
               <div className="flex items-center mb-4 sm:mb-6">
-                <button
+                <BackButton
                   onClick={goBack}
-                  className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-800/50 rounded-full flex items-center justify-center mr-3 sm:mr-4"
-                >
-                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-                </button>
+                  className="mr-3 sm:mr-4"
+                  size="md"
+                />
                 <div className="text-center flex-1">
                   <div className="w-12 h-12 sm:w-16 sm:h-16 bg-neon-blue/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                     <Phone className="w-6 h-6 sm:w-8 sm:h-8 text-neon-blue" />
@@ -896,12 +896,11 @@ export default function Signup() {
               className="space-y-4 sm:space-y-6"
             >
               <div className="flex items-center mb-4 sm:mb-6">
-                <button
+                <BackButton
                   onClick={goBack}
-                  className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-800/50 rounded-full flex items-center justify-center mr-3 sm:mr-4"
-                >
-                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-                </button>
+                  className="mr-3 sm:mr-4"
+                  size="md"
+                />
                 <div className="text-center flex-1">
                   <div className="w-12 h-12 sm:w-16 sm:h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                     <Phone className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-500" />
@@ -987,12 +986,11 @@ export default function Signup() {
               className="space-y-4 sm:space-y-6"
             >
               <div className="flex items-center mb-4 sm:mb-6">
-                <button
+                <BackButton
                   onClick={goBack}
-                  className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-800/50 rounded-full flex items-center justify-center mr-3 sm:mr-4"
-                >
-                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-                </button>
+                  className="mr-3 sm:mr-4"
+                  size="md"
+                />
                 <div className="text-center flex-1">
                   <div className="w-12 h-12 sm:w-16 sm:h-16 bg-neon-blue/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                     <User className="w-6 h-6 sm:w-8 sm:h-8 text-neon-blue" />
@@ -1079,12 +1077,11 @@ export default function Signup() {
               className="space-y-4 sm:space-y-6"
             >
               <div className="flex items-center mb-4 sm:mb-6">
-                <button
+                <BackButton
                   onClick={goBack}
-                  className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-800/50 rounded-full flex items-center justify-center mr-3 sm:mr-4"
-                >
-                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-                </button>
+                  className="mr-3 sm:mr-4"
+                  size="md"
+                />
                 <div className="text-center flex-1">
                   <div className="w-12 h-12 sm:w-16 sm:h-16 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                     <Mail className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-500" />
@@ -1152,12 +1149,11 @@ export default function Signup() {
               className="space-y-4 sm:space-y-6"
             >
               <div className="flex items-center mb-4 sm:mb-6">
-                <button
+                <BackButton
                   onClick={goBack}
-                  className="w-8 h-8 sm:w-10 sm:h-10 bg-slate-800/50 rounded-full flex items-center justify-center mr-3 sm:mr-4"
-                >
-                  <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
-                </button>
+                  className="mr-3 sm:mr-4"
+                  size="md"
+                />
                 <div className="text-center flex-1">
                   <div className="w-12 h-12 sm:w-16 sm:h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                     <Lock className="w-6 h-6 sm:w-8 sm:h-8 text-purple-500" />

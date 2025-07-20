@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
-  ArrowLeft,
   Settings,
   Crown,
   Music,
@@ -28,6 +27,7 @@ import { useNavigate } from "react-router-dom";
 import { useProfileContext } from "../context/ProfileContext";
 import { api } from "../lib/api";
 import { useToast } from "../hooks/use-toast";
+import { BackButton } from "../components/ui/back-button";
 
 export default function Profile() {
   const navigate = useNavigate();
@@ -178,13 +178,11 @@ export default function Profile() {
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center justify-between p-6 pt-12"
         >
-          <button
+          <BackButton
             onClick={() => navigate("/home")}
-            className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm hover:bg-white/20 transition-colors"
-            title="Back to Home"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
+            variant="glass"
+            className="hover:bg-white/20"
+          />
           <h1 className="text-xl font-bold">Profile</h1>
           <button
             onClick={() => navigate("/settings")}

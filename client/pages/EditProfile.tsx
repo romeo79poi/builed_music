@@ -1,7 +1,6 @@
 import React, { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  ArrowLeft,
   Camera,
   Save,
   X,
@@ -20,6 +19,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useProfileContext } from "../context/ProfileContext";
+import { BackButton } from "../components/ui/back-button";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
 import { Textarea } from "../components/ui/textarea";
@@ -223,12 +223,7 @@ export default function EditProfile() {
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center justify-between p-6 pt-12"
         >
-          <button
-            onClick={handleCancel}
-            className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
+          <BackButton onClick={handleCancel} variant="glass" />
           <h1 className="text-xl font-bold">Edit Profile</h1>
           <Button
             onClick={handleSave}

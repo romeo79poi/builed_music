@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
-  ArrowLeft,
   Search,
   MoreHorizontal,
   Play,
@@ -19,6 +18,7 @@ import {
 import { useProfileContext } from "../context/ProfileContext";
 import { useMusicContext } from "../context/MusicContext";
 import { useToast } from "../hooks/use-toast";
+import { BackButton } from "../components/ui/back-button";
 
 export default function History() {
   const { profile } = useProfileContext();
@@ -247,9 +247,11 @@ export default function History() {
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center justify-between p-4 md:p-6 bg-black/60 backdrop-blur-sm sticky top-0 z-20"
         >
-          <Link to="/home">
-            <ArrowLeft className="w-6 h-6 text-white" />
-          </Link>
+          <BackButton
+            onClick={() => (window.location.href = "/home")}
+            variant="glass"
+            size="lg"
+          />
           <h1 className="text-xl font-bold">Listening History</h1>
           <div className="flex items-center space-x-3">
             <Search className="w-6 h-6 text-gray-400" />

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
-  ArrowLeft,
   Search,
   Heart,
   Play,
@@ -17,6 +16,7 @@ import { useProfileContext } from "../context/ProfileContext";
 import { useMusicContext } from "../context/MusicContext";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
+import { BackButton } from "../components/ui/back-button";
 
 interface Song {
   id: string;
@@ -177,12 +177,7 @@ export default function LikedSongs() {
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center justify-between p-6 pt-12"
         >
-          <button
-            onClick={() => navigate("/profile")}
-            className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
+          <BackButton onClick={() => navigate("/profile")} variant="glass" />
           <h1 className="text-xl font-bold">Liked Songs</h1>
           <div className="w-10" />
         </motion.div>
