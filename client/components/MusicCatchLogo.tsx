@@ -235,7 +235,7 @@ export function MusicCatchLogo({
             />
           </div>
 
-          <motion.div
+                    <motion.div
             variants={barVariants}
             className="absolute -right-6 top-1/2 transform -translate-y-1/2 w-1.5 h-1.5 bg-neon-blue rounded-full shadow-lg shadow-neon-blue/50"
             animate={
@@ -243,6 +243,11 @@ export function MusicCatchLogo({
                 ? {
                     scale: [1, 1.5, 1],
                     opacity: [0.7, 1, 0.7],
+                  }
+                : animated && blinkMode
+                ? {
+                    opacity: [1, 0.2, 1, 0.1, 1, 0.4, 1],
+                    scale: [1, 1.1, 1, 1.3, 1, 1.2, 1],
                   }
                 : {}
             }
