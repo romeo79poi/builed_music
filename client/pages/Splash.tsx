@@ -123,13 +123,13 @@ export default function Splash() {
                 <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4 tracking-wide">
                   Welcome to Music Catch
                 </h2>
-                                                <motion.p
+                                                                <motion.p
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.6, duration: 0.8 }}
                   className="text-transparent bg-gradient-to-r from-neon-green via-purple-400 to-neon-blue bg-clip-text text-lg sm:text-xl font-semibold tracking-wide"
                 >
-                  <p>Feel The Music</p>
+                  Feel The Music
                 </motion.p>
               </motion.div>
 
@@ -167,8 +167,8 @@ export default function Splash() {
                   By continuing, you agree to our Terms of Service and Privacy
                   Policy
                 </p>
-                                <p className="text-transparent bg-gradient-to-r from-neon-green/70 to-neon-blue/70 bg-clip-text text-xs font-medium">
-                  <p>🎶 Where Every Music Tells a Story 🎶</p>
+                                                <p className="text-transparent bg-gradient-to-r from-neon-green/70 to-neon-blue/70 bg-clip-text text-xs font-medium">
+                  🎶 Where Every Music Tells a Story 🎶
                 </p>
               </motion.div>
             </div>
