@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  ArrowLeft,
   Heart,
   Share2,
   MoreHorizontal,
@@ -37,6 +36,7 @@ import { useNavigate } from "react-router-dom";
 import { useMusicContext } from "../context/MusicContext";
 import { useProfileContext } from "../context/ProfileContext";
 import { useToast } from "../hooks/use-toast";
+import { BackButton } from "../components/ui/back-button";
 
 export default function Player() {
   const navigate = useNavigate();
