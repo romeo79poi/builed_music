@@ -49,4 +49,5 @@ if (missingEnvVars.length > 0) {
 }
 
 export { auth, db };
+export const isFirebaseConfigured = missingEnvVars.length === 0;
 export default app;
