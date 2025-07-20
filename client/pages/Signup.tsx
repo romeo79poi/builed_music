@@ -439,7 +439,7 @@ export default function Signup() {
     }
   };
 
-  const handleProfileStep = async () => {
+    const handleProfileStep = async () => {
     if (!validateProfile()) return;
 
     setIsLoading(true);
@@ -451,13 +451,7 @@ export default function Signup() {
         // Complete phone signup
         await handlePasswordStep();
       } else {
-        setCurrentStep("verification");
-        // Simulate sending verification email
-        toast({
-          title: "Verification email sent!",
-          description: "Please check your email and verify your account.",
-        });
-        setResendTimer(60);
+        setCurrentStep("password");
       }
     }
   };
