@@ -97,8 +97,8 @@ export default function Splash() {
               transition={{ delay: 2.5, duration: 0.8 }}
               className="absolute bottom-8 text-center"
             >
-              <p className="text-slate-400 text-sm">
-                Experience music like never before
+              <p className="text-transparent bg-gradient-to-r from-neon-green via-purple-400 to-neon-blue bg-clip-text text-sm font-medium">
+                Feel the Music, Catch the Feel ✨
               </p>
             </motion.div>
           </motion.div>
@@ -115,39 +115,55 @@ export default function Splash() {
             <div className="absolute inset-0 bg-gradient-to-br from-neon-green/5 via-transparent to-neon-blue/5"></div>
 
             <div className="relative z-10 flex flex-col items-center max-w-md mx-auto px-3 sm:px-6">
-              {/* Welcome text */}
+              {/* Welcome text with enhanced logo */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.8 }}
                 className="text-center mb-12 sm:mb-16"
               >
+                {/* Enhanced logo display */}
+                <div className="mb-8 flex justify-center">
+                  <div className="relative">
+                    <div className="absolute inset-0 bg-gradient-to-r from-neon-green/20 via-purple-500/20 to-neon-blue/20 rounded-full blur-xl scale-150"></div>
+                    <MusicCatchLogo className="relative scale-150" animated />
+                  </div>
+                </div>
+
                 <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4 tracking-wide">
                   Welcome to Music Catch
                 </h2>
-                <p className="text-slate-400 text-base sm:text-lg">
+                <p className="text-slate-400 text-base sm:text-lg mb-2">
                   Get started with your musical journey
                 </p>
+                <motion.p
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.6, duration: 0.8 }}
+                  className="text-transparent bg-gradient-to-r from-neon-green via-purple-400 to-neon-blue bg-clip-text text-lg sm:text-xl font-semibold tracking-wide"
+                >
+                  Feel the Music, Catch the Feel
+                </motion.p>
               </motion.div>
 
               {/* Action buttons */}
               <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.6, duration: 0.8 }}
+                transition={{ delay: 0.9, duration: 0.8 }}
                 className="flex flex-col gap-4 sm:gap-6 w-full"
               >
                 <Button
                   onClick={() => navigate("/signup")}
-                  className="w-full bg-gradient-to-r from-neon-green to-neon-blue hover:from-neon-green/80 hover:to-neon-blue/80 text-black font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-all duration-300 transform hover:scale-105 text-base sm:text-lg"
+                  className="w-full bg-neon-green hover:bg-neon-green/90 text-black font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-all duration-200 text-base sm:text-lg"
                 >
-                  Sign Up
+                  Start Your Journey
                 </Button>
 
                 <Button
                   onClick={() => navigate("/login")}
                   variant="outline"
-                  className="w-full border-2 border-neon-green text-neon-green hover:bg-neon-green hover:text-black font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-all duration-300 transform hover:scale-105 text-base sm:text-lg"
+                  className="w-full border-2 border-neon-green text-neon-green hover:bg-neon-green hover:text-black font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-all duration-200 text-base sm:text-lg"
                 >
                   Log In
                 </Button>
@@ -157,12 +173,15 @@ export default function Splash() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.9, duration: 0.8 }}
+                transition={{ delay: 1.2, duration: 0.8 }}
                 className="mt-8 text-center"
               >
-                <p className="text-slate-600 text-sm">
+                <p className="text-slate-600 text-sm mb-2">
                   By continuing, you agree to our Terms of Service and Privacy
                   Policy
+                </p>
+                <p className="text-transparent bg-gradient-to-r from-neon-green/70 to-neon-blue/70 bg-clip-text text-xs font-medium">
+                  🎶 Where Every Beat Tells a Story 🎶
                 </p>
               </motion.div>
             </div>

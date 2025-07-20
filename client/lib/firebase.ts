@@ -1,5 +1,6 @@
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
+import { getFirestore } from "firebase/firestore";
 
 // Check if all required Firebase environment variables are present
 const requiredEnvVars = [
@@ -17,6 +18,7 @@ const missingEnvVars = requiredEnvVars.filter(
 
 let app: any = null;
 let auth: any = null;
+let db: any = null;
 
 if (missingEnvVars.length > 0) {
   console.warn(
@@ -26,12 +28,10 @@ if (missingEnvVars.length > 0) {
   console.warn("Firebase authentication will be mocked for development");
 
   // Create mock auth object for development
-  auth = {
-    currentUser: null,
-    onAuthStateChanged: () => () => {},
-    signOut: () => Promise.resolve(),
-    // Add other methods as needed
-  };
+  auth = null;
+
+  // Create mock Firestore object for development
+  db = null;
 } else {
   const firebaseConfig = {
     apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
@@ -45,7 +45,9 @@ if (missingEnvVars.length > 0) {
   // Initialize Firebase
   app = initializeApp(firebaseConfig);
   auth = getAuth(app);
+  db = getFirestore(app);
 }
 
-export { auth };
+export { auth, db };
+export const isFirebaseConfigured = missingEnvVars.length === 0;
 export default app;

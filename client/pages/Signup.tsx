@@ -21,6 +21,7 @@ import {
   formatPhoneDisplay,
   phoneAPI,
 } from "../lib/phone";
+import { signUpWithEmailAndPassword, signInWithGoogle } from "../lib/auth";
 
 type SignupStep =
   | "method"
@@ -80,6 +81,7 @@ export default function Signup() {
   const [phoneVerified, setPhoneVerified] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
+  const [errorAlert, setErrorAlert] = useState<string | null>(null);
 
   // Validation functions
   const validateEmail = (email: string): boolean => {
@@ -321,64 +323,41 @@ export default function Signup() {
     setIsLoading(true);
 
     try {
-      // Simulate Google OAuth flow
-      console.log("🔍 Initiating Google OAuth flow...");
+      const result = await signInWithGoogle();
 
-      // In a real implementation, you would:
-      // 1. Redirect to Google OAuth
-      // 2. Get user info from Google
-      // 3. Send to your backend
+      if (result.success && result.user) {
+        const message = result.isNewUser
+          ? `Welcome to Music Catch, ${result.user.displayName}!`
+          : `Welcome back, ${result.user.displayName}!`;
 
-      // Simulating the flow for demo
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // Mock Google user data
-      const googleUserData = {
-        email: "user@gmail.com",
-        name: "John Doe",
-        username: "johndoe" + Math.floor(Math.random() * 1000),
-        provider: "google",
-        isVerified: true,
-      };
-
-      // Send to backend
-      const response = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...googleUserData,
-          password: "google-oauth-" + Math.random().toString(36).slice(-8),
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
         toast({
-          title: "Google signup successful! 🎉",
-          description: `Welcome to Music Catch, ${data.user.name}!`,
+          title: "Google sign-in successful! 🎉",
+          description: message,
         });
 
-        console.log("✅ Google user created in backend:", data.user);
-        console.log("📊 Google signup data flow:", {
-          google: googleUserData,
-          backend: data.user,
-          matched: true,
+        console.log("✅ Google authentication successful:", {
+          user: result.user,
+          isNewUser: result.isNewUser,
+          email: result.user.email,
+          displayName: result.user.displayName,
         });
 
         setTimeout(() => {
-          navigate("/login");
-        }, 2000);
+          navigate("/profile");
+        }, 1500);
       } else {
-        throw new Error(data.message || "Google signup failed");
+        toast({
+          title: "Google sign-in failed",
+          description:
+            result.error || "Failed to connect with Google. Please try again.",
+          variant: "destructive",
+        });
       }
     } catch (error) {
       console.error("Google signup error:", error);
       toast({
-        title: "Google signup failed",
-        description: "Failed to connect with Google. Please try again.",
+        title: "Google sign-in failed",
+        description: "Network error. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -471,11 +450,9 @@ export default function Signup() {
     setIsLoading(true);
 
     try {
-      // Submit to backend
-      let response;
-
       if (signupMethod === "phone") {
-        response = await fetch("/api/phone/register", {
+        // Keep existing phone registration logic
+        const response = await fetch("/api/phone/register", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -486,54 +463,63 @@ export default function Signup() {
             username: formData.username,
           }),
         });
+
+        const data = await response.json();
+
+        if (data.success) {
+          toast({
+            title: "Account created successfully! 🎉",
+            description: `Welcome to Music Catch, ${data.user.name}!`,
+          });
+
+          setTimeout(() => {
+            navigate("/profile");
+          }, 2000);
+        } else {
+          toast({
+            title: "Registration failed",
+            description: data.message || "Please try again",
+            variant: "destructive",
+          });
+        }
       } else {
-        response = await fetch("/api/auth/register", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: formData.email,
-            username: formData.username,
+        // Clear any previous errors
+        setErrorAlert(null);
+
+        // Use Firebase Auth for email registration
+        const result = await signUpWithEmailAndPassword(
+          formData.email,
+          formData.password,
+          formData.name,
+        );
+
+        if (result.success) {
+          toast({
+            title: "Account created successfully! 🎉",
+            description: `Welcome to Music Catch, ${formData.name}!`,
+          });
+
+          console.log("✅ User created with Firebase:", result.user);
+          console.log("📊 User data stored in Firestore:", {
             name: formData.name,
-            password: formData.password,
-            provider: "email",
-          }),
-        });
-      }
+            email: formData.email,
+            uid: result.user?.uid,
+            createdAt: "server timestamp",
+          });
 
-      const data = await response.json();
-
-      if (data.success) {
-        toast({
-          title: "Account created successfully! 🎉",
-          description: `Welcome to Music Catch, ${data.user.name}!`,
-        });
-
-        console.log("✅ User created in backend:", data.user);
-        console.log("📊 Frontend data matched to backend:", {
-          frontend: formData,
-          backend: data.user,
-          matched: true,
-        });
-
-        setTimeout(() => {
-          navigate("/login");
-        }, 2000);
-      } else {
-        toast({
-          title: "Registration failed",
-          description: data.message || "Please try again",
-          variant: "destructive",
-        });
+          setTimeout(() => {
+            navigate("/profile");
+          }, 2000);
+        } else {
+          // Show error in red alert box
+          setErrorAlert(
+            result.error || "Registration failed. Please try again.",
+          );
+        }
       }
     } catch (error) {
       console.error("Registration error:", error);
-      toast({
-        title: "Registration failed",
-        description: "Network error. Please try again.",
-        variant: "destructive",
-      });
+      setErrorAlert("Network error. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -1193,12 +1179,13 @@ export default function Signup() {
                   <input
                     type={showPassword ? "text" : "password"}
                     value={formData.password}
-                    onChange={(e) =>
+                    onChange={(e) => {
                       setFormData((prev) => ({
                         ...prev,
                         password: e.target.value,
-                      }))
-                    }
+                      }));
+                      setErrorAlert(null); // Clear error when user types
+                    }}
                     placeholder="Create a strong password"
                     className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-3 sm:px-4 pr-10 sm:pr-12 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors text-sm sm:text-base"
                     disabled={isLoading}
@@ -1263,6 +1250,18 @@ export default function Signup() {
                   </p>
                 )}
               </div>
+
+              {/* Red Error Alert Box */}
+              {errorAlert && (
+                <div className="bg-red-500/10 border border-red-500 rounded-lg p-4 mb-4">
+                  <div className="flex items-center">
+                    <AlertCircle className="w-5 h-5 text-red-500 mr-3" />
+                    <p className="text-red-500 text-sm font-medium">
+                      {errorAlert}
+                    </p>
+                  </div>
+                </div>
+              )}
 
               <button
                 onClick={handlePasswordStep}
