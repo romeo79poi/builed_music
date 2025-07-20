@@ -620,9 +620,10 @@ export default function Signup() {
           transition={{ duration: 0.8 }}
           className="text-center mb-6 sm:mb-8"
         >
-          <div className="flex justify-center mb-3 sm:mb-4">
+                    <div className="flex justify-center mb-3 sm:mb-4">
             <MusicCatchLogo
-              animated={false}
+              animated={true}
+              signupMode={true}
               className="scale-90 sm:scale-100"
             />
           </div>
