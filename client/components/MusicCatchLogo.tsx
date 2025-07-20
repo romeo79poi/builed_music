@@ -4,6 +4,7 @@ interface MusicCatchLogoProps {
   className?: string;
   animated?: boolean;
   signupMode?: boolean;
+  blinkMode?: boolean;
 }
 
 export function MusicCatchLogo({
