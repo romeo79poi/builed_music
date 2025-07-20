@@ -123,19 +123,14 @@ export default function Splash() {
                 <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4 tracking-wide">
                   Welcome to Music Catch
                 </h2>
-                <motion.p
+                <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.6, duration: 0.8 }}
                   className="text-transparent bg-gradient-to-r from-neon-green via-purple-400 to-neon-blue bg-clip-text text-lg sm:text-xl font-semibold tracking-wide"
                 >
-                  <p>Feel the Music</p>
-                </motion.p>
-                <p className="text-slate-400 text-base sm:text-lg mb-2">
-                  <p>
-                    <br />
-                  </p>
-                </p>
+                  Feel the Music
+                </motion.div>
               </motion.div>
 
               {/* Action buttons */}
