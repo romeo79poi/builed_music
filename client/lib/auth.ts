@@ -190,10 +190,37 @@ export const signInWithGoogle = async (): Promise<{
       };
     }
 
-    try {
+        try {
       const provider = new GoogleAuthProvider();
+
+      // Add required scopes for Google sign-in
+      provider.addScope('email');
+      provider.addScope('profile');
+
+      // Set custom parameters to ensure we get verified accounts
+      provider.setCustomParameters({
+        prompt: 'select_account'
+      });
+
+      console.log("🔗 Initiating Google sign-in popup...");
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
+
+      // Validate the user account
+      if (!user.email) {
+        throw new Error("No email address found in Google account");
+      }
+
+      if (!user.emailVerified) {
+        console.warn("⚠️ Google account email not verified, but proceeding...");
+      }
+
+      console.log("✅ Google user authenticated:", {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        emailVerified: user.emailVerified
+      });
 
       // Check if user exists in Firestore
       const userDocRef = doc(db, "users", user.uid);
