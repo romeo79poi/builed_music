@@ -51,9 +51,14 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 flex flex-col items-center justify-center p-3 sm:p-6 relative overflow-hidden">
+        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 flex flex-col items-center justify-center p-3 sm:p-6 relative overflow-hidden">
       {/* Background glow effect */}
       <div className="absolute inset-0 bg-gradient-to-br from-neon-green/5 via-transparent to-neon-blue/5 bg-black"></div>
+
+      {/* Back Button */}
+      <div className="absolute top-6 left-6 z-20">
+        <BackButton variant="glass" />
+      </div>
 
       <div className="relative z-10 w-full max-w-md px-2 sm:px-0">
         {/* Logo */}
