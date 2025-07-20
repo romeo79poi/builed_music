@@ -103,10 +103,19 @@ export function createServer() {
 
   app.get("/api/demo", handleDemo);
 
-  // Authentication API routes
+    // Authentication API routes
   app.post("/api/auth/register", registerUser);
   app.get("/api/auth/check-availability", checkAvailability);
   app.get("/api/auth/users", getUsers); // For demo purposes
+
+  // Google Authentication API routes
+  app.post("/api/auth/google", handleGoogleAuth);
+  app.post("/api/auth/google/verify", verifyGoogleSession);
+  app.post("/api/auth/google/link", linkGoogleAccount);
+  app.delete("/api/auth/google/unlink/:userId", unlinkGoogleAccount);
+  app.get("/api/auth/google/profile/:userId", getGoogleUserProfile);
+  app.post("/api/auth/google/logout", logoutGoogleUser);
+  app.get("/api/auth/google/users", getAllGoogleUsers); // For demo purposes
 
   // Phone verification API routes
   app.use("/api/phone", phoneRoutes);
