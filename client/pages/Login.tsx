@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
+import { BackButton } from "../components/ui/back-button";
 import { useFirebase } from "../context/FirebaseContext";
 
 export default function Login() {
