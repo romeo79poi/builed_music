@@ -589,39 +589,47 @@ export default function Signup() {
             variant: "destructive",
           });
         }
-      } else {
+            } else {
         // Clear any previous errors
         setErrorAlert(null);
 
-        // Use Firebase Auth for email registration
-        const result = await signUpWithEmailAndPassword(
-          formData.email,
-          formData.password,
-          formData.name,
-        );
-
-        if (result.success) {
-          toast({
-            title: "Account created successfully! 🎉",
-            description: `Welcome to Music Catch, ${formData.name}!`,
+        try {
+          // Use backend API for email registration
+          const response = await fetch("/api/auth/complete-registration", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: formData.email,
+              username: formData.username,
+              name: formData.name,
+              password: formData.password,
+            }),
           });
 
-          console.log("✅ User created with Firebase:", result.user);
-          console.log("📊 User data stored in Firestore:", {
-            name: formData.name,
-            email: formData.email,
-            uid: result.user?.uid,
-            createdAt: "server timestamp",
-          });
+          const data = await response.json();
 
-          setTimeout(() => {
-            navigate("/profile");
-          }, 2000);
-        } else {
-          // Show error in red alert box
-          setErrorAlert(
-            result.error || "Registration failed. Please try again.",
-          );
+          if (data.success) {
+            toast({
+              title: "Account created successfully! 🎉",
+              description: `Welcome to Music Catch, ${formData.name}!`,
+            });
+
+            console.log("✅ User created with backend:", data.user);
+
+            setTimeout(() => {
+              navigate("/profile");
+            }, 2000);
+          } else {
+            // Show error in red alert box
+            setErrorAlert(
+              data.message || "Registration failed. Please try again.",
+            );
+          }
+        } catch (error) {
+          console.error("Registration error:", error);
+          setErrorAlert("Network error. Please try again.");
         }
       }
     } catch (error) {
