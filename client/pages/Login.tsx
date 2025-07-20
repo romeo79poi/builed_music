@@ -10,8 +10,10 @@ import { useToast } from "../hooks/use-toast";
 export default function Login() {
   const navigate = useNavigate();
   const { signIn } = useFirebase();
+  const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const handleLogin = async () => {
     if (!email || !password) {
