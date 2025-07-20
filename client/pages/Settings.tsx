@@ -2,8 +2,8 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../hooks/use-toast";
+import { BackButton } from "../components/ui/back-button";
 import {
-  ArrowLeft,
   Volume2,
   Download,
   Wifi,
@@ -543,12 +543,10 @@ export default function Settings() {
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center justify-between p-6 pt-12"
         >
-          <button
+                    <BackButton
             onClick={() => navigate("/profile")}
-            className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm"
-          >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
+            variant="glass"
+          />
           <h1 className="text-xl font-bold">Settings</h1>
           <div className="w-10 h-10"></div>
         </motion.div>
@@ -687,14 +685,17 @@ export default function Settings() {
               {/* Dreams Header */}
               <div className="flex items-center justify-between p-8 bg-black/30 backdrop-blur-sm border-b border-white/10">
                 <div className="flex items-center space-x-6">
-                  <motion.button
+                                    <motion.div
                     initial={{ x: -20, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
-                    onClick={() => setShowAnalyticsModal(false)}
-                    className="w-14 h-14 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-2xl flex items-center justify-center hover:from-purple-500/30 hover:to-blue-500/30 transition-all duration-300 group"
                   >
-                    <ArrowLeft className="w-6 h-6 text-white group-hover:text-purple-300 transition-colors" />
-                  </motion.button>
+                    <BackButton
+                      onClick={() => setShowAnalyticsModal(false)}
+                      variant="glass"
+                      size="lg"
+                      className="bg-gradient-to-r from-purple-500/20 to-blue-500/20 hover:from-purple-500/30 hover:to-blue-500/30 transition-all duration-300"
+                    />
+                  </motion.div>
                   <motion.div
                     initial={{ x: -20, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
