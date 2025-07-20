@@ -576,12 +576,12 @@ export default function Signup() {
     }
   };
 
-  const handleResendVerification = () => {
+    const handleResendVerification = () => {
     if (resendTimer > 0) return;
 
     toast({
-      title: "Verification email resent!",
-      description: "Please check your email for the verification link.",
+      title: "Verification code resent!",
+      description: "Please check your email for the new 6-digit verification code.",
     });
     setResendTimer(60);
   };
