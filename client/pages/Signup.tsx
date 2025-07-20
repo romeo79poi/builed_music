@@ -319,43 +319,64 @@ export default function Signup() {
     }
   };
 
-  // Google signup handler
+    // Google signup handler with enhanced backend verification
   const handleGoogleSignup = async () => {
     setIsLoading(true);
 
     try {
-      const result = await signInWithGoogle();
+      console.log("🚀 Starting Google signup with enhanced verification...");
+
+      const result = await signInWithGoogleEnhanced();
 
       if (result.success && result.user) {
         const message = result.isNewUser
-          ? `Welcome to Music Catch, ${result.user.displayName}!`
-          : `Welcome back, ${result.user.displayName}!`;
+          ? `Welcome to Music Catch, ${result.user.name || result.user.displayName}!`
+          : `Welcome back, ${result.user.name || result.user.displayName}!`;
 
         toast({
           title: "Google sign-in successful! 🎉",
           description: message,
         });
 
-        console.log("✅ Google authentication successful:", {
+        console.log("✅ Enhanced Google authentication successful:", {
           user: result.user,
           isNewUser: result.isNewUser,
           email: result.user.email,
-          displayName: result.user.displayName,
+          name: result.user.name || result.user.displayName,
+          hasSessionToken: !!result.sessionToken,
+          hasGoogleInfo: !!result.googleUserInfo,
+          backendVerified: true
         });
+
+        // Show success details for demo
+        if (result.googleUserInfo) {
+          console.log("📊 Google account details:", {
+            googleId: result.googleUserInfo.sub,
+            email: result.googleUserInfo.email,
+            emailVerified: result.googleUserInfo.emailVerified,
+            profilePicture: result.googleUserInfo.picture
+          });
+        }
 
         setTimeout(() => {
           navigate("/profile");
         }, 1500);
       } else {
+        const errorMessage = result.error || "Failed to connect with Google. Please try again.";
+
         toast({
           title: "Google sign-in failed",
-          description:
-            result.error || "Failed to connect with Google. Please try again.",
+          description: errorMessage,
           variant: "destructive",
+        });
+
+        console.error("❌ Enhanced Google authentication failed:", {
+          error: result.error,
+          hasUser: !!result.user
         });
       }
     } catch (error) {
-      console.error("Google signup error:", error);
+      console.error("❌ Google signup error:", error);
       toast({
         title: "Google sign-in failed",
         description: "Network error. Please try again.",
