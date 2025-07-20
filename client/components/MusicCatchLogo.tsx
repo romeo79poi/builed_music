@@ -123,7 +123,7 @@ export function MusicCatchLogo({
         {/* Main logo container */}
         <div className="relative w-12 justify-center flex flex-row items-center">
           {/* Animated side dots with pulse effect */}
-          <motion.div
+                    <motion.div
             variants={barVariants}
             className="absolute -left-6 top-1/2 transform -translate-y-1/2 w-1.5 h-1.5 bg-neon-green rounded-full shadow-lg shadow-neon-green/50"
             animate={
@@ -131,6 +131,11 @@ export function MusicCatchLogo({
                 ? {
                     scale: [1, 1.5, 1],
                     opacity: [0.7, 1, 0.7],
+                  }
+                : animated && blinkMode
+                ? {
+                    opacity: [1, 0.1, 1, 0.3, 1, 0.1, 1],
+                    scale: [1, 1.2, 1, 1.1, 1, 1.3, 1],
                   }
                 : {}
             }
