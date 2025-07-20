@@ -92,6 +92,66 @@ export const loginWithEmailAndPassword = async (
   }
 };
 
+export const signInWithGoogle = async (): Promise<{ success: boolean; user?: User; error?: string; isNewUser?: boolean }> => {
+  try {
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+
+    // Check if user exists in Firestore
+    const userDocRef = doc(db, 'users', user.uid);
+    const userDoc = await getDoc(userDocRef);
+
+    let isNewUser = false;
+
+    if (!userDoc.exists()) {
+      // Create new user document
+      const userData: UserData = {
+        name: user.displayName || '',
+        username: user.email?.split('@')[0] || '',
+        email: user.email || '',
+        phoneNumber: '',
+        createdAt: serverTimestamp(),
+      };
+
+      await setDoc(userDocRef, userData);
+      isNewUser = true;
+
+      console.log("✅ New Google user created in Firestore:", userData);
+    } else {
+      console.log("✅ Existing Google user signed in:", userDoc.data());
+    }
+
+    return { success: true, user, isNewUser };
+  } catch (error: any) {
+    console.error("Google sign-in error:", error);
+
+    let errorMessage = "An error occurred during Google sign-in";
+
+    switch (error.code) {
+      case 'auth/popup-closed-by-user':
+        errorMessage = "Sign-in cancelled";
+        break;
+      case 'auth/popup-blocked':
+        errorMessage = "Popup blocked by browser";
+        break;
+      case 'auth/cancelled-popup-request':
+        errorMessage = "Sign-in cancelled";
+        break;
+      case 'auth/operation-not-allowed':
+        errorMessage = "Google sign-in is not enabled";
+        break;
+      case 'auth/unauthorized-domain':
+        errorMessage = "This domain is not authorized for Google sign-in";
+        break;
+      default:
+        errorMessage = error.message || errorMessage;
+    }
+
+    return { success: false, error: errorMessage };
+  }
+};
+
 export const logout = async (): Promise<{ success: boolean; error?: string }> => {
   try {
     await signOut(auth);
