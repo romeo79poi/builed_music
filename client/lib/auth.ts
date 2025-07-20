@@ -44,9 +44,11 @@ export const signUpWithEmailAndPassword = async (
     } catch (firebaseError: any) {
       // If Firebase project doesn't exist or other Firebase errors, use development mode
       if (firebaseError.code === 'auth/project-not-found' || 
-          firebaseError.code === 'auth/invalid-api-key' ||
+                    firebaseError.code === 'auth/invalid-api-key' ||
+          firebaseError.code === 'auth/network-request-failed' ||
           firebaseError.message?.includes('Firebase project') ||
-          firebaseError.message?.includes('API key not valid')) {
+                    firebaseError.message?.includes('API key not valid') ||
+          firebaseError.message?.includes('network request failed')) {
         
         console.warn("Firebase project not found, using development mode");
         
@@ -176,9 +178,11 @@ export const signInWithGoogle = async (): Promise<{ success: boolean; user?: Use
     } catch (firebaseError: any) {
       // If Firebase project doesn't exist, use development mode
       if (firebaseError.code === 'auth/project-not-found' || 
-          firebaseError.code === 'auth/invalid-api-key' ||
+                    firebaseError.code === 'auth/invalid-api-key' ||
+          firebaseError.code === 'auth/network-request-failed' ||
           firebaseError.message?.includes('Firebase project') ||
-          firebaseError.message?.includes('API key not valid')) {
+                    firebaseError.message?.includes('API key not valid') ||
+          firebaseError.message?.includes('network request failed')) {
         
         console.warn("Firebase project not found, using development mode for Google sign-in");
         
