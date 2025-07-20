@@ -1035,7 +1035,7 @@ export default function Signup() {
             </motion.div>
           )}
 
-          {/* Verification Step */}
+                    {/* Email Verification Step */}
           {currentStep === "verification" && (
             <motion.div
               key="verification"
@@ -1049,43 +1049,61 @@ export default function Signup() {
                   <Mail className="w-6 h-6 sm:w-8 sm:h-8 text-yellow-500" />
                 </div>
                 <h3 className="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">
-                  {stepTitles.verification}
+                  Verify your email
                 </h3>
                 <p className="text-slate-400 text-xs sm:text-sm px-2">
-                  {stepDescriptions.verification}
+                  Enter the 6-digit code we sent to your email
                 </p>
               </div>
 
               <div className="text-center">
                 <p className="text-white mb-2 text-sm sm:text-base">
-                  Verification email sent to:
+                  Verification code sent to:
                 </p>
                 <p className="text-neon-green font-medium text-sm sm:text-base break-all">
                   {formData.email}
                 </p>
               </div>
 
-              <div className="text-center">
-                <p className="text-slate-400 text-xs sm:text-sm mb-4 px-2">
-                  After clicking the verification link in your email, click the
-                  button below.
-                </p>
-                <button
-                  onClick={handleVerificationStep}
+              <div>
+                <label className="block text-white text-sm font-medium mb-2">
+                  Verification code
+                </label>
+                <input
+                  type="text"
+                  value={formData.otp}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, "").slice(0, 6);
+                    setFormData((prev) => ({ ...prev, otp: value }));
+                  }}
+                  placeholder="123456"
+                  className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors text-sm sm:text-base text-center tracking-wider"
                   disabled={isLoading}
-                  className="w-full h-12 sm:h-14 bg-gradient-to-r from-neon-green to-neon-blue hover:from-neon-green/80 hover:to-neon-blue/80 text-black font-bold text-sm sm:text-lg rounded-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none mb-4"
-                >
-                  {isLoading ? (
-                    <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mx-auto" />
-                  ) : (
-                    "I've verified my email"
-                  )}
-                </button>
+                  maxLength={6}
+                />
+                {errors.otp && (
+                  <p className="text-red-400 text-xs sm:text-sm mt-2 flex items-center">
+                    <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                    {errors.otp}
+                  </p>
+                )}
               </div>
+
+              <button
+                onClick={handleVerificationStep}
+                disabled={isLoading || formData.otp.length !== 6}
+                className="w-full h-12 sm:h-14 bg-gradient-to-r from-neon-green to-neon-blue hover:from-neon-green/80 hover:to-neon-blue/80 text-black font-bold text-sm sm:text-lg rounded-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mx-auto" />
+                ) : (
+                  "Verify Code"
+                )}
+              </button>
 
               <div className="text-center">
                 <p className="text-slate-400 text-xs sm:text-sm mb-2">
-                  Didn't receive the email?
+                  Didn't receive the code?
                 </p>
                 <button
                   onClick={handleResendVerification}
@@ -1094,7 +1112,7 @@ export default function Signup() {
                 >
                   {resendTimer > 0
                     ? `Resend in ${resendTimer}s`
-                    : "Resend email"}
+                    : "Resend code"}
                 </button>
               </div>
             </motion.div>
