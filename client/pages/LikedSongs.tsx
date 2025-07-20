@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import {
-  ArrowLeft,
   Search,
   Heart,
   Play,
@@ -17,6 +16,7 @@ import { useProfileContext } from "../context/ProfileContext";
 import { useMusicContext } from "../context/MusicContext";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
+import { BackButton } from "../components/ui/back-button";
 
 interface Song {
   id: string;
