@@ -14,12 +14,15 @@ const users: Array<{
 }> = [];
 
 // In-memory storage for email verification codes
-const emailVerificationCodes: Map<string, {
-  code: string;
-  email: string;
-  expiry: Date;
-  attempts: number;
-}> = new Map();
+const emailVerificationCodes: Map<
+  string,
+  {
+    code: string;
+    email: string;
+    expiry: Date;
+    attempts: number;
+  }
+> = new Map();
 
 // User registration endpoint
 export const registerUser: RequestHandler = async (req, res) => {
@@ -162,7 +165,9 @@ export const sendEmailVerification: RequestHandler = async (req, res) => {
     }
 
     // Generate 6-digit verification code
-    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const verificationCode = Math.floor(
+      100000 + Math.random() * 900000,
+    ).toString();
     const expiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
     // Store verification code
@@ -181,7 +186,8 @@ export const sendEmailVerification: RequestHandler = async (req, res) => {
       success: true,
       message: "Verification code sent successfully",
       // For development only - remove in production
-      debugCode: process.env.NODE_ENV === "development" ? verificationCode : undefined,
+      debugCode:
+        process.env.NODE_ENV === "development" ? verificationCode : undefined,
     });
   } catch (error) {
     console.error("Send email verification error:", error);
@@ -446,7 +452,9 @@ export const loginUser: RequestHandler = async (req, res) => {
 export const getUsers: RequestHandler = async (req, res) => {
   try {
     // Return users without passwords
-    const usersResponse = users.map(({ password, emailVerificationCode, ...user }) => user);
+    const usersResponse = users.map(
+      ({ password, emailVerificationCode, ...user }) => user,
+    );
 
     res.json({
       success: true,

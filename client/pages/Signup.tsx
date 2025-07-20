@@ -318,7 +318,7 @@ export default function Signup() {
     }
   };
 
-    // Google signup handler
+  // Google signup handler
   const handleGoogleSignup = async () => {
     setIsLoading(true);
     console.log("🚀 Starting Google sign-up process...");
@@ -360,7 +360,10 @@ export default function Signup() {
         });
 
         // If this is a new user and we're in development mode, also register with backend
-        if (result.isNewUser && result.user.email?.includes("demo") || result.user.email?.includes("dev")) {
+        if (
+          (result.isNewUser && result.user.email?.includes("demo")) ||
+          result.user.email?.includes("dev")
+        ) {
           try {
             const backendResponse = await fetch("/api/auth/register", {
               method: "POST",
@@ -378,10 +381,16 @@ export default function Signup() {
 
             const backendData = await backendResponse.json();
             if (backendData.success) {
-              console.log("✅ Google user also registered in backend:", backendData.user);
+              console.log(
+                "✅ Google user also registered in backend:",
+                backendData.user,
+              );
             }
           } catch (backendError) {
-            console.warn("Backend registration failed for Google user, continuing:", backendError);
+            console.warn(
+              "Backend registration failed for Google user, continuing:",
+              backendError,
+            );
           }
         }
 
@@ -435,7 +444,7 @@ export default function Signup() {
     }
   };
 
-      const handleEmailStep = async () => {
+  const handleEmailStep = async () => {
     if (!validateEmail(formData.email)) return;
 
     setIsLoading(true);
@@ -464,7 +473,8 @@ export default function Signup() {
         setCurrentStep("verification");
         toast({
           title: "Verification code sent!",
-          description: "Please check your email for the 6-digit verification code.",
+          description:
+            "Please check your email for the 6-digit verification code.",
         });
 
         // For development, show code in console
@@ -505,7 +515,7 @@ export default function Signup() {
     }
   };
 
-    const handleProfileStep = async () => {
+  const handleProfileStep = async () => {
     if (!validateProfile()) return;
 
     setIsLoading(true);
@@ -522,7 +532,7 @@ export default function Signup() {
     }
   };
 
-      const handleVerificationStep = async () => {
+  const handleVerificationStep = async () => {
     if (!validateOTP(formData.otp)) return;
 
     if (signupMethod === "email") {
@@ -537,7 +547,7 @@ export default function Signup() {
           },
           body: JSON.stringify({
             email: formData.email,
-            code: formData.otp
+            code: formData.otp,
           }),
         });
 
@@ -564,7 +574,7 @@ export default function Signup() {
         console.error("Email verification error:", error);
         setErrors((prev) => ({
           ...prev,
-          otp: "Verification failed. Please try again."
+          otp: "Verification failed. Please try again.",
         }));
       } finally {
         setIsLoading(false);
@@ -616,7 +626,7 @@ export default function Signup() {
             variant: "destructive",
           });
         }
-            } else {
+      } else {
         // Clear any previous errors
         setErrorAlert(null);
 
@@ -687,7 +697,7 @@ export default function Signup() {
     }
   };
 
-      const handleResendVerification = async () => {
+  const handleResendVerification = async () => {
     if (resendTimer > 0) return;
 
     setIsLoading(true);
@@ -706,7 +716,8 @@ export default function Signup() {
       if (data.success) {
         toast({
           title: "Verification code resent!",
-          description: "Please check your email for the new 6-digit verification code.",
+          description:
+            "Please check your email for the new 6-digit verification code.",
         });
 
         // For development, show code in console
@@ -805,7 +816,7 @@ export default function Signup() {
           </h2>
         </motion.div>
 
-                {/* Google Signup Button - Only visible on method step */}
+        {/* Google Signup Button - Only visible on method step */}
         {currentStep === "method" && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -1181,7 +1192,7 @@ export default function Signup() {
             </motion.div>
           )}
 
-                    {/* Email Verification Step */}
+          {/* Email Verification Step */}
           {currentStep === "verification" && (
             <motion.div
               key="verification"

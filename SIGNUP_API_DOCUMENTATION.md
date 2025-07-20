@@ -1,12 +1,15 @@
 # Signup API Documentation
 
 ## Overview
+
 The Music Catch application now has a complete signup system with both Firebase integration and backend API fallback. The system supports email verification with 6-digit codes and comprehensive validation.
 
 ## Environment Setup
 
 ### Firebase Configuration
+
 Add these environment variables to `.env`:
+
 ```
 VITE_FIREBASE_API_KEY=your_api_key
 VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
@@ -19,9 +22,11 @@ VITE_FIREBASE_APP_ID=1:123456789012:web:abcdef123456
 ## API Endpoints
 
 ### 1. Send Email Verification
+
 **POST** `/api/auth/send-email-verification`
 
 Request:
+
 ```json
 {
   "email": "user@example.com"
@@ -29,6 +34,7 @@ Request:
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -38,9 +44,11 @@ Response:
 ```
 
 ### 2. Verify Email Code
+
 **POST** `/api/auth/verify-email`
 
 Request:
+
 ```json
 {
   "email": "user@example.com",
@@ -49,6 +57,7 @@ Request:
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -57,6 +66,7 @@ Response:
 ```
 
 Error Response:
+
 ```json
 {
   "success": false,
@@ -66,9 +76,11 @@ Error Response:
 ```
 
 ### 3. Check Availability
+
 **GET** `/api/auth/check-availability?email={email}&username={username}`
 
 Response:
+
 ```json
 {
   "success": true,
@@ -78,9 +90,11 @@ Response:
 ```
 
 ### 4. Complete Registration
+
 **POST** `/api/auth/complete-registration`
 
 Request:
+
 ```json
 {
   "email": "user@example.com",
@@ -91,6 +105,7 @@ Request:
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -107,9 +122,11 @@ Response:
 ```
 
 ### 5. User Login
+
 **POST** `/api/auth/login`
 
 Request:
+
 ```json
 {
   "email": "user@example.com",
@@ -118,6 +135,7 @@ Request:
 ```
 
 Response:
+
 ```json
 {
   "success": true,
@@ -136,24 +154,29 @@ Response:
 ## Frontend Signup Flow
 
 ### 1. Method Selection
+
 - User sees Google button and email/phone options
 - Google button is hidden after selecting email
 
 ### 2. Email Input
+
 - User enters email
 - System checks availability
 - Sends verification code to email
 
 ### 3. Email Verification
+
 - User enters 6-digit code
 - System verifies code with backend
 - Max 5 attempts before requiring new code
 
 ### 4. Profile Setup
+
 - User enters name and username
 - System validates and checks username availability
 
 ### 5. Password Creation
+
 - User creates password with requirements:
   - At least 8 characters
   - One uppercase letter
@@ -161,30 +184,36 @@ Response:
   - One number
 
 ### 6. Registration Complete
+
 - System creates user account
 - Redirects to profile page
 
 ## Validation Rules
 
 ### Email
+
 - Must be valid email format
 - Must be unique
 
 ### Username
+
 - At least 3 characters
 - Only letters, numbers, and underscores
 - Must be unique
 
 ### Name
+
 - At least 2 characters
 
 ### Password
+
 - At least 8 characters
 - Must contain uppercase letter
 - Must contain lowercase letter
 - Must contain number
 
 ### Verification Code
+
 - Exactly 6 digits
 - Expires after 10 minutes
 - Max 5 attempts
@@ -192,6 +221,7 @@ Response:
 ## Error Handling
 
 The system handles various error scenarios:
+
 - Network errors
 - Firebase configuration issues
 - Validation errors
@@ -202,11 +232,13 @@ The system handles various error scenarios:
 ## Development Features
 
 ### Debug Mode
+
 - Verification codes are logged to console
 - Firebase fallback for missing configuration
 - Demo users for testing
 
 ### Testing
+
 ```bash
 # Test email verification
 curl -X POST http://localhost:8080/api/auth/send-email-verification \
@@ -225,6 +257,7 @@ curl -X GET "http://localhost:8080/api/auth/check-availability?email=test@exampl
 ## Security Notes
 
 ⚠️ **Production Considerations:**
+
 - Hash passwords before storage
 - Use real email service (SendGrid, SES, etc.)
 - Implement rate limiting
@@ -236,6 +269,7 @@ curl -X GET "http://localhost:8080/api/auth/check-availability?email=test@exampl
 ## Firebase Integration
 
 The system works with or without Firebase:
+
 - **With Firebase**: Uses Firebase Auth and Firestore
 - **Without Firebase**: Uses backend API with in-memory storage
 - **Fallback**: Automatically switches to development mode if Firebase is unavailable
