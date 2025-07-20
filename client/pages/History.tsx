@@ -18,6 +18,7 @@ import {
 import { useProfileContext } from "../context/ProfileContext";
 import { useMusicContext } from "../context/MusicContext";
 import { useToast } from "../hooks/use-toast";
+import { BackButton } from "../components/ui/back-button";
 
 export default function History() {
   const { profile } = useProfileContext();
