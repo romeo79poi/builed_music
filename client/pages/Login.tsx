@@ -62,7 +62,11 @@ export default function Login() {
           transition={{ duration: 0.8 }}
           className="flex justify-center mb-6 sm:mb-8"
         >
-          <MusicCatchLogo animated={false} className="scale-90 sm:scale-100" />
+          <MusicCatchLogo
+            animated={true}
+            blinkMode={true}
+            className="scale-90 sm:scale-100"
+          />
         </motion.div>
 
         {/* Title */}
@@ -137,7 +141,7 @@ export default function Login() {
               Email
             </label>
             <input
-              type="email"
+              type="email,username"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email"
