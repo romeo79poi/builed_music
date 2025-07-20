@@ -27,12 +27,23 @@ if (missingEnvVars.length > 0) {
   );
   console.warn("Firebase authentication will be mocked for development");
 
-  // Create mock auth object for development
+    // Create mock auth object for development
   auth = {
     currentUser: null,
     onAuthStateChanged: () => () => {},
     signOut: () => Promise.resolve(),
     // Add other methods as needed
+  };
+
+  // Create mock Firestore object for development
+  db = {
+    collection: () => ({
+      add: () => Promise.resolve({ id: 'mock-id' }),
+      doc: () => ({
+        set: () => Promise.resolve(),
+        get: () => Promise.resolve({ exists: false }),
+      }),
+    }),
   };
 } else {
   const firebaseConfig = {
