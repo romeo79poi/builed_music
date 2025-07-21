@@ -329,26 +329,54 @@ export default function Signup() {
     }
   };
 
-  // Verify OTP
+    // Verify OTP
   const verifyOTP = async () => {
     if (!validateOTP(formData.otp)) return;
 
     setIsLoading(true);
     try {
-      const result = await phoneAPI.verifyOTP(formData.phone, formData.otp);
+      if (useFirebaseAuth && confirmationResult) {
+        // Use Firebase verification
+        const result = await verifyPhoneOTP(confirmationResult, formData.otp);
 
-      if (result.success) {
-        setPhoneVerified(true);
-        toast({
-          title: "Phone verified!",
-          description: "Your phone number has been successfully verified.",
-        });
+        if (result.success) {
+          setPhoneVerified(true);
+          toast({
+            title: "Phone verified!",
+            description: "Your phone number has been successfully verified.",
+          });
 
-        if (signupMethod === "phone") {
-          setCurrentStep("profile");
+          if (signupMethod === "phone") {
+            // For phone signup with Firebase, the user is already created
+            toast({
+              title: "Account created successfully! 🎉",
+              description: "Welcome to Music Catch!",
+            });
+
+            setTimeout(() => {
+              navigate("/profile");
+            }, 2000);
+          }
+        } else {
+          setErrors((prev) => ({ ...prev, otp: result.error || "Verification failed" }));
         }
       } else {
-        setErrors((prev) => ({ ...prev, otp: result.message }));
+        // Use backend verification
+        const result = await phoneAPI.verifyOTP(formData.phone, formData.otp);
+
+        if (result.success) {
+          setPhoneVerified(true);
+          toast({
+            title: "Phone verified!",
+            description: "Your phone number has been successfully verified.",
+          });
+
+          if (signupMethod === "phone") {
+            setCurrentStep("profile");
+          }
+        } else {
+          setErrors((prev) => ({ ...prev, otp: result.message }));
+        }
       }
     } catch (error) {
       console.error("Verify OTP error:", error);
