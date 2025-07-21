@@ -140,9 +140,9 @@ export default function Splash() {
                 transition={{ delay: 0.9, duration: 0.8 }}
                 className="flex flex-col gap-4 sm:gap-6 w-full"
               >
-                                <Button
+                                                <Button
                   onClick={() => navigate("/signup")}
-                  className="w-full border border-green-400 text-green-400 hover:bg-green-400/10 font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-all duration-200 text-base sm:text-lg"
+                  className="w-full bg-black border border-green-400 text-green-400 hover:bg-green-400/10 font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-all duration-200 text-base sm:text-lg"
                 >
                   Start Your Journey
                 </Button>
