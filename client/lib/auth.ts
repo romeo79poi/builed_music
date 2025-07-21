@@ -356,7 +356,8 @@ export const sendFirebaseEmailVerification = async (
     let errorMessage = "Failed to send email verification";
     switch (error.code) {
       case "auth/too-many-requests":
-        errorMessage = "Too many verification emails sent. Please wait before requesting another.";
+        errorMessage =
+          "Too many verification emails sent. Please wait before requesting another.";
         break;
       case "auth/user-disabled":
         errorMessage = "User account has been disabled";
@@ -379,7 +380,11 @@ export const signUpWithEmailAndPasswordWithVerification = async (
 ): Promise<{ success: boolean; user?: User; error?: string }> => {
   try {
     // First create the user
-    const signupResult = await signUpWithEmailAndPassword(email, password, name);
+    const signupResult = await signUpWithEmailAndPassword(
+      email,
+      password,
+      name,
+    );
 
     if (!signupResult.success) {
       return signupResult;
@@ -387,9 +392,14 @@ export const signUpWithEmailAndPasswordWithVerification = async (
 
     // Send email verification
     if (signupResult.user && isFirebaseConfigured) {
-      const verificationResult = await sendFirebaseEmailVerification(signupResult.user);
+      const verificationResult = await sendFirebaseEmailVerification(
+        signupResult.user,
+      );
       if (!verificationResult.success) {
-        console.warn("Failed to send email verification:", verificationResult.error);
+        console.warn(
+          "Failed to send email verification:",
+          verificationResult.error,
+        );
       }
     }
 
@@ -403,7 +413,9 @@ export const signUpWithEmailAndPasswordWithVerification = async (
 // Phone authentication functions
 let recaptchaVerifier: RecaptchaVerifier | null = null;
 
-export const initializeRecaptcha = (elementId: string): Promise<{ success: boolean; error?: string }> => {
+export const initializeRecaptcha = (
+  elementId: string,
+): Promise<{ success: boolean; error?: string }> => {
   return new Promise((resolve) => {
     try {
       if (!isFirebaseConfigured || !auth) {
@@ -416,15 +428,19 @@ export const initializeRecaptcha = (elementId: string): Promise<{ success: boole
         recaptchaVerifier.clear();
       }
 
-      recaptchaVerifier = new RecaptchaVerifier(elementId, {
-        size: 'invisible',
-        callback: (response: any) => {
-          console.log("reCAPTCHA solved:", response);
+      recaptchaVerifier = new RecaptchaVerifier(
+        elementId,
+        {
+          size: "invisible",
+          callback: (response: any) => {
+            console.log("reCAPTCHA solved:", response);
+          },
+          "expired-callback": () => {
+            console.log("reCAPTCHA expired");
+          },
         },
-        'expired-callback': () => {
-          console.log("reCAPTCHA expired");
-        }
-      }, auth);
+        auth,
+      );
 
       resolve({ success: true });
     } catch (error: any) {
@@ -436,7 +452,11 @@ export const initializeRecaptcha = (elementId: string): Promise<{ success: boole
 
 export const sendPhoneOTP = async (
   phoneNumber: string,
-): Promise<{ success: boolean; confirmationResult?: ConfirmationResult; error?: string }> => {
+): Promise<{
+  success: boolean;
+  confirmationResult?: ConfirmationResult;
+  error?: string;
+}> => {
   try {
     if (!isFirebaseConfigured || !auth) {
       return {
@@ -452,7 +472,11 @@ export const sendPhoneOTP = async (
       };
     }
 
-    const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier);
+    const confirmationResult = await signInWithPhoneNumber(
+      auth,
+      phoneNumber,
+      recaptchaVerifier,
+    );
     console.log("✅ OTP sent via Firebase to:", phoneNumber);
 
     return { success: true, confirmationResult };
@@ -468,7 +492,8 @@ export const sendPhoneOTP = async (
         errorMessage = "Too many requests. Please try again later.";
         break;
       case "auth/captcha-check-failed":
-        errorMessage = "reCAPTCHA verification failed. Please refresh and try again.";
+        errorMessage =
+          "reCAPTCHA verification failed. Please refresh and try again.";
         break;
       default:
         errorMessage = error.message || errorMessage;

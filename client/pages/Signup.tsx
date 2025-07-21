@@ -27,7 +27,7 @@ import {
   signUpWithEmailAndPasswordWithVerification,
   initializeRecaptcha,
   sendPhoneOTP,
-  verifyPhoneOTP
+  verifyPhoneOTP,
 } from "../lib/auth";
 
 type SignupStep =
@@ -86,7 +86,7 @@ export default function Signup() {
     username?: boolean;
   }>({});
   const [phoneVerified, setPhoneVerified] = useState(false);
-    const [otpSent, setOtpSent] = useState(false);
+  const [otpSent, setOtpSent] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
   const [errorAlert, setErrorAlert] = useState<string | null>(null);
   const [confirmationResult, setConfirmationResult] = useState<any>(null);
@@ -256,7 +256,7 @@ export default function Signup() {
     }
   };
 
-    // Send OTP to phone
+  // Send OTP to phone
   const sendOTP = async () => {
     if (!validatePhone(formData.phone)) return;
 
@@ -264,7 +264,9 @@ export default function Signup() {
     try {
       if (useFirebaseAuth) {
         // Initialize reCAPTCHA if not already done
-        const recaptchaResult = await initializeRecaptcha('recaptcha-container');
+        const recaptchaResult = await initializeRecaptcha(
+          "recaptcha-container",
+        );
         if (!recaptchaResult.success) {
           toast({
             title: "Setup error",
@@ -329,7 +331,7 @@ export default function Signup() {
     }
   };
 
-    // Verify OTP
+  // Verify OTP
   const verifyOTP = async () => {
     if (!validateOTP(formData.otp)) return;
 
@@ -358,7 +360,10 @@ export default function Signup() {
             }, 2000);
           }
         } else {
-          setErrors((prev) => ({ ...prev, otp: result.error || "Verification failed" }));
+          setErrors((prev) => ({
+            ...prev,
+            otp: result.error || "Verification failed",
+          }));
         }
       } else {
         // Use backend verification
@@ -515,7 +520,7 @@ export default function Signup() {
     }
   };
 
-    const handleEmailStep = async () => {
+  const handleEmailStep = async () => {
     if (!validateEmail(formData.email)) return;
 
     setIsLoading(true);
@@ -707,7 +712,7 @@ export default function Signup() {
             variant: "destructive",
           });
         }
-            } else {
+      } else {
         // Clear any previous errors
         setErrorAlert(null);
 
@@ -717,7 +722,7 @@ export default function Signup() {
             const result = await signUpWithEmailAndPasswordWithVerification(
               formData.email,
               formData.password,
-              formData.name
+              formData.name,
             );
 
             if (result.success) {
@@ -732,7 +737,9 @@ export default function Signup() {
                 navigate("/profile");
               }, 2000);
             } else {
-              setErrorAlert(result.error || "Registration failed. Please try again.");
+              setErrorAlert(
+                result.error || "Registration failed. Please try again.",
+              );
             }
           } else {
             // Use backend API for email registration
@@ -1528,7 +1535,7 @@ export default function Signup() {
               </Link>
             </p>
           </motion.div>
-                )}
+        )}
       </div>
 
       {/* reCAPTCHA container for Firebase phone auth */}

@@ -25,11 +25,15 @@ export default function Login() {
         return;
       }
 
-      await setDoc(doc(db, "users", uid), {
-        ...profileData,
-        lastLogin: serverTimestamp(),
-        updatedAt: serverTimestamp(),
-      }, { merge: true });
+      await setDoc(
+        doc(db, "users", uid),
+        {
+          ...profileData,
+          lastLogin: serverTimestamp(),
+          updatedAt: serverTimestamp(),
+        },
+        { merge: true },
+      );
 
       console.log("✅ User profile saved to Firestore");
     } catch (error) {
@@ -205,7 +209,7 @@ export default function Login() {
           transition={{ delay: 0.5, duration: 0.8 }}
           className="space-y-4 mb-8"
         >
-                    <button
+          <button
             onClick={handleGoogleLogin}
             disabled={isLoading}
             className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-full flex items-center justify-center text-white font-medium hover:bg-slate-700/50 transition-colors disabled:opacity-50"
@@ -275,7 +279,7 @@ export default function Login() {
             />
           </div>
 
-                    <div>
+          <div>
             <label className="block text-white text-sm font-medium mb-2">
               Password
             </label>
