@@ -453,7 +453,7 @@ export default function Signup() {
     }
   };
 
-  const handleEmailStep = async () => {
+    const handleEmailStep = async () => {
     if (!validateEmail(formData.email)) return;
 
     setIsLoading(true);
@@ -467,37 +467,47 @@ export default function Signup() {
         return;
       }
 
-      // Send email verification code
-      const response = await fetch("/api/auth/send-email-verification", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email: formData.email }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setCurrentStep("verification");
+      if (useFirebaseAuth) {
+        // Skip email verification step for now and go directly to profile
+        // Firebase email verification will be sent after account creation
+        setCurrentStep("profile");
         toast({
-          title: "Verification code sent!",
-          description:
-            "Please check your email for the 6-digit verification code.",
+          title: "Email verified!",
+          description: "You can now create your profile.",
         });
-
-        // For development, show code in console
-        if (data.debugCode) {
-          console.log(`📧 Email verification code: ${data.debugCode}`);
-        }
-
-        setResendTimer(60);
       } else {
-        toast({
-          title: "Failed to send verification code",
-          description: data.message || "Please try again",
-          variant: "destructive",
+        // Use backend email verification
+        const response = await fetch("/api/auth/send-email-verification", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: formData.email }),
         });
+
+        const data = await response.json();
+
+        if (data.success) {
+          setCurrentStep("verification");
+          toast({
+            title: "Verification code sent!",
+            description:
+              "Please check your email for the 6-digit verification code.",
+          });
+
+          // For development, show code in console
+          if (data.debugCode) {
+            console.log(`📧 Email verification code: ${data.debugCode}`);
+          }
+
+          setResendTimer(60);
+        } else {
+          toast({
+            title: "Failed to send verification code",
+            description: data.message || "Please try again",
+            variant: "destructive",
+          });
+        }
       }
     } catch (error) {
       console.error("Email verification error:", error);
