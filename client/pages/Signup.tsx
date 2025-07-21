@@ -86,9 +86,11 @@ export default function Signup() {
     username?: boolean;
   }>({});
   const [phoneVerified, setPhoneVerified] = useState(false);
-  const [otpSent, setOtpSent] = useState(false);
+    const [otpSent, setOtpSent] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
   const [errorAlert, setErrorAlert] = useState<string | null>(null);
+  const [confirmationResult, setConfirmationResult] = useState<any>(null);
+  const [useFirebaseAuth, setUseFirebaseAuth] = useState(true);
 
   // Validation functions
   const validateEmail = (email: string): boolean => {
