@@ -256,32 +256,66 @@ export default function Signup() {
     }
   };
 
-  // Send OTP to phone
+    // Send OTP to phone
   const sendOTP = async () => {
     if (!validatePhone(formData.phone)) return;
 
     setIsLoading(true);
     try {
-      const result = await phoneAPI.sendOTP(formData.phone);
+      if (useFirebaseAuth) {
+        // Initialize reCAPTCHA if not already done
+        const recaptchaResult = await initializeRecaptcha('recaptcha-container');
+        if (!recaptchaResult.success) {
+          toast({
+            title: "Setup error",
+            description: "Please refresh the page and try again.",
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
 
-      if (result.success) {
-        setOtpSent(true);
-        setResendTimer(60);
-        toast({
-          title: "Verification code sent!",
-          description: `We sent a 6-digit code to ${formatPhoneDisplay(formData.phone)}`,
-        });
+        // Send Firebase OTP
+        const result = await sendPhoneOTP(formData.phone);
 
-        // For development, show OTP in console
-        if (result.debugOtp) {
-          console.log(`📱 OTP for ${formData.phone}: ${result.debugOtp}`);
+        if (result.success && result.confirmationResult) {
+          setConfirmationResult(result.confirmationResult);
+          setOtpSent(true);
+          setResendTimer(60);
+          toast({
+            title: "Verification code sent!",
+            description: `We sent a 6-digit code to ${formatPhoneDisplay(formData.phone)}`,
+          });
+        } else {
+          toast({
+            title: "Failed to send code",
+            description: result.error || "Please try again",
+            variant: "destructive",
+          });
         }
       } else {
-        toast({
-          title: "Failed to send code",
-          description: result.message,
-          variant: "destructive",
-        });
+        // Use backend OTP
+        const result = await phoneAPI.sendOTP(formData.phone);
+
+        if (result.success) {
+          setOtpSent(true);
+          setResendTimer(60);
+          toast({
+            title: "Verification code sent!",
+            description: `We sent a 6-digit code to ${formatPhoneDisplay(formData.phone)}`,
+          });
+
+          // For development, show OTP in console
+          if (result.debugOtp) {
+            console.log(`📱 OTP for ${formData.phone}: ${result.debugOtp}`);
+          }
+        } else {
+          toast({
+            title: "Failed to send code",
+            description: result.message,
+            variant: "destructive",
+          });
+        }
       }
     } catch (error) {
       console.error("Send OTP error:", error);
