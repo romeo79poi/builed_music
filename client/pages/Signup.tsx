@@ -21,7 +21,14 @@ import {
   formatPhoneDisplay,
   phoneAPI,
 } from "../lib/phone";
-import { signUpWithEmailAndPassword, signInWithGoogle } from "../lib/auth";
+import {
+  signUpWithEmailAndPassword,
+  signInWithGoogle,
+  signUpWithEmailAndPasswordWithVerification,
+  initializeRecaptcha,
+  sendPhoneOTP,
+  verifyPhoneOTP
+} from "../lib/auth";
 
 type SignupStep =
   | "method"
