@@ -1,8 +1,13 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useFirebase } from "../context/FirebaseContext";
+import { loginWithEmailAndPassword, signInWithGoogle } from "../lib/auth";
+import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
+import { db } from "../lib/firebase";
+import { useToast } from "../hooks/use-toast";
 
 export default function Login() {
   const navigate = useNavigate();
