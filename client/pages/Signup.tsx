@@ -1528,8 +1528,11 @@ export default function Signup() {
               </Link>
             </p>
           </motion.div>
-        )}
+                )}
       </div>
+
+      {/* reCAPTCHA container for Firebase phone auth */}
+      <div id="recaptcha-container"></div>
     </div>
   );
 }
