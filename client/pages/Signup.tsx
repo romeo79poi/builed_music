@@ -707,43 +707,67 @@ export default function Signup() {
             variant: "destructive",
           });
         }
-      } else {
+            } else {
         // Clear any previous errors
         setErrorAlert(null);
 
         try {
-          // Use backend API for email registration
-          const response = await fetch("/api/auth/complete-registration", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              email: formData.email,
-              username: formData.username,
-              name: formData.name,
-              password: formData.password,
-            }),
-          });
+          if (useFirebaseAuth) {
+            // Use Firebase email signup with verification
+            const result = await signUpWithEmailAndPasswordWithVerification(
+              formData.email,
+              formData.password,
+              formData.name
+            );
 
-          const data = await response.json();
+            if (result.success) {
+              toast({
+                title: "Account created successfully! 🎉",
+                description: `Welcome to Music Catch, ${formData.name}! Please check your email for verification.`,
+              });
 
-          if (data.success) {
-            toast({
-              title: "Account created successfully! 🎉",
-              description: `Welcome to Music Catch, ${formData.name}!`,
+              console.log("✅ User created with Firebase:", result.user);
+
+              setTimeout(() => {
+                navigate("/profile");
+              }, 2000);
+            } else {
+              setErrorAlert(result.error || "Registration failed. Please try again.");
+            }
+          } else {
+            // Use backend API for email registration
+            const response = await fetch("/api/auth/complete-registration", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                email: formData.email,
+                username: formData.username,
+                name: formData.name,
+                password: formData.password,
+              }),
             });
 
-            console.log("✅ User created with backend:", data.user);
+            const data = await response.json();
 
-            setTimeout(() => {
-              navigate("/profile");
-            }, 2000);
-          } else {
-            // Show error in red alert box
-            setErrorAlert(
-              data.message || "Registration failed. Please try again.",
-            );
+            if (data.success) {
+              toast({
+                title: "Account created successfully! 🎉",
+                description: `Welcome to Music Catch, ${formData.name}!`,
+              });
+
+              console.log("✅ User created with backend:", data.user);
+
+              setTimeout(() => {
+                navigate("/profile");
+              }, 2000);
+            } else {
+              // Show error in red alert box
+              setErrorAlert(
+                data.message || "Registration failed. Please try again.",
+              );
+            }
           }
         } catch (error) {
           console.error("Registration error:", error);
