@@ -11,47 +11,161 @@ import { useToast } from "../hooks/use-toast";
 
 export default function Login() {
   const navigate = useNavigate();
-  const { signIn } = useFirebase();
+  const { toast } = useToast();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Save user profile data to Firestore
+  const saveUserProfile = async (uid: string, profileData: any) => {
+    try {
+      if (!db) {
+        console.warn("Firestore not available, skipping profile save");
+        return;
+      }
+
+      await setDoc(doc(db, "users", uid), {
+        ...profileData,
+        lastLogin: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      }, { merge: true });
+
+      console.log("✅ User profile saved to Firestore");
+    } catch (error) {
+      console.error("❌ Error saving profile to Firestore:", error);
+    }
+  };
+
+  // Get existing user profile data
+  const getUserProfile = async (uid: string) => {
+    try {
+      if (!db) return null;
+
+      const userDocRef = doc(db, "users", uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (userDoc.exists()) {
+        return userDoc.data();
+      }
+      return null;
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+      return null;
+    }
+  };
 
   const handleLogin = async () => {
     if (!email || !password) {
-      alert("Please enter both email and password");
+      toast({
+        title: "Missing information",
+        description: "Please enter both email and password",
+        variant: "destructive",
+      });
       return;
     }
 
+    setIsLoading(true);
     try {
-      await signIn(email, password);
-      alert("Login successful 🎉");
-      navigate("/home");
+      // Use Firebase SDK login
+      const result = await loginWithEmailAndPassword(email, password);
+
+      if (result.success && result.user) {
+        // Get existing profile data
+        const existingProfile = await getUserProfile(result.user.uid);
+
+        // Save/update user profile in Firestore
+        await saveUserProfile(result.user.uid, {
+          name: existingProfile?.name || result.user.displayName || "",
+          username: existingProfile?.username || "",
+          email: result.user.email || "",
+          phone: existingProfile?.phone || result.user.phoneNumber || "",
+          uid: result.user.uid,
+          emailVerified: result.user.emailVerified,
+        });
+
+        toast({
+          title: "Login successful! 🎉",
+          description: `Welcome back!`,
+        });
+
+        console.log("✅ User logged in:", {
+          uid: result.user.uid,
+          email: result.user.email,
+          emailVerified: result.user.emailVerified,
+        });
+
+        navigate("/profile");
+      } else {
+        toast({
+          title: "Login failed",
+          description: result.error || "Please try again",
+          variant: "destructive",
+        });
+      }
     } catch (err: any) {
       console.error("Login error:", err);
+      toast({
+        title: "Login error",
+        description: err.message || "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-      // Provide more user-friendly error messages
-      let errorMessage = "Login failed";
-      if (err.code === "auth/network-request-failed") {
-        errorMessage =
-          "Network error. Please check your connection and try again.";
-      } else if (err.code === "auth/user-not-found") {
-        errorMessage = "No account found with this email.";
-      } else if (err.code === "auth/wrong-password") {
-        errorMessage = "Incorrect password.";
-      } else if (err.code === "auth/invalid-email") {
-        errorMessage = "Invalid email address.";
-      } else if (err.code === "auth/too-many-requests") {
-        errorMessage = "Too many failed attempts. Try again later.";
+  const handleGoogleLogin = async () => {
+    setIsLoading(true);
+    try {
+      const result = await signInWithGoogle();
+
+      if (result.success && result.user) {
+        // Save user profile to Firestore
+        await saveUserProfile(result.user.uid, {
+          name: result.user.displayName || "",
+          username: result.user.email?.split("@")[0] || "",
+          email: result.user.email || "",
+          phone: result.user.phoneNumber || "",
+          uid: result.user.uid,
+          emailVerified: result.user.emailVerified,
+        });
+
+        const message = result.isNewUser
+          ? `Welcome to Music Catch, ${result.user.displayName}!`
+          : `Welcome back, ${result.user.displayName}!`;
+
+        toast({
+          title: "Google login successful! 🎉",
+          description: message,
+        });
+
+        navigate("/profile");
       } else {
-        errorMessage = err.message || "An unexpected error occurred.";
+        toast({
+          title: "Google login failed",
+          description: result.error || "Please try again",
+          variant: "destructive",
+        });
       }
-
-      alert("❌ " + errorMessage);
+    } catch (error: any) {
+      console.error("Google login error:", error);
+      toast({
+        title: "Google login error",
+        description: error.message || "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleSocialLogin = () => {
-    // For now, just navigate to home - social login can be implemented later
-    navigate("/home");
+    // Placeholder for other social logins
+    toast({
+      title: "Coming soon",
+      description: "This login method will be available soon!",
+    });
   };
 
   return (
