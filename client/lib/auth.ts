@@ -4,6 +4,10 @@ import {
   signInWithPopup,
   GoogleAuthProvider,
   signOut,
+  sendEmailVerification,
+  RecaptchaVerifier,
+  signInWithPhoneNumber,
+  ConfirmationResult,
   User,
 } from "firebase/auth";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
