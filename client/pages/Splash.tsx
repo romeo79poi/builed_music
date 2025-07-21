@@ -142,7 +142,7 @@ export default function Splash() {
               >
                 <Button
                   onClick={() => navigate("/signup")}
-                  className="w-full bg-neon-green hover:bg-neon-green/90 text-black font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-all duration-200 text-base sm:text-lg"
+                  className="w-full bg-black border border-green-400 text-green-400 hover:bg-green-400/10 font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-all duration-200 text-base sm:text-lg"
                 >
                   Start Your Journey
                 </Button>

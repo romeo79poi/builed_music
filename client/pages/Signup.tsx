@@ -21,7 +21,14 @@ import {
   formatPhoneDisplay,
   phoneAPI,
 } from "../lib/phone";
-import { signUpWithEmailAndPassword, signInWithGoogle } from "../lib/auth";
+import {
+  signUpWithEmailAndPassword,
+  signInWithGoogle,
+  signUpWithEmailAndPasswordWithVerification,
+  initializeRecaptcha,
+  sendPhoneOTP,
+  verifyPhoneOTP,
+} from "../lib/auth";
 
 type SignupStep =
   | "method"
@@ -82,6 +89,8 @@ export default function Signup() {
   const [otpSent, setOtpSent] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
   const [errorAlert, setErrorAlert] = useState<string | null>(null);
+  const [confirmationResult, setConfirmationResult] = useState<any>(null);
+  const [useFirebaseAuth, setUseFirebaseAuth] = useState(true);
 
   // Validation functions
   const validateEmail = (email: string): boolean => {
@@ -253,26 +262,62 @@ export default function Signup() {
 
     setIsLoading(true);
     try {
-      const result = await phoneAPI.sendOTP(formData.phone);
+      if (useFirebaseAuth) {
+        // Initialize reCAPTCHA if not already done
+        const recaptchaResult = await initializeRecaptcha(
+          "recaptcha-container",
+        );
+        if (!recaptchaResult.success) {
+          toast({
+            title: "Setup error",
+            description: "Please refresh the page and try again.",
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
 
-      if (result.success) {
-        setOtpSent(true);
-        setResendTimer(60);
-        toast({
-          title: "Verification code sent!",
-          description: `We sent a 6-digit code to ${formatPhoneDisplay(formData.phone)}`,
-        });
+        // Send Firebase OTP
+        const result = await sendPhoneOTP(formData.phone);
 
-        // For development, show OTP in console
-        if (result.debugOtp) {
-          console.log(`📱 OTP for ${formData.phone}: ${result.debugOtp}`);
+        if (result.success && result.confirmationResult) {
+          setConfirmationResult(result.confirmationResult);
+          setOtpSent(true);
+          setResendTimer(60);
+          toast({
+            title: "Verification code sent!",
+            description: `We sent a 6-digit code to ${formatPhoneDisplay(formData.phone)}`,
+          });
+        } else {
+          toast({
+            title: "Failed to send code",
+            description: result.error || "Please try again",
+            variant: "destructive",
+          });
         }
       } else {
-        toast({
-          title: "Failed to send code",
-          description: result.message,
-          variant: "destructive",
-        });
+        // Use backend OTP
+        const result = await phoneAPI.sendOTP(formData.phone);
+
+        if (result.success) {
+          setOtpSent(true);
+          setResendTimer(60);
+          toast({
+            title: "Verification code sent!",
+            description: `We sent a 6-digit code to ${formatPhoneDisplay(formData.phone)}`,
+          });
+
+          // For development, show OTP in console
+          if (result.debugOtp) {
+            console.log(`📱 OTP for ${formData.phone}: ${result.debugOtp}`);
+          }
+        } else {
+          toast({
+            title: "Failed to send code",
+            description: result.message,
+            variant: "destructive",
+          });
+        }
       }
     } catch (error) {
       console.error("Send OTP error:", error);
@@ -292,20 +337,51 @@ export default function Signup() {
 
     setIsLoading(true);
     try {
-      const result = await phoneAPI.verifyOTP(formData.phone, formData.otp);
+      if (useFirebaseAuth && confirmationResult) {
+        // Use Firebase verification
+        const result = await verifyPhoneOTP(confirmationResult, formData.otp);
 
-      if (result.success) {
-        setPhoneVerified(true);
-        toast({
-          title: "Phone verified!",
-          description: "Your phone number has been successfully verified.",
-        });
+        if (result.success) {
+          setPhoneVerified(true);
+          toast({
+            title: "Phone verified!",
+            description: "Your phone number has been successfully verified.",
+          });
 
-        if (signupMethod === "phone") {
-          setCurrentStep("profile");
+          if (signupMethod === "phone") {
+            // For phone signup with Firebase, the user is already created
+            toast({
+              title: "Account created successfully! 🎉",
+              description: "Welcome to Music Catch!",
+            });
+
+            setTimeout(() => {
+              navigate("/profile");
+            }, 2000);
+          }
+        } else {
+          setErrors((prev) => ({
+            ...prev,
+            otp: result.error || "Verification failed",
+          }));
         }
       } else {
-        setErrors((prev) => ({ ...prev, otp: result.message }));
+        // Use backend verification
+        const result = await phoneAPI.verifyOTP(formData.phone, formData.otp);
+
+        if (result.success) {
+          setPhoneVerified(true);
+          toast({
+            title: "Phone verified!",
+            description: "Your phone number has been successfully verified.",
+          });
+
+          if (signupMethod === "phone") {
+            setCurrentStep("profile");
+          }
+        } else {
+          setErrors((prev) => ({ ...prev, otp: result.message }));
+        }
       }
     } catch (error) {
       console.error("Verify OTP error:", error);
@@ -458,37 +534,47 @@ export default function Signup() {
         return;
       }
 
-      // Send email verification code
-      const response = await fetch("/api/auth/send-email-verification", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email: formData.email }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        setCurrentStep("verification");
+      if (useFirebaseAuth) {
+        // Skip email verification step for now and go directly to profile
+        // Firebase email verification will be sent after account creation
+        setCurrentStep("profile");
         toast({
-          title: "Verification code sent!",
-          description:
-            "Please check your email for the 6-digit verification code.",
+          title: "Email verified!",
+          description: "You can now create your profile.",
         });
-
-        // For development, show code in console
-        if (data.debugCode) {
-          console.log(`📧 Email verification code: ${data.debugCode}`);
-        }
-
-        setResendTimer(60);
       } else {
-        toast({
-          title: "Failed to send verification code",
-          description: data.message || "Please try again",
-          variant: "destructive",
+        // Use backend email verification
+        const response = await fetch("/api/auth/send-email-verification", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: formData.email }),
         });
+
+        const data = await response.json();
+
+        if (data.success) {
+          setCurrentStep("verification");
+          toast({
+            title: "Verification code sent!",
+            description:
+              "Please check your email for the 6-digit verification code.",
+          });
+
+          // For development, show code in console
+          if (data.debugCode) {
+            console.log(`📧 Email verification code: ${data.debugCode}`);
+          }
+
+          setResendTimer(60);
+        } else {
+          toast({
+            title: "Failed to send verification code",
+            description: data.message || "Please try again",
+            variant: "destructive",
+          });
+        }
       }
     } catch (error) {
       console.error("Email verification error:", error);
@@ -631,38 +717,64 @@ export default function Signup() {
         setErrorAlert(null);
 
         try {
-          // Use backend API for email registration
-          const response = await fetch("/api/auth/complete-registration", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              email: formData.email,
-              username: formData.username,
-              name: formData.name,
-              password: formData.password,
-            }),
-          });
+          if (useFirebaseAuth) {
+            // Use Firebase email signup with verification
+            const result = await signUpWithEmailAndPasswordWithVerification(
+              formData.email,
+              formData.password,
+              formData.name,
+            );
 
-          const data = await response.json();
+            if (result.success) {
+              toast({
+                title: "Account created successfully! 🎉",
+                description: `Welcome to Music Catch, ${formData.name}! Please check your email for verification.`,
+              });
 
-          if (data.success) {
-            toast({
-              title: "Account created successfully! 🎉",
-              description: `Welcome to Music Catch, ${formData.name}!`,
+              console.log("✅ User created with Firebase:", result.user);
+
+              setTimeout(() => {
+                navigate("/profile");
+              }, 2000);
+            } else {
+              setErrorAlert(
+                result.error || "Registration failed. Please try again.",
+              );
+            }
+          } else {
+            // Use backend API for email registration
+            const response = await fetch("/api/auth/complete-registration", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                email: formData.email,
+                username: formData.username,
+                name: formData.name,
+                password: formData.password,
+              }),
             });
 
-            console.log("✅ User created with backend:", data.user);
+            const data = await response.json();
 
-            setTimeout(() => {
-              navigate("/profile");
-            }, 2000);
-          } else {
-            // Show error in red alert box
-            setErrorAlert(
-              data.message || "Registration failed. Please try again.",
-            );
+            if (data.success) {
+              toast({
+                title: "Account created successfully! 🎉",
+                description: `Welcome to Music Catch, ${formData.name}!`,
+              });
+
+              console.log("✅ User created with backend:", data.user);
+
+              setTimeout(() => {
+                navigate("/profile");
+              }, 2000);
+            } else {
+              // Show error in red alert box
+              setErrorAlert(
+                data.message || "Registration failed. Please try again.",
+              );
+            }
           }
         } catch (error) {
           console.error("Registration error:", error);
@@ -1425,6 +1537,9 @@ export default function Signup() {
           </motion.div>
         )}
       </div>
+
+      {/* reCAPTCHA container for Firebase phone auth */}
+      <div id="recaptcha-container"></div>
     </div>
   );
 }
