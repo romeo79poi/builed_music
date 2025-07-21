@@ -336,6 +336,200 @@ export const signInWithGoogle = async (): Promise<{
   }
 };
 
+export const sendFirebaseEmailVerification = async (
+  user: User,
+): Promise<{ success: boolean; error?: string }> => {
+  try {
+    if (!isFirebaseConfigured || !auth) {
+      return {
+        success: false,
+        error: "Firebase is not configured. Using mock verification.",
+      };
+    }
+
+    await sendEmailVerification(user);
+    console.log("✅ Email verification sent via Firebase");
+    return { success: true };
+  } catch (error: any) {
+    console.error("Email verification error:", error);
+
+    let errorMessage = "Failed to send email verification";
+    switch (error.code) {
+      case "auth/too-many-requests":
+        errorMessage = "Too many verification emails sent. Please wait before requesting another.";
+        break;
+      case "auth/user-disabled":
+        errorMessage = "User account has been disabled";
+        break;
+      case "auth/user-not-found":
+        errorMessage = "User not found";
+        break;
+      default:
+        errorMessage = error.message || errorMessage;
+    }
+
+    return { success: false, error: errorMessage };
+  }
+};
+
+export const signUpWithEmailAndPasswordWithVerification = async (
+  email: string,
+  password: string,
+  name: string,
+): Promise<{ success: boolean; user?: User; error?: string }> => {
+  try {
+    // First create the user
+    const signupResult = await signUpWithEmailAndPassword(email, password, name);
+
+    if (!signupResult.success) {
+      return signupResult;
+    }
+
+    // Send email verification
+    if (signupResult.user && isFirebaseConfigured) {
+      const verificationResult = await sendFirebaseEmailVerification(signupResult.user);
+      if (!verificationResult.success) {
+        console.warn("Failed to send email verification:", verificationResult.error);
+      }
+    }
+
+    return signupResult;
+  } catch (error: any) {
+    console.error("Signup with verification error:", error);
+    return { success: false, error: error.message || "Signup failed" };
+  }
+};
+
+// Phone authentication functions
+let recaptchaVerifier: RecaptchaVerifier | null = null;
+
+export const initializeRecaptcha = (elementId: string): Promise<{ success: boolean; error?: string }> => {
+  return new Promise((resolve) => {
+    try {
+      if (!isFirebaseConfigured || !auth) {
+        resolve({ success: false, error: "Firebase not configured" });
+        return;
+      }
+
+      // Clear existing verifier
+      if (recaptchaVerifier) {
+        recaptchaVerifier.clear();
+      }
+
+      recaptchaVerifier = new RecaptchaVerifier(elementId, {
+        size: 'invisible',
+        callback: (response: any) => {
+          console.log("reCAPTCHA solved:", response);
+        },
+        'expired-callback': () => {
+          console.log("reCAPTCHA expired");
+        }
+      }, auth);
+
+      resolve({ success: true });
+    } catch (error: any) {
+      console.error("RecaptchaVerifier initialization error:", error);
+      resolve({ success: false, error: error.message });
+    }
+  });
+};
+
+export const sendPhoneOTP = async (
+  phoneNumber: string,
+): Promise<{ success: boolean; confirmationResult?: ConfirmationResult; error?: string }> => {
+  try {
+    if (!isFirebaseConfigured || !auth) {
+      return {
+        success: false,
+        error: "Firebase not configured. Using mock OTP.",
+      };
+    }
+
+    if (!recaptchaVerifier) {
+      return {
+        success: false,
+        error: "reCAPTCHA not initialized. Please refresh and try again.",
+      };
+    }
+
+    const confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifier);
+    console.log("✅ OTP sent via Firebase to:", phoneNumber);
+
+    return { success: true, confirmationResult };
+  } catch (error: any) {
+    console.error("Phone OTP error:", error);
+
+    let errorMessage = "Failed to send OTP";
+    switch (error.code) {
+      case "auth/invalid-phone-number":
+        errorMessage = "Invalid phone number format";
+        break;
+      case "auth/too-many-requests":
+        errorMessage = "Too many requests. Please try again later.";
+        break;
+      case "auth/captcha-check-failed":
+        errorMessage = "reCAPTCHA verification failed. Please refresh and try again.";
+        break;
+      default:
+        errorMessage = error.message || errorMessage;
+    }
+
+    return { success: false, error: errorMessage };
+  }
+};
+
+export const verifyPhoneOTP = async (
+  confirmationResult: ConfirmationResult,
+  otp: string,
+): Promise<{ success: boolean; user?: User; error?: string }> => {
+  try {
+    if (!isFirebaseConfigured || !auth) {
+      return {
+        success: false,
+        error: "Firebase not configured.",
+      };
+    }
+
+    const result = await confirmationResult.confirm(otp);
+    console.log("✅ Phone verified via Firebase:", result.user.phoneNumber);
+
+    // Store user data in Firestore if it's a new user
+    if (db && result.user) {
+      const userDocRef = doc(db, "users", result.user.uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (!userDoc.exists()) {
+        const userData = {
+          phoneNumber: result.user.phoneNumber || "",
+          uid: result.user.uid,
+          createdAt: serverTimestamp(),
+        };
+
+        await setDoc(userDocRef, userData);
+        console.log("✅ New phone user created in Firestore");
+      }
+    }
+
+    return { success: true, user: result.user };
+  } catch (error: any) {
+    console.error("Phone verification error:", error);
+
+    let errorMessage = "OTP verification failed";
+    switch (error.code) {
+      case "auth/invalid-verification-code":
+        errorMessage = "Invalid verification code";
+        break;
+      case "auth/code-expired":
+        errorMessage = "Verification code has expired";
+        break;
+      default:
+        errorMessage = error.message || errorMessage;
+    }
+
+    return { success: false, error: errorMessage };
+  }
+};
+
 export const logout = async (): Promise<{
   success: boolean;
   error?: string;
