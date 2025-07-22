@@ -303,6 +303,50 @@ export const subscriptionApi = {
     }),
 };
 
+// Song API for like/unlike functionality
+export const songApi = {
+  // Like a song
+  likeSong: (songId: string): Promise<{ message: string; likedSongs: string[] }> => {
+    const token = localStorage.getItem("token");
+    return apiRequest(`/songs/like/${songId}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  },
+
+  // Unlike a song
+  unlikeSong: (songId: string): Promise<{ message: string; likedSongs: string[] }> => {
+    const token = localStorage.getItem("token");
+    return apiRequest(`/songs/unlike/${songId}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  },
+
+  // Get all liked songs
+  getLikedSongs: (): Promise<{ likedSongs: any[] }> => {
+    const token = localStorage.getItem("token");
+    return apiRequest(`/songs/liked`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+  },
+
+  // Toggle like status (convenience method)
+  toggleLike: async (songId: string, isCurrentlyLiked: boolean): Promise<{ message: string; likedSongs: string[] }> => {
+    if (isCurrentlyLiked) {
+      return songApi.unlikeSong(songId);
+    } else {
+      return songApi.likeSong(songId);
+    }
+  },
+};
+
 // Export all APIs
 export const api = {
   profile: profileApi,
@@ -310,6 +354,7 @@ export const api = {
   upload: uploadApi,
   settings: settingsApi,
   subscription: subscriptionApi,
+  song: songApi,
 };
 
 export default api;
