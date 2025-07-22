@@ -12,6 +12,7 @@ import {
 } from "firebase/auth";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db, isFirebaseConfigured } from "./firebase";
+import { apiPost } from "./api-utils";
 
 export interface UserData {
   name: string;
@@ -171,90 +172,37 @@ export const loginWithEmailAndPassword = async (
 
     // Fallback to backend authentication
     console.log("🔄 Attempting backend authentication...");
-    try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      });
+    const result = await apiPost('/api/auth/login', { email, password });
 
-      // Check if response is ok before trying to parse JSON
-      if (!response.ok) {
-        // Try to get error message from response, but handle cases where it's not JSON
-        let errorMessage = 'Login failed';
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.message || errorData.error || 'Login failed';
-        } catch {
-          // If response is not JSON, use status text
-          errorMessage = response.statusText || 'Login failed';
-        }
+    if (result.success && result.data) {
+      console.log("✅ Backend authentication successful");
 
-        return {
-          success: false,
-          error: errorMessage
-        };
+      const data = result.data;
+
+      // Store the JWT token
+      if (data.token) {
+        localStorage.setItem('token', data.token);
       }
 
-      // Parse JSON response safely
-      let data;
-      try {
-        data = await response.json();
-      } catch (jsonError) {
-        console.error("❌ Failed to parse JSON response:", jsonError);
-        return {
-          success: false,
-          error: "Invalid response from server"
-        };
-      }
-
-      if (data.success) {
-        console.log("✅ Backend authentication successful");
-
-        // Store the JWT token
-        if (data.token) {
-          localStorage.setItem('token', data.token);
-        }
-
-        // Create a user-like object for consistency
-        const mockUser = {
-          uid: data.user?.id || `backend-${Date.now()}`,
-          email: data.user?.email || email,
-          displayName: data.user?.name || data.user?.displayName || 'User',
-          emailVerified: true,
-          photoURL: data.user?.profilePicture || null,
-        } as User;
-
-        return {
-          success: true,
-          user: mockUser,
-          token: data.token
-        };
-      } else {
-        return {
-          success: false,
-          error: data.message || data.error || 'Login failed'
-        };
-      }
-    } catch (backendError: any) {
-      console.error("❌ Backend authentication failed:", backendError);
-
-      // Provide more specific error messages
-      let errorMessage = "Unable to connect to authentication service";
-
-      if (backendError.name === 'TypeError' && backendError.message.includes('stream')) {
-        errorMessage = "Server response error. Please try again.";
-      } else if (backendError.name === 'TypeError' && backendError.message.includes('fetch')) {
-        errorMessage = "Network error. Please check your connection.";
-      } else if (backendError.message) {
-        errorMessage = backendError.message;
-      }
+      // Create a user-like object for consistency
+      const mockUser = {
+        uid: data.user?.id || `backend-${Date.now()}`,
+        email: data.user?.email || email,
+        displayName: data.user?.name || data.user?.displayName || 'User',
+        emailVerified: true,
+        photoURL: data.user?.profilePicture || null,
+      } as User;
 
       return {
+        success: true,
+        user: mockUser,
+        token: data.token
+      };
+    } else {
+      console.error("❌ Backend authentication failed:", result.error);
+      return {
         success: false,
-        error: errorMessage
+        error: result.error || 'Login failed'
       };
     }
   } catch (error: any) {
