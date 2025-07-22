@@ -180,9 +180,37 @@ export const loginWithEmailAndPassword = async (
         body: JSON.stringify({ email, password }),
       });
 
-      const data = await response.json();
+      // Check if response is ok before trying to parse JSON
+      if (!response.ok) {
+        // Try to get error message from response, but handle cases where it's not JSON
+        let errorMessage = 'Login failed';
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorData.error || 'Login failed';
+        } catch {
+          // If response is not JSON, use status text
+          errorMessage = response.statusText || 'Login failed';
+        }
 
-      if (response.ok && data.success) {
+        return {
+          success: false,
+          error: errorMessage
+        };
+      }
+
+      // Parse JSON response safely
+      let data;
+      try {
+        data = await response.json();
+      } catch (jsonError) {
+        console.error("❌ Failed to parse JSON response:", jsonError);
+        return {
+          success: false,
+          error: "Invalid response from server"
+        };
+      }
+
+      if (data.success) {
         console.log("✅ Backend authentication successful");
 
         // Store the JWT token
@@ -207,14 +235,26 @@ export const loginWithEmailAndPassword = async (
       } else {
         return {
           success: false,
-          error: data.message || 'Login failed'
+          error: data.message || data.error || 'Login failed'
         };
       }
     } catch (backendError: any) {
       console.error("❌ Backend authentication failed:", backendError);
+
+      // Provide more specific error messages
+      let errorMessage = "Unable to connect to authentication service";
+
+      if (backendError.name === 'TypeError' && backendError.message.includes('stream')) {
+        errorMessage = "Server response error. Please try again.";
+      } else if (backendError.name === 'TypeError' && backendError.message.includes('fetch')) {
+        errorMessage = "Network error. Please check your connection.";
+      } else if (backendError.message) {
+        errorMessage = backendError.message;
+      }
+
       return {
         success: false,
-        error: "Unable to connect to authentication service. Please check your connection."
+        error: errorMessage
       };
     }
   } catch (error: any) {
