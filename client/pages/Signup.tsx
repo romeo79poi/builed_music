@@ -892,7 +892,7 @@ export default function Signup() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.5 }}
-          className="absolute -top-4 -left-4 sm:-top-6 sm:-left-6 z-20"
+          className="absolute -top-4 -left-4 sm:-top-6 sm:-left-6 z-20 flex flex-col"
         >
           <button
             onClick={() => {
