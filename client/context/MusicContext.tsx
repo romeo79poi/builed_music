@@ -22,7 +22,6 @@ interface MusicContextType {
   isShuffle: boolean;
   isRepeat: boolean;
   likedSongs: string[];
-  queue: Song[];
   currentIndex: number;
   setCurrentSong: (song: Song) => void;
   setIsPlaying: (playing: boolean) => void;
@@ -38,7 +37,6 @@ interface MusicContextType {
   toggleLikeSong: (songId: string) => Promise<void>;
   isSongLiked: (songId: string) => boolean;
   refreshLikedSongs: () => Promise<void>;
-  setQueue: (songs: Song[]) => void;
   addToQueue: (song: Song) => void;
   playFromQueue: (index: number) => void;
 }
