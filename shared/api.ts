@@ -222,6 +222,32 @@ export interface ApiError {
   details?: any;
 }
 
+// Song Search Response Types
+export interface SongSearchResponse {
+  results: Song[];
+  total: number;
+  query: string;
+  success: boolean;
+}
+
+export interface MusicSearchResponse {
+  songs?: Song[];
+  artists?: Artist[];
+  playlists?: Playlist[];
+  total: number;
+  query: string;
+  success: boolean;
+}
+
+export interface Artist {
+  id: string;
+  name: string;
+  image: string;
+  followers?: number;
+  verified?: boolean;
+  genre?: string;
+}
+
 // Success Response Type
 export interface ApiSuccess<T = any> {
   success: true;
