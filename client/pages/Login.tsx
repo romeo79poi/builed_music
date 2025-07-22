@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2, ArrowLeft } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useFirebase } from "../context/FirebaseContext";
 import { loginWithEmailAndPassword, signInWithGoogle } from "../lib/auth";
@@ -178,6 +178,21 @@ export default function Login() {
       <div className="absolute inset-0 bg-gradient-to-br from-neon-green/5 via-transparent to-neon-blue/5 bg-black"></div>
 
       <div className="relative z-10 w-full max-w-md px-2 sm:px-0">
+        {/* Back Button */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+          className="absolute -top-4 -left-4 sm:-top-6 sm:-left-6 z-20 flex flex-col"
+        >
+          <button
+            onClick={() => navigate("/")}
+            className="w-10 h-10 sm:w-12 sm:h-12 bg-slate-800/70 hover:bg-slate-700/70 border border-slate-600 rounded-full flex items-center justify-center backdrop-blur-sm transition-all duration-200 hover:scale-105"
+          >
+            <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+          </button>
+        </motion.div>
+
         {/* Logo */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
