@@ -313,7 +313,24 @@ export const signInWithGoogle = async (): Promise<{
 
       return { success: true, user, isNewUser };
     } catch (firebaseError: any) {
-      // If Firebase project doesn't exist, use development mode
+      console.warn("⚠️ Firebase error during Google sign-in:", firebaseError.code, firebaseError.message);
+
+      // Handle specific Firebase errors with better messages
+      if (firebaseError.code === "auth/popup-closed-by-user") {
+        return {
+          success: false,
+          error: "Sign-in was cancelled. Please try again.",
+        };
+      }
+
+      if (firebaseError.code === "auth/popup-blocked") {
+        return {
+          success: false,
+          error: "Pop-up was blocked by your browser. Please allow pop-ups and try again.",
+        };
+      }
+
+      // If Firebase project doesn't exist or network issues, use development mode
       if (
         firebaseError.code === "auth/project-not-found" ||
         firebaseError.code === "auth/invalid-api-key" ||
@@ -323,15 +340,16 @@ export const signInWithGoogle = async (): Promise<{
         firebaseError.message?.includes("network request failed")
       ) {
         console.warn(
-          "Firebase project not found or network error, using development mode for Google sign-in",
+          "🔄 Firebase network/config error, using development mode for Google sign-in",
         );
 
         // Simulate successful Google user creation for development
         const mockUser = {
           uid: `google-dev-${Date.now()}`,
-          email: "user@gmail.com",
-          displayName: "Dev User",
+          email: "demo.user@gmail.com",
+          displayName: "Demo User",
           emailVerified: true,
+          photoURL: "https://via.placeholder.com/96x96/4285F4/ffffff?text=DU",
         } as User;
 
         console.log("✅ Development Google user created:", mockUser);
