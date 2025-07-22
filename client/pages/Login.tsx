@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Loader2, ArrowLeft, Mail, Phone } from "lucide-react";
+import { Eye, EyeOff, Loader2, ArrowLeft, Mail, Phone, Wifi, WifiOff } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useFirebase } from "../context/FirebaseContext";
 import { loginWithEmailAndPassword, signInWithGoogle } from "../lib/auth";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { useToast } from "../hooks/use-toast";
+import ConnectivityChecker, { getNetworkErrorMessage } from "../lib/connectivity";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ export default function Login() {
   const [phone, setPhone] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isOnline, setIsOnline] = useState(ConnectivityChecker.getConnectionStatus());
 
   // Save user profile data to Firestore
   const saveUserProfile = async (uid: string, profileData: any) => {
@@ -71,11 +73,33 @@ export default function Login() {
       return;
     }
 
+    // Check connectivity before attempting login
+    if (!ConnectivityChecker.getConnectionStatus()) {
+      toast({
+        title: "No internet connection",
+        description: "Please check your connection and try again",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setIsLoading(true);
+
+      // Check if we can reach the backend
+      const hasConnection = await ConnectivityChecker.checkInternetConnection();
+      if (!hasConnection) {
+        throw new Error("Unable to connect to the server");
+      }
+
       const result = await loginWithEmailAndPassword(email, password);
 
       if (result.success && result.user) {
+        // Store token if provided (for backend auth)
+        if (result.token) {
+          localStorage.setItem('token', result.token);
+        }
+
         const existingProfile = await getUserProfile(result.user.uid);
 
         const profileData = {
@@ -95,17 +119,19 @@ export default function Login() {
 
         navigate("/home");
       } else {
+        const errorMessage = getNetworkErrorMessage(result) || result.error || "Please check your credentials";
         toast({
           title: "Login failed",
-          description: result.error || "Please check your credentials",
+          description: errorMessage,
           variant: "destructive",
         });
       }
     } catch (error: any) {
       console.error("Login error:", error);
+      const errorMessage = getNetworkErrorMessage(error) || error.message || "An unexpected error occurred";
       toast({
         title: "Login error",
-        description: error.message || "An unexpected error occurred",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -114,11 +140,26 @@ export default function Login() {
   };
 
   const handleGoogleLogin = async () => {
+    // Check connectivity before attempting Google login
+    if (!ConnectivityChecker.getConnectionStatus()) {
+      toast({
+        title: "No internet connection",
+        description: "Please check your connection and try again",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setIsLoading(true);
       const result = await signInWithGoogle();
 
       if (result.success && result.user) {
+        // Store token if provided (for backend auth)
+        if (result.token) {
+          localStorage.setItem('token', result.token);
+        }
+
         const existingProfile = await getUserProfile(result.user.uid);
 
         const profileData = {
@@ -138,17 +179,19 @@ export default function Login() {
 
         navigate("/home");
       } else {
+        const errorMessage = getNetworkErrorMessage(result) || result.error || "Please try again";
         toast({
           title: "Google login failed",
-          description: result.error || "Please try again",
+          description: errorMessage,
           variant: "destructive",
         });
       }
     } catch (error: any) {
       console.error("Google login error:", error);
+      const errorMessage = getNetworkErrorMessage(error) || error.message || "An unexpected error occurred";
       toast({
         title: "Google login error",
-        description: error.message || "An unexpected error occurred",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
