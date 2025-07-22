@@ -73,7 +73,6 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
   const [isShuffle, setIsShuffle] = useState(false);
   const [isRepeat, setIsRepeat] = useState(false);
   const [likedSongs, setLikedSongs] = useState<string[]>([]);
-  const [queue, setQueue] = useState<Song[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const togglePlay = () => setIsPlaying(!isPlaying);
