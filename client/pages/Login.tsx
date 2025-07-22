@@ -15,6 +15,7 @@ export default function Login() {
   const [loginMethod, setLoginMethod] = useState<'social' | 'email' | 'phone'>('social');
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -55,7 +56,7 @@ export default function Login() {
       }
       return null;
     } catch (error) {
-      console.error("Error fetching user profile:", error);
+      console.error("❌ Error getting user profile:", error);
       return null;
     }
   };
@@ -70,49 +71,41 @@ export default function Login() {
       return;
     }
 
-    setIsLoading(true);
     try {
-      // Use Firebase SDK login
+      setIsLoading(true);
       const result = await loginWithEmailAndPassword(email, password);
 
       if (result.success && result.user) {
-        // Get existing profile data
         const existingProfile = await getUserProfile(result.user.uid);
 
-        // Save/update user profile in Firestore
-        await saveUserProfile(result.user.uid, {
-          name: existingProfile?.name || result.user.displayName || "",
-          username: existingProfile?.username || "",
-          email: result.user.email || "",
-          phone: existingProfile?.phone || result.user.phoneNumber || "",
+        const profileData = {
+          email: result.user.email,
+          displayName: result.user.displayName || "User",
+          photoURL: result.user.photoURL || "",
+          provider: "email",
           uid: result.user.uid,
-          emailVerified: result.user.emailVerified,
-        });
+        };
+
+        await saveUserProfile(result.user.uid, profileData);
 
         toast({
-          title: "Login successful! 🎉",
-          description: `Welcome back!`,
+          title: "Welcome back!",
+          description: "Successfully logged in",
         });
 
-        console.log("✅ User logged in:", {
-          uid: result.user.uid,
-          email: result.user.email,
-          emailVerified: result.user.emailVerified,
-        });
-
-        navigate("/profile");
+        navigate("/home");
       } else {
         toast({
           title: "Login failed",
-          description: result.error || "Please try again",
+          description: result.error || "Please check your credentials",
           variant: "destructive",
         });
       }
-    } catch (err: any) {
-      console.error("Login error:", err);
+    } catch (error: any) {
+      console.error("Login error:", error);
       toast({
         title: "Login error",
-        description: err.message || "An unexpected error occurred",
+        description: error.message || "An unexpected error occurred",
         variant: "destructive",
       });
     } finally {
@@ -121,31 +114,29 @@ export default function Login() {
   };
 
   const handleGoogleLogin = async () => {
-    setIsLoading(true);
     try {
+      setIsLoading(true);
       const result = await signInWithGoogle();
 
       if (result.success && result.user) {
-        // Save user profile to Firestore
-        await saveUserProfile(result.user.uid, {
-          name: result.user.displayName || "",
-          username: result.user.email?.split("@")[0] || "",
-          email: result.user.email || "",
-          phone: result.user.phoneNumber || "",
-          uid: result.user.uid,
-          emailVerified: result.user.emailVerified,
-        });
+        const existingProfile = await getUserProfile(result.user.uid);
 
-        const message = result.isNewUser
-          ? `Welcome to Music Catch, ${result.user.displayName}!`
-          : `Welcome back, ${result.user.displayName}!`;
+        const profileData = {
+          email: result.user.email,
+          displayName: result.user.displayName || result.user.email?.split("@")[0] || "User",
+          photoURL: result.user.photoURL || "",
+          provider: "google",
+          uid: result.user.uid,
+        };
+
+        await saveUserProfile(result.user.uid, profileData);
 
         toast({
-          title: "Google login successful! 🎉",
-          description: message,
+          title: "Welcome!",
+          description: "Successfully logged in with Google",
         });
 
-        navigate("/profile");
+        navigate("/home");
       } else {
         toast({
           title: "Google login failed",
@@ -165,11 +156,10 @@ export default function Login() {
     }
   };
 
-  const handleSocialLogin = () => {
-    // Placeholder for other social logins
+  const handlePhoneLogin = () => {
     toast({
       title: "Coming soon",
-      description: "This login method will be available soon!",
+      description: "Phone login will be available soon!",
     });
   };
 
@@ -286,65 +276,111 @@ export default function Login() {
           </motion.div>
         )}
 
-        {/* Email Form */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7, duration: 0.8 }}
-          className="space-y-4"
-        >
-          <div>
-            <label className="block text-white text-sm font-medium mb-2">
-              Email
-            </label>
-            <input
-              type="email,username"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email"
-              className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors text-sm sm:text-base"
-            />
-          </div>
-
-          <div>
-            <label className="block text-white text-sm font-medium mb-2">
-              Password
-            </label>
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
-                className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-3 sm:px-4 pr-12 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors text-sm sm:text-base"
-                disabled={isLoading}
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
-              >
-                {showPassword ? (
-                  <EyeOff className="w-5 h-5" />
-                ) : (
-                  <Eye className="w-5 h-5" />
-                )}
-              </button>
-            </div>
-          </div>
-
-          <button
-            onClick={handleLogin}
-            disabled={isLoading || !email || !password}
-            className="w-full h-12 sm:h-14 bg-gradient-to-r from-neon-green to-emerald-400 rounded-full text-slate-900 font-bold text-sm sm:text-lg hover:from-emerald-400 hover:to-neon-green transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+        {/* Email Login Form */}
+        {loginMethod === 'email' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.8 }}
+            className="space-y-4"
           >
-            {isLoading ? (
-              <Loader2 className="w-5 h-5 animate-spin mx-auto" />
-            ) : (
-              "Continue"
-            )}
-          </button>
-        </motion.div>
+            <div>
+              <label className="block text-white text-sm font-medium mb-2">
+                Email
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors text-sm sm:text-base"
+              />
+            </div>
+
+            <div>
+              <label className="block text-white text-sm font-medium mb-2">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-3 sm:px-4 pr-12 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors text-sm sm:text-base"
+                  disabled={isLoading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            <button
+              onClick={handleLogin}
+              disabled={isLoading || !email || !password}
+              className="w-full h-12 sm:h-14 bg-gradient-to-r from-neon-green to-emerald-400 rounded-lg text-black font-bold text-sm sm:text-lg hover:from-emerald-400 hover:to-neon-green transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+            >
+              {isLoading ? (
+                <Loader2 className="w-5 h-5 animate-spin mx-auto" />
+              ) : (
+                "Log In"
+              )}
+            </button>
+            
+            <button
+              onClick={() => setLoginMethod('social')}
+              className="w-full text-neon-green hover:text-neon-blue transition-colors text-sm mt-4"
+            >
+              ← Back to other options
+            </button>
+          </motion.div>
+        )}
+
+        {/* Phone Login Form */}
+        {loginMethod === 'phone' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.8 }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-white text-sm font-medium mb-2">
+                Phone Number
+              </label>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+1 (555) 123-4567"
+                className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-blue transition-colors text-sm sm:text-base"
+              />
+            </div>
+
+            <button
+              onClick={handlePhoneLogin}
+              className="w-full h-12 sm:h-14 bg-gradient-to-r from-neon-blue to-purple-600 hover:from-neon-blue/80 hover:to-purple-600/80 text-white font-bold text-sm sm:text-lg rounded-lg transition-all transform hover:scale-105"
+            >
+              Send Verification Code
+            </button>
+
+            <button
+              onClick={() => setLoginMethod('social')}
+              className="w-full text-neon-blue hover:text-neon-green transition-colors text-sm"
+            >
+              ← Back to other options
+            </button>
+          </motion.div>
+        )}
 
         {/* Footer */}
         <motion.div
@@ -359,7 +395,7 @@ export default function Login() {
               to="/signup"
               className="text-white underline hover:text-neon-green transition-colors"
             >
-              signup for catch
+              Sign up here
             </Link>
           </p>
         </motion.div>
