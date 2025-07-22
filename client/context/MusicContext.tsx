@@ -1,12 +1,14 @@
-import React, { createContext, useContext, useState, ReactNode } from "react";
+import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import { songApi } from "../lib/api";
 
 interface Song {
-  id: number;
+  id: string;
   title: string;
   artist: string;
   album?: string;
   image: string;
   duration: string;
+  isLiked?: boolean;
 }
 
 interface MusicContextType {
@@ -18,6 +20,7 @@ interface MusicContextType {
   volume: number;
   isShuffle: boolean;
   isRepeat: boolean;
+  likedSongs: string[];
   setCurrentSong: (song: Song) => void;
   setIsPlaying: (playing: boolean) => void;
   togglePlay: () => void;
@@ -29,6 +32,9 @@ interface MusicContextType {
   toggleRepeat: () => void;
   nextSong: () => void;
   previousSong: () => void;
+  toggleLikeSong: (songId: string) => Promise<void>;
+  isSongLiked: (songId: string) => boolean;
+  refreshLikedSongs: () => Promise<void>;
 }
 
 const MusicContext = createContext<MusicContextType | undefined>(undefined);
@@ -47,7 +53,7 @@ interface MusicProviderProps {
 
 export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
   const [currentSong, setCurrentSong] = useState<Song | null>({
-    id: 1,
+    id: "1",
     title: "Blinding Lights",
     artist: "The Weeknd",
     album: "After Hours",
@@ -62,6 +68,7 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
   const [volume, setVolume] = useState(75);
   const [isShuffle, setIsShuffle] = useState(false);
   const [isRepeat, setIsRepeat] = useState(false);
+  const [likedSongs, setLikedSongs] = useState<string[]>([]);
 
   const togglePlay = () => setIsPlaying(!isPlaying);
   const toggleShuffle = () => setIsShuffle(!isShuffle);
@@ -89,6 +96,39 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
     }
   };
 
+  // Like functionality
+  const toggleLikeSong = async (songId: string) => {
+    try {
+      const isCurrentlyLiked = likedSongs.includes(songId);
+      const result = await songApi.toggleLike(songId, isCurrentlyLiked);
+      setLikedSongs(result.likedSongs);
+    } catch (error) {
+      console.error("Failed to toggle like:", error);
+    }
+  };
+
+  const isSongLiked = (songId: string): boolean => {
+    return likedSongs.includes(songId);
+  };
+
+  const refreshLikedSongs = async () => {
+    try {
+      const result = await songApi.getLikedSongs();
+      const likedSongIds = result.likedSongs.map((song: any) => song.id || song._id);
+      setLikedSongs(likedSongIds);
+    } catch (error) {
+      console.error("Failed to fetch liked songs:", error);
+    }
+  };
+
+  // Load liked songs on mount
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      refreshLikedSongs();
+    }
+  }, []);
+
   const value: MusicContextType = {
     currentSong,
     isPlaying,
@@ -98,6 +138,7 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
     volume,
     isShuffle,
     isRepeat,
+    likedSongs,
     setCurrentSong,
     setIsPlaying,
     togglePlay,
@@ -109,6 +150,9 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
     toggleRepeat,
     nextSong,
     previousSong,
+    toggleLikeSong,
+    isSongLiked,
+    refreshLikedSongs,
   };
 
   return (
