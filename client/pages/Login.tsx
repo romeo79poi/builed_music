@@ -206,6 +206,27 @@ export default function Login() {
     });
   };
 
+  // Monitor connectivity status
+  useEffect(() => {
+    const unsubscribe = ConnectivityChecker.addListener((online) => {
+      setIsOnline(online);
+      if (online) {
+        toast({
+          title: "Back online",
+          description: "Your connection has been restored",
+        });
+      } else {
+        toast({
+          title: "Connection lost",
+          description: "Please check your internet connection",
+          variant: "destructive",
+        });
+      }
+    });
+
+    return unsubscribe;
+  }, []);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 flex flex-col items-center justify-center p-3 sm:p-6 relative overflow-hidden">
       {/* Background glow effect */}
