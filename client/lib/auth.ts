@@ -122,46 +122,107 @@ console.log({userCredential})
 export const loginWithEmailAndPassword = async (
   email: string,
   password: string,
-): Promise<{ success: boolean; user?: User; error?: string }> => {
+): Promise<{ success: boolean; user?: User; error?: string; token?: string }> => {
   try {
-    // Check if Firebase is configured
-    if (!isFirebaseConfigured || !auth) {
+    // First try Firebase authentication if configured
+    if (isFirebaseConfigured && auth) {
+      try {
+        console.log("🔗 Attempting Firebase authentication...");
+        const userCredential = await signInWithEmailAndPassword(
+          auth,
+          email,
+          password,
+        );
+        console.log("✅ Firebase authentication successful");
+        return { success: true, user: userCredential.user };
+      } catch (firebaseError: any) {
+        console.warn("⚠️ Firebase authentication failed:", firebaseError.code);
+
+        // Handle specific Firebase errors
+        if (firebaseError.code === "auth/network-request-failed") {
+          console.log("🔄 Firebase network failed, trying backend authentication...");
+          // Fall through to backend authentication
+        } else {
+          // For other Firebase errors, return them directly
+          let errorMessage = "Authentication failed";
+          switch (firebaseError.code) {
+            case "auth/user-not-found":
+              errorMessage = "No account found with this email";
+              break;
+            case "auth/wrong-password":
+              errorMessage = "Incorrect password";
+              break;
+            case "auth/invalid-email":
+              errorMessage = "Invalid email format";
+              break;
+            case "auth/user-disabled":
+              errorMessage = "This account has been disabled";
+              break;
+            case "auth/too-many-requests":
+              errorMessage = "Too many failed login attempts. Please try again later.";
+              break;
+            default:
+              errorMessage = firebaseError.message || errorMessage;
+          }
+          return { success: false, error: errorMessage };
+        }
+      }
+    }
+
+    // Fallback to backend authentication
+    console.log("🔄 Attempting backend authentication...");
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok && data.success) {
+        console.log("✅ Backend authentication successful");
+
+        // Store the JWT token
+        if (data.token) {
+          localStorage.setItem('token', data.token);
+        }
+
+        // Create a user-like object for consistency
+        const mockUser = {
+          uid: data.user?.id || `backend-${Date.now()}`,
+          email: data.user?.email || email,
+          displayName: data.user?.name || data.user?.displayName || 'User',
+          emailVerified: true,
+          photoURL: data.user?.profilePicture || null,
+        } as User;
+
+        return {
+          success: true,
+          user: mockUser,
+          token: data.token
+        };
+      } else {
+        return {
+          success: false,
+          error: data.message || 'Login failed'
+        };
+      }
+    } catch (backendError: any) {
+      console.error("❌ Backend authentication failed:", backendError);
       return {
         success: false,
-        error:
-          "Firebase is not configured. Please add Firebase environment variables.",
+        error: "Unable to connect to authentication service. Please check your connection."
       };
     }
-
-    const userCredential = await signInWithEmailAndPassword(
-      auth,
-      email,
-      password,
-    );
-    return { success: true, user: userCredential.user };
   } catch (error: any) {
-    console.error("Login error:", error);
-
-    let errorMessage = "An error occurred during login";
-
-    switch (error.code) {
-      case "auth/user-not-found":
-        errorMessage = "No account found with this email";
-        break;
-      case "auth/wrong-password":
-        errorMessage = "Incorrect password";
-        break;
-      case "auth/invalid-email":
-        errorMessage = "Invalid email format";
-        break;
-      case "auth/user-disabled":
-        errorMessage = "This account has been disabled";
-        break;
-      default:
-        errorMessage = error.message || errorMessage;
-    }
-
-    return { success: false, error: errorMessage };
+    console.error("❌ Authentication error:", error);
+    return {
+      success: false,
+      error: "An unexpected error occurred during login"
+    };
   }
 };
 
