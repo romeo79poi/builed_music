@@ -1062,6 +1062,23 @@ export default function Signup() {
                     {errors.email}
                   </p>
                 )}
+
+                {/* Email Availability Checker */}
+                <AvailabilityChecker
+                  value={formData.email}
+                  field="email"
+                  onCheck={async (field, value) => {
+                    try {
+                      const response = await fetch(`/api/auth/check-availability?${field}=${encodeURIComponent(value)}`);
+                      const data = await response.json();
+                      return data.available === true;
+                    } catch {
+                      return false;
+                    }
+                  }}
+                  className="mt-2"
+                  minLength={5}
+                />
               </div>
 
               <button
