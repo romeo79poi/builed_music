@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { MiniPlayer } from "../components/MiniPlayer";
+import QuickSongSearch from "../components/QuickSongSearch";
 import { useProfileContext } from "../context/ProfileContext";
 import { useMusicContext } from "../context/MusicContext";
 import { useToast } from "../hooks/use-toast";
@@ -27,6 +28,7 @@ export default function HomeScreen() {
     useMusicContext();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
+  const [showQuickSearch, setShowQuickSearch] = useState(false);
   const [greeting, setGreeting] = useState("");
   const [isTopBarVisible, setIsTopBarVisible] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -318,21 +320,25 @@ export default function HomeScreen() {
             </span>
           </div>
 
-          {/* Search Icon */}
-          <button
-            onClick={handleSearchClick}
-            className="hover:scale-110 transition-transform relative group"
-            title="Go to Search"
-          >
-            <div className="relative">
-              <div className="relative w-10 h-10 flex items-center justify-center">
-                <Search className="w-5 h-5 text-white z-10" />
+          {/* Search Toggle */}
+          <div className="relative">
+            <button
+              onClick={() => setShowQuickSearch(!showQuickSearch)}
+              className="hover:scale-110 transition-transform relative group"
+              title={showQuickSearch ? "Close Search" : "Quick Search"}
+            >
+              <div className="relative">
+                <div className="relative w-10 h-10 flex items-center justify-center">
+                  <Search className={`w-5 h-5 z-10 transition-colors ${
+                    showQuickSearch ? "text-neon-green" : "text-white"
+                  }`} />
+                </div>
               </div>
-            </div>
-            <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-purple-900/90 to-pink-900/90 text-white text-xs px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap backdrop-blur-sm">
-              Search
-            </div>
-          </button>
+              <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-purple-900/90 to-pink-900/90 text-white text-xs px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap backdrop-blur-sm">
+                {showQuickSearch ? "Close" : "Search"}
+              </div>
+            </button>
+          </div>
         </motion.div>
 
         {/* Main Content */}
