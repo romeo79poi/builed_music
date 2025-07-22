@@ -6,7 +6,6 @@ import {
   Pause,
   SkipForward,
   SkipBack,
-  Heart,
   ChevronUp,
   Volume2,
   VolumeX,
@@ -20,6 +19,8 @@ import {
   List,
   MoreHorizontal,
 } from "lucide-react";
+import { useMusicContext } from "../context/MusicContext";
+import LikeButton from "./LikeButton";
 
 interface MiniPlayerProps {
   isPlaying?: boolean;
@@ -32,7 +33,7 @@ export function MiniPlayer({
   onTogglePlay,
   showAdvanced = false,
 }: MiniPlayerProps) {
-  const [isLiked, setIsLiked] = useState(false);
+  const { currentSong } = useMusicContext();
   const [volume, setVolume] = useState(75);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const [isShuffle, setIsShuffle] = useState(false);
@@ -40,15 +41,17 @@ export function MiniPlayer({
   const [isDownloaded, setIsDownloaded] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const currentSong = {
+  const songData = currentSong || {
+    id: "1",
     title: "Blinding Lights",
     artist: "The Weeknd",
     image:
       "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100&h=100&fit=crop",
     duration: "3:20",
-    progress: 33, // percentage
-    timeElapsed: "1:05",
   };
+
+  const progress = 33; // percentage
+  const timeElapsed = "1:05";
 
   const handleRepeatToggle = () => {
     setRepeatMode((prev) => (prev + 1) % 3);
@@ -149,20 +152,11 @@ export function MiniPlayer({
                 )}
               </AnimatePresence>
 
-              <button
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setIsLiked(!isLiked);
-                }}
-                className="p-2 hover:bg-white/10 rounded-full transition-colors"
-              >
-                <Heart
-                  className={`w-4 h-4 ${
-                    isLiked ? "text-red-500 fill-current" : "text-gray-400"
-                  }`}
-                />
-              </button>
+              <LikeButton
+                songId={songData.id}
+                size="sm"
+                className="hover:bg-white/10 rounded-full transition-colors"
+              />
 
               <button
                 onClick={(e) => {
