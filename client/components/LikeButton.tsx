@@ -18,14 +18,14 @@ export const LikeButton: React.FC<LikeButtonProps> = ({
 }) => {
   const { toggleLikeSong, isSongLiked } = useMusicContext();
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const isLiked = isSongLiked(songId);
 
   const handleToggleLike = async (e: React.MouseEvent) => {
     e.stopPropagation(); // Prevent triggering parent click events
-    
+
     if (isLoading) return;
-    
+
     setIsLoading(true);
     try {
       await toggleLikeSong(songId);
@@ -59,16 +59,16 @@ export const LikeButton: React.FC<LikeButtonProps> = ({
           ? "text-red-500 hover:text-red-600"
           : "text-muted-foreground hover:text-red-500",
         isLoading && "opacity-50 cursor-not-allowed",
-        className
+        className,
       )}
       title={isLiked ? "Unlike this song" : "Like this song"}
     >
-      <Heart 
+      <Heart
         className={cn(
           sizeClasses[size],
           "transition-all duration-200",
-          isLiked && "fill-current"
-        )} 
+          isLiked && "fill-current",
+        )}
       />
       {showLabel && (
         <span className="text-sm font-medium">

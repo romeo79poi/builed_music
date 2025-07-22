@@ -38,13 +38,17 @@ export const AvailabilityChecker: React.FC<AvailabilityCheckerProps> = ({
     const timeoutId = setTimeout(async () => {
       try {
         const isAvailable = await onCheck(field, value);
-        
+
         if (isAvailable) {
           setStatus("available");
-          setMessage(`${field.charAt(0).toUpperCase() + field.slice(1)} is available`);
+          setMessage(
+            `${field.charAt(0).toUpperCase() + field.slice(1)} is available`,
+          );
         } else {
           setStatus("unavailable");
-          setMessage(`${field.charAt(0).toUpperCase() + field.slice(1)} is already taken`);
+          setMessage(
+            `${field.charAt(0).toUpperCase() + field.slice(1)} is already taken`,
+          );
         }
       } catch (error) {
         setStatus("error");
@@ -78,7 +82,7 @@ export const AvailabilityChecker: React.FC<AvailabilityCheckerProps> = ({
         return {
           icon: <X className="w-4 h-4" />,
           color: "text-red-400",
-          bgColor: "bg-red-400/10", 
+          bgColor: "bg-red-400/10",
           borderColor: "border-red-400/20",
         };
       case "error":
@@ -111,12 +115,10 @@ export const AvailabilityChecker: React.FC<AvailabilityCheckerProps> = ({
           "flex items-center space-x-2 p-2 rounded-lg border transition-all duration-300",
           config.bgColor,
           config.borderColor,
-          className
+          className,
         )}
       >
-        <div className={config.color}>
-          {config.icon}
-        </div>
+        <div className={config.color}>{config.icon}</div>
         <span className={cn("text-sm font-medium", config.color)}>
           {message}
         </span>

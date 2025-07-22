@@ -306,7 +306,9 @@ export const subscriptionApi = {
 // Song API for like/unlike functionality
 export const songApi = {
   // Like a song
-  likeSong: (songId: string): Promise<{ message: string; likedSongs: string[] }> => {
+  likeSong: (
+    songId: string,
+  ): Promise<{ message: string; likedSongs: string[] }> => {
     const token = localStorage.getItem("token");
     return apiRequest(`/songs/like/${songId}`, {
       method: "PUT",
@@ -317,7 +319,9 @@ export const songApi = {
   },
 
   // Unlike a song
-  unlikeSong: (songId: string): Promise<{ message: string; likedSongs: string[] }> => {
+  unlikeSong: (
+    songId: string,
+  ): Promise<{ message: string; likedSongs: string[] }> => {
     const token = localStorage.getItem("token");
     return apiRequest(`/songs/unlike/${songId}`, {
       method: "PUT",
@@ -338,7 +342,10 @@ export const songApi = {
   },
 
   // Toggle like status (convenience method)
-  toggleLike: async (songId: string, isCurrentlyLiked: boolean): Promise<{ message: string; likedSongs: string[] }> => {
+  toggleLike: async (
+    songId: string,
+    isCurrentlyLiked: boolean,
+  ): Promise<{ message: string; likedSongs: string[] }> => {
     if (isCurrentlyLiked) {
       return songApi.unlikeSong(songId);
     } else {
@@ -347,13 +354,19 @@ export const songApi = {
   },
 
   // Search songs by keyword
-  searchSongs: (query: string, limit: number = 20): Promise<{ results: any[] }> => {
+  searchSongs: (
+    query: string,
+    limit: number = 20,
+  ): Promise<{ results: any[] }> => {
     const token = localStorage.getItem("token");
-    return apiRequest(`/songs/search?q=${encodeURIComponent(query)}&limit=${limit}`, {
-      headers: {
-        Authorization: token ? `Bearer ${token}` : undefined,
+    return apiRequest(
+      `/songs/search?q=${encodeURIComponent(query)}&limit=${limit}`,
+      {
+        headers: {
+          Authorization: token ? `Bearer ${token}` : undefined,
+        },
       },
-    });
+    );
   },
 };
 

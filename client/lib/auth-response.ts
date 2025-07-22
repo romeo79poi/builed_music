@@ -1,4 +1,4 @@
-import { getErrorMessage, AuthError } from './auth-errors';
+import { getErrorMessage, AuthError } from "./auth-errors";
 
 export interface AuthResponse<T = any> {
   success: boolean;
@@ -18,16 +18,16 @@ export interface AuthOptions {
 
 export const handleAuthResponse = async <T>(
   promise: Promise<any>,
-  options: AuthOptions = {}
+  options: AuthOptions = {},
 ): Promise<AuthResponse<T>> => {
   const { showToast = true, redirectOnSuccess, onSuccess, onError } = options;
-  
+
   try {
     const result = await promise;
-    
+
     // Handle different response types
     let response: AuthResponse<T>;
-    
+
     if (result?.success !== undefined) {
       // API response format
       response = {
@@ -37,7 +37,7 @@ export const handleAuthResponse = async <T>(
         token: result.token,
         user: result.user,
       };
-      
+
       if (!result.success) {
         response.error = getErrorMessage(result);
       }
@@ -47,9 +47,9 @@ export const handleAuthResponse = async <T>(
         success: true,
         data: result,
         user: result.user,
-        message: 'Authentication successful',
+        message: "Authentication successful",
       };
-    } else if (result?.error || result?.code?.startsWith('auth/')) {
+    } else if (result?.error || result?.code?.startsWith("auth/")) {
       // Error response
       response = {
         success: false,
@@ -60,88 +60,88 @@ export const handleAuthResponse = async <T>(
       response = {
         success: true,
         data: result,
-        message: 'Operation completed successfully',
+        message: "Operation completed successfully",
       };
     }
-    
+
     // Handle success
     if (response.success) {
       if (showToast && window.toast) {
         window.toast({
-          title: 'Success!',
-          description: response.message || 'Operation completed successfully',
+          title: "Success!",
+          description: response.message || "Operation completed successfully",
         });
       }
-      
+
       if (onSuccess) {
         onSuccess(response);
       }
-      
+
       if (redirectOnSuccess) {
         window.location.href = redirectOnSuccess;
       }
-      
+
       return response;
     } else {
       // Handle error
       const error = response.error!;
-      
+
       if (showToast && window.toast) {
         window.toast({
-          title: 'Error',
+          title: "Error",
           description: error.message,
-          variant: 'destructive',
+          variant: "destructive",
         });
       }
-      
+
       if (onError) {
         onError(error);
       }
-      
+
       return response;
     }
   } catch (err) {
     const error = getErrorMessage(err);
-    
+
     const response: AuthResponse<T> = {
       success: false,
       error,
     };
-    
+
     if (showToast && window.toast) {
       window.toast({
-        title: 'Error',
+        title: "Error",
         description: error.message,
-        variant: 'destructive',
+        variant: "destructive",
       });
     }
-    
+
     if (onError) {
       onError(error);
     }
-    
+
     return response;
   }
 };
 
 export const createAuthRequest = async <T>(
   url: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
 ): Promise<T> => {
   const defaultOptions: RequestInit = {
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       ...options.headers,
     },
   };
-  
+
   const response = await fetch(url, {
     ...defaultOptions,
     ...options,
   });
-  
+
   const data = await response.json();
-  
+
   if (!response.ok) {
     throw {
       status: response.status,
@@ -150,30 +150,30 @@ export const createAuthRequest = async <T>(
       ...data,
     };
   }
-  
+
   return data;
 };
 
 export const saveAuthData = (response: AuthResponse) => {
   if (response.success && response.token) {
-    localStorage.setItem('token', response.token);
+    localStorage.setItem("token", response.token);
   }
-  
+
   if (response.success && response.user) {
-    localStorage.setItem('user', JSON.stringify(response.user));
+    localStorage.setItem("user", JSON.stringify(response.user));
   }
 };
 
 export const clearAuthData = () => {
-  localStorage.removeItem('token');
-  localStorage.removeItem('user');
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
 };
 
 export const getStoredAuth = () => {
-  const token = localStorage.getItem('token');
-  const userStr = localStorage.getItem('user');
+  const token = localStorage.getItem("token");
+  const userStr = localStorage.getItem("user");
   const user = userStr ? JSON.parse(userStr) : null;
-  
+
   return { token, user };
 };
 
@@ -183,7 +183,7 @@ declare global {
     toast?: (options: {
       title: string;
       description: string;
-      variant?: 'default' | 'destructive';
+      variant?: "default" | "destructive";
     }) => void;
   }
 }

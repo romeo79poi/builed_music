@@ -29,7 +29,7 @@ const passwordRules: PasswordRule[] = [
     weight: 25,
   },
   {
-    id: "lowercase", 
+    id: "lowercase",
     label: "One lowercase letter",
     test: (password) => /[a-z]/.test(password),
     weight: 20,
@@ -48,15 +48,14 @@ const passwordRules: PasswordRule[] = [
   },
 ];
 
-export const PasswordStrengthIndicator: React.FC<PasswordStrengthIndicatorProps> = ({
-  password,
-  className,
-}) => {
+export const PasswordStrengthIndicator: React.FC<
+  PasswordStrengthIndicatorProps
+> = ({ password, className }) => {
   if (!password) return null;
 
-  const passedRules = passwordRules.filter(rule => rule.test(password));
+  const passedRules = passwordRules.filter((rule) => rule.test(password));
   const strength = passedRules.reduce((total, rule) => total + rule.weight, 0);
-  
+
   const getStrengthColor = (strength: number) => {
     if (strength < 40) return "from-red-500 to-red-600";
     if (strength < 70) return "from-yellow-500 to-orange-500";
@@ -88,7 +87,7 @@ export const PasswordStrengthIndicator: React.FC<PasswordStrengthIndicatorProps>
             {strengthInfo.label}
           </span>
         </div>
-        
+
         <div className="relative">
           <div className="h-2 bg-white/10 rounded-full overflow-hidden">
             <motion.div
@@ -97,11 +96,11 @@ export const PasswordStrengthIndicator: React.FC<PasswordStrengthIndicatorProps>
               transition={{ duration: 0.5, ease: "easeOut" }}
               className={cn(
                 "h-full bg-gradient-to-r transition-all duration-500",
-                getStrengthColor(strength)
+                getStrengthColor(strength),
               )}
             />
           </div>
-          
+
           {/* Strength markers */}
           <div className="absolute inset-0 flex justify-between px-1">
             {[25, 50, 75].map((marker) => (
@@ -134,7 +133,7 @@ export const PasswordStrengthIndicator: React.FC<PasswordStrengthIndicatorProps>
                     "flex items-center justify-center w-4 h-4 rounded-full transition-all duration-300",
                     passed
                       ? "bg-neon-green text-black"
-                      : "bg-white/10 text-gray-400"
+                      : "bg-white/10 text-gray-400",
                   )}
                 >
                   {passed ? (
@@ -146,7 +145,7 @@ export const PasswordStrengthIndicator: React.FC<PasswordStrengthIndicatorProps>
                 <span
                   className={cn(
                     "text-xs transition-colors duration-300",
-                    passed ? "text-neon-green" : "text-gray-400"
+                    passed ? "text-neon-green" : "text-gray-400",
                   )}
                 >
                   {rule.label}

@@ -1,25 +1,40 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Loader2, ArrowLeft, Mail, Phone, Wifi, WifiOff } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Loader2,
+  ArrowLeft,
+  Mail,
+  Phone,
+  Wifi,
+  WifiOff,
+} from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useFirebase } from "../context/FirebaseContext";
 import { loginWithEmailAndPassword, signInWithGoogle } from "../lib/auth";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { useToast } from "../hooks/use-toast";
-import ConnectivityChecker, { getNetworkErrorMessage } from "../lib/connectivity";
+import ConnectivityChecker, {
+  getNetworkErrorMessage,
+} from "../lib/connectivity";
 
 export default function Login() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [loginMethod, setLoginMethod] = useState<'social' | 'email' | 'phone'>('social');
+  const [loginMethod, setLoginMethod] = useState<"social" | "email" | "phone">(
+    "social",
+  );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [phone, setPhone] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isOnline, setIsOnline] = useState(ConnectivityChecker.getConnectionStatus());
+  const [isOnline, setIsOnline] = useState(
+    ConnectivityChecker.getConnectionStatus(),
+  );
 
   // Save user profile data to Firestore
   const saveUserProfile = async (uid: string, profileData: any) => {
@@ -97,7 +112,7 @@ export default function Login() {
       if (result.success && result.user) {
         // Store token if provided (for backend auth)
         if (result.token) {
-          localStorage.setItem('token', result.token);
+          localStorage.setItem("token", result.token);
         }
 
         const existingProfile = await getUserProfile(result.user.uid);
@@ -119,7 +134,10 @@ export default function Login() {
 
         navigate("/home");
       } else {
-        const errorMessage = getNetworkErrorMessage(result) || result.error || "Please check your credentials";
+        const errorMessage =
+          getNetworkErrorMessage(result) ||
+          result.error ||
+          "Please check your credentials";
         toast({
           title: "Login failed",
           description: errorMessage,
@@ -128,7 +146,10 @@ export default function Login() {
       }
     } catch (error: any) {
       console.error("Login error:", error);
-      const errorMessage = getNetworkErrorMessage(error) || error.message || "An unexpected error occurred";
+      const errorMessage =
+        getNetworkErrorMessage(error) ||
+        error.message ||
+        "An unexpected error occurred";
       toast({
         title: "Login error",
         description: errorMessage,
@@ -157,14 +178,17 @@ export default function Login() {
       if (result.success && result.user) {
         // Store token if provided (for backend auth)
         if (result.token) {
-          localStorage.setItem('token', result.token);
+          localStorage.setItem("token", result.token);
         }
 
         const existingProfile = await getUserProfile(result.user.uid);
 
         const profileData = {
           email: result.user.email,
-          displayName: result.user.displayName || result.user.email?.split("@")[0] || "User",
+          displayName:
+            result.user.displayName ||
+            result.user.email?.split("@")[0] ||
+            "User",
           photoURL: result.user.photoURL || "",
           provider: "google",
           uid: result.user.uid,
@@ -179,7 +203,8 @@ export default function Login() {
 
         navigate("/home");
       } else {
-        const errorMessage = getNetworkErrorMessage(result) || result.error || "Please try again";
+        const errorMessage =
+          getNetworkErrorMessage(result) || result.error || "Please try again";
         toast({
           title: "Google login failed",
           description: errorMessage,
@@ -188,7 +213,10 @@ export default function Login() {
       }
     } catch (error: any) {
       console.error("Google login error:", error);
-      const errorMessage = getNetworkErrorMessage(error) || error.message || "An unexpected error occurred";
+      const errorMessage =
+        getNetworkErrorMessage(error) ||
+        error.message ||
+        "An unexpected error occurred";
       toast({
         title: "Google login error",
         description: errorMessage,
@@ -273,7 +301,7 @@ export default function Login() {
         </motion.h1>
 
         {/* Login Method Selection */}
-        {loginMethod === 'social' && (
+        {loginMethod === "social" && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -337,7 +365,7 @@ export default function Login() {
             {/* Email and Phone Login Buttons */}
             <div className="space-y-3">
               <button
-                onClick={() => setLoginMethod('email')}
+                onClick={() => setLoginMethod("email")}
                 className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg flex items-center justify-center text-white hover:bg-slate-700/50 transition-colors"
               >
                 <Mail className="w-5 h-5 mr-3 text-neon-green" />
@@ -345,7 +373,7 @@ export default function Login() {
               </button>
 
               <button
-                onClick={() => setLoginMethod('phone')}
+                onClick={() => setLoginMethod("phone")}
                 className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg flex items-center justify-center text-white hover:bg-slate-700/50 transition-colors"
               >
                 <Phone className="w-5 h-5 mr-3 text-neon-blue" />
@@ -356,7 +384,7 @@ export default function Login() {
         )}
 
         {/* Email Login Form */}
-        {loginMethod === 'email' && (
+        {loginMethod === "email" && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -414,9 +442,9 @@ export default function Login() {
                 "Log In"
               )}
             </button>
-            
+
             <button
-              onClick={() => setLoginMethod('social')}
+              onClick={() => setLoginMethod("social")}
               className="w-full text-neon-green hover:text-neon-blue transition-colors text-sm mt-4"
             >
               ← Back to other options
@@ -425,7 +453,7 @@ export default function Login() {
         )}
 
         {/* Phone Login Form */}
-        {loginMethod === 'phone' && (
+        {loginMethod === "phone" && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -453,7 +481,7 @@ export default function Login() {
             </button>
 
             <button
-              onClick={() => setLoginMethod('social')}
+              onClick={() => setLoginMethod("social")}
               className="w-full text-neon-blue hover:text-neon-green transition-colors text-sm"
             >
               ← Back to other options

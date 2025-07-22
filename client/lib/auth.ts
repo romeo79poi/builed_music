@@ -45,7 +45,7 @@ export const signUpWithEmailAndPassword = async (
         email,
         password,
       );
-console.log({userCredential})
+      console.log({ userCredential });
       const user = userCredential.user;
 
       // Store user data in Firestore with exact required fields
@@ -123,7 +123,12 @@ console.log({userCredential})
 export const loginWithEmailAndPassword = async (
   email: string,
   password: string,
-): Promise<{ success: boolean; user?: User; error?: string; token?: string }> => {
+): Promise<{
+  success: boolean;
+  user?: User;
+  error?: string;
+  token?: string;
+}> => {
   try {
     // First try Firebase authentication if configured
     if (isFirebaseConfigured && auth) {
@@ -141,7 +146,9 @@ export const loginWithEmailAndPassword = async (
 
         // Handle specific Firebase errors
         if (firebaseError.code === "auth/network-request-failed") {
-          console.log("🔄 Firebase network failed, trying backend authentication...");
+          console.log(
+            "🔄 Firebase network failed, trying backend authentication...",
+          );
           // Fall through to backend authentication
         } else {
           // For other Firebase errors, return them directly
@@ -160,7 +167,8 @@ export const loginWithEmailAndPassword = async (
               errorMessage = "This account has been disabled";
               break;
             case "auth/too-many-requests":
-              errorMessage = "Too many failed login attempts. Please try again later.";
+              errorMessage =
+                "Too many failed login attempts. Please try again later.";
               break;
             default:
               errorMessage = firebaseError.message || errorMessage;
@@ -172,7 +180,7 @@ export const loginWithEmailAndPassword = async (
 
     // Fallback to backend authentication
     console.log("🔄 Attempting backend authentication...");
-    const result = await apiPost('/api/auth/login', { email, password });
+    const result = await apiPost("/api/auth/login", { email, password });
 
     if (result.success && result.data) {
       console.log("✅ Backend authentication successful");
@@ -181,14 +189,14 @@ export const loginWithEmailAndPassword = async (
 
       // Store the JWT token
       if (data.token) {
-        localStorage.setItem('token', data.token);
+        localStorage.setItem("token", data.token);
       }
 
       // Create a user-like object for consistency
       const mockUser = {
         uid: data.user?.id || `backend-${Date.now()}`,
         email: data.user?.email || email,
-        displayName: data.user?.name || data.user?.displayName || 'User',
+        displayName: data.user?.name || data.user?.displayName || "User",
         emailVerified: true,
         photoURL: data.user?.profilePicture || null,
       } as User;
@@ -196,20 +204,20 @@ export const loginWithEmailAndPassword = async (
       return {
         success: true,
         user: mockUser,
-        token: data.token
+        token: data.token,
       };
     } else {
       console.error("❌ Backend authentication failed:", result.error);
       return {
         success: false,
-        error: result.error || 'Login failed'
+        error: result.error || "Login failed",
       };
     }
   } catch (error: any) {
     console.error("❌ Authentication error:", error);
     return {
       success: false,
-      error: "An unexpected error occurred during login"
+      error: "An unexpected error occurred during login",
     };
   }
 };
@@ -301,7 +309,11 @@ export const signInWithGoogle = async (): Promise<{
 
       return { success: true, user, isNewUser };
     } catch (firebaseError: any) {
-      console.warn("⚠️ Firebase error during Google sign-in:", firebaseError.code, firebaseError.message);
+      console.warn(
+        "⚠️ Firebase error during Google sign-in:",
+        firebaseError.code,
+        firebaseError.message,
+      );
 
       // Handle specific Firebase errors with better messages
       if (firebaseError.code === "auth/popup-closed-by-user") {
@@ -314,7 +326,8 @@ export const signInWithGoogle = async (): Promise<{
       if (firebaseError.code === "auth/popup-blocked") {
         return {
           success: false,
-          error: "Pop-up was blocked by your browser. Please allow pop-ups and try again.",
+          error:
+            "Pop-up was blocked by your browser. Please allow pop-ups and try again.",
         };
       }
 

@@ -1084,7 +1084,9 @@ export default function Signup() {
                   field="email"
                   onCheck={async (field, value) => {
                     try {
-                      const response = await fetch(`/api/auth/check-availability?${field}=${encodeURIComponent(value)}`);
+                      const response = await fetch(
+                        `/api/auth/check-availability?${field}=${encodeURIComponent(value)}`,
+                      );
                       const data = await response.json();
                       return data.available === true;
                     } catch {
@@ -1327,7 +1329,9 @@ export default function Signup() {
                   field="username"
                   onCheck={async (field, value) => {
                     try {
-                      const response = await fetch(`/api/auth/check-availability?${field}=${encodeURIComponent(value)}`);
+                      const response = await fetch(
+                        `/api/auth/check-availability?${field}=${encodeURIComponent(value)}`,
+                      );
                       const data = await response.json();
                       return data.available === true;
                     } catch {

@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useState, ReactNode, useEffect } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
 import { songApi } from "../lib/api";
 import BackendAPI from "../lib/backend";
 
@@ -113,7 +119,7 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
   };
 
   const addToQueue = (song: Song) => {
-    setQueue(prev => [...prev, song]);
+    setQueue((prev) => [...prev, song]);
   };
 
   const playFromQueue = (index: number) => {
@@ -152,9 +158,9 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
       if (result.success) {
         // Update local state
         if (isCurrentlyLiked) {
-          setLikedSongs(prev => prev.filter(id => id !== songId));
+          setLikedSongs((prev) => prev.filter((id) => id !== songId));
         } else {
-          setLikedSongs(prev => [...prev, songId]);
+          setLikedSongs((prev) => [...prev, songId]);
         }
       }
     } catch (error) {
@@ -170,7 +176,8 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
     try {
       const result = await BackendAPI.getLikedSongs();
       if (result.success && result.data) {
-        const likedSongIds = result.data.likedSongs?.map((song: any) => song.id || song._id) || [];
+        const likedSongIds =
+          result.data.likedSongs?.map((song: any) => song.id || song._id) || [];
         setLikedSongs(likedSongIds);
       }
     } catch (error) {

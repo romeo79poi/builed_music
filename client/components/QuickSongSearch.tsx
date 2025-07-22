@@ -34,7 +34,8 @@ export const QuickSongSearch: React.FC<QuickSongSearchProps> = ({
   const [results, setResults] = useState<Song[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const { currentSong, isPlaying, setCurrentSong, togglePlay } = useMusicContext();
+  const { currentSong, isPlaying, setCurrentSong, togglePlay } =
+    useMusicContext();
 
   const searchSongs = async (searchQuery: string) => {
     if (!searchQuery.trim()) {
@@ -74,7 +75,7 @@ export const QuickSongSearch: React.FC<QuickSongSearchProps> = ({
     } else {
       setCurrentSong(song);
     }
-    
+
     if (onSongSelect) {
       onSongSelect(song);
     }
@@ -147,7 +148,7 @@ export const QuickSongSearch: React.FC<QuickSongSearchProps> = ({
                         )}
                       </button>
                     </div>
-                    
+
                     <div className="flex-1 min-w-0">
                       <h4 className="font-medium text-sm truncate text-white">
                         {song.title}
@@ -156,13 +157,15 @@ export const QuickSongSearch: React.FC<QuickSongSearchProps> = ({
                         {song.artist} {song.album && `• ${song.album}`}
                       </p>
                     </div>
-                    
+
                     <div className="flex items-center space-x-2">
-                      <span className="text-gray-400 text-xs">{song.duration}</span>
+                      <span className="text-gray-400 text-xs">
+                        {song.duration}
+                      </span>
                       {showLikeButton && (
-                        <LikeButton 
-                          songId={song.id} 
-                          size="sm" 
+                        <LikeButton
+                          songId={song.id}
+                          size="sm"
                           className="opacity-0 group-hover:opacity-100 transition-opacity"
                         />
                       )}

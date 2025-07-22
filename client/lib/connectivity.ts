@@ -6,12 +6,12 @@ export class ConnectivityChecker {
 
   static {
     // Set up event listeners for online/offline events
-    window.addEventListener('online', () => {
+    window.addEventListener("online", () => {
       this.isOnline = true;
       this.notifyListeners(true);
     });
 
-    window.addEventListener('offline', () => {
+    window.addEventListener("offline", () => {
       this.isOnline = false;
       this.notifyListeners(false);
     });
@@ -23,7 +23,7 @@ export class ConnectivityChecker {
 
   static addListener(callback: (online: boolean) => void): () => void {
     this.listeners.push(callback);
-    
+
     // Return unsubscribe function
     return () => {
       const index = this.listeners.indexOf(callback);
@@ -34,24 +34,24 @@ export class ConnectivityChecker {
   }
 
   private static notifyListeners(online: boolean): void {
-    this.listeners.forEach(callback => callback(online));
+    this.listeners.forEach((callback) => callback(online));
   }
 
   static async checkInternetConnection(): Promise<boolean> {
     try {
       // Try to fetch a small resource to check connectivity
-      const response = await fetch('/api/ping', {
-        method: 'HEAD',
-        cache: 'no-cache',
+      const response = await fetch("/api/ping", {
+        method: "HEAD",
+        cache: "no-cache",
         signal: AbortSignal.timeout(5000), // 5 second timeout
       });
       return response.ok;
     } catch {
       try {
         // Fallback: try a different endpoint
-        const response = await fetch('/', {
-          method: 'HEAD',
-          cache: 'no-cache',
+        const response = await fetch("/", {
+          method: "HEAD",
+          cache: "no-cache",
           signal: AbortSignal.timeout(3000), // 3 second timeout
         });
         return response.ok;
@@ -64,11 +64,14 @@ export class ConnectivityChecker {
   static async checkFirebaseConnectivity(): Promise<boolean> {
     try {
       // Try to reach Firebase Auth service
-      const response = await fetch('https://www.googleapis.com/identitytoolkit/v3/relyingparty/getProjectInfo', {
-        method: 'HEAD',
-        cache: 'no-cache',
-        signal: AbortSignal.timeout(5000),
-      });
+      const response = await fetch(
+        "https://www.googleapis.com/identitytoolkit/v3/relyingparty/getProjectInfo",
+        {
+          method: "HEAD",
+          cache: "no-cache",
+          signal: AbortSignal.timeout(5000),
+        },
+      );
       return response.status !== 0; // Any response means we can reach Firebase
     } catch {
       return false;
@@ -76,18 +79,21 @@ export class ConnectivityChecker {
   }
 
   static getConnectionType(): string {
-    const connection = (navigator as any).connection || (navigator as any).mozConnection || (navigator as any).webkitConnection;
-    
+    const connection =
+      (navigator as any).connection ||
+      (navigator as any).mozConnection ||
+      (navigator as any).webkitConnection;
+
     if (!connection) {
-      return 'unknown';
+      return "unknown";
     }
 
-    return connection.effectiveType || connection.type || 'unknown';
+    return connection.effectiveType || connection.type || "unknown";
   }
 
   static isSlowConnection(): boolean {
     const connectionType = this.getConnectionType();
-    return ['slow-2g', '2g'].includes(connectionType);
+    return ["slow-2g", "2g"].includes(connectionType);
   }
 
   static async waitForConnection(timeout: number = 10000): Promise<boolean> {
@@ -121,11 +127,14 @@ export const getNetworkErrorMessage = (error: any): string => {
     return "Your connection seems slow. Please wait a moment and try again.";
   }
 
-  if (error?.code === 'auth/network-request-failed' || error?.message?.includes('network')) {
+  if (
+    error?.code === "auth/network-request-failed" ||
+    error?.message?.includes("network")
+  ) {
     return "Network connection failed. Please check your internet connection and try again.";
   }
 
-  if (error?.code === 'auth/timeout' || error?.message?.includes('timeout')) {
+  if (error?.code === "auth/timeout" || error?.message?.includes("timeout")) {
     return "The request timed out. Please check your connection and try again.";
   }
 

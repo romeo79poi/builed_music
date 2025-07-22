@@ -33,7 +33,14 @@ import { useToast } from "../hooks/use-toast";
 export default function HomeScreen() {
   const navigate = useNavigate();
   const { profile } = useProfileContext();
-  const { currentSong, isPlaying, setCurrentSong, togglePlay, queue, setQueue } = useMusicContext();
+  const {
+    currentSong,
+    isPlaying,
+    setCurrentSong,
+    togglePlay,
+    queue,
+    setQueue,
+  } = useMusicContext();
   const { toast } = useToast();
   const [showQuickSearch, setShowQuickSearch] = useState(false);
   const [greeting, setGreeting] = useState("");
@@ -56,9 +63,9 @@ export default function HomeScreen() {
   const loadHomeData = async () => {
     try {
       setIsLoading(true);
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       const headers: any = {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       };
 
       if (token) {
@@ -80,19 +87,26 @@ export default function HomeScreen() {
         fetch("/api/music/recently-played?limit=8", { headers }),
       ]);
 
-      const [trending, playlists, recs, genresData, recent] = await Promise.all([
-        trendingRes.json(),
-        playlistsRes.json(),
-        recommendationsRes.json(),
-        genresRes.json(),
-        recentRes.json(),
-      ]);
+      const [trending, playlists, recs, genresData, recent] = await Promise.all(
+        [
+          trendingRes.json(),
+          playlistsRes.json(),
+          recommendationsRes.json(),
+          genresRes.json(),
+          recentRes.json(),
+        ],
+      );
 
-      if (trending.success) setTrendingSongs(trending.songs || trending.data || []);
-      if (playlists.success) setFeaturedPlaylists(playlists.playlists || playlists.data || []);
-      if (recs.success) setRecommendations(recs.recommendations || recs.data || []);
-      if (genresData.success) setGenres(genresData.genres || genresData.data || []);
-      if (recent.success) setRecentlyPlayed(recent.recentlyPlayed || recent.data || []);
+      if (trending.success)
+        setTrendingSongs(trending.songs || trending.data || []);
+      if (playlists.success)
+        setFeaturedPlaylists(playlists.playlists || playlists.data || []);
+      if (recs.success)
+        setRecommendations(recs.recommendations || recs.data || []);
+      if (genresData.success)
+        setGenres(genresData.genres || genresData.data || []);
+      if (recent.success)
+        setRecentlyPlayed(recent.recentlyPlayed || recent.data || []);
     } catch (error) {
       console.error("Failed to load home data:", error);
       loadFallbackData();
@@ -111,13 +125,13 @@ export default function HomeScreen() {
 
   const handlePlaySong = async (song: any) => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (token) {
         await fetch(`/api/music/play/${song.id}`, {
           method: "POST",
-          headers: { 
+          headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ userId: profile.id }),
         });
@@ -164,25 +178,28 @@ export default function HomeScreen() {
       title: "Blinding Lights",
       artist: "The Weeknd",
       album: "After Hours",
-      image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
       duration: "3:20",
       plays: 45672,
     },
     {
-      id: "2", 
+      id: "2",
       title: "Watermelon Sugar",
       artist: "Harry Styles",
       album: "Fine Line",
-      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop",
       duration: "2:54",
       plays: 38934,
     },
     {
       id: "3",
       title: "Levitating",
-      artist: "Dua Lipa", 
+      artist: "Dua Lipa",
       album: "Future Nostalgia",
-      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop",
       duration: "3:23",
       plays: 42156,
     },
@@ -191,7 +208,8 @@ export default function HomeScreen() {
       title: "Good 4 U",
       artist: "Olivia Rodrigo",
       album: "SOUR",
-      image: "https://images.unsplash.com/photo-1494232410401-ad00d5433cfa?w=300&h=300&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1494232410401-ad00d5433cfa?w=300&h=300&fit=crop",
       duration: "2:58",
       plays: 39821,
     },
@@ -202,15 +220,17 @@ export default function HomeScreen() {
       id: "1",
       name: "Today's Top Hits",
       description: "The most played songs right now",
-      image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
       songs: fallbackTrendingSongs,
       totalSongs: 50,
     },
     {
-      id: "2", 
+      id: "2",
       name: "Chill Hits",
       description: "Kick back and relax",
-      image: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop",
+      image:
+        "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop",
       songs: fallbackTrendingSongs,
       totalSongs: 30,
     },
@@ -219,9 +239,19 @@ export default function HomeScreen() {
   const fallbackRecommendations = fallbackTrendingSongs.slice(0, 6);
   const fallbackGenres = [
     { id: "1", name: "Pop", color: "from-pink-500 to-purple-600", image: "🎵" },
-    { id: "2", name: "Hip-Hop", color: "from-orange-500 to-red-600", image: "🎤" },
+    {
+      id: "2",
+      name: "Hip-Hop",
+      color: "from-orange-500 to-red-600",
+      image: "🎤",
+    },
     { id: "3", name: "Rock", color: "from-gray-600 to-gray-800", image: "🎸" },
-    { id: "4", name: "Electronic", color: "from-blue-500 to-cyan-600", image: "🎧" },
+    {
+      id: "4",
+      name: "Electronic",
+      color: "from-blue-500 to-cyan-600",
+      image: "🎧",
+    },
   ];
   const fallbackRecentlyPlayed = fallbackTrendingSongs.slice(0, 4);
 
@@ -229,11 +259,11 @@ export default function HomeScreen() {
     <div className="min-h-screen bg-black text-white relative">
       {/* Background Effects */}
       <div className="fixed inset-0 bg-gradient-to-br from-neon-green/5 via-transparent to-neon-blue/5"></div>
-      
+
       {/* Main Container */}
       <div className="relative z-10">
         {/* Top Navigation Bar */}
-        <motion.div 
+        <motion.div
           className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/10"
           initial={{ y: -100 }}
           animate={{ y: 0 }}
@@ -248,9 +278,21 @@ export default function HomeScreen() {
 
             {/* Center: Navigation */}
             <div className="hidden md:flex items-center space-x-8">
-              <Link to="/home" className="text-white font-medium">Home</Link>
-              <Link to="/search" className="text-gray-400 hover:text-white transition-colors">Search</Link>
-              <Link to="/library" className="text-gray-400 hover:text-white transition-colors">Your Library</Link>
+              <Link to="/home" className="text-white font-medium">
+                Home
+              </Link>
+              <Link
+                to="/search"
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                Search
+              </Link>
+              <Link
+                to="/library"
+                className="text-gray-400 hover:text-white transition-colors"
+              >
+                Your Library
+              </Link>
             </div>
 
             {/* Right: Search & Profile */}
@@ -261,7 +303,7 @@ export default function HomeScreen() {
               >
                 <Search className="w-5 h-5" />
               </button>
-              
+
               <button
                 onClick={() => navigate("/profile")}
                 className="w-8 h-8 bg-neon-green rounded-full flex items-center justify-center"
@@ -279,7 +321,7 @@ export default function HomeScreen() {
               exit={{ opacity: 0, height: 0 }}
               className="px-4 pb-4 border-t border-white/10"
             >
-              <QuickSongSearch 
+              <QuickSongSearch
                 onSongSelect={() => setShowQuickSearch(false)}
                 className="max-w-2xl mx-auto"
               />
@@ -333,7 +375,9 @@ export default function HomeScreen() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="font-medium truncate">{item.title}</h3>
-                    <p className="text-gray-400 text-sm truncate">{item.artist}</p>
+                    <p className="text-gray-400 text-sm truncate">
+                      {item.artist}
+                    </p>
                   </div>
                 </motion.div>
               ))}
@@ -347,11 +391,14 @@ export default function HomeScreen() {
             >
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold">Made for you</h2>
-                <Link to="/library" className="text-gray-400 hover:text-white text-sm font-medium">
+                <Link
+                  to="/library"
+                  className="text-gray-400 hover:text-white text-sm font-medium"
+                >
                   Show all
                 </Link>
               </div>
-              
+
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
                 {featuredPlaylists.map((playlist: any) => (
                   <motion.div
@@ -370,8 +417,12 @@ export default function HomeScreen() {
                         <Play className="w-5 h-5 text-black ml-0.5" />
                       </button>
                     </div>
-                    <h3 className="font-semibold mb-1 truncate">{playlist.name}</h3>
-                    <p className="text-gray-400 text-sm line-clamp-2">{playlist.description}</p>
+                    <h3 className="font-semibold mb-1 truncate">
+                      {playlist.name}
+                    </h3>
+                    <p className="text-gray-400 text-sm line-clamp-2">
+                      {playlist.description}
+                    </p>
                   </motion.div>
                 ))}
               </div>
@@ -393,7 +444,7 @@ export default function HomeScreen() {
                   <span>Shuffle play</span>
                 </button>
               </div>
-              
+
               <div className="space-y-2">
                 {trendingSongs.slice(0, 8).map((song: any, index) => (
                   <motion.div
@@ -407,7 +458,7 @@ export default function HomeScreen() {
                     <div className="text-gray-400 w-6 text-center">
                       {index + 1}
                     </div>
-                    
+
                     <div className="relative">
                       <img
                         src={song.image}
@@ -422,15 +473,19 @@ export default function HomeScreen() {
                         )}
                       </button>
                     </div>
-                    
+
                     <div className="flex-1 min-w-0">
                       <h3 className="font-medium truncate">{song.title}</h3>
-                      <p className="text-gray-400 text-sm truncate">{song.artist}</p>
+                      <p className="text-gray-400 text-sm truncate">
+                        {song.artist}
+                      </p>
                     </div>
-                    
+
                     <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center space-x-2">
                       <LikeButton songId={song.id} size="sm" />
-                      <span className="text-gray-400 text-sm w-12 text-right">{song.duration}</span>
+                      <span className="text-gray-400 text-sm w-12 text-right">
+                        {song.duration}
+                      </span>
                       <button className="p-1 hover:bg-white/10 rounded">
                         <MoreHorizontal className="w-4 h-4 text-gray-400" />
                       </button>

@@ -20,22 +20,22 @@ import { useMusicContext } from "../context/MusicContext";
 import LikeButton from "./LikeButton";
 
 export function MiniPlayer() {
-  const { 
-    currentSong, 
-    isPlaying, 
-    togglePlay, 
-    nextSong, 
-    previousSong, 
-    volume, 
+  const {
+    currentSong,
+    isPlaying,
+    togglePlay,
+    nextSong,
+    previousSong,
+    volume,
     setVolume,
     currentTime,
     duration,
     isShuffle,
     isRepeat,
     toggleShuffle,
-    toggleRepeat
+    toggleRepeat,
   } = useMusicContext();
-  
+
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -46,7 +46,7 @@ export function MiniPlayer() {
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -71,11 +71,11 @@ export function MiniPlayer() {
       className="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur-lg border-t border-white/10 z-50"
     >
       {/* Progress Bar */}
-      <div 
+      <div
         className="h-1 bg-white/20 cursor-pointer relative group"
         onClick={handleProgressClick}
       >
-        <div 
+        <div
           className="h-full bg-neon-green relative"
           style={{ width: `${progress}%` }}
         >
@@ -101,10 +101,10 @@ export function MiniPlayer() {
               </p>
             </div>
           </Link>
-          
-          <LikeButton 
-            songId={currentSong.id} 
-            size="sm" 
+
+          <LikeButton
+            songId={currentSong.id}
+            size="sm"
             className="opacity-80 hover:opacity-100"
           />
         </div>
@@ -114,7 +114,7 @@ export function MiniPlayer() {
           <button
             onClick={toggleShuffle}
             className={`p-2 rounded-full transition-colors ${
-              isShuffle ? 'text-neon-green' : 'text-gray-400 hover:text-white'
+              isShuffle ? "text-neon-green" : "text-gray-400 hover:text-white"
             }`}
           >
             <Shuffle className="w-4 h-4" />
@@ -148,7 +148,7 @@ export function MiniPlayer() {
           <button
             onClick={toggleRepeat}
             className={`p-2 rounded-full transition-colors ${
-              isRepeat ? 'text-neon-green' : 'text-gray-400 hover:text-white'
+              isRepeat ? "text-neon-green" : "text-gray-400 hover:text-white"
             }`}
           >
             <Repeat className="w-4 h-4" />
@@ -161,8 +161,8 @@ export function MiniPlayer() {
             <button className="p-2 text-gray-400 hover:text-white transition-colors">
               <List className="w-4 h-4" />
             </button>
-            
-            <div 
+
+            <div
               className="relative flex items-center space-x-2"
               onMouseEnter={() => setShowVolumeSlider(true)}
               onMouseLeave={() => setShowVolumeSlider(false)}
@@ -170,7 +170,7 @@ export function MiniPlayer() {
               <button className="p-2 text-gray-400 hover:text-white transition-colors">
                 <VolumeIcon className="w-4 h-4" />
               </button>
-              
+
               <AnimatePresence>
                 {showVolumeSlider && (
                   <motion.div
@@ -199,7 +199,7 @@ export function MiniPlayer() {
             <span>{formatTime(duration)}</span>
           </div>
 
-          <Link 
+          <Link
             to="/player"
             className="p-2 text-gray-400 hover:text-white transition-colors"
           >
@@ -236,25 +236,29 @@ export function MiniPlayer() {
                 <button
                   onClick={toggleShuffle}
                   className={`p-3 rounded-full ${
-                    isShuffle ? 'bg-neon-green/20 text-neon-green' : 'text-gray-400'
+                    isShuffle
+                      ? "bg-neon-green/20 text-neon-green"
+                      : "text-gray-400"
                   }`}
                 >
                   <Shuffle className="w-5 h-5" />
                 </button>
-                
+
                 <button
                   onClick={toggleRepeat}
                   className={`p-3 rounded-full ${
-                    isRepeat ? 'bg-neon-green/20 text-neon-green' : 'text-gray-400'
+                    isRepeat
+                      ? "bg-neon-green/20 text-neon-green"
+                      : "text-gray-400"
                   }`}
                 >
                   <Repeat className="w-5 h-5" />
                 </button>
-                
+
                 <button className="p-3 text-gray-400">
                   <List className="w-5 h-5" />
                 </button>
-                
+
                 <button className="p-3 text-gray-400">
                   <MoreHorizontal className="w-5 h-5" />
                 </button>
@@ -268,10 +272,10 @@ export function MiniPlayer() {
           onClick={() => setIsExpanded(!isExpanded)}
           className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white/10 rounded-full p-1"
         >
-          <ChevronUp 
+          <ChevronUp
             className={`w-4 h-4 text-white transition-transform ${
-              isExpanded ? 'rotate-180' : ''
-            }`} 
+              isExpanded ? "rotate-180" : ""
+            }`}
           />
         </button>
       </div>
@@ -285,7 +289,7 @@ export function MiniPlayer() {
           background: #ffffff;
           cursor: pointer;
         }
-        
+
         .slider::-moz-range-thumb {
           width: 12px;
           height: 12px;
