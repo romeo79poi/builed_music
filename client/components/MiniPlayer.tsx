@@ -90,8 +90,8 @@ export function MiniPlayer({
             {/* Album Art */}
             <Link to="/player" className="relative flex-shrink-0 group">
               <img
-                src={currentSong.image}
-                alt={currentSong.title}
+                src={songData.image}
+                alt={songData.title}
                 className="w-12 h-12 rounded-lg object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent rounded-lg opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -105,10 +105,10 @@ export function MiniPlayer({
             {/* Song Info */}
             <Link to="/player" className="flex-1 min-w-0">
               <h3 className="text-white font-medium text-sm truncate">
-                {currentSong.title}
+                {songData.title}
               </h3>
               <p className="text-gray-400 text-xs truncate">
-                {currentSong.artist}
+                {songData.artist}
               </p>
             </Link>
 
@@ -256,13 +256,13 @@ export function MiniPlayer({
             <div className="h-1 bg-white/10 rounded-full cursor-pointer">
               <div
                 className="h-full bg-gradient-to-r from-neon-green to-neon-blue rounded-full transition-all"
-                style={{ width: `${currentSong.progress}%` }}
+                style={{ width: `${progress}%` }}
               />
             </div>
             {isExpanded && (
               <div className="flex justify-between mt-1 text-xs text-gray-400">
-                <span>{currentSong.timeElapsed}</span>
-                <span>{currentSong.duration}</span>
+                <span>{timeElapsed}</span>
+                <span>{songData.duration}</span>
               </div>
             )}
           </div>
