@@ -99,7 +99,7 @@ export default function Splash() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1 }}
-            className="min-h-screen bg-black flex flex-col items-center justify-center relative pt-20"
+            className="min-h-screen bg-black flex flex-col items-center justify-center relative pt-15"
           >
             {/* Subtle background glow */}
             <div className="absolute inset-0 bg-gradient-to-br from-neon-green/5 via-transparent to-neon-blue/5"></div>
@@ -142,7 +142,7 @@ export default function Splash() {
               >
                 <Button
                   onClick={() => navigate("/signup")}
-                  className="w-full bg-black border border-green-400 text-green-400 hover:bg-green-400/10 font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-all duration-200 text-base sm:text-lg"
+                  className="w-full bg-black text-green-400 hover:bg-green-400/10 font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-all duration-200 text-base sm:text-lg border-2 border-[rgba(79,214,57,1)]"
                 >
                   Start Your Journey
                 </Button>
@@ -150,7 +150,7 @@ export default function Splash() {
                 <Button
                   onClick={() => navigate("/login")}
                   variant="outline"
-                  className="w-full border-2 border-neon-green text-neon-green hover:bg-neon-green hover:text-black font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-all duration-200 text-base sm:text-lg"
+                  className="w-full bg-black border-2 border-neon-green text-neon-green hover:bg-neon-green hover:text-black font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-all duration-200 text-base sm:text-lg"
                 >
                   Log In
                 </Button>

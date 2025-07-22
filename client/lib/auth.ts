@@ -12,6 +12,7 @@ import {
 } from "firebase/auth";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { auth, db, isFirebaseConfigured } from "./firebase";
+import { apiPost } from "./api-utils";
 
 export interface UserData {
   name: string;
@@ -44,6 +45,7 @@ export const signUpWithEmailAndPassword = async (
         email,
         password,
       );
+      console.log({ userCredential });
       const user = userCredential.user;
 
       // Store user data in Firestore with exact required fields
@@ -121,46 +123,102 @@ export const signUpWithEmailAndPassword = async (
 export const loginWithEmailAndPassword = async (
   email: string,
   password: string,
-): Promise<{ success: boolean; user?: User; error?: string }> => {
+): Promise<{
+  success: boolean;
+  user?: User;
+  error?: string;
+  token?: string;
+}> => {
   try {
-    // Check if Firebase is configured
-    if (!isFirebaseConfigured || !auth) {
+    // First try Firebase authentication if configured
+    if (isFirebaseConfigured && auth) {
+      try {
+        console.log("🔗 Attempting Firebase authentication...");
+        const userCredential = await signInWithEmailAndPassword(
+          auth,
+          email,
+          password,
+        );
+        console.log("✅ Firebase authentication successful");
+        return { success: true, user: userCredential.user };
+      } catch (firebaseError: any) {
+        console.warn("⚠️ Firebase authentication failed:", firebaseError.code);
+
+        // Handle specific Firebase errors
+        if (firebaseError.code === "auth/network-request-failed") {
+          console.log(
+            "🔄 Firebase network failed, trying backend authentication...",
+          );
+          // Fall through to backend authentication
+        } else {
+          // For other Firebase errors, return them directly
+          let errorMessage = "Authentication failed";
+          switch (firebaseError.code) {
+            case "auth/user-not-found":
+              errorMessage = "No account found with this email";
+              break;
+            case "auth/wrong-password":
+              errorMessage = "Incorrect password";
+              break;
+            case "auth/invalid-email":
+              errorMessage = "Invalid email format";
+              break;
+            case "auth/user-disabled":
+              errorMessage = "This account has been disabled";
+              break;
+            case "auth/too-many-requests":
+              errorMessage =
+                "Too many failed login attempts. Please try again later.";
+              break;
+            default:
+              errorMessage = firebaseError.message || errorMessage;
+          }
+          return { success: false, error: errorMessage };
+        }
+      }
+    }
+
+    // Fallback to backend authentication
+    console.log("🔄 Attempting backend authentication...");
+    const result = await apiPost("/api/auth/login", { email, password });
+
+    if (result.success && result.data) {
+      console.log("✅ Backend authentication successful");
+
+      const data = result.data;
+
+      // Store the JWT token
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+      }
+
+      // Create a user-like object for consistency
+      const mockUser = {
+        uid: data.user?.id || `backend-${Date.now()}`,
+        email: data.user?.email || email,
+        displayName: data.user?.name || data.user?.displayName || "User",
+        emailVerified: true,
+        photoURL: data.user?.profilePicture || null,
+      } as User;
+
+      return {
+        success: true,
+        user: mockUser,
+        token: data.token,
+      };
+    } else {
+      console.error("❌ Backend authentication failed:", result.error);
       return {
         success: false,
-        error:
-          "Firebase is not configured. Please add Firebase environment variables.",
+        error: result.error || "Login failed",
       };
     }
-
-    const userCredential = await signInWithEmailAndPassword(
-      auth,
-      email,
-      password,
-    );
-    return { success: true, user: userCredential.user };
   } catch (error: any) {
-    console.error("Login error:", error);
-
-    let errorMessage = "An error occurred during login";
-
-    switch (error.code) {
-      case "auth/user-not-found":
-        errorMessage = "No account found with this email";
-        break;
-      case "auth/wrong-password":
-        errorMessage = "Incorrect password";
-        break;
-      case "auth/invalid-email":
-        errorMessage = "Invalid email format";
-        break;
-      case "auth/user-disabled":
-        errorMessage = "This account has been disabled";
-        break;
-      default:
-        errorMessage = error.message || errorMessage;
-    }
-
-    return { success: false, error: errorMessage };
+    console.error("❌ Authentication error:", error);
+    return {
+      success: false,
+      error: "An unexpected error occurred during login",
+    };
   }
 };
 
@@ -251,7 +309,29 @@ export const signInWithGoogle = async (): Promise<{
 
       return { success: true, user, isNewUser };
     } catch (firebaseError: any) {
-      // If Firebase project doesn't exist, use development mode
+      console.warn(
+        "⚠️ Firebase error during Google sign-in:",
+        firebaseError.code,
+        firebaseError.message,
+      );
+
+      // Handle specific Firebase errors with better messages
+      if (firebaseError.code === "auth/popup-closed-by-user") {
+        return {
+          success: false,
+          error: "Sign-in was cancelled. Please try again.",
+        };
+      }
+
+      if (firebaseError.code === "auth/popup-blocked") {
+        return {
+          success: false,
+          error:
+            "Pop-up was blocked by your browser. Please allow pop-ups and try again.",
+        };
+      }
+
+      // If Firebase project doesn't exist or network issues, use development mode
       if (
         firebaseError.code === "auth/project-not-found" ||
         firebaseError.code === "auth/invalid-api-key" ||
@@ -261,15 +341,16 @@ export const signInWithGoogle = async (): Promise<{
         firebaseError.message?.includes("network request failed")
       ) {
         console.warn(
-          "Firebase project not found or network error, using development mode for Google sign-in",
+          "🔄 Firebase network/config error, using development mode for Google sign-in",
         );
 
         // Simulate successful Google user creation for development
         const mockUser = {
           uid: `google-dev-${Date.now()}`,
-          email: "user@gmail.com",
-          displayName: "Dev User",
+          email: "demo.user@gmail.com",
+          displayName: "Demo User",
           emailVerified: true,
+          photoURL: "https://via.placeholder.com/96x96/4285F4/ffffff?text=DU",
         } as User;
 
         console.log("✅ Development Google user created:", mockUser);

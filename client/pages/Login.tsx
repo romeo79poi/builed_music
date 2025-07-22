@@ -1,21 +1,40 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Loader2,
+  ArrowLeft,
+  Mail,
+  Phone,
+  Wifi,
+  WifiOff,
+} from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useFirebase } from "../context/FirebaseContext";
 import { loginWithEmailAndPassword, signInWithGoogle } from "../lib/auth";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { useToast } from "../hooks/use-toast";
+import ConnectivityChecker, {
+  getNetworkErrorMessage,
+} from "../lib/connectivity";
 
 export default function Login() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [loginMethod, setLoginMethod] = useState<"social" | "email" | "phone">(
+    "social",
+  );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [phone, setPhone] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isOnline, setIsOnline] = useState(
+    ConnectivityChecker.getConnectionStatus(),
+  );
 
   // Save user profile data to Firestore
   const saveUserProfile = async (uid: string, profileData: any) => {
@@ -54,7 +73,7 @@ export default function Login() {
       }
       return null;
     } catch (error) {
-      console.error("Error fetching user profile:", error);
+      console.error("❌ Error getting user profile:", error);
       return null;
     }
   };
@@ -69,49 +88,71 @@ export default function Login() {
       return;
     }
 
-    setIsLoading(true);
+    // Check connectivity before attempting login
+    if (!ConnectivityChecker.getConnectionStatus()) {
+      toast({
+        title: "No internet connection",
+        description: "Please check your connection and try again",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
-      // Use Firebase SDK login
+      setIsLoading(true);
+
+      // Check if we can reach the backend
+      const hasConnection = await ConnectivityChecker.checkInternetConnection();
+      if (!hasConnection) {
+        throw new Error("Unable to connect to the server");
+      }
+
       const result = await loginWithEmailAndPassword(email, password);
 
       if (result.success && result.user) {
-        // Get existing profile data
+        // Store token if provided (for backend auth)
+        if (result.token) {
+          localStorage.setItem("token", result.token);
+        }
+
         const existingProfile = await getUserProfile(result.user.uid);
 
-        // Save/update user profile in Firestore
-        await saveUserProfile(result.user.uid, {
-          name: existingProfile?.name || result.user.displayName || "",
-          username: existingProfile?.username || "",
-          email: result.user.email || "",
-          phone: existingProfile?.phone || result.user.phoneNumber || "",
+        const profileData = {
+          email: result.user.email,
+          displayName: result.user.displayName || "User",
+          photoURL: result.user.photoURL || "",
+          provider: "email",
           uid: result.user.uid,
-          emailVerified: result.user.emailVerified,
-        });
+        };
+
+        await saveUserProfile(result.user.uid, profileData);
 
         toast({
-          title: "Login successful! 🎉",
-          description: `Welcome back!`,
+          title: "Welcome back!",
+          description: "Successfully logged in",
         });
 
-        console.log("✅ User logged in:", {
-          uid: result.user.uid,
-          email: result.user.email,
-          emailVerified: result.user.emailVerified,
-        });
-
-        navigate("/profile");
+        navigate("/home");
       } else {
+        const errorMessage =
+          getNetworkErrorMessage(result) ||
+          result.error ||
+          "Please check your credentials";
         toast({
           title: "Login failed",
-          description: result.error || "Please try again",
+          description: errorMessage,
           variant: "destructive",
         });
       }
-    } catch (err: any) {
-      console.error("Login error:", err);
+    } catch (error: any) {
+      console.error("Login error:", error);
+      const errorMessage =
+        getNetworkErrorMessage(error) ||
+        error.message ||
+        "An unexpected error occurred";
       toast({
         title: "Login error",
-        description: err.message || "An unexpected error occurred",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -120,43 +161,65 @@ export default function Login() {
   };
 
   const handleGoogleLogin = async () => {
-    setIsLoading(true);
+    // Check connectivity before attempting Google login
+    if (!ConnectivityChecker.getConnectionStatus()) {
+      toast({
+        title: "No internet connection",
+        description: "Please check your connection and try again",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
+      setIsLoading(true);
       const result = await signInWithGoogle();
 
       if (result.success && result.user) {
-        // Save user profile to Firestore
-        await saveUserProfile(result.user.uid, {
-          name: result.user.displayName || "",
-          username: result.user.email?.split("@")[0] || "",
-          email: result.user.email || "",
-          phone: result.user.phoneNumber || "",
-          uid: result.user.uid,
-          emailVerified: result.user.emailVerified,
-        });
+        // Store token if provided (for backend auth)
+        if (result.token) {
+          localStorage.setItem("token", result.token);
+        }
 
-        const message = result.isNewUser
-          ? `Welcome to Music Catch, ${result.user.displayName}!`
-          : `Welcome back, ${result.user.displayName}!`;
+        const existingProfile = await getUserProfile(result.user.uid);
+
+        const profileData = {
+          email: result.user.email,
+          displayName:
+            result.user.displayName ||
+            result.user.email?.split("@")[0] ||
+            "User",
+          photoURL: result.user.photoURL || "",
+          provider: "google",
+          uid: result.user.uid,
+        };
+
+        await saveUserProfile(result.user.uid, profileData);
 
         toast({
-          title: "Google login successful! 🎉",
-          description: message,
+          title: "Welcome!",
+          description: "Successfully logged in with Google",
         });
 
-        navigate("/profile");
+        navigate("/home");
       } else {
+        const errorMessage =
+          getNetworkErrorMessage(result) || result.error || "Please try again";
         toast({
           title: "Google login failed",
-          description: result.error || "Please try again",
+          description: errorMessage,
           variant: "destructive",
         });
       }
     } catch (error: any) {
       console.error("Google login error:", error);
+      const errorMessage =
+        getNetworkErrorMessage(error) ||
+        error.message ||
+        "An unexpected error occurred";
       toast({
         title: "Google login error",
-        description: error.message || "An unexpected error occurred",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -164,13 +227,33 @@ export default function Login() {
     }
   };
 
-  const handleSocialLogin = () => {
-    // Placeholder for other social logins
+  const handlePhoneLogin = () => {
     toast({
       title: "Coming soon",
-      description: "This login method will be available soon!",
+      description: "Phone login will be available soon!",
     });
   };
+
+  // Monitor connectivity status
+  useEffect(() => {
+    const unsubscribe = ConnectivityChecker.addListener((online) => {
+      setIsOnline(online);
+      if (online) {
+        toast({
+          title: "Back online",
+          description: "Your connection has been restored",
+        });
+      } else {
+        toast({
+          title: "Connection lost",
+          description: "Please check your internet connection",
+          variant: "destructive",
+        });
+      }
+    });
+
+    return unsubscribe;
+  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 flex flex-col items-center justify-center p-3 sm:p-6 relative overflow-hidden">
@@ -178,6 +261,21 @@ export default function Login() {
       <div className="absolute inset-0 bg-gradient-to-br from-neon-green/5 via-transparent to-neon-blue/5 bg-black"></div>
 
       <div className="relative z-10 w-full max-w-md px-2 sm:px-0">
+        {/* Back Button - Top Left Corner */}
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5 }}
+          className="absolute top-4 left-4 z-20"
+        >
+          <button
+            onClick={() => navigate("/")}
+            className="w-12 h-12 bg-black/80 hover:bg-black/90 border border-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm transition-all duration-200 hover:scale-105 shadow-lg"
+          >
+            <ArrowLeft className="w-5 h-5 text-white" />
+          </button>
+        </motion.div>
+
         {/* Logo */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -202,122 +300,194 @@ export default function Login() {
           Log in to Catch
         </motion.h1>
 
-        {/* Social Login Buttons */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5, duration: 0.8 }}
-          className="space-y-4 mb-8"
-        >
-          <button
-            onClick={handleGoogleLogin}
-            disabled={isLoading}
-            className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-full flex items-center justify-center text-white font-medium hover:bg-slate-700/50 transition-colors disabled:opacity-50"
+        {/* Login Method Selection */}
+        {loginMethod === "social" && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
+            className="space-y-4 mb-8"
           >
-            {isLoading ? (
-              <Loader2 className="w-5 h-5 animate-spin" />
-            ) : (
-              <>
-                <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
-                  <path
-                    fill="#4285F4"
-                    d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-                  />
-                  <path
-                    fill="#34A853"
-                    d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-                  />
-                  <path
-                    fill="#FBBC05"
-                    d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-                  />
-                  <path
-                    fill="#EA4335"
-                    d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-                  />
-                </svg>
-                Continue with Google
-              </>
-            )}
-          </button>
+            <button
+              onClick={handleGoogleLogin}
+              disabled={isLoading}
+              className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-full flex items-center justify-center text-white font-medium hover:bg-slate-700/50 transition-colors disabled:opacity-50"
+            >
+              {isLoading ? (
+                <Loader2 className="w-5 h-5 animate-spin" />
+              ) : (
+                <>
+                  <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
+                    <path
+                      fill="#4285F4"
+                      d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                    />
+                    <path
+                      fill="#EA4335"
+                      d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                    />
+                  </svg>
+                  Continue with Google
+                </>
+              )}
+            </button>
 
-          <button
-            onClick={handleSocialLogin}
-            className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-full flex items-center justify-center text-white font-medium hover:bg-slate-700/50 transition-colors"
-          >
-            <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="#1877F2">
-              <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-            </svg>
-            Continue with Facebook
-          </button>
+            <button
+              onClick={() => {
+                toast({
+                  title: "Coming soon",
+                  description: "Facebook login will be available soon!",
+                });
+              }}
+              className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-full flex items-center justify-center text-white font-medium hover:bg-slate-700/50 transition-colors"
+            >
+              <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="#1877F2">
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+              </svg>
+              Continue with Facebook
+            </button>
 
-          <button
-            onClick={handleSocialLogin}
-            className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-full flex items-center justify-center text-white font-medium hover:bg-slate-700/50 transition-colors"
-          >
-            Continue with phone number
-          </button>
-        </motion.div>
+            {/* Divider */}
+            <div className="flex items-center my-6">
+              <div className="flex-1 h-px bg-slate-600"></div>
+              <span className="px-3 text-slate-400 text-sm">or</span>
+              <div className="flex-1 h-px bg-slate-600"></div>
+            </div>
 
-        {/* Email Form */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.7, duration: 0.8 }}
-          className="space-y-4"
-        >
-          <div>
-            <label className="block text-white text-sm font-medium mb-2">
-              Email
-            </label>
-            <input
-              type="email,username"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email"
-              className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors text-sm sm:text-base"
-            />
-          </div>
-
-          <div>
-            <label className="block text-white text-sm font-medium mb-2">
-              Password
-            </label>
-            <div className="relative">
-              <input
-                type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Password"
-                className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-3 sm:px-4 pr-12 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors text-sm sm:text-base"
-                disabled={isLoading}
-              />
+            {/* Email and Phone Login Buttons */}
+            <div className="space-y-3">
               <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+                onClick={() => setLoginMethod("email")}
+                className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg flex items-center justify-center text-white hover:bg-slate-700/50 transition-colors"
               >
-                {showPassword ? (
-                  <EyeOff className="w-5 h-5" />
-                ) : (
-                  <Eye className="w-5 h-5" />
-                )}
+                <Mail className="w-5 h-5 mr-3 text-neon-green" />
+                Continue with Email
+              </button>
+
+              <button
+                onClick={() => setLoginMethod("phone")}
+                className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg flex items-center justify-center text-white hover:bg-slate-700/50 transition-colors"
+              >
+                <Phone className="w-5 h-5 mr-3 text-neon-blue" />
+                Continue with Phone Number
               </button>
             </div>
-          </div>
+          </motion.div>
+        )}
 
-          <button
-            onClick={handleLogin}
-            disabled={isLoading || !email || !password}
-            className="w-full h-12 sm:h-14 bg-gradient-to-r from-neon-green to-emerald-400 rounded-full text-slate-900 font-bold text-sm sm:text-lg hover:from-emerald-400 hover:to-neon-green transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+        {/* Email Login Form */}
+        {loginMethod === "email" && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.8 }}
+            className="space-y-4"
           >
-            {isLoading ? (
-              <Loader2 className="w-5 h-5 animate-spin mx-auto" />
-            ) : (
-              "Continue"
-            )}
-          </button>
-        </motion.div>
+            <div>
+              <label className="block text-white text-sm font-medium mb-2">
+                Email
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Enter your email"
+                className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors text-sm sm:text-base"
+              />
+            </div>
+
+            <div>
+              <label className="block text-white text-sm font-medium mb-2">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-3 sm:px-4 pr-12 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors text-sm sm:text-base"
+                  disabled={isLoading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
+            </div>
+
+            <button
+              onClick={handleLogin}
+              disabled={isLoading || !email || !password}
+              className="w-full h-12 sm:h-14 bg-gradient-to-r from-neon-green to-emerald-400 rounded-lg text-black font-bold text-sm sm:text-lg hover:from-emerald-400 hover:to-neon-green transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+            >
+              {isLoading ? (
+                <Loader2 className="w-5 h-5 animate-spin mx-auto" />
+              ) : (
+                "Log In"
+              )}
+            </button>
+
+            <button
+              onClick={() => setLoginMethod("social")}
+              className="w-full text-neon-green hover:text-neon-blue transition-colors text-sm mt-4"
+            >
+              ← Back to other options
+            </button>
+          </motion.div>
+        )}
+
+        {/* Phone Login Form */}
+        {loginMethod === "phone" && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3, duration: 0.8 }}
+            className="space-y-4"
+          >
+            <div>
+              <label className="block text-white text-sm font-medium mb-2">
+                Phone Number
+              </label>
+              <input
+                type="tel"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="+1 (555) 123-4567"
+                className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-blue transition-colors text-sm sm:text-base"
+              />
+            </div>
+
+            <button
+              onClick={handlePhoneLogin}
+              className="w-full h-12 sm:h-14 bg-gradient-to-r from-neon-blue to-purple-600 hover:from-neon-blue/80 hover:to-purple-600/80 text-white font-bold text-sm sm:text-lg rounded-lg transition-all transform hover:scale-105"
+            >
+              Send Verification Code
+            </button>
+
+            <button
+              onClick={() => setLoginMethod("social")}
+              className="w-full text-neon-blue hover:text-neon-green transition-colors text-sm"
+            >
+              ← Back to other options
+            </button>
+          </motion.div>
+        )}
 
         {/* Footer */}
         <motion.div
@@ -332,7 +502,7 @@ export default function Login() {
               to="/signup"
               className="text-white underline hover:text-neon-green transition-colors"
             >
-              signup for catch
+              Sign up here
             </Link>
           </p>
         </motion.div>

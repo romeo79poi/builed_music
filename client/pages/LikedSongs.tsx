@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import {
   ArrowLeft,
   Search,
-  Heart,
   Play,
   Pause,
   MoreVertical,
@@ -15,8 +14,10 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useProfileContext } from "../context/ProfileContext";
 import { useMusicContext } from "../context/MusicContext";
+import { songApi } from "../lib/api";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
+import LikeButton from "../components/LikeButton";
 
 interface Song {
   id: string;
@@ -45,8 +46,7 @@ export default function LikedSongs() {
   const loadLikedSongs = async () => {
     try {
       setIsLoading(true);
-      const response = await fetch(`/api/profile/${profile.id}/liked-songs`);
-      const data = await response.json();
+      const data = await songApi.getLikedSongs();
 
       if (data.success) {
         setLikedSongs(data.likedSongs || []);
@@ -301,12 +301,11 @@ export default function LikedSongs() {
                     {formatDate(song.likedAt)}
                   </span>
                   <span className="text-sm text-gray-400">{song.duration}</span>
-                  <button
-                    onClick={() => handleUnlikeSong(song.id)}
+                  <LikeButton
+                    songId={song.id}
+                    size="sm"
                     className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors"
-                  >
-                    <Heart className="w-4 h-4 text-pink-500 fill-current" />
-                  </button>
+                  />
                   <button className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors opacity-0 group-hover:opacity-100">
                     <MoreVertical className="w-4 h-4 text-gray-400" />
                   </button>

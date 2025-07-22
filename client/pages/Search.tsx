@@ -16,12 +16,13 @@ import {
   Clock,
   User,
   Loader2,
-  Heart,
   Users,
   Disc,
 } from "lucide-react";
 import { useMusicContext } from "../context/MusicContext";
 import { useToast } from "../hooks/use-toast";
+import { songApi } from "../lib/api";
+import LikeButton from "../components/LikeButton";
 
 export default function Search() {
   const navigate = useNavigate();
@@ -223,9 +224,11 @@ export default function Search() {
                     <span className="text-gray-400 text-xs">
                       {song.duration}
                     </span>
-                    <button className="opacity-0 group-hover:opacity-100 transition-opacity">
-                      <Heart className="w-4 h-4 text-gray-400 hover:text-red-400" />
-                    </button>
+                    <LikeButton
+                      songId={song.id}
+                      size="sm"
+                      className="opacity-0 group-hover:opacity-100 transition-opacity"
+                    />
                     <button className="opacity-0 group-hover:opacity-100 transition-opacity">
                       <MoreHorizontal className="w-4 h-4 text-gray-400" />
                     </button>
