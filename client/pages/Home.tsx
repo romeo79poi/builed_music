@@ -13,10 +13,19 @@ import {
   Heart,
   Clock,
   Loader2,
+  Download,
+  Share,
+  Plus,
+  Shuffle,
+  SkipForward,
+  SkipBack,
+  Volume2,
+  Repeat,
 } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { MiniPlayer } from "../components/MiniPlayer";
 import QuickSongSearch from "../components/QuickSongSearch";
+import LikeButton from "../components/LikeButton";
 import { useProfileContext } from "../context/ProfileContext";
 import { useMusicContext } from "../context/MusicContext";
 import { useToast } from "../hooks/use-toast";
@@ -24,31 +33,16 @@ import { useToast } from "../hooks/use-toast";
 export default function HomeScreen() {
   const navigate = useNavigate();
   const { profile } = useProfileContext();
-  const { currentSong, isPlaying, setCurrentSong, togglePlay } =
-    useMusicContext();
+  const { currentSong, isPlaying, setCurrentSong, togglePlay, queue, setQueue } = useMusicContext();
   const { toast } = useToast();
-  const [searchQuery, setSearchQuery] = useState("");
   const [showQuickSearch, setShowQuickSearch] = useState(false);
   const [greeting, setGreeting] = useState("");
-  const [isTopBarVisible, setIsTopBarVisible] = useState(true);
-  const [lastScrollY, setLastScrollY] = useState(0);
-  const [profileImageError, setProfileImageError] = useState(false);
   const [trendingSongs, setTrendingSongs] = useState([]);
   const [featuredPlaylists, setFeaturedPlaylists] = useState([]);
   const [recommendations, setRecommendations] = useState([]);
   const [genres, setGenres] = useState([]);
   const [recentlyPlayed, setRecentlyPlayed] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-
-  const handleSearchClick = () => {
-    console.log("Navigating to search page...");
-    navigate("/search");
-  };
-
-  const handleProfileClick = () => {
-    console.log("Navigating to profile page...");
-    navigate("/profile");
-  };
 
   useEffect(() => {
     const hour = new Date().getHours();
@@ -62,8 +56,16 @@ export default function HomeScreen() {
   const loadHomeData = async () => {
     try {
       setIsLoading(true);
+      const token = localStorage.getItem('token');
+      const headers: any = {
+        'Content-Type': 'application/json',
+      };
 
-      // Load all home page data concurrently
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
+
+      // Load all home page data concurrently with authentication
       const [
         trendingRes,
         playlistsRes,
@@ -71,37 +73,28 @@ export default function HomeScreen() {
         genresRes,
         recentRes,
       ] = await Promise.all([
-        fetch("/api/music/trending?limit=6"),
-        fetch("/api/music/playlists/featured?limit=4"),
-        fetch("/api/music/recommendations?limit=4"),
-        fetch("/api/music/genres"),
-        fetch("/api/music/recently-played?limit=6"),
+        fetch("/api/music/trending?limit=12", { headers }),
+        fetch("/api/music/playlists/featured?limit=8", { headers }),
+        fetch("/api/music/recommendations?limit=10", { headers }),
+        fetch("/api/music/genres", { headers }),
+        fetch("/api/music/recently-played?limit=8", { headers }),
       ]);
 
-      const [trending, playlists, recs, genresData, recent] = await Promise.all(
-        [
-          trendingRes.json(),
-          playlistsRes.json(),
-          recommendationsRes.json(),
-          genresRes.json(),
-          recentRes.json(),
-        ],
-      );
+      const [trending, playlists, recs, genresData, recent] = await Promise.all([
+        trendingRes.json(),
+        playlistsRes.json(),
+        recommendationsRes.json(),
+        genresRes.json(),
+        recentRes.json(),
+      ]);
 
-      if (trending.success) setTrendingSongs(trending.songs);
-      if (playlists.success) setFeaturedPlaylists(playlists.playlists);
-      if (recs.success) setRecommendations(recs.recommendations);
-      if (genresData.success) setGenres(genresData.genres);
-      if (recent.success) setRecentlyPlayed(recent.recentlyPlayed);
+      if (trending.success) setTrendingSongs(trending.songs || trending.data || []);
+      if (playlists.success) setFeaturedPlaylists(playlists.playlists || playlists.data || []);
+      if (recs.success) setRecommendations(recs.recommendations || recs.data || []);
+      if (genresData.success) setGenres(genresData.genres || genresData.data || []);
+      if (recent.success) setRecentlyPlayed(recent.recentlyPlayed || recent.data || []);
     } catch (error) {
       console.error("Failed to load home data:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load content. Using offline data.",
-        variant: "destructive",
-      });
-
-      // Fallback to static data if API fails
       loadFallbackData();
     } finally {
       setIsLoading(false);
@@ -109,22 +102,26 @@ export default function HomeScreen() {
   };
 
   const loadFallbackData = () => {
-    // Fallback to existing static data structure
-    setTrendingSongs(recentlyPlayedFallback);
-    setFeaturedPlaylists(topMixesFallback);
-    setRecommendations(recommendationsFallback);
-    setGenres(genresFallback);
-    setRecentlyPlayed(recentlyPlayedFallback);
+    setTrendingSongs(fallbackTrendingSongs);
+    setFeaturedPlaylists(fallbackPlaylists);
+    setRecommendations(fallbackRecommendations);
+    setGenres(fallbackGenres);
+    setRecentlyPlayed(fallbackRecentlyPlayed);
   };
 
   const handlePlaySong = async (song: any) => {
     try {
-      // Track the play in backend
-      await fetch(`/api/music/play/${song.id}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: profile.id }),
-      });
+      const token = localStorage.getItem('token');
+      if (token) {
+        await fetch(`/api/music/play/${song.id}`, {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({ userId: profile.id }),
+        });
+      }
 
       if (currentSong?.id === song.id) {
         togglePlay();
@@ -132,7 +129,7 @@ export default function HomeScreen() {
         setCurrentSong(song);
       }
     } catch (error) {
-      console.error("Failed to play song:", error);
+      console.error("Failed to track play:", error);
       // Still allow playing even if tracking fails
       if (currentSong?.id === song.id) {
         togglePlay();
@@ -142,408 +139,303 @@ export default function HomeScreen() {
     }
   };
 
-  // Reset image error when profile picture changes
-  useEffect(() => {
-    setProfileImageError(false);
-  }, [profile.profilePicture]);
+  const handlePlayPlaylist = (playlist: any) => {
+    if (playlist.songs && playlist.songs.length > 0) {
+      setQueue(playlist.songs);
+      setCurrentSong(playlist.songs[0]);
+    } else {
+      toast({
+        title: "Empty Playlist",
+        description: "This playlist doesn't have any songs yet.",
+      });
+    }
+  };
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentScrollY = window.scrollY;
+  const handleShufflePlay = (songs: any[]) => {
+    const shuffled = [...songs].sort(() => Math.random() - 0.5);
+    setQueue(shuffled);
+    setCurrentSong(shuffled[0]);
+  };
 
-      if (currentScrollY < lastScrollY || currentScrollY < 50) {
-        // Scrolling up or near the top - show top bar
-        setIsTopBarVisible(true);
-      } else if (currentScrollY > lastScrollY && currentScrollY > 100) {
-        // Scrolling down and past threshold - hide top bar
-        setIsTopBarVisible(false);
-      }
-
-      setLastScrollY(currentScrollY);
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY]);
-
-  // Fallback data in case API fails
-  const recentlyPlayedFallback = [
+  // Fallback data
+  const fallbackTrendingSongs = [
     {
-      id: 1,
+      id: "1",
       title: "Blinding Lights",
       artist: "The Weeknd",
-      image:
-        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
+      album: "After Hours",
+      image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
       duration: "3:20",
       plays: 45672,
     },
     {
-      id: 2,
+      id: "2", 
       title: "Watermelon Sugar",
       artist: "Harry Styles",
-      image:
-        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop",
+      album: "Fine Line",
+      image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop",
       duration: "2:54",
       plays: 38934,
     },
     {
-      id: 3,
+      id: "3",
       title: "Levitating",
-      artist: "Dua Lipa",
-      image:
-        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop",
+      artist: "Dua Lipa", 
+      album: "Future Nostalgia",
+      image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop",
       duration: "3:23",
       plays: 42156,
     },
-  ];
-
-  const topMixesFallback = [
     {
-      id: 1,
-      name: "Daily Mix 1",
-      description: "The Weeknd, Dua Lipa, Harry Styles and more",
-      image:
-        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
-      songs: [],
-    },
-    {
-      id: 2,
-      name: "Daily Mix 2",
-      description: "Pop hits you can't stop playing",
-      image:
-        "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop",
-      songs: [],
+      id: "4",
+      title: "Good 4 U",
+      artist: "Olivia Rodrigo",
+      album: "SOUR",
+      image: "https://images.unsplash.com/photo-1494232410401-ad00d5433cfa?w=300&h=300&fit=crop",
+      duration: "2:58",
+      plays: 39821,
     },
   ];
 
-  const recommendationsFallback = [
+  const fallbackPlaylists = [
     {
-      id: 1,
-      title: "Anti-Hero",
-      artist: "Taylor Swift",
-      album: "Midnights",
-      image:
-        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
-      duration: "3:20",
+      id: "1",
+      name: "Today's Top Hits",
+      description: "The most played songs right now",
+      image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
+      songs: fallbackTrendingSongs,
+      totalSongs: 50,
     },
     {
-      id: 2,
-      title: "Flowers",
-      artist: "Miley Cyrus",
-      album: "Endless Summer Vacation",
-      image:
-        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop",
-      duration: "3:20",
+      id: "2", 
+      name: "Chill Hits",
+      description: "Kick back and relax",
+      image: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop",
+      songs: fallbackTrendingSongs,
+      totalSongs: 30,
     },
   ];
 
-  const genresFallback = [
-    { id: 1, name: "Pop", color: "from-pink-500 to-purple-600" },
-    { id: 2, name: "Hip-Hop", color: "from-orange-500 to-red-600" },
-    { id: 3, name: "Rock", color: "from-gray-600 to-gray-800" },
-    { id: 4, name: "Electronic", color: "from-blue-500 to-cyan-600" },
+  const fallbackRecommendations = fallbackTrendingSongs.slice(0, 6);
+  const fallbackGenres = [
+    { id: "1", name: "Pop", color: "from-pink-500 to-purple-600", image: "🎵" },
+    { id: "2", name: "Hip-Hop", color: "from-orange-500 to-red-600", image: "🎤" },
+    { id: "3", name: "Rock", color: "from-gray-600 to-gray-800", image: "🎸" },
+    { id: "4", name: "Electronic", color: "from-blue-500 to-cyan-600", image: "🎧" },
   ];
+  const fallbackRecentlyPlayed = fallbackTrendingSongs.slice(0, 4);
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Background Glow Effects */}
-      <div className="fixed inset-0 bg-black">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-neon-green/5 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-neon-blue/5 rounded-full blur-3xl"></div>
-      </div>
-
-      <div className="relative z-10 flex flex-col min-h-screen">
-        {/* Top Bar */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{
-            opacity: 1,
-            y: isTopBarVisible ? 0 : -100,
-          }}
-          transition={{
-            duration: 0.3,
-            ease: "easeInOut",
-          }}
-          className="flex items-center justify-between p-4 md:p-6 bg-black/60 backdrop-blur-sm sticky top-0 z-20"
+    <div className="min-h-screen bg-black text-white relative">
+      {/* Background Effects */}
+      <div className="fixed inset-0 bg-gradient-to-br from-neon-green/5 via-transparent to-neon-blue/5"></div>
+      
+      {/* Main Container */}
+      <div className="relative z-10">
+        {/* Top Navigation Bar */}
+        <motion.div 
+          className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/10"
+          initial={{ y: -100 }}
+          animate={{ y: 0 }}
+          transition={{ duration: 0.5 }}
         >
-          {/* Profile Icon */}
-          <button
-            onClick={handleProfileClick}
-            className="hover:scale-110 transition-transform relative group"
-            title="Go to Profile"
-          >
-            <div className="relative">
-              {/* Animated background rings */}
-              <div
-                className="absolute inset-0 w-12 h-12 bg-gradient-to-br from-neon-green via-neon-blue to-purple-500 rounded-full animate-spin"
-                style={{ animationDuration: "3s" }}
-              ></div>
-              <div
-                className="absolute inset-0.5 w-11 h-11 bg-gradient-to-br from-purple-500 via-pink-500 to-neon-green rounded-full animate-spin"
-                style={{
-                  animationDuration: "2s",
-                  animationDirection: "reverse",
-                }}
-              ></div>
-              <div className="relative w-12 h-12 flex items-center justify-center p-0.5">
-                <div className="w-11 h-11 rounded-full overflow-hidden bg-gray-800 flex items-center justify-center">
-                  {profile.profilePicture && !profileImageError ? (
-                    <img
-                      src={profile.profilePicture}
-                      alt={profile.displayName}
-                      className="w-full h-full object-cover"
-                      onError={() => {
-                        console.log(
-                          "Image failed to load:",
-                          profile.profilePicture,
-                        );
-                        setProfileImageError(true);
-                      }}
-                      onLoad={() => setProfileImageError(false)}
-                    />
-                  ) : (
-                    <User className="w-6 h-6 text-white" />
-                  )}
-                </div>
-              </div>
+          <div className="flex items-center justify-between p-4 max-w-7xl mx-auto">
+            {/* Left: Logo */}
+            <div className="flex items-center space-x-3">
+              <MusicCatchLogo className="w-8 h-8" />
+              <span className="text-xl font-bold">Music Catch</span>
             </div>
-            <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-black/80 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-              Profile
-            </div>
-          </button>
 
-          {/* Logo */}
-          <div className="flex items-center absolute left-1/2 transform -translate-x-1/2">
-            <MusicCatchLogo animated={false} className="w-8 h-8" />
-            <span className="ml-3 text-xl font-bold hidden sm:block">
-              Music Catch
-            </span>
+            {/* Center: Navigation */}
+            <div className="hidden md:flex items-center space-x-8">
+              <Link to="/home" className="text-white font-medium">Home</Link>
+              <Link to="/search" className="text-gray-400 hover:text-white transition-colors">Search</Link>
+              <Link to="/library" className="text-gray-400 hover:text-white transition-colors">Your Library</Link>
+            </div>
+
+            {/* Right: Search & Profile */}
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => setShowQuickSearch(!showQuickSearch)}
+                className="p-2 hover:bg-white/10 rounded-full transition-colors"
+              >
+                <Search className="w-5 h-5" />
+              </button>
+              
+              <button
+                onClick={() => navigate("/profile")}
+                className="w-8 h-8 bg-neon-green rounded-full flex items-center justify-center"
+              >
+                <User className="w-5 h-5 text-black" />
+              </button>
+            </div>
           </div>
 
-          {/* Search Toggle */}
-          <div className="relative">
-            <button
-              onClick={() => setShowQuickSearch(!showQuickSearch)}
-              className="hover:scale-110 transition-transform relative group"
-              title={showQuickSearch ? "Close Search" : "Quick Search"}
+          {/* Quick Search */}
+          {showQuickSearch && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="px-4 pb-4 border-t border-white/10"
             >
-              <div className="relative">
-                <div className="relative w-10 h-10 flex items-center justify-center">
-                  <Search className={`w-5 h-5 z-10 transition-colors ${
-                    showQuickSearch ? "text-neon-green" : "text-white"
-                  }`} />
-                </div>
-              </div>
-              <div className="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-purple-900/90 to-pink-900/90 text-white text-xs px-3 py-1 rounded-full opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap backdrop-blur-sm">
-                {showQuickSearch ? "Close" : "Search"}
-              </div>
-            </button>
-          </div>
+              <QuickSongSearch 
+                onSongSelect={() => setShowQuickSearch(false)}
+                className="max-w-2xl mx-auto"
+              />
+            </motion.div>
+          )}
         </motion.div>
 
-        {/* Quick Search Bar */}
-        {showQuickSearch && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-            className="px-4 md:px-6 py-4 bg-darker-surface/50 backdrop-blur-sm border-b border-white/10"
-          >
-            <QuickSongSearch
-              placeholder="Search for songs, artists, albums..."
-              maxResults={6}
-              onSongSelect={() => setShowQuickSearch(false)}
-              className="max-w-2xl mx-auto"
-            />
-          </motion.div>
-        )}
-
         {/* Main Content */}
-        <div className="flex-1 overflow-y-auto pb-24">
-          <div className="p-4 md:p-6 space-y-8">
-            {isLoading && (
-              <div className="flex items-center justify-center py-12">
-                <Loader2 className="w-8 h-8 text-neon-green animate-spin" />
-                <span className="ml-2 text-gray-400">
-                  Loading your music...
-                </span>
-              </div>
-            )}
-            {/* Greeting */}
+        <div className="pt-20 pb-32">
+          <div className="max-w-7xl mx-auto px-4 space-y-8">
+            {/* Greeting Section */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
+              className="pt-6"
             >
-              <h1 className="text-3xl md:text-4xl font-bold mb-2">
-                {greeting}
-              </h1>
-              <p className="text-gray-400">Feel The Music_Catch Beats</p>
+              <h1 className="text-4xl font-bold mb-2">{greeting}</h1>
+              <p className="text-gray-400">Welcome back to your music</p>
             </motion.div>
 
-            {/* Recently Played */}
-            <motion.section
+            {/* Quick Access Cards */}
+            <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
             >
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl md:text-2xl font-bold">
-                  Recently Played
-                </h2>
-                <button className="text-gray-400 hover:text-white text-sm">
-                  Show all
-                </button>
-              </div>
-              <div className="flex overflow-x-auto space-x-4 pb-4 scrollbar-hide">
-                {recentlyPlayed.map((item) => (
-                  <div key={item.id} className="flex-shrink-0">
-                    <div className="group relative w-40 bg-white/5 rounded-lg p-4 hover:bg-white/10 transition-all cursor-pointer">
-                      <div className="relative mb-3">
-                        <img
-                          src={item.image}
-                          alt={item.title}
-                          className="w-full aspect-square object-cover rounded-md"
-                        />
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            handlePlaySong(item);
-                          }}
-                          className="absolute bottom-2 right-2 w-10 h-10 bg-neon-green rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all"
-                        >
-                          {currentSong?.id === item.id && isPlaying ? (
-                            <Pause className="w-5 h-5 text-black" />
-                          ) : (
-                            <Play className="w-5 h-5 text-black ml-0.5" />
-                          )}
-                        </button>
-                      </div>
-                      <h3 className="font-medium text-sm truncate">
-                        {item.title}
-                      </h3>
-                      <p className="text-gray-400 text-xs truncate">
-                        {item.artist}
-                      </p>
-                    </div>
+              {recentlyPlayed.slice(0, 6).map((item: any, index) => (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.4 + index * 0.1 }}
+                  className="bg-white/5 rounded-lg p-3 flex items-center space-x-3 hover:bg-white/10 transition-all cursor-pointer group"
+                  onClick={() => handlePlaySong(item)}
+                >
+                  <div className="relative">
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className="w-16 h-16 rounded object-cover"
+                    />
+                    <button className="absolute inset-0 bg-black/60 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                      {currentSong?.id === item.id && isPlaying ? (
+                        <Pause className="w-6 h-6 text-white" />
+                      ) : (
+                        <Play className="w-6 h-6 text-white ml-1" />
+                      )}
+                    </button>
                   </div>
-                ))}
-              </div>
-            </motion.section>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium truncate">{item.title}</h3>
+                    <p className="text-gray-400 text-sm truncate">{item.artist}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </motion.div>
 
-            {/* Your Top Mixes */}
-            <motion.section
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl md:text-2xl font-bold">
-                  Your Top Mixes
-                </h2>
-                <button className="text-gray-400 hover:text-white text-sm">
-                  Show all
-                </button>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {featuredPlaylists.map((playlist) => (
-                  <Link to={`/playlist/${playlist.id}`} key={playlist.id}>
-                    <div className="group bg-white/5 rounded-lg p-4 hover:bg-white/10 transition-all cursor-pointer">
-                      <div className="relative mb-3">
-                        <img
-                          src={playlist.image}
-                          alt={playlist.name}
-                          className="w-full aspect-square object-cover rounded-md"
-                        />
-                        <button
-                          onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            if (playlist.songs && playlist.songs.length > 0) {
-                              handlePlaySong(playlist.songs[0]);
-                            }
-                          }}
-                          className="absolute bottom-2 right-2 w-10 h-10 bg-neon-green rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all"
-                        >
-                          <Play className="w-5 h-5 text-black ml-0.5" />
-                        </button>
-                      </div>
-                      <h3 className="font-medium text-sm mb-1">
-                        {playlist.name}
-                      </h3>
-                      <p className="text-gray-400 text-xs line-clamp-2">
-                        {playlist.description}
-                      </p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </motion.section>
-
-            {/* Recommended for You */}
+            {/* Made For You Section */}
             <motion.section
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
             >
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl md:text-2xl font-bold">
-                  Recommended for You
-                </h2>
-                <button className="text-gray-400 hover:text-white text-sm">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold">Made for you</h2>
+                <Link to="/library" className="text-gray-400 hover:text-white text-sm font-medium">
                   Show all
+                </Link>
+              </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                {featuredPlaylists.map((playlist: any) => (
+                  <motion.div
+                    key={playlist.id}
+                    whileHover={{ scale: 1.05 }}
+                    className="bg-white/5 rounded-lg p-4 hover:bg-white/10 transition-all cursor-pointer group"
+                    onClick={() => handlePlayPlaylist(playlist)}
+                  >
+                    <div className="relative mb-4">
+                      <img
+                        src={playlist.image}
+                        alt={playlist.name}
+                        className="w-full aspect-square rounded-lg object-cover"
+                      />
+                      <button className="absolute bottom-2 right-2 w-12 h-12 bg-neon-green rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all shadow-lg">
+                        <Play className="w-5 h-5 text-black ml-0.5" />
+                      </button>
+                    </div>
+                    <h3 className="font-semibold mb-1 truncate">{playlist.name}</h3>
+                    <p className="text-gray-400 text-sm line-clamp-2">{playlist.description}</p>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.section>
+
+            {/* Trending Now Section */}
+            <motion.section
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.6 }}
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold">Trending now</h2>
+                <button
+                  onClick={() => handleShufflePlay(trendingSongs)}
+                  className="flex items-center space-x-2 bg-neon-green text-black px-4 py-2 rounded-full font-medium hover:scale-105 transition-transform"
+                >
+                  <Shuffle className="w-4 h-4" />
+                  <span>Shuffle play</span>
                 </button>
               </div>
+              
               <div className="space-y-2">
-                {recommendations.map((song, index) => (
-                  <div
+                {trendingSongs.slice(0, 8).map((song: any, index) => (
+                  <motion.div
                     key={song.id}
-                    className="flex items-center space-x-3 p-2 rounded-lg hover:bg-white/5 transition-all group cursor-pointer"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.7 + index * 0.1 }}
+                    className="flex items-center space-x-4 p-2 rounded-lg hover:bg-white/5 transition-colors group cursor-pointer"
                     onClick={() => handlePlaySong(song)}
                   >
-                    <div className="relative flex-shrink-0">
+                    <div className="text-gray-400 w-6 text-center">
+                      {index + 1}
+                    </div>
+                    
+                    <div className="relative">
                       <img
                         src={song.image}
                         alt={song.title}
-                        className="w-12 h-12 object-cover rounded"
+                        className="w-12 h-12 rounded object-cover"
                       />
-                      <button
-                        onClick={(e) => {
-                          e.preventDefault();
-                          e.stopPropagation();
-                          handlePlaySong(song);
-                        }}
-                        className="absolute inset-0 bg-black/60 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
+                      <button className="absolute inset-0 bg-black/60 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                         {currentSong?.id === song.id && isPlaying ? (
-                          <Pause className="w-5 h-5 text-white" />
+                          <Pause className="w-4 h-4 text-white" />
                         ) : (
-                          <Play className="w-5 h-5 text-white ml-0.5" />
+                          <Play className="w-4 h-4 text-white ml-0.5" />
                         )}
                       </button>
                     </div>
+                    
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-medium text-sm truncate">
-                        {song.title}
-                      </h3>
-                      <p className="text-gray-400 text-xs truncate">
-                        {song.artist}
-                      </p>
+                      <h3 className="font-medium truncate">{song.title}</h3>
+                      <p className="text-gray-400 text-sm truncate">{song.artist}</p>
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <button className="opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Heart className="w-4 h-4 text-gray-400 hover:text-neon-green" />
-                      </button>
-                      <span className="text-gray-400 text-xs">
-                        {song.duration}
-                      </span>
-                      <button className="opacity-0 group-hover:opacity-100 transition-opacity">
-                        <MoreHorizontal className="w-4 h-4 text-gray-400 hover:text-white" />
+                    
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center space-x-2">
+                      <LikeButton songId={song.id} size="sm" />
+                      <span className="text-gray-400 text-sm w-12 text-right">{song.duration}</span>
+                      <button className="p-1 hover:bg-white/10 rounded">
+                        <MoreHorizontal className="w-4 h-4 text-gray-400" />
                       </button>
                     </div>
-                  </div>
+                  </motion.div>
                 ))}
               </div>
             </motion.section>
@@ -552,28 +444,22 @@ export default function HomeScreen() {
             <motion.section
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
+              transition={{ delay: 0.8 }}
             >
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl md:text-2xl font-bold">Browse Genres</h2>
-                <button className="text-gray-400 hover:text-white text-sm">
-                  Show all
-                </button>
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                {genres.map((genre) => (
-                  <Link
-                    to={`/search?genre=${genre.name.toLowerCase()}`}
+              <h2 className="text-2xl font-bold mb-6">Browse all</h2>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {genres.map((genre: any) => (
+                  <motion.div
                     key={genre.id}
+                    whileHover={{ scale: 1.05 }}
+                    className={`bg-gradient-to-br ${genre.color} rounded-lg p-6 cursor-pointer relative overflow-hidden h-32`}
+                    onClick={() => navigate(`/search?genre=${genre.name}`)}
                   >
-                    <div
-                      className={`bg-gradient-to-br ${genre.color} rounded-lg p-4 h-24 flex items-end cursor-pointer hover:scale-105 transition-transform`}
-                    >
-                      <h3 className="font-bold text-white text-lg">
-                        {genre.name}
-                      </h3>
+                    <h3 className="text-2xl font-bold">{genre.name}</h3>
+                    <div className="absolute bottom-2 right-2 text-4xl opacity-80">
+                      {genre.image}
                     </div>
-                  </Link>
+                  </motion.div>
                 ))}
               </div>
             </motion.section>
@@ -581,31 +467,23 @@ export default function HomeScreen() {
         </div>
 
         {/* Mini Player */}
-        <MiniPlayer isPlaying={isPlaying} onTogglePlay={togglePlay} />
+        <MiniPlayer />
 
-        {/* Bottom Navigation */}
-        <div className="fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur-sm border-t border-white/10 px-4 py-2 z-20">
-          <div className="flex items-center justify-around max-w-md mx-auto">
+        {/* Bottom Navigation (Mobile) */}
+        <div className="fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur-sm border-t border-white/10 px-4 py-2 md:hidden z-40">
+          <div className="flex items-center justify-around">
             <Link to="/home" className="flex flex-col items-center py-2">
               <Home className="w-6 h-6 text-neon-green mb-1" />
               <span className="text-neon-green text-xs font-medium">Home</span>
             </Link>
-
             <Link to="/search" className="flex flex-col items-center py-2">
               <Search className="w-6 h-6 text-gray-400 mb-1" />
               <span className="text-gray-400 text-xs">Search</span>
             </Link>
-
             <Link to="/library" className="flex flex-col items-center py-2">
               <Library className="w-6 h-6 text-gray-400 mb-1" />
               <span className="text-gray-400 text-xs">Library</span>
             </Link>
-
-            <Link to="/history" className="flex flex-col items-center py-2">
-              <Clock className="w-6 h-6 text-gray-400 mb-1" />
-              <span className="text-gray-400 text-xs">History</span>
-            </Link>
-
             <Link to="/profile" className="flex flex-col items-center py-2">
               <User className="w-6 h-6 text-gray-400 mb-1" />
               <span className="text-gray-400 text-xs">Profile</span>
