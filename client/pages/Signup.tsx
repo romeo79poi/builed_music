@@ -14,6 +14,8 @@ import {
   Phone,
 } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
+import PasswordStrengthIndicator from "../components/PasswordStrengthIndicator";
+import AvailabilityChecker from "../components/AvailabilityChecker";
 import { useToast } from "../hooks/use-toast";
 import {
   validatePhoneNumber,
@@ -1286,6 +1288,23 @@ export default function Signup() {
                     {errors.username}
                   </p>
                 )}
+
+                {/* Username Availability Checker */}
+                <AvailabilityChecker
+                  value={formData.username}
+                  field="username"
+                  onCheck={async (field, value) => {
+                    try {
+                      const response = await fetch(`/api/auth/check-availability?${field}=${encodeURIComponent(value)}`);
+                      const data = await response.json();
+                      return data.available === true;
+                    } catch {
+                      return false;
+                    }
+                  }}
+                  className="mt-2"
+                  minLength={3}
+                />
               </div>
 
               <button
@@ -1445,9 +1464,12 @@ export default function Signup() {
                     {errors.password}
                   </p>
                 )}
-                <p className="text-slate-400 text-xs mt-1">
-                  At least 8 characters with uppercase, lowercase, and number
-                </p>
+
+                {/* Password Strength Indicator */}
+                <PasswordStrengthIndicator
+                  password={formData.password}
+                  className="mt-3"
+                />
               </div>
 
               <div>
