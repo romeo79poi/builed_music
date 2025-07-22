@@ -341,6 +341,24 @@ export default function HomeScreen() {
           </div>
         </motion.div>
 
+        {/* Quick Search Bar */}
+        {showQuickSearch && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.3 }}
+            className="px-4 md:px-6 py-4 bg-darker-surface/50 backdrop-blur-sm border-b border-white/10"
+          >
+            <QuickSongSearch
+              placeholder="Search for songs, artists, albums..."
+              maxResults={6}
+              onSongSelect={() => setShowQuickSearch(false)}
+              className="max-w-2xl mx-auto"
+            />
+          </motion.div>
+        )}
+
         {/* Main Content */}
         <div className="flex-1 overflow-y-auto pb-24">
           <div className="p-4 md:p-6 space-y-8">
