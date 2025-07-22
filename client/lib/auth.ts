@@ -44,6 +44,7 @@ export const signUpWithEmailAndPassword = async (
         email,
         password,
       );
+console.log({userCredential})
       const user = userCredential.user;
 
       // Store user data in Firestore with exact required fields
