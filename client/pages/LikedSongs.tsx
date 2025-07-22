@@ -301,12 +301,11 @@ export default function LikedSongs() {
                     {formatDate(song.likedAt)}
                   </span>
                   <span className="text-sm text-gray-400">{song.duration}</span>
-                  <button
-                    onClick={() => handleUnlikeSong(song.id)}
+                  <LikeButton
+                    songId={song.id}
+                    size="sm"
                     className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors"
-                  >
-                    <Heart className="w-4 h-4 text-pink-500 fill-current" />
-                  </button>
+                  />
                   <button className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors opacity-0 group-hover:opacity-100">
                     <MoreVertical className="w-4 h-4 text-gray-400" />
                   </button>
