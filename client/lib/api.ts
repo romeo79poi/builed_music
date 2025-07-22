@@ -345,6 +345,16 @@ export const songApi = {
       return songApi.likeSong(songId);
     }
   },
+
+  // Search songs by keyword
+  searchSongs: (query: string, limit: number = 20): Promise<{ results: any[] }> => {
+    const token = localStorage.getItem("token");
+    return apiRequest(`/songs/search?q=${encodeURIComponent(query)}&limit=${limit}`, {
+      headers: {
+        Authorization: token ? `Bearer ${token}` : undefined,
+      },
+    });
+  },
 };
 
 // Export all APIs
