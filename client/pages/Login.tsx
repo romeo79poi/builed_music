@@ -118,9 +118,11 @@ export default function Login() {
         const existingProfile = await getUserProfile(result.user.uid);
 
         const profileData = {
-          email: result.user.email,
-          displayName: result.user.displayName || "User",
-          photoURL: result.user.photoURL || "",
+          name: result.user.displayName || "User",
+          username: result.user.email?.split("@")[0] || "",
+          email: result.user.email || "",
+          phone: "",
+          profileImageURL: result.user.photoURL || "",
           provider: "email",
           uid: result.user.uid,
         };
