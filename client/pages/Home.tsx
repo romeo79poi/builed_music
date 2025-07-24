@@ -15,6 +15,7 @@ import {
   Shuffle,
   RefreshCw,
   AlertCircle,
+  Music,
 } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { MiniPlayer } from "../components/MiniPlayer";
@@ -28,31 +29,50 @@ import {
   deleteDoc, 
   query, 
   orderBy, 
-  limit, 
-  onSnapshot 
+  limit,
+  where,
+  getDoc
 } from "firebase/firestore";
 import { db, auth } from "../lib/firebase";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 
+// Interfaces matching your Firestore schema
 interface Song {
   id: string;
   title: string;
   artist: string;
-  album?: string;
-  coverImage: string;
-  duration: string;
-  plays?: number;
+  albumId?: string;
+  coverImageURL: string;
+  audioURL?: string;
+  createdAt: any;
   isLiked?: boolean;
-  createdAt?: any;
 }
 
 interface Album {
   id: string;
-  title: string;
+  name: string;
   artist: string;
-  coverImage: string;
-  songs: Song[];
-  releaseDate?: any;
+  coverImageURL: string;
+  createdAt: any;
+  songIds: string[];
+}
+
+interface Playlist {
+  id: string;
+  name: string;
+  createdBy: string;
+  coverImageURL: string;
+  songIds: string[];
+}
+
+interface UserData {
+  name: string;
+  username: string;
+  email: string;
+  phone: string;
+  profileImageURL: string;
+  createdAt: any;
+  verified: boolean;
 }
 
 export default function HomeScreen() {
@@ -65,6 +85,7 @@ export default function HomeScreen() {
   const [greeting, setGreeting] = useState("");
   const [songs, setSongs] = useState<Song[]>([]);
   const [albums, setAlbums] = useState<Album[]>([]);
+  const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [likedSongs, setLikedSongs] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
   const [currentSong, setCurrentSong] = useState<Song | null>(null);
@@ -91,15 +112,15 @@ export default function HomeScreen() {
     return () => unsubscribe();
   }, [navigate]);
 
-  // Fetch songs and albums from Firestore
+  // Fetch data from Firestore collections matching your schema
   const loadFirestoreData = async () => {
     try {
       setIsLoading(true);
       
-      // Fetch songs from Firestore
+      // Fetch songs from "songs" collection
       const songsQuery = query(
         collection(db, "songs"),
-        orderBy("plays", "desc"),
+        orderBy("createdAt", "desc"),
         limit(20)
       );
       const songsSnapshot = await getDocs(songsQuery);
@@ -112,10 +133,10 @@ export default function HomeScreen() {
         } as Song);
       });
 
-      // Fetch albums from Firestore
+      // Fetch albums from "albums" collection
       const albumsQuery = query(
         collection(db, "albums"),
-        orderBy("releaseDate", "desc"),
+        orderBy("createdAt", "desc"),
         limit(10)
       );
       const albumsSnapshot = await getDocs(albumsQuery);
@@ -128,23 +149,40 @@ export default function HomeScreen() {
         } as Album);
       });
 
+      // Fetch playlists from "playlists" collection
+      const playlistsQuery = query(
+        collection(db, "playlists"),
+        limit(10)
+      );
+      const playlistsSnapshot = await getDocs(playlistsQuery);
+      const playlistsData: Playlist[] = [];
+      
+      playlistsSnapshot.forEach((doc) => {
+        playlistsData.push({
+          id: doc.id,
+          ...doc.data()
+        } as Playlist);
+      });
+
       setSongs(songsData);
       setAlbums(albumsData);
+      setPlaylists(playlistsData);
       
       console.log("✅ Loaded from Firestore:", {
         songs: songsData.length,
-        albums: albumsData.length
+        albums: albumsData.length,
+        playlists: playlistsData.length
       });
 
       if (songsData.length === 0 && albumsData.length === 0) {
-        loadFallbackData();
+        await createSampleData();
       }
     } catch (error) {
       console.error("❌ Error loading Firestore data:", error);
-      loadFallbackData();
+      await createSampleData();
       toast({
         title: "Loading Error",
-        description: "Failed to load music data. Using fallback content.",
+        description: "Failed to load music data. Creating sample content.",
         variant: "destructive",
       });
     } finally {
@@ -152,7 +190,7 @@ export default function HomeScreen() {
     }
   };
 
-  // Load user's liked songs from Firestore
+  // Load user's liked songs from users/{uid}/likes subcollection
   const loadUserLikes = async (uid: string) => {
     try {
       const likesRef = collection(db, "users", uid, "likes");
@@ -160,7 +198,7 @@ export default function HomeScreen() {
       const userLikes = new Set<string>();
       
       likesSnapshot.forEach((doc) => {
-        userLikes.add(doc.id);
+        userLikes.add(doc.id); // doc.id is the songId
       });
       
       setLikedSongs(userLikes);
@@ -170,7 +208,7 @@ export default function HomeScreen() {
     }
   };
 
-  // Toggle like/unlike a song
+  // Toggle like/unlike a song using users/{uid}/likes/{songId} subcollection
   const handleToggleLike = async (songId: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
     
@@ -201,19 +239,15 @@ export default function HomeScreen() {
           description: "Song removed from your favorites",
         });
       } else {
-        // Like the song
-        const song = songs.find(s => s.id === songId);
+        // Like the song - store minimal data in likes subcollection
         await setDoc(likeDocRef, {
-          songId: songId,
-          title: song?.title || "",
-          artist: song?.artist || "",
           likedAt: new Date(),
         });
         
         setLikedSongs(prev => new Set([...prev, songId]));
         
         toast({
-          title: "Added to liked songs",
+          title: "Added to liked songs", 
           description: "Song added to your favorites",
         });
       }
@@ -234,6 +268,57 @@ export default function HomeScreen() {
     } else {
       setCurrentSong(song);
       setIsPlaying(true);
+    }
+  };
+
+  // Play an album (first song)
+  const handlePlayAlbum = async (album: Album) => {
+    if (album.songIds && album.songIds.length > 0) {
+      // Get the first song from the album
+      try {
+        const firstSongDoc = await getDoc(doc(db, "songs", album.songIds[0]));
+        if (firstSongDoc.exists()) {
+          const firstSong = { id: firstSongDoc.id, ...firstSongDoc.data() } as Song;
+          handlePlaySong(firstSong);
+        }
+      } catch (error) {
+        console.error("Error playing album:", error);
+        toast({
+          title: "Error",
+          description: "Failed to play album",
+          variant: "destructive",
+        });
+      }
+    } else {
+      toast({
+        title: "Empty Album",
+        description: "This album doesn't have any songs yet.",
+      });
+    }
+  };
+
+  // Play a playlist (first song)
+  const handlePlayPlaylist = async (playlist: Playlist) => {
+    if (playlist.songIds && playlist.songIds.length > 0) {
+      try {
+        const firstSongDoc = await getDoc(doc(db, "songs", playlist.songIds[0]));
+        if (firstSongDoc.exists()) {
+          const firstSong = { id: firstSongDoc.id, ...firstSongDoc.data() } as Song;
+          handlePlaySong(firstSong);
+        }
+      } catch (error) {
+        console.error("Error playing playlist:", error);
+        toast({
+          title: "Error",
+          description: "Failed to play playlist",
+          variant: "destructive",
+        });
+      }
+    } else {
+      toast({
+        title: "Empty Playlist",
+        description: "This playlist doesn't have any songs yet.",
+      });
     }
   };
 
@@ -260,66 +345,94 @@ export default function HomeScreen() {
     }
   };
 
-  // Fallback data when Firestore is empty
-  const loadFallbackData = () => {
-    const fallbackSongs: Song[] = [
-      {
-        id: "fallback1",
-        title: "Blinding Lights",
-        artist: "The Weeknd",
-        album: "After Hours",
-        coverImage: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
-        duration: "3:20",
-        plays: 45672,
-      },
-      {
-        id: "fallback2",
-        title: "Watermelon Sugar",
-        artist: "Harry Styles",
-        album: "Fine Line",
-        coverImage: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop",
-        duration: "2:54",
-        plays: 38934,
-      },
-      {
-        id: "fallback3",
-        title: "Levitating",
-        artist: "Dua Lipa",
-        album: "Future Nostalgia",
-        coverImage: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop",
-        duration: "3:23",
-        plays: 42156,
-      },
-      {
-        id: "fallback4",
-        title: "Good 4 U",
-        artist: "Olivia Rodrigo",
-        album: "SOUR",
-        coverImage: "https://images.unsplash.com/photo-1494232410401-ad00d5433cfa?w=300&h=300&fit=crop",
-        duration: "2:58",
-        plays: 39821,
-      },
-    ];
+  // Create sample data matching your schema
+  const createSampleData = async () => {
+    try {
+      console.log("Creating sample data...");
+      
+      // Sample songs
+      const sampleSongs = [
+        {
+          title: "Blinding Lights",
+          artist: "The Weeknd",
+          albumId: "album1",
+          coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
+          audioURL: "", // Firebase Storage URL would go here
+          createdAt: new Date(),
+        },
+        {
+          title: "Watermelon Sugar",
+          artist: "Harry Styles", 
+          albumId: "album2",
+          coverImageURL: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop",
+          audioURL: "",
+          createdAt: new Date(),
+        },
+        {
+          title: "Levitating",
+          artist: "Dua Lipa",
+          albumId: "album3", 
+          coverImageURL: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop",
+          audioURL: "",
+          createdAt: new Date(),
+        }
+      ];
 
-    const fallbackAlbums: Album[] = [
-      {
-        id: "album1",
-        title: "After Hours",
-        artist: "The Weeknd",
-        coverImage: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
-        songs: fallbackSongs.slice(0, 2),
-      },
-      {
-        id: "album2",
-        title: "Future Nostalgia",
-        artist: "Dua Lipa",
-        coverImage: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop",
-        songs: fallbackSongs.slice(2, 4),
-      },
-    ];
+      // Create songs in Firestore
+      const songIds: string[] = [];
+      for (let i = 0; i < sampleSongs.length; i++) {
+        const songRef = doc(collection(db, "songs"));
+        await setDoc(songRef, sampleSongs[i]);
+        songIds.push(songRef.id);
+      }
 
-    setSongs(fallbackSongs);
-    setAlbums(fallbackAlbums);
+      // Sample albums
+      const sampleAlbums = [
+        {
+          name: "After Hours",
+          artist: "The Weeknd",
+          coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
+          createdAt: new Date(),
+          songIds: [songIds[0]], // Reference to song
+        },
+        {
+          name: "Fine Line", 
+          artist: "Harry Styles",
+          coverImageURL: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop",
+          createdAt: new Date(),
+          songIds: [songIds[1]],
+        }
+      ];
+
+      // Create albums in Firestore
+      for (const album of sampleAlbums) {
+        const albumRef = doc(collection(db, "albums"));
+        await setDoc(albumRef, album);
+      }
+
+      // Sample playlist (if user is logged in)
+      if (currentUser) {
+        const samplePlaylist = {
+          name: "My Favorites",
+          createdBy: currentUser.uid,
+          coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
+          songIds: songIds.slice(0, 2), // Reference to songs
+        };
+
+        const playlistRef = doc(collection(db, "playlists"));
+        await setDoc(playlistRef, samplePlaylist);
+      }
+
+      // Reload data
+      await loadFirestoreData();
+      
+      toast({
+        title: "Sample data created",
+        description: "Added sample songs, albums, and playlists",
+      });
+    } catch (error) {
+      console.error("Error creating sample data:", error);
+    }
   };
 
   if (isLoading) {
@@ -427,9 +540,9 @@ export default function HomeScreen() {
             >
               <h1 className="text-4xl font-bold mb-2">{greeting}</h1>
               <p className="text-gray-400">Discover amazing music from our collection</p>
-            </motion.div>
+            </div>
 
-            {/* Data Source Info */}
+            {/* Schema Info */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -439,9 +552,9 @@ export default function HomeScreen() {
               <div className="flex items-center space-x-2">
                 <AlertCircle className="w-5 h-5 text-neon-green" />
                 <div>
-                  <p className="text-neon-green font-medium">Connected to Firebase Firestore</p>
+                  <p className="text-neon-green font-medium">Firestore Schema Active</p>
                   <p className="text-gray-300 text-sm">
-                    Showing {songs.length} songs and {albums.length} albums from your collection
+                    Collections: {songs.length} songs, {albums.length} albums, {playlists.length} playlists
                   </p>
                 </div>
               </div>
@@ -470,16 +583,12 @@ export default function HomeScreen() {
                       key={album.id}
                       whileHover={{ scale: 1.05 }}
                       className="bg-white/5 rounded-lg p-4 hover:bg-white/10 transition-all cursor-pointer group"
-                      onClick={() => {
-                        if (album.songs && album.songs.length > 0) {
-                          handlePlaySong(album.songs[0]);
-                        }
-                      }}
+                      onClick={() => handlePlayAlbum(album)}
                     >
                       <div className="relative mb-4">
                         <img
-                          src={album.coverImage}
-                          alt={album.title}
+                          src={album.coverImageURL}
+                          alt={album.name}
                           className="w-full aspect-square rounded-lg object-cover"
                         />
                         <button className="absolute bottom-2 right-2 w-12 h-12 bg-neon-green rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all shadow-lg">
@@ -487,10 +596,63 @@ export default function HomeScreen() {
                         </button>
                       </div>
                       <h3 className="font-semibold mb-1 truncate">
-                        {album.title}
+                        {album.name}
                       </h3>
                       <p className="text-gray-400 text-sm truncate">
                         {album.artist}
+                      </p>
+                      <p className="text-gray-500 text-xs mt-1">
+                        {album.songIds.length} songs
+                      </p>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.section>
+            )}
+
+            {/* Playlists Section */}
+            {playlists.length > 0 && (
+              <motion.section
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.45 }}
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold">Playlists</h2>
+                  <Link
+                    to="/library"
+                    className="text-gray-400 hover:text-white text-sm font-medium"
+                  >
+                    Show all
+                  </Link>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                  {playlists.map((playlist) => (
+                    <motion.div
+                      key={playlist.id}
+                      whileHover={{ scale: 1.05 }}
+                      className="bg-white/5 rounded-lg p-4 hover:bg-white/10 transition-all cursor-pointer group"
+                      onClick={() => handlePlayPlaylist(playlist)}
+                    >
+                      <div className="relative mb-4">
+                        <img
+                          src={playlist.coverImageURL}
+                          alt={playlist.name}
+                          className="w-full aspect-square rounded-lg object-cover"
+                        />
+                        <button className="absolute bottom-2 right-2 w-12 h-12 bg-neon-blue rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all shadow-lg">
+                          <Play className="w-5 h-5 text-black ml-0.5" />
+                        </button>
+                      </div>
+                      <h3 className="font-semibold mb-1 truncate">
+                        {playlist.name}
+                      </h3>
+                      <p className="text-gray-400 text-sm truncate">
+                        Playlist
+                      </p>
+                      <p className="text-gray-500 text-xs mt-1">
+                        {playlist.songIds.length} songs
                       </p>
                     </motion.div>
                   ))}
@@ -531,7 +693,7 @@ export default function HomeScreen() {
 
                     <div className="relative">
                       <img
-                        src={song.coverImage}
+                        src={song.coverImageURL}
                         alt={song.title}
                         className="w-12 h-12 rounded object-cover"
                       />
@@ -569,10 +731,6 @@ export default function HomeScreen() {
                         />
                       </button>
                       
-                      <span className="text-gray-400 text-sm w-12 text-right">
-                        {song.duration}
-                      </span>
-                      
                       <button className="p-1 hover:bg-white/10 rounded">
                         <MoreHorizontal className="w-4 h-4 text-gray-400" />
                       </button>
@@ -583,11 +741,17 @@ export default function HomeScreen() {
               
               {songs.length === 0 && (
                 <div className="text-center py-12">
-                  <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <Music className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-xl font-semibold mb-2">No songs found</h3>
-                  <p className="text-gray-400">
+                  <p className="text-gray-400 mb-4">
                     Add some songs to your Firestore "songs" collection to see them here.
                   </p>
+                  <button
+                    onClick={createSampleData}
+                    className="bg-neon-green text-black px-6 py-2 rounded-full font-medium hover:scale-105 transition-transform"
+                  >
+                    Create Sample Data
+                  </button>
                 </div>
               )}
             </motion.section>
