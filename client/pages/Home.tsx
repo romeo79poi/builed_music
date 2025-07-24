@@ -540,7 +540,7 @@ export default function HomeScreen() {
             >
               <h1 className="text-4xl font-bold mb-2">{greeting}</h1>
               <p className="text-gray-400">Discover amazing music from our collection</p>
-            </div>
+            </motion.div>
 
             {/* Schema Info */}
             <motion.div
