@@ -185,37 +185,46 @@ export const loginWithEmailAndPassword = async (
 
     // Fallback to backend authentication
     console.log("🔄 Attempting backend authentication...");
-    const result = await apiPost("/api/auth/login", { email, password });
 
-    if (result.success && result.data) {
-      console.log("✅ Backend authentication successful");
+    try {
+      const result = await apiPost("/api/auth/login", { email, password });
 
-      const data = result.data;
+      if (result.success && result.data) {
+        console.log("✅ Backend authentication successful");
 
-      // Store the JWT token
-      if (data.token) {
-        localStorage.setItem("token", data.token);
+        const data = result.data;
+
+        // Store the JWT token
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+        }
+
+        // Create a user-like object for consistency
+        const mockUser = {
+          uid: data.user?.id || `backend-${Date.now()}`,
+          email: data.user?.email || email,
+          displayName: data.user?.name || data.user?.displayName || "User",
+          emailVerified: true,
+          photoURL: data.user?.profilePicture || null,
+        } as User;
+
+        return {
+          success: true,
+          user: mockUser,
+          token: data.token,
+        };
+      } else {
+        console.error("❌ Backend authentication failed:", result.error);
+        return {
+          success: false,
+          error: result.error || "Login failed",
+        };
       }
-
-      // Create a user-like object for consistency
-      const mockUser = {
-        uid: data.user?.id || `backend-${Date.now()}`,
-        email: data.user?.email || email,
-        displayName: data.user?.name || data.user?.displayName || "User",
-        emailVerified: true,
-        photoURL: data.user?.profilePicture || null,
-      } as User;
-
-      return {
-        success: true,
-        user: mockUser,
-        token: data.token,
-      };
-    } else {
-      console.error("❌ Backend authentication failed:", result.error);
+    } catch (backendError: any) {
+      console.error("❌ Backend authentication error:", backendError);
       return {
         success: false,
-        error: result.error || "Login failed",
+        error: backendError.message || "Backend authentication failed",
       };
     }
   } catch (error: any) {
