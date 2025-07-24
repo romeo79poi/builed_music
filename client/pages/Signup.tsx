@@ -12,6 +12,7 @@ import {
   User,
   Lock,
   Phone,
+  RefreshCw,
 } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import PasswordStrengthIndicator from "../components/PasswordStrengthIndicator";
@@ -30,7 +31,9 @@ import {
   initializeRecaptcha,
   sendPhoneOTP,
   verifyPhoneOTP,
+  sendFirebaseEmailVerification,
 } from "../lib/auth";
+import { auth, db } from "../lib/firebase";
 
 type SignupStep =
   | "method"
@@ -93,6 +96,9 @@ export default function Signup() {
   const [errorAlert, setErrorAlert] = useState<string | null>(null);
   const [confirmationResult, setConfirmationResult] = useState<any>(null);
   const [useFirebaseAuth, setUseFirebaseAuth] = useState(true);
+  const [verificationUser, setVerificationUser] = useState<any>(null);
+  const [emailVerificationSent, setEmailVerificationSent] = useState(false);
+  const [phoneVerificationSent, setPhoneVerificationSent] = useState(false);
 
   // Validation functions
   const validateEmail = (email: string): boolean => {
@@ -279,12 +285,21 @@ export default function Signup() {
           return;
         }
 
+        // Format phone number for Firebase (must include country code)
+        let formattedPhone = formData.phone.replace(/\D/g, "");
+        if (!formattedPhone.startsWith("1") && formattedPhone.length === 10) {
+          formattedPhone = "+1" + formattedPhone;
+        } else if (!formattedPhone.startsWith("+")) {
+          formattedPhone = "+" + formattedPhone;
+        }
+
         // Send Firebase OTP
-        const result = await sendPhoneOTP(formData.phone);
+        const result = await sendPhoneOTP(formattedPhone);
 
         if (result.success && result.confirmationResult) {
           setConfirmationResult(result.confirmationResult);
           setOtpSent(true);
+          setPhoneVerificationSent(true);
           setResendTimer(60);
           toast({
             title: "Verification code sent!",
@@ -333,7 +348,7 @@ export default function Signup() {
     }
   };
 
-  // Verify OTP
+  // Verify OTP with enhanced error handling
   const verifyOTP = async () => {
     if (!validateOTP(formData.otp)) return;
 
@@ -345,13 +360,20 @@ export default function Signup() {
 
         if (result.success) {
           setPhoneVerified(true);
+          setPhoneVerificationSent(false); // Reset verification sent status
+
           toast({
-            title: "Phone verified!",
-            description: "Your phone number has been successfully verified.",
+            title: "Phone verified successfully! ✅",
+            description: "Your phone number has been verified.",
           });
 
           if (signupMethod === "phone") {
             // For phone signup with Firebase, the user is already created
+            // Store the verified user
+            if (result.user) {
+              setVerificationUser(result.user);
+            }
+
             toast({
               title: "Account created successfully! 🎉",
               description: "Welcome to Music Catch!",
@@ -360,12 +382,21 @@ export default function Signup() {
             setTimeout(() => {
               navigate("/profile");
             }, 2000);
+          } else {
+            // For email signup, proceed to next step
+            setCurrentStep("profile");
           }
         } else {
           setErrors((prev) => ({
             ...prev,
-            otp: result.error || "Verification failed",
+            otp: result.error || "Invalid verification code. Please try again.",
           }));
+
+          toast({
+            title: "Verification failed",
+            description: result.error || "Invalid verification code",
+            variant: "destructive",
+          });
         }
       } else {
         // Use backend verification
@@ -399,11 +430,24 @@ export default function Signup() {
   // Google signup handler
   const handleGoogleSignup = async () => {
     setIsLoading(true);
+    setErrorAlert(null); // Clear any existing errors
     console.log("🚀 Starting Google sign-up process...");
+
+    // Add timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      setIsLoading(false);
+      setErrorAlert(
+        "Google sign-in is taking too long. Please try again or use email signup.",
+      );
+      console.log("⏰ Google sign-in timeout");
+    }, 30000); // 30 second timeout
 
     try {
       // Try Firebase first, then fallback to backend simulation
       const result = await signInWithGoogle();
+
+      // Clear timeout if we got a response
+      clearTimeout(timeoutId);
 
       console.log("📋 Google sign-in result:", {
         success: result.success,
@@ -479,6 +523,20 @@ export default function Signup() {
       } else {
         console.error("❌ Google sign-in failed:", result.error);
 
+        // Set error alert for domain authorization issues
+        if (
+          result.error?.includes("domain") ||
+          result.error?.includes("unauthorized")
+        ) {
+          setErrorAlert(
+            "Google sign-in is not available on this domain. Please use email signup instead.",
+          );
+        } else {
+          setErrorAlert(
+            result.error || "Google sign-in failed. Please try email signup.",
+          );
+        }
+
         toast({
           title: "Google sign-in failed",
           description:
@@ -497,9 +555,17 @@ export default function Signup() {
       } else if (error.message?.includes("popup")) {
         errorMessage =
           "Sign-in popup was blocked. Please allow popups and try again.";
+      } else if (
+        error.message?.includes("domain") ||
+        error.message?.includes("unauthorized")
+      ) {
+        errorMessage =
+          "Google sign-in not available on this domain. Use email signup.";
       } else if (error.message) {
         errorMessage = error.message;
       }
+
+      setErrorAlert(errorMessage);
 
       toast({
         title: "Google sign-in error",
@@ -507,6 +573,7 @@ export default function Signup() {
         variant: "destructive",
       });
     } finally {
+      clearTimeout(timeoutId); // Clear timeout in case it's still running
       setIsLoading(false);
       console.log("🏁 Google sign-up process completed");
     }
@@ -515,6 +582,9 @@ export default function Signup() {
   // Step handlers
   const handleMethodStep = (method: SignupMethod) => {
     setSignupMethod(method);
+    setErrorAlert(null); // Clear any errors when switching methods
+    setIsLoading(false); // Reset loading state
+
     if (method === "email") {
       setCurrentStep("email");
     } else {
@@ -725,9 +795,17 @@ export default function Signup() {
               formData.email,
               formData.password,
               formData.name,
+              formData.username,
+              formData.phone,
             );
 
             if (result.success) {
+              // Store user for email verification
+              if (result.user) {
+                setVerificationUser(result.user);
+                setEmailVerificationSent(true);
+              }
+
               toast({
                 title: "Account created successfully! 🎉",
                 description: `Welcome to Music Catch, ${formData.name}! Please check your email for verification.`,
@@ -811,6 +889,50 @@ export default function Signup() {
     }
   };
 
+  // Resend email verification using Firebase
+  const handleResendEmailVerification = async () => {
+    if (resendTimer > 0) return;
+
+    if (!verificationUser) {
+      toast({
+        title: "Error",
+        description: "No user account found to send verification to",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const result = await sendFirebaseEmailVerification(verificationUser);
+
+      if (result.success) {
+        toast({
+          title: "Verification email sent!",
+          description: "Please check your email for the verification link.",
+        });
+        setResendTimer(60);
+        setEmailVerificationSent(true);
+      } else {
+        toast({
+          title: "Failed to send verification",
+          description: result.error || "Please try again",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Resend email verification error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to send verification email",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleResendVerification = async () => {
     if (resendTimer > 0) return;
 
@@ -860,6 +982,44 @@ export default function Signup() {
   };
 
   // Timer for resend functionality
+  // Check Firebase connection on mount
+  useEffect(() => {
+    const checkFirebaseConnection = async () => {
+      try {
+        // Test Firebase connection
+        if (!auth || !db) {
+          console.error("Firebase not properly initialized");
+          setErrorAlert(
+            "Authentication service unavailable. Try email signup or refresh the page.",
+          );
+        } else {
+          console.log("✅ Firebase services initialized successfully");
+
+          // Test auth connection by checking current user
+          try {
+            const currentUser = auth.currentUser;
+            console.log(
+              "Firebase auth status:",
+              currentUser ? "Connected" : "Ready",
+            );
+          } catch (authError) {
+            console.warn("Firebase auth test failed:", authError);
+            setErrorAlert(
+              "Google sign-in may not work. Please use email signup.",
+            );
+          }
+        }
+      } catch (error) {
+        console.error("Firebase initialization error:", error);
+        setErrorAlert(
+          "Authentication service error. Please use email signup or refresh the page.",
+        );
+      }
+    };
+
+    checkFirebaseConnection();
+  }, []);
+
   useEffect(() => {
     if (resendTimer > 0) {
       const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
@@ -868,14 +1028,20 @@ export default function Signup() {
   }, [resendTimer]);
 
   const stepTitles = {
+    method: "Choose signup method",
     email: "What's your email?",
+    phone: "What's your phone number?",
+    "phone-verify": "Verify your phone",
     profile: "Tell us about yourself",
     verification: "Verify your email",
     password: "Create your password",
   };
 
   const stepDescriptions = {
+    method: "Sign up with email, phone, or social media",
     email: "We'll send you a verification email",
+    phone: "We'll send you a verification code",
+    "phone-verify": "Enter the 6-digit code we sent to your phone",
     profile: "Help others find you on Music Catch",
     verification: "Check your email and click the verification link",
     password: "Choose a secure password for your account",
@@ -944,7 +1110,10 @@ export default function Signup() {
               className="w-full h-12 sm:h-14 bg-slate-800/70 hover:bg-slate-700/70 rounded-lg flex items-center justify-center text-white font-medium transition-colors border border-slate-600 disabled:opacity-50"
             >
               {isLoading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
+                <div className="flex items-center space-x-2">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Connecting to Google...</span>
+                </div>
               ) : (
                 <>
                   <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
@@ -1015,14 +1184,72 @@ export default function Signup() {
                 <div className="flex-1 h-px bg-slate-600"></div>
               </div>
 
+              {/* Loading State Reset */}
+              {isLoading && (
+                <div className="bg-yellow-500/10 border border-yellow-500 rounded-lg p-4 mb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Loader2 className="w-5 h-5 text-yellow-500 mr-3 animate-spin" />
+                      <div>
+                        <p className="text-yellow-500 text-sm font-medium">
+                          Google sign-in in progress...
+                        </p>
+                        <p className="text-yellow-400 text-xs">
+                          If this takes too long, try the reset button
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setIsLoading(false);
+                        setErrorAlert(
+                          "Google sign-in cancelled. Please try again or use email signup.",
+                        );
+                      }}
+                      className="text-yellow-500 hover:text-yellow-400 text-xs bg-yellow-500/20 px-2 py-1 rounded"
+                    >
+                      Reset
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Error Alert */}
+              {errorAlert && (
+                <div className="bg-red-500/10 border border-red-500 rounded-lg p-4 mb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <AlertCircle className="w-5 h-5 text-red-500 mr-3" />
+                      <p className="text-red-500 text-sm font-medium">
+                        {errorAlert}
+                      </p>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => handleMethodStep("email")}
+                        className="text-red-500 hover:text-red-400 text-xs bg-red-500/20 px-2 py-1 rounded"
+                      >
+                        Use Email
+                      </button>
+                      <button
+                        onClick={() => setErrorAlert(null)}
+                        className="text-red-500 hover:text-red-400 ml-2"
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Method Selection Buttons */}
               <div className="space-y-3">
                 <button
                   onClick={() => handleMethodStep("email")}
-                  className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg flex items-center justify-center text-white hover:bg-slate-700/50 transition-colors"
+                  className="w-full h-12 sm:h-14 bg-gradient-to-r from-neon-green to-neon-blue text-black font-semibold rounded-lg flex items-center justify-center hover:scale-105 transition-transform"
                 >
-                  <Mail className="w-5 h-5 mr-3 text-neon-green" />
-                  Continue with Email
+                  <Mail className="w-5 h-5 mr-3" />
+                  Continue with Email (Recommended)
                 </button>
 
                 <button
@@ -1198,9 +1425,15 @@ export default function Signup() {
                 <p className="text-white mb-2 text-sm sm:text-base">
                   Code sent to:
                 </p>
-                <p className="text-neon-green font-medium text-sm sm:text-base">
+                <p className="text-neon-green font-medium text-sm sm:text-base mb-2">
                   {formatPhoneDisplay(formData.phone)}
                 </p>
+                {phoneVerified && (
+                  <div className="flex items-center justify-center space-x-2 text-green-500 text-sm">
+                    <CheckCircle className="w-4 h-4" />
+                    <span>Phone number verified!</span>
+                  </div>
+                )}
               </div>
 
               <div>
@@ -1246,11 +1479,18 @@ export default function Signup() {
                 <button
                   onClick={sendOTP}
                   disabled={resendTimer > 0 || isLoading}
-                  className="text-neon-green hover:text-emerald-400 text-xs sm:text-sm disabled:opacity-50"
+                  className="text-neon-green hover:text-emerald-400 text-xs sm:text-sm disabled:opacity-50 flex items-center space-x-1 mx-auto"
                 >
-                  {resendTimer > 0
-                    ? `Resend in ${resendTimer}s`
-                    : "Resend code"}
+                  {isLoading ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <RefreshCw className="w-3 h-3" />
+                  )}
+                  <span>
+                    {resendTimer > 0
+                      ? `Resend in ${resendTimer}s`
+                      : "Resend OTP"}
+                  </span>
                 </button>
               </div>
             </motion.div>
@@ -1546,6 +1786,32 @@ export default function Signup() {
                 )}
               </div>
 
+              {/* Email Verification Status */}
+              {emailVerificationSent && (
+                <div className="bg-blue-500/10 border border-blue-500 rounded-lg p-4 mb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Mail className="w-5 h-5 text-blue-500 mr-3" />
+                      <div>
+                        <p className="text-blue-500 text-sm font-medium">
+                          Email verification sent
+                        </p>
+                        <p className="text-blue-400 text-xs">
+                          Check your email and click the verification link
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={handleResendEmailVerification}
+                      disabled={resendTimer > 0 || isLoading}
+                      className="text-blue-500 hover:text-blue-400 text-xs font-medium disabled:opacity-50"
+                    >
+                      {resendTimer > 0 ? `Resend in ${resendTimer}s` : "Resend"}
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* Red Error Alert Box */}
               {errorAlert && (
                 <div className="bg-red-500/10 border border-red-500 rounded-lg p-4 mb-4">
@@ -1597,7 +1863,17 @@ export default function Signup() {
       </div>
 
       {/* reCAPTCHA container for Firebase phone auth */}
-      <div id="recaptcha-container"></div>
+      <div
+        id="recaptcha-container"
+        className="fixed bottom-4 right-4 z-50"
+      ></div>
+
+      {/* Additional reCAPTCHA info for users */}
+      {phoneVerificationSent && (
+        <div className="fixed bottom-20 left-4 right-4 bg-black/80 backdrop-blur-sm border border-white/20 rounded-lg p-3 text-white text-xs text-center z-40">
+          <p>📱 SMS verification powered by Google reCAPTCHA</p>
+        </div>
+      )}
     </div>
   );
 }

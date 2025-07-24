@@ -102,18 +102,29 @@ async function parseResponse<T>(response: Response): Promise<ApiResponse<T>> {
   const contentType = response.headers.get("content-type") || "";
 
   let data: any = null;
-  let errorMessage = "";
+  let parseError: string | null = null;
 
-  // Try to parse response body safely
+  // Try to parse response body safely - only read once
   try {
-    if (contentLength === "0") {
+    // Check if the response body is already consumed
+    if (response.bodyUsed) {
+      console.warn("Response body already consumed, cannot parse");
+      parseError = "Response body already read";
+      data = null;
+    } else if (contentLength === "0") {
       // Empty response
       data = null;
     } else if (contentType.includes("application/json")) {
       // Parse JSON response
       const text = await response.text();
       if (text.trim()) {
-        data = JSON.parse(text);
+        try {
+          data = JSON.parse(text);
+        } catch (jsonError) {
+          console.error("JSON parse error:", jsonError);
+          parseError = "Invalid JSON response";
+          data = text; // Fallback to raw text
+        }
       } else {
         data = null;
       }
@@ -121,41 +132,55 @@ async function parseResponse<T>(response: Response): Promise<ApiResponse<T>> {
       // Get text response for non-JSON
       data = await response.text();
     }
-  } catch (parseError: any) {
-    console.error("Failed to parse response:", parseError);
+  } catch (error: any) {
+    console.error("Failed to parse response:", error);
 
-    // If we can't parse the response, create an error
-    if (!response.ok) {
-      errorMessage = `Server error (${status}): Unable to parse response`;
+    // Handle specific error types
+    if (error.message?.includes("body stream already read")) {
+      parseError = "Response body already consumed";
     } else {
-      errorMessage = "Invalid response format";
+      parseError = error.message || "Unable to read response";
     }
+
+    // Don't try to read the response again, just set data to null
+    data = null;
   }
 
   // Handle HTTP errors
   if (!response.ok) {
-    let error = errorMessage;
+    let errorMessage = "";
 
-    if (!error) {
+    // If we have a parse error, use that
+    if (parseError) {
+      errorMessage = `Server error (${status}): ${parseError}`;
+    } else {
       // Try to extract error from parsed data
       if (data && typeof data === "object") {
-        error =
+        errorMessage =
           data.message || data.error || data.detail || response.statusText;
       } else if (data && typeof data === "string") {
-        error = data;
+        errorMessage = data;
       } else {
-        error = response.statusText || `HTTP ${status} Error`;
+        errorMessage = response.statusText || `HTTP ${status} Error`;
       }
     }
 
     return {
       success: false,
-      error,
+      error: errorMessage,
       status,
     };
   }
 
-  // Success response
+  // Success response - but check for parse errors
+  if (parseError) {
+    return {
+      success: false,
+      error: `Response parse error: ${parseError}`,
+      status,
+    };
+  }
+
   return {
     success: true,
     data: data,

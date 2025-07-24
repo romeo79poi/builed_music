@@ -18,14 +18,18 @@ export interface UserData {
   name: string;
   username: string;
   email: string;
-  phoneNumber?: string;
+  phone: string;
+  profileImageURL: string;
   createdAt: any;
+  verified: boolean;
 }
 
 export const signUpWithEmailAndPassword = async (
   email: string,
   password: string,
   name: string,
+  username?: string,
+  phone?: string,
 ): Promise<{ success: boolean; user?: User; error?: string }> => {
   try {
     // Check if Firebase is configured
@@ -48,12 +52,15 @@ export const signUpWithEmailAndPassword = async (
       console.log({ userCredential });
       const user = userCredential.user;
 
-      // Store user data in Firestore with exact required fields
-      const userDocData = {
+      // Store user data in Firestore with all required fields
+      const userDocData: UserData = {
         name: name,
+        username: username || email.split("@")[0], // Default username from email if not provided
         email: user.email!,
-        uid: user.uid,
+        phone: phone || "",
+        profileImageURL: user.photoURL || "",
         createdAt: serverTimestamp(),
+        verified: false, // New users start unverified
       };
 
       await setDoc(doc(db, "users", user.uid), userDocData);
@@ -180,37 +187,46 @@ export const loginWithEmailAndPassword = async (
 
     // Fallback to backend authentication
     console.log("🔄 Attempting backend authentication...");
-    const result = await apiPost("/api/auth/login", { email, password });
 
-    if (result.success && result.data) {
-      console.log("✅ Backend authentication successful");
+    try {
+      const result = await apiPost("/api/auth/login", { email, password });
 
-      const data = result.data;
+      if (result.success && result.data) {
+        console.log("✅ Backend authentication successful");
 
-      // Store the JWT token
-      if (data.token) {
-        localStorage.setItem("token", data.token);
+        const data = result.data;
+
+        // Store the JWT token
+        if (data.token) {
+          localStorage.setItem("token", data.token);
+        }
+
+        // Create a user-like object for consistency
+        const mockUser = {
+          uid: data.user?.id || `backend-${Date.now()}`,
+          email: data.user?.email || email,
+          displayName: data.user?.name || data.user?.displayName || "User",
+          emailVerified: true,
+          photoURL: data.user?.profilePicture || null,
+        } as User;
+
+        return {
+          success: true,
+          user: mockUser,
+          token: data.token,
+        };
+      } else {
+        console.error("❌ Backend authentication failed:", result.error);
+        return {
+          success: false,
+          error: result.error || "Login failed",
+        };
       }
-
-      // Create a user-like object for consistency
-      const mockUser = {
-        uid: data.user?.id || `backend-${Date.now()}`,
-        email: data.user?.email || email,
-        displayName: data.user?.name || data.user?.displayName || "User",
-        emailVerified: true,
-        photoURL: data.user?.profilePicture || null,
-      } as User;
-
-      return {
-        success: true,
-        user: mockUser,
-        token: data.token,
-      };
-    } else {
-      console.error("❌ Backend authentication failed:", result.error);
+    } catch (backendError: any) {
+      console.error("❌ Backend authentication error:", backendError);
       return {
         success: false,
-        error: result.error || "Login failed",
+        error: backendError.message || "Backend authentication failed",
       };
     }
   } catch (error: any) {
@@ -291,12 +307,15 @@ export const signInWithGoogle = async (): Promise<{
       let isNewUser = false;
 
       if (!userDoc.exists()) {
-        // Create new user document with .set()
-        const userData = {
+        // Create new user document with all required fields
+        const userData: UserData = {
           name: user.displayName || "",
+          username: user.email?.split("@")[0] || "",
           email: user.email || "",
-          uid: user.uid,
+          phone: "",
+          profileImageURL: user.photoURL || "",
           createdAt: serverTimestamp(),
+          verified: user.emailVerified || false, // Google users may be pre-verified
         };
 
         await setDoc(userDocRef, userData);
@@ -458,6 +477,8 @@ export const signUpWithEmailAndPasswordWithVerification = async (
   email: string,
   password: string,
   name: string,
+  username?: string,
+  phone?: string,
 ): Promise<{ success: boolean; user?: User; error?: string }> => {
   try {
     // First create the user
@@ -465,6 +486,8 @@ export const signUpWithEmailAndPasswordWithVerification = async (
       email,
       password,
       name,
+      username,
+      phone,
     );
 
     if (!signupResult.success) {
@@ -605,10 +628,14 @@ export const verifyPhoneOTP = async (
       const userDoc = await getDoc(userDocRef);
 
       if (!userDoc.exists()) {
-        const userData = {
-          phoneNumber: result.user.phoneNumber || "",
-          uid: result.user.uid,
+        const userData: UserData = {
+          name: "",
+          username: result.user.phoneNumber?.replace(/[^\d]/g, "") || "",
+          email: "",
+          phone: result.user.phoneNumber || "",
+          profileImageURL: "",
           createdAt: serverTimestamp(),
+          verified: true, // Phone users are verified through OTP
         };
 
         await setDoc(userDocRef, userData);

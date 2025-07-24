@@ -10,10 +10,16 @@ import {
   Phone,
   Wifi,
   WifiOff,
+  AlertCircle,
+  RefreshCw,
 } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useFirebase } from "../context/FirebaseContext";
-import { loginWithEmailAndPassword, signInWithGoogle } from "../lib/auth";
+import {
+  loginWithEmailAndPassword,
+  signInWithGoogle,
+  sendFirebaseEmailVerification,
+} from "../lib/auth";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { useToast } from "../hooks/use-toast";
@@ -35,6 +41,9 @@ export default function Login() {
   const [isOnline, setIsOnline] = useState(
     ConnectivityChecker.getConnectionStatus(),
   );
+  const [verificationNeeded, setVerificationNeeded] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [sendingVerification, setSendingVerification] = useState(false);
 
   // Save user profile data to Firestore
   const saveUserProfile = async (uid: string, profileData: any) => {
@@ -60,7 +69,7 @@ export default function Login() {
     }
   };
 
-  // Get existing user profile data
+  // Get existing user profile data from Firestore
   const getUserProfile = async (uid: string) => {
     try {
       if (!db) return null;
@@ -69,12 +78,55 @@ export default function Login() {
       const userDoc = await getDoc(userDocRef);
 
       if (userDoc.exists()) {
+        console.log("✅ User profile fetched from Firestore:", userDoc.data());
         return userDoc.data();
       }
+      console.warn("⚠️ No user profile found in Firestore for UID:", uid);
       return null;
     } catch (error) {
       console.error("❌ Error getting user profile:", error);
       return null;
+    }
+  };
+
+  // Check if email verification is required
+  const checkVerificationStatus = (user: any) => {
+    if (!user.emailVerified && user.email) {
+      setVerificationNeeded(true);
+      setCurrentUser(user);
+      return false;
+    }
+    return true;
+  };
+
+  // Resend email verification
+  const handleResendVerification = async () => {
+    if (!currentUser) return;
+
+    setSendingVerification(true);
+    try {
+      const result = await sendFirebaseEmailVerification(currentUser);
+      if (result.success) {
+        toast({
+          title: "Verification email sent!",
+          description:
+            "Please check your email and click the verification link.",
+        });
+      } else {
+        toast({
+          title: "Failed to send verification",
+          description: result.error || "Please try again",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to send verification email",
+        variant: "destructive",
+      });
+    } finally {
+      setSendingVerification(false);
     }
   };
 
@@ -110,28 +162,47 @@ export default function Login() {
       const result = await loginWithEmailAndPassword(email, password);
 
       if (result.success && result.user) {
+        // Check email verification status
+        if (!checkVerificationStatus(result.user)) {
+          toast({
+            title: "Email verification required",
+            description: "Please verify your email before continuing",
+            variant: "destructive",
+          });
+          return;
+        }
+
         // Store token if provided (for backend auth)
         if (result.token) {
           localStorage.setItem("token", result.token);
         }
 
-        const existingProfile = await getUserProfile(result.user.uid);
+        // Fetch existing user profile from Firestore
+        const userProfile = await getUserProfile(result.user.uid);
 
-        const profileData = {
-          email: result.user.email,
-          displayName: result.user.displayName || "User",
-          photoURL: result.user.photoURL || "",
-          provider: "email",
-          uid: result.user.uid,
-        };
+        if (userProfile) {
+          console.log("✅ User data loaded from Firestore:", userProfile);
+        } else {
+          // Create profile if it doesn't exist (fallback)
+          const profileData = {
+            name: result.user.displayName || "User",
+            username: result.user.email?.split("@")[0] || "",
+            email: result.user.email || "",
+            phone: "",
+            profileImageURL: result.user.photoURL || "",
+            createdAt: serverTimestamp(),
+          };
 
-        await saveUserProfile(result.user.uid, profileData);
+          await saveUserProfile(result.user.uid, profileData);
+          console.log("✅ Created missing user profile:", profileData);
+        }
 
         toast({
           title: "Welcome back!",
           description: "Successfully logged in",
         });
 
+        // Redirect to homepage
         navigate("/home");
       } else {
         const errorMessage =
@@ -176,31 +247,48 @@ export default function Login() {
       const result = await signInWithGoogle();
 
       if (result.success && result.user) {
+        // Google accounts are typically verified, but check anyway
+        if (!result.user.emailVerified && result.user.email) {
+          console.warn("⚠️ Google user email not verified, but proceeding...");
+        }
+
         // Store token if provided (for backend auth)
         if (result.token) {
           localStorage.setItem("token", result.token);
         }
 
-        const existingProfile = await getUserProfile(result.user.uid);
+        // Fetch existing user profile from Firestore
+        const userProfile = await getUserProfile(result.user.uid);
 
-        const profileData = {
-          email: result.user.email,
-          displayName:
-            result.user.displayName ||
-            result.user.email?.split("@")[0] ||
-            "User",
-          photoURL: result.user.photoURL || "",
-          provider: "google",
-          uid: result.user.uid,
-        };
+        if (userProfile) {
+          console.log(
+            "✅ Google user data loaded from Firestore:",
+            userProfile,
+          );
+        } else {
+          // Create profile if it doesn't exist (for new Google users)
+          const profileData = {
+            name:
+              result.user.displayName ||
+              result.user.email?.split("@")[0] ||
+              "User",
+            username: result.user.email?.split("@")[0] || "",
+            email: result.user.email || "",
+            phone: "",
+            profileImageURL: result.user.photoURL || "",
+            createdAt: serverTimestamp(),
+          };
 
-        await saveUserProfile(result.user.uid, profileData);
+          await saveUserProfile(result.user.uid, profileData);
+          console.log("✅ Created Google user profile:", profileData);
+        }
 
         toast({
           title: "Welcome!",
           description: "Successfully logged in with Google",
         });
 
+        // Redirect to homepage
         navigate("/home");
       } else {
         const errorMessage =
@@ -486,6 +574,45 @@ export default function Login() {
             >
               ← Back to other options
             </button>
+          </motion.div>
+        )}
+
+        {/* Email Verification Required */}
+        {verificationNeeded && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mt-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg"
+          >
+            <div className="flex items-start space-x-3">
+              <AlertCircle className="w-5 h-5 text-yellow-500 mt-0.5" />
+              <div className="flex-1">
+                <h4 className="text-yellow-500 font-medium text-sm">
+                  Email Verification Required
+                </h4>
+                <p className="text-yellow-200 text-sm mt-1">
+                  Please verify your email address to continue. Check your inbox
+                  for a verification link.
+                </p>
+                <button
+                  onClick={handleResendVerification}
+                  disabled={sendingVerification}
+                  className="mt-3 flex items-center space-x-2 text-yellow-500 hover:text-yellow-400 text-sm font-medium disabled:opacity-50"
+                >
+                  {sendingVerification ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <RefreshCw className="w-4 h-4" />
+                  )}
+                  <span>
+                    {sendingVerification
+                      ? "Sending..."
+                      : "Resend verification email"}
+                  </span>
+                </button>
+              </div>
+            </div>
           </motion.div>
         )}
 
