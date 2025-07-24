@@ -18,9 +18,10 @@ export interface UserData {
   name: string;
   username: string;
   email: string;
-  phone?: string;
+  phone: string;
+  profileImageURL: string;
   createdAt: any;
-  profileImageURL?: string;
+  verified: boolean;
 }
 
 export const signUpWithEmailAndPassword = async (
