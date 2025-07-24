@@ -1611,6 +1611,32 @@ export default function Signup() {
                 )}
               </div>
 
+              {/* Email Verification Status */}
+              {emailVerificationSent && (
+                <div className="bg-blue-500/10 border border-blue-500 rounded-lg p-4 mb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Mail className="w-5 h-5 text-blue-500 mr-3" />
+                      <div>
+                        <p className="text-blue-500 text-sm font-medium">
+                          Email verification sent
+                        </p>
+                        <p className="text-blue-400 text-xs">
+                          Check your email and click the verification link
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={handleResendEmailVerification}
+                      disabled={resendTimer > 0 || isLoading}
+                      className="text-blue-500 hover:text-blue-400 text-xs font-medium disabled:opacity-50"
+                    >
+                      {resendTimer > 0 ? `Resend in ${resendTimer}s` : "Resend"}
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* Red Error Alert Box */}
               {errorAlert && (
                 <div className="bg-red-500/10 border border-red-500 rounded-lg p-4 mb-4">
