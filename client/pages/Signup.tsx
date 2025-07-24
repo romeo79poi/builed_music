@@ -725,6 +725,8 @@ export default function Signup() {
               formData.email,
               formData.password,
               formData.name,
+              formData.username,
+              formData.phone,
             );
 
             if (result.success) {
