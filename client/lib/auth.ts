@@ -279,7 +279,7 @@ export const signInWithGoogle = async (): Promise<{
       }
 
       if (!user.emailVerified) {
-        console.warn("���️ Google account email not verified, but proceeding...");
+        console.warn("⚠️ Google account email not verified, but proceeding...");
       }
 
       console.log("✅ Google user authenticated:", {
@@ -465,6 +465,8 @@ export const signUpWithEmailAndPasswordWithVerification = async (
   email: string,
   password: string,
   name: string,
+  username?: string,
+  phone?: string,
 ): Promise<{ success: boolean; user?: User; error?: string }> => {
   try {
     // First create the user
@@ -472,6 +474,8 @@ export const signUpWithEmailAndPasswordWithVerification = async (
       email,
       password,
       name,
+      username,
+      phone,
     );
 
     if (!signupResult.success) {
