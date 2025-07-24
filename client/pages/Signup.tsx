@@ -536,9 +536,13 @@ export default function Signup() {
       } else if (error.message?.includes("popup")) {
         errorMessage =
           "Sign-in popup was blocked. Please allow popups and try again.";
+      } else if (error.message?.includes("domain") || error.message?.includes("unauthorized")) {
+        errorMessage = "Google sign-in not available on this domain. Use email signup.";
       } else if (error.message) {
         errorMessage = error.message;
       }
+
+      setErrorAlert(errorMessage);
 
       toast({
         title: "Google sign-in error",
