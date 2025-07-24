@@ -491,7 +491,7 @@ export default function Signup() {
         });
       }
     } catch (error: any) {
-      console.error("���� Google signup error:", error);
+      console.error("💥 Google signup error:", error);
 
       let errorMessage = "An unexpected error occurred";
       if (error.message?.includes("email")) {
@@ -734,6 +734,12 @@ export default function Signup() {
             );
 
             if (result.success) {
+              // Store user for email verification
+              if (result.user) {
+                setVerificationUser(result.user);
+                setEmailVerificationSent(true);
+              }
+
               toast({
                 title: "Account created successfully! 🎉",
                 description: `Welcome to Music Catch, ${formData.name}! Please check your email for verification.`,
