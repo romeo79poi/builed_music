@@ -184,12 +184,13 @@ export default function Login() {
         const existingProfile = await getUserProfile(result.user.uid);
 
         const profileData = {
-          email: result.user.email,
-          displayName:
-            result.user.displayName ||
+          name: result.user.displayName ||
             result.user.email?.split("@")[0] ||
             "User",
-          photoURL: result.user.photoURL || "",
+          username: result.user.email?.split("@")[0] || "",
+          email: result.user.email || "",
+          phone: "",
+          profileImageURL: result.user.photoURL || "",
           provider: "google",
           uid: result.user.uid,
         };
