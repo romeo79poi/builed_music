@@ -296,12 +296,14 @@ export const signInWithGoogle = async (): Promise<{
       let isNewUser = false;
 
       if (!userDoc.exists()) {
-        // Create new user document with .set()
-        const userData = {
+        // Create new user document with all required fields
+        const userData: UserData = {
           name: user.displayName || "",
+          username: user.email?.split('@')[0] || "",
           email: user.email || "",
-          uid: user.uid,
+          phone: "",
           createdAt: serverTimestamp(),
+          profileImageURL: user.photoURL || "",
         };
 
         await setDoc(userDocRef, userData);
