@@ -30,6 +30,7 @@ import {
   initializeRecaptcha,
   sendPhoneOTP,
   verifyPhoneOTP,
+  sendFirebaseEmailVerification,
 } from "../lib/auth";
 
 type SignupStep =
