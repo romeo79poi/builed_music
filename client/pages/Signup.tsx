@@ -433,9 +433,19 @@ export default function Signup() {
     setErrorAlert(null); // Clear any existing errors
     console.log("🚀 Starting Google sign-up process...");
 
+    // Add timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      setIsLoading(false);
+      setErrorAlert("Google sign-in is taking too long. Please try again or use email signup.");
+      console.log("⏰ Google sign-in timeout");
+    }, 30000); // 30 second timeout
+
     try {
       // Try Firebase first, then fallback to backend simulation
       const result = await signInWithGoogle();
+
+      // Clear timeout if we got a response
+      clearTimeout(timeoutId);
 
       console.log("📋 Google sign-in result:", {
         success: result.success,
