@@ -558,6 +558,9 @@ export default function Signup() {
   // Step handlers
   const handleMethodStep = (method: SignupMethod) => {
     setSignupMethod(method);
+    setErrorAlert(null); // Clear any errors when switching methods
+    setIsLoading(false); // Reset loading state
+
     if (method === "email") {
       setCurrentStep("email");
     } else {
