@@ -429,6 +429,7 @@ export default function Signup() {
   // Google signup handler
   const handleGoogleSignup = async () => {
     setIsLoading(true);
+    setErrorAlert(null); // Clear any existing errors
     console.log("🚀 Starting Google sign-up process...");
 
     try {
@@ -455,7 +456,7 @@ export default function Signup() {
           : `Welcome back, ${displayName}!`;
 
         toast({
-          title: "Google sign-in successful! 🎉",
+          title: "Google sign-in successful! ����",
           description: message,
         });
 
