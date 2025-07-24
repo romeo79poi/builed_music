@@ -1075,7 +1075,10 @@ export default function Signup() {
               className="w-full h-12 sm:h-14 bg-slate-800/70 hover:bg-slate-700/70 rounded-lg flex items-center justify-center text-white font-medium transition-colors border border-slate-600 disabled:opacity-50"
             >
               {isLoading ? (
-                <Loader2 className="w-5 h-5 animate-spin" />
+                <div className="flex items-center space-x-2">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Connecting to Google...</span>
+                </div>
               ) : (
                 <>
                   <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
