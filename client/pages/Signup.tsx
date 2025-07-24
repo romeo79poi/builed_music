@@ -1311,11 +1311,18 @@ export default function Signup() {
                 <button
                   onClick={sendOTP}
                   disabled={resendTimer > 0 || isLoading}
-                  className="text-neon-green hover:text-emerald-400 text-xs sm:text-sm disabled:opacity-50"
+                  className="text-neon-green hover:text-emerald-400 text-xs sm:text-sm disabled:opacity-50 flex items-center space-x-1 mx-auto"
                 >
-                  {resendTimer > 0
-                    ? `Resend in ${resendTimer}s`
-                    : "Resend code"}
+                  {isLoading ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <RefreshCw className="w-3 h-3" />
+                  )}
+                  <span>
+                    {resendTimer > 0
+                      ? `Resend in ${resendTimer}s`
+                      : "Resend OTP"}
+                  </span>
                 </button>
               </div>
             </motion.div>
