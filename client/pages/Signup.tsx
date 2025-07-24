@@ -456,7 +456,7 @@ export default function Signup() {
           : `Welcome back, ${displayName}!`;
 
         toast({
-          title: "Google sign-in successful! ����",
+          title: "Google sign-in successful! 🎉",
           description: message,
         });
 
@@ -509,6 +509,13 @@ export default function Signup() {
         }, 1500);
       } else {
         console.error("❌ Google sign-in failed:", result.error);
+
+        // Set error alert for domain authorization issues
+        if (result.error?.includes("domain") || result.error?.includes("unauthorized")) {
+          setErrorAlert("Google sign-in is not available on this domain. Please use email signup instead.");
+        } else {
+          setErrorAlert(result.error || "Google sign-in failed. Please try email signup.");
+        }
 
         toast({
           title: "Google sign-in failed",
