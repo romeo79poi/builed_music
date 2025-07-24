@@ -102,60 +102,76 @@ async function parseResponse<T>(response: Response): Promise<ApiResponse<T>> {
   const contentType = response.headers.get("content-type") || "";
 
   let data: any = null;
-  let errorMessage = "";
+  let parseError: string | null = null;
 
-  // Try to parse response body safely
+  // Try to parse response body safely - only read once
   try {
+    // Clone the response to avoid consuming the stream multiple times
+    const responseClone = response.clone();
+
     if (contentLength === "0") {
       // Empty response
       data = null;
     } else if (contentType.includes("application/json")) {
       // Parse JSON response
-      const text = await response.text();
+      const text = await responseClone.text();
       if (text.trim()) {
-        data = JSON.parse(text);
+        try {
+          data = JSON.parse(text);
+        } catch (jsonError) {
+          console.error("JSON parse error:", jsonError);
+          parseError = "Invalid JSON response";
+          data = text; // Fallback to raw text
+        }
       } else {
         data = null;
       }
     } else {
       // Get text response for non-JSON
-      data = await response.text();
+      data = await responseClone.text();
     }
-  } catch (parseError: any) {
-    console.error("Failed to parse response:", parseError);
+  } catch (error: any) {
+    console.error("Failed to parse response:", error);
+    parseError = error.message || "Unable to read response";
 
-    // If we can't parse the response, create an error
-    if (!response.ok) {
-      errorMessage = `Server error (${status}): Unable to parse response`;
-    } else {
-      errorMessage = "Invalid response format";
-    }
+    // Don't try to read the response again, just set data to null
+    data = null;
   }
 
   // Handle HTTP errors
   if (!response.ok) {
-    let error = errorMessage;
+    let errorMessage = "";
 
-    if (!error) {
+    // If we have a parse error, use that
+    if (parseError) {
+      errorMessage = `Server error (${status}): ${parseError}`;
+    } else {
       // Try to extract error from parsed data
       if (data && typeof data === "object") {
-        error =
-          data.message || data.error || data.detail || response.statusText;
+        errorMessage = data.message || data.error || data.detail || response.statusText;
       } else if (data && typeof data === "string") {
-        error = data;
+        errorMessage = data;
       } else {
-        error = response.statusText || `HTTP ${status} Error`;
+        errorMessage = response.statusText || `HTTP ${status} Error`;
       }
     }
 
     return {
       success: false,
-      error,
+      error: errorMessage,
       status,
     };
   }
 
-  // Success response
+  // Success response - but check for parse errors
+  if (parseError) {
+    return {
+      success: false,
+      error: `Response parse error: ${parseError}`,
+      status,
+    };
+  }
+
   return {
     success: true,
     data: data,
