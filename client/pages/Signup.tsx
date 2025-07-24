@@ -1200,12 +1200,20 @@ export default function Signup() {
                         {errorAlert}
                       </p>
                     </div>
-                    <button
-                      onClick={() => setErrorAlert(null)}
-                      className="text-red-500 hover:text-red-400 ml-2"
-                    >
-                      ✕
-                    </button>
+                    <div className="flex items-center space-x-2">
+                      <button
+                        onClick={() => handleMethodStep("email")}
+                        className="text-red-500 hover:text-red-400 text-xs bg-red-500/20 px-2 py-1 rounded"
+                      >
+                        Use Email
+                      </button>
+                      <button
+                        onClick={() => setErrorAlert(null)}
+                        className="text-red-500 hover:text-red-400 ml-2"
+                      >
+                        ✕
+                      </button>
+                    </div>
                   </div>
                 </div>
               )}
