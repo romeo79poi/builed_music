@@ -560,6 +560,7 @@ export default function Signup() {
         variant: "destructive",
       });
     } finally {
+      clearTimeout(timeoutId); // Clear timeout in case it's still running
       setIsLoading(false);
       console.log("🏁 Google sign-up process completed");
     }
