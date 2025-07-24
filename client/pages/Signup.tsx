@@ -950,6 +950,22 @@ export default function Signup() {
   };
 
   // Timer for resend functionality
+  // Check Firebase connection on mount
+  useEffect(() => {
+    try {
+      // Test Firebase connection
+      if (!auth || !db) {
+        console.error("Firebase not properly initialized");
+        setErrorAlert("Authentication service unavailable. Please refresh the page.");
+      } else {
+        console.log("✅ Firebase services initialized successfully");
+      }
+    } catch (error) {
+      console.error("Firebase initialization error:", error);
+      setErrorAlert("Authentication service error. Please refresh the page.");
+    }
+  }, []);
+
   useEffect(() => {
     if (resendTimer > 0) {
       const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
