@@ -347,7 +347,7 @@ export default function Signup() {
     }
   };
 
-  // Verify OTP
+  // Verify OTP with enhanced error handling
   const verifyOTP = async () => {
     if (!validateOTP(formData.otp)) return;
 
@@ -359,13 +359,20 @@ export default function Signup() {
 
         if (result.success) {
           setPhoneVerified(true);
+          setPhoneVerificationSent(false); // Reset verification sent status
+
           toast({
-            title: "Phone verified!",
-            description: "Your phone number has been successfully verified.",
+            title: "Phone verified successfully! ✅",
+            description: "Your phone number has been verified.",
           });
 
           if (signupMethod === "phone") {
             // For phone signup with Firebase, the user is already created
+            // Store the verified user
+            if (result.user) {
+              setVerificationUser(result.user);
+            }
+
             toast({
               title: "Account created successfully! 🎉",
               description: "Welcome to Music Catch!",
@@ -374,12 +381,21 @@ export default function Signup() {
             setTimeout(() => {
               navigate("/profile");
             }, 2000);
+          } else {
+            // For email signup, proceed to next step
+            setCurrentStep("profile");
           }
         } else {
           setErrors((prev) => ({
             ...prev,
-            otp: result.error || "Verification failed",
+            otp: result.error || "Invalid verification code. Please try again.",
           }));
+
+          toast({
+            title: "Verification failed",
+            description: result.error || "Invalid verification code",
+            variant: "destructive",
+          });
         }
       } else {
         // Use backend verification
