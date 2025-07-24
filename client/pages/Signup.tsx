@@ -1146,6 +1146,34 @@ export default function Signup() {
                 <div className="flex-1 h-px bg-slate-600"></div>
               </div>
 
+              {/* Loading State Reset */}
+              {isLoading && (
+                <div className="bg-yellow-500/10 border border-yellow-500 rounded-lg p-4 mb-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <Loader2 className="w-5 h-5 text-yellow-500 mr-3 animate-spin" />
+                      <div>
+                        <p className="text-yellow-500 text-sm font-medium">
+                          Google sign-in in progress...
+                        </p>
+                        <p className="text-yellow-400 text-xs">
+                          If this takes too long, try the reset button
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setIsLoading(false);
+                        setErrorAlert("Google sign-in cancelled. Please try again or use email signup.");
+                      }}
+                      className="text-yellow-500 hover:text-yellow-400 text-xs bg-yellow-500/20 px-2 py-1 rounded"
+                    >
+                      Reset
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* Error Alert */}
               {errorAlert && (
                 <div className="bg-red-500/10 border border-red-500 rounded-lg p-4 mb-4">
