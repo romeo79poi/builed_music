@@ -106,15 +106,17 @@ async function parseResponse<T>(response: Response): Promise<ApiResponse<T>> {
 
   // Try to parse response body safely - only read once
   try {
-    // Clone the response to avoid consuming the stream multiple times
-    const responseClone = response.clone();
-
-    if (contentLength === "0") {
+    // Check if the response body is already consumed
+    if (response.bodyUsed) {
+      console.warn("Response body already consumed, cannot parse");
+      parseError = "Response body already read";
+      data = null;
+    } else if (contentLength === "0") {
       // Empty response
       data = null;
     } else if (contentType.includes("application/json")) {
       // Parse JSON response
-      const text = await responseClone.text();
+      const text = await response.text();
       if (text.trim()) {
         try {
           data = JSON.parse(text);
@@ -128,11 +130,17 @@ async function parseResponse<T>(response: Response): Promise<ApiResponse<T>> {
       }
     } else {
       // Get text response for non-JSON
-      data = await responseClone.text();
+      data = await response.text();
     }
   } catch (error: any) {
     console.error("Failed to parse response:", error);
-    parseError = error.message || "Unable to read response";
+
+    // Handle specific error types
+    if (error.message?.includes("body stream already read")) {
+      parseError = "Response body already consumed";
+    } else {
+      parseError = error.message || "Unable to read response";
+    }
 
     // Don't try to read the response again, just set data to null
     data = null;
