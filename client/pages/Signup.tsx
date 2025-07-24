@@ -283,12 +283,21 @@ export default function Signup() {
           return;
         }
 
+        // Format phone number for Firebase (must include country code)
+        let formattedPhone = formData.phone.replace(/\D/g, "");
+        if (!formattedPhone.startsWith("1") && formattedPhone.length === 10) {
+          formattedPhone = "+1" + formattedPhone;
+        } else if (!formattedPhone.startsWith("+")) {
+          formattedPhone = "+" + formattedPhone;
+        }
+
         // Send Firebase OTP
-        const result = await sendPhoneOTP(formData.phone);
+        const result = await sendPhoneOTP(formattedPhone);
 
         if (result.success && result.confirmationResult) {
           setConfirmationResult(result.confirmationResult);
           setOtpSent(true);
+          setPhoneVerificationSent(true);
           setResendTimer(60);
           toast({
             title: "Verification code sent!",
