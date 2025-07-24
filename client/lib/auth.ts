@@ -279,7 +279,7 @@ export const signInWithGoogle = async (): Promise<{
       }
 
       if (!user.emailVerified) {
-        console.warn("⚠️ Google account email not verified, but proceeding...");
+        console.warn("���️ Google account email not verified, but proceeding...");
       }
 
       console.log("✅ Google user authenticated:", {
@@ -612,10 +612,13 @@ export const verifyPhoneOTP = async (
       const userDoc = await getDoc(userDocRef);
 
       if (!userDoc.exists()) {
-        const userData = {
-          phoneNumber: result.user.phoneNumber || "",
-          uid: result.user.uid,
+        const userData: UserData = {
+          name: "",
+          username: result.user.phoneNumber?.replace(/[^\d]/g, '') || "",
+          email: "",
+          phone: result.user.phoneNumber || "",
           createdAt: serverTimestamp(),
+          profileImageURL: "",
         };
 
         await setDoc(userDocRef, userData);
