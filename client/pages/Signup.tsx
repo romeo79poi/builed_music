@@ -1111,6 +1111,18 @@ export default function Signup() {
                 <div className="flex-1 h-px bg-slate-600"></div>
               </div>
 
+              {/* Error Alert */}
+              {errorAlert && (
+                <div className="bg-red-500/10 border border-red-500 rounded-lg p-4 mb-4">
+                  <div className="flex items-center">
+                    <AlertCircle className="w-5 h-5 text-red-500 mr-3" />
+                    <p className="text-red-500 text-sm font-medium">
+                      {errorAlert}
+                    </p>
+                  </div>
+                </div>
+              )}
+
               {/* Method Selection Buttons */}
               <div className="space-y-3">
                 <button
