@@ -633,8 +633,9 @@ export const verifyPhoneOTP = async (
           username: result.user.phoneNumber?.replace(/[^\d]/g, '') || "",
           email: "",
           phone: result.user.phoneNumber || "",
-          createdAt: serverTimestamp(),
           profileImageURL: "",
+          createdAt: serverTimestamp(),
+          verified: true, // Phone users are verified through OTP
         };
 
         await setDoc(userDocRef, userData);
