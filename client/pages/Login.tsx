@@ -568,6 +568,42 @@ export default function Login() {
           </motion.div>
         )}
 
+        {/* Email Verification Required */}
+        {verificationNeeded && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mt-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg"
+          >
+            <div className="flex items-start space-x-3">
+              <AlertCircle className="w-5 h-5 text-yellow-500 mt-0.5" />
+              <div className="flex-1">
+                <h4 className="text-yellow-500 font-medium text-sm">
+                  Email Verification Required
+                </h4>
+                <p className="text-yellow-200 text-sm mt-1">
+                  Please verify your email address to continue. Check your inbox for a verification link.
+                </p>
+                <button
+                  onClick={handleResendVerification}
+                  disabled={sendingVerification}
+                  className="mt-3 flex items-center space-x-2 text-yellow-500 hover:text-yellow-400 text-sm font-medium disabled:opacity-50"
+                >
+                  {sendingVerification ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <RefreshCw className="w-4 h-4" />
+                  )}
+                  <span>
+                    {sendingVerification ? "Sending..." : "Resend verification email"}
+                  </span>
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* Footer */}
         <motion.div
           initial={{ opacity: 0 }}
