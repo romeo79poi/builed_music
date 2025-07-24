@@ -33,6 +33,7 @@ import {
   verifyPhoneOTP,
   sendFirebaseEmailVerification,
 } from "../lib/auth";
+import { auth, db } from "../lib/firebase";
 
 type SignupStep =
   | "method"
