@@ -1280,9 +1280,15 @@ export default function Signup() {
                 <p className="text-white mb-2 text-sm sm:text-base">
                   Code sent to:
                 </p>
-                <p className="text-neon-green font-medium text-sm sm:text-base">
+                <p className="text-neon-green font-medium text-sm sm:text-base mb-2">
                   {formatPhoneDisplay(formData.phone)}
                 </p>
+                {phoneVerified && (
+                  <div className="flex items-center justify-center space-x-2 text-green-500 text-sm">
+                    <CheckCircle className="w-4 h-4" />
+                    <span>Phone number verified!</span>
+                  </div>
+                )}
               </div>
 
               <div>
