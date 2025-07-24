@@ -94,6 +94,9 @@ export default function Signup() {
   const [errorAlert, setErrorAlert] = useState<string | null>(null);
   const [confirmationResult, setConfirmationResult] = useState<any>(null);
   const [useFirebaseAuth, setUseFirebaseAuth] = useState(true);
+  const [verificationUser, setVerificationUser] = useState<any>(null);
+  const [emailVerificationSent, setEmailVerificationSent] = useState(false);
+  const [phoneVerificationSent, setPhoneVerificationSent] = useState(false);
 
   // Validation functions
   const validateEmail = (email: string): boolean => {
