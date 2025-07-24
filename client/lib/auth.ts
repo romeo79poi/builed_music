@@ -18,8 +18,9 @@ export interface UserData {
   name: string;
   username: string;
   email: string;
-  phoneNumber?: string;
+  phone?: string;
   createdAt: any;
+  profileImageURL?: string;
 }
 
 export const signUpWithEmailAndPassword = async (
