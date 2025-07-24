@@ -491,7 +491,7 @@ export default function Signup() {
         });
       }
     } catch (error: any) {
-      console.error("💥 Google signup error:", error);
+      console.error("���� Google signup error:", error);
 
       let errorMessage = "An unexpected error occurred";
       if (error.message?.includes("email")) {
@@ -814,6 +814,50 @@ export default function Signup() {
       setCurrentStep("profile");
     } else if (currentStep === "password") {
       setCurrentStep("verification");
+    }
+  };
+
+  // Resend email verification using Firebase
+  const handleResendEmailVerification = async () => {
+    if (resendTimer > 0) return;
+
+    if (!verificationUser) {
+      toast({
+        title: "Error",
+        description: "No user account found to send verification to",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const result = await sendFirebaseEmailVerification(verificationUser);
+
+      if (result.success) {
+        toast({
+          title: "Verification email sent!",
+          description: "Please check your email for the verification link.",
+        });
+        setResendTimer(60);
+        setEmailVerificationSent(true);
+      } else {
+        toast({
+          title: "Failed to send verification",
+          description: result.error || "Please try again",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Resend email verification error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to send verification email",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
