@@ -12,6 +12,7 @@ import {
   User,
   Lock,
   Phone,
+  RefreshCw,
 } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import PasswordStrengthIndicator from "../components/PasswordStrengthIndicator";
