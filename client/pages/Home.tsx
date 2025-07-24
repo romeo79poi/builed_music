@@ -7,253 +7,331 @@ import {
   Play,
   Pause,
   MoreHorizontal,
-  ChevronRight,
   Home,
   Library,
   Heart,
-  Clock,
   Loader2,
-  Download,
-  Share,
   Plus,
   Shuffle,
-  SkipForward,
-  SkipBack,
-  Volume2,
-  Repeat,
+  RefreshCw,
+  AlertCircle,
 } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { MiniPlayer } from "../components/MiniPlayer";
 import QuickSongSearch from "../components/QuickSongSearch";
-import LikeButton from "../components/LikeButton";
-import { useProfileContext } from "../context/ProfileContext";
-import { useMusicContext } from "../context/MusicContext";
 import { useToast } from "../hooks/use-toast";
+import { 
+  collection, 
+  getDocs, 
+  doc, 
+  setDoc, 
+  deleteDoc, 
+  query, 
+  orderBy, 
+  limit, 
+  onSnapshot 
+} from "firebase/firestore";
+import { db, auth } from "../lib/firebase";
+import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
+
+interface Song {
+  id: string;
+  title: string;
+  artist: string;
+  album?: string;
+  coverImage: string;
+  duration: string;
+  plays?: number;
+  isLiked?: boolean;
+  createdAt?: any;
+}
+
+interface Album {
+  id: string;
+  title: string;
+  artist: string;
+  coverImage: string;
+  songs: Song[];
+  releaseDate?: any;
+}
 
 export default function HomeScreen() {
   const navigate = useNavigate();
-  const { profile } = useProfileContext();
-  const {
-    currentSong,
-    isPlaying,
-    setCurrentSong,
-    togglePlay,
-    queue,
-    setQueue,
-  } = useMusicContext();
   const { toast } = useToast();
+  
+  // State management
+  const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
   const [showQuickSearch, setShowQuickSearch] = useState(false);
   const [greeting, setGreeting] = useState("");
-  const [trendingSongs, setTrendingSongs] = useState([]);
-  const [featuredPlaylists, setFeaturedPlaylists] = useState([]);
-  const [recommendations, setRecommendations] = useState([]);
-  const [genres, setGenres] = useState([]);
-  const [recentlyPlayed, setRecentlyPlayed] = useState([]);
+  const [songs, setSongs] = useState<Song[]>([]);
+  const [albums, setAlbums] = useState<Album[]>([]);
+  const [likedSongs, setLikedSongs] = useState<Set<string>>(new Set());
   const [isLoading, setIsLoading] = useState(true);
+  const [currentSong, setCurrentSong] = useState<Song | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
+  // Initialize
   useEffect(() => {
     const hour = new Date().getHours();
     if (hour < 12) setGreeting("Good Morning");
     else if (hour < 18) setGreeting("Good Afternoon");
     else setGreeting("Good Evening");
 
-    loadHomeData();
-  }, []);
+    // Listen to auth changes
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setCurrentUser(user);
+      if (user) {
+        loadFirestoreData();
+        loadUserLikes(user.uid);
+      } else {
+        navigate("/login");
+      }
+    });
 
-  const loadHomeData = async () => {
+    return () => unsubscribe();
+  }, [navigate]);
+
+  // Fetch songs and albums from Firestore
+  const loadFirestoreData = async () => {
     try {
       setIsLoading(true);
-      const token = localStorage.getItem("token");
-      const headers: any = {
-        "Content-Type": "application/json",
-      };
-
-      if (token) {
-        headers.Authorization = `Bearer ${token}`;
-      }
-
-      // Load all home page data concurrently with authentication
-      const [
-        trendingRes,
-        playlistsRes,
-        recommendationsRes,
-        genresRes,
-        recentRes,
-      ] = await Promise.all([
-        fetch("/api/music/trending?limit=12", { headers }),
-        fetch("/api/music/playlists/featured?limit=8", { headers }),
-        fetch("/api/music/recommendations?limit=10", { headers }),
-        fetch("/api/music/genres", { headers }),
-        fetch("/api/music/recently-played?limit=8", { headers }),
-      ]);
-
-      const [trending, playlists, recs, genresData, recent] = await Promise.all(
-        [
-          trendingRes.json(),
-          playlistsRes.json(),
-          recommendationsRes.json(),
-          genresRes.json(),
-          recentRes.json(),
-        ],
+      
+      // Fetch songs from Firestore
+      const songsQuery = query(
+        collection(db, "songs"),
+        orderBy("plays", "desc"),
+        limit(20)
       );
+      const songsSnapshot = await getDocs(songsQuery);
+      const songsData: Song[] = [];
+      
+      songsSnapshot.forEach((doc) => {
+        songsData.push({
+          id: doc.id,
+          ...doc.data()
+        } as Song);
+      });
 
-      if (trending.success)
-        setTrendingSongs(trending.songs || trending.data || []);
-      if (playlists.success)
-        setFeaturedPlaylists(playlists.playlists || playlists.data || []);
-      if (recs.success)
-        setRecommendations(recs.recommendations || recs.data || []);
-      if (genresData.success)
-        setGenres(genresData.genres || genresData.data || []);
-      if (recent.success)
-        setRecentlyPlayed(recent.recentlyPlayed || recent.data || []);
+      // Fetch albums from Firestore
+      const albumsQuery = query(
+        collection(db, "albums"),
+        orderBy("releaseDate", "desc"),
+        limit(10)
+      );
+      const albumsSnapshot = await getDocs(albumsQuery);
+      const albumsData: Album[] = [];
+      
+      albumsSnapshot.forEach((doc) => {
+        albumsData.push({
+          id: doc.id,
+          ...doc.data()
+        } as Album);
+      });
+
+      setSongs(songsData);
+      setAlbums(albumsData);
+      
+      console.log("✅ Loaded from Firestore:", {
+        songs: songsData.length,
+        albums: albumsData.length
+      });
+
+      if (songsData.length === 0 && albumsData.length === 0) {
+        loadFallbackData();
+      }
     } catch (error) {
-      console.error("Failed to load home data:", error);
+      console.error("❌ Error loading Firestore data:", error);
       loadFallbackData();
+      toast({
+        title: "Loading Error",
+        description: "Failed to load music data. Using fallback content.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const loadFallbackData = () => {
-    setTrendingSongs(fallbackTrendingSongs);
-    setFeaturedPlaylists(fallbackPlaylists);
-    setRecommendations(fallbackRecommendations);
-    setGenres(fallbackGenres);
-    setRecentlyPlayed(fallbackRecentlyPlayed);
-  };
-
-  const handlePlaySong = async (song: any) => {
+  // Load user's liked songs from Firestore
+  const loadUserLikes = async (uid: string) => {
     try {
-      const token = localStorage.getItem("token");
-      if (token) {
-        await fetch(`/api/music/play/${song.id}`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({ userId: profile.id }),
-        });
-      }
-
-      if (currentSong?.id === song.id) {
-        togglePlay();
-      } else {
-        setCurrentSong(song);
-      }
+      const likesRef = collection(db, "users", uid, "likes");
+      const likesSnapshot = await getDocs(likesRef);
+      const userLikes = new Set<string>();
+      
+      likesSnapshot.forEach((doc) => {
+        userLikes.add(doc.id);
+      });
+      
+      setLikedSongs(userLikes);
+      console.log("✅ Loaded user likes:", userLikes.size);
     } catch (error) {
-      console.error("Failed to track play:", error);
-      // Still allow playing even if tracking fails
-      if (currentSong?.id === song.id) {
-        togglePlay();
-      } else {
-        setCurrentSong(song);
-      }
+      console.error("❌ Error loading user likes:", error);
     }
   };
 
-  const handlePlayPlaylist = (playlist: any) => {
-    if (playlist.songs && playlist.songs.length > 0) {
-      setQueue(playlist.songs);
-      setCurrentSong(playlist.songs[0]);
-    } else {
+  // Toggle like/unlike a song
+  const handleToggleLike = async (songId: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    
+    if (!currentUser) {
       toast({
-        title: "Empty Playlist",
-        description: "This playlist doesn't have any songs yet.",
+        title: "Login required",
+        description: "Please log in to like songs",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const isCurrentlyLiked = likedSongs.has(songId);
+      const likeDocRef = doc(db, "users", currentUser.uid, "likes", songId);
+
+      if (isCurrentlyLiked) {
+        // Unlike the song
+        await deleteDoc(likeDocRef);
+        setLikedSongs(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(songId);
+          return newSet;
+        });
+        
+        toast({
+          title: "Removed from liked songs",
+          description: "Song removed from your favorites",
+        });
+      } else {
+        // Like the song
+        const song = songs.find(s => s.id === songId);
+        await setDoc(likeDocRef, {
+          songId: songId,
+          title: song?.title || "",
+          artist: song?.artist || "",
+          likedAt: new Date(),
+        });
+        
+        setLikedSongs(prev => new Set([...prev, songId]));
+        
+        toast({
+          title: "Added to liked songs",
+          description: "Song added to your favorites",
+        });
+      }
+    } catch (error) {
+      console.error("❌ Error toggling like:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update like status",
+        variant: "destructive",
       });
     }
   };
 
-  const handleShufflePlay = (songs: any[]) => {
-    const shuffled = [...songs].sort(() => Math.random() - 0.5);
-    setQueue(shuffled);
-    setCurrentSong(shuffled[0]);
+  // Play a song
+  const handlePlaySong = (song: Song) => {
+    if (currentSong?.id === song.id) {
+      setIsPlaying(!isPlaying);
+    } else {
+      setCurrentSong(song);
+      setIsPlaying(true);
+    }
   };
 
-  // Fallback data
-  const fallbackTrendingSongs = [
-    {
-      id: "1",
-      title: "Blinding Lights",
-      artist: "The Weeknd",
-      album: "After Hours",
-      image:
-        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
-      duration: "3:20",
-      plays: 45672,
-    },
-    {
-      id: "2",
-      title: "Watermelon Sugar",
-      artist: "Harry Styles",
-      album: "Fine Line",
-      image:
-        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop",
-      duration: "2:54",
-      plays: 38934,
-    },
-    {
-      id: "3",
-      title: "Levitating",
-      artist: "Dua Lipa",
-      album: "Future Nostalgia",
-      image:
-        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop",
-      duration: "3:23",
-      plays: 42156,
-    },
-    {
-      id: "4",
-      title: "Good 4 U",
-      artist: "Olivia Rodrigo",
-      album: "SOUR",
-      image:
-        "https://images.unsplash.com/photo-1494232410401-ad00d5433cfa?w=300&h=300&fit=crop",
-      duration: "2:58",
-      plays: 39821,
-    },
-  ];
+  // Shuffle play songs
+  const handleShufflePlay = () => {
+    if (songs.length > 0) {
+      const shuffledSongs = [...songs].sort(() => Math.random() - 0.5);
+      setCurrentSong(shuffledSongs[0]);
+      setIsPlaying(true);
+    }
+  };
 
-  const fallbackPlaylists = [
-    {
-      id: "1",
-      name: "Today's Top Hits",
-      description: "The most played songs right now",
-      image:
-        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
-      songs: fallbackTrendingSongs,
-      totalSongs: 50,
-    },
-    {
-      id: "2",
-      name: "Chill Hits",
-      description: "Kick back and relax",
-      image:
-        "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop",
-      songs: fallbackTrendingSongs,
-      totalSongs: 30,
-    },
-  ];
+  // Refresh data
+  const refreshData = async () => {
+    if (currentUser) {
+      await Promise.all([
+        loadFirestoreData(),
+        loadUserLikes(currentUser.uid)
+      ]);
+      toast({
+        title: "Refreshed",
+        description: "Music data has been updated",
+      });
+    }
+  };
 
-  const fallbackRecommendations = fallbackTrendingSongs.slice(0, 6);
-  const fallbackGenres = [
-    { id: "1", name: "Pop", color: "from-pink-500 to-purple-600", image: "🎵" },
-    {
-      id: "2",
-      name: "Hip-Hop",
-      color: "from-orange-500 to-red-600",
-      image: "🎤",
-    },
-    { id: "3", name: "Rock", color: "from-gray-600 to-gray-800", image: "🎸" },
-    {
-      id: "4",
-      name: "Electronic",
-      color: "from-blue-500 to-cyan-600",
-      image: "🎧",
-    },
-  ];
-  const fallbackRecentlyPlayed = fallbackTrendingSongs.slice(0, 4);
+  // Fallback data when Firestore is empty
+  const loadFallbackData = () => {
+    const fallbackSongs: Song[] = [
+      {
+        id: "fallback1",
+        title: "Blinding Lights",
+        artist: "The Weeknd",
+        album: "After Hours",
+        coverImage: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
+        duration: "3:20",
+        plays: 45672,
+      },
+      {
+        id: "fallback2",
+        title: "Watermelon Sugar",
+        artist: "Harry Styles",
+        album: "Fine Line",
+        coverImage: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop",
+        duration: "2:54",
+        plays: 38934,
+      },
+      {
+        id: "fallback3",
+        title: "Levitating",
+        artist: "Dua Lipa",
+        album: "Future Nostalgia",
+        coverImage: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop",
+        duration: "3:23",
+        plays: 42156,
+      },
+      {
+        id: "fallback4",
+        title: "Good 4 U",
+        artist: "Olivia Rodrigo",
+        album: "SOUR",
+        coverImage: "https://images.unsplash.com/photo-1494232410401-ad00d5433cfa?w=300&h=300&fit=crop",
+        duration: "2:58",
+        plays: 39821,
+      },
+    ];
+
+    const fallbackAlbums: Album[] = [
+      {
+        id: "album1",
+        title: "After Hours",
+        artist: "The Weeknd",
+        coverImage: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
+        songs: fallbackSongs.slice(0, 2),
+      },
+      {
+        id: "album2",
+        title: "Future Nostalgia",
+        artist: "Dua Lipa",
+        coverImage: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop",
+        songs: fallbackSongs.slice(2, 4),
+      },
+    ];
+
+    setSongs(fallbackSongs);
+    setAlbums(fallbackAlbums);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 className="w-8 h-8 animate-spin text-neon-green mx-auto mb-4" />
+          <p className="text-white">Loading your music...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black text-white relative">
@@ -295,8 +373,16 @@ export default function HomeScreen() {
               </Link>
             </div>
 
-            {/* Right: Search & Profile */}
+            {/* Right: Actions */}
             <div className="flex items-center space-x-4">
+              <button
+                onClick={refreshData}
+                className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                title="Refresh"
+              >
+                <RefreshCw className="w-5 h-5" />
+              </button>
+              
               <button
                 onClick={() => setShowQuickSearch(!showQuickSearch)}
                 className="p-2 hover:bg-white/10 rounded-full transition-colors"
@@ -340,104 +426,88 @@ export default function HomeScreen() {
               className="pt-6"
             >
               <h1 className="text-4xl font-bold mb-2">{greeting}</h1>
-              <p className="text-gray-400">Welcome back to your music</p>
+              <p className="text-gray-400">Discover amazing music from our collection</p>
             </motion.div>
 
-            {/* Quick Access Cards */}
+            {/* Data Source Info */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+              className="bg-neon-green/10 border border-neon-green/30 rounded-lg p-4"
             >
-              {recentlyPlayed.slice(0, 6).map((item: any, index) => (
-                <motion.div
-                  key={item.id}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.4 + index * 0.1 }}
-                  className="bg-white/5 rounded-lg p-3 flex items-center space-x-3 hover:bg-white/10 transition-all cursor-pointer group"
-                  onClick={() => handlePlaySong(item)}
-                >
-                  <div className="relative">
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      className="w-16 h-16 rounded object-cover"
-                    />
-                    <button className="absolute inset-0 bg-black/60 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                      {currentSong?.id === item.id && isPlaying ? (
-                        <Pause className="w-6 h-6 text-white" />
-                      ) : (
-                        <Play className="w-6 h-6 text-white ml-1" />
-                      )}
-                    </button>
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-medium truncate">{item.title}</h3>
-                    <p className="text-gray-400 text-sm truncate">
-                      {item.artist}
-                    </p>
-                  </div>
-                </motion.div>
-              ))}
+              <div className="flex items-center space-x-2">
+                <AlertCircle className="w-5 h-5 text-neon-green" />
+                <div>
+                  <p className="text-neon-green font-medium">Connected to Firebase Firestore</p>
+                  <p className="text-gray-300 text-sm">
+                    Showing {songs.length} songs and {albums.length} albums from your collection
+                  </p>
+                </div>
+              </div>
             </motion.div>
 
-            {/* Made For You Section */}
+            {/* Albums Section */}
+            {albums.length > 0 && (
+              <motion.section
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-2xl font-bold">Featured Albums</h2>
+                  <Link
+                    to="/library"
+                    className="text-gray-400 hover:text-white text-sm font-medium"
+                  >
+                    Show all
+                  </Link>
+                </div>
+
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+                  {albums.map((album) => (
+                    <motion.div
+                      key={album.id}
+                      whileHover={{ scale: 1.05 }}
+                      className="bg-white/5 rounded-lg p-4 hover:bg-white/10 transition-all cursor-pointer group"
+                      onClick={() => {
+                        if (album.songs && album.songs.length > 0) {
+                          handlePlaySong(album.songs[0]);
+                        }
+                      }}
+                    >
+                      <div className="relative mb-4">
+                        <img
+                          src={album.coverImage}
+                          alt={album.title}
+                          className="w-full aspect-square rounded-lg object-cover"
+                        />
+                        <button className="absolute bottom-2 right-2 w-12 h-12 bg-neon-green rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all shadow-lg">
+                          <Play className="w-5 h-5 text-black ml-0.5" />
+                        </button>
+                      </div>
+                      <h3 className="font-semibold mb-1 truncate">
+                        {album.title}
+                      </h3>
+                      <p className="text-gray-400 text-sm truncate">
+                        {album.artist}
+                      </p>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.section>
+            )}
+
+            {/* Songs Section */}
             <motion.section
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5 }}
             >
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold">Made for you</h2>
-                <Link
-                  to="/library"
-                  className="text-gray-400 hover:text-white text-sm font-medium"
-                >
-                  Show all
-                </Link>
-              </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-                {featuredPlaylists.map((playlist: any) => (
-                  <motion.div
-                    key={playlist.id}
-                    whileHover={{ scale: 1.05 }}
-                    className="bg-white/5 rounded-lg p-4 hover:bg-white/10 transition-all cursor-pointer group"
-                    onClick={() => handlePlayPlaylist(playlist)}
-                  >
-                    <div className="relative mb-4">
-                      <img
-                        src={playlist.image}
-                        alt={playlist.name}
-                        className="w-full aspect-square rounded-lg object-cover"
-                      />
-                      <button className="absolute bottom-2 right-2 w-12 h-12 bg-neon-green rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all shadow-lg">
-                        <Play className="w-5 h-5 text-black ml-0.5" />
-                      </button>
-                    </div>
-                    <h3 className="font-semibold mb-1 truncate">
-                      {playlist.name}
-                    </h3>
-                    <p className="text-gray-400 text-sm line-clamp-2">
-                      {playlist.description}
-                    </p>
-                  </motion.div>
-                ))}
-              </div>
-            </motion.section>
-
-            {/* Trending Now Section */}
-            <motion.section
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-            >
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold">Trending now</h2>
+                <h2 className="text-2xl font-bold">Popular Songs</h2>
                 <button
-                  onClick={() => handleShufflePlay(trendingSongs)}
+                  onClick={handleShufflePlay}
                   className="flex items-center space-x-2 bg-neon-green text-black px-4 py-2 rounded-full font-medium hover:scale-105 transition-transform"
                 >
                   <Shuffle className="w-4 h-4" />
@@ -446,13 +516,13 @@ export default function HomeScreen() {
               </div>
 
               <div className="space-y-2">
-                {trendingSongs.slice(0, 8).map((song: any, index) => (
+                {songs.map((song, index) => (
                   <motion.div
                     key={song.id}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.7 + index * 0.1 }}
-                    className="flex items-center space-x-4 p-2 rounded-lg hover:bg-white/5 transition-colors group cursor-pointer"
+                    transition={{ delay: 0.6 + index * 0.1 }}
+                    className="flex items-center space-x-4 p-3 rounded-lg hover:bg-white/5 transition-colors group cursor-pointer"
                     onClick={() => handlePlaySong(song)}
                   >
                     <div className="text-gray-400 w-6 text-center">
@@ -461,7 +531,7 @@ export default function HomeScreen() {
 
                     <div className="relative">
                       <img
-                        src={song.image}
+                        src={song.coverImage}
                         alt={song.title}
                         className="w-12 h-12 rounded object-cover"
                       />
@@ -482,10 +552,27 @@ export default function HomeScreen() {
                     </div>
 
                     <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center space-x-2">
-                      <LikeButton songId={song.id} size="sm" />
+                      {/* Like Button */}
+                      <button
+                        onClick={(e) => handleToggleLike(song.id, e)}
+                        className={`p-2 rounded-full transition-all hover:scale-110 ${
+                          likedSongs.has(song.id)
+                            ? "text-red-500 hover:text-red-600"
+                            : "text-gray-400 hover:text-red-500"
+                        }`}
+                        title={likedSongs.has(song.id) ? "Unlike" : "Like"}
+                      >
+                        <Heart
+                          className={`w-4 h-4 transition-all ${
+                            likedSongs.has(song.id) ? "fill-current" : ""
+                          }`}
+                        />
+                      </button>
+                      
                       <span className="text-gray-400 text-sm w-12 text-right">
                         {song.duration}
                       </span>
+                      
                       <button className="p-1 hover:bg-white/10 rounded">
                         <MoreHorizontal className="w-4 h-4 text-gray-400" />
                       </button>
@@ -493,30 +580,16 @@ export default function HomeScreen() {
                   </motion.div>
                 ))}
               </div>
-            </motion.section>
-
-            {/* Genres */}
-            <motion.section
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8 }}
-            >
-              <h2 className="text-2xl font-bold mb-6">Browse all</h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {genres.map((genre: any) => (
-                  <motion.div
-                    key={genre.id}
-                    whileHover={{ scale: 1.05 }}
-                    className={`bg-gradient-to-br ${genre.color} rounded-lg p-6 cursor-pointer relative overflow-hidden h-32`}
-                    onClick={() => navigate(`/search?genre=${genre.name}`)}
-                  >
-                    <h3 className="text-2xl font-bold">{genre.name}</h3>
-                    <div className="absolute bottom-2 right-2 text-4xl opacity-80">
-                      {genre.image}
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
+              
+              {songs.length === 0 && (
+                <div className="text-center py-12">
+                  <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold mb-2">No songs found</h3>
+                  <p className="text-gray-400">
+                    Add some songs to your Firestore "songs" collection to see them here.
+                  </p>
+                </div>
+              )}
             </motion.section>
           </div>
         </div>
