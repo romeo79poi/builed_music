@@ -34,6 +34,7 @@ interface UserData {
   phone: string;
   profileImageURL: string;
   createdAt: any;
+  verified: boolean;
   emailVerified?: boolean;
   phoneVerified?: boolean;
 }
