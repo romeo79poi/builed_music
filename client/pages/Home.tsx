@@ -21,17 +21,17 @@ import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { MiniPlayer } from "../components/MiniPlayer";
 import QuickSongSearch from "../components/QuickSongSearch";
 import { useToast } from "../hooks/use-toast";
-import { 
-  collection, 
-  getDocs, 
-  doc, 
-  setDoc, 
-  deleteDoc, 
-  query, 
-  orderBy, 
+import {
+  collection,
+  getDocs,
+  doc,
+  setDoc,
+  deleteDoc,
+  query,
+  orderBy,
   limit,
   where,
-  getDoc
+  getDoc,
 } from "firebase/firestore";
 import { db, auth } from "../lib/firebase";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
@@ -78,7 +78,7 @@ interface UserData {
 export default function HomeScreen() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+
   // State management
   const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
   const [showQuickSearch, setShowQuickSearch] = useState(false);
@@ -116,20 +116,20 @@ export default function HomeScreen() {
   const loadFirestoreData = async () => {
     try {
       setIsLoading(true);
-      
+
       // Fetch songs from "songs" collection
       const songsQuery = query(
         collection(db, "songs"),
         orderBy("createdAt", "desc"),
-        limit(20)
+        limit(20),
       );
       const songsSnapshot = await getDocs(songsQuery);
       const songsData: Song[] = [];
-      
+
       songsSnapshot.forEach((doc) => {
         songsData.push({
           id: doc.id,
-          ...doc.data()
+          ...doc.data(),
         } as Song);
       });
 
@@ -137,41 +137,38 @@ export default function HomeScreen() {
       const albumsQuery = query(
         collection(db, "albums"),
         orderBy("createdAt", "desc"),
-        limit(10)
+        limit(10),
       );
       const albumsSnapshot = await getDocs(albumsQuery);
       const albumsData: Album[] = [];
-      
+
       albumsSnapshot.forEach((doc) => {
         albumsData.push({
           id: doc.id,
-          ...doc.data()
+          ...doc.data(),
         } as Album);
       });
 
       // Fetch playlists from "playlists" collection
-      const playlistsQuery = query(
-        collection(db, "playlists"),
-        limit(10)
-      );
+      const playlistsQuery = query(collection(db, "playlists"), limit(10));
       const playlistsSnapshot = await getDocs(playlistsQuery);
       const playlistsData: Playlist[] = [];
-      
+
       playlistsSnapshot.forEach((doc) => {
         playlistsData.push({
           id: doc.id,
-          ...doc.data()
+          ...doc.data(),
         } as Playlist);
       });
 
       setSongs(songsData);
       setAlbums(albumsData);
       setPlaylists(playlistsData);
-      
+
       console.log("✅ Loaded from Firestore:", {
         songs: songsData.length,
         albums: albumsData.length,
-        playlists: playlistsData.length
+        playlists: playlistsData.length,
       });
 
       if (songsData.length === 0 && albumsData.length === 0) {
@@ -196,11 +193,11 @@ export default function HomeScreen() {
       const likesRef = collection(db, "users", uid, "likes");
       const likesSnapshot = await getDocs(likesRef);
       const userLikes = new Set<string>();
-      
+
       likesSnapshot.forEach((doc) => {
         userLikes.add(doc.id); // doc.id is the songId
       });
-      
+
       setLikedSongs(userLikes);
       console.log("✅ Loaded user likes:", userLikes.size);
     } catch (error) {
@@ -211,7 +208,7 @@ export default function HomeScreen() {
   // Toggle like/unlike a song using users/{uid}/likes/{songId} subcollection
   const handleToggleLike = async (songId: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
-    
+
     if (!currentUser) {
       toast({
         title: "Login required",
@@ -228,12 +225,12 @@ export default function HomeScreen() {
       if (isCurrentlyLiked) {
         // Unlike the song
         await deleteDoc(likeDocRef);
-        setLikedSongs(prev => {
+        setLikedSongs((prev) => {
           const newSet = new Set(prev);
           newSet.delete(songId);
           return newSet;
         });
-        
+
         toast({
           title: "Removed from liked songs",
           description: "Song removed from your favorites",
@@ -243,11 +240,11 @@ export default function HomeScreen() {
         await setDoc(likeDocRef, {
           likedAt: new Date(),
         });
-        
-        setLikedSongs(prev => new Set([...prev, songId]));
-        
+
+        setLikedSongs((prev) => new Set([...prev, songId]));
+
         toast({
-          title: "Added to liked songs", 
+          title: "Added to liked songs",
           description: "Song added to your favorites",
         });
       }
@@ -278,7 +275,10 @@ export default function HomeScreen() {
       try {
         const firstSongDoc = await getDoc(doc(db, "songs", album.songIds[0]));
         if (firstSongDoc.exists()) {
-          const firstSong = { id: firstSongDoc.id, ...firstSongDoc.data() } as Song;
+          const firstSong = {
+            id: firstSongDoc.id,
+            ...firstSongDoc.data(),
+          } as Song;
           handlePlaySong(firstSong);
         }
       } catch (error) {
@@ -301,9 +301,14 @@ export default function HomeScreen() {
   const handlePlayPlaylist = async (playlist: Playlist) => {
     if (playlist.songIds && playlist.songIds.length > 0) {
       try {
-        const firstSongDoc = await getDoc(doc(db, "songs", playlist.songIds[0]));
+        const firstSongDoc = await getDoc(
+          doc(db, "songs", playlist.songIds[0]),
+        );
         if (firstSongDoc.exists()) {
-          const firstSong = { id: firstSongDoc.id, ...firstSongDoc.data() } as Song;
+          const firstSong = {
+            id: firstSongDoc.id,
+            ...firstSongDoc.data(),
+          } as Song;
           handlePlaySong(firstSong);
         }
       } catch (error) {
@@ -334,10 +339,7 @@ export default function HomeScreen() {
   // Refresh data
   const refreshData = async () => {
     if (currentUser) {
-      await Promise.all([
-        loadFirestoreData(),
-        loadUserLikes(currentUser.uid)
-      ]);
+      await Promise.all([loadFirestoreData(), loadUserLikes(currentUser.uid)]);
       toast({
         title: "Refreshed",
         description: "Music data has been updated",
@@ -349,33 +351,36 @@ export default function HomeScreen() {
   const createSampleData = async () => {
     try {
       console.log("Creating sample data...");
-      
+
       // Sample songs
       const sampleSongs = [
         {
           title: "Blinding Lights",
           artist: "The Weeknd",
           albumId: "album1",
-          coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
+          coverImageURL:
+            "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
           audioURL: "", // Firebase Storage URL would go here
           createdAt: new Date(),
         },
         {
           title: "Watermelon Sugar",
-          artist: "Harry Styles", 
+          artist: "Harry Styles",
           albumId: "album2",
-          coverImageURL: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop",
+          coverImageURL:
+            "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop",
           audioURL: "",
           createdAt: new Date(),
         },
         {
           title: "Levitating",
           artist: "Dua Lipa",
-          albumId: "album3", 
-          coverImageURL: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop",
+          albumId: "album3",
+          coverImageURL:
+            "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop",
           audioURL: "",
           createdAt: new Date(),
-        }
+        },
       ];
 
       // Create songs in Firestore
@@ -391,17 +396,19 @@ export default function HomeScreen() {
         {
           name: "After Hours",
           artist: "The Weeknd",
-          coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
+          coverImageURL:
+            "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
           createdAt: new Date(),
           songIds: [songIds[0]], // Reference to song
         },
         {
-          name: "Fine Line", 
+          name: "Fine Line",
           artist: "Harry Styles",
-          coverImageURL: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop",
+          coverImageURL:
+            "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop",
           createdAt: new Date(),
           songIds: [songIds[1]],
-        }
+        },
       ];
 
       // Create albums in Firestore
@@ -415,7 +422,8 @@ export default function HomeScreen() {
         const samplePlaylist = {
           name: "My Favorites",
           createdBy: currentUser.uid,
-          coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
+          coverImageURL:
+            "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
           songIds: songIds.slice(0, 2), // Reference to songs
         };
 
@@ -425,7 +433,7 @@ export default function HomeScreen() {
 
       // Reload data
       await loadFirestoreData();
-      
+
       toast({
         title: "Sample data created",
         description: "Added sample songs, albums, and playlists",
@@ -495,7 +503,7 @@ export default function HomeScreen() {
               >
                 <RefreshCw className="w-5 h-5" />
               </button>
-              
+
               <button
                 onClick={() => setShowQuickSearch(!showQuickSearch)}
                 className="p-2 hover:bg-white/10 rounded-full transition-colors"
@@ -539,7 +547,9 @@ export default function HomeScreen() {
               className="pt-6"
             >
               <h1 className="text-4xl font-bold mb-2">{greeting}</h1>
-              <p className="text-gray-400">Discover amazing music from our collection</p>
+              <p className="text-gray-400">
+                Discover amazing music from our collection
+              </p>
             </motion.div>
 
             {/* Schema Info */}
@@ -552,9 +562,12 @@ export default function HomeScreen() {
               <div className="flex items-center space-x-2">
                 <AlertCircle className="w-5 h-5 text-neon-green" />
                 <div>
-                  <p className="text-neon-green font-medium">Firestore Schema Active</p>
+                  <p className="text-neon-green font-medium">
+                    Firestore Schema Active
+                  </p>
                   <p className="text-gray-300 text-sm">
-                    Collections: {songs.length} songs, {albums.length} albums, {playlists.length} playlists
+                    Collections: {songs.length} songs, {albums.length} albums,{" "}
+                    {playlists.length} playlists
                   </p>
                 </div>
               </div>
@@ -648,9 +661,7 @@ export default function HomeScreen() {
                       <h3 className="font-semibold mb-1 truncate">
                         {playlist.name}
                       </h3>
-                      <p className="text-gray-400 text-sm truncate">
-                        Playlist
-                      </p>
+                      <p className="text-gray-400 text-sm truncate">Playlist</p>
                       <p className="text-gray-500 text-xs mt-1">
                         {playlist.songIds.length} songs
                       </p>
@@ -730,7 +741,7 @@ export default function HomeScreen() {
                           }`}
                         />
                       </button>
-                      
+
                       <button className="p-1 hover:bg-white/10 rounded">
                         <MoreHorizontal className="w-4 h-4 text-gray-400" />
                       </button>
@@ -738,13 +749,14 @@ export default function HomeScreen() {
                   </motion.div>
                 ))}
               </div>
-              
+
               {songs.length === 0 && (
                 <div className="text-center py-12">
                   <Music className="w-12 h-12 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-xl font-semibold mb-2">No songs found</h3>
                   <p className="text-gray-400 mb-4">
-                    Add some songs to your Firestore "songs" collection to see them here.
+                    Add some songs to your Firestore "songs" collection to see
+                    them here.
                   </p>
                   <button
                     onClick={createSampleData}

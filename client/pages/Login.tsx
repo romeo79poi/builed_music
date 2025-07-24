@@ -15,7 +15,11 @@ import {
 } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useFirebase } from "../context/FirebaseContext";
-import { loginWithEmailAndPassword, signInWithGoogle, sendFirebaseEmailVerification } from "../lib/auth";
+import {
+  loginWithEmailAndPassword,
+  signInWithGoogle,
+  sendFirebaseEmailVerification,
+} from "../lib/auth";
 import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
 import { db } from "../lib/firebase";
 import { useToast } from "../hooks/use-toast";
@@ -105,7 +109,8 @@ export default function Login() {
       if (result.success) {
         toast({
           title: "Verification email sent!",
-          description: "Please check your email and click the verification link.",
+          description:
+            "Please check your email and click the verification link.",
         });
       } else {
         toast({
@@ -256,11 +261,15 @@ export default function Login() {
         const userProfile = await getUserProfile(result.user.uid);
 
         if (userProfile) {
-          console.log("✅ Google user data loaded from Firestore:", userProfile);
+          console.log(
+            "✅ Google user data loaded from Firestore:",
+            userProfile,
+          );
         } else {
           // Create profile if it doesn't exist (for new Google users)
           const profileData = {
-            name: result.user.displayName ||
+            name:
+              result.user.displayName ||
               result.user.email?.split("@")[0] ||
               "User",
             username: result.user.email?.split("@")[0] || "",
@@ -583,7 +592,8 @@ export default function Login() {
                   Email Verification Required
                 </h4>
                 <p className="text-yellow-200 text-sm mt-1">
-                  Please verify your email address to continue. Check your inbox for a verification link.
+                  Please verify your email address to continue. Check your inbox
+                  for a verification link.
                 </p>
                 <button
                   onClick={handleResendVerification}
@@ -596,7 +606,9 @@ export default function Login() {
                     <RefreshCw className="w-4 h-4" />
                   )}
                   <span>
-                    {sendingVerification ? "Sending..." : "Resend verification email"}
+                    {sendingVerification
+                      ? "Sending..."
+                      : "Resend verification email"}
                   </span>
                 </button>
               </div>

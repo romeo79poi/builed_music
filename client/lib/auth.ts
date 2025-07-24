@@ -55,7 +55,7 @@ export const signUpWithEmailAndPassword = async (
       // Store user data in Firestore with all required fields
       const userDocData: UserData = {
         name: name,
-        username: username || email.split('@')[0], // Default username from email if not provided
+        username: username || email.split("@")[0], // Default username from email if not provided
         email: user.email!,
         phone: phone || "",
         profileImageURL: user.photoURL || "",
@@ -310,7 +310,7 @@ export const signInWithGoogle = async (): Promise<{
         // Create new user document with all required fields
         const userData: UserData = {
           name: user.displayName || "",
-          username: user.email?.split('@')[0] || "",
+          username: user.email?.split("@")[0] || "",
           email: user.email || "",
           phone: "",
           profileImageURL: user.photoURL || "",
@@ -630,7 +630,7 @@ export const verifyPhoneOTP = async (
       if (!userDoc.exists()) {
         const userData: UserData = {
           name: "",
-          username: result.user.phoneNumber?.replace(/[^\d]/g, '') || "",
+          username: result.user.phoneNumber?.replace(/[^\d]/g, "") || "",
           email: "",
           phone: result.user.phoneNumber || "",
           profileImageURL: "",

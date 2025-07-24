@@ -436,7 +436,9 @@ export default function Signup() {
     // Add timeout to prevent infinite loading
     const timeoutId = setTimeout(() => {
       setIsLoading(false);
-      setErrorAlert("Google sign-in is taking too long. Please try again or use email signup.");
+      setErrorAlert(
+        "Google sign-in is taking too long. Please try again or use email signup.",
+      );
       console.log("⏰ Google sign-in timeout");
     }, 30000); // 30 second timeout
 
@@ -522,10 +524,17 @@ export default function Signup() {
         console.error("❌ Google sign-in failed:", result.error);
 
         // Set error alert for domain authorization issues
-        if (result.error?.includes("domain") || result.error?.includes("unauthorized")) {
-          setErrorAlert("Google sign-in is not available on this domain. Please use email signup instead.");
+        if (
+          result.error?.includes("domain") ||
+          result.error?.includes("unauthorized")
+        ) {
+          setErrorAlert(
+            "Google sign-in is not available on this domain. Please use email signup instead.",
+          );
         } else {
-          setErrorAlert(result.error || "Google sign-in failed. Please try email signup.");
+          setErrorAlert(
+            result.error || "Google sign-in failed. Please try email signup.",
+          );
         }
 
         toast({
@@ -546,8 +555,12 @@ export default function Signup() {
       } else if (error.message?.includes("popup")) {
         errorMessage =
           "Sign-in popup was blocked. Please allow popups and try again.";
-      } else if (error.message?.includes("domain") || error.message?.includes("unauthorized")) {
-        errorMessage = "Google sign-in not available on this domain. Use email signup.";
+      } else if (
+        error.message?.includes("domain") ||
+        error.message?.includes("unauthorized")
+      ) {
+        errorMessage =
+          "Google sign-in not available on this domain. Use email signup.";
       } else if (error.message) {
         errorMessage = error.message;
       }
@@ -976,22 +989,31 @@ export default function Signup() {
         // Test Firebase connection
         if (!auth || !db) {
           console.error("Firebase not properly initialized");
-          setErrorAlert("Authentication service unavailable. Try email signup or refresh the page.");
+          setErrorAlert(
+            "Authentication service unavailable. Try email signup or refresh the page.",
+          );
         } else {
           console.log("✅ Firebase services initialized successfully");
 
           // Test auth connection by checking current user
           try {
             const currentUser = auth.currentUser;
-            console.log("Firebase auth status:", currentUser ? "Connected" : "Ready");
+            console.log(
+              "Firebase auth status:",
+              currentUser ? "Connected" : "Ready",
+            );
           } catch (authError) {
             console.warn("Firebase auth test failed:", authError);
-            setErrorAlert("Google sign-in may not work. Please use email signup.");
+            setErrorAlert(
+              "Google sign-in may not work. Please use email signup.",
+            );
           }
         }
       } catch (error) {
         console.error("Firebase initialization error:", error);
-        setErrorAlert("Authentication service error. Please use email signup or refresh the page.");
+        setErrorAlert(
+          "Authentication service error. Please use email signup or refresh the page.",
+        );
       }
     };
 
@@ -1180,7 +1202,9 @@ export default function Signup() {
                     <button
                       onClick={() => {
                         setIsLoading(false);
-                        setErrorAlert("Google sign-in cancelled. Please try again or use email signup.");
+                        setErrorAlert(
+                          "Google sign-in cancelled. Please try again or use email signup.",
+                        );
                       }}
                       className="text-yellow-500 hover:text-yellow-400 text-xs bg-yellow-500/20 px-2 py-1 rounded"
                     >
@@ -1839,7 +1863,10 @@ export default function Signup() {
       </div>
 
       {/* reCAPTCHA container for Firebase phone auth */}
-      <div id="recaptcha-container" className="fixed bottom-4 right-4 z-50"></div>
+      <div
+        id="recaptcha-container"
+        className="fixed bottom-4 right-4 z-50"
+      ></div>
 
       {/* Additional reCAPTCHA info for users */}
       {phoneVerificationSent && (

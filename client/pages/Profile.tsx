@@ -42,7 +42,7 @@ interface UserData {
 export default function Profile() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+
   // State management
   const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
   const [userData, setUserData] = useState<UserData | null>(null);
@@ -111,7 +111,7 @@ export default function Profile() {
     try {
       setSisSaving(true);
       const userDocRef = doc(db, "users", currentUser.uid);
-      
+
       // Update only the changed fields
       const updateData = {
         ...editedData,
@@ -119,9 +119,9 @@ export default function Profile() {
       };
 
       await updateDoc(userDocRef, updateData);
-      
+
       // Update local state
-      setUserData(prev => prev ? { ...prev, ...editedData } : null);
+      setUserData((prev) => (prev ? { ...prev, ...editedData } : null));
       setIsEditing(false);
 
       toast({
@@ -149,11 +149,12 @@ export default function Profile() {
     try {
       setSendingVerification(true);
       const result = await sendFirebaseEmailVerification(currentUser);
-      
+
       if (result.success) {
         toast({
           title: "Verification email sent!",
-          description: "Please check your email and click the verification link.",
+          description:
+            "Please check your email and click the verification link.",
         });
       } else {
         toast({
@@ -183,7 +184,7 @@ export default function Profile() {
 
   // Handle input changes
   const handleInputChange = (field: keyof UserData, value: string) => {
-    setEditedData(prev => ({
+    setEditedData((prev) => ({
       ...prev,
       [field]: value,
     }));
@@ -222,9 +223,16 @@ export default function Profile() {
       <div className="min-h-screen bg-black flex items-center justify-center">
         <div className="text-center">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-white mb-2">Profile Not Found</h2>
-          <p className="text-gray-400 mb-4">We couldn't load your profile data</p>
-          <Button onClick={() => navigate("/home")} className="bg-neon-green text-black">
+          <h2 className="text-xl font-bold text-white mb-2">
+            Profile Not Found
+          </h2>
+          <p className="text-gray-400 mb-4">
+            We couldn't load your profile data
+          </p>
+          <Button
+            onClick={() => navigate("/home")}
+            className="bg-neon-green text-black"
+          >
             Go to Home
           </Button>
         </div>
@@ -253,9 +261,9 @@ export default function Profile() {
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          
+
           <h1 className="text-xl font-bold">My Profile</h1>
-          
+
           <div className="flex items-center space-x-2">
             <button
               onClick={refreshProfile}
@@ -314,13 +322,17 @@ export default function Profile() {
                   <div className="space-y-3 max-w-sm mx-auto">
                     <Input
                       value={editedData.name || ""}
-                      onChange={(e) => handleInputChange("name", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("name", e.target.value)
+                      }
                       placeholder="Full Name"
                       className="bg-white/10 border-white/20 text-white placeholder-gray-400"
                     />
                     <Input
                       value={editedData.username || ""}
-                      onChange={(e) => handleInputChange("username", e.target.value)}
+                      onChange={(e) =>
+                        handleInputChange("username", e.target.value)
+                      }
                       placeholder="Username"
                       className="bg-white/10 border-white/20 text-white placeholder-gray-400"
                     />
@@ -347,7 +359,9 @@ export default function Profile() {
                       ) : (
                         <Input
                           value={editedData.email || ""}
-                          onChange={(e) => handleInputChange("email", e.target.value)}
+                          onChange={(e) =>
+                            handleInputChange("email", e.target.value)
+                          }
                           placeholder="Email address"
                           className="bg-white/10 border-white/20 text-white placeholder-gray-400"
                         />
@@ -357,12 +371,16 @@ export default function Profile() {
                       {userData.emailVerified ? (
                         <div className="flex items-center space-x-1">
                           <CheckCircle className="w-4 h-4 text-green-500" />
-                          <span className="text-xs text-green-500">Verified</span>
+                          <span className="text-xs text-green-500">
+                            Verified
+                          </span>
                         </div>
                       ) : (
                         <div className="flex items-center space-x-2">
                           <AlertCircle className="w-4 h-4 text-yellow-500" />
-                          <span className="text-xs text-yellow-500">Not verified</span>
+                          <span className="text-xs text-yellow-500">
+                            Not verified
+                          </span>
                           <button
                             onClick={handleSendEmailVerification}
                             disabled={sendingVerification}
@@ -389,11 +407,15 @@ export default function Profile() {
                   <div className="flex-1">
                     <div className="flex items-center space-x-2">
                       {!isEditing ? (
-                        <span className="text-white">{userData.phone || "Not provided"}</span>
+                        <span className="text-white">
+                          {userData.phone || "Not provided"}
+                        </span>
                       ) : (
                         <Input
                           value={editedData.phone || ""}
-                          onChange={(e) => handleInputChange("phone", e.target.value)}
+                          onChange={(e) =>
+                            handleInputChange("phone", e.target.value)
+                          }
                           placeholder="Phone number"
                           className="bg-white/10 border-white/20 text-white placeholder-gray-400"
                         />
@@ -403,12 +425,16 @@ export default function Profile() {
                       {userData.phoneVerified ? (
                         <div className="flex items-center space-x-1">
                           <CheckCircle className="w-4 h-4 text-green-500" />
-                          <span className="text-xs text-green-500">Verified</span>
+                          <span className="text-xs text-green-500">
+                            Verified
+                          </span>
                         </div>
                       ) : (
                         <div className="flex items-center space-x-2">
                           <AlertCircle className="w-4 h-4 text-yellow-500" />
-                          <span className="text-xs text-yellow-500">Not verified</span>
+                          <span className="text-xs text-yellow-500">
+                            Not verified
+                          </span>
                           {userData.phone && (
                             <button
                               onClick={handleSendPhoneOTP}
@@ -432,16 +458,19 @@ export default function Profile() {
                 <Shield className="w-5 h-5 mr-2 text-neon-blue" />
                 Account Information
               </h3>
-              
+
               <div className="grid grid-cols-1 gap-3 text-sm">
                 <div className="flex justify-between">
                   <span className="text-gray-400">User ID:</span>
-                  <span className="text-white font-mono text-xs">{currentUser?.uid}</span>
+                  <span className="text-white font-mono text-xs">
+                    {currentUser?.uid}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-400">Member since:</span>
                   <span className="text-white">
-                    {userData.createdAt?.toDate?.()?.toLocaleDateString() || "Unknown"}
+                    {userData.createdAt?.toDate?.()?.toLocaleDateString() ||
+                      "Unknown"}
                   </span>
                 </div>
                 <div className="flex justify-between">

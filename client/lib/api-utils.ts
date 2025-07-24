@@ -156,7 +156,8 @@ async function parseResponse<T>(response: Response): Promise<ApiResponse<T>> {
     } else {
       // Try to extract error from parsed data
       if (data && typeof data === "object") {
-        errorMessage = data.message || data.error || data.detail || response.statusText;
+        errorMessage =
+          data.message || data.error || data.detail || response.statusText;
       } else if (data && typeof data === "string") {
         errorMessage = data;
       } else {

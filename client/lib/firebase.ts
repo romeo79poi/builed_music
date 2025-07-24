@@ -10,7 +10,7 @@ const firebaseConfig = {
   storageBucket: "music-catch-59b79.firebasestorage.app",
   messagingSenderId: "185813176462",
   appId: "1:185813176462:web:8269607d16eb315f55b9df",
-  measurementId: "G-PBGMC7JZR3"
+  measurementId: "G-PBGMC7JZR3",
 };
 
 // Initialize Firebase
