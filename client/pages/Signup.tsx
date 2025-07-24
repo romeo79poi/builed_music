@@ -1138,11 +1138,19 @@ export default function Signup() {
               {/* Error Alert */}
               {errorAlert && (
                 <div className="bg-red-500/10 border border-red-500 rounded-lg p-4 mb-4">
-                  <div className="flex items-center">
-                    <AlertCircle className="w-5 h-5 text-red-500 mr-3" />
-                    <p className="text-red-500 text-sm font-medium">
-                      {errorAlert}
-                    </p>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center">
+                      <AlertCircle className="w-5 h-5 text-red-500 mr-3" />
+                      <p className="text-red-500 text-sm font-medium">
+                        {errorAlert}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setErrorAlert(null)}
+                      className="text-red-500 hover:text-red-400 ml-2"
+                    >
+                      ✕
+                    </button>
                   </div>
                 </div>
               )}
