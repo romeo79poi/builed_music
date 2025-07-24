@@ -58,8 +58,9 @@ export const signUpWithEmailAndPassword = async (
         username: username || email.split('@')[0], // Default username from email if not provided
         email: user.email!,
         phone: phone || "",
-        createdAt: serverTimestamp(),
         profileImageURL: user.photoURL || "",
+        createdAt: serverTimestamp(),
+        verified: false, // New users start unverified
       };
 
       await setDoc(doc(db, "users", user.uid), userDocData);
