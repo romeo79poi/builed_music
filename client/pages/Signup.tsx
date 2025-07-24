@@ -950,14 +950,20 @@ export default function Signup() {
   }, [resendTimer]);
 
   const stepTitles = {
+    method: "Choose signup method",
     email: "What's your email?",
+    phone: "What's your phone number?",
+    "phone-verify": "Verify your phone",
     profile: "Tell us about yourself",
     verification: "Verify your email",
     password: "Create your password",
   };
 
   const stepDescriptions = {
+    method: "Sign up with email, phone, or social media",
     email: "We'll send you a verification email",
+    phone: "We'll send you a verification code",
+    "phone-verify": "Enter the 6-digit code we sent to your phone",
     profile: "Help others find you on Music Catch",
     verification: "Check your email and click the verification link",
     password: "Choose a secure password for your account",
