@@ -27,6 +27,8 @@ export const signUpWithEmailAndPassword = async (
   email: string,
   password: string,
   name: string,
+  username?: string,
+  phone?: string,
 ): Promise<{ success: boolean; user?: User; error?: string }> => {
   try {
     // Check if Firebase is configured
@@ -49,12 +51,14 @@ export const signUpWithEmailAndPassword = async (
       console.log({ userCredential });
       const user = userCredential.user;
 
-      // Store user data in Firestore with exact required fields
-      const userDocData = {
+      // Store user data in Firestore with all required fields
+      const userDocData: UserData = {
         name: name,
+        username: username || email.split('@')[0], // Default username from email if not provided
         email: user.email!,
-        uid: user.uid,
+        phone: phone || "",
         createdAt: serverTimestamp(),
+        profileImageURL: user.photoURL || "",
       };
 
       await setDoc(doc(db, "users", user.uid), userDocData);
