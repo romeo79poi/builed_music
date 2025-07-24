@@ -313,8 +313,9 @@ export const signInWithGoogle = async (): Promise<{
           username: user.email?.split('@')[0] || "",
           email: user.email || "",
           phone: "",
-          createdAt: serverTimestamp(),
           profileImageURL: user.photoURL || "",
+          createdAt: serverTimestamp(),
+          verified: user.emailVerified || false, // Google users may be pre-verified
         };
 
         await setDoc(userDocRef, userData);
