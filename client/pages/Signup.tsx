@@ -1718,7 +1718,14 @@ export default function Signup() {
       </div>
 
       {/* reCAPTCHA container for Firebase phone auth */}
-      <div id="recaptcha-container"></div>
+      <div id="recaptcha-container" className="fixed bottom-4 right-4 z-50"></div>
+
+      {/* Additional reCAPTCHA info for users */}
+      {phoneVerificationSent && (
+        <div className="fixed bottom-20 left-4 right-4 bg-black/80 backdrop-blur-sm border border-white/20 rounded-lg p-3 text-white text-xs text-center z-40">
+          <p>📱 SMS verification powered by Google reCAPTCHA</p>
+        </div>
+      )}
     </div>
   );
 }
