@@ -454,17 +454,17 @@ export default function Login() {
             <div className="space-y-3">
               <button
                 onClick={() => setLoginMethod("email")}
-                className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg flex items-center justify-center text-white hover:bg-slate-700/50 transition-colors"
+                className="w-full h-12 sm:h-14 bg-purple-dark/50 border border-purple-primary/30 rounded-xl flex items-center justify-center text-white hover:bg-purple-primary/10 hover:border-purple-primary/50 transition-all duration-200 hover:shadow-lg hover:shadow-purple-primary/20"
               >
-                <Mail className="w-5 h-5 mr-3 text-neon-green" />
+                <Mail className="w-5 h-5 mr-3 text-purple-primary" />
                 Continue with Email
               </button>
 
               <button
                 onClick={() => setLoginMethod("phone")}
-                className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg flex items-center justify-center text-white hover:bg-slate-700/50 transition-colors"
+                className="w-full h-12 sm:h-14 bg-purple-dark/50 border border-purple-secondary/30 rounded-xl flex items-center justify-center text-white hover:bg-purple-secondary/10 hover:border-purple-secondary/50 transition-all duration-200 hover:shadow-lg hover:shadow-purple-secondary/20"
               >
-                <Phone className="w-5 h-5 mr-3 text-neon-blue" />
+                <Phone className="w-5 h-5 mr-3 text-purple-secondary" />
                 Continue with Phone Number
               </button>
             </div>
