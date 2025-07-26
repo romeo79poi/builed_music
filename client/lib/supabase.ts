@@ -4,8 +4,27 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project.supabase.co'
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key'
 
+// Check if Supabase is properly configured
+const isSupabaseConfigured = supabaseUrl.includes('.supabase.co') && supabaseAnonKey !== 'your-anon-key'
+
 // Create Supabase client
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+
+// Utility to check if Supabase is available
+export const isSupabaseAvailable = async (): Promise<boolean> => {
+  if (!isSupabaseConfigured) {
+    console.warn('⚠️ Supabase not configured, using demo mode')
+    return false
+  }
+
+  try {
+    const { data, error } = await supabase.from('users').select('count', { count: 'exact', head: true })
+    return !error
+  } catch (error) {
+    console.warn('⚠️ Supabase connection failed:', error)
+    return false
+  }
+}
 
 // Database types
 export interface User {
