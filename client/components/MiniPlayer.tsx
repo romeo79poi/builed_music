@@ -90,7 +90,7 @@ export function MiniPlayer() {
             <img
               src={currentSong.image}
               alt={currentSong.title}
-              className="w-14 h-14 rounded-lg object-cover"
+              className="w-14 h-14 rounded-xl object-cover shadow-lg"
             />
             <div className="min-w-0">
               <h3 className="text-white font-medium text-sm truncate">
