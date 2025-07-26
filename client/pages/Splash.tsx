@@ -38,7 +38,7 @@ export default function Splash() {
             </div>
 
             {/* Background glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-neon-green/10 via-transparent to-neon-blue/10"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-primary/20 via-purple-secondary/10 to-purple-accent/15"></div>
 
             {/* Splash content */}
             <div className="relative z-10 flex flex-col items-center">
