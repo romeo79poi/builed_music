@@ -167,8 +167,8 @@ export default function Splash() {
                   By continuing, you agree to our Terms of Service and Privacy
                   Policy
                 </p>
-                <p className="text-transparent bg-gradient-to-r from-neon-green/70 to-neon-blue/70 bg-clip-text text-xs font-medium">
-                  🎶 Where Every Beat Tells a Story ����
+                <p className="text-transparent bg-gradient-to-r from-purple-primary/70 via-purple-secondary/70 to-purple-accent/70 bg-clip-text text-xs font-medium">
+                  ��� Where Every Beat Tells a Story 🎶
                 </p>
               </motion.div>
             </div>
