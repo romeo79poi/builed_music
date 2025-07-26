@@ -1349,8 +1349,8 @@ export default function Signup() {
               className="space-y-4 sm:space-y-6"
             >
               <div className="text-center mb-4 sm:mb-6">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-neon-blue/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                  <Phone className="w-6 h-6 sm:w-8 sm:h-8 text-neon-blue" />
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-purple-secondary/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <Phone className="w-6 h-6 sm:w-8 sm:h-8 text-purple-secondary" />
                 </div>
                 <h3 className="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">
                   {stepTitles.phone}
