@@ -958,7 +958,7 @@ export default function Signup() {
 
         // For development, show code in console
         if (data.debugCode) {
-          console.log(`📧 Resent email verification code: ${data.debugCode}`);
+          console.log(`���� Resent email verification code: ${data.debugCode}`);
         }
 
         setResendTimer(60);
@@ -1246,7 +1246,7 @@ export default function Signup() {
               <div className="space-y-3">
                 <button
                   onClick={() => handleMethodStep("email")}
-                  className="w-full h-12 sm:h-14 bg-gradient-to-r from-neon-green to-neon-blue text-black font-semibold rounded-lg flex items-center justify-center hover:scale-105 transition-transform"
+                  className="w-full h-12 sm:h-14 bg-gradient-to-r from-purple-primary to-purple-secondary text-white font-semibold rounded-xl flex items-center justify-center hover:scale-105 transition-all duration-200 shadow-lg shadow-purple-primary/30 hover:shadow-purple-secondary/40"
                 >
                   <Mail className="w-5 h-5 mr-3" />
                   Continue with Email (Recommended)
@@ -1254,9 +1254,9 @@ export default function Signup() {
 
                 <button
                   onClick={() => handleMethodStep("phone")}
-                  className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg flex items-center justify-center text-white hover:bg-slate-700/50 transition-colors"
+                  className="w-full h-12 sm:h-14 bg-purple-dark/50 border border-purple-secondary/30 rounded-xl flex items-center justify-center text-white hover:bg-purple-secondary/10 hover:border-purple-secondary/50 transition-all duration-200 hover:shadow-lg hover:shadow-purple-secondary/20"
                 >
-                  <Phone className="w-5 h-5 mr-3 text-neon-blue" />
+                  <Phone className="w-5 h-5 mr-3 text-purple-secondary" />
                   Continue with Phone Number
                 </button>
               </div>
