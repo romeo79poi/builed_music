@@ -82,17 +82,17 @@ export default function MobileFooter({ className = "" }: FooterProps) {
       className={`fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur-xl border-t border-purple-primary/30 z-50 ${className}`}
     >
       {/* Mobile Safe Area */}
-      <div className="px-2 py-2 pb-safe">
-        <div className="flex items-center justify-around max-w-md mx-auto">
+      <div className="px-3 py-2" style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}>
+        <div className="flex items-center justify-around max-w-lg mx-auto">
           {navItems.map((item) => {
             const isActive = activeItem?.id === item.id;
             const Icon = item.icon;
-            
+
             return (
               <Link
                 key={item.id}
                 to={item.path}
-                className="flex flex-col items-center py-2 px-1 min-w-0 flex-1"
+                className="flex flex-col items-center py-1 px-2 min-w-0 flex-1"
               >
                 <motion.div
                   whileHover={{ scale: 1.1, y: -2 }}
