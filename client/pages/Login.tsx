@@ -399,7 +399,7 @@ export default function Login() {
             <button
               onClick={handleGoogleLogin}
               disabled={isLoading}
-              className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-full flex items-center justify-center text-white font-medium hover:bg-slate-700/50 transition-colors disabled:opacity-50"
+              className="w-full h-14 bg-purple-dark/50 border border-purple-primary/30 rounded-full flex items-center justify-center text-white font-medium hover:bg-purple-dark/70 hover:border-purple-primary/50 transition-all duration-200 disabled:opacity-50 hover:shadow-lg hover:shadow-purple-primary/20"
             >
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
