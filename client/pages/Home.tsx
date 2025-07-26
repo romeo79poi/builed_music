@@ -6,10 +6,6 @@ import {
   User,
   Play,
   Pause,
-  Home as HomeIcon,
-  Upload,
-  Library,
-  BarChart3,
   MessageCircle,
   Heart,
   MoreHorizontal,
@@ -22,6 +18,7 @@ import {
 } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useToast } from "../hooks/use-toast";
+import MobileFooter from "../components/MobileFooter";
 
 // Sample data for the layout
 const sampleAlbums = [
