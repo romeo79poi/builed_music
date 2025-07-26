@@ -557,13 +557,13 @@ export default function HomeScreen() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="bg-neon-green/10 border border-neon-green/30 rounded-lg p-4"
+              className="bg-purple-primary/10 border border-purple-primary/30 rounded-xl p-4 backdrop-blur-sm"
             >
               <div className="flex items-center space-x-2">
-                <AlertCircle className="w-5 h-5 text-neon-green" />
+                <AlertCircle className="w-5 h-5 text-purple-primary" />
                 <div>
-                  <p className="text-neon-green font-medium">
-                    Firestore Schema Active
+                  <p className="text-purple-primary font-medium">
+                    Music Library Active
                   </p>
                   <p className="text-gray-300 text-sm">
                     Collections: {songs.length} songs, {albums.length} albums,{" "}
