@@ -1,7 +1,13 @@
 import { RequestHandler } from "express";
+import { serverSupabase } from "../lib/supabase";
 
-// Mock music database
-const songsDatabase = [
+// Mock genres and categories for compatibility
+const genres = [
+  "Pop", "Hip-Hop", "Rock", "Electronic", "Jazz", "Classical",
+  "R&B", "Country", "Reggae", "Folk", "Blues", "Alternative"
+];
+
+const sampleSongs = [
   {
     id: 1,
     title: "Blinding Lights",
