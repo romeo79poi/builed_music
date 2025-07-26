@@ -776,23 +776,31 @@ export default function HomeScreen() {
         <MiniPlayer />
 
         {/* Bottom Navigation (Mobile) */}
-        <div className="fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur-sm border-t border-white/10 px-4 py-2 md:hidden z-40">
+        <div className="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-xl border-t border-purple-primary/20 px-4 py-3 md:hidden z-40">
           <div className="flex items-center justify-around">
-            <Link to="/home" className="flex flex-col items-center py-2">
-              <Home className="w-6 h-6 text-neon-green mb-1" />
-              <span className="text-neon-green text-xs font-medium">Home</span>
+            <Link to="/home" className="flex flex-col items-center py-2 transition-all duration-200">
+              <div className="p-2 rounded-xl bg-purple-primary/20">
+                <Home className="w-5 h-5 text-purple-primary mb-1" />
+              </div>
+              <span className="text-purple-primary text-xs font-medium mt-1">Home</span>
             </Link>
-            <Link to="/search" className="flex flex-col items-center py-2">
-              <Search className="w-6 h-6 text-gray-400 mb-1" />
-              <span className="text-gray-400 text-xs">Search</span>
+            <Link to="/search" className="flex flex-col items-center py-2 transition-all duration-200 hover:scale-110">
+              <div className="p-2 rounded-xl hover:bg-purple-primary/10">
+                <Search className="w-5 h-5 text-gray-400 mb-1 hover:text-purple-primary transition-colors" />
+              </div>
+              <span className="text-gray-400 text-xs mt-1">Search</span>
             </Link>
-            <Link to="/library" className="flex flex-col items-center py-2">
-              <Library className="w-6 h-6 text-gray-400 mb-1" />
-              <span className="text-gray-400 text-xs">Library</span>
+            <Link to="/library" className="flex flex-col items-center py-2 transition-all duration-200 hover:scale-110">
+              <div className="p-2 rounded-xl hover:bg-purple-primary/10">
+                <Library className="w-5 h-5 text-gray-400 mb-1 hover:text-purple-primary transition-colors" />
+              </div>
+              <span className="text-gray-400 text-xs mt-1">Library</span>
             </Link>
-            <Link to="/profile" className="flex flex-col items-center py-2">
-              <User className="w-6 h-6 text-gray-400 mb-1" />
-              <span className="text-gray-400 text-xs">Profile</span>
+            <Link to="/profile" className="flex flex-col items-center py-2 transition-all duration-200 hover:scale-110">
+              <div className="p-2 rounded-xl hover:bg-purple-primary/10">
+                <User className="w-5 h-5 text-gray-400 mb-1 hover:text-purple-primary transition-colors" />
+              </div>
+              <span className="text-gray-400 text-xs mt-1">Profile</span>
             </Link>
           </div>
         </div>
