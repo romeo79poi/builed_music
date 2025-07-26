@@ -1,17 +1,6 @@
 import { RequestHandler } from "express";
-
-// In-memory storage for demo (in production, use a real database)
-const users: Array<{
-  id: string;
-  email: string;
-  username: string;
-  name?: string;
-  password: string; // In production, this should be hashed
-  createdAt: Date;
-  isVerified: boolean;
-  emailVerificationCode?: string;
-  emailVerificationExpiry?: Date;
-}> = [];
+import { serverSupabase } from "../lib/supabase";
+import bcrypt from "bcrypt";
 
 // In-memory storage for email verification codes
 const emailVerificationCodes: Map<
