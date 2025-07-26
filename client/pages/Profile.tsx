@@ -350,7 +350,7 @@ export default function Profile() {
               </h3>
 
               {/* Email */}
-              <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/10">
+              <div className="flex items-center justify-between p-4 bg-purple-dark/30 rounded-xl border border-purple-primary/20 backdrop-blur-sm">
                 <div className="flex items-center space-x-3">
                   <Mail className="w-5 h-5 text-gray-400" />
                   <div className="flex-1">
