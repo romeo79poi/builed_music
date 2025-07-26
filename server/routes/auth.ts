@@ -26,21 +26,6 @@ export const registerUser: RequestHandler = async (req, res) => {
       });
     }
 
-    // Check if user already exists
-    const existingUser = users.find(
-      (user) => user.email === email || user.username === username,
-    );
-
-    if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message:
-          existingUser.email === email
-            ? "Email already registered"
-            : "Username already taken",
-      });
-    }
-
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
@@ -58,19 +43,43 @@ export const registerUser: RequestHandler = async (req, res) => {
       });
     }
 
-    // Create new user
-    const newUser = {
-      id: Date.now().toString(),
+    // Check if user already exists
+    const { data: existingUserByEmail } = await serverSupabase.getUserByEmail(email);
+    if (existingUserByEmail) {
+      return res.status(400).json({
+        success: false,
+        message: "Email already registered",
+      });
+    }
+
+    const { data: existingUserByUsername } = await serverSupabase.getUserByUsername(username);
+    if (existingUserByUsername) {
+      return res.status(400).json({
+        success: false,
+        message: "Username already taken",
+      });
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    // Create new user in Supabase
+    const { data: newUser, error } = await serverSupabase.createUser({
       email,
       username,
       name,
-      password, // In production, hash this password
-      provider,
-      createdAt: new Date(),
-      isVerified: provider === "google", // Google users are pre-verified
-    };
+      password: hashedPassword,
+      is_verified: provider === "google", // Google users are pre-verified
+      email_verified: provider === "google",
+    });
 
-    users.push(newUser);
+    if (error) {
+      console.error("Supabase error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to create user account",
+      });
+    }
 
     // Return success response (without password)
     const { password: _, ...userResponse } = newUser;
@@ -81,14 +90,12 @@ export const registerUser: RequestHandler = async (req, res) => {
       user: userResponse,
     });
 
-    // Log for demo purposes
     console.log("✅ New user registered:", {
+      id: newUser.id,
       email,
       username,
       name,
       provider,
-      createdAt: newUser.createdAt,
-      isVerified: newUser.isVerified,
     });
   } catch (error) {
     console.error("Registration error:", error);
