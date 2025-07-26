@@ -158,9 +158,6 @@ export default function Home() {
             className="flex items-center space-x-3"
           >
             <MusicCatchLogo className="w-10 h-10" animated />
-            <span className="text-3xl font-bold bg-gradient-to-r from-purple-primary via-purple-secondary to-purple-accent bg-clip-text text-transparent tracking-wide">
-              Catch
-            </span>
           </motion.div>
 
           {/* Message Icon */}
