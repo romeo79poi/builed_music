@@ -41,9 +41,10 @@ export default function Settings() {
   const [userProfile, setUserProfile] = useState({
     name: "John Doe",
     email: "john.doe@example.com",
-    profileImage: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
+    profileImage:
+      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
     joinDate: "January 2024",
-    premium: true
+    premium: true,
   });
 
   // Settings state
@@ -59,14 +60,14 @@ export default function Settings() {
     crossfade: false,
     normalization: true,
     language: "English",
-    region: "United States"
+    region: "United States",
   });
 
   // Edit states
   const [isEditingProfile, setIsEditingProfile] = useState(false);
   const [editForm, setEditForm] = useState({
     name: userProfile.name,
-    email: userProfile.email
+    email: userProfile.email,
   });
 
   // Modal states
@@ -78,173 +79,174 @@ export default function Settings() {
       title: "Account",
       icon: User,
       items: [
-        { 
-          key: "profile", 
-          label: "Edit Profile", 
-          icon: Edit3, 
+        {
+          key: "profile",
+          label: "Edit Profile",
+          icon: Edit3,
           action: () => setIsEditingProfile(true),
-          description: "Change your name, email, and profile picture"
+          description: "Change your name, email, and profile picture",
         },
-        { 
-          key: "subscription", 
-          label: "Manage Subscription", 
-          icon: Star, 
+        {
+          key: "subscription",
+          label: "Manage Subscription",
+          icon: Star,
           action: () => {},
           description: userProfile.premium ? "Premium Member" : "Free Account",
-          badge: userProfile.premium ? "PREMIUM" : null
+          badge: userProfile.premium ? "PREMIUM" : null,
         },
-        { 
-          key: "privacy", 
-          label: "Privacy Settings", 
-          icon: Shield, 
+        {
+          key: "privacy",
+          label: "Privacy Settings",
+          icon: Shield,
           action: () => {},
-          description: "Control who can see your activity"
-        }
-      ]
+          description: "Control who can see your activity",
+        },
+      ],
     },
     {
       title: "Audio & Playback",
       icon: Volume2,
       items: [
-        { 
-          key: "highQuality", 
-          label: "High Quality Audio", 
-          icon: Headphones, 
+        {
+          key: "highQuality",
+          label: "High Quality Audio",
+          icon: Headphones,
           toggle: true,
           value: settings.highQuality,
-          description: "Stream music in higher quality"
+          description: "Stream music in higher quality",
         },
-        { 
-          key: "autoPlay", 
-          label: "Autoplay", 
-          icon: Volume2, 
+        {
+          key: "autoPlay",
+          label: "Autoplay",
+          icon: Volume2,
           toggle: true,
           value: settings.autoPlay,
-          description: "Automatically play similar songs when your music ends"
+          description: "Automatically play similar songs when your music ends",
         },
-        { 
-          key: "crossfade", 
-          label: "Crossfade", 
-          icon: Volume2, 
+        {
+          key: "crossfade",
+          label: "Crossfade",
+          icon: Volume2,
           toggle: true,
           value: settings.crossfade,
-          description: "Smooth transition between songs"
+          description: "Smooth transition between songs",
         },
-        { 
-          key: "normalization", 
-          label: "Audio Normalization", 
-          icon: Volume2, 
+        {
+          key: "normalization",
+          label: "Audio Normalization",
+          icon: Volume2,
           toggle: true,
           value: settings.normalization,
-          description: "Set the same volume level for all tracks"
-        }
-      ]
+          description: "Set the same volume level for all tracks",
+        },
+      ],
     },
     {
       title: "App Preferences",
       icon: SettingsIcon,
       items: [
-        { 
-          key: "darkTheme", 
-          label: "Dark Theme", 
-          icon: settings.darkTheme ? Moon : Sun, 
+        {
+          key: "darkTheme",
+          label: "Dark Theme",
+          icon: settings.darkTheme ? Moon : Sun,
           toggle: true,
           value: settings.darkTheme,
-          description: "Use dark theme throughout the app"
+          description: "Use dark theme throughout the app",
         },
-        { 
-          key: "notifications", 
-          label: "Push Notifications", 
-          icon: Bell, 
+        {
+          key: "notifications",
+          label: "Push Notifications",
+          icon: Bell,
           toggle: true,
           value: settings.notifications,
-          description: "Get notified about new releases and updates"
+          description: "Get notified about new releases and updates",
         },
-        { 
-          key: "autoDownload", 
-          label: "Auto Download", 
-          icon: Download, 
+        {
+          key: "autoDownload",
+          label: "Auto Download",
+          icon: Download,
           toggle: true,
           value: settings.autoDownload,
-          description: "Automatically download liked songs for offline listening"
+          description:
+            "Automatically download liked songs for offline listening",
         },
-        { 
-          key: "language", 
-          label: "Language", 
-          icon: Globe, 
+        {
+          key: "language",
+          label: "Language",
+          icon: Globe,
           action: () => {},
-          description: settings.language
-        }
-      ]
+          description: settings.language,
+        },
+      ],
     },
     {
       title: "Social",
       icon: Share,
       items: [
-        { 
-          key: "publicProfile", 
-          label: "Public Profile", 
-          icon: User, 
+        {
+          key: "publicProfile",
+          label: "Public Profile",
+          icon: User,
           toggle: true,
           value: settings.publicProfile,
-          description: "Make your profile visible to other users"
+          description: "Make your profile visible to other users",
         },
-        { 
-          key: "showActivity", 
-          label: "Show Activity", 
-          icon: User, 
+        {
+          key: "showActivity",
+          label: "Show Activity",
+          icon: User,
           toggle: true,
           value: settings.showActivity,
-          description: "Let others see what you're listening to"
-        }
-      ]
+          description: "Let others see what you're listening to",
+        },
+      ],
     },
     {
       title: "Support",
       icon: HelpCircle,
       items: [
-        { 
-          key: "help", 
-          label: "Help Center", 
-          icon: HelpCircle, 
+        {
+          key: "help",
+          label: "Help Center",
+          icon: HelpCircle,
           action: () => {},
-          description: "Get help and find answers"
+          description: "Get help and find answers",
         },
-        { 
-          key: "feedback", 
-          label: "Send Feedback", 
-          icon: Share, 
+        {
+          key: "feedback",
+          label: "Send Feedback",
+          icon: Share,
           action: () => {},
-          description: "Share your thoughts about the app"
+          description: "Share your thoughts about the app",
         },
-        { 
-          key: "about", 
-          label: "About Catch", 
-          icon: SettingsIcon, 
+        {
+          key: "about",
+          label: "About Catch",
+          icon: SettingsIcon,
           action: () => {},
-          description: "Version 1.0.0"
-        }
-      ]
-    }
+          description: "Version 1.0.0",
+        },
+      ],
+    },
   ];
 
   const handleToggleSetting = (key: string) => {
-    setSettings(prev => ({
+    setSettings((prev) => ({
       ...prev,
-      [key]: !prev[key as keyof typeof prev]
+      [key]: !prev[key as keyof typeof prev],
     }));
-    
+
     toast({
       title: "Setting Updated",
-      description: `${key} has been ${settings[key as keyof typeof settings] ? 'disabled' : 'enabled'}`,
+      description: `${key} has been ${settings[key as keyof typeof settings] ? "disabled" : "enabled"}`,
     });
   };
 
   const handleSaveProfile = () => {
-    setUserProfile(prev => ({
+    setUserProfile((prev) => ({
       ...prev,
       name: editForm.name,
-      email: editForm.email
+      email: editForm.email,
     }));
     setIsEditingProfile(false);
     toast({
@@ -267,7 +269,7 @@ export default function Settings() {
     toast({
       title: "Account Deleted",
       description: "Your account has been permanently deleted",
-      variant: "destructive"
+      variant: "destructive",
     });
     navigate("/login");
   };
@@ -276,15 +278,15 @@ export default function Settings() {
     <div className="min-h-screen bg-gradient-to-br from-purple-darker via-purple-dark to-background text-white relative overflow-hidden">
       {/* Background Effects */}
       <div className="fixed inset-0 bg-gradient-to-br from-purple-primary/8 via-purple-secondary/4 to-purple-accent/6"></div>
-      
+
       {/* Animated Background */}
       <div className="fixed inset-0 opacity-20">
-        <motion.div 
+        <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
           className="absolute top-1/4 right-1/4 w-24 h-24 border border-purple-primary/20 rounded-full"
         />
-        <motion.div 
+        <motion.div
           animate={{ rotate: -360 }}
           transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
           className="absolute bottom-1/3 left-1/4 w-16 h-16 border border-purple-secondary/20 rounded-full"
@@ -339,11 +341,15 @@ export default function Settings() {
                     </motion.div>
                   )}
                 </div>
-                
+
                 <div className="flex-1">
-                  <h2 className="text-xl font-bold text-white">{userProfile.name}</h2>
+                  <h2 className="text-xl font-bold text-white">
+                    {userProfile.name}
+                  </h2>
                   <p className="text-gray-400">{userProfile.email}</p>
-                  <p className="text-sm text-purple-primary">Member since {userProfile.joinDate}</p>
+                  <p className="text-sm text-purple-primary">
+                    Member since {userProfile.joinDate}
+                  </p>
                 </div>
 
                 <motion.button
@@ -371,7 +377,9 @@ export default function Settings() {
                 <div className="p-4 border-b border-purple-primary/20">
                   <div className="flex items-center space-x-3">
                     <section.icon className="w-5 h-5 text-purple-primary" />
-                    <h3 className="text-lg font-semibold text-white">{section.title}</h3>
+                    <h3 className="text-lg font-semibold text-white">
+                      {section.title}
+                    </h3>
                   </div>
                 </div>
 
@@ -379,7 +387,9 @@ export default function Settings() {
                   {section.items.map((item) => (
                     <motion.div
                       key={item.key}
-                      whileHover={{ backgroundColor: "rgba(158, 64, 252, 0.1)" }}
+                      whileHover={{
+                        backgroundColor: "rgba(158, 64, 252, 0.1)",
+                      }}
                       className="p-4 transition-all"
                     >
                       <div className="flex items-center justify-between">
@@ -387,14 +397,18 @@ export default function Settings() {
                           <item.icon className="w-5 h-5 text-gray-400" />
                           <div>
                             <div className="flex items-center space-x-2">
-                              <h4 className="font-medium text-white">{item.label}</h4>
+                              <h4 className="font-medium text-white">
+                                {item.label}
+                              </h4>
                               {item.badge && (
                                 <span className="px-2 py-1 text-xs font-bold bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full">
                                   {item.badge}
                                 </span>
                               )}
                             </div>
-                            <p className="text-sm text-gray-400">{item.description}</p>
+                            <p className="text-sm text-gray-400">
+                              {item.description}
+                            </p>
                           </div>
                         </div>
 
@@ -409,7 +423,11 @@ export default function Settings() {
                           >
                             <motion.div
                               animate={{ x: item.value ? 24 : 2 }}
-                              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                              transition={{
+                                type: "spring",
+                                stiffness: 300,
+                                damping: 30,
+                              }}
                               className="absolute top-1 w-4 h-4 bg-white rounded-full"
                             />
                           </motion.button>
@@ -438,8 +456,10 @@ export default function Settings() {
             transition={{ delay: 0.8 }}
             className="p-6 space-y-4"
           >
-            <h3 className="text-lg font-semibold text-red-400 mb-4">Danger Zone</h3>
-            
+            <h3 className="text-lg font-semibold text-red-400 mb-4">
+              Danger Zone
+            </h3>
+
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -491,21 +511,35 @@ export default function Settings() {
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Name</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Name
+                    </label>
                     <input
                       type="text"
                       value={editForm.name}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, name: e.target.value }))}
+                      onChange={(e) =>
+                        setEditForm((prev) => ({
+                          ...prev,
+                          name: e.target.value,
+                        }))
+                      }
                       className="w-full p-3 bg-purple-dark/50 border border-purple-primary/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-neon-green/50"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Email</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Email
+                    </label>
                     <input
                       type="email"
                       value={editForm.email}
-                      onChange={(e) => setEditForm(prev => ({ ...prev, email: e.target.value }))}
+                      onChange={(e) =>
+                        setEditForm((prev) => ({
+                          ...prev,
+                          email: e.target.value,
+                        }))
+                      }
                       className="w-full p-3 bg-purple-dark/50 border border-purple-primary/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-neon-green/50"
                     />
                   </div>
@@ -552,8 +586,10 @@ export default function Settings() {
                 <div className="text-center">
                   <LogOut className="w-12 h-12 text-red-400 mx-auto mb-4" />
                   <h3 className="text-xl font-bold text-white mb-2">Log Out</h3>
-                  <p className="text-gray-400 mb-6">Are you sure you want to log out of your account?</p>
-                  
+                  <p className="text-gray-400 mb-6">
+                    Are you sure you want to log out of your account?
+                  </p>
+
                   <div className="flex space-x-3">
                     <motion.button
                       whileHover={{ scale: 1.02 }}
@@ -595,11 +631,14 @@ export default function Settings() {
               >
                 <div className="text-center">
                   <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-                  <h3 className="text-xl font-bold text-white mb-2">Delete Account</h3>
+                  <h3 className="text-xl font-bold text-white mb-2">
+                    Delete Account
+                  </h3>
                   <p className="text-gray-400 mb-6">
-                    This action cannot be undone. This will permanently delete your account and all your data.
+                    This action cannot be undone. This will permanently delete
+                    your account and all your data.
                   </p>
-                  
+
                   <div className="flex space-x-3">
                     <motion.button
                       whileHover={{ scale: 1.02 }}

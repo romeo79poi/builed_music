@@ -29,21 +29,25 @@ export default function Player() {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
-  
+
   // Sample song data (replace with actual data from props/context)
   const [currentSong] = useState({
     id: "1",
     title: "Blinding Lights",
     artist: "The Weeknd",
     album: "After Hours",
-    coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop",
     duration: 200, // in seconds
     lyrics: [
       { time: 0, text: "Yeah" },
       { time: 8, text: "I've been tryna call" },
       { time: 12, text: "I've been on my own for long enough" },
       { time: 16, text: "Maybe you can show me how to love, maybe" },
-      { time: 24, text: "I feel like I'm just missing something when you're gone" },
+      {
+        time: 24,
+        text: "I feel like I'm just missing something when you're gone",
+      },
       { time: 32, text: "Something in the way you move" },
       { time: 36, text: "Makes me feel like I can't live without you" },
       { time: 40, text: "It takes me all the way" },
@@ -52,7 +56,7 @@ export default function Player() {
       { time: 52, text: "I'm feeling like I'm lost" },
       { time: 56, text: "I feel like I'm lost" },
       { time: 60, text: "I'm feeling like I'm lost" },
-    ]
+    ],
   });
 
   // Player state
@@ -72,16 +76,34 @@ export default function Player() {
 
   // Sample queue data
   const [queue] = useState([
-    { id: "1", title: "Blinding Lights", artist: "The Weeknd", coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=80&h=80&fit=crop" },
-    { id: "2", title: "Watermelon Sugar", artist: "Harry Styles", coverImageURL: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop" },
-    { id: "3", title: "Levitating", artist: "Dua Lipa", coverImageURL: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop" },
+    {
+      id: "1",
+      title: "Blinding Lights",
+      artist: "The Weeknd",
+      coverImageURL:
+        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=80&h=80&fit=crop",
+    },
+    {
+      id: "2",
+      title: "Watermelon Sugar",
+      artist: "Harry Styles",
+      coverImageURL:
+        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop",
+    },
+    {
+      id: "3",
+      title: "Levitating",
+      artist: "Dua Lipa",
+      coverImageURL:
+        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop",
+    },
   ]);
 
   // Format time
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.floor(seconds % 60);
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
 
   // Handle play/pause
@@ -121,7 +143,7 @@ export default function Player() {
     const currentLyric = currentSong.lyrics
       .slice()
       .reverse()
-      .find(lyric => currentTime >= lyric.time);
+      .find((lyric) => currentTime >= lyric.time);
     return currentLyric?.text || "";
   };
 
@@ -129,15 +151,15 @@ export default function Player() {
     <div className="min-h-screen bg-gradient-to-br from-purple-darker via-purple-dark to-background text-white relative overflow-hidden">
       {/* Background Effects */}
       <div className="fixed inset-0 bg-gradient-to-br from-purple-primary/10 via-purple-secondary/5 to-purple-accent/8"></div>
-      
+
       {/* Animated Background Patterns */}
       <div className="fixed inset-0 opacity-20">
-        <motion.div 
+        <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
           className="absolute top-1/4 left-1/4 w-32 h-32 border border-purple-primary/20 rounded-full"
         />
-        <motion.div 
+        <motion.div
           animate={{ rotate: -360 }}
           transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
           className="absolute bottom-1/4 right-1/4 w-24 h-24 border border-purple-secondary/20 rounded-full"
@@ -161,7 +183,9 @@ export default function Player() {
           </motion.button>
 
           <div className="text-center">
-            <h1 className="text-sm font-medium text-gray-300">PLAYING FROM PLAYLIST</h1>
+            <h1 className="text-sm font-medium text-gray-300">
+              PLAYING FROM PLAYLIST
+            </h1>
             <p className="text-white font-semibold">My Favorites</p>
           </div>
 
@@ -186,23 +210,29 @@ export default function Player() {
             <div className="relative">
               <motion.img
                 animate={{ rotate: isPlaying ? 360 : 0 }}
-                transition={{ duration: 20, repeat: isPlaying ? Infinity : 0, ease: "linear" }}
+                transition={{
+                  duration: 20,
+                  repeat: isPlaying ? Infinity : 0,
+                  ease: "linear",
+                }}
                 src={currentSong.coverImageURL}
                 alt={currentSong.title}
                 className="w-80 h-80 sm:w-96 sm:h-96 rounded-2xl object-cover shadow-2xl shadow-purple-primary/20"
               />
-              
+
               {/* Vinyl Effect */}
               <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-transparent via-white/5 to-transparent"></div>
-              
+
               {/* Glow Effect */}
               <motion.div
                 animate={{
-                  boxShadow: isPlaying ? [
-                    "0 0 20px rgba(158, 64, 252, 0.3)",
-                    "0 0 40px rgba(158, 64, 252, 0.6)",
-                    "0 0 20px rgba(158, 64, 252, 0.3)"
-                  ] : "0 0 20px rgba(158, 64, 252, 0.3)"
+                  boxShadow: isPlaying
+                    ? [
+                        "0 0 20px rgba(158, 64, 252, 0.3)",
+                        "0 0 40px rgba(158, 64, 252, 0.6)",
+                        "0 0 20px rgba(158, 64, 252, 0.3)",
+                      ]
+                    : "0 0 20px rgba(158, 64, 252, 0.3)",
                 }}
                 transition={{ duration: 2, repeat: isPlaying ? Infinity : 0 }}
                 className="absolute inset-0 rounded-2xl"
@@ -221,7 +251,7 @@ export default function Player() {
               {currentSong.title}
             </h2>
             <p className="text-lg text-gray-300 mb-4">{currentSong.artist}</p>
-            
+
             {/* Action Buttons */}
             <div className="flex items-center justify-center space-x-6">
               <motion.button
@@ -229,7 +259,9 @@ export default function Player() {
                 whileTap={{ scale: 0.9 }}
                 onClick={() => setIsLiked(!isLiked)}
                 className={`p-3 rounded-full transition-all ${
-                  isLiked ? "bg-neon-green/20 text-neon-green" : "bg-purple-dark/50 text-gray-400"
+                  isLiked
+                    ? "bg-neon-green/20 text-neon-green"
+                    : "bg-purple-dark/50 text-gray-400"
                 }`}
               >
                 <Heart className={`w-6 h-6 ${isLiked ? "fill-current" : ""}`} />
@@ -275,11 +307,15 @@ export default function Player() {
             >
               <motion.div
                 className="absolute top-0 left-0 h-full bg-gradient-to-r from-neon-green to-purple-secondary rounded-full"
-                style={{ width: `${(currentTime / currentSong.duration) * 100}%` }}
+                style={{
+                  width: `${(currentTime / currentSong.duration) * 100}%`,
+                }}
               />
               <motion.div
                 className="absolute top-1/2 w-4 h-4 bg-white rounded-full shadow-lg transform -translate-y-1/2"
-                style={{ left: `${(currentTime / currentSong.duration) * 100}%` }}
+                style={{
+                  left: `${(currentTime / currentSong.duration) * 100}%`,
+                }}
                 whileHover={{ scale: 1.2 }}
                 whileTap={{ scale: 0.9 }}
               />
@@ -347,7 +383,9 @@ export default function Player() {
               whileTap={{ scale: 0.9 }}
               onClick={() => setRepeatMode((prev) => (prev + 1) % 3)}
               className={`p-3 rounded-full transition-all relative ${
-                repeatMode > 0 ? "bg-neon-green/20 text-neon-green" : "text-gray-400"
+                repeatMode > 0
+                  ? "bg-neon-green/20 text-neon-green"
+                  : "text-gray-400"
               }`}
             >
               <Repeat className="w-5 h-5" />
@@ -410,8 +448,8 @@ export default function Player() {
                 setShowQueue(false);
               }}
               className={`px-6 py-3 rounded-full transition-all ${
-                showLyrics 
-                  ? "bg-neon-green/20 text-neon-green border border-neon-green/50" 
+                showLyrics
+                  ? "bg-neon-green/20 text-neon-green border border-neon-green/50"
                   : "bg-purple-dark/50 text-gray-400 border border-purple-primary/30"
               }`}
             >
@@ -427,8 +465,8 @@ export default function Player() {
                 setShowLyrics(false);
               }}
               className={`px-6 py-3 rounded-full transition-all ${
-                showQueue 
-                  ? "bg-purple-primary/20 text-purple-primary border border-purple-primary/50" 
+                showQueue
+                  ? "bg-purple-primary/20 text-purple-primary border border-purple-primary/50"
                   : "bg-purple-dark/50 text-gray-400 border border-purple-primary/30"
               }`}
             >
@@ -458,14 +496,18 @@ export default function Player() {
                 <div className="flex-1 px-6 overflow-y-auto">
                   {showLyrics && (
                     <div className="space-y-6">
-                      <h3 className="text-xl font-bold text-center mb-8">Lyrics</h3>
+                      <h3 className="text-xl font-bold text-center mb-8">
+                        Lyrics
+                      </h3>
                       <div className="space-y-4">
                         {currentSong.lyrics.map((lyric, index) => (
                           <motion.p
                             key={index}
                             className={`text-lg transition-all duration-300 ${
-                              currentTime >= lyric.time && 
-                              (index === currentSong.lyrics.length - 1 || currentTime < currentSong.lyrics[index + 1]?.time)
+                              currentTime >= lyric.time &&
+                              (index === currentSong.lyrics.length - 1 ||
+                                currentTime <
+                                  currentSong.lyrics[index + 1]?.time)
                                 ? "text-neon-green font-semibold scale-105"
                                 : "text-gray-400"
                             }`}
@@ -479,7 +521,9 @@ export default function Player() {
 
                   {showQueue && (
                     <div className="space-y-4">
-                      <h3 className="text-xl font-bold text-center mb-8">Up Next</h3>
+                      <h3 className="text-xl font-bold text-center mb-8">
+                        Up Next
+                      </h3>
                       {queue.map((song, index) => (
                         <motion.div
                           key={song.id}
@@ -492,8 +536,12 @@ export default function Player() {
                             className="w-12 h-12 rounded-lg object-cover"
                           />
                           <div className="flex-1">
-                            <h4 className="font-medium text-white">{song.title}</h4>
-                            <p className="text-sm text-gray-400">{song.artist}</p>
+                            <h4 className="font-medium text-white">
+                              {song.title}
+                            </h4>
+                            <p className="text-sm text-gray-400">
+                              {song.artist}
+                            </p>
                           </div>
                           <motion.button
                             whileHover={{ scale: 1.1 }}
@@ -542,7 +590,7 @@ export default function Player() {
           cursor: pointer;
           box-shadow: 0 2px 10px rgba(34, 197, 94, 0.3);
         }
-        
+
         .slider::-moz-range-thumb {
           width: 16px;
           height: 16px;

@@ -62,7 +62,8 @@ export default function Playlists() {
       id: "1",
       name: "My Favorites",
       description: "Songs I love to listen to",
-      coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
+      coverImageURL:
+        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
       isPublic: true,
       songs: [
         {
@@ -71,8 +72,9 @@ export default function Playlists() {
           artist: "The Weeknd",
           album: "After Hours",
           duration: 200,
-          coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=80&h=80&fit=crop",
-          liked: true
+          coverImageURL:
+            "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=80&h=80&fit=crop",
+          liked: true,
         },
         {
           id: "2",
@@ -80,27 +82,29 @@ export default function Playlists() {
           artist: "Harry Styles",
           album: "Fine Line",
           duration: 174,
-          coverImageURL: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop",
-          liked: false
-        }
+          coverImageURL:
+            "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop",
+          liked: false,
+        },
       ],
       createdAt: "2024-01-15",
       totalDuration: 374,
       followers: 42,
-      isOwner: true
+      isOwner: true,
     },
     {
       id: "2",
       name: "Chill Vibes",
       description: "Perfect for relaxing",
-      coverImageURL: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop",
+      coverImageURL:
+        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop",
       isPublic: false,
       songs: [],
       createdAt: "2024-01-10",
       totalDuration: 0,
       followers: 0,
-      isOwner: true
-    }
+      isOwner: true,
+    },
   ]);
 
   // State management
@@ -111,19 +115,19 @@ export default function Playlists() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  
+
   // Form states
   const [playlistForm, setPlaylistForm] = useState({
     name: "",
     description: "",
     isPublic: true,
-    coverImageURL: ""
+    coverImageURL: "",
   });
 
   // Load playlist if ID is provided
   useEffect(() => {
     if (playlistId) {
-      const playlist = playlists.find(p => p.id === playlistId);
+      const playlist = playlists.find((p) => p.id === playlistId);
       setCurrentPlaylist(playlist || null);
     }
   }, [playlistId, playlists]);
@@ -141,7 +145,7 @@ export default function Playlists() {
   const formatSongDuration = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
 
   // Handle playlist creation
@@ -150,7 +154,7 @@ export default function Playlists() {
       toast({
         title: "Error",
         description: "Please enter a playlist name",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -159,19 +163,26 @@ export default function Playlists() {
       id: Date.now().toString(),
       name: playlistForm.name,
       description: playlistForm.description,
-      coverImageURL: playlistForm.coverImageURL || "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
+      coverImageURL:
+        playlistForm.coverImageURL ||
+        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
       isPublic: playlistForm.isPublic,
       songs: [],
-      createdAt: new Date().toISOString().split('T')[0],
+      createdAt: new Date().toISOString().split("T")[0],
       totalDuration: 0,
       followers: 0,
-      isOwner: true
+      isOwner: true,
     };
 
-    setPlaylists(prev => [...prev, newPlaylist]);
+    setPlaylists((prev) => [...prev, newPlaylist]);
     setShowCreateModal(false);
-    setPlaylistForm({ name: "", description: "", isPublic: true, coverImageURL: "" });
-    
+    setPlaylistForm({
+      name: "",
+      description: "",
+      isPublic: true,
+      coverImageURL: "",
+    });
+
     toast({
       title: "Playlist Created",
       description: `"${newPlaylist.name}" has been created successfully`,
@@ -180,13 +191,13 @@ export default function Playlists() {
 
   // Handle playlist deletion
   const handleDeletePlaylist = (playlistId: string) => {
-    setPlaylists(prev => prev.filter(p => p.id !== playlistId));
+    setPlaylists((prev) => prev.filter((p) => p.id !== playlistId));
     setShowDeleteModal(false);
     if (currentPlaylist?.id === playlistId) {
       setCurrentPlaylist(null);
       navigate("/playlists");
     }
-    
+
     toast({
       title: "Playlist Deleted",
       description: "Playlist has been deleted successfully",
@@ -206,24 +217,26 @@ export default function Playlists() {
   // Handle like toggle
   const handleToggleLike = (songId: string) => {
     if (currentPlaylist) {
-      const updatedSongs = currentPlaylist.songs.map(song =>
-        song.id === songId ? { ...song, liked: !song.liked } : song
+      const updatedSongs = currentPlaylist.songs.map((song) =>
+        song.id === songId ? { ...song, liked: !song.liked } : song,
       );
-      
+
       const updatedPlaylist = { ...currentPlaylist, songs: updatedSongs };
       setCurrentPlaylist(updatedPlaylist);
-      
-      setPlaylists(prev => prev.map(p =>
-        p.id === currentPlaylist.id ? updatedPlaylist : p
-      ));
+
+      setPlaylists((prev) =>
+        prev.map((p) => (p.id === currentPlaylist.id ? updatedPlaylist : p)),
+      );
     }
   };
 
   // Filtered songs based on search
-  const filteredSongs = currentPlaylist?.songs.filter(song =>
-    song.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    song.artist.toLowerCase().includes(searchQuery.toLowerCase())
-  ) || [];
+  const filteredSongs =
+    currentPlaylist?.songs.filter(
+      (song) =>
+        song.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        song.artist.toLowerCase().includes(searchQuery.toLowerCase()),
+    ) || [];
 
   // Playlist overview view
   if (!currentPlaylist) {
@@ -231,7 +244,7 @@ export default function Playlists() {
       <div className="min-h-screen bg-gradient-to-br from-purple-darker via-purple-dark to-background text-white relative overflow-hidden">
         {/* Background Effects */}
         <div className="fixed inset-0 bg-gradient-to-br from-purple-primary/8 via-purple-secondary/4 to-purple-accent/6"></div>
-        
+
         <div className="relative z-10 flex flex-col min-h-screen">
           {/* Header */}
           <motion.header
@@ -288,13 +301,21 @@ export default function Playlists() {
                     </motion.button>
                   </div>
 
-                  <h3 className="font-bold text-lg text-white mb-1">{playlist.name}</h3>
-                  <p className="text-gray-400 text-sm mb-2 line-clamp-2">{playlist.description}</p>
-                  
+                  <h3 className="font-bold text-lg text-white mb-1">
+                    {playlist.name}
+                  </h3>
+                  <p className="text-gray-400 text-sm mb-2 line-clamp-2">
+                    {playlist.description}
+                  </p>
+
                   <div className="flex items-center justify-between text-xs text-gray-500">
                     <div className="flex items-center space-x-1">
-                      {playlist.isPublic ? <Globe className="w-3 h-3" /> : <Lock className="w-3 h-3" />}
-                      <span>{playlist.isPublic ? 'Public' : 'Private'}</span>
+                      {playlist.isPublic ? (
+                        <Globe className="w-3 h-3" />
+                      ) : (
+                        <Lock className="w-3 h-3" />
+                      )}
+                      <span>{playlist.isPublic ? "Public" : "Private"}</span>
                     </div>
                     <span>{playlist.songs.length} songs</span>
                   </div>
@@ -322,7 +343,9 @@ export default function Playlists() {
                 className="bg-gradient-to-br from-purple-dark to-purple-darker border border-purple-primary/30 rounded-2xl p-6 w-full max-w-md"
               >
                 <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-white">Create Playlist</h3>
+                  <h3 className="text-xl font-bold text-white">
+                    Create Playlist
+                  </h3>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
@@ -335,21 +358,35 @@ export default function Playlists() {
 
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Name</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Name
+                    </label>
                     <input
                       type="text"
                       value={playlistForm.name}
-                      onChange={(e) => setPlaylistForm(prev => ({ ...prev, name: e.target.value }))}
+                      onChange={(e) =>
+                        setPlaylistForm((prev) => ({
+                          ...prev,
+                          name: e.target.value,
+                        }))
+                      }
                       placeholder="My Playlist"
                       className="w-full p-3 bg-purple-dark/50 border border-purple-primary/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-neon-green/50"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">Description</label>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Description
+                    </label>
                     <textarea
                       value={playlistForm.description}
-                      onChange={(e) => setPlaylistForm(prev => ({ ...prev, description: e.target.value }))}
+                      onChange={(e) =>
+                        setPlaylistForm((prev) => ({
+                          ...prev,
+                          description: e.target.value,
+                        }))
+                      }
                       placeholder="Describe your playlist..."
                       rows={3}
                       className="w-full p-3 bg-purple-dark/50 border border-purple-primary/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-neon-green/50 resize-none"
@@ -357,18 +394,29 @@ export default function Playlists() {
                   </div>
 
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-300">Make Public</span>
+                    <span className="text-sm font-medium text-gray-300">
+                      Make Public
+                    </span>
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      onClick={() => setPlaylistForm(prev => ({ ...prev, isPublic: !prev.isPublic }))}
+                      onClick={() =>
+                        setPlaylistForm((prev) => ({
+                          ...prev,
+                          isPublic: !prev.isPublic,
+                        }))
+                      }
                       className={`relative w-12 h-6 rounded-full transition-all ${
                         playlistForm.isPublic ? "bg-neon-green" : "bg-gray-600"
                       }`}
                     >
                       <motion.div
                         animate={{ x: playlistForm.isPublic ? 24 : 2 }}
-                        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+                        transition={{
+                          type: "spring",
+                          stiffness: 300,
+                          damping: 30,
+                        }}
                         className="absolute top-1 w-4 h-4 bg-white rounded-full"
                       />
                     </motion.button>
@@ -406,7 +454,7 @@ export default function Playlists() {
     <div className="min-h-screen bg-gradient-to-br from-purple-darker via-purple-dark to-background text-white relative overflow-hidden">
       {/* Background Effects */}
       <div className="fixed inset-0 bg-gradient-to-br from-purple-primary/8 via-purple-secondary/4 to-purple-accent/6"></div>
-      
+
       <div className="relative z-10 flex flex-col min-h-screen">
         {/* Header */}
         <motion.header
@@ -472,15 +520,24 @@ export default function Playlists() {
                   <Lock className="w-4 h-4 text-gray-400" />
                 )}
                 <span className="text-sm text-gray-400">
-                  {currentPlaylist.isPublic ? 'Public Playlist' : 'Private Playlist'}
+                  {currentPlaylist.isPublic
+                    ? "Public Playlist"
+                    : "Private Playlist"}
                 </span>
               </div>
 
-              <h1 className="text-2xl font-bold text-white mb-2">{currentPlaylist.name}</h1>
-              <p className="text-gray-400 mb-3">{currentPlaylist.description}</p>
-              
+              <h1 className="text-2xl font-bold text-white mb-2">
+                {currentPlaylist.name}
+              </h1>
+              <p className="text-gray-400 mb-3">
+                {currentPlaylist.description}
+              </p>
+
               <div className="text-sm text-gray-500">
-                <p>{currentPlaylist.songs.length} songs • {formatTime(currentPlaylist.totalDuration)}</p>
+                <p>
+                  {currentPlaylist.songs.length} songs •{" "}
+                  {formatTime(currentPlaylist.totalDuration)}
+                </p>
                 {currentPlaylist.followers && currentPlaylist.followers > 0 && (
                   <p>{currentPlaylist.followers} followers</p>
                 )}
@@ -559,8 +616,12 @@ export default function Playlists() {
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <h4 className="font-medium text-white truncate">{song.title}</h4>
-                    <p className="text-sm text-gray-400 truncate">{song.artist}</p>
+                    <h4 className="font-medium text-white truncate">
+                      {song.title}
+                    </h4>
+                    <p className="text-sm text-gray-400 truncate">
+                      {song.artist}
+                    </p>
                   </div>
 
                   <div className="flex items-center space-x-3 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -572,10 +633,14 @@ export default function Playlists() {
                         handleToggleLike(song.id);
                       }}
                       className={`p-2 rounded-full transition-all ${
-                        song.liked ? "text-neon-green" : "text-gray-400 hover:text-neon-green"
+                        song.liked
+                          ? "text-neon-green"
+                          : "text-gray-400 hover:text-neon-green"
                       }`}
                     >
-                      <Heart className={`w-4 h-4 ${song.liked ? "fill-current" : ""}`} />
+                      <Heart
+                        className={`w-4 h-4 ${song.liked ? "fill-current" : ""}`}
+                      />
                     </motion.button>
 
                     <span className="text-sm text-gray-400 min-w-[40px] text-right">
@@ -600,8 +665,12 @@ export default function Playlists() {
               className="text-center py-16"
             >
               <Music className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-              <h3 className="text-xl font-semibold text-gray-400 mb-2">No songs yet</h3>
-              <p className="text-gray-500 mb-6">Add some songs to get started</p>
+              <h3 className="text-xl font-semibold text-gray-400 mb-2">
+                No songs yet
+              </h3>
+              <p className="text-gray-500 mb-6">
+                Add some songs to get started
+              </p>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
