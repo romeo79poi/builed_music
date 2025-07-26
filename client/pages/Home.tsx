@@ -762,7 +762,7 @@ export default function HomeScreen() {
                   </p>
                   <button
                     onClick={createSampleData}
-                    className="bg-neon-green text-black px-6 py-2 rounded-full font-medium hover:scale-105 transition-transform"
+                    className="bg-gradient-to-r from-purple-primary to-purple-secondary text-white px-6 py-3 rounded-full font-medium hover:scale-105 transition-all duration-200 shadow-lg shadow-purple-primary/30"
                   >
                     Create Sample Data
                   </button>
