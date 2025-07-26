@@ -115,7 +115,7 @@ export default function Splash() {
                 {/* Enhanced logo display */}
                 <div className="mb-8 flex justify-center">
                   <div className="relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-neon-green/20 via-purple-500/20 to-neon-blue/20 rounded-full blur-xl scale-150"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-primary/30 via-purple-secondary/25 to-purple-accent/30 rounded-full blur-xl scale-150"></div>
                     <MusicCatchLogo className="relative scale-150" animated />
                   </div>
                 </div>
