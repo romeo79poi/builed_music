@@ -455,9 +455,9 @@ export default function HomeScreen() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white relative">
+    <div className="min-h-screen bg-gradient-to-br from-purple-darker via-background to-purple-dark text-white relative">
       {/* Background Effects */}
-      <div className="fixed inset-0 bg-gradient-to-br from-neon-green/5 via-transparent to-neon-blue/5"></div>
+      <div className="fixed inset-0 bg-gradient-to-br from-purple-primary/8 via-purple-secondary/4 to-purple-accent/6"></div>
 
       {/* Main Container */}
       <div className="relative z-10">
