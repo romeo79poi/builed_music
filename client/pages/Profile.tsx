@@ -258,9 +258,9 @@ export default function Profile() {
         >
           <button
             onClick={() => navigate("/home")}
-            className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm hover:bg-white/20 transition-colors"
+            className="w-10 h-10 bg-purple-primary/20 rounded-full flex items-center justify-center backdrop-blur-sm hover:bg-purple-primary/30 transition-all duration-200 border border-purple-primary/30"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-5 h-5 text-purple-primary" />
           </button>
 
           <h1 className="text-xl font-bold">My Profile</h1>
