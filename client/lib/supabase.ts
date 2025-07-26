@@ -410,14 +410,221 @@ export const supabaseOperations = {
 
   // Check if user likes a song
   async isLiked(userId: string, songId: string) {
+    if (!isSupabaseConfigured) {
+      return { liked: false, error: null }
+    }
+
     const { data, error } = await supabase
       .from('user_likes')
       .select('id')
       .eq('user_id', userId)
       .eq('song_id', songId)
       .single()
-    
+
     return { liked: !!data, error }
+  },
+
+  // Advanced Search Operations
+  async searchAll(query: string, limit = 20) {
+    if (!isSupabaseConfigured) {
+      return { data: { songs: [], albums: [], playlists: [] }, error: null }
+    }
+
+    const [songsResult, albumsResult, playlistsResult] = await Promise.all([
+      this.searchSongs(query, limit),
+      this.searchAlbums(query, limit),
+      this.searchPlaylists(query, limit)
+    ])
+
+    return {
+      data: {
+        songs: songsResult.data || [],
+        albums: albumsResult.data || [],
+        playlists: playlistsResult.data || []
+      },
+      error: songsResult.error || albumsResult.error || playlistsResult.error
+    }
+  },
+
+  async searchAlbums(query: string, limit = 10) {
+    if (!isSupabaseConfigured) {
+      return { data: [], error: null }
+    }
+
+    const { data, error } = await supabase
+      .from('albums')
+      .select('*')
+      .or(`name.ilike.%${query}%,artist.ilike.%${query}%`)
+      .limit(limit)
+
+    return { data, error }
+  },
+
+  async searchPlaylists(query: string, limit = 10) {
+    if (!isSupabaseConfigured) {
+      return { data: [], error: null }
+    }
+
+    const { data, error } = await supabase
+      .from('playlists')
+      .select('*')
+      .eq('is_public', true)
+      .ilike('name', `%${query}%`)
+      .limit(limit)
+
+    return { data, error }
+  },
+
+  // Playlist Management
+  async createPlaylist(userId: string, name: string, isPublic = false, coverImageUrl?: string) {
+    if (!isSupabaseConfigured) {
+      return { data: { id: 'demo-playlist', name, created_by: userId }, error: null }
+    }
+
+    const { data, error } = await supabase
+      .from('playlists')
+      .insert([{
+        name,
+        created_by: userId,
+        is_public: isPublic,
+        cover_image_url: coverImageUrl,
+        created_at: new Date().toISOString()
+      }])
+      .select()
+      .single()
+
+    return { data, error }
+  },
+
+  async addSongToPlaylist(playlistId: string, songId: string, userId: string) {
+    if (!isSupabaseConfigured) {
+      return { data: { id: 'demo-playlist-song' }, error: null }
+    }
+
+    const { data, error } = await supabase
+      .from('playlist_songs')
+      .insert([{
+        playlist_id: playlistId,
+        song_id: songId,
+        added_by: userId,
+        added_at: new Date().toISOString()
+      }])
+      .select()
+      .single()
+
+    return { data, error }
+  },
+
+  async removeSongFromPlaylist(playlistId: string, songId: string) {
+    if (!isSupabaseConfigured) {
+      return { error: null }
+    }
+
+    const { error } = await supabase
+      .from('playlist_songs')
+      .delete()
+      .eq('playlist_id', playlistId)
+      .eq('song_id', songId)
+
+    return { error }
+  },
+
+  async deletePlaylist(playlistId: string, userId: string) {
+    if (!isSupabaseConfigured) {
+      return { error: null }
+    }
+
+    const { error } = await supabase
+      .from('playlists')
+      .delete()
+      .eq('id', playlistId)
+      .eq('created_by', userId)
+
+    return { error }
+  },
+
+  // File Upload to Supabase Storage
+  async uploadSong(file: File, userId: string) {
+    if (!isSupabaseConfigured) {
+      return { data: { path: 'demo-song.mp3' }, error: null }
+    }
+
+    const fileExt = file.name.split('.').pop()
+    const fileName = `${userId}/${Date.now()}.${fileExt}`
+
+    const { data, error } = await supabase.storage
+      .from('songs')
+      .upload(fileName, file)
+
+    return { data, error }
+  },
+
+  async uploadCoverImage(file: File, userId: string) {
+    if (!isSupabaseConfigured) {
+      return { data: { path: 'demo-cover.jpg' }, error: null }
+    }
+
+    const fileExt = file.name.split('.').pop()
+    const fileName = `covers/${userId}/${Date.now()}.${fileExt}`
+
+    const { data, error } = await supabase.storage
+      .from('images')
+      .upload(fileName, file)
+
+    return { data, error }
+  },
+
+  async getPublicUrl(bucket: string, path: string) {
+    if (!isSupabaseConfigured) {
+      return { data: { publicUrl: `https://demo.supabase.co/storage/v1/object/public/${bucket}/${path}` } }
+    }
+
+    const { data } = supabase.storage
+      .from(bucket)
+      .getPublicUrl(path)
+
+    return { data }
+  },
+
+  // Real-time subscriptions
+  subscribeToPlaylistChanges(playlistId: string, callback: (payload: any) => void) {
+    if (!isSupabaseConfigured) {
+      return { unsubscribe: () => {} }
+    }
+
+    const subscription = supabase
+      .channel(`playlist-${playlistId}`)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'playlist_songs',
+        filter: `playlist_id=eq.${playlistId}`
+      }, callback)
+      .subscribe()
+
+    return {
+      unsubscribe: () => subscription.unsubscribe()
+    }
+  },
+
+  subscribeToUserLikes(userId: string, callback: (payload: any) => void) {
+    if (!isSupabaseConfigured) {
+      return { unsubscribe: () => {} }
+    }
+
+    const subscription = supabase
+      .channel(`user-likes-${userId}`)
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'user_likes',
+        filter: `user_id=eq.${userId}`
+      }, callback)
+      .subscribe()
+
+    return {
+      unsubscribe: () => subscription.unsubscribe()
+    }
   }
 }
 
