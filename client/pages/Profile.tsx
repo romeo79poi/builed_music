@@ -499,7 +499,7 @@ export default function Profile() {
                   <Button
                     onClick={saveProfile}
                     disabled={isSaving}
-                    className="flex-1 bg-gradient-to-r from-neon-green to-neon-blue text-black font-semibold"
+                    className="flex-1 bg-gradient-to-r from-purple-primary to-purple-secondary hover:from-purple-secondary hover:to-purple-accent text-white font-semibold transition-all duration-300 shadow-lg shadow-purple-primary/30"
                   >
                     {isSaving ? (
                       <Loader2 className="w-4 h-4 animate-spin mr-2" />
