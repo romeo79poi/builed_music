@@ -142,7 +142,7 @@ export default function Splash() {
               >
                 <Button
                   onClick={() => navigate("/signup")}
-                  className="w-full bg-black text-green-400 hover:bg-green-400/10 font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-all duration-200 text-base sm:text-lg border-2 border-[rgba(79,214,57,1)]"
+                  className="w-full bg-gradient-to-r from-purple-primary to-purple-secondary text-white hover:from-purple-secondary hover:to-purple-accent font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-xl transition-all duration-300 text-base sm:text-lg shadow-lg shadow-purple-primary/25 hover:shadow-purple-secondary/40 hover:scale-105"
                 >
                   Start Your Journey
                 </Button>
@@ -150,7 +150,7 @@ export default function Splash() {
                 <Button
                   onClick={() => navigate("/login")}
                   variant="outline"
-                  className="w-full bg-black border-2 border-neon-green text-neon-green hover:bg-neon-green hover:text-black font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-all duration-200 text-base sm:text-lg"
+                  className="w-full bg-black/40 backdrop-blur-sm border-2 border-purple-primary text-purple-primary hover:bg-purple-primary/10 hover:border-purple-secondary font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-xl transition-all duration-300 text-base sm:text-lg hover:scale-105"
                 >
                   Log In
                 </Button>
@@ -168,7 +168,7 @@ export default function Splash() {
                   Policy
                 </p>
                 <p className="text-transparent bg-gradient-to-r from-neon-green/70 to-neon-blue/70 bg-clip-text text-xs font-medium">
-                  🎶 Where Every Beat Tells a Story 🎶
+                  🎶 Where Every Beat Tells a Story ����
                 </p>
               </motion.div>
             </div>
