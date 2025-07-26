@@ -19,40 +19,35 @@ export default function MobileFooter({ className = "" }: FooterProps) {
   const location = useLocation();
 
   const navItems = [
-    { 
-      id: "home", 
-      label: "Home", 
-      icon: Home, 
-      path: "/home",
-      activeColor: "neon-green" 
+    {
+      id: "home",
+      label: "Home",
+      icon: Home,
+      path: "/home"
     },
-    { 
-      id: "search", 
-      label: "Search", 
-      icon: Search, 
-      path: "/search",
-      activeColor: "purple-primary" 
+    {
+      id: "search",
+      label: "Search",
+      icon: Search,
+      path: "/search"
     },
-    { 
-      id: "upload", 
-      label: "Upload", 
-      icon: Upload, 
-      path: "/upload",
-      activeColor: "purple-secondary" 
+    {
+      id: "upload",
+      label: "Upload",
+      icon: Upload,
+      path: "/upload"
     },
-    { 
-      id: "library", 
-      label: "Library", 
-      icon: Library, 
-      path: "/library",
-      activeColor: "purple-accent" 
+    {
+      id: "library",
+      label: "Library",
+      icon: Library,
+      path: "/library"
     },
-    { 
-      id: "profile", 
-      label: "Profile", 
-      icon: User, 
-      path: "/profile",
-      activeColor: "neon-blue" 
+    {
+      id: "profile",
+      label: "Profile",
+      icon: User,
+      path: "/profile"
     },
   ];
 
