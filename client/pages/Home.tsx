@@ -646,17 +646,18 @@ export default function HomeScreen() {
                     <motion.div
                       key={playlist.id}
                       whileHover={{ scale: 1.05 }}
-                      className="bg-white/5 rounded-lg p-4 hover:bg-white/10 transition-all cursor-pointer group"
+                      className="bg-purple-dark/40 backdrop-blur-sm rounded-2xl p-4 hover:bg-purple-dark/60 transition-all cursor-pointer group border border-purple-secondary/20 hover:border-purple-secondary/40 hover:shadow-2xl hover:shadow-purple-secondary/20"
                       onClick={() => handlePlayPlaylist(playlist)}
                     >
                       <div className="relative mb-4">
+                        <div className="absolute inset-0 bg-gradient-to-br from-purple-secondary/20 to-purple-accent/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
                         <img
                           src={playlist.coverImageURL}
                           alt={playlist.name}
-                          className="w-full aspect-square rounded-lg object-cover"
+                          className="relative w-full aspect-square rounded-2xl object-cover shadow-lg"
                         />
-                        <button className="absolute bottom-2 right-2 w-12 h-12 bg-neon-blue rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all shadow-lg">
-                          <Play className="w-5 h-5 text-black ml-0.5" />
+                        <button className="absolute bottom-3 right-3 w-12 h-12 bg-gradient-to-r from-purple-secondary to-purple-accent rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all shadow-xl shadow-purple-secondary/50">
+                          <Play className="w-5 h-5 text-white ml-0.5" />
                         </button>
                       </div>
                       <h3 className="font-semibold mb-1 truncate">
