@@ -54,20 +54,21 @@ export default function MobileFooter({ className = "" }: FooterProps) {
   // Special handling for alternative paths
   const getActiveItem = () => {
     const currentPath = location.pathname;
-    
+
     // Handle exact matches first
     const exactMatch = navItems.find(item => item.path === currentPath);
     if (exactMatch) return exactMatch;
-    
+
     // Handle special cases
     if (currentPath === "/" || currentPath === "/index") {
       return navItems.find(item => item.id === "home");
     }
-    
+
+    // History page should show Library as active since it's part of library functionality
     if (currentPath === "/history") {
-      return navItems.find(item => item.id === "library"); // History falls under library
+      return navItems.find(item => item.id === "library");
     }
-    
+
     return null;
   };
 
