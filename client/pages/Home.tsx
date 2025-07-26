@@ -619,10 +619,10 @@ export default function HomeScreen() {
                 <AlertCircle className="w-5 h-5 text-purple-primary" />
                 <div>
                   <p className="text-purple-primary font-medium">
-                    Music Library Active
+                    Supabase Database Connected
                   </p>
                   <p className="text-gray-300 text-sm">
-                    Collections: {songs.length} songs, {albums.length} albums,{" "}
+                    Active: {songs.length} songs, {albums.length} albums,{" "}
                     {playlists.length} playlists
                   </p>
                 </div>
