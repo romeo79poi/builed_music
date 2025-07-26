@@ -20,8 +20,7 @@ import {
   signInWithGoogle,
   sendFirebaseEmailVerification,
 } from "../lib/auth";
-import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "../lib/firebase";
+import { supabaseOperations } from "../lib/supabase";
 import { useToast } from "../hooks/use-toast";
 import ConnectivityChecker, {
   getNetworkErrorMessage,
