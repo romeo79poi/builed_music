@@ -98,6 +98,8 @@ export default function Home() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [likedSongs, setLikedSongs] = useState<Set<string>>(new Set());
 
+  // Remove authentication requirement for demo purposes
+
   const handlePlaySong = (songId: string) => {
     if (currentSong === songId) {
       setIsPlaying(!isPlaying);
