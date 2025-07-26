@@ -55,8 +55,8 @@
     --purple-glow: 280 100% 80%; /* Light purple for glows */
     --purple-dark: 260 30% 15%; /* Dark purple background */
     --purple-darker: 260 35% 8%; /* Darker purple background */
-    --neon-green: 267 83% 58%; /* Updated to purple primary */
-    --neon-blue: 285 85% 65%; /* Updated to purple secondary */
+    --neon-green: 158 64% 52%; /* Vibrant teal/green for highlights */
+    --neon-blue: 191 79% 52%; /* Bright cyan blue */
     --dark-surface: 260 30% 15%;
     --darker-surface: 260 35% 8%;
   }
