@@ -266,6 +266,49 @@ CREATE POLICY "Users can view own history" ON listening_history
 CREATE POLICY "Users can add to own history" ON listening_history
   FOR INSERT WITH CHECK (auth.uid()::text = user_id::text);
 
+-- Genres policies (read-only for all users)
+CREATE POLICY "Anyone can view genres" ON genres
+  FOR SELECT USING (true);
+
+-- Song genres policies (read-only for all users)
+CREATE POLICY "Anyone can view song genres" ON song_genres
+  FOR SELECT USING (true);
+
+-- Artists policies (read-only for all users)
+CREATE POLICY "Anyone can view artists" ON artists
+  FOR SELECT USING (true);
+
+-- Song artists policies (read-only for all users)
+CREATE POLICY "Anyone can view song artists" ON song_artists
+  FOR SELECT USING (true);
+
+-- User follows policies
+CREATE POLICY "Users can view all follows" ON user_follows
+  FOR SELECT USING (true);
+
+CREATE POLICY "Users can manage own follows" ON user_follows
+  FOR ALL USING (auth.uid()::text = follower_id::text);
+
+-- Comments policies
+CREATE POLICY "Anyone can view comments" ON comments
+  FOR SELECT USING (true);
+
+CREATE POLICY "Users can create comments" ON comments
+  FOR INSERT WITH CHECK (auth.uid()::text = user_id::text);
+
+CREATE POLICY "Users can update own comments" ON comments
+  FOR UPDATE USING (auth.uid()::text = user_id::text);
+
+CREATE POLICY "Users can delete own comments" ON comments
+  FOR DELETE USING (auth.uid()::text = user_id::text);
+
+-- User settings policies
+CREATE POLICY "Users can view own settings" ON user_settings
+  FOR SELECT USING (auth.uid()::text = user_id::text);
+
+CREATE POLICY "Users can manage own settings" ON user_settings
+  FOR ALL USING (auth.uid()::text = user_id::text);
+
 -- Functions
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
