@@ -1853,7 +1853,7 @@ export default function Signup() {
               Already have an account?{" "}
               <Link
                 to="/login"
-                className="text-neon-green hover:text-neon-blue transition-colors underline"
+                className="text-purple-primary hover:text-purple-secondary transition-colors underline"
               >
                 Log in here
               </Link>
