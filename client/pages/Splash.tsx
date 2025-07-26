@@ -74,7 +74,7 @@ export default function Splash() {
                       repeat: Infinity,
                       delay: index * 0.2,
                     }}
-                    className="w-1 h-8 bg-gradient-to-t from-neon-green to-neon-blue rounded-full"
+                    className="w-1 h-8 bg-gradient-to-t from-purple-primary via-purple-secondary to-purple-accent rounded-full"
                   />
                 ))}
               </motion.div>
