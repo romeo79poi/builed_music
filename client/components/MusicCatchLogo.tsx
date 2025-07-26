@@ -113,11 +113,11 @@ export function MusicCatchLogo({
         {/* Enhanced circular background with multiple glows */}
         <motion.div
           variants={glowVariants}
-          className="w-20 h-20 rounded-full bg-gradient-to-br from-neon-green/40 via-emerald-400/40 to-neon-blue/40 absolute -inset-4 blur-xl"
+          className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-primary/40 via-purple-secondary/40 to-purple-accent/40 absolute -inset-4 blur-xl"
         />
         <motion.div
           variants={glowVariants}
-          className="w-16 h-16 rounded-full bg-gradient-to-br from-neon-green/30 via-emerald-400/30 to-neon-blue/30 absolute -inset-2 blur-lg"
+          className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-primary/30 via-purple-secondary/30 to-purple-accent/30 absolute -inset-2 blur-lg"
         />
 
         {/* Main logo container */}
