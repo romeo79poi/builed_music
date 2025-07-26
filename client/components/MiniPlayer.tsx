@@ -185,7 +185,7 @@ export function MiniPlayer() {
                       max="100"
                       value={volume}
                       onChange={(e) => setVolume(Number(e.target.value))}
-                      className="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer slider"
+                      className="w-full h-1.5 bg-purple-dark/40 rounded-lg appearance-none cursor-pointer slider"
                     />
                   </motion.div>
                 )}
