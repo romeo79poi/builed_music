@@ -1091,8 +1091,8 @@ export default function Signup() {
           <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1 sm:mb-2">
             Sign up to
           </h1>
-          <h2 className="text-2xl sm:text-3xl font-bold text-white">
-            MUSIC CATCH
+          <h2 className="text-2xl sm:text-3xl font-bold purple-gradient-text">
+            CATCH
           </h2>
         </motion.div>
 
