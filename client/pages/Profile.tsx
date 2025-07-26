@@ -532,16 +532,16 @@ export default function Profile() {
           <div className="grid grid-cols-2 gap-4">
             <button
               onClick={() => navigate("/edit-profile")}
-              className="p-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-colors"
+              className="p-4 bg-purple-dark/30 rounded-xl border border-purple-primary/20 hover:bg-purple-primary/10 hover:border-purple-primary/40 transition-all duration-200 backdrop-blur-sm hover:scale-105"
             >
-              <User className="w-6 h-6 text-neon-green mx-auto mb-2" />
+              <User className="w-6 h-6 text-purple-primary mx-auto mb-2" />
               <p className="text-sm font-medium">Edit Details</p>
             </button>
             <button
               onClick={() => navigate("/settings")}
-              className="p-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-colors"
+              className="p-4 bg-purple-dark/30 rounded-xl border border-purple-secondary/20 hover:bg-purple-secondary/10 hover:border-purple-secondary/40 transition-all duration-200 backdrop-blur-sm hover:scale-105"
             >
-              <Settings className="w-6 h-6 text-neon-blue mx-auto mb-2" />
+              <Settings className="w-6 h-6 text-purple-secondary mx-auto mb-2" />
               <p className="text-sm font-medium">Settings</p>
             </button>
           </div>
