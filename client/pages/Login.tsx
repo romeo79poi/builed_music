@@ -627,7 +627,7 @@ export default function Login() {
             Don't have an account?{" "}
             <Link
               to="/signup"
-              className="text-white underline hover:text-neon-green transition-colors"
+              className="text-white underline hover:text-purple-primary transition-colors"
             >
               Sign up here
             </Link>
