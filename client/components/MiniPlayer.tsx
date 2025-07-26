@@ -235,10 +235,10 @@ export function MiniPlayer() {
               <div className="flex justify-around">
                 <button
                   onClick={toggleShuffle}
-                  className={`p-3 rounded-full ${
+                  className={`p-3 rounded-full transition-all duration-200 ${
                     isShuffle
-                      ? "bg-neon-green/20 text-neon-green"
-                      : "text-gray-400"
+                      ? "bg-purple-primary/20 text-purple-primary"
+                      : "text-gray-400 hover:text-purple-primary hover:bg-purple-primary/10"
                   }`}
                 >
                   <Shuffle className="w-5 h-5" />
@@ -246,10 +246,10 @@ export function MiniPlayer() {
 
                 <button
                   onClick={toggleRepeat}
-                  className={`p-3 rounded-full ${
+                  className={`p-3 rounded-full transition-all duration-200 ${
                     isRepeat
-                      ? "bg-neon-green/20 text-neon-green"
-                      : "text-gray-400"
+                      ? "bg-purple-primary/20 text-purple-primary"
+                      : "text-gray-400 hover:text-purple-primary hover:bg-purple-primary/10"
                   }`}
                 >
                   <Repeat className="w-5 h-5" />
