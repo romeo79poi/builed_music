@@ -111,19 +111,16 @@ export const checkAvailability: RequestHandler = async (req, res) => {
   try {
     const { email, username } = req.query;
 
-    const result: { emailAvailable?: boolean; usernameAvailable?: boolean } =
-      {};
+    const result: { emailAvailable?: boolean; usernameAvailable?: boolean } = {};
 
     if (email) {
-      result.emailAvailable = !users.some(
-        (user) => user.email === email.toString(),
-      );
+      const { available } = await serverSupabase.checkEmailAvailability(email.toString());
+      result.emailAvailable = available;
     }
 
     if (username) {
-      result.usernameAvailable = !users.some(
-        (user) => user.username === username.toString(),
-      );
+      const { available } = await serverSupabase.checkUsernameAvailability(username.toString());
+      result.usernameAvailable = available;
     }
 
     res.json({
