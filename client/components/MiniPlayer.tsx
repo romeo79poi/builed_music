@@ -129,12 +129,12 @@ export function MiniPlayer() {
 
           <button
             onClick={togglePlay}
-            className="w-12 h-12 bg-white rounded-full flex items-center justify-center hover:scale-105 transition-transform"
+            className="w-12 h-12 bg-gradient-to-r from-purple-primary to-purple-secondary rounded-full flex items-center justify-center hover:scale-110 transition-all duration-200 shadow-lg shadow-purple-primary/40"
           >
             {isPlaying ? (
-              <Pause className="w-5 h-5 text-black" />
+              <Pause className="w-5 h-5 text-white" />
             ) : (
-              <Play className="w-5 h-5 text-black ml-0.5" />
+              <Play className="w-5 h-5 text-white ml-0.5" />
             )}
           </button>
 
