@@ -175,9 +175,9 @@ export function MusicCatchLogo({
                 animated && signupMode
                   ? {
                       boxShadow: [
-                        "0 0 10px rgba(60, 221, 116, 0.5)",
-                        "0 0 20px rgba(60, 221, 116, 0.8)",
-                        "0 0 10px rgba(60, 221, 116, 0.5)",
+                        "0 0 10px rgba(139, 92, 246, 0.5)",
+                        "0 0 20px rgba(139, 92, 246, 0.8)",
+                        "0 0 10px rgba(139, 92, 246, 0.5)",
                       ],
                     }
                   : animated && blinkMode
@@ -185,11 +185,11 @@ export function MusicCatchLogo({
                         opacity: [1, 0.2, 1, 0.4, 1],
                         scale: [1, 0.9, 1, 0.95, 1],
                         boxShadow: [
-                          "0 0 15px rgba(60, 221, 116, 0.8)",
-                          "0 0 5px rgba(60, 221, 116, 0.3)",
-                          "0 0 25px rgba(60, 221, 116, 1)",
-                          "0 0 8px rgba(60, 221, 116, 0.4)",
-                          "0 0 15px rgba(60, 221, 116, 0.8)",
+                          "0 0 15px rgba(139, 92, 246, 0.8)",
+                          "0 0 5px rgba(139, 92, 246, 0.3)",
+                          "0 0 25px rgba(139, 92, 246, 1)",
+                          "0 0 8px rgba(139, 92, 246, 0.4)",
+                          "0 0 15px rgba(139, 92, 246, 0.8)",
                         ],
                       }
                     : {}
