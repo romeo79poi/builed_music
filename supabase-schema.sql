@@ -334,15 +334,60 @@ CREATE TRIGGER update_user_settings_updated_at
   FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
--- Sample data (optional)
+-- Sample data (optional) - Music streaming demo data
+-- Insert genres
+INSERT INTO genres (id, name, description) VALUES
+  ('550e8400-e29b-41d4-a716-446655440101', 'Electronic', 'Electronic dance music and synthesizer-based tracks'),
+  ('550e8400-e29b-41d4-a716-446655440102', 'Ambient', 'Atmospheric and mood-setting instrumental music'),
+  ('550e8400-e29b-41d4-a716-446655440103', 'Pop', 'Popular mainstream music with catchy melodies'),
+  ('550e8400-e29b-41d4-a716-446655440104', 'Indie', 'Independent artist music with unique sound'),
+  ('550e8400-e29b-41d4-a716-446655440105', 'Synthwave', 'Retro-futuristic electronic music inspired by 80s aesthetics');
+
+-- Insert artists
+INSERT INTO artists (id, name, bio, image_url, verified) VALUES
+  ('550e8400-e29b-41d4-a716-446655440201', 'Violet Sounds', 'Dream-pop artist creating ethereal soundscapes with purple-hued aesthetics', 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop', true),
+  ('550e8400-e29b-41d4-a716-446655440202', 'Electric Waves', 'Electronic music producer specializing in neon-lit synthwave and ambient textures', 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop', true),
+  ('550e8400-e29b-41d4-a716-446655440203', 'Space Melody', 'Cosmic ambient artist creating interstellar soundtracks for the digital age', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop', false);
+
+-- Insert albums
 INSERT INTO albums (id, name, artist, cover_image_url) VALUES
   ('550e8400-e29b-41d4-a716-446655440001', 'Purple Dreams', 'Violet Sounds', 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop'),
   ('550e8400-e29b-41d4-a716-446655440002', 'Neon Nights', 'Electric Waves', 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop'),
-  ('550e8400-e29b-41d4-a716-446655440003', 'Cosmic Journey', 'Space Melody', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop');
+  ('550e8400-e29b-41d4-a716-446655440003', 'Cosmic Journey', 'Space Melody', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop'),
+  ('550e8400-e29b-41d4-a716-446655440004', 'Electric Paradise', 'Electric Waves', 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop'),
+  ('550e8400-e29b-41d4-a716-446655440005', 'Violet Universe', 'Violet Sounds', 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop');
 
+-- Insert songs
 INSERT INTO songs (id, title, artist, album_id, cover_image_url, duration) VALUES
   ('550e8400-e29b-41d4-a716-446655440011', 'Purple Rain', 'Violet Sounds', '550e8400-e29b-41d4-a716-446655440001', 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop', 210),
   ('550e8400-e29b-41d4-a716-446655440012', 'Midnight Glow', 'Electric Waves', '550e8400-e29b-41d4-a716-446655440002', 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop', 185),
   ('550e8400-e29b-41d4-a716-446655440013', 'Starlight', 'Space Melody', '550e8400-e29b-41d4-a716-446655440003', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop', 195),
   ('550e8400-e29b-41d4-a716-446655440014', 'Dreamscape', 'Violet Sounds', '550e8400-e29b-41d4-a716-446655440001', 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop', 240),
-  ('550e8400-e29b-41d4-a716-446655440015', 'Electric Feel', 'Electric Waves', '550e8400-e29b-41d4-a716-446655440002', 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop', 220);
+  ('550e8400-e29b-41d4-a716-446655440015', 'Electric Feel', 'Electric Waves', '550e8400-e29b-41d4-a716-446655440002', 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop', 220),
+  ('550e8400-e29b-41d4-a716-446655440016', 'Neon Dreams', 'Electric Waves', '550e8400-e29b-41d4-a716-446655440004', 'https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=300&h=300&fit=crop', 198),
+  ('550e8400-e29b-41d4-a716-446655440017', 'Cosmic Waves', 'Space Melody', '550e8400-e29b-41d4-a716-446655440003', 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop', 267),
+  ('550e8400-e29b-41d4-a716-446655440018', 'Violet Storm', 'Violet Sounds', '550e8400-e29b-41d4-a716-446655440005', 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop', 203);
+
+-- Link songs to artists
+INSERT INTO song_artists (song_id, artist_id, role) VALUES
+  ('550e8400-e29b-41d4-a716-446655440011', '550e8400-e29b-41d4-a716-446655440201', 'performer'),
+  ('550e8400-e29b-41d4-a716-446655440012', '550e8400-e29b-41d4-a716-446655440202', 'performer'),
+  ('550e8400-e29b-41d4-a716-446655440013', '550e8400-e29b-41d4-a716-446655440203', 'performer'),
+  ('550e8400-e29b-41d4-a716-446655440014', '550e8400-e29b-41d4-a716-446655440201', 'performer'),
+  ('550e8400-e29b-41d4-a716-446655440015', '550e8400-e29b-41d4-a716-446655440202', 'performer'),
+  ('550e8400-e29b-41d4-a716-446655440016', '550e8400-e29b-41d4-a716-446655440202', 'performer'),
+  ('550e8400-e29b-41d4-a716-446655440017', '550e8400-e29b-41d4-a716-446655440203', 'performer'),
+  ('550e8400-e29b-41d4-a716-446655440018', '550e8400-e29b-41d4-a716-446655440201', 'performer');
+
+-- Link songs to genres
+INSERT INTO song_genres (song_id, genre_id) VALUES
+  ('550e8400-e29b-41d4-a716-446655440011', '550e8400-e29b-41d4-a716-446655440102'), -- Purple Rain -> Ambient
+  ('550e8400-e29b-41d4-a716-446655440011', '550e8400-e29b-41d4-a716-446655440104'), -- Purple Rain -> Indie
+  ('550e8400-e29b-41d4-a716-446655440012', '550e8400-e29b-41d4-a716-446655440101'), -- Midnight Glow -> Electronic
+  ('550e8400-e29b-41d4-a716-446655440012', '550e8400-e29b-41d4-a716-446655440105'), -- Midnight Glow -> Synthwave
+  ('550e8400-e29b-41d4-a716-446655440013', '550e8400-e29b-41d4-a716-446655440102'), -- Starlight -> Ambient
+  ('550e8400-e29b-41d4-a716-446655440014', '550e8400-e29b-41d4-a716-446655440103'), -- Dreamscape -> Pop
+  ('550e8400-e29b-41d4-a716-446655440015', '550e8400-e29b-41d4-a716-446655440101'), -- Electric Feel -> Electronic
+  ('550e8400-e29b-41d4-a716-446655440016', '550e8400-e29b-41d4-a716-446655440105'), -- Neon Dreams -> Synthwave
+  ('550e8400-e29b-41d4-a716-446655440017', '550e8400-e29b-41d4-a716-446655440102'), -- Cosmic Waves -> Ambient
+  ('550e8400-e29b-41d4-a716-446655440018', '550e8400-e29b-41d4-a716-446655440104'); -- Violet Storm -> Indie
