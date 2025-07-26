@@ -147,8 +147,8 @@ export function MiniPlayer() {
 
           <button
             onClick={toggleRepeat}
-            className={`p-2 rounded-full transition-colors ${
-              isRepeat ? "text-neon-green" : "text-gray-400 hover:text-white"
+            className={`p-2 rounded-full transition-all duration-200 ${
+              isRepeat ? "text-purple-primary bg-purple-primary/20" : "text-gray-400 hover:text-purple-primary hover:bg-purple-primary/10"
             }`}
           >
             <Repeat className="w-4 h-4" />
