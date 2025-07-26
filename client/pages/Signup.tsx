@@ -1107,7 +1107,7 @@ export default function Signup() {
             <button
               onClick={handleGoogleSignup}
               disabled={isLoading}
-              className="w-full h-12 sm:h-14 bg-slate-800/70 hover:bg-slate-700/70 rounded-lg flex items-center justify-center text-white font-medium transition-colors border border-slate-600 disabled:opacity-50"
+              className="w-full h-12 sm:h-14 bg-purple-dark/50 hover:bg-purple-dark/70 rounded-xl flex items-center justify-center text-white font-medium transition-all duration-200 border border-purple-primary/30 hover:border-purple-primary/50 disabled:opacity-50 hover:shadow-lg hover:shadow-purple-primary/20"
             >
               {isLoading ? (
                 <div className="flex items-center space-x-2">
