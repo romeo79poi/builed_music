@@ -209,9 +209,9 @@ export default function Profile() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-purple-darker via-background to-purple-dark flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-neon-green mx-auto mb-4" />
+          <Loader2 className="w-8 h-8 animate-spin text-purple-primary mx-auto mb-4" />
           <p className="text-white">Loading your profile...</p>
         </div>
       </div>
