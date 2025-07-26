@@ -113,8 +113,8 @@ export function MiniPlayer() {
         <div className="flex items-center space-x-4">
           <button
             onClick={toggleShuffle}
-            className={`p-2 rounded-full transition-colors ${
-              isShuffle ? "text-neon-green" : "text-gray-400 hover:text-white"
+            className={`p-2 rounded-full transition-all duration-200 ${
+              isShuffle ? "text-purple-primary bg-purple-primary/20" : "text-gray-400 hover:text-purple-primary hover:bg-purple-primary/10"
             }`}
           >
             <Shuffle className="w-4 h-4" />
