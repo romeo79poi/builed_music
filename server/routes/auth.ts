@@ -438,15 +438,23 @@ export const loginUser: RequestHandler = async (req, res) => {
 // Get all users (for demo purposes)
 export const getUsers: RequestHandler = async (req, res) => {
   try {
-    // Return users without passwords
-    const usersResponse = users.map(
-      ({ password, emailVerificationCode, ...user }) => user,
-    );
+    const { data: users, error } = await serverSupabase.supabase
+      .from('users')
+      .select('id, email, username, name, created_at, is_verified')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error("Supabase error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch users",
+      });
+    }
 
     res.json({
       success: true,
-      users: usersResponse,
-      count: usersResponse.length,
+      users: users || [],
+      count: users?.length || 0,
     });
   } catch (error) {
     console.error("Get users error:", error);
