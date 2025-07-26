@@ -50,9 +50,9 @@ export default function Splash() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1, duration: 0.8 }}
-                className="text-center text-white text-5xl font-normal tracking-[2.4px] leading-[48px] pb-2"
+                className="text-center text-white text-6xl font-bold tracking-[3px] leading-[64px] pb-2"
               >
-                MUSIC CATCH
+                CATCH
               </motion.div>
 
               {/* Loading animation */}
