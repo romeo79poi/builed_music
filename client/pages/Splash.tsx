@@ -102,7 +102,7 @@ export default function Splash() {
             className="min-h-screen bg-black flex flex-col items-center justify-center relative pt-15"
           >
             {/* Subtle background glow */}
-            <div className="absolute inset-0 bg-gradient-to-br from-neon-green/5 via-transparent to-neon-blue/5"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-primary/10 via-purple-secondary/5 to-purple-accent/8"></div>
 
             <div className="relative z-10 flex flex-col items-center max-w-md mx-auto px-3 sm:px-6">
               {/* Welcome text with enhanced logo */}
