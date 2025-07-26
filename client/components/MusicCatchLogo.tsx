@@ -125,7 +125,7 @@ export function MusicCatchLogo({
           {/* Animated side dots with pulse effect */}
           <motion.div
             variants={barVariants}
-            className="absolute -left-6 top-1/2 transform -translate-y-1/2 w-1.5 h-1.5 bg-neon-green rounded-full shadow-lg shadow-neon-green/50"
+            className="absolute -left-6 top-1/2 transform -translate-y-1/2 w-1.5 h-1.5 bg-purple-primary rounded-full shadow-lg shadow-purple-primary/50"
             animate={
               animated && signupMode
                 ? {
