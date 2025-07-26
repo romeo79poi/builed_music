@@ -456,7 +456,7 @@ export default function Profile() {
             {/* Account Information */}
             <div className="mt-6 pt-6 border-t border-white/10">
               <h3 className="text-lg font-semibold mb-4 flex items-center">
-                <Shield className="w-5 h-5 mr-2 text-neon-blue" />
+                <Shield className="w-5 h-5 mr-2 text-purple-secondary" />
                 Account Information
               </h3>
 
