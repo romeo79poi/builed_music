@@ -439,7 +439,7 @@ export default function Profile() {
                           {userData.phone && (
                             <button
                               onClick={handleSendPhoneOTP}
-                              className="text-xs text-neon-green hover:text-neon-blue font-medium flex items-center space-x-1"
+                              className="text-xs text-purple-primary hover:text-purple-secondary font-medium flex items-center space-x-1 transition-colors"
                             >
                               <Send className="w-3 h-3" />
                               <span>Send OTP</span>
