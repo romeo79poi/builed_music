@@ -32,7 +32,7 @@ export class ErrorHandler {
   private classifyError(error: any, context?: string): AppError {
     const timestamp = new Date().toISOString();
 
-    // Supabase authentication errors
+    // Supabase configuration errors
     if (error?.name === 'SupabaseConfigError') {
       return {
         type: 'auth',
@@ -43,7 +43,63 @@ export class ErrorHandler {
       };
     }
 
-    if (error?.name === 'AuthError' || error?.code?.startsWith('auth')) {
+    // Supabase authentication errors
+    if (error?.name === 'AuthError' || error?.code?.startsWith('auth') || error?.error_description) {
+      return {
+        type: 'auth',
+        message: this.getSupabaseAuthErrorMessage(error),
+        code: error.code || error.error_code,
+        details: { context, originalError: error },
+        timestamp,
+      };
+    }
+
+    // Supabase database errors
+    if (error?.code?.startsWith('PGRST') || error?.hint || error?.details) {
+      return {
+        type: 'database',
+        message: this.getSupabaseDatabaseErrorMessage(error),
+        code: error.code,
+        details: { context, originalError: error },
+        timestamp,
+      };
+    }
+
+    // Supabase storage errors
+    if (error?.error === 'invalid_request' || error?.statusCode === 400) {
+      return {
+        type: 'file',
+        message: this.getSupabaseStorageErrorMessage(error),
+        code: error.error || 'STORAGE_ERROR',
+        details: { context, originalError: error },
+        timestamp,
+      };
+    }
+
+    // Network/connectivity errors
+    if (error?.message === 'Failed to fetch' || error?.name === 'NetworkError') {
+      return {
+        type: 'network',
+        message: 'Unable to connect to the server. Please check your internet connection.',
+        code: 'NETWORK_ERROR',
+        details: { context, originalError: error.message },
+        timestamp,
+      };
+    }
+
+    // Music player errors
+    if (error?.message?.includes('audio') || context?.includes('player')) {
+      return {
+        type: 'file',
+        message: this.getMusicPlayerErrorMessage(error),
+        code: 'AUDIO_ERROR',
+        details: { context, originalError: error },
+        timestamp,
+      };
+    }
+
+    // Legacy auth errors (keeping for backward compatibility)
+    if (error?.code?.startsWith('auth')) {
       return {
         type: 'auth',
         message: this.getAuthErrorMessage(error),
