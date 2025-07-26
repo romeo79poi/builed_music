@@ -102,32 +102,32 @@ export default function MobileFooter({ className = "" }: FooterProps) {
                   <motion.div
                     animate={isActive ? {
                       boxShadow: [
-                        `0 0 0px rgba(34, 197, 94, 0.3)`,
-                        `0 0 20px rgba(34, 197, 94, 0.6)`,
-                        `0 0 0px rgba(34, 197, 94, 0.3)`
+                        "0 0 0px rgba(34, 197, 94, 0.3)",
+                        "0 0 20px rgba(34, 197, 94, 0.6)",
+                        "0 0 0px rgba(34, 197, 94, 0.3)"
                       ]
                     } : {}}
                     transition={{ duration: 2, repeat: Infinity }}
                     className={`p-2.5 rounded-xl transition-all duration-300 ${
-                      isActive 
-                        ? `bg-${item.activeColor}/20 border border-${item.activeColor}/50` 
+                      isActive
+                        ? "bg-neon-green/20 border border-neon-green/50"
                         : "hover:bg-purple-primary/20 group-hover:border group-hover:border-purple-primary/40"
                     }`}
                   >
-                    <Icon 
+                    <Icon
                       className={`w-5 h-5 transition-colors duration-300 ${
-                        isActive 
-                          ? `text-${item.activeColor}` 
+                        isActive
+                          ? "text-neon-green"
                           : "text-gray-400 group-hover:text-purple-primary"
-                      }`} 
+                      }`}
                     />
                   </motion.div>
-                  
+
                   {/* Label */}
-                  <span 
+                  <span
                     className={`text-xs mt-1 font-medium transition-colors duration-300 truncate max-w-full ${
-                      isActive 
-                        ? `text-${item.activeColor}` 
+                      isActive
+                        ? "text-neon-green"
                         : "text-gray-400 group-hover:text-purple-primary"
                     }`}
                   >
