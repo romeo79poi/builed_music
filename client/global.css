@@ -9,50 +9,56 @@
    * A different format will require also updating the theme in tailwind.config.ts.
   */
   :root {
-    --background: 215 25% 9%;
+    --background: 260 35% 8%;
     --foreground: 210 40% 98%;
 
-    --card: 215 25% 12%;
+    --card: 260 30% 15%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 215 25% 12%;
+    --popover: 260 30% 15%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 141 70% 55%;
-    --primary-foreground: 215 25% 9%;
+    --primary: 267 83% 58%;
+    --primary-foreground: 260 35% 8%;
 
-    --secondary: 215 25% 15%;
+    --secondary: 260 25% 20%;
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 215 25% 15%;
+    --muted: 260 25% 20%;
     --muted-foreground: 215 16% 65%;
 
-    --accent: 197 71% 55%;
-    --accent-foreground: 215 25% 9%;
+    --accent: 285 85% 65%;
+    --accent-foreground: 260 35% 8%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 215 25% 20%;
-    --input: 215 25% 18%;
-    --ring: 141 70% 55%;
+    --border: 260 30% 25%;
+    --input: 260 30% 18%;
+    --ring: 267 83% 58%;
 
     --radius: 0.75rem;
 
-    --sidebar-background: 215 25% 12%;
+    --sidebar-background: 260 30% 15%;
     --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 141 70% 55%;
-    --sidebar-primary-foreground: 215 25% 9%;
-    --sidebar-accent: 215 25% 15%;
+    --sidebar-primary: 267 83% 58%;
+    --sidebar-primary-foreground: 260 35% 8%;
+    --sidebar-accent: 260 25% 20%;
     --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 215 25% 20%;
-    --sidebar-ring: 141 70% 55%;
+    --sidebar-border: 260 30% 25%;
+    --sidebar-ring: 267 83% 58%;
 
-    /* Music Catch specific colors */
-    --neon-green: 141 70% 55%;
-    --neon-blue: 197 71% 55%;
-    --dark-surface: 215 25% 12%;
-    --darker-surface: 215 25% 8%;
+    /* Catch app specific colors - Purple gradient theme */
+    --purple-primary: 267 83% 58%; /* Deep purple */
+    --purple-secondary: 285 85% 65%; /* Violet */
+    --purple-accent: 320 85% 70%; /* Pink-purple */
+    --purple-glow: 280 100% 80%; /* Light purple for glows */
+    --purple-dark: 260 30% 15%; /* Dark purple background */
+    --purple-darker: 260 35% 8%; /* Darker purple background */
+    --neon-green: 267 83% 58%; /* Updated to purple primary */
+    --neon-blue: 285 85% 65%; /* Updated to purple secondary */
+    --dark-surface: 260 30% 15%;
+    --darker-surface: 260 35% 8%;
   }
 
   .dark {
