@@ -109,34 +109,41 @@ async function parseResponse<T>(response: Response): Promise<ApiResponse<T>> {
     // Check if the response body is already consumed
     if (response.bodyUsed) {
       console.warn("Response body already consumed, cannot parse");
-      parseError = "Response body already read";
+      parseError = "Response body already consumed";
       data = null;
     } else if (contentLength === "0") {
       // Empty response
       data = null;
-    } else if (contentType.includes("application/json")) {
-      // Parse JSON response
-      const text = await response.text();
-      if (text.trim()) {
-        try {
-          data = JSON.parse(text);
-        } catch (jsonError) {
-          console.error("JSON parse error:", jsonError);
-          parseError = "Invalid JSON response";
-          data = text; // Fallback to raw text
+    } else {
+      // Clone response to avoid "body already read" issues
+      const responseClone = response.clone();
+
+      if (contentType.includes("application/json")) {
+        // Parse JSON response
+        const text = await responseClone.text();
+        if (text.trim()) {
+          try {
+            data = JSON.parse(text);
+          } catch (jsonError) {
+            console.error("JSON parse error:", jsonError);
+            parseError = "Invalid JSON response";
+            data = text; // Fallback to raw text
+          }
+        } else {
+          data = null;
         }
       } else {
-        data = null;
+        // Get text response for non-JSON
+        data = await responseClone.text();
       }
-    } else {
-      // Get text response for non-JSON
-      data = await response.text();
     }
   } catch (error: any) {
     console.error("Failed to parse response:", error);
 
     // Handle specific error types
-    if (error.message?.includes("body stream already read")) {
+    if (error.message?.includes("body stream already read") ||
+        error.message?.includes("body used already") ||
+        error.message?.includes("Already read")) {
       parseError = "Response body already consumed";
     } else {
       parseError = error.message || "Unable to read response";

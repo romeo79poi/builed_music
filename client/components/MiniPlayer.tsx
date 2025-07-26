@@ -68,18 +68,18 @@ export function MiniPlayer() {
     <motion.div
       initial={{ y: 100 }}
       animate={{ y: 0 }}
-      className="fixed bottom-0 left-0 right-0 bg-black/95 backdrop-blur-lg border-t border-white/10 z-50"
+      className="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-xl border-t border-purple-primary/30 z-50"
     >
       {/* Progress Bar */}
       <div
-        className="h-1 bg-white/20 cursor-pointer relative group"
+        className="h-1.5 bg-purple-dark/40 cursor-pointer relative group"
         onClick={handleProgressClick}
       >
         <div
-          className="h-full bg-neon-green relative"
+          className="h-full bg-gradient-to-r from-purple-primary to-purple-secondary relative rounded-full"
           style={{ width: `${progress}%` }}
         >
-          <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-3 h-3 bg-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="absolute right-0 top-1/2 transform -translate-y-1/2 w-3 h-3 bg-gradient-to-r from-purple-primary to-purple-secondary rounded-full opacity-0 group-hover:opacity-100 transition-opacity shadow-lg shadow-purple-primary/50" />
         </div>
       </div>
 
@@ -90,7 +90,7 @@ export function MiniPlayer() {
             <img
               src={currentSong.image}
               alt={currentSong.title}
-              className="w-14 h-14 rounded-lg object-cover"
+              className="w-14 h-14 rounded-xl object-cover shadow-lg"
             />
             <div className="min-w-0">
               <h3 className="text-white font-medium text-sm truncate">
@@ -113,8 +113,8 @@ export function MiniPlayer() {
         <div className="flex items-center space-x-4">
           <button
             onClick={toggleShuffle}
-            className={`p-2 rounded-full transition-colors ${
-              isShuffle ? "text-neon-green" : "text-gray-400 hover:text-white"
+            className={`p-2 rounded-full transition-all duration-200 ${
+              isShuffle ? "text-purple-primary bg-purple-primary/20" : "text-gray-400 hover:text-purple-primary hover:bg-purple-primary/10"
             }`}
           >
             <Shuffle className="w-4 h-4" />
@@ -129,12 +129,12 @@ export function MiniPlayer() {
 
           <button
             onClick={togglePlay}
-            className="w-12 h-12 bg-white rounded-full flex items-center justify-center hover:scale-105 transition-transform"
+            className="w-12 h-12 bg-gradient-to-r from-purple-primary to-purple-secondary rounded-full flex items-center justify-center hover:scale-110 transition-all duration-200 shadow-lg shadow-purple-primary/40"
           >
             {isPlaying ? (
-              <Pause className="w-5 h-5 text-black" />
+              <Pause className="w-5 h-5 text-white" />
             ) : (
-              <Play className="w-5 h-5 text-black ml-0.5" />
+              <Play className="w-5 h-5 text-white ml-0.5" />
             )}
           </button>
 
@@ -147,8 +147,8 @@ export function MiniPlayer() {
 
           <button
             onClick={toggleRepeat}
-            className={`p-2 rounded-full transition-colors ${
-              isRepeat ? "text-neon-green" : "text-gray-400 hover:text-white"
+            className={`p-2 rounded-full transition-all duration-200 ${
+              isRepeat ? "text-purple-primary bg-purple-primary/20" : "text-gray-400 hover:text-purple-primary hover:bg-purple-primary/10"
             }`}
           >
             <Repeat className="w-4 h-4" />
@@ -185,7 +185,7 @@ export function MiniPlayer() {
                       max="100"
                       value={volume}
                       onChange={(e) => setVolume(Number(e.target.value))}
-                      className="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer slider"
+                      className="w-full h-1.5 bg-purple-dark/40 rounded-lg appearance-none cursor-pointer slider"
                     />
                   </motion.div>
                 )}
@@ -227,7 +227,7 @@ export function MiniPlayer() {
                   max="100"
                   value={volume}
                   onChange={(e) => setVolume(Number(e.target.value))}
-                  className="flex-1 h-2 bg-white/20 rounded-lg appearance-none cursor-pointer slider"
+                  className="flex-1 h-2 bg-purple-dark/40 rounded-lg appearance-none cursor-pointer slider"
                 />
               </div>
 
@@ -235,10 +235,10 @@ export function MiniPlayer() {
               <div className="flex justify-around">
                 <button
                   onClick={toggleShuffle}
-                  className={`p-3 rounded-full ${
+                  className={`p-3 rounded-full transition-all duration-200 ${
                     isShuffle
-                      ? "bg-neon-green/20 text-neon-green"
-                      : "text-gray-400"
+                      ? "bg-purple-primary/20 text-purple-primary"
+                      : "text-gray-400 hover:text-purple-primary hover:bg-purple-primary/10"
                   }`}
                 >
                   <Shuffle className="w-5 h-5" />
@@ -246,10 +246,10 @@ export function MiniPlayer() {
 
                 <button
                   onClick={toggleRepeat}
-                  className={`p-3 rounded-full ${
+                  className={`p-3 rounded-full transition-all duration-200 ${
                     isRepeat
-                      ? "bg-neon-green/20 text-neon-green"
-                      : "text-gray-400"
+                      ? "bg-purple-primary/20 text-purple-primary"
+                      : "text-gray-400 hover:text-purple-primary hover:bg-purple-primary/10"
                   }`}
                 >
                   <Repeat className="w-5 h-5" />
@@ -283,20 +283,34 @@ export function MiniPlayer() {
       <style jsx>{`
         .slider::-webkit-slider-thumb {
           appearance: none;
-          width: 12px;
-          height: 12px;
+          width: 14px;
+          height: 14px;
           border-radius: 50%;
-          background: #ffffff;
+          background: linear-gradient(135deg, hsl(267, 83%, 58%), hsl(285, 85%, 65%));
           cursor: pointer;
+          box-shadow: 0 2px 8px rgba(167, 139, 250, 0.3);
         }
 
         .slider::-moz-range-thumb {
-          width: 12px;
-          height: 12px;
+          width: 14px;
+          height: 14px;
           border-radius: 50%;
-          background: #ffffff;
+          background: linear-gradient(135deg, hsl(267, 83%, 58%), hsl(285, 85%, 65%));
           cursor: pointer;
           border: none;
+          box-shadow: 0 2px 8px rgba(167, 139, 250, 0.3);
+        }
+
+        .slider::-webkit-slider-track {
+          background: linear-gradient(to right, hsl(267, 83%, 58%), hsl(285, 85%, 65%));
+          height: 6px;
+          border-radius: 3px;
+        }
+
+        .slider::-moz-range-track {
+          background: linear-gradient(to right, hsl(267, 83%, 58%), hsl(285, 85%, 65%));
+          height: 6px;
+          border-radius: 3px;
         }
       `}</style>
     </motion.div>

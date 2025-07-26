@@ -38,7 +38,7 @@ export default function Splash() {
             </div>
 
             {/* Background glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-neon-green/10 via-transparent to-neon-blue/10"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-primary/20 via-purple-secondary/10 to-purple-accent/15"></div>
 
             {/* Splash content */}
             <div className="relative z-10 flex flex-col items-center">
@@ -50,9 +50,9 @@ export default function Splash() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1, duration: 0.8 }}
-                className="text-center text-white text-5xl font-normal tracking-[2.4px] leading-[48px] pb-2"
+                className="text-center text-white text-6xl font-bold tracking-[3px] leading-[64px] pb-2"
               >
-                MUSIC CATCH
+                CATCH
               </motion.div>
 
               {/* Loading animation */}
@@ -74,7 +74,7 @@ export default function Splash() {
                       repeat: Infinity,
                       delay: index * 0.2,
                     }}
-                    className="w-1 h-8 bg-gradient-to-t from-neon-green to-neon-blue rounded-full"
+                    className="w-1 h-8 bg-gradient-to-t from-purple-primary via-purple-secondary to-purple-accent rounded-full"
                   />
                 ))}
               </motion.div>
@@ -87,8 +87,8 @@ export default function Splash() {
               transition={{ delay: 2.5, duration: 0.8 }}
               className="absolute bottom-8 text-center"
             >
-              <p className="text-transparent bg-gradient-to-r from-neon-green via-purple-400 to-neon-blue bg-clip-text text-sm font-medium">
-                Feel the Music, Catch the Feel ✨
+              <p className="text-transparent bg-gradient-to-r from-purple-primary via-purple-secondary to-purple-accent bg-clip-text text-sm font-medium">
+                Feel the Music, Catch the Vibe ✨
               </p>
             </motion.div>
           </motion.div>
@@ -102,7 +102,7 @@ export default function Splash() {
             className="min-h-screen bg-black flex flex-col items-center justify-center relative pt-15"
           >
             {/* Subtle background glow */}
-            <div className="absolute inset-0 bg-gradient-to-br from-neon-green/5 via-transparent to-neon-blue/5"></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-primary/10 via-purple-secondary/5 to-purple-accent/8"></div>
 
             <div className="relative z-10 flex flex-col items-center max-w-md mx-auto px-3 sm:px-6">
               {/* Welcome text with enhanced logo */}
@@ -115,19 +115,19 @@ export default function Splash() {
                 {/* Enhanced logo display */}
                 <div className="mb-8 flex justify-center">
                   <div className="relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-neon-green/20 via-purple-500/20 to-neon-blue/20 rounded-full blur-xl scale-150"></div>
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-primary/30 via-purple-secondary/25 to-purple-accent/30 rounded-full blur-xl scale-150"></div>
                     <MusicCatchLogo className="relative scale-150" animated />
                   </div>
                 </div>
 
                 <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-white mb-3 sm:mb-4 tracking-wide">
-                  Welcome to Music Catch
+                  Welcome to Catch
                 </h2>
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.6, duration: 0.8 }}
-                  className="text-transparent bg-gradient-to-r from-neon-green via-purple-400 to-neon-blue bg-clip-text text-lg sm:text-xl font-semibold tracking-wide"
+                  className="text-transparent bg-gradient-to-r from-purple-primary via-purple-secondary to-purple-accent bg-clip-text text-lg sm:text-xl font-semibold tracking-wide"
                 >
                   Feel the Music
                 </motion.div>
@@ -142,7 +142,7 @@ export default function Splash() {
               >
                 <Button
                   onClick={() => navigate("/signup")}
-                  className="w-full bg-black text-green-400 hover:bg-green-400/10 font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-all duration-200 text-base sm:text-lg border-2 border-[rgba(79,214,57,1)]"
+                  className="w-full bg-gradient-to-r from-purple-primary to-purple-secondary text-white hover:from-purple-secondary hover:to-purple-accent font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-xl transition-all duration-300 text-base sm:text-lg shadow-lg shadow-purple-primary/25 hover:shadow-purple-secondary/40 hover:scale-105"
                 >
                   Start Your Journey
                 </Button>
@@ -150,7 +150,7 @@ export default function Splash() {
                 <Button
                   onClick={() => navigate("/login")}
                   variant="outline"
-                  className="w-full bg-black border-2 border-neon-green text-neon-green hover:bg-neon-green hover:text-black font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-lg transition-all duration-200 text-base sm:text-lg"
+                  className="w-full bg-black/40 backdrop-blur-sm border-2 border-purple-primary text-purple-primary hover:bg-purple-primary/10 hover:border-purple-secondary font-semibold py-3 sm:py-4 px-6 sm:px-8 rounded-xl transition-all duration-300 text-base sm:text-lg hover:scale-105"
                 >
                   Log In
                 </Button>
@@ -167,8 +167,8 @@ export default function Splash() {
                   By continuing, you agree to our Terms of Service and Privacy
                   Policy
                 </p>
-                <p className="text-transparent bg-gradient-to-r from-neon-green/70 to-neon-blue/70 bg-clip-text text-xs font-medium">
-                  🎶 Where Every Beat Tells a Story 🎶
+                <p className="text-transparent bg-gradient-to-r from-purple-primary/70 via-purple-secondary/70 to-purple-accent/70 bg-clip-text text-xs font-medium">
+                  ��� Where Every Beat Tells a Story 🎶
                 </p>
               </motion.div>
             </div>

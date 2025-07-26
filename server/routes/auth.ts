@@ -1,17 +1,6 @@
 import { RequestHandler } from "express";
-
-// In-memory storage for demo (in production, use a real database)
-const users: Array<{
-  id: string;
-  email: string;
-  username: string;
-  name?: string;
-  password: string; // In production, this should be hashed
-  createdAt: Date;
-  isVerified: boolean;
-  emailVerificationCode?: string;
-  emailVerificationExpiry?: Date;
-}> = [];
+import { serverSupabase } from "../lib/supabase";
+import bcrypt from "bcrypt";
 
 // In-memory storage for email verification codes
 const emailVerificationCodes: Map<
@@ -37,21 +26,6 @@ export const registerUser: RequestHandler = async (req, res) => {
       });
     }
 
-    // Check if user already exists
-    const existingUser = users.find(
-      (user) => user.email === email || user.username === username,
-    );
-
-    if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message:
-          existingUser.email === email
-            ? "Email already registered"
-            : "Username already taken",
-      });
-    }
-
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
@@ -69,19 +43,43 @@ export const registerUser: RequestHandler = async (req, res) => {
       });
     }
 
-    // Create new user
-    const newUser = {
-      id: Date.now().toString(),
+    // Check if user already exists
+    const { data: existingUserByEmail } = await serverSupabase.getUserByEmail(email);
+    if (existingUserByEmail) {
+      return res.status(400).json({
+        success: false,
+        message: "Email already registered",
+      });
+    }
+
+    const { data: existingUserByUsername } = await serverSupabase.getUserByUsername(username);
+    if (existingUserByUsername) {
+      return res.status(400).json({
+        success: false,
+        message: "Username already taken",
+      });
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 12);
+
+    // Create new user in Supabase
+    const { data: newUser, error } = await serverSupabase.createUser({
       email,
       username,
       name,
-      password, // In production, hash this password
-      provider,
-      createdAt: new Date(),
-      isVerified: provider === "google", // Google users are pre-verified
-    };
+      password: hashedPassword,
+      is_verified: provider === "google", // Google users are pre-verified
+      email_verified: provider === "google",
+    });
 
-    users.push(newUser);
+    if (error) {
+      console.error("Supabase error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to create user account",
+      });
+    }
 
     // Return success response (without password)
     const { password: _, ...userResponse } = newUser;
@@ -92,14 +90,12 @@ export const registerUser: RequestHandler = async (req, res) => {
       user: userResponse,
     });
 
-    // Log for demo purposes
     console.log("✅ New user registered:", {
+      id: newUser.id,
       email,
       username,
       name,
       provider,
-      createdAt: newUser.createdAt,
-      isVerified: newUser.isVerified,
     });
   } catch (error) {
     console.error("Registration error:", error);
@@ -115,19 +111,16 @@ export const checkAvailability: RequestHandler = async (req, res) => {
   try {
     const { email, username } = req.query;
 
-    const result: { emailAvailable?: boolean; usernameAvailable?: boolean } =
-      {};
+    const result: { emailAvailable?: boolean; usernameAvailable?: boolean } = {};
 
     if (email) {
-      result.emailAvailable = !users.some(
-        (user) => user.email === email.toString(),
-      );
+      const { available } = await serverSupabase.checkEmailAvailability(email.toString());
+      result.emailAvailable = available;
     }
 
     if (username) {
-      result.usernameAvailable = !users.some(
-        (user) => user.username === username.toString(),
-      );
+      const { available } = await serverSupabase.checkUsernameAvailability(username.toString());
+      result.usernameAvailable = available;
     }
 
     res.json({
@@ -278,21 +271,6 @@ export const completeRegistration: RequestHandler = async (req, res) => {
       });
     }
 
-    // Check if user already exists
-    const existingUser = users.find(
-      (user) => user.email === email || user.username === username,
-    );
-
-    if (existingUser) {
-      return res.status(400).json({
-        success: false,
-        message:
-          existingUser.email === email
-            ? "Email already registered"
-            : "Username already taken",
-      });
-    }
-
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
@@ -333,39 +311,43 @@ export const completeRegistration: RequestHandler = async (req, res) => {
       });
     }
 
-    if (!/(?=.*[a-z])/.test(password)) {
+    // Check if user already exists
+    const { data: existingUserByEmail } = await serverSupabase.getUserByEmail(email);
+    if (existingUserByEmail) {
       return res.status(400).json({
         success: false,
-        message: "Password must contain at least one lowercase letter",
+        message: "Email already registered",
       });
     }
 
-    if (!/(?=.*[A-Z])/.test(password)) {
+    const { data: existingUserByUsername } = await serverSupabase.getUserByUsername(username);
+    if (existingUserByUsername) {
       return res.status(400).json({
         success: false,
-        message: "Password must contain at least one uppercase letter",
+        message: "Username already taken",
       });
     }
 
-    if (!/(?=.*\d)/.test(password)) {
-      return res.status(400).json({
-        success: false,
-        message: "Password must contain at least one number",
-      });
-    }
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Create new user
-    const newUser = {
-      id: Date.now().toString(),
+    // Create new user in Supabase
+    const { data: newUser, error } = await serverSupabase.createUser({
       email,
       username,
       name,
-      password, // In production, hash this password
-      createdAt: new Date(),
-      isVerified: true, // Email was verified in previous step
-    };
+      password: hashedPassword,
+      is_verified: true, // Email was verified in previous step
+      email_verified: true,
+    });
 
-    users.push(newUser);
+    if (error) {
+      console.error("Supabase error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to create user account",
+      });
+    }
 
     // Return success response (without password)
     const { password: _, ...userResponse } = newUser;
@@ -377,10 +359,10 @@ export const completeRegistration: RequestHandler = async (req, res) => {
     });
 
     console.log(`✅ New user registered successfully:`, {
+      id: newUser.id,
       email,
       username,
       name,
-      createdAt: newUser.createdAt,
     });
   } catch (error) {
     console.error("Complete registration error:", error);
@@ -403,18 +385,19 @@ export const loginUser: RequestHandler = async (req, res) => {
       });
     }
 
-    // Find user
-    const user = users.find((u) => u.email === email);
+    // Find user in Supabase
+    const { data: user, error } = await serverSupabase.getUserByEmail(email);
 
-    if (!user) {
+    if (error || !user) {
       return res.status(400).json({
         success: false,
         message: "Invalid email or password",
       });
     }
 
-    // Check password (in production, compare hashed passwords)
-    if (user.password !== password) {
+    // Check password
+    const passwordValid = await bcrypt.compare(password, user.password);
+    if (!passwordValid) {
       return res.status(400).json({
         success: false,
         message: "Invalid email or password",
@@ -422,12 +405,15 @@ export const loginUser: RequestHandler = async (req, res) => {
     }
 
     // Check if user is verified
-    if (!user.isVerified) {
+    if (!user.is_verified) {
       return res.status(400).json({
         success: false,
         message: "Please verify your email before logging in",
       });
     }
+
+    // Generate a simple token (in production, use proper JWT)
+    const token = `token-${user.id}-${Date.now()}`;
 
     // Return success response (without password)
     const { password: _, ...userResponse } = user;
@@ -436,6 +422,7 @@ export const loginUser: RequestHandler = async (req, res) => {
       success: true,
       message: "Login successful",
       user: userResponse,
+      token: token,
     });
 
     console.log(`✅ User logged in successfully: ${email}`);
@@ -451,15 +438,23 @@ export const loginUser: RequestHandler = async (req, res) => {
 // Get all users (for demo purposes)
 export const getUsers: RequestHandler = async (req, res) => {
   try {
-    // Return users without passwords
-    const usersResponse = users.map(
-      ({ password, emailVerificationCode, ...user }) => user,
-    );
+    const { data: users, error } = await serverSupabase.supabase
+      .from('users')
+      .select('id, email, username, name, created_at, is_verified')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error("Supabase error:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to fetch users",
+      });
+    }
 
     res.json({
       success: true,
-      users: usersResponse,
-      count: usersResponse.length,
+      users: users || [],
+      count: users?.length || 0,
     });
   } catch (error) {
     console.error("Get users error:", error);

@@ -34,6 +34,7 @@ import {
   getDoc,
 } from "firebase/firestore";
 import { db, auth } from "../lib/firebase";
+import { supabaseOperations } from "../lib/supabase";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 
 // Interfaces matching your Firestore schema
@@ -112,70 +113,125 @@ export default function HomeScreen() {
     return () => unsubscribe();
   }, [navigate]);
 
-  // Fetch data from Firestore collections matching your schema
+  // Fetch data from Supabase and Firestore
   const loadFirestoreData = async () => {
     try {
       setIsLoading(true);
 
-      // Fetch songs from "songs" collection
-      const songsQuery = query(
-        collection(db, "songs"),
-        orderBy("createdAt", "desc"),
-        limit(20),
-      );
-      const songsSnapshot = await getDocs(songsQuery);
-      const songsData: Song[] = [];
+      // Try to load from Supabase first
+      try {
+        const { data: supabaseSongs } = await supabaseOperations.getSongs(20);
+        const { data: supabaseAlbums } = await supabaseOperations.getAlbums(10);
 
-      songsSnapshot.forEach((doc) => {
-        songsData.push({
-          id: doc.id,
-          ...doc.data(),
-        } as Song);
-      });
+        if (supabaseSongs && supabaseSongs.length > 0) {
+          const songsData = supabaseSongs.map(song => ({
+            id: song.id,
+            title: song.title,
+            artist: song.artist,
+            albumId: song.album_id,
+            coverImageURL: song.cover_image_url,
+            audioURL: song.audio_url,
+            createdAt: new Date(song.created_at),
+            isLiked: false
+          }));
 
-      // Fetch albums from "albums" collection
-      const albumsQuery = query(
-        collection(db, "albums"),
-        orderBy("createdAt", "desc"),
-        limit(10),
-      );
-      const albumsSnapshot = await getDocs(albumsQuery);
-      const albumsData: Album[] = [];
+          setSongs(songsData);
+          console.log("✅ Loaded songs from Supabase:", songsData.length);
+        }
 
-      albumsSnapshot.forEach((doc) => {
-        albumsData.push({
-          id: doc.id,
-          ...doc.data(),
-        } as Album);
-      });
+        if (supabaseAlbums && supabaseAlbums.length > 0) {
+          const albumsData = supabaseAlbums.map(album => ({
+            id: album.id,
+            name: album.name,
+            artist: album.artist,
+            coverImageURL: album.cover_image_url,
+            createdAt: new Date(album.created_at),
+            songIds: [] // We'll populate this separately if needed
+          }));
 
-      // Fetch playlists from "playlists" collection
-      const playlistsQuery = query(collection(db, "playlists"), limit(10));
-      const playlistsSnapshot = await getDocs(playlistsQuery);
-      const playlistsData: Playlist[] = [];
+          setAlbums(albumsData);
+          console.log("✅ Loaded albums from Supabase:", albumsData.length);
+        }
 
-      playlistsSnapshot.forEach((doc) => {
-        playlistsData.push({
-          id: doc.id,
-          ...doc.data(),
-        } as Playlist);
-      });
+        // Try to get playlists from current user
+        if (currentUser) {
+          const { data: userPlaylists } = await supabaseOperations.getUserPlaylists(currentUser.uid);
+          if (userPlaylists && userPlaylists.length > 0) {
+            const playlistsData = userPlaylists.map(playlist => ({
+              id: playlist.id,
+              name: playlist.name,
+              createdBy: playlist.created_by,
+              coverImageURL: playlist.cover_image_url || '',
+              songIds: [] // We'll populate this separately if needed
+            }));
 
-      setSongs(songsData);
-      setAlbums(albumsData);
-      setPlaylists(playlistsData);
+            setPlaylists(playlistsData);
+            console.log("✅ Loaded playlists from Supabase:", playlistsData.length);
+          }
+        }
 
-      console.log("✅ Loaded from Firestore:", {
-        songs: songsData.length,
-        albums: albumsData.length,
-        playlists: playlistsData.length,
-      });
+      } catch (supabaseError) {
+        console.warn("⚠️ Supabase not available, falling back to Firebase:", supabaseError);
 
-      if (songsData.length === 0 && albumsData.length === 0) {
+        // Fallback to Firebase
+        const songsQuery = query(
+          collection(db, "songs"),
+          orderBy("createdAt", "desc"),
+          limit(20),
+        );
+        const songsSnapshot = await getDocs(songsQuery);
+        const songsData: Song[] = [];
+
+        songsSnapshot.forEach((doc) => {
+          songsData.push({
+            id: doc.id,
+            ...doc.data(),
+          } as Song);
+        });
+
+        const albumsQuery = query(
+          collection(db, "albums"),
+          orderBy("createdAt", "desc"),
+          limit(10),
+        );
+        const albumsSnapshot = await getDocs(albumsQuery);
+        const albumsData: Album[] = [];
+
+        albumsSnapshot.forEach((doc) => {
+          albumsData.push({
+            id: doc.id,
+            ...doc.data(),
+          } as Album);
+        });
+
+        const playlistsQuery = query(collection(db, "playlists"), limit(10));
+        const playlistsSnapshot = await getDocs(playlistsQuery);
+        const playlistsData: Playlist[] = [];
+
+        playlistsSnapshot.forEach((doc) => {
+          playlistsData.push({
+            id: doc.id,
+            ...doc.data(),
+          } as Playlist);
+        });
+
+        setSongs(songsData);
+        setAlbums(albumsData);
+        setPlaylists(playlistsData);
+
+        console.log("✅ Loaded from Firebase:", {
+          songs: songsData.length,
+          albums: albumsData.length,
+          playlists: playlistsData.length,
+        });
+      }
+
+      // If no data is available, create sample data
+      if (songs.length === 0 && albums.length === 0) {
         await createSampleData();
       }
     } catch (error) {
-      console.error("❌ Error loading Firestore data:", error);
+      console.error("❌ Error loading data:", error);
       await createSampleData();
       toast({
         title: "Loading Error",
@@ -445,9 +501,9 @@ export default function HomeScreen() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-purple-darker via-background to-purple-dark flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-neon-green mx-auto mb-4" />
+          <Loader2 className="w-8 h-8 animate-spin text-purple-primary mx-auto mb-4" />
           <p className="text-white">Loading your music...</p>
         </div>
       </div>
@@ -455,15 +511,15 @@ export default function HomeScreen() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white relative">
+    <div className="min-h-screen bg-gradient-to-br from-purple-darker via-background to-purple-dark text-white relative">
       {/* Background Effects */}
-      <div className="fixed inset-0 bg-gradient-to-br from-neon-green/5 via-transparent to-neon-blue/5"></div>
+      <div className="fixed inset-0 bg-gradient-to-br from-purple-primary/8 via-purple-secondary/4 to-purple-accent/6"></div>
 
       {/* Main Container */}
       <div className="relative z-10">
         {/* Top Navigation Bar */}
         <motion.div
-          className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/10"
+          className="fixed top-0 left-0 right-0 z-50 bg-black/60 backdrop-blur-xl border-b border-purple-primary/20"
           initial={{ y: -100 }}
           animate={{ y: 0 }}
           transition={{ duration: 0.5 }}
@@ -472,7 +528,7 @@ export default function HomeScreen() {
             {/* Left: Logo */}
             <div className="flex items-center space-x-3">
               <MusicCatchLogo className="w-8 h-8" />
-              <span className="text-xl font-bold">Music Catch</span>
+              <span className="text-xl font-bold bg-gradient-to-r from-purple-primary to-purple-secondary bg-clip-text text-transparent">Catch</span>
             </div>
 
             {/* Center: Navigation */}
@@ -513,9 +569,9 @@ export default function HomeScreen() {
 
               <button
                 onClick={() => navigate("/profile")}
-                className="w-8 h-8 bg-neon-green rounded-full flex items-center justify-center"
+                className="w-8 h-8 bg-gradient-to-r from-purple-primary to-purple-secondary rounded-full flex items-center justify-center shadow-lg shadow-purple-primary/30 hover:scale-110 transition-all duration-200"
               >
-                <User className="w-5 h-5 text-black" />
+                <User className="w-5 h-5 text-white" />
               </button>
             </div>
           </div>
@@ -557,16 +613,16 @@ export default function HomeScreen() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="bg-neon-green/10 border border-neon-green/30 rounded-lg p-4"
+              className="bg-purple-primary/10 border border-purple-primary/30 rounded-xl p-4 backdrop-blur-sm"
             >
               <div className="flex items-center space-x-2">
-                <AlertCircle className="w-5 h-5 text-neon-green" />
+                <AlertCircle className="w-5 h-5 text-purple-primary" />
                 <div>
-                  <p className="text-neon-green font-medium">
-                    Firestore Schema Active
+                  <p className="text-purple-primary font-medium">
+                    Supabase Database Connected
                   </p>
                   <p className="text-gray-300 text-sm">
-                    Collections: {songs.length} songs, {albums.length} albums,{" "}
+                    Active: {songs.length} songs, {albums.length} albums,{" "}
                     {playlists.length} playlists
                   </p>
                 </div>
@@ -595,17 +651,18 @@ export default function HomeScreen() {
                     <motion.div
                       key={album.id}
                       whileHover={{ scale: 1.05 }}
-                      className="bg-white/5 rounded-lg p-4 hover:bg-white/10 transition-all cursor-pointer group"
+                      className="bg-purple-dark/40 backdrop-blur-sm rounded-2xl p-4 hover:bg-purple-dark/60 transition-all cursor-pointer group border border-purple-primary/20 hover:border-purple-primary/40 hover:shadow-2xl hover:shadow-purple-primary/20"
                       onClick={() => handlePlayAlbum(album)}
                     >
                       <div className="relative mb-4">
+                        <div className="absolute inset-0 bg-gradient-to-br from-purple-primary/20 to-purple-accent/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
                         <img
                           src={album.coverImageURL}
                           alt={album.name}
-                          className="w-full aspect-square rounded-lg object-cover"
+                          className="relative w-full aspect-square rounded-2xl object-cover shadow-lg"
                         />
-                        <button className="absolute bottom-2 right-2 w-12 h-12 bg-neon-green rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all shadow-lg">
-                          <Play className="w-5 h-5 text-black ml-0.5" />
+                        <button className="absolute bottom-3 right-3 w-12 h-12 bg-gradient-to-r from-purple-primary to-purple-secondary rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all shadow-xl shadow-purple-primary/50">
+                          <Play className="w-5 h-5 text-white ml-0.5" />
                         </button>
                       </div>
                       <h3 className="font-semibold mb-1 truncate">
@@ -645,17 +702,18 @@ export default function HomeScreen() {
                     <motion.div
                       key={playlist.id}
                       whileHover={{ scale: 1.05 }}
-                      className="bg-white/5 rounded-lg p-4 hover:bg-white/10 transition-all cursor-pointer group"
+                      className="bg-purple-dark/40 backdrop-blur-sm rounded-2xl p-4 hover:bg-purple-dark/60 transition-all cursor-pointer group border border-purple-secondary/20 hover:border-purple-secondary/40 hover:shadow-2xl hover:shadow-purple-secondary/20"
                       onClick={() => handlePlayPlaylist(playlist)}
                     >
                       <div className="relative mb-4">
+                        <div className="absolute inset-0 bg-gradient-to-br from-purple-secondary/20 to-purple-accent/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-all duration-300"></div>
                         <img
                           src={playlist.coverImageURL}
                           alt={playlist.name}
-                          className="w-full aspect-square rounded-lg object-cover"
+                          className="relative w-full aspect-square rounded-2xl object-cover shadow-lg"
                         />
-                        <button className="absolute bottom-2 right-2 w-12 h-12 bg-neon-blue rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all shadow-lg">
-                          <Play className="w-5 h-5 text-black ml-0.5" />
+                        <button className="absolute bottom-3 right-3 w-12 h-12 bg-gradient-to-r from-purple-secondary to-purple-accent rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transform translate-y-2 group-hover:translate-y-0 transition-all shadow-xl shadow-purple-secondary/50">
+                          <Play className="w-5 h-5 text-white ml-0.5" />
                         </button>
                       </div>
                       <h3 className="font-semibold mb-1 truncate">
@@ -681,7 +739,7 @@ export default function HomeScreen() {
                 <h2 className="text-2xl font-bold">Popular Songs</h2>
                 <button
                   onClick={handleShufflePlay}
-                  className="flex items-center space-x-2 bg-neon-green text-black px-4 py-2 rounded-full font-medium hover:scale-105 transition-transform"
+                  className="flex items-center space-x-2 bg-gradient-to-r from-purple-primary to-purple-secondary text-white px-6 py-3 rounded-full font-medium hover:scale-105 transition-all duration-200 shadow-lg shadow-purple-primary/30 hover:shadow-purple-primary/50"
                 >
                   <Shuffle className="w-4 h-4" />
                   <span>Shuffle play</span>
@@ -760,7 +818,7 @@ export default function HomeScreen() {
                   </p>
                   <button
                     onClick={createSampleData}
-                    className="bg-neon-green text-black px-6 py-2 rounded-full font-medium hover:scale-105 transition-transform"
+                    className="bg-gradient-to-r from-purple-primary to-purple-secondary text-white px-6 py-3 rounded-full font-medium hover:scale-105 transition-all duration-200 shadow-lg shadow-purple-primary/30"
                   >
                     Create Sample Data
                   </button>
@@ -774,23 +832,31 @@ export default function HomeScreen() {
         <MiniPlayer />
 
         {/* Bottom Navigation (Mobile) */}
-        <div className="fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur-sm border-t border-white/10 px-4 py-2 md:hidden z-40">
+        <div className="fixed bottom-0 left-0 right-0 bg-black/80 backdrop-blur-xl border-t border-purple-primary/20 px-4 py-3 md:hidden z-40">
           <div className="flex items-center justify-around">
-            <Link to="/home" className="flex flex-col items-center py-2">
-              <Home className="w-6 h-6 text-neon-green mb-1" />
-              <span className="text-neon-green text-xs font-medium">Home</span>
+            <Link to="/home" className="flex flex-col items-center py-2 transition-all duration-200">
+              <div className="p-2 rounded-xl bg-purple-primary/20">
+                <Home className="w-5 h-5 text-purple-primary mb-1" />
+              </div>
+              <span className="text-purple-primary text-xs font-medium mt-1">Home</span>
             </Link>
-            <Link to="/search" className="flex flex-col items-center py-2">
-              <Search className="w-6 h-6 text-gray-400 mb-1" />
-              <span className="text-gray-400 text-xs">Search</span>
+            <Link to="/search" className="flex flex-col items-center py-2 transition-all duration-200 hover:scale-110">
+              <div className="p-2 rounded-xl hover:bg-purple-primary/10">
+                <Search className="w-5 h-5 text-gray-400 mb-1 hover:text-purple-primary transition-colors" />
+              </div>
+              <span className="text-gray-400 text-xs mt-1">Search</span>
             </Link>
-            <Link to="/library" className="flex flex-col items-center py-2">
-              <Library className="w-6 h-6 text-gray-400 mb-1" />
-              <span className="text-gray-400 text-xs">Library</span>
+            <Link to="/library" className="flex flex-col items-center py-2 transition-all duration-200 hover:scale-110">
+              <div className="p-2 rounded-xl hover:bg-purple-primary/10">
+                <Library className="w-5 h-5 text-gray-400 mb-1 hover:text-purple-primary transition-colors" />
+              </div>
+              <span className="text-gray-400 text-xs mt-1">Library</span>
             </Link>
-            <Link to="/profile" className="flex flex-col items-center py-2">
-              <User className="w-6 h-6 text-gray-400 mb-1" />
-              <span className="text-gray-400 text-xs">Profile</span>
+            <Link to="/profile" className="flex flex-col items-center py-2 transition-all duration-200 hover:scale-110">
+              <div className="p-2 rounded-xl hover:bg-purple-primary/10">
+                <User className="w-5 h-5 text-gray-400 mb-1 hover:text-purple-primary transition-colors" />
+              </div>
+              <span className="text-gray-400 text-xs mt-1">Profile</span>
             </Link>
           </div>
         </div>

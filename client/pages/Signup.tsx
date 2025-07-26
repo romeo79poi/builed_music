@@ -1048,9 +1048,9 @@ export default function Signup() {
   };
 
   return (
-    <div className="min-h-screen bg-black flex flex-col items-center justify-center p-3 sm:p-6 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-purple-darker via-background to-purple-dark flex flex-col items-center justify-center p-3 sm:p-6 relative overflow-hidden">
       {/* Background glow effect */}
-      <div className="absolute inset-0 bg-gradient-to-br from-neon-green/5 via-transparent to-neon-blue/5"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-primary/10 via-purple-secondary/5 to-purple-accent/8"></div>
 
       <div className="relative z-10 w-full max-w-md px-2 sm:px-0">
         {/* Back Button - Top Left Corner */}
@@ -1068,9 +1068,9 @@ export default function Signup() {
                 goBack();
               }
             }}
-            className="w-12 h-12 bg-black/80 hover:bg-black/90 border border-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm transition-all duration-200 hover:scale-105 shadow-lg"
+            className="w-12 h-12 bg-purple-dark/80 hover:bg-purple-dark/90 border border-purple-primary/30 rounded-xl flex items-center justify-center backdrop-blur-sm transition-all duration-200 hover:scale-105 shadow-lg shadow-purple-primary/20"
           >
-            <ArrowLeft className="w-5 h-5 text-white" />
+            <ArrowLeft className="w-5 h-5 text-purple-primary" />
           </button>
         </motion.div>
 
@@ -1091,8 +1091,8 @@ export default function Signup() {
           <h1 className="text-2xl sm:text-3xl font-bold text-white mb-1 sm:mb-2">
             Sign up to
           </h1>
-          <h2 className="text-2xl sm:text-3xl font-bold text-white">
-            MUSIC CATCH
+          <h2 className="text-2xl sm:text-3xl font-bold purple-gradient-text">
+            CATCH
           </h2>
         </motion.div>
 
@@ -1107,7 +1107,7 @@ export default function Signup() {
             <button
               onClick={handleGoogleSignup}
               disabled={isLoading}
-              className="w-full h-12 sm:h-14 bg-slate-800/70 hover:bg-slate-700/70 rounded-lg flex items-center justify-center text-white font-medium transition-colors border border-slate-600 disabled:opacity-50"
+              className="w-full h-12 sm:h-14 bg-purple-dark/50 hover:bg-purple-dark/70 rounded-xl flex items-center justify-center text-white font-medium transition-all duration-200 border border-purple-primary/30 hover:border-purple-primary/50 disabled:opacity-50 hover:shadow-lg hover:shadow-purple-primary/20"
             >
               {isLoading ? (
                 <div className="flex items-center space-x-2">
@@ -1146,7 +1146,7 @@ export default function Signup() {
                   description: "Facebook signup will be available soon!",
                 });
               }}
-              className="w-full h-12 sm:h-14 bg-slate-800/70 hover:bg-slate-700/70 rounded-lg flex items-center justify-center text-white font-medium transition-colors border border-slate-600"
+              className="w-full h-12 sm:h-14 bg-purple-dark/50 hover:bg-purple-dark/70 rounded-xl flex items-center justify-center text-white font-medium transition-all duration-200 border border-purple-secondary/30 hover:border-purple-secondary/50 hover:shadow-lg hover:shadow-purple-secondary/20"
             >
               <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="#1877F2">
                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
@@ -1246,7 +1246,7 @@ export default function Signup() {
               <div className="space-y-3">
                 <button
                   onClick={() => handleMethodStep("email")}
-                  className="w-full h-12 sm:h-14 bg-gradient-to-r from-neon-green to-neon-blue text-black font-semibold rounded-lg flex items-center justify-center hover:scale-105 transition-transform"
+                  className="w-full h-12 sm:h-14 bg-gradient-to-r from-purple-primary to-purple-secondary text-white font-semibold rounded-xl flex items-center justify-center hover:scale-105 transition-all duration-200 shadow-lg shadow-purple-primary/30 hover:shadow-purple-secondary/40"
                 >
                   <Mail className="w-5 h-5 mr-3" />
                   Continue with Email (Recommended)
@@ -1254,9 +1254,9 @@ export default function Signup() {
 
                 <button
                   onClick={() => handleMethodStep("phone")}
-                  className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg flex items-center justify-center text-white hover:bg-slate-700/50 transition-colors"
+                  className="w-full h-12 sm:h-14 bg-purple-dark/50 border border-purple-secondary/30 rounded-xl flex items-center justify-center text-white hover:bg-purple-secondary/10 hover:border-purple-secondary/50 transition-all duration-200 hover:shadow-lg hover:shadow-purple-secondary/20"
                 >
-                  <Phone className="w-5 h-5 mr-3 text-neon-blue" />
+                  <Phone className="w-5 h-5 mr-3 text-purple-secondary" />
                   Continue with Phone Number
                 </button>
               </div>
@@ -1273,8 +1273,8 @@ export default function Signup() {
               className="space-y-4 sm:space-y-6"
             >
               <div className="text-center mb-4 sm:mb-6">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-neon-green/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                  <Mail className="w-6 h-6 sm:w-8 sm:h-8 text-neon-green" />
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-purple-primary/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <Mail className="w-6 h-6 sm:w-8 sm:h-8 text-purple-primary" />
                 </div>
                 <h3 className="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">
                   {stepTitles.email}
@@ -1295,7 +1295,7 @@ export default function Signup() {
                     setFormData((prev) => ({ ...prev, email: e.target.value }))
                   }
                   placeholder="your@email.com"
-                  className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors text-sm sm:text-base"
+                  className="w-full h-12 sm:h-14 bg-purple-dark/30 border border-purple-primary/30 rounded-xl px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:border-purple-primary focus:ring-2 focus:ring-purple-primary/20 transition-all duration-200 text-sm sm:text-base backdrop-blur-sm"
                   disabled={isLoading}
                 />
                 {errors.email && (
@@ -1328,7 +1328,7 @@ export default function Signup() {
               <button
                 onClick={handleEmailStep}
                 disabled={isLoading || !formData.email}
-                className="w-full h-12 sm:h-14 bg-gradient-to-r from-neon-green to-neon-blue hover:from-neon-green/80 hover:to-neon-blue/80 text-black font-bold text-sm sm:text-lg rounded-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+                className="w-full h-12 sm:h-14 bg-gradient-to-r from-purple-primary to-purple-secondary hover:from-purple-secondary hover:to-purple-accent text-white font-bold text-sm sm:text-lg rounded-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none shadow-lg shadow-purple-primary/30 hover:shadow-purple-secondary/40"
               >
                 {isLoading ? (
                   <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mx-auto" />
@@ -1349,8 +1349,8 @@ export default function Signup() {
               className="space-y-4 sm:space-y-6"
             >
               <div className="text-center mb-4 sm:mb-6">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-neon-blue/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                  <Phone className="w-6 h-6 sm:w-8 sm:h-8 text-neon-blue" />
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-purple-secondary/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <Phone className="w-6 h-6 sm:w-8 sm:h-8 text-purple-secondary" />
                 </div>
                 <h3 className="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">
                   {stepTitles.phone}
@@ -1853,7 +1853,7 @@ export default function Signup() {
               Already have an account?{" "}
               <Link
                 to="/login"
-                className="text-neon-green hover:text-neon-blue transition-colors underline"
+                className="text-purple-primary hover:text-purple-secondary transition-colors underline"
               >
                 Log in here
               </Link>

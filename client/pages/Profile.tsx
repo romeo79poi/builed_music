@@ -16,76 +16,85 @@ import {
   CheckCircle,
   Send,
   Shield,
+  Heart,
+  Music,
+  List,
+  LogOut,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "../hooks/use-toast";
-import { doc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
-import { db, auth } from "../lib/firebase";
-import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
-import { sendFirebaseEmailVerification } from "../lib/auth";
+import { supabaseAuth, supabaseOperations, User as SupabaseUser } from "../lib/supabase";
 import { Button } from "../components/ui/button";
 import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
-
-interface UserData {
-  name: string;
-  username: string;
-  email: string;
-  phone: string;
-  profileImageURL: string;
-  createdAt: any;
-  verified: boolean;
-  emailVerified?: boolean;
-  phoneVerified?: boolean;
-}
 
 export default function Profile() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
   // State management
-  const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
-  const [userData, setUserData] = useState<UserData | null>(null);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [userData, setUserData] = useState<SupabaseUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
-  const [isSaving, setSisSaving] = useState(false);
-  const [sendingVerification, setSendingVerification] = useState(false);
-  const [editedData, setEditedData] = useState<Partial<UserData>>({});
+  const [isSaving, setIsSaving] = useState(false);
+  const [editedData, setEditedData] = useState<Partial<SupabaseUser>>({});
+  const [stats, setStats] = useState({
+    likedSongs: 0,
+    playlists: 0,
+    recentlyPlayed: 0,
+  });
 
-  // Fetch current user and their data
+  // Check authentication and load user data
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        setCurrentUser(user);
-        await fetchUserData(user.uid);
-      } else {
-        navigate("/login");
-      }
-    });
+    checkAuthAndLoadData();
+  }, []);
 
-    return () => unsubscribe();
-  }, [navigate]);
-
-  // Fetch user data from Firestore
-  const fetchUserData = async (uid: string) => {
+  const checkAuthAndLoadData = async () => {
     try {
       setIsLoading(true);
-      const userDocRef = doc(db, "users", uid);
-      const userDoc = await getDoc(userDocRef);
-
-      if (userDoc.exists()) {
-        const data = userDoc.data() as UserData;
-        // Merge Firebase auth verification status
-        const userData = {
-          ...data,
-          emailVerified: currentUser?.emailVerified || false,
-          phoneVerified: false, // We'll implement phone verification separately
-        };
-        setUserData(userData);
-        setEditedData(userData);
-        console.log("✅ User data fetched from Firestore:", userData);
+      
+      // Check Supabase auth
+      const { data: session } = await supabaseAuth.getCurrentSession();
+      
+      if (session?.user) {
+        setCurrentUser(session.user);
+        await Promise.all([
+          fetchUserData(session.user.id),
+          loadUserStats(session.user.id)
+        ]);
       } else {
-        console.warn("⚠️ No user document found in Firestore");
+        // No authenticated user, redirect to login
+        navigate("/login");
+      }
+    } catch (error) {
+      console.error("Auth check error:", error);
+      navigate("/login");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Fetch user data from Supabase
+  const fetchUserData = async (userId: string) => {
+    try {
+      const { data: user, error } = await supabaseOperations.getUserById(userId);
+      
+      if (error) {
+        console.error("Error fetching user data:", error);
+        toast({
+          title: "Error loading profile",
+          description: "Failed to load your profile data",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (user) {
+        setUserData(user);
+        setEditedData(user);
+        console.log("✅ User data fetched from Supabase:", user);
+      } else {
+        console.warn("⚠️ No user data found in Supabase");
         toast({
           title: "Profile not found",
           description: "User profile data is missing. Please contact support.",
@@ -99,37 +108,69 @@ export default function Profile() {
         description: "Failed to load your profile data",
         variant: "destructive",
       });
-    } finally {
-      setIsLoading(false);
     }
   };
 
-  // Save updated profile data to Firestore
+  // Load user statistics
+  const loadUserStats = async (userId: string) => {
+    try {
+      const [
+        { data: likes },
+        { data: playlists },
+        { data: history }
+      ] = await Promise.all([
+        supabaseOperations.getUserLikes(userId),
+        supabaseOperations.getUserPlaylists(userId),
+        supabaseOperations.getUserHistory(userId, 10)
+      ]);
+
+      setStats({
+        likedSongs: likes?.length || 0,
+        playlists: playlists?.length || 0,
+        recentlyPlayed: history?.length || 0,
+      });
+    } catch (error) {
+      console.error("Error loading user stats:", error);
+    }
+  };
+
+  // Save updated profile data to Supabase
   const saveProfile = async () => {
     if (!currentUser || !userData) return;
 
     try {
-      setSisSaving(true);
-      const userDocRef = doc(db, "users", currentUser.uid);
+      setIsSaving(true);
 
-      // Update only the changed fields
-      const updateData = {
-        ...editedData,
-        updatedAt: serverTimestamp(),
-      };
+      const { data: updatedUser, error } = await supabaseOperations.updateUser(
+        currentUser.id,
+        {
+          name: editedData.name || userData.name,
+          username: editedData.username || userData.username,
+          phone: editedData.phone || userData.phone,
+          profile_image_url: editedData.profile_image_url || userData.profile_image_url,
+        }
+      );
 
-      await updateDoc(userDocRef, updateData);
+      if (error) {
+        toast({
+          title: "Update failed",
+          description: "Failed to update your profile. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
 
-      // Update local state
-      setUserData((prev) => (prev ? { ...prev, ...editedData } : null));
-      setIsEditing(false);
+      if (updatedUser) {
+        setUserData(updatedUser);
+        setIsEditing(false);
 
-      toast({
-        title: "Profile updated!",
-        description: "Your profile has been successfully updated",
-      });
+        toast({
+          title: "Profile updated!",
+          description: "Your profile has been successfully updated",
+        });
 
-      console.log("✅ Profile updated in Firestore:", updateData);
+        console.log("✅ Profile updated in Supabase:", updatedUser);
+      }
     } catch (error) {
       console.error("❌ Error updating profile:", error);
       toast({
@@ -138,52 +179,31 @@ export default function Profile() {
         variant: "destructive",
       });
     } finally {
-      setSisSaving(false);
+      setIsSaving(false);
     }
   };
 
-  // Handle email verification
-  const handleSendEmailVerification = async () => {
-    if (!currentUser) return;
-
+  // Handle logout
+  const handleLogout = async () => {
     try {
-      setSendingVerification(true);
-      const result = await sendFirebaseEmailVerification(currentUser);
-
-      if (result.success) {
-        toast({
-          title: "Verification email sent!",
-          description:
-            "Please check your email and click the verification link.",
-        });
-      } else {
-        toast({
-          title: "Failed to send verification",
-          description: result.error || "Please try again",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
+      await supabaseAuth.signOut();
       toast({
-        title: "Error",
-        description: "Failed to send verification email",
+        title: "Logged out",
+        description: "You have been successfully logged out",
+      });
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast({
+        title: "Logout failed",
+        description: "Failed to log out. Please try again.",
         variant: "destructive",
       });
-    } finally {
-      setSendingVerification(false);
     }
-  };
-
-  // Handle phone OTP (placeholder for now)
-  const handleSendPhoneOTP = async () => {
-    toast({
-      title: "Coming soon",
-      description: "Phone verification will be available soon!",
-    });
   };
 
   // Handle input changes
-  const handleInputChange = (field: keyof UserData, value: string) => {
+  const handleInputChange = (field: keyof SupabaseUser, value: string) => {
     setEditedData((prev) => ({
       ...prev,
       [field]: value,
@@ -199,7 +219,10 @@ export default function Profile() {
   // Refresh profile data
   const refreshProfile = async () => {
     if (currentUser) {
-      await fetchUserData(currentUser.uid);
+      await Promise.all([
+        fetchUserData(currentUser.id),
+        loadUserStats(currentUser.id)
+      ]);
       toast({
         title: "Profile refreshed",
         description: "Your profile data has been updated",
@@ -209,9 +232,9 @@ export default function Profile() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-purple-darker via-background to-purple-dark flex items-center justify-center">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-neon-green mx-auto mb-4" />
+          <Loader2 className="w-8 h-8 animate-spin text-purple-primary mx-auto mb-4" />
           <p className="text-white">Loading your profile...</p>
         </div>
       </div>
@@ -220,7 +243,7 @@ export default function Profile() {
 
   if (!userData) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-purple-darker via-background to-purple-dark flex items-center justify-center">
         <div className="text-center">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
           <h2 className="text-xl font-bold text-white mb-2">
@@ -231,7 +254,7 @@ export default function Profile() {
           </p>
           <Button
             onClick={() => navigate("/home")}
-            className="bg-neon-green text-black"
+            className="bg-gradient-to-r from-purple-primary to-purple-secondary text-white hover:from-purple-secondary hover:to-purple-accent transition-all duration-300"
           >
             Go to Home
           </Button>
@@ -241,11 +264,12 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen bg-black text-white relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-purple-darker via-background to-purple-dark text-white relative overflow-hidden">
       {/* Background Effects */}
-      <div className="absolute inset-0 bg-black">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-neon-green/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-neon-blue/10 rounded-full blur-3xl"></div>
+      <div className="absolute inset-0">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-primary/15 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-secondary/15 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-purple-accent/10 rounded-full blur-3xl"></div>
       </div>
 
       <div className="relative z-10">
@@ -257,9 +281,9 @@ export default function Profile() {
         >
           <button
             onClick={() => navigate("/home")}
-            className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm hover:bg-white/20 transition-colors"
+            className="w-10 h-10 bg-purple-primary/20 rounded-full flex items-center justify-center backdrop-blur-sm hover:bg-purple-primary/30 transition-all duration-200 border border-purple-primary/30"
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-5 h-5 text-purple-primary" />
           </button>
 
           <h1 className="text-xl font-bold">My Profile</h1>
@@ -267,16 +291,17 @@ export default function Profile() {
           <div className="flex items-center space-x-2">
             <button
               onClick={refreshProfile}
-              className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm hover:bg-white/20 transition-colors"
+              className="w-10 h-10 bg-purple-secondary/20 rounded-full flex items-center justify-center backdrop-blur-sm hover:bg-purple-secondary/30 transition-all duration-200 border border-purple-secondary/30"
               title="Refresh Profile"
             >
-              <RefreshCw className="w-4 h-4" />
+              <RefreshCw className="w-4 h-4 text-purple-secondary" />
             </button>
             <button
-              onClick={() => navigate("/settings")}
-              className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm hover:bg-white/20 transition-colors"
+              onClick={handleLogout}
+              className="w-10 h-10 bg-red-500/20 rounded-full flex items-center justify-center backdrop-blur-sm hover:bg-red-500/30 transition-all duration-200 border border-red-500/30"
+              title="Logout"
             >
-              <Settings className="w-5 h-5" />
+              <LogOut className="w-4 h-4 text-red-500" />
             </button>
           </div>
         </motion.div>
@@ -288,25 +313,25 @@ export default function Profile() {
           transition={{ delay: 0.2 }}
           className="px-6 py-8"
         >
-          <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm border border-white/10">
+          <div className="bg-purple-dark/40 rounded-3xl p-6 backdrop-blur-xl border border-purple-primary/20 shadow-2xl shadow-purple-primary/10">
             {/* Profile Picture & Basic Info */}
             <div className="text-center mb-6">
               <div className="relative inline-block mb-4">
-                <div className="w-24 h-24 bg-gradient-to-br from-neon-green to-neon-blue rounded-full p-1">
-                  <div className="w-full h-full bg-gray-800 rounded-full flex items-center justify-center overflow-hidden">
-                    {userData.profileImageURL ? (
+                <div className="w-28 h-28 bg-gradient-to-br from-purple-primary via-purple-secondary to-purple-accent rounded-full p-1 shadow-2xl shadow-purple-primary/30">
+                  <div className="w-full h-full bg-purple-darker rounded-full flex items-center justify-center overflow-hidden">
+                    {userData.profile_image_url ? (
                       <img
-                        src={userData.profileImageURL}
+                        src={userData.profile_image_url}
                         alt={userData.name}
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <User className="w-12 h-12 text-gray-400" />
+                      <User className="w-12 h-12 text-purple-primary" />
                     )}
                   </div>
                 </div>
                 {isEditing && (
-                  <button className="absolute -bottom-1 -right-1 w-8 h-8 bg-neon-green rounded-full flex items-center justify-center text-black">
+                  <button className="absolute -bottom-1 -right-1 w-8 h-8 bg-gradient-to-r from-purple-primary to-purple-secondary rounded-full flex items-center justify-center text-white shadow-lg shadow-purple-primary/50 hover:scale-110 transition-all duration-200">
                     <Camera className="w-4 h-4" />
                   </button>
                 )}
@@ -317,6 +342,14 @@ export default function Profile() {
                   <>
                     <h2 className="text-2xl font-bold">{userData.name}</h2>
                     <p className="text-gray-400">@{userData.username}</p>
+                    <div className="flex items-center justify-center space-x-2 mt-2">
+                      {userData.is_verified && (
+                        <CheckCircle className="w-4 h-4 text-green-500" />
+                      )}
+                      <span className="text-sm text-gray-400">
+                        {userData.email_verified ? 'Verified Account' : 'Unverified Account'}
+                      </span>
+                    </div>
                   </>
                 ) : (
                   <div className="space-y-3 max-w-sm mx-auto">
@@ -341,34 +374,42 @@ export default function Profile() {
               </div>
             </div>
 
+            {/* User Statistics */}
+            <div className="grid grid-cols-3 gap-4 mb-6">
+              <div className="text-center p-3 bg-purple-primary/10 rounded-xl border border-purple-primary/20">
+                <Heart className="w-6 h-6 text-purple-primary mx-auto mb-2" />
+                <div className="text-xl font-bold">{stats.likedSongs}</div>
+                <div className="text-xs text-gray-400">Liked Songs</div>
+              </div>
+              <div className="text-center p-3 bg-purple-secondary/10 rounded-xl border border-purple-secondary/20">
+                <List className="w-6 h-6 text-purple-secondary mx-auto mb-2" />
+                <div className="text-xl font-bold">{stats.playlists}</div>
+                <div className="text-xs text-gray-400">Playlists</div>
+              </div>
+              <div className="text-center p-3 bg-purple-accent/10 rounded-xl border border-purple-accent/20">
+                <Music className="w-6 h-6 text-purple-accent mx-auto mb-2" />
+                <div className="text-xl font-bold">{stats.recentlyPlayed}</div>
+                <div className="text-xs text-gray-400">Recent</div>
+              </div>
+            </div>
+
             {/* Contact Information */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold mb-4 flex items-center">
-                <User className="w-5 h-5 mr-2 text-neon-green" />
+                <User className="w-5 h-5 mr-2 text-purple-primary" />
                 Contact Information
               </h3>
 
               {/* Email */}
-              <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/10">
+              <div className="flex items-center justify-between p-4 bg-purple-dark/30 rounded-xl border border-purple-primary/20 backdrop-blur-sm">
                 <div className="flex items-center space-x-3">
                   <Mail className="w-5 h-5 text-gray-400" />
                   <div className="flex-1">
                     <div className="flex items-center space-x-2">
-                      {!isEditing ? (
-                        <span className="text-white">{userData.email}</span>
-                      ) : (
-                        <Input
-                          value={editedData.email || ""}
-                          onChange={(e) =>
-                            handleInputChange("email", e.target.value)
-                          }
-                          placeholder="Email address"
-                          className="bg-white/10 border-white/20 text-white placeholder-gray-400"
-                        />
-                      )}
+                      <span className="text-white">{userData.email}</span>
                     </div>
                     <div className="flex items-center space-x-2 mt-1">
-                      {userData.emailVerified ? (
+                      {userData.email_verified ? (
                         <div className="flex items-center space-x-1">
                           <CheckCircle className="w-4 h-4 text-green-500" />
                           <span className="text-xs text-green-500">
@@ -381,18 +422,6 @@ export default function Profile() {
                           <span className="text-xs text-yellow-500">
                             Not verified
                           </span>
-                          <button
-                            onClick={handleSendEmailVerification}
-                            disabled={sendingVerification}
-                            className="text-xs text-neon-green hover:text-neon-blue font-medium flex items-center space-x-1"
-                          >
-                            {sendingVerification ? (
-                              <Loader2 className="w-3 h-3 animate-spin" />
-                            ) : (
-                              <Send className="w-3 h-3" />
-                            )}
-                            <span>Verify</span>
-                          </button>
                         </div>
                       )}
                     </div>
@@ -401,7 +430,7 @@ export default function Profile() {
               </div>
 
               {/* Phone */}
-              <div className="flex items-center justify-between p-3 bg-white/5 rounded-lg border border-white/10">
+              <div className="flex items-center justify-between p-4 bg-purple-dark/30 rounded-xl border border-purple-secondary/20 backdrop-blur-sm">
                 <div className="flex items-center space-x-3">
                   <Phone className="w-5 h-5 text-gray-400" />
                   <div className="flex-1">
@@ -422,7 +451,7 @@ export default function Profile() {
                       )}
                     </div>
                     <div className="flex items-center space-x-2 mt-1">
-                      {userData.phoneVerified ? (
+                      {userData.phone_verified ? (
                         <div className="flex items-center space-x-1">
                           <CheckCircle className="w-4 h-4 text-green-500" />
                           <span className="text-xs text-green-500">
@@ -435,15 +464,6 @@ export default function Profile() {
                           <span className="text-xs text-yellow-500">
                             Not verified
                           </span>
-                          {userData.phone && (
-                            <button
-                              onClick={handleSendPhoneOTP}
-                              className="text-xs text-neon-green hover:text-neon-blue font-medium flex items-center space-x-1"
-                            >
-                              <Send className="w-3 h-3" />
-                              <span>Send OTP</span>
-                            </button>
-                          )}
                         </div>
                       )}
                     </div>
@@ -455,7 +475,7 @@ export default function Profile() {
             {/* Account Information */}
             <div className="mt-6 pt-6 border-t border-white/10">
               <h3 className="text-lg font-semibold mb-4 flex items-center">
-                <Shield className="w-5 h-5 mr-2 text-neon-blue" />
+                <Shield className="w-5 h-5 mr-2 text-purple-secondary" />
                 Account Information
               </h3>
 
@@ -463,14 +483,13 @@ export default function Profile() {
                 <div className="flex justify-between">
                   <span className="text-gray-400">User ID:</span>
                   <span className="text-white font-mono text-xs">
-                    {currentUser?.uid}
+                    {userData.id}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-400">Member since:</span>
                   <span className="text-white">
-                    {userData.createdAt?.toDate?.()?.toLocaleDateString() ||
-                      "Unknown"}
+                    {new Date(userData.created_at).toLocaleDateString()}
                   </span>
                 </div>
                 <div className="flex justify-between">
@@ -488,7 +507,7 @@ export default function Profile() {
               {!isEditing ? (
                 <Button
                   onClick={() => setIsEditing(true)}
-                  className="w-full bg-gradient-to-r from-neon-green to-neon-blue text-black font-semibold"
+                  className="w-full bg-gradient-to-r from-purple-primary to-purple-secondary hover:from-purple-secondary hover:to-purple-accent text-white font-semibold transition-all duration-300 shadow-lg shadow-purple-primary/30 hover:shadow-purple-secondary/40 hover:scale-105"
                 >
                   <Edit3 className="w-4 h-4 mr-2" />
                   Edit Profile
@@ -498,7 +517,7 @@ export default function Profile() {
                   <Button
                     onClick={saveProfile}
                     disabled={isSaving}
-                    className="flex-1 bg-gradient-to-r from-neon-green to-neon-blue text-black font-semibold"
+                    className="flex-1 bg-gradient-to-r from-purple-primary to-purple-secondary hover:from-purple-secondary hover:to-purple-accent text-white font-semibold transition-all duration-300 shadow-lg shadow-purple-primary/30"
                   >
                     {isSaving ? (
                       <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -521,7 +540,7 @@ export default function Profile() {
           </div>
         </motion.div>
 
-        {/* Additional Actions */}
+        {/* Quick Actions */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -530,18 +549,20 @@ export default function Profile() {
         >
           <div className="grid grid-cols-2 gap-4">
             <button
-              onClick={() => navigate("/edit-profile")}
-              className="p-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-colors"
+              onClick={() => navigate("/liked-songs")}
+              className="p-4 bg-purple-dark/30 rounded-xl border border-purple-primary/20 hover:bg-purple-primary/10 hover:border-purple-primary/40 transition-all duration-200 backdrop-blur-sm hover:scale-105"
             >
-              <User className="w-6 h-6 text-neon-green mx-auto mb-2" />
-              <p className="text-sm font-medium">Edit Details</p>
+              <Heart className="w-6 h-6 text-purple-primary mx-auto mb-2" />
+              <p className="text-sm font-medium">Liked Songs</p>
+              <p className="text-xs text-gray-400">{stats.likedSongs} songs</p>
             </button>
             <button
-              onClick={() => navigate("/settings")}
-              className="p-4 bg-white/5 rounded-xl border border-white/10 hover:bg-white/10 transition-colors"
+              onClick={() => navigate("/library")}
+              className="p-4 bg-purple-dark/30 rounded-xl border border-purple-secondary/20 hover:bg-purple-secondary/10 hover:border-purple-secondary/40 transition-all duration-200 backdrop-blur-sm hover:scale-105"
             >
-              <Settings className="w-6 h-6 text-neon-blue mx-auto mb-2" />
-              <p className="text-sm font-medium">Settings</p>
+              <List className="w-6 h-6 text-purple-secondary mx-auto mb-2" />
+              <p className="text-sm font-medium">My Playlists</p>
+              <p className="text-xs text-gray-400">{stats.playlists} playlists</p>
             </button>
           </div>
         </motion.div>

@@ -20,8 +20,7 @@ import {
   signInWithGoogle,
   sendFirebaseEmailVerification,
 } from "../lib/auth";
-import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
-import { db } from "../lib/firebase";
+import { supabaseOperations } from "../lib/supabase";
 import { useToast } from "../hooks/use-toast";
 import ConnectivityChecker, {
   getNetworkErrorMessage,
@@ -45,46 +44,33 @@ export default function Login() {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [sendingVerification, setSendingVerification] = useState(false);
 
-  // Save user profile data to Firestore
+  // Save user profile data to Supabase (no longer needed - handled by auth)
   const saveUserProfile = async (uid: string, profileData: any) => {
     try {
-      if (!db) {
-        console.warn("Firestore not available, skipping profile save");
-        return;
-      }
-
-      await setDoc(
-        doc(db, "users", uid),
-        {
-          ...profileData,
-          lastLogin: serverTimestamp(),
-          updatedAt: serverTimestamp(),
-        },
-        { merge: true },
-      );
-
-      console.log("✅ User profile saved to Firestore");
+      console.log("✅ User profile handled by Supabase auth");
+      // Supabase auth handles user profiles automatically
     } catch (error) {
-      console.error("❌ Error saving profile to Firestore:", error);
+      console.warn("Profile save not needed with Supabase:", error);
     }
   };
 
-  // Get existing user profile data from Firestore
+  // Get existing user profile data from Supabase
   const getUserProfile = async (uid: string) => {
     try {
-      if (!db) return null;
+      const { data: user, error } = await supabaseOperations.getUserById(uid);
 
-      const userDocRef = doc(db, "users", uid);
-      const userDoc = await getDoc(userDocRef);
-
-      if (userDoc.exists()) {
-        console.log("✅ User profile fetched from Firestore:", userDoc.data());
-        return userDoc.data();
+      if (error) {
+        console.warn("⚠️ No user profile found in Supabase for UID:", uid);
+        return null;
       }
-      console.warn("⚠️ No user profile found in Firestore for UID:", uid);
+
+      if (user) {
+        console.log("✅ User profile fetched from Supabase:", user);
+        return user;
+      }
       return null;
     } catch (error) {
-      console.error("❌ Error getting user profile:", error);
+      console.warn("❌ Supabase not available, using mock profile:", error);
       return null;
     }
   };
@@ -344,9 +330,9 @@ export default function Login() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 flex flex-col items-center justify-center p-3 sm:p-6 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-purple-darker via-background to-purple-dark flex flex-col items-center justify-center p-3 sm:p-6 relative overflow-hidden">
       {/* Background glow effect */}
-      <div className="absolute inset-0 bg-gradient-to-br from-neon-green/5 via-transparent to-neon-blue/5 bg-black"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-primary/10 via-purple-secondary/5 to-purple-accent/8"></div>
 
       <div className="relative z-10 w-full max-w-md px-2 sm:px-0">
         {/* Back Button - Top Left Corner */}
@@ -358,9 +344,9 @@ export default function Login() {
         >
           <button
             onClick={() => navigate("/")}
-            className="w-12 h-12 bg-black/80 hover:bg-black/90 border border-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm transition-all duration-200 hover:scale-105 shadow-lg"
+            className="w-12 h-12 bg-purple-dark/80 hover:bg-purple-dark/90 border border-purple-primary/30 rounded-xl flex items-center justify-center backdrop-blur-sm transition-all duration-200 hover:scale-105 shadow-lg shadow-purple-primary/20"
           >
-            <ArrowLeft className="w-5 h-5 text-white" />
+            <ArrowLeft className="w-5 h-5 text-purple-primary" />
           </button>
         </motion.div>
 
@@ -385,7 +371,7 @@ export default function Login() {
           transition={{ delay: 0.3, duration: 0.8 }}
           className="text-2xl sm:text-3xl font-bold text-white text-center mb-6 sm:mb-8"
         >
-          Log in to Catch
+          Log in to <span className="purple-gradient-text">Catch</span>
         </motion.h1>
 
         {/* Login Method Selection */}
@@ -399,7 +385,7 @@ export default function Login() {
             <button
               onClick={handleGoogleLogin}
               disabled={isLoading}
-              className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-full flex items-center justify-center text-white font-medium hover:bg-slate-700/50 transition-colors disabled:opacity-50"
+              className="w-full h-14 bg-purple-dark/50 border border-purple-primary/30 rounded-full flex items-center justify-center text-white font-medium hover:bg-purple-dark/70 hover:border-purple-primary/50 transition-all duration-200 disabled:opacity-50 hover:shadow-lg hover:shadow-purple-primary/20"
             >
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin" />
@@ -435,7 +421,7 @@ export default function Login() {
                   description: "Facebook login will be available soon!",
                 });
               }}
-              className="w-full h-14 bg-slate-800/50 border border-slate-600 rounded-full flex items-center justify-center text-white font-medium hover:bg-slate-700/50 transition-colors"
+              className="w-full h-14 bg-purple-dark/50 border border-purple-secondary/30 rounded-full flex items-center justify-center text-white font-medium hover:bg-purple-dark/70 hover:border-purple-secondary/50 transition-all duration-200 hover:shadow-lg hover:shadow-purple-secondary/20"
             >
               <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="#1877F2">
                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
@@ -454,17 +440,17 @@ export default function Login() {
             <div className="space-y-3">
               <button
                 onClick={() => setLoginMethod("email")}
-                className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg flex items-center justify-center text-white hover:bg-slate-700/50 transition-colors"
+                className="w-full h-12 sm:h-14 bg-purple-dark/50 border border-purple-primary/30 rounded-xl flex items-center justify-center text-white hover:bg-purple-primary/10 hover:border-purple-primary/50 transition-all duration-200 hover:shadow-lg hover:shadow-purple-primary/20"
               >
-                <Mail className="w-5 h-5 mr-3 text-neon-green" />
+                <Mail className="w-5 h-5 mr-3 text-purple-primary" />
                 Continue with Email
               </button>
 
               <button
                 onClick={() => setLoginMethod("phone")}
-                className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg flex items-center justify-center text-white hover:bg-slate-700/50 transition-colors"
+                className="w-full h-12 sm:h-14 bg-purple-dark/50 border border-purple-secondary/30 rounded-xl flex items-center justify-center text-white hover:bg-purple-secondary/10 hover:border-purple-secondary/50 transition-all duration-200 hover:shadow-lg hover:shadow-purple-secondary/20"
               >
-                <Phone className="w-5 h-5 mr-3 text-neon-blue" />
+                <Phone className="w-5 h-5 mr-3 text-purple-secondary" />
                 Continue with Phone Number
               </button>
             </div>
@@ -488,7 +474,7 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
-                className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors text-sm sm:text-base"
+                className="w-full h-12 sm:h-14 bg-purple-dark/30 border border-purple-primary/30 rounded-xl px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:border-purple-primary focus:ring-2 focus:ring-purple-primary/20 transition-all duration-200 text-sm sm:text-base backdrop-blur-sm"
               />
             </div>
 
@@ -502,7 +488,7 @@ export default function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter your password"
-                  className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-3 sm:px-4 pr-12 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors text-sm sm:text-base"
+                  className="w-full h-12 sm:h-14 bg-purple-dark/30 border border-purple-primary/30 rounded-xl px-3 sm:px-4 pr-12 text-white placeholder-slate-400 focus:outline-none focus:border-purple-primary focus:ring-2 focus:ring-purple-primary/20 transition-all duration-200 text-sm sm:text-base backdrop-blur-sm"
                   disabled={isLoading}
                 />
                 <button
@@ -522,7 +508,7 @@ export default function Login() {
             <button
               onClick={handleLogin}
               disabled={isLoading || !email || !password}
-              className="w-full h-12 sm:h-14 bg-gradient-to-r from-neon-green to-emerald-400 rounded-lg text-black font-bold text-sm sm:text-lg hover:from-emerald-400 hover:to-neon-green transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+              className="w-full h-12 sm:h-14 bg-gradient-to-r from-purple-primary to-purple-secondary rounded-xl text-white font-bold text-sm sm:text-lg hover:from-purple-secondary hover:to-purple-accent transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none shadow-lg shadow-purple-primary/30 hover:shadow-purple-secondary/40"
             >
               {isLoading ? (
                 <Loader2 className="w-5 h-5 animate-spin mx-auto" />
@@ -533,7 +519,7 @@ export default function Login() {
 
             <button
               onClick={() => setLoginMethod("social")}
-              className="w-full text-neon-green hover:text-neon-blue transition-colors text-sm mt-4"
+              className="w-full text-purple-primary hover:text-purple-secondary transition-colors text-sm mt-4"
             >
               ← Back to other options
             </button>
@@ -557,20 +543,20 @@ export default function Login() {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 placeholder="+1 (555) 123-4567"
-                className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-blue transition-colors text-sm sm:text-base"
+                className="w-full h-12 sm:h-14 bg-purple-dark/30 border border-purple-secondary/30 rounded-xl px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:border-purple-secondary focus:ring-2 focus:ring-purple-secondary/20 transition-all duration-200 text-sm sm:text-base backdrop-blur-sm"
               />
             </div>
 
             <button
               onClick={handlePhoneLogin}
-              className="w-full h-12 sm:h-14 bg-gradient-to-r from-neon-blue to-purple-600 hover:from-neon-blue/80 hover:to-purple-600/80 text-white font-bold text-sm sm:text-lg rounded-lg transition-all transform hover:scale-105"
+              className="w-full h-12 sm:h-14 bg-gradient-to-r from-purple-secondary to-purple-accent hover:from-purple-accent hover:to-purple-primary text-white font-bold text-sm sm:text-lg rounded-xl transition-all transform hover:scale-105 shadow-lg shadow-purple-secondary/30 hover:shadow-purple-accent/40"
             >
               Send Verification Code
             </button>
 
             <button
               onClick={() => setLoginMethod("social")}
-              className="w-full text-neon-blue hover:text-neon-green transition-colors text-sm"
+              className="w-full text-purple-secondary hover:text-purple-primary transition-colors text-sm"
             >
               ← Back to other options
             </button>
@@ -627,7 +613,7 @@ export default function Login() {
             Don't have an account?{" "}
             <Link
               to="/signup"
-              className="text-white underline hover:text-neon-green transition-colors"
+              className="text-white underline hover:text-purple-primary transition-colors"
             >
               Sign up here
             </Link>

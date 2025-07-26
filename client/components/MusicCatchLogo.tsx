@@ -113,11 +113,11 @@ export function MusicCatchLogo({
         {/* Enhanced circular background with multiple glows */}
         <motion.div
           variants={glowVariants}
-          className="w-20 h-20 rounded-full bg-gradient-to-br from-neon-green/40 via-emerald-400/40 to-neon-blue/40 absolute -inset-4 blur-xl"
+          className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-primary/40 via-purple-secondary/40 to-purple-accent/40 absolute -inset-4 blur-xl"
         />
         <motion.div
           variants={glowVariants}
-          className="w-16 h-16 rounded-full bg-gradient-to-br from-neon-green/30 via-emerald-400/30 to-neon-blue/30 absolute -inset-2 blur-lg"
+          className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-primary/30 via-purple-secondary/30 to-purple-accent/30 absolute -inset-2 blur-lg"
         />
 
         {/* Main logo container */}
@@ -125,7 +125,7 @@ export function MusicCatchLogo({
           {/* Animated side dots with pulse effect */}
           <motion.div
             variants={barVariants}
-            className="absolute -left-6 top-1/2 transform -translate-y-1/2 w-1.5 h-1.5 bg-neon-green rounded-full shadow-lg shadow-neon-green/50"
+            className="absolute -left-6 top-1/2 transform -translate-y-1/2 w-1.5 h-1.5 bg-purple-primary rounded-full shadow-lg shadow-purple-primary/50"
             animate={
               animated && signupMode
                 ? {
@@ -151,17 +151,17 @@ export function MusicCatchLogo({
           <div className="absolute left-0 flex items-end space-x-0.5">
             <motion.div
               variants={barVariants}
-              className="w-0.5 h-2 bg-gradient-to-t from-neon-green to-emerald-400 rounded-full shadow-sm shadow-neon-green/30"
+              className="w-0.5 h-2 bg-gradient-to-t from-purple-primary to-purple-secondary rounded-full shadow-sm shadow-purple-primary/30"
               style={{ animationDelay: "0.1s" }}
             />
             <motion.div
               variants={barVariants}
-              className="w-0.5 h-4 bg-gradient-to-t from-neon-green to-emerald-400 rounded-full shadow-sm shadow-neon-green/30"
+              className="w-0.5 h-4 bg-gradient-to-t from-purple-primary to-purple-secondary rounded-full shadow-sm shadow-purple-primary/30"
               style={{ animationDelay: "0.2s" }}
             />
             <motion.div
               variants={barVariants}
-              className="w-0.5 h-3 bg-gradient-to-t from-neon-green to-emerald-400 rounded-full shadow-sm shadow-neon-green/30"
+              className="w-0.5 h-3 bg-gradient-to-t from-purple-primary to-purple-secondary rounded-full shadow-sm shadow-purple-primary/30"
               style={{ animationDelay: "0.3s" }}
             />
           </div>
@@ -170,14 +170,14 @@ export function MusicCatchLogo({
           <div className="relative">
             <motion.div
               variants={diamondVariants}
-              className="w-4 h-4 bg-gradient-to-br from-neon-green to-emerald-400 rotate-45 rounded-sm shadow-lg shadow-neon-green/50"
+              className="w-4 h-4 bg-gradient-to-br from-purple-primary to-purple-secondary rotate-45 rounded-sm shadow-lg shadow-purple-primary/50"
               animate={
                 animated && signupMode
                   ? {
                       boxShadow: [
-                        "0 0 10px rgba(60, 221, 116, 0.5)",
-                        "0 0 20px rgba(60, 221, 116, 0.8)",
-                        "0 0 10px rgba(60, 221, 116, 0.5)",
+                        "0 0 10px rgba(139, 92, 246, 0.5)",
+                        "0 0 20px rgba(139, 92, 246, 0.8)",
+                        "0 0 10px rgba(139, 92, 246, 0.5)",
                       ],
                     }
                   : animated && blinkMode
@@ -185,11 +185,11 @@ export function MusicCatchLogo({
                         opacity: [1, 0.2, 1, 0.4, 1],
                         scale: [1, 0.9, 1, 0.95, 1],
                         boxShadow: [
-                          "0 0 15px rgba(60, 221, 116, 0.8)",
-                          "0 0 5px rgba(60, 221, 116, 0.3)",
-                          "0 0 25px rgba(60, 221, 116, 1)",
-                          "0 0 8px rgba(60, 221, 116, 0.4)",
-                          "0 0 15px rgba(60, 221, 116, 0.8)",
+                          "0 0 15px rgba(139, 92, 246, 0.8)",
+                          "0 0 5px rgba(139, 92, 246, 0.3)",
+                          "0 0 25px rgba(139, 92, 246, 1)",
+                          "0 0 8px rgba(139, 92, 246, 0.4)",
+                          "0 0 15px rgba(139, 92, 246, 0.8)",
                         ],
                       }
                     : {}
@@ -206,13 +206,13 @@ export function MusicCatchLogo({
             <div className="absolute -left-2 top-1/2 transform -translate-y-1/2">
               <motion.div
                 variants={waveVariants}
-                className="w-5 h-0.5 bg-gradient-to-r from-neon-green to-transparent rounded-full transform -rotate-12 shadow-sm shadow-neon-green/30"
+                className="w-5 h-0.5 bg-gradient-to-r from-purple-primary to-transparent rounded-full transform -rotate-12 shadow-sm shadow-purple-primary/30"
               />
             </div>
             <div className="absolute -right-2 top-1/2 transform -translate-y-1/2">
               <motion.div
                 variants={waveVariants}
-                className="w-5 h-0.5 bg-gradient-to-r from-transparent to-neon-blue rounded-full transform rotate-12 shadow-sm shadow-neon-blue/30"
+                className="w-5 h-0.5 bg-gradient-to-r from-transparent to-purple-secondary rounded-full transform rotate-12 shadow-sm shadow-purple-secondary/30"
               />
             </div>
           </div>
@@ -221,24 +221,24 @@ export function MusicCatchLogo({
           <div className="absolute right-0 flex items-end space-x-0.5">
             <motion.div
               variants={barVariants}
-              className="w-0.5 h-3 bg-gradient-to-t from-neon-blue to-cyan-400 rounded-full shadow-sm shadow-neon-blue/30"
+              className="w-0.5 h-3 bg-gradient-to-t from-purple-secondary to-purple-accent rounded-full shadow-sm shadow-purple-secondary/30"
               style={{ animationDelay: "0.4s" }}
             />
             <motion.div
               variants={barVariants}
-              className="w-0.5 h-5 bg-gradient-to-t from-neon-blue to-cyan-400 rounded-full shadow-sm shadow-neon-blue/30"
+              className="w-0.5 h-5 bg-gradient-to-t from-purple-secondary to-purple-accent rounded-full shadow-sm shadow-purple-secondary/30"
               style={{ animationDelay: "0.5s" }}
             />
             <motion.div
               variants={barVariants}
-              className="w-0.5 h-2 bg-gradient-to-t from-neon-blue to-cyan-400 rounded-full shadow-sm shadow-neon-blue/30"
+              className="w-0.5 h-2 bg-gradient-to-t from-purple-secondary to-purple-accent rounded-full shadow-sm shadow-purple-secondary/30"
               style={{ animationDelay: "0.6s" }}
             />
           </div>
 
           <motion.div
             variants={barVariants}
-            className="absolute -right-6 top-1/2 transform -translate-y-1/2 w-1.5 h-1.5 bg-neon-blue rounded-full shadow-lg shadow-neon-blue/50"
+            className="absolute -right-6 top-1/2 transform -translate-y-1/2 w-1.5 h-1.5 bg-purple-secondary rounded-full shadow-lg shadow-purple-secondary/50"
             animate={
               animated && signupMode
                 ? {
@@ -267,7 +267,7 @@ export function MusicCatchLogo({
           <>
             {/* Floating particles */}
             <motion.div
-              className="absolute -top-2 -left-2 w-1 h-1 bg-neon-green rounded-full"
+              className="absolute -top-2 -left-2 w-1 h-1 bg-purple-primary rounded-full"
               animate={{
                 y: [-4, -8, -4],
                 x: [-2, 2, -2],
@@ -280,7 +280,7 @@ export function MusicCatchLogo({
               }}
             />
             <motion.div
-              className="absolute -bottom-1 -right-1 w-1 h-1 bg-neon-blue rounded-full"
+              className="absolute -bottom-1 -right-1 w-1 h-1 bg-purple-secondary rounded-full"
               animate={{
                 y: [4, 8, 4],
                 x: [2, -2, 2],

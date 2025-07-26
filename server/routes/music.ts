@@ -1,7 +1,13 @@
 import { RequestHandler } from "express";
+import { serverSupabase } from "../lib/supabase";
 
-// Mock music database
-const songsDatabase = [
+// Mock genres and categories for compatibility
+const genres = [
+  "Pop", "Hip-Hop", "Rock", "Electronic", "Jazz", "Classical",
+  "R&B", "Country", "Reggae", "Folk", "Blues", "Alternative"
+];
+
+const sampleSongs = [
   {
     id: 1,
     title: "Blinding Lights",
@@ -305,7 +311,6 @@ export const searchMusic: RequestHandler = async (req, res) => {
       });
     }
 
-    const query = q.toLowerCase();
     const limitNum = parseInt(limit as string);
 
     const results: any = {
@@ -315,36 +320,33 @@ export const searchMusic: RequestHandler = async (req, res) => {
     };
 
     if (type === "all" || type === "songs") {
-      const songs = songsDatabase
-        .filter(
-          (song) =>
-            song.title.toLowerCase().includes(query) ||
-            song.artist.toLowerCase().includes(query) ||
-            song.album.toLowerCase().includes(query),
-        )
-        .slice(0, limitNum);
-
-      results.results.songs = songs;
+      const { data: songs } = await serverSupabase.searchSongs(q, limitNum);
+      results.results.songs = songs || [];
     }
 
     if (type === "all" || type === "artists") {
-      const artists = artistsDatabase
-        .filter((artist) => artist.name.toLowerCase().includes(query))
-        .slice(0, limitNum);
+      // For now, extract unique artists from songs
+      const { data: allSongs } = await serverSupabase.getSongs(100);
+      const uniqueArtists = [...new Set(allSongs?.map(song => song.artist) || [])]
+        .filter(artist => artist.toLowerCase().includes(q.toLowerCase()))
+        .slice(0, limitNum)
+        .map((artist, index) => ({
+          id: index + 1,
+          name: artist,
+          followers: Math.floor(Math.random() * 1000000),
+          image: `https://images.unsplash.com/photo-${1493225457124 + index}?w=400&h=400&fit=crop`
+        }));
 
-      results.results.artists = artists;
+      results.results.artists = uniqueArtists;
     }
 
     if (type === "all" || type === "playlists") {
-      const playlists = playlistsDatabase
-        .filter(
-          (playlist) =>
-            playlist.name.toLowerCase().includes(query) ||
-            playlist.description.toLowerCase().includes(query),
-        )
-        .slice(0, limitNum);
+      const { data: playlists } = await serverSupabase.getPublicPlaylists(limitNum);
+      const filteredPlaylists = playlists?.filter(playlist =>
+        playlist.name.toLowerCase().includes(q.toLowerCase())
+      ) || [];
 
-      results.results.playlists = playlists;
+      results.results.playlists = filteredPlaylists;
     }
 
     res.json(results);

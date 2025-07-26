@@ -18,25 +18,57 @@ import {
   Loader2,
   Users,
   Disc,
+  Heart,
 } from "lucide-react";
-import { useMusicContext } from "../context/MusicContext";
 import { useToast } from "../hooks/use-toast";
-import { songApi } from "../lib/api";
-import LikeButton from "../components/LikeButton";
+import { supabaseAuth, supabaseOperations, Song, Album, Playlist } from "../lib/supabase";
 
 export default function Search() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { currentSong, isPlaying, setCurrentSong, togglePlay } =
-    useMusicContext();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTab, setSelectedTab] = useState("all");
-  const [searchResults, setSearchResults] = useState<any>(null);
-  const [genres, setGenres] = useState([]);
-  const [featuredPlaylists, setFeaturedPlaylists] = useState([]);
+  const [searchResults, setSearchResults] = useState<{
+    songs?: Song[];
+    albums?: Album[];
+    playlists?: Playlist[];
+  } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [currentSong, setCurrentSong] = useState<Song | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [likedSongs, setLikedSongs] = useState<Set<string>>(new Set());
+
+  // Check authentication
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const checkAuth = async () => {
+    try {
+      const { data: session } = await supabaseAuth.getCurrentSession();
+      if (session?.user) {
+        setCurrentUser(session.user);
+        await loadUserLikes(session.user.id);
+      }
+    } catch (error) {
+      console.error("Auth check error:", error);
+    }
+  };
+
+  const loadUserLikes = async (userId: string) => {
+    try {
+      const { data: userLikes } = await supabaseOperations.getUserLikes(userId);
+      if (userLikes) {
+        const likedSongIds = new Set(userLikes.map(like => like.song_id));
+        setLikedSongs(likedSongIds);
+      }
+    } catch (error) {
+      console.error("Error loading user likes:", error);
+    }
+  };
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
@@ -45,16 +77,56 @@ export default function Search() {
       setIsLoading(true);
       setHasSearched(true);
 
-      const response = await fetch(
-        `/api/music/search?q=${encodeURIComponent(searchQuery)}&type=${selectedTab}&limit=20`,
-      );
-      const data = await response.json();
+      let results: any = {};
 
-      if (data.success) {
-        setSearchResults(data.results);
-      } else {
-        throw new Error(data.message || "Search failed");
+      if (selectedTab === "all" || selectedTab === "songs") {
+        const { data: songs } = await supabaseOperations.searchSongs(searchQuery, 20);
+        if (songs) results.songs = songs;
       }
+
+      if (selectedTab === "all" || selectedTab === "albums") {
+        // Search albums by name
+        try {
+          const { data: albums } = await supabaseOperations.getAlbums(20);
+          if (albums) {
+            const filteredAlbums = albums.filter(album => 
+              album.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+              album.artist.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+            results.albums = filteredAlbums;
+          }
+        } catch (error) {
+          console.error("Album search error:", error);
+        }
+      }
+
+      if (selectedTab === "all" || selectedTab === "playlists") {
+        if (currentUser) {
+          try {
+            const { data: playlists } = await supabaseOperations.getUserPlaylists(currentUser.id);
+            if (playlists) {
+              const filteredPlaylists = playlists.filter(playlist => 
+                playlist.name.toLowerCase().includes(searchQuery.toLowerCase())
+              );
+              results.playlists = filteredPlaylists;
+            }
+          } catch (error) {
+            console.error("Playlist search error:", error);
+          }
+        }
+      }
+
+      setSearchResults(results);
+
+      // Save search to history
+      if (currentUser) {
+        try {
+          await supabaseOperations.addToHistory(currentUser.id, 'search', 0, false);
+        } catch (error) {
+          console.error("Error saving search history:", error);
+        }
+      }
+
     } catch (error) {
       console.error("Search error:", error);
       toast({
@@ -67,52 +139,83 @@ export default function Search() {
     }
   };
 
-  const handlePlaySong = async (song: any) => {
+  const handlePlaySong = async (song: Song) => {
     try {
-      await fetch(`/api/music/play/${song.id}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId: "current-user" }),
-      });
-
       if (currentSong?.id === song.id) {
-        togglePlay();
+        setIsPlaying(!isPlaying);
       } else {
         setCurrentSong(song);
+        setIsPlaying(true);
+
+        // Add to listening history
+        if (currentUser) {
+          await supabaseOperations.addToHistory(currentUser.id, song.id);
+        }
       }
     } catch (error) {
       console.error("Failed to play song:", error);
+      // Still allow playback even if history fails
       if (currentSong?.id === song.id) {
-        togglePlay();
+        setIsPlaying(!isPlaying);
       } else {
         setCurrentSong(song);
+        setIsPlaying(true);
       }
     }
   };
 
-  const loadGenresAndPlaylists = async () => {
+  const handleToggleLike = async (songId: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+
+    if (!currentUser) {
+      toast({
+        title: "Login required",
+        description: "Please log in to like songs",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
-      const [genresRes, playlistsRes] = await Promise.all([
-        fetch("/api/music/genres"),
-        fetch("/api/music/playlists/featured?limit=6"),
-      ]);
+      const { liked, error } = await supabaseOperations.toggleLike(currentUser.id, songId);
 
-      const [genresData, playlistsData] = await Promise.all([
-        genresRes.json(),
-        playlistsRes.json(),
-      ]);
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to update like status",
+          variant: "destructive",
+        });
+        return;
+      }
 
-      if (genresData.success) setGenres(genresData.genres);
-      if (playlistsData.success) setFeaturedPlaylists(playlistsData.playlists);
+      // Update local state
+      setLikedSongs((prev) => {
+        const newSet = new Set(prev);
+        if (liked) {
+          newSet.add(songId);
+        } else {
+          newSet.delete(songId);
+        }
+        return newSet;
+      });
+
+      toast({
+        title: liked ? "Added to liked songs" : "Removed from liked songs",
+        description: liked ? "Song added to your favorites" : "Song removed from your favorites",
+      });
+
     } catch (error) {
-      console.error("Failed to load genres and playlists:", error);
+      console.error("❌ Error toggling like:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update like status",
+        variant: "destructive",
+      });
     }
   };
 
+  // URL parameter handling
   useEffect(() => {
-    loadGenresAndPlaylists();
-
-    // Check if there's a genre parameter in URL
     const genreParam = searchParams.get("genre");
     if (genreParam) {
       setSearchQuery(genreParam);
@@ -121,8 +224,8 @@ export default function Search() {
     }
   }, []);
 
+  // Debounced search
   useEffect(() => {
-    // Debounced search
     if (searchQuery.length > 2) {
       const timeoutId = setTimeout(() => {
         handleSearch();
@@ -137,13 +240,13 @@ export default function Search() {
   const tabs = [
     { id: "all", label: "All", icon: SearchIcon },
     { id: "songs", label: "Songs", icon: Music },
-    { id: "artists", label: "Artists", icon: Users },
+    { id: "albums", label: "Albums", icon: Disc },
     { id: "playlists", label: "Playlists", icon: Disc },
   ];
 
   const quickSearchButtons = [
     "Pop",
-    "Hip-Hop",
+    "Hip-Hop", 
     "Rock",
     "Electronic",
     "Jazz",
@@ -152,11 +255,18 @@ export default function Search() {
     "Country",
   ];
 
+  const formatDuration = (seconds?: number) => {
+    if (!seconds) return "0:00";
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
   const renderSearchResults = () => {
     if (isLoading) {
       return (
         <div className="flex items-center justify-center py-12">
-          <Loader2 className="w-8 h-8 text-neon-green animate-spin" />
+          <Loader2 className="w-8 h-8 text-purple-primary animate-spin" />
           <span className="ml-2 text-gray-400">Searching...</span>
         </div>
       );
@@ -182,11 +292,11 @@ export default function Search() {
         {searchResults.songs && searchResults.songs.length > 0 && (
           <div>
             <h3 className="text-lg font-bold mb-4 flex items-center">
-              <Music className="w-5 h-5 mr-2 text-neon-green" />
+              <Music className="w-5 h-5 mr-2 text-purple-primary" />
               Songs
             </h3>
             <div className="space-y-2">
-              {searchResults.songs.map((song: any) => (
+              {searchResults.songs.map((song) => (
                 <div
                   key={song.id}
                   className="flex items-center space-x-3 p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-all group cursor-pointer"
@@ -194,7 +304,7 @@ export default function Search() {
                 >
                   <div className="relative flex-shrink-0">
                     <img
-                      src={song.image}
+                      src={song.cover_image_url}
                       alt={song.title}
                       className="w-12 h-12 object-cover rounded"
                     />
@@ -217,18 +327,28 @@ export default function Search() {
                       {song.title}
                     </h4>
                     <p className="text-gray-400 text-xs truncate">
-                      {song.artist} • {song.album}
+                      {song.artist} {song.genre && `• ${song.genre}`}
                     </p>
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className="text-gray-400 text-xs">
-                      {song.duration}
+                      {formatDuration(song.duration)}
                     </span>
-                    <LikeButton
-                      songId={song.id}
-                      size="sm"
-                      className="opacity-0 group-hover:opacity-100 transition-opacity"
-                    />
+                    <button
+                      onClick={(e) => handleToggleLike(song.id, e)}
+                      className={`opacity-0 group-hover:opacity-100 transition-all hover:scale-110 ${
+                        likedSongs.has(song.id)
+                          ? "text-red-500 hover:text-red-600"
+                          : "text-gray-400 hover:text-red-500"
+                      }`}
+                      title={likedSongs.has(song.id) ? "Unlike" : "Like"}
+                    >
+                      <Heart
+                        className={`w-4 h-4 transition-all ${
+                          likedSongs.has(song.id) ? "fill-current" : ""
+                        }`}
+                      />
+                    </button>
                     <button className="opacity-0 group-hover:opacity-100 transition-opacity">
                       <MoreHorizontal className="w-4 h-4 text-gray-400" />
                     </button>
@@ -239,30 +359,28 @@ export default function Search() {
           </div>
         )}
 
-        {/* Artists Results */}
-        {searchResults.artists && searchResults.artists.length > 0 && (
+        {/* Albums Results */}
+        {searchResults.albums && searchResults.albums.length > 0 && (
           <div>
             <h3 className="text-lg font-bold mb-4 flex items-center">
-              <Users className="w-5 h-5 mr-2 text-neon-blue" />
-              Artists
+              <Disc className="w-5 h-5 mr-2 text-purple-secondary" />
+              Albums
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {searchResults.artists.map((artist: any) => (
-                <Link to={`/artist/${artist.id}`} key={artist.id}>
-                  <div className="bg-white/5 rounded-xl p-4 text-center hover:bg-white/10 transition-all cursor-pointer">
-                    <img
-                      src={artist.image}
-                      alt={artist.name}
-                      className="w-20 h-20 rounded-full mx-auto mb-3 object-cover"
-                    />
-                    <h4 className="font-medium text-white mb-1">
-                      {artist.name}
-                    </h4>
-                    <p className="text-xs text-gray-400">
-                      {artist.followers?.toLocaleString()} followers
-                    </p>
-                  </div>
-                </Link>
+              {searchResults.albums.map((album) => (
+                <div key={album.id} className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition-all cursor-pointer">
+                  <img
+                    src={album.cover_image_url}
+                    alt={album.name}
+                    className="w-full aspect-square rounded-lg object-cover mb-3"
+                  />
+                  <h4 className="font-medium text-white mb-1 truncate">
+                    {album.name}
+                  </h4>
+                  <p className="text-xs text-gray-400">
+                    {album.artist}
+                  </p>
+                </div>
               ))}
             </div>
           </div>
@@ -272,26 +390,24 @@ export default function Search() {
         {searchResults.playlists && searchResults.playlists.length > 0 && (
           <div>
             <h3 className="text-lg font-bold mb-4 flex items-center">
-              <Disc className="w-5 h-5 mr-2 text-purple-400" />
+              <Disc className="w-5 h-5 mr-2 text-purple-accent" />
               Playlists
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {searchResults.playlists.map((playlist: any) => (
-                <Link to={`/playlist/${playlist.id}`} key={playlist.id}>
-                  <div className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition-all cursor-pointer">
-                    <img
-                      src={playlist.image}
-                      alt={playlist.name}
-                      className="w-full aspect-square rounded-lg object-cover mb-3"
-                    />
-                    <h4 className="font-medium text-white mb-1 truncate">
-                      {playlist.name}
-                    </h4>
-                    <p className="text-xs text-gray-400 line-clamp-2">
-                      {playlist.description}
-                    </p>
-                  </div>
-                </Link>
+              {searchResults.playlists.map((playlist) => (
+                <div key={playlist.id} className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition-all cursor-pointer">
+                  <img
+                    src={playlist.cover_image_url || 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop'}
+                    alt={playlist.name}
+                    className="w-full aspect-square rounded-lg object-cover mb-3"
+                  />
+                  <h4 className="font-medium text-white mb-1 truncate">
+                    {playlist.name}
+                  </h4>
+                  <p className="text-xs text-gray-400">
+                    {playlist.is_public ? 'Public' : 'Private'} Playlist
+                  </p>
+                </div>
               ))}
             </div>
           </div>
@@ -300,58 +416,24 @@ export default function Search() {
     );
   };
 
-  const moodResults = [
-    {
-      id: 1,
-      title: "Leek Mius",
-      artist: "Clator SI",
-      category: "Moods",
-      image:
-        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100&h=100&fit=crop",
-    },
-    {
-      id: 2,
-      title: "Fleil Nong",
-      artist: "Mutsis Oln",
-      category: "Rooylos",
-      image:
-        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop",
-    },
-  ];
-
-  const categories = [
-    {
-      title: "Bodes",
-      subtitle: "Qocli lonc omaloi gycls & plo scpoin ils olmol gormat.",
-      count: "6063",
-      bgColor: "bg-gradient-to-br from-purple-600 to-purple-800",
-    },
-    {
-      title: "Afctolns",
-      subtitle: "Alcsttc icck rcnc nolc noudclng yclotı.",
-      count: "dtos",
-      bgColor: "bg-gradient-to-br from-pink-500 to-purple-600",
-    },
-  ];
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-purple-darker via-background to-purple-dark relative overflow-hidden">
       {/* Background glow effect */}
-      <div className="absolute inset-0 bg-gradient-to-br from-neon-green/5 via-transparent to-neon-blue/5 bg-black"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-primary/8 via-purple-secondary/4 to-purple-accent/6"></div>
 
       <div className="relative z-10 flex flex-col h-screen">
         {/* Header */}
         <div className="flex items-center justify-between p-6 pb-4">
-          <Link to="/home">
+          <button onClick={() => navigate("/home")}>
             <ArrowLeft className="w-6 h-6 text-white" />
-          </Link>
-          <Music className="w-6 h-6 text-pink-400" />
-          <div className="flex items-center space-x-2">
-            <div className="w-6 h-6 border-2 border-slate-400 rounded"></div>
-            <div className="w-6 h-6 bg-slate-400 rounded"></div>
-            <div className="w-6 h-6 bg-slate-400 rounded"></div>
-            <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-orange-400 rounded-full"></div>
-          </div>
+          </button>
+          <Music className="w-6 h-6 text-purple-primary" />
+          <button
+            onClick={() => navigate("/profile")}
+            className="w-8 h-8 bg-gradient-to-r from-purple-primary to-purple-secondary rounded-full flex items-center justify-center"
+          >
+            <User className="w-5 h-5 text-white" />
+          </button>
         </div>
 
         {/* Main Content */}
@@ -386,7 +468,7 @@ export default function Search() {
             </div>
             <button
               onClick={handleSearch}
-              className="w-12 h-12 bg-purple-600 rounded-full flex items-center justify-center hover:bg-purple-700 transition-colors"
+              className="w-12 h-12 bg-purple-primary rounded-full flex items-center justify-center hover:bg-purple-secondary transition-colors"
             >
               <SearchIcon className="w-5 h-5 text-white" />
             </button>
@@ -405,7 +487,7 @@ export default function Search() {
                 onClick={() => setSelectedTab(tab.id)}
                 className={`flex items-center space-x-2 text-sm font-medium whitespace-nowrap pb-2 border-b-2 transition-colors ${
                   selectedTab === tab.id
-                    ? "text-white border-neon-green"
+                    ? "text-white border-purple-primary"
                     : "text-slate-400 border-transparent hover:text-white"
                 }`}
               >
@@ -429,7 +511,7 @@ export default function Search() {
                   setSearchQuery(genre);
                   setSelectedTab("songs");
                 }}
-                className="h-10 px-4 rounded-full flex items-center justify-center text-sm font-medium transition-colors bg-slate-800 text-white hover:bg-slate-700 hover:text-neon-green"
+                className="h-10 px-4 rounded-full flex items-center justify-center text-sm font-medium transition-colors bg-purple-dark/50 text-white hover:bg-purple-primary/20 hover:text-purple-primary border border-purple-primary/20"
               >
                 {genre}
               </button>
@@ -453,51 +535,36 @@ export default function Search() {
 
                 {/* Browse Categories Grid */}
                 <div className="grid grid-cols-2 gap-4 mb-6">
-                  {genres.slice(0, 4).map((genre: any, index) => (
+                  {quickSearchButtons.slice(0, 4).map((genre, index) => (
                     <motion.div
-                      key={genre.id}
+                      key={genre}
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
                       transition={{ delay: 0.5 + index * 0.1, duration: 0.6 }}
                       onClick={() => {
-                        setSearchQuery(genre.name);
+                        setSearchQuery(genre);
                         setSelectedTab("songs");
                       }}
-                      className={`aspect-square rounded-2xl bg-gradient-to-br ${genre.color} text-white flex flex-col items-center justify-center cursor-pointer hover:scale-105 transition-transform`}
+                      className="aspect-square rounded-2xl bg-gradient-to-br from-purple-primary to-purple-secondary text-white flex flex-col items-center justify-center cursor-pointer hover:scale-105 transition-transform"
                     >
                       <Music className="w-8 h-8 mb-2" />
-                      <span className="font-medium">{genre.name}</span>
+                      <span className="font-medium">{genre}</span>
                       <span className="text-xs opacity-75">
-                        {genre.songCount} songs
+                        Browse {genre.toLowerCase()}
                       </span>
                     </motion.div>
                   ))}
                 </div>
 
-                {/* Featured Playlists */}
-                <div className="mb-6">
-                  <h3 className="text-lg font-bold text-white mb-4">
-                    Featured Playlists
+                {/* Welcome Message */}
+                <div className="text-center py-8">
+                  <SearchIcon className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold text-white mb-2">
+                    Search for Music
                   </h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {featuredPlaylists.slice(0, 6).map((playlist: any) => (
-                      <Link to={`/playlist/${playlist.id}`} key={playlist.id}>
-                        <div className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition-all cursor-pointer">
-                          <img
-                            src={playlist.image}
-                            alt={playlist.name}
-                            className="w-full aspect-square rounded-lg object-cover mb-3"
-                          />
-                          <h4 className="font-medium text-white mb-1 truncate">
-                            {playlist.name}
-                          </h4>
-                          <p className="text-xs text-gray-400 line-clamp-2">
-                            {playlist.description}
-                          </p>
-                        </div>
-                      </Link>
-                    ))}
-                  </div>
+                  <p className="text-gray-400">
+                    Find songs, albums, and playlists
+                  </p>
                 </div>
               </div>
             )}
@@ -513,8 +580,8 @@ export default function Search() {
             </Link>
 
             <Link to="/search" className="flex flex-col items-center py-2">
-              <SearchIcon className="w-6 h-6 text-neon-green mb-1" />
-              <span className="text-neon-green text-xs font-medium">
+              <SearchIcon className="w-6 h-6 text-purple-primary mb-1" />
+              <span className="text-purple-primary text-xs font-medium">
                 Search
               </span>
             </Link>
