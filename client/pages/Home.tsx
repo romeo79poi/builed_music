@@ -34,6 +34,7 @@ import {
   getDoc,
 } from "firebase/firestore";
 import { db, auth } from "../lib/firebase";
+import { supabaseOperations } from "../lib/supabase";
 import { onAuthStateChanged, User as FirebaseUser } from "firebase/auth";
 
 // Interfaces matching your Firestore schema
