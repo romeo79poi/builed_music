@@ -280,7 +280,7 @@ export function MusicCatchLogo({
               }}
             />
             <motion.div
-              className="absolute -bottom-1 -right-1 w-1 h-1 bg-neon-blue rounded-full"
+              className="absolute -bottom-1 -right-1 w-1 h-1 bg-purple-secondary rounded-full"
               animate={{
                 y: [4, 8, 4],
                 x: [2, -2, 2],
