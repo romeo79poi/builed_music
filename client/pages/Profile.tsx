@@ -293,8 +293,8 @@ export default function Profile() {
             {/* Profile Picture & Basic Info */}
             <div className="text-center mb-6">
               <div className="relative inline-block mb-4">
-                <div className="w-24 h-24 bg-gradient-to-br from-neon-green to-neon-blue rounded-full p-1">
-                  <div className="w-full h-full bg-gray-800 rounded-full flex items-center justify-center overflow-hidden">
+                <div className="w-28 h-28 bg-gradient-to-br from-purple-primary via-purple-secondary to-purple-accent rounded-full p-1 shadow-2xl shadow-purple-primary/30">
+                  <div className="w-full h-full bg-purple-darker rounded-full flex items-center justify-center overflow-hidden">
                     {userData.profileImageURL ? (
                       <img
                         src={userData.profileImageURL}
@@ -302,12 +302,12 @@ export default function Profile() {
                         className="w-full h-full object-cover"
                       />
                     ) : (
-                      <User className="w-12 h-12 text-gray-400" />
+                      <User className="w-12 h-12 text-purple-primary" />
                     )}
                   </div>
                 </div>
                 {isEditing && (
-                  <button className="absolute -bottom-1 -right-1 w-8 h-8 bg-neon-green rounded-full flex items-center justify-center text-black">
+                  <button className="absolute -bottom-1 -right-1 w-8 h-8 bg-gradient-to-r from-purple-primary to-purple-secondary rounded-full flex items-center justify-center text-white shadow-lg shadow-purple-primary/50 hover:scale-110 transition-all duration-200">
                     <Camera className="w-4 h-4" />
                   </button>
                 )}
