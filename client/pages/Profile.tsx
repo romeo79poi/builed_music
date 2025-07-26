@@ -385,7 +385,7 @@ export default function Profile() {
                           <button
                             onClick={handleSendEmailVerification}
                             disabled={sendingVerification}
-                            className="text-xs text-neon-green hover:text-neon-blue font-medium flex items-center space-x-1"
+                            className="text-xs text-purple-primary hover:text-purple-secondary font-medium flex items-center space-x-1 transition-colors"
                           >
                             {sendingVerification ? (
                               <Loader2 className="w-3 h-3 animate-spin" />
