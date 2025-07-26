@@ -74,9 +74,84 @@ CREATE TABLE listening_history (
   id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
   user_id UUID REFERENCES users(id) ON DELETE CASCADE,
   song_id UUID REFERENCES songs(id) ON DELETE CASCADE,
-  listened_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-  duration_listened INTEGER, -- seconds listened
-  completed BOOLEAN DEFAULT FALSE
+  played_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  duration_played INTEGER DEFAULT 0, -- seconds played
+  completed BOOLEAN DEFAULT FALSE,
+  device_type TEXT DEFAULT 'web',
+  ip_address INET,
+  user_agent TEXT
+);
+
+-- Genres table for better music categorization
+CREATE TABLE genres (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  name TEXT UNIQUE NOT NULL,
+  description TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Song genres junction table
+CREATE TABLE song_genres (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  song_id UUID REFERENCES songs(id) ON DELETE CASCADE,
+  genre_id UUID REFERENCES genres(id) ON DELETE CASCADE,
+  UNIQUE(song_id, genre_id)
+);
+
+-- Artists table for better artist management
+CREATE TABLE artists (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  name TEXT UNIQUE NOT NULL,
+  bio TEXT,
+  image_url TEXT,
+  social_links JSONB,
+  verified BOOLEAN DEFAULT FALSE,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Song artists junction table (for collaborations)
+CREATE TABLE song_artists (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  song_id UUID REFERENCES songs(id) ON DELETE CASCADE,
+  artist_id UUID REFERENCES artists(id) ON DELETE CASCADE,
+  role TEXT DEFAULT 'performer', -- performer, composer, producer, etc.
+  UNIQUE(song_id, artist_id, role)
+);
+
+-- User follows (for following artists, users, playlists)
+CREATE TABLE user_follows (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  follower_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  following_type TEXT NOT NULL, -- 'user', 'artist', 'playlist'
+  following_id UUID NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  UNIQUE(follower_id, following_type, following_id)
+);
+
+-- Comments on songs/playlists
+CREATE TABLE comments (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  content_type TEXT NOT NULL, -- 'song', 'playlist', 'album'
+  content_id UUID NOT NULL,
+  comment TEXT NOT NULL,
+  parent_id UUID REFERENCES comments(id) ON DELETE CASCADE, -- for replies
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- User settings
+CREATE TABLE user_settings (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE UNIQUE,
+  theme TEXT DEFAULT 'dark',
+  language TEXT DEFAULT 'en',
+  audio_quality TEXT DEFAULT 'high', -- low, medium, high
+  auto_play BOOLEAN DEFAULT TRUE,
+  notifications JSONB DEFAULT '{"email": true, "push": true, "in_app": true}'::jsonb,
+  privacy JSONB DEFAULT '{"profile_public": false, "playlists_public": false, "activity_public": false}'::jsonb,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- Indexes for better performance
