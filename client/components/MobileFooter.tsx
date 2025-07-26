@@ -9,6 +9,8 @@ import {
   BarChart3,
   Clock,
   User,
+  Plus,
+  Mic,
 } from "lucide-react";
 
 interface FooterProps {
