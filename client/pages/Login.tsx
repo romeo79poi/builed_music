@@ -65,7 +65,7 @@ export default function Login() {
 
       console.log("✅ User profile saved to Firestore");
     } catch (error) {
-      console.error("��� Error saving profile to Firestore:", error);
+      console.error("❌ Error saving profile to Firestore:", error);
     }
   };
 
@@ -563,14 +563,14 @@ export default function Login() {
 
             <button
               onClick={handlePhoneLogin}
-              className="w-full h-12 sm:h-14 bg-gradient-to-r from-neon-blue to-purple-600 hover:from-neon-blue/80 hover:to-purple-600/80 text-white font-bold text-sm sm:text-lg rounded-lg transition-all transform hover:scale-105"
+              className="w-full h-12 sm:h-14 bg-gradient-to-r from-purple-secondary to-purple-accent hover:from-purple-accent hover:to-purple-primary text-white font-bold text-sm sm:text-lg rounded-xl transition-all transform hover:scale-105 shadow-lg shadow-purple-secondary/30 hover:shadow-purple-accent/40"
             >
               Send Verification Code
             </button>
 
             <button
               onClick={() => setLoginMethod("social")}
-              className="w-full text-neon-blue hover:text-neon-green transition-colors text-sm"
+              className="w-full text-purple-secondary hover:text-purple-primary transition-colors text-sm"
             >
               ← Back to other options
             </button>
