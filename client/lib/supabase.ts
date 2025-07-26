@@ -86,15 +86,27 @@ export interface UserLike {
 
 // Authentication functions
 export const supabaseAuth = {
-  async signUp(email: string, password: string) {
+  // Email/Password Authentication
+  async signUp(email: string, password: string, metadata?: { username?: string, name?: string }) {
+    if (!isSupabaseConfigured) {
+      return { data: { user: { id: 'demo-user', email }, session: null }, error: null }
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
+      options: {
+        data: metadata || {}
+      }
     })
     return { data, error }
   },
 
   async signInWithPassword(email: string, password: string) {
+    if (!isSupabaseConfigured) {
+      return { data: { user: { id: 'demo-user', email }, session: { access_token: 'demo-token' } }, error: null }
+    }
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -102,32 +114,87 @@ export const supabaseAuth = {
     return { data, error }
   },
 
-  async signInWithOAuth(provider: 'google' | 'facebook' | 'twitter') {
+  // OAuth Authentication
+  async signInWithOAuth(provider: 'google' | 'facebook' | 'twitter' | 'github') {
+    if (!isSupabaseConfigured) {
+      return { data: { url: null, provider }, error: null }
+    }
+
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider,
       options: {
-        redirectTo: window.location.origin
+        redirectTo: `${window.location.origin}/auth/callback`,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        }
       }
     })
     return { data, error }
   },
 
+  // Phone Authentication
+  async signInWithPhone(phone: string) {
+    if (!isSupabaseConfigured) {
+      return { data: null, error: null }
+    }
+
+    const { data, error } = await supabase.auth.signInWithOtp({
+      phone,
+      options: {
+        shouldCreateUser: true
+      }
+    })
+    return { data, error }
+  },
+
+  async verifyPhoneOtp(phone: string, token: string) {
+    if (!isSupabaseConfigured) {
+      return { data: { user: { id: 'demo-user', phone }, session: { access_token: 'demo-token' } }, error: null }
+    }
+
+    const { data, error } = await supabase.auth.verifyOtp({
+      phone,
+      token,
+      type: 'sms'
+    })
+    return { data, error }
+  },
+
+  // Session Management
   async signOut() {
+    if (!isSupabaseConfigured) {
+      return { error: null }
+    }
+
     const { error } = await supabase.auth.signOut()
     return { error }
   },
 
   async getCurrentSession() {
+    if (!isSupabaseConfigured) {
+      return { data: { session: null }, error: null }
+    }
+
     const { data, error } = await supabase.auth.getSession()
     return { data, error }
   },
 
   async getCurrentUser() {
+    if (!isSupabaseConfigured) {
+      return { data: { user: null }, error: null }
+    }
+
     const { data, error } = await supabase.auth.getUser()
     return { data, error }
   },
 
+  // Password Management
   async resetPassword(email: string) {
+    if (!isSupabaseConfigured) {
+      return { data: {}, error: null }
+    }
+
     const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/reset-password`
     })
@@ -135,11 +202,41 @@ export const supabaseAuth = {
   },
 
   async updatePassword(password: string) {
+    if (!isSupabaseConfigured) {
+      return { data: { user: { id: 'demo-user' } }, error: null }
+    }
+
     const { data, error } = await supabase.auth.updateUser({ password })
     return { data, error }
   },
 
-  async verifyOtp(email: string, token: string, type: 'signup' | 'recovery' | 'email') {
+  async updateProfile(updates: { email?: string, password?: string, data?: any }) {
+    if (!isSupabaseConfigured) {
+      return { data: { user: { id: 'demo-user', ...updates } }, error: null }
+    }
+
+    const { data, error } = await supabase.auth.updateUser(updates)
+    return { data, error }
+  },
+
+  // Email Verification
+  async resendEmailConfirmation(email?: string) {
+    if (!isSupabaseConfigured) {
+      return { data: {}, error: null }
+    }
+
+    const { data, error } = await supabase.auth.resend({
+      type: 'signup',
+      email: email!
+    })
+    return { data, error }
+  },
+
+  async verifyOtp(email: string, token: string, type: 'signup' | 'recovery' | 'email' | 'invite') {
+    if (!isSupabaseConfigured) {
+      return { data: { user: { id: 'demo-user', email }, session: { access_token: 'demo-token' } }, error: null }
+    }
+
     const { data, error } = await supabase.auth.verifyOtp({
       email,
       token,
