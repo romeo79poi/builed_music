@@ -319,9 +319,19 @@ END;
 $$ language 'plpgsql';
 
 -- Triggers
-CREATE TRIGGER update_users_updated_at 
-  BEFORE UPDATE ON users 
-  FOR EACH ROW 
+CREATE TRIGGER update_users_updated_at
+  BEFORE UPDATE ON users
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_comments_updated_at
+  BEFORE UPDATE ON comments
+  FOR EACH ROW
+  EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_user_settings_updated_at
+  BEFORE UPDATE ON user_settings
+  FOR EACH ROW
   EXECUTE FUNCTION update_updated_at_column();
 
 -- Sample data (optional)
