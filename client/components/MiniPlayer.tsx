@@ -227,7 +227,7 @@ export function MiniPlayer() {
                   max="100"
                   value={volume}
                   onChange={(e) => setVolume(Number(e.target.value))}
-                  className="flex-1 h-2 bg-white/20 rounded-lg appearance-none cursor-pointer slider"
+                  className="flex-1 h-2 bg-purple-dark/40 rounded-lg appearance-none cursor-pointer slider"
                 />
               </div>
 
