@@ -26,31 +26,36 @@ const sampleAlbums = [
     id: "1",
     name: "After Hours",
     artist: "The Weeknd",
-    coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
   },
   {
     id: "2",
     name: "Fine Line",
     artist: "Harry Styles",
-    coverImageURL: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
   },
   {
     id: "3",
     name: "Future Nostalgia",
     artist: "Dua Lipa",
-    coverImageURL: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
   },
   {
     id: "4",
     name: "Positions",
     artist: "Ariana Grande",
-    coverImageURL: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop",
   },
   {
     id: "5",
     name: "Folklore",
     artist: "Taylor Swift",
-    coverImageURL: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=200&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=200&fit=crop",
   },
 ];
 
@@ -59,35 +64,40 @@ const sampleSongs = [
     id: "1",
     title: "Blinding Lights",
     artist: "The Weeknd",
-    coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=80&h=80&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=80&h=80&fit=crop",
     duration: "3:20",
   },
   {
     id: "2",
     title: "Watermelon Sugar",
     artist: "Harry Styles",
-    coverImageURL: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop",
     duration: "2:54",
   },
   {
     id: "3",
     title: "Levitating",
     artist: "Dua Lipa",
-    coverImageURL: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop",
     duration: "3:23",
   },
   {
     id: "4",
     title: "positions",
     artist: "Ariana Grande",
-    coverImageURL: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop",
     duration: "2:52",
   },
   {
     id: "5",
     title: "cardigan",
     artist: "Taylor Swift",
-    coverImageURL: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=80&h=80&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=80&h=80&fit=crop",
     duration: "3:59",
   },
 ];
@@ -99,9 +109,9 @@ const containerVariants = {
     opacity: 1,
     transition: {
       delayChildren: 0.3,
-      staggerChildren: 0.1
-    }
-  }
+      staggerChildren: 0.1,
+    },
+  },
 };
 
 const itemVariants = {
@@ -112,9 +122,9 @@ const itemVariants = {
     transition: {
       type: "spring",
       damping: 20,
-      stiffness: 300
-    }
-  }
+      stiffness: 300,
+    },
+  },
 };
 
 const floatAnimation = {
@@ -122,26 +132,26 @@ const floatAnimation = {
   transition: {
     duration: 3,
     repeat: Infinity,
-    ease: "easeInOut"
-  }
+    ease: "easeInOut",
+  },
 };
 
 const glowVariants = {
-  initial: { 
-    boxShadow: "0 0 0px rgba(158, 64, 252, 0)" 
+  initial: {
+    boxShadow: "0 0 0px rgba(158, 64, 252, 0)",
   },
-  animate: { 
+  animate: {
     boxShadow: [
       "0 0 5px rgba(158, 64, 252, 0.3)",
       "0 0 20px rgba(158, 64, 252, 0.6)",
-      "0 0 5px rgba(158, 64, 252, 0.3)"
+      "0 0 5px rgba(158, 64, 252, 0.3)",
     ],
     transition: {
       duration: 2,
       repeat: Infinity,
-      ease: "easeInOut"
-    }
-  }
+      ease: "easeInOut",
+    },
+  },
 };
 
 export default function Home() {
@@ -176,45 +186,54 @@ export default function Home() {
     <div className="min-h-screen bg-gradient-to-br from-purple-darker via-purple-dark to-background text-white relative overflow-hidden">
       {/* Enhanced Background Effects */}
       <div className="fixed inset-0 bg-gradient-to-br from-purple-primary/8 via-purple-secondary/4 to-purple-accent/6"></div>
-      
+
       {/* Animated floating elements */}
       <div className="fixed inset-0 opacity-20">
-        <motion.div 
+        <motion.div
           animate={floatAnimation}
           className="absolute top-5 left-5 w-16 h-16 border border-purple-primary/20 rotate-45 rounded-lg"
         />
-        <motion.div 
-          animate={{ ...floatAnimation, transition: { ...floatAnimation.transition, delay: 0.5 } }}
+        <motion.div
+          animate={{
+            ...floatAnimation,
+            transition: { ...floatAnimation.transition, delay: 0.5 },
+          }}
           className="absolute top-10 right-10 w-12 h-12 border border-purple-secondary/20 rotate-12 rounded-lg"
         />
-        <motion.div 
-          animate={{ ...floatAnimation, transition: { ...floatAnimation.transition, delay: 1 } }}
+        <motion.div
+          animate={{
+            ...floatAnimation,
+            transition: { ...floatAnimation.transition, delay: 1 },
+          }}
           className="absolute bottom-10 left-10 w-10 h-10 border border-purple-accent/20 -rotate-12 rounded-lg"
         />
-        <motion.div 
-          animate={{ ...floatAnimation, transition: { ...floatAnimation.transition, delay: 1.5 } }}
+        <motion.div
+          animate={{
+            ...floatAnimation,
+            transition: { ...floatAnimation.transition, delay: 1.5 },
+          }}
           className="absolute bottom-5 right-5 w-14 h-14 border border-purple-primary/20 rotate-45 rounded-lg"
         />
-        
+
         {/* Additional floating particles */}
-        <motion.div 
-          animate={{ 
+        <motion.div
+          animate={{
             rotate: 360,
-            transition: { duration: 20, repeat: Infinity, ease: "linear" }
+            transition: { duration: 20, repeat: Infinity, ease: "linear" },
           }}
           className="absolute top-1/4 left-1/4 w-2 h-2 bg-purple-primary/30 rounded-full"
         />
-        <motion.div 
-          animate={{ 
+        <motion.div
+          animate={{
             rotate: -360,
-            transition: { duration: 15, repeat: Infinity, ease: "linear" }
+            transition: { duration: 15, repeat: Infinity, ease: "linear" },
           }}
           className="absolute top-3/4 right-1/4 w-3 h-3 bg-purple-secondary/30 rounded-full"
         />
       </div>
 
       {/* Main Container */}
-      <motion.div 
+      <motion.div
         initial="hidden"
         animate="visible"
         variants={containerVariants}
@@ -239,7 +258,7 @@ export default function Home() {
             <motion.div
               animate={{
                 rotate: 360,
-                transition: { duration: 3, repeat: Infinity, ease: "linear" }
+                transition: { duration: 3, repeat: Infinity, ease: "linear" },
               }}
               className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
             />
@@ -254,12 +273,12 @@ export default function Home() {
             <motion.div
               animate={{
                 scale: [1, 1.1, 1],
-                transition: { duration: 2, repeat: Infinity }
+                transition: { duration: 2, repeat: Infinity },
               }}
             >
               <MusicCatchLogo className="w-8 h-8" animated />
             </motion.div>
-            <motion.span 
+            <motion.span
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.5 }}
@@ -279,10 +298,10 @@ export default function Home() {
             className="w-10 h-10 bg-gradient-to-r from-purple-primary to-purple-secondary rounded-full flex items-center justify-center shadow-lg hover:shadow-purple-primary/60 transition-all duration-300 relative overflow-hidden"
           >
             <MessageCircle className="w-5 h-5 text-white relative z-10" />
-            <motion.span 
+            <motion.span
               animate={{
                 scale: [1, 1.2, 1],
-                transition: { duration: 1.5, repeat: Infinity }
+                transition: { duration: 1.5, repeat: Infinity },
               }}
               className="absolute -top-1 -right-1 w-4 h-4 bg-neon-green rounded-full flex items-center justify-center text-xs font-bold text-white shadow-lg shadow-neon-green/50"
             >
@@ -291,7 +310,7 @@ export default function Home() {
             <motion.div
               animate={{
                 rotate: -360,
-                transition: { duration: 4, repeat: Infinity, ease: "linear" }
+                transition: { duration: 4, repeat: Infinity, ease: "linear" },
               }}
               className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
             />
@@ -301,11 +320,8 @@ export default function Home() {
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto pb-24 px-4 space-y-6">
           {/* Enhanced Welcome Section */}
-          <motion.div
-            variants={itemVariants}
-            className="pt-6"
-          >
-            <motion.h1 
+          <motion.div variants={itemVariants} className="pt-6">
+            <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
@@ -313,7 +329,7 @@ export default function Home() {
             >
               Good Evening
             </motion.h1>
-            <motion.p 
+            <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
@@ -327,7 +343,7 @@ export default function Home() {
           {/* Enhanced Albums Section */}
           <motion.section variants={itemVariants}>
             <div className="flex items-center justify-between mb-4">
-              <motion.h2 
+              <motion.h2
                 whileHover={{ scale: 1.02 }}
                 className="text-xl font-bold flex items-center space-x-2"
               >
@@ -335,14 +351,14 @@ export default function Home() {
                 <span>Featured Albums</span>
               </motion.h2>
               <div className="flex space-x-2">
-                <motion.button 
+                <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
                   className="p-2 bg-purple-primary/20 hover:bg-purple-primary/40 rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-purple-primary/30"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </motion.button>
-                <motion.button 
+                <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
                   className="p-2 bg-purple-primary/20 hover:bg-purple-primary/40 rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-purple-primary/30"
@@ -359,10 +375,10 @@ export default function Home() {
                   initial={{ opacity: 0, x: 50 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.5 + index * 0.1 }}
-                  whileHover={{ 
+                  whileHover={{
                     scale: 1.05,
                     y: -5,
-                    transition: { type: "spring", stiffness: 400, damping: 25 }
+                    transition: { type: "spring", stiffness: 400, damping: 25 },
                   }}
                   onHoverStart={() => setHoveredAlbum(album.id)}
                   onHoverEnd={() => setHoveredAlbum(null)}
@@ -374,15 +390,23 @@ export default function Home() {
                       alt={album.name}
                       className="w-full aspect-square rounded-lg object-cover shadow-md"
                       whileHover={{ scale: 1.05 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 400,
+                        damping: 25,
+                      }}
                     />
                     <AnimatePresence>
                       {hoveredAlbum === album.id && (
-                        <motion.button 
+                        <motion.button
                           initial={{ opacity: 0, scale: 0.5, y: 10 }}
                           animate={{ opacity: 1, scale: 1, y: 0 }}
                           exit={{ opacity: 0, scale: 0.5, y: 10 }}
-                          transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                          transition={{
+                            type: "spring",
+                            stiffness: 400,
+                            damping: 25,
+                          }}
                           className="absolute bottom-2 right-2 w-8 h-8 bg-gradient-to-r from-neon-green to-purple-secondary rounded-full flex items-center justify-center shadow-xl shadow-neon-green/50"
                         >
                           <Play className="w-4 h-4 text-white ml-0.5" />
@@ -393,7 +417,9 @@ export default function Home() {
                   <h3 className="font-medium text-sm mb-1 truncate leading-tight">
                     {album.name}
                   </h3>
-                  <p className="text-gray-400 text-xs truncate leading-tight">{album.artist}</p>
+                  <p className="text-gray-400 text-xs truncate leading-tight">
+                    {album.artist}
+                  </p>
                 </motion.div>
               ))}
             </div>
@@ -402,14 +428,14 @@ export default function Home() {
           {/* Enhanced Songs Section */}
           <motion.section variants={itemVariants}>
             <div className="flex items-center justify-between mb-4">
-              <motion.h2 
+              <motion.h2
                 whileHover={{ scale: 1.02 }}
                 className="text-xl font-bold flex items-center space-x-2"
               >
                 <Music className="w-5 h-5 text-purple-secondary" />
                 <span>Popular Songs</span>
               </motion.h2>
-              <motion.button 
+              <motion.button
                 whileHover={{ scale: 1.05 }}
                 className="text-gray-400 hover:text-white text-sm font-medium transition-colors flex items-center space-x-1"
               >
@@ -425,10 +451,10 @@ export default function Home() {
                   initial={{ opacity: 0, x: -30 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.7 + index * 0.1 }}
-                  whileHover={{ 
+                  whileHover={{
                     scale: 1.02,
                     backgroundColor: "rgba(158, 64, 252, 0.15)",
-                    transition: { type: "spring", stiffness: 400, damping: 25 }
+                    transition: { type: "spring", stiffness: 400, damping: 25 },
                   }}
                   onClick={() => handlePlaySong(song.id)}
                   className="flex items-center space-x-4 p-3 rounded-xl hover:bg-purple-primary/10 transition-all cursor-pointer group border border-transparent hover:border-purple-primary/30 hover:shadow-lg hover:shadow-purple-primary/10"
@@ -439,9 +465,13 @@ export default function Home() {
                       alt={song.title}
                       className="w-12 h-12 rounded-md object-cover"
                       whileHover={{ scale: 1.1 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 400,
+                        damping: 25,
+                      }}
                     />
-                    <motion.button 
+                    <motion.button
                       initial={{ opacity: 0 }}
                       whileHover={{ opacity: 1 }}
                       className="absolute inset-0 bg-black/60 rounded-md flex items-center justify-center transition-opacity"
@@ -455,11 +485,15 @@ export default function Home() {
                   </div>
 
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-base truncate leading-tight">{song.title}</h3>
-                    <p className="text-gray-400 text-sm truncate leading-tight">{song.artist}</p>
+                    <h3 className="font-medium text-base truncate leading-tight">
+                      {song.title}
+                    </h3>
+                    <p className="text-gray-400 text-sm truncate leading-tight">
+                      {song.artist}
+                    </p>
                   </div>
 
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, x: 20 }}
                     whileHover={{ opacity: 1, x: 0 }}
                     className="flex items-center space-x-3"
@@ -481,9 +515,11 @@ export default function Home() {
                       />
                     </motion.button>
 
-                    <span className="text-gray-400 text-sm min-w-[40px]">{song.duration}</span>
+                    <span className="text-gray-400 text-sm min-w-[40px]">
+                      {song.duration}
+                    </span>
 
-                    <motion.button 
+                    <motion.button
                       whileHover={{ scale: 1.2 }}
                       whileTap={{ scale: 0.9 }}
                       className="p-2 hover:bg-white/10 rounded-full transition-all"

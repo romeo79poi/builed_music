@@ -21,13 +21,18 @@ import {
   Pause,
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
-import { supabaseAuth, supabaseOperations, Song, Playlist } from "../lib/supabase";
+import {
+  supabaseAuth,
+  supabaseOperations,
+  Song,
+  Playlist,
+} from "../lib/supabase";
 import MobileFooter from "../components/MobileFooter";
 
 export default function Library() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+
   const [activeTab, setActiveTab] = useState("Recently Added");
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [userPlaylists, setUserPlaylists] = useState<Playlist[]>([]);
@@ -52,10 +57,10 @@ export default function Library() {
   const checkAuthAndLoadData = async () => {
     try {
       setIsLoading(true);
-      
+
       // Check authentication
       const { data: session } = await supabaseAuth.getCurrentSession();
-      
+
       if (session?.user) {
         setCurrentUser(session.user);
         await loadLibraryData(session.user.id);
@@ -88,7 +93,7 @@ export default function Library() {
       // Set liked songs
       if (likedRes.data) {
         const likedSongsData = likedRes.data
-          .map(like => like.songs)
+          .map((like) => like.songs)
           .filter(Boolean) as Song[];
         setLikedSongs(likedSongsData);
       }
@@ -96,7 +101,7 @@ export default function Library() {
       // Set recently played (from history)
       if (historyRes.data) {
         const recentSongsData = historyRes.data
-          .map(history => history.songs)
+          .map((history) => history.songs)
           .filter(Boolean) as Song[];
         setRecentlyPlayed(recentSongsData);
       }
@@ -105,7 +110,6 @@ export default function Library() {
       if (songsRes.data) {
         setRecentlyAdded(songsRes.data);
       }
-
     } catch (error) {
       console.error("Failed to load library data:", error);
       toast({
@@ -198,7 +202,10 @@ export default function Library() {
     }
 
     try {
-      const { liked, error } = await supabaseOperations.toggleLike(currentUser.id, songId);
+      const { liked, error } = await supabaseOperations.toggleLike(
+        currentUser.id,
+        songId,
+      );
 
       if (error) {
         toast({
@@ -211,19 +218,20 @@ export default function Library() {
 
       // Update local state
       if (liked) {
-        const song = recentlyAdded.find(s => s.id === songId);
+        const song = recentlyAdded.find((s) => s.id === songId);
         if (song) {
-          setLikedSongs(prev => [...prev, song]);
+          setLikedSongs((prev) => [...prev, song]);
         }
       } else {
-        setLikedSongs(prev => prev.filter(song => song.id !== songId));
+        setLikedSongs((prev) => prev.filter((song) => song.id !== songId));
       }
 
       toast({
         title: liked ? "Added to liked songs" : "Removed from liked songs",
-        description: liked ? "Song added to your favorites" : "Song removed from your favorites",
+        description: liked
+          ? "Song added to your favorites"
+          : "Song removed from your favorites",
       });
-
     } catch (error) {
       console.error("Error toggling like:", error);
       toast({
@@ -238,7 +246,7 @@ export default function Library() {
     if (!seconds) return "0:00";
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
 
   const renderTabContent = () => {
@@ -290,12 +298,16 @@ export default function Library() {
                   </p>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <span className="text-gray-400 text-xs">{formatDuration(song.duration)}</span>
+                  <span className="text-gray-400 text-xs">
+                    {formatDuration(song.duration)}
+                  </span>
                   <button
                     onClick={(e) => handleToggleLike(song.id, e)}
                     className="opacity-0 group-hover:opacity-100 transition-opacity"
                   >
-                    <Heart className={`w-4 h-4 ${likedSongs.some(liked => liked.id === song.id) ? 'text-red-500 fill-current' : 'text-gray-400'}`} />
+                    <Heart
+                      className={`w-4 h-4 ${likedSongs.some((liked) => liked.id === song.id) ? "text-red-500 fill-current" : "text-gray-400"}`}
+                    />
                   </button>
                   <MoreHorizontal className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
@@ -350,11 +362,17 @@ export default function Library() {
         return (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {userPlaylists.map((playlist) => (
-              <div key={playlist.id} className="group bg-white/5 rounded-xl p-4 hover:bg-white/10 transition-all cursor-pointer">
+              <div
+                key={playlist.id}
+                className="group bg-white/5 rounded-xl p-4 hover:bg-white/10 transition-all cursor-pointer"
+              >
                 <div className="flex items-center space-x-4">
                   <div className="relative">
                     <img
-                      src={playlist.cover_image_url || "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop"}
+                      src={
+                        playlist.cover_image_url ||
+                        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop"
+                      }
                       alt={playlist.name}
                       className="w-16 h-16 rounded-lg object-cover"
                     />
@@ -363,11 +381,10 @@ export default function Library() {
                     </button>
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-medium text-white">
-                      {playlist.name}
-                    </h3>
+                    <h3 className="font-medium text-white">{playlist.name}</h3>
                     <p className="text-gray-400 text-sm">
-                      {playlist.is_public ? 'Public' : 'Private'} • {playlist.total_tracks || 0} songs
+                      {playlist.is_public ? "Public" : "Private"} •{" "}
+                      {playlist.total_tracks || 0} songs
                     </p>
                   </div>
                   <MoreHorizontal className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -410,7 +427,9 @@ export default function Library() {
                 </div>
                 <div className="flex items-center space-x-2">
                   <Heart className="w-4 h-4 text-red-500 fill-current" />
-                  <span className="text-gray-400 text-xs">{formatDuration(song.duration)}</span>
+                  <span className="text-gray-400 text-xs">
+                    {formatDuration(song.duration)}
+                  </span>
                   <MoreHorizontal className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
               </div>

@@ -137,7 +137,12 @@
   }
 
   .purple-gradient-text {
-    background: linear-gradient(135deg, hsl(var(--purple-primary)), hsl(var(--purple-secondary)), hsl(var(--purple-accent)));
+    background: linear-gradient(
+      135deg,
+      hsl(var(--purple-primary)),
+      hsl(var(--purple-secondary)),
+      hsl(var(--purple-accent))
+    );
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -145,11 +150,18 @@
 
   .purple-gradient-border {
     border: 1px solid;
-    border-image: linear-gradient(135deg, hsl(var(--purple-primary)), hsl(var(--purple-secondary))) 1;
+    border-image: linear-gradient(
+        135deg,
+        hsl(var(--purple-primary)),
+        hsl(var(--purple-secondary))
+      )
+      1;
   }
 
   .hover-lift {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
   }
 
   .hover-lift:hover {

@@ -25,31 +25,31 @@ export default function MobileFooter({ className = "" }: FooterProps) {
       id: "home",
       label: "Home",
       icon: Home,
-      path: "/home"
+      path: "/home",
     },
     {
       id: "search",
       label: "Search",
       icon: Search,
-      path: "/search"
+      path: "/search",
     },
     {
       id: "upload",
       label: "Upload",
       icon: Upload,
-      path: "/upload"
+      path: "/upload",
     },
     {
       id: "library",
       label: "Library",
       icon: Library,
-      path: "/library"
+      path: "/library",
     },
     {
       id: "profile",
       label: "Profile",
       icon: User,
-      path: "/profile"
+      path: "/profile",
     },
   ];
 
@@ -58,17 +58,17 @@ export default function MobileFooter({ className = "" }: FooterProps) {
     const currentPath = location.pathname;
 
     // Handle exact matches first
-    const exactMatch = navItems.find(item => item.path === currentPath);
+    const exactMatch = navItems.find((item) => item.path === currentPath);
     if (exactMatch) return exactMatch;
 
     // Handle special cases
     if (currentPath === "/" || currentPath === "/index") {
-      return navItems.find(item => item.id === "home");
+      return navItems.find((item) => item.id === "home");
     }
 
     // History page should show Library as active since it's part of library functionality
     if (currentPath === "/history") {
-      return navItems.find(item => item.id === "library");
+      return navItems.find((item) => item.id === "library");
     }
 
     return null;
@@ -87,7 +87,10 @@ export default function MobileFooter({ className = "" }: FooterProps) {
       <div className="absolute inset-0 bg-gradient-to-t from-purple-primary/5 via-purple-secondary/2 to-transparent"></div>
 
       {/* Instagram-style Mobile Navigation */}
-      <div className="relative z-10 px-4 py-2" style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}>
+      <div
+        className="relative z-10 px-4 py-2"
+        style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
+      >
         <div className="flex items-center justify-around max-w-lg mx-auto">
           {navItems.map((item) => {
             const isActive = activeItem?.id === item.id;
@@ -106,18 +109,20 @@ export default function MobileFooter({ className = "" }: FooterProps) {
                 >
                   {/* Icon Container - Instagram Style */}
                   <motion.div
-                    animate={isActive ? {
-                      boxShadow: [
-                        "0 0 0px rgba(34, 197, 94, 0.4)",
-                        "0 0 15px rgba(34, 197, 94, 0.6)",
-                        "0 0 0px rgba(34, 197, 94, 0.4)"
-                      ]
-                    } : {}}
+                    animate={
+                      isActive
+                        ? {
+                            boxShadow: [
+                              "0 0 0px rgba(34, 197, 94, 0.4)",
+                              "0 0 15px rgba(34, 197, 94, 0.6)",
+                              "0 0 0px rgba(34, 197, 94, 0.4)",
+                            ],
+                          }
+                        : {}
+                    }
                     transition={{ duration: 2, repeat: Infinity }}
                     className={`relative p-2 transition-all duration-300 ${
-                      isActive
-                        ? ""
-                        : ""
+                      isActive ? "" : ""
                     }`}
                   >
                     {/* Active state background circle */}
@@ -152,7 +157,7 @@ export default function MobileFooter({ className = "" }: FooterProps) {
                       <motion.span
                         animate={{
                           scale: [1, 1.1, 1],
-                          transition: { duration: 2, repeat: Infinity }
+                          transition: { duration: 2, repeat: Infinity },
                         }}
                         className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-[10px] font-bold text-white border border-white"
                       >
@@ -165,13 +170,11 @@ export default function MobileFooter({ className = "" }: FooterProps) {
                   <motion.span
                     animate={{
                       opacity: isActive ? 1 : 0,
-                      y: isActive ? 0 : 5
+                      y: isActive ? 0 : 5,
                     }}
                     transition={{ duration: 0.2 }}
                     className={`text-[10px] mt-1 font-medium transition-all duration-300 ${
-                      isActive
-                        ? "text-neon-green"
-                        : "text-transparent"
+                      isActive ? "text-neon-green" : "text-transparent"
                     }`}
                   >
                     {item.label}
