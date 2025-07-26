@@ -167,6 +167,19 @@ CREATE INDEX idx_user_likes_user_id ON user_likes(user_id);
 CREATE INDEX idx_user_likes_song_id ON user_likes(song_id);
 CREATE INDEX idx_listening_history_user_id ON listening_history(user_id);
 CREATE INDEX idx_listening_history_song_id ON listening_history(song_id);
+CREATE INDEX idx_listening_history_played_at ON listening_history(played_at);
+CREATE INDEX idx_genres_name ON genres(name);
+CREATE INDEX idx_song_genres_song_id ON song_genres(song_id);
+CREATE INDEX idx_song_genres_genre_id ON song_genres(genre_id);
+CREATE INDEX idx_artists_name ON artists(name);
+CREATE INDEX idx_song_artists_song_id ON song_artists(song_id);
+CREATE INDEX idx_song_artists_artist_id ON song_artists(artist_id);
+CREATE INDEX idx_user_follows_follower_id ON user_follows(follower_id);
+CREATE INDEX idx_user_follows_following ON user_follows(following_type, following_id);
+CREATE INDEX idx_comments_content ON comments(content_type, content_id);
+CREATE INDEX idx_comments_user_id ON comments(user_id);
+CREATE INDEX idx_comments_parent_id ON comments(parent_id);
+CREATE INDEX idx_user_settings_user_id ON user_settings(user_id);
 
 -- RLS (Row Level Security) policies
 ALTER TABLE users ENABLE ROW LEVEL SECURITY;
