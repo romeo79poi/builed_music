@@ -104,19 +104,19 @@ export default function MobileFooter({ className = "" }: FooterProps) {
                     animate={isActive ? {
                       boxShadow: [
                         "0 0 0px rgba(34, 197, 94, 0.3)",
-                        "0 0 20px rgba(34, 197, 94, 0.6)",
+                        "0 0 15px rgba(34, 197, 94, 0.5)",
                         "0 0 0px rgba(34, 197, 94, 0.3)"
                       ]
                     } : {}}
                     transition={{ duration: 2, repeat: Infinity }}
-                    className={`p-2.5 rounded-xl transition-all duration-300 ${
+                    className={`p-2 rounded-xl transition-all duration-300 ${
                       isActive
                         ? "bg-neon-green/20 border border-neon-green/50"
                         : "hover:bg-purple-primary/20 group-hover:border group-hover:border-purple-primary/40"
                     }`}
                   >
                     <Icon
-                      className={`w-5 h-5 transition-colors duration-300 ${
+                      className={`w-4 h-4 sm:w-5 sm:h-5 transition-colors duration-300 ${
                         isActive
                           ? "text-neon-green"
                           : "text-gray-400 group-hover:text-purple-primary"
@@ -126,7 +126,7 @@ export default function MobileFooter({ className = "" }: FooterProps) {
 
                   {/* Label */}
                   <span
-                    className={`text-xs mt-1 font-medium transition-colors duration-300 truncate max-w-full ${
+                    className={`text-[10px] sm:text-xs mt-1 font-medium transition-colors duration-300 truncate max-w-full leading-tight ${
                       isActive
                         ? "text-neon-green"
                         : "text-gray-400 group-hover:text-purple-primary"
