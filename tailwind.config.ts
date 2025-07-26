@@ -61,6 +61,12 @@ export default {
         "neon-blue": "hsl(var(--neon-blue))",
         "dark-surface": "hsl(var(--dark-surface))",
         "darker-surface": "hsl(var(--darker-surface))",
+        "purple-primary": "hsl(var(--purple-primary))",
+        "purple-secondary": "hsl(var(--purple-secondary))",
+        "purple-accent": "hsl(var(--purple-accent))",
+        "purple-glow": "hsl(var(--purple-glow))",
+        "purple-dark": "hsl(var(--purple-dark))",
+        "purple-darker": "hsl(var(--purple-darker))",
       },
       borderRadius: {
         lg: "var(--radius)",
