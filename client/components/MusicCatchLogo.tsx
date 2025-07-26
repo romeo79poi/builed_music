@@ -206,13 +206,13 @@ export function MusicCatchLogo({
             <div className="absolute -left-2 top-1/2 transform -translate-y-1/2">
               <motion.div
                 variants={waveVariants}
-                className="w-5 h-0.5 bg-gradient-to-r from-neon-green to-transparent rounded-full transform -rotate-12 shadow-sm shadow-neon-green/30"
+                className="w-5 h-0.5 bg-gradient-to-r from-purple-primary to-transparent rounded-full transform -rotate-12 shadow-sm shadow-purple-primary/30"
               />
             </div>
             <div className="absolute -right-2 top-1/2 transform -translate-y-1/2">
               <motion.div
                 variants={waveVariants}
-                className="w-5 h-0.5 bg-gradient-to-r from-transparent to-neon-blue rounded-full transform rotate-12 shadow-sm shadow-neon-blue/30"
+                className="w-5 h-0.5 bg-gradient-to-r from-transparent to-purple-secondary rounded-full transform rotate-12 shadow-sm shadow-purple-secondary/30"
               />
             </div>
           </div>
