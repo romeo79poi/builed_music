@@ -513,9 +513,9 @@ export default function HomeScreen() {
 
               <button
                 onClick={() => navigate("/profile")}
-                className="w-8 h-8 bg-neon-green rounded-full flex items-center justify-center"
+                className="w-8 h-8 bg-gradient-to-r from-purple-primary to-purple-secondary rounded-full flex items-center justify-center shadow-lg shadow-purple-primary/30 hover:scale-110 transition-all duration-200"
               >
-                <User className="w-5 h-5 text-black" />
+                <User className="w-5 h-5 text-white" />
               </button>
             </div>
           </div>
