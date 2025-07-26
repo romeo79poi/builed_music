@@ -170,7 +170,7 @@ export function MusicCatchLogo({
           <div className="relative">
             <motion.div
               variants={diamondVariants}
-              className="w-4 h-4 bg-gradient-to-br from-neon-green to-emerald-400 rotate-45 rounded-sm shadow-lg shadow-neon-green/50"
+              className="w-4 h-4 bg-gradient-to-br from-purple-primary to-purple-secondary rotate-45 rounded-sm shadow-lg shadow-purple-primary/50"
               animate={
                 animated && signupMode
                   ? {
