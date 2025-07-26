@@ -127,7 +127,7 @@ export default function Splash() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   transition={{ delay: 0.6, duration: 0.8 }}
-                  className="text-transparent bg-gradient-to-r from-neon-green via-purple-400 to-neon-blue bg-clip-text text-lg sm:text-xl font-semibold tracking-wide"
+                  className="text-transparent bg-gradient-to-r from-purple-primary via-purple-secondary to-purple-accent bg-clip-text text-lg sm:text-xl font-semibold tracking-wide"
                 >
                   Feel the Music
                 </motion.div>
