@@ -220,7 +220,7 @@ export default function Profile() {
 
   if (!userData) {
     return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-purple-darker via-background to-purple-dark flex items-center justify-center">
         <div className="text-center">
           <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
           <h2 className="text-xl font-bold text-white mb-2">
@@ -231,7 +231,7 @@ export default function Profile() {
           </p>
           <Button
             onClick={() => navigate("/home")}
-            className="bg-neon-green text-black"
+            className="bg-gradient-to-r from-purple-primary to-purple-secondary text-white hover:from-purple-secondary hover:to-purple-accent transition-all duration-300"
           >
             Go to Home
           </Button>
