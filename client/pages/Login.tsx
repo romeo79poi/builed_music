@@ -533,7 +533,7 @@ export default function Login() {
 
             <button
               onClick={() => setLoginMethod("social")}
-              className="w-full text-neon-green hover:text-neon-blue transition-colors text-sm mt-4"
+              className="w-full text-purple-primary hover:text-purple-secondary transition-colors text-sm mt-4"
             >
               ← Back to other options
             </button>
