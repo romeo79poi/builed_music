@@ -385,7 +385,7 @@ export default function Login() {
           transition={{ delay: 0.3, duration: 0.8 }}
           className="text-2xl sm:text-3xl font-bold text-white text-center mb-6 sm:mb-8"
         >
-          Log in to Catch
+          Log in to <span className="purple-gradient-text">Catch</span>
         </motion.h1>
 
         {/* Login Method Selection */}
