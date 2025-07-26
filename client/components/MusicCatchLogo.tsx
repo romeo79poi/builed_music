@@ -151,17 +151,17 @@ export function MusicCatchLogo({
           <div className="absolute left-0 flex items-end space-x-0.5">
             <motion.div
               variants={barVariants}
-              className="w-0.5 h-2 bg-gradient-to-t from-neon-green to-emerald-400 rounded-full shadow-sm shadow-neon-green/30"
+              className="w-0.5 h-2 bg-gradient-to-t from-purple-primary to-purple-secondary rounded-full shadow-sm shadow-purple-primary/30"
               style={{ animationDelay: "0.1s" }}
             />
             <motion.div
               variants={barVariants}
-              className="w-0.5 h-4 bg-gradient-to-t from-neon-green to-emerald-400 rounded-full shadow-sm shadow-neon-green/30"
+              className="w-0.5 h-4 bg-gradient-to-t from-purple-primary to-purple-secondary rounded-full shadow-sm shadow-purple-primary/30"
               style={{ animationDelay: "0.2s" }}
             />
             <motion.div
               variants={barVariants}
-              className="w-0.5 h-3 bg-gradient-to-t from-neon-green to-emerald-400 rounded-full shadow-sm shadow-neon-green/30"
+              className="w-0.5 h-3 bg-gradient-to-t from-purple-primary to-purple-secondary rounded-full shadow-sm shadow-purple-primary/30"
               style={{ animationDelay: "0.3s" }}
             />
           </div>
