@@ -218,7 +218,6 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
     isShuffle,
     isRepeat,
     likedSongs,
-    queue,
     currentIndex,
     setCurrentSong,
     setIsPlaying,
