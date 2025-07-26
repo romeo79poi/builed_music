@@ -238,7 +238,7 @@ export function MusicCatchLogo({
 
           <motion.div
             variants={barVariants}
-            className="absolute -right-6 top-1/2 transform -translate-y-1/2 w-1.5 h-1.5 bg-neon-blue rounded-full shadow-lg shadow-neon-blue/50"
+            className="absolute -right-6 top-1/2 transform -translate-y-1/2 w-1.5 h-1.5 bg-purple-secondary rounded-full shadow-lg shadow-purple-secondary/50"
             animate={
               animated && signupMode
                 ? {
