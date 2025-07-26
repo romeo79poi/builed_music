@@ -1068,9 +1068,9 @@ export default function Signup() {
                 goBack();
               }
             }}
-            className="w-12 h-12 bg-black/80 hover:bg-black/90 border border-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm transition-all duration-200 hover:scale-105 shadow-lg"
+            className="w-12 h-12 bg-purple-dark/80 hover:bg-purple-dark/90 border border-purple-primary/30 rounded-xl flex items-center justify-center backdrop-blur-sm transition-all duration-200 hover:scale-105 shadow-lg shadow-purple-primary/20"
           >
-            <ArrowLeft className="w-5 h-5 text-white" />
+            <ArrowLeft className="w-5 h-5 text-purple-primary" />
           </button>
         </motion.div>
 
