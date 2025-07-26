@@ -472,7 +472,7 @@ export default function HomeScreen() {
             {/* Left: Logo */}
             <div className="flex items-center space-x-3">
               <MusicCatchLogo className="w-8 h-8" />
-              <span className="text-xl font-bold">Music Catch</span>
+              <span className="text-xl font-bold bg-gradient-to-r from-purple-primary to-purple-secondary bg-clip-text text-transparent">Catch</span>
             </div>
 
             {/* Center: Navigation */}
