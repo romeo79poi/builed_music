@@ -283,20 +283,34 @@ export function MiniPlayer() {
       <style jsx>{`
         .slider::-webkit-slider-thumb {
           appearance: none;
-          width: 12px;
-          height: 12px;
+          width: 14px;
+          height: 14px;
           border-radius: 50%;
-          background: #ffffff;
+          background: linear-gradient(135deg, hsl(267, 83%, 58%), hsl(285, 85%, 65%));
           cursor: pointer;
+          box-shadow: 0 2px 8px rgba(167, 139, 250, 0.3);
         }
 
         .slider::-moz-range-thumb {
-          width: 12px;
-          height: 12px;
+          width: 14px;
+          height: 14px;
           border-radius: 50%;
-          background: #ffffff;
+          background: linear-gradient(135deg, hsl(267, 83%, 58%), hsl(285, 85%, 65%));
           cursor: pointer;
           border: none;
+          box-shadow: 0 2px 8px rgba(167, 139, 250, 0.3);
+        }
+
+        .slider::-webkit-slider-track {
+          background: linear-gradient(to right, hsl(267, 83%, 58%), hsl(285, 85%, 65%));
+          height: 6px;
+          border-radius: 3px;
+        }
+
+        .slider::-moz-range-track {
+          background: linear-gradient(to right, hsl(267, 83%, 58%), hsl(285, 85%, 65%));
+          height: 6px;
+          border-radius: 3px;
         }
       `}</style>
     </motion.div>
