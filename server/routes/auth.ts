@@ -396,18 +396,19 @@ export const loginUser: RequestHandler = async (req, res) => {
       });
     }
 
-    // Find user
-    const user = users.find((u) => u.email === email);
+    // Find user in Supabase
+    const { data: user, error } = await serverSupabase.getUserByEmail(email);
 
-    if (!user) {
+    if (error || !user) {
       return res.status(400).json({
         success: false,
         message: "Invalid email or password",
       });
     }
 
-    // Check password (in production, compare hashed passwords)
-    if (user.password !== password) {
+    // Check password
+    const passwordValid = await bcrypt.compare(password, user.password);
+    if (!passwordValid) {
       return res.status(400).json({
         success: false,
         message: "Invalid email or password",
@@ -415,7 +416,7 @@ export const loginUser: RequestHandler = async (req, res) => {
     }
 
     // Check if user is verified
-    if (!user.isVerified) {
+    if (!user.is_verified) {
       return res.status(400).json({
         success: false,
         message: "Please verify your email before logging in",
