@@ -267,7 +267,7 @@ export function MusicCatchLogo({
           <>
             {/* Floating particles */}
             <motion.div
-              className="absolute -top-2 -left-2 w-1 h-1 bg-neon-green rounded-full"
+              className="absolute -top-2 -left-2 w-1 h-1 bg-purple-primary rounded-full"
               animate={{
                 y: [-4, -8, -4],
                 x: [-2, 2, -2],
