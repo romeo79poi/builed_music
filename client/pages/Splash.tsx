@@ -87,8 +87,8 @@ export default function Splash() {
               transition={{ delay: 2.5, duration: 0.8 }}
               className="absolute bottom-8 text-center"
             >
-              <p className="text-transparent bg-gradient-to-r from-neon-green via-purple-400 to-neon-blue bg-clip-text text-sm font-medium">
-                Feel the Music, Catch the Feel ✨
+              <p className="text-transparent bg-gradient-to-r from-purple-primary via-purple-secondary to-purple-accent bg-clip-text text-sm font-medium">
+                Feel the Music, Catch the Vibe ✨
               </p>
             </motion.div>
           </motion.div>
