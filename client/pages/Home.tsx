@@ -113,70 +113,125 @@ export default function HomeScreen() {
     return () => unsubscribe();
   }, [navigate]);
 
-  // Fetch data from Firestore collections matching your schema
+  // Fetch data from Supabase and Firestore
   const loadFirestoreData = async () => {
     try {
       setIsLoading(true);
 
-      // Fetch songs from "songs" collection
-      const songsQuery = query(
-        collection(db, "songs"),
-        orderBy("createdAt", "desc"),
-        limit(20),
-      );
-      const songsSnapshot = await getDocs(songsQuery);
-      const songsData: Song[] = [];
+      // Try to load from Supabase first
+      try {
+        const { data: supabaseSongs } = await supabaseOperations.getSongs(20);
+        const { data: supabaseAlbums } = await supabaseOperations.getAlbums(10);
 
-      songsSnapshot.forEach((doc) => {
-        songsData.push({
-          id: doc.id,
-          ...doc.data(),
-        } as Song);
-      });
+        if (supabaseSongs && supabaseSongs.length > 0) {
+          const songsData = supabaseSongs.map(song => ({
+            id: song.id,
+            title: song.title,
+            artist: song.artist,
+            albumId: song.album_id,
+            coverImageURL: song.cover_image_url,
+            audioURL: song.audio_url,
+            createdAt: new Date(song.created_at),
+            isLiked: false
+          }));
 
-      // Fetch albums from "albums" collection
-      const albumsQuery = query(
-        collection(db, "albums"),
-        orderBy("createdAt", "desc"),
-        limit(10),
-      );
-      const albumsSnapshot = await getDocs(albumsQuery);
-      const albumsData: Album[] = [];
+          setSongs(songsData);
+          console.log("✅ Loaded songs from Supabase:", songsData.length);
+        }
 
-      albumsSnapshot.forEach((doc) => {
-        albumsData.push({
-          id: doc.id,
-          ...doc.data(),
-        } as Album);
-      });
+        if (supabaseAlbums && supabaseAlbums.length > 0) {
+          const albumsData = supabaseAlbums.map(album => ({
+            id: album.id,
+            name: album.name,
+            artist: album.artist,
+            coverImageURL: album.cover_image_url,
+            createdAt: new Date(album.created_at),
+            songIds: [] // We'll populate this separately if needed
+          }));
 
-      // Fetch playlists from "playlists" collection
-      const playlistsQuery = query(collection(db, "playlists"), limit(10));
-      const playlistsSnapshot = await getDocs(playlistsQuery);
-      const playlistsData: Playlist[] = [];
+          setAlbums(albumsData);
+          console.log("✅ Loaded albums from Supabase:", albumsData.length);
+        }
 
-      playlistsSnapshot.forEach((doc) => {
-        playlistsData.push({
-          id: doc.id,
-          ...doc.data(),
-        } as Playlist);
-      });
+        // Try to get playlists from current user
+        if (currentUser) {
+          const { data: userPlaylists } = await supabaseOperations.getUserPlaylists(currentUser.uid);
+          if (userPlaylists && userPlaylists.length > 0) {
+            const playlistsData = userPlaylists.map(playlist => ({
+              id: playlist.id,
+              name: playlist.name,
+              createdBy: playlist.created_by,
+              coverImageURL: playlist.cover_image_url || '',
+              songIds: [] // We'll populate this separately if needed
+            }));
 
-      setSongs(songsData);
-      setAlbums(albumsData);
-      setPlaylists(playlistsData);
+            setPlaylists(playlistsData);
+            console.log("✅ Loaded playlists from Supabase:", playlistsData.length);
+          }
+        }
 
-      console.log("✅ Loaded from Firestore:", {
-        songs: songsData.length,
-        albums: albumsData.length,
-        playlists: playlistsData.length,
-      });
+      } catch (supabaseError) {
+        console.warn("⚠️ Supabase not available, falling back to Firebase:", supabaseError);
 
-      if (songsData.length === 0 && albumsData.length === 0) {
+        // Fallback to Firebase
+        const songsQuery = query(
+          collection(db, "songs"),
+          orderBy("createdAt", "desc"),
+          limit(20),
+        );
+        const songsSnapshot = await getDocs(songsQuery);
+        const songsData: Song[] = [];
+
+        songsSnapshot.forEach((doc) => {
+          songsData.push({
+            id: doc.id,
+            ...doc.data(),
+          } as Song);
+        });
+
+        const albumsQuery = query(
+          collection(db, "albums"),
+          orderBy("createdAt", "desc"),
+          limit(10),
+        );
+        const albumsSnapshot = await getDocs(albumsQuery);
+        const albumsData: Album[] = [];
+
+        albumsSnapshot.forEach((doc) => {
+          albumsData.push({
+            id: doc.id,
+            ...doc.data(),
+          } as Album);
+        });
+
+        const playlistsQuery = query(collection(db, "playlists"), limit(10));
+        const playlistsSnapshot = await getDocs(playlistsQuery);
+        const playlistsData: Playlist[] = [];
+
+        playlistsSnapshot.forEach((doc) => {
+          playlistsData.push({
+            id: doc.id,
+            ...doc.data(),
+          } as Playlist);
+        });
+
+        setSongs(songsData);
+        setAlbums(albumsData);
+        setPlaylists(playlistsData);
+
+        console.log("✅ Loaded from Firebase:", {
+          songs: songsData.length,
+          albums: albumsData.length,
+          playlists: playlistsData.length,
+        });
+      }
+
+      // If no data is available, create sample data
+      if (songs.length === 0 && albums.length === 0) {
         await createSampleData();
       }
     } catch (error) {
-      console.error("❌ Error loading Firestore data:", error);
+      console.error("❌ Error loading data:", error);
       await createSampleData();
       toast({
         title: "Loading Error",
