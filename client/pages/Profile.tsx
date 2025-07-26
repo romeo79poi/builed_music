@@ -268,16 +268,16 @@ export default function Profile() {
           <div className="flex items-center space-x-2">
             <button
               onClick={refreshProfile}
-              className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm hover:bg-white/20 transition-colors"
+              className="w-10 h-10 bg-purple-secondary/20 rounded-full flex items-center justify-center backdrop-blur-sm hover:bg-purple-secondary/30 transition-all duration-200 border border-purple-secondary/30"
               title="Refresh Profile"
             >
-              <RefreshCw className="w-4 h-4" />
+              <RefreshCw className="w-4 h-4 text-purple-secondary" />
             </button>
             <button
               onClick={() => navigate("/settings")}
-              className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm hover:bg-white/20 transition-colors"
+              className="w-10 h-10 bg-purple-accent/20 rounded-full flex items-center justify-center backdrop-blur-sm hover:bg-purple-accent/30 transition-all duration-200 border border-purple-accent/30"
             >
-              <Settings className="w-5 h-5" />
+              <Settings className="w-5 h-5 text-purple-accent" />
             </button>
           </div>
         </motion.div>
