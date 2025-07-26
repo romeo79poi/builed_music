@@ -345,7 +345,7 @@ export default function Profile() {
             {/* Contact Information */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold mb-4 flex items-center">
-                <User className="w-5 h-5 mr-2 text-neon-green" />
+                <User className="w-5 h-5 mr-2 text-purple-primary" />
                 Contact Information
               </h3>
 
