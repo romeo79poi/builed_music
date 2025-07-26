@@ -438,35 +438,27 @@ export class MusicPlayerService {
 // Export singleton instance
 export const musicPlayer = new MusicPlayerService()
 
-// React hook for easy integration
-export const useMusicPlayer = () => {
-  const [state, setState] = React.useState(musicPlayer.getState())
-
-  React.useEffect(() => {
-    const unsubscribe = musicPlayer.subscribe(setState)
-    return unsubscribe
-  }, [])
-
-  return {
-    state,
-    playSong: musicPlayer.playSong.bind(musicPlayer),
-    pause: musicPlayer.pause.bind(musicPlayer),
-    resume: musicPlayer.resume.bind(musicPlayer),
-    stop: musicPlayer.stop.bind(musicPlayer),
-    seekTo: musicPlayer.seekTo.bind(musicPlayer),
-    setVolume: musicPlayer.setVolume.bind(musicPlayer),
-    playNext: musicPlayer.playNext.bind(musicPlayer),
-    playPrevious: musicPlayer.playPrevious.bind(musicPlayer),
-    toggleRepeat: musicPlayer.toggleRepeat.bind(musicPlayer),
-    toggleShuffle: musicPlayer.toggleShuffle.bind(musicPlayer),
-    setQueue: musicPlayer.setQueue.bind(musicPlayer),
-    addToQueue: musicPlayer.addToQueue.bind(musicPlayer),
-    removeFromQueue: musicPlayer.removeFromQueue.bind(musicPlayer),
-    loadPlaylist: musicPlayer.loadPlaylist.bind(musicPlayer),
-    loadUserLikes: musicPlayer.loadUserLikes.bind(musicPlayer),
-    getLyrics: musicPlayer.getLyrics.bind(musicPlayer)
-  }
-}
+// Service interface for React components
+export const getMusicPlayerInterface = () => ({
+  state: musicPlayer.getState(),
+  playSong: musicPlayer.playSong.bind(musicPlayer),
+  pause: musicPlayer.pause.bind(musicPlayer),
+  resume: musicPlayer.resume.bind(musicPlayer),
+  stop: musicPlayer.stop.bind(musicPlayer),
+  seekTo: musicPlayer.seekTo.bind(musicPlayer),
+  setVolume: musicPlayer.setVolume.bind(musicPlayer),
+  playNext: musicPlayer.playNext.bind(musicPlayer),
+  playPrevious: musicPlayer.playPrevious.bind(musicPlayer),
+  toggleRepeat: musicPlayer.toggleRepeat.bind(musicPlayer),
+  toggleShuffle: musicPlayer.toggleShuffle.bind(musicPlayer),
+  setQueue: musicPlayer.setQueue.bind(musicPlayer),
+  addToQueue: musicPlayer.addToQueue.bind(musicPlayer),
+  removeFromQueue: musicPlayer.removeFromQueue.bind(musicPlayer),
+  loadPlaylist: musicPlayer.loadPlaylist.bind(musicPlayer),
+  loadUserLikes: musicPlayer.loadUserLikes.bind(musicPlayer),
+  getLyrics: musicPlayer.getLyrics.bind(musicPlayer),
+  subscribe: musicPlayer.subscribe.bind(musicPlayer)
+})
 
 // Utility functions for integration
 export const formatTime = (seconds: number): string => {
