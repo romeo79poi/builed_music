@@ -683,7 +683,7 @@ export default function HomeScreen() {
                 <h2 className="text-2xl font-bold">Popular Songs</h2>
                 <button
                   onClick={handleShufflePlay}
-                  className="flex items-center space-x-2 bg-neon-green text-black px-4 py-2 rounded-full font-medium hover:scale-105 transition-transform"
+                  className="flex items-center space-x-2 bg-gradient-to-r from-purple-primary to-purple-secondary text-white px-6 py-3 rounded-full font-medium hover:scale-105 transition-all duration-200 shadow-lg shadow-purple-primary/30 hover:shadow-purple-primary/50"
                 >
                   <Shuffle className="w-4 h-4" />
                   <span>Shuffle play</span>
