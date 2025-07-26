@@ -156,4 +156,20 @@
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   }
+
+  /* Mobile safe area utilities */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .h-safe-bottom {
+    height: env(safe-area-inset-bottom);
+  }
+
+  /* Mobile optimizations */
+  @media (max-width: 640px) {
+    .mobile-footer {
+      padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+    }
+  }
 }
