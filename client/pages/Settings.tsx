@@ -1,1200 +1,670 @@
-import React, { useState } from "react";
-import { motion } from "framer-motion";
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "../hooks/use-toast";
 import {
   ArrowLeft,
-  Volume2,
-  Download,
-  Wifi,
-  Globe,
-  Bell,
+  User,
+  Mail,
   Lock,
-  Eye,
+  Camera,
+  Bell,
+  Shield,
+  Palette,
+  Download,
+  Volume2,
+  Headphones,
   Smartphone,
   Moon,
-  Music,
-  HelpCircle,
-  Shield,
-  CreditCard,
-  LogOut,
+  Sun,
   ChevronRight,
-  User,
-  Key,
-  UserX,
+  LogOut,
+  Trash2,
   Edit3,
-  Heart,
-  History,
+  Save,
+  X,
+  Check,
+  AlertTriangle,
   Settings as SettingsIcon,
-  TrendingUp,
-  Calendar,
-  Target,
-  Award,
+  Globe,
+  HelpCircle,
   Star,
-  Share2,
-  Clock,
-  MapPin,
-  Headphones,
-  Play,
-  BarChart3,
-  PieChart,
-  Activity,
-  Zap,
+  Share,
 } from "lucide-react";
+import { useToast } from "../hooks/use-toast";
+import MobileFooter from "../components/MobileFooter";
 
 export default function Settings() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const [settings, setSettings] = useState({
-    darkMode: true,
-    notifications: true,
-    highQuality: true,
-    autoDownload: false,
-    wifiOnly: true,
-    showExplicit: true,
-    crossfade: true,
-    normalize: false,
-    twoFactorAuth: false,
-    privateSession: false,
+  // User data state
+  const [userProfile, setUserProfile] = useState({
+    name: "John Doe",
+    email: "john.doe@example.com",
+    profileImage:
+      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
+    joinDate: "January 2024",
+    premium: true,
   });
 
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [showSecurityModal, setShowSecurityModal] = useState(false);
-  const [showAnalyticsModal, setShowAnalyticsModal] = useState(false);
+  // Settings state
+  const [settings, setSettings] = useState({
+    darkTheme: true,
+    notifications: true,
+    autoDownload: false,
+    highQuality: true,
+    offlineMode: false,
+    publicProfile: true,
+    showActivity: true,
+    autoPlay: true,
+    crossfade: false,
+    normalization: true,
+    language: "English",
+    region: "United States",
+  });
 
-  const toggleSetting = (key: keyof typeof settings) => {
+  // Edit states
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [editForm, setEditForm] = useState({
+    name: userProfile.name,
+    email: userProfile.email,
+  });
+
+  // Modal states
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const settingsSections = [
+    {
+      title: "Account",
+      icon: User,
+      items: [
+        {
+          key: "profile",
+          label: "Edit Profile",
+          icon: Edit3,
+          action: () => setIsEditingProfile(true),
+          description: "Change your name, email, and profile picture",
+        },
+        {
+          key: "subscription",
+          label: "Manage Subscription",
+          icon: Star,
+          action: () => {},
+          description: userProfile.premium ? "Premium Member" : "Free Account",
+          badge: userProfile.premium ? "PREMIUM" : null,
+        },
+        {
+          key: "privacy",
+          label: "Privacy Settings",
+          icon: Shield,
+          action: () => {},
+          description: "Control who can see your activity",
+        },
+      ],
+    },
+    {
+      title: "Audio & Playback",
+      icon: Volume2,
+      items: [
+        {
+          key: "highQuality",
+          label: "High Quality Audio",
+          icon: Headphones,
+          toggle: true,
+          value: settings.highQuality,
+          description: "Stream music in higher quality",
+        },
+        {
+          key: "autoPlay",
+          label: "Autoplay",
+          icon: Volume2,
+          toggle: true,
+          value: settings.autoPlay,
+          description: "Automatically play similar songs when your music ends",
+        },
+        {
+          key: "crossfade",
+          label: "Crossfade",
+          icon: Volume2,
+          toggle: true,
+          value: settings.crossfade,
+          description: "Smooth transition between songs",
+        },
+        {
+          key: "normalization",
+          label: "Audio Normalization",
+          icon: Volume2,
+          toggle: true,
+          value: settings.normalization,
+          description: "Set the same volume level for all tracks",
+        },
+      ],
+    },
+    {
+      title: "App Preferences",
+      icon: SettingsIcon,
+      items: [
+        {
+          key: "darkTheme",
+          label: "Dark Theme",
+          icon: settings.darkTheme ? Moon : Sun,
+          toggle: true,
+          value: settings.darkTheme,
+          description: "Use dark theme throughout the app",
+        },
+        {
+          key: "notifications",
+          label: "Push Notifications",
+          icon: Bell,
+          toggle: true,
+          value: settings.notifications,
+          description: "Get notified about new releases and updates",
+        },
+        {
+          key: "autoDownload",
+          label: "Auto Download",
+          icon: Download,
+          toggle: true,
+          value: settings.autoDownload,
+          description:
+            "Automatically download liked songs for offline listening",
+        },
+        {
+          key: "language",
+          label: "Language",
+          icon: Globe,
+          action: () => {},
+          description: settings.language,
+        },
+      ],
+    },
+    {
+      title: "Social",
+      icon: Share,
+      items: [
+        {
+          key: "publicProfile",
+          label: "Public Profile",
+          icon: User,
+          toggle: true,
+          value: settings.publicProfile,
+          description: "Make your profile visible to other users",
+        },
+        {
+          key: "showActivity",
+          label: "Show Activity",
+          icon: User,
+          toggle: true,
+          value: settings.showActivity,
+          description: "Let others see what you're listening to",
+        },
+      ],
+    },
+    {
+      title: "Support",
+      icon: HelpCircle,
+      items: [
+        {
+          key: "help",
+          label: "Help Center",
+          icon: HelpCircle,
+          action: () => {},
+          description: "Get help and find answers",
+        },
+        {
+          key: "feedback",
+          label: "Send Feedback",
+          icon: Share,
+          action: () => {},
+          description: "Share your thoughts about the app",
+        },
+        {
+          key: "about",
+          label: "About Catch",
+          icon: SettingsIcon,
+          action: () => {},
+          description: "Version 1.0.0",
+        },
+      ],
+    },
+  ];
+
+  const handleToggleSetting = (key: string) => {
     setSettings((prev) => ({
       ...prev,
-      [key]: !prev[key],
+      [key]: !prev[key as keyof typeof prev],
     }));
+
+    toast({
+      title: "Setting Updated",
+      description: `${key} has been ${settings[key as keyof typeof settings] ? "disabled" : "enabled"}`,
+    });
   };
 
-  // Profile Analytics State
-  const [profileStats] = useState({
-    profileViews: 2847,
-    followers: 456,
-    following: 123,
-    isProfessional: true,
-    monthlyListeners: 1234,
-    totalPlays: 15672,
-  });
+  const handleSaveProfile = () => {
+    setUserProfile((prev) => ({
+      ...prev,
+      name: editForm.name,
+      email: editForm.email,
+    }));
+    setIsEditingProfile(false);
+    toast({
+      title: "Profile Updated",
+      description: "Your profile has been successfully updated",
+    });
+  };
 
-  // Detailed Analytics Data
-  const [analyticsData] = useState({
-    overview: {
-      totalStreams: 45672,
-      uniqueListeners: 3421,
-      averagePlayTime: "3:24",
-      engagement: "12.4%",
-      revenue: "$342.50",
-      profileViews: 8934,
-      saves: 1567,
-      shares: 892,
-    },
-    demographics: {
-      topCountries: [
-        {
-          country: "United States",
-          percentage: 35,
-          listeners: 1197,
-          flag: "🇺🇸",
-        },
-        {
-          country: "United Kingdom",
-          percentage: 22,
-          listeners: 753,
-          flag: "🇬🇧",
-        },
-        { country: "Canada", percentage: 18, listeners: 616, flag: "🇨🇦" },
-        { country: "Australia", percentage: 15, listeners: 513, flag: "🇦🇺" },
-        { country: "Germany", percentage: 10, listeners: 342, flag: "🇩🇪" },
-      ],
-      ageGroups: [
-        { age: "18-24", percentage: 28, color: "bg-neon-green" },
-        { age: "25-34", percentage: 45, color: "bg-neon-blue" },
-        { age: "35-44", percentage: 18, color: "bg-purple-500" },
-        { age: "45+", percentage: 9, color: "bg-orange-500" },
-      ],
-      genderSplit: { male: 58, female: 42 },
-      listeningTimes: [
-        { time: "Morning", percentage: 25, icon: "☀️" },
-        { time: "Afternoon", percentage: 35, icon: "🌤️" },
-        { time: "Evening", percentage: 30, icon: "🌅" },
-        { time: "Night", percentage: 10, icon: "🌙" },
-      ],
-    },
-    performance: {
-      weeklyStats: [
-        { week: "Week 1", streams: 1234, likes: 89, shares: 34, saves: 67 },
-        { week: "Week 2", streams: 1456, likes: 102, shares: 41, saves: 78 },
-        { week: "Week 3", streams: 1123, likes: 76, shares: 28, saves: 54 },
-        { week: "Week 4", streams: 1890, likes: 134, shares: 56, saves: 98 },
-      ],
-      topTracks: [
-        {
-          title: "Midnight Dreams",
-          plays: 8934,
-          likes: 456,
-          duration: "3:45",
-          genre: "Electronic",
-        },
-        {
-          title: "Electric Nights",
-          plays: 7621,
-          likes: 398,
-          duration: "4:12",
-          genre: "Synthwave",
-        },
-        {
-          title: "Ocean Waves",
-          plays: 6754,
-          likes: 321,
-          duration: "3:28",
-          genre: "Ambient",
-        },
-        {
-          title: "City Lights",
-          plays: 5432,
-          likes: 287,
-          duration: "3:56",
-          genre: "Pop",
-        },
-        {
-          title: "Summer Vibes",
-          plays: 4567,
-          likes: 234,
-          duration: "3:33",
-          genre: "Chill",
-        },
-      ],
-      recentAchievements: [
-        {
-          title: "10K Streams",
-          icon: "🎉",
-          date: "2 days ago",
-          type: "milestone",
-        },
-        {
-          title: "Featured Playlist",
-          icon: "⭐",
-          date: "1 week ago",
-          type: "feature",
-        },
-        {
-          title: "100 Followers",
-          icon: "👥",
-          date: "2 weeks ago",
-          type: "social",
-        },
-      ],
-    },
-    growth: {
-      followerGrowth: [
-        { month: "Jan", count: 280, growth: 12 },
-        { month: "Feb", count: 320, growth: 14 },
-        { month: "Mar", count: 375, growth: 17 },
-        { month: "Apr", count: 420, growth: 12 },
-        { month: "May", count: 456, growth: 9 },
-      ],
-      streamGrowth: "+23.5%",
-      engagementGrowth: "+15.2%",
-      revenueGrowth: "+18.7%",
-      viewsGrowth: "+31.2%",
-    },
-    insights: {
-      peakHours: "2PM - 6PM",
-      topDevice: "Mobile (78%)",
-      avgSessionDuration: "12:34",
-      repeatListeners: "67%",
-      discoverySource: "Playlists (42%)",
-    },
-  });
+  const handleLogout = () => {
+    // Add logout logic here
+    toast({
+      title: "Logged Out",
+      description: "You have been successfully logged out",
+    });
+    navigate("/login");
+  };
 
-  // Profile Settings
-  const profileSettings = [
-    {
-      icon: User,
-      title: "Account overview",
-      subtitle: "Professional analytics and account insights",
-      action: () => setShowAnalyticsModal(true),
-    },
-    {
-      icon: Edit3,
-      title: "Edit profile",
-      subtitle: "Update your profile information",
-      action: () => navigate("/edit-profile"),
-    },
-    {
-      icon: Heart,
-      title: "Liked Songs",
-      subtitle: "View your liked songs",
-      action: () => navigate("/liked-songs"),
-    },
-    {
-      icon: History,
-      title: "Recently played",
-      subtitle: "View your listening history",
-      action: () => navigate("/history"),
-    },
-  ];
-
-  // Security & Privacy Settings
-  const securitySettings = [
-    {
-      icon: Key,
-      title: "Change password",
-      subtitle: "Update your account password",
-      action: () => setShowPasswordModal(true),
-    },
-    {
-      icon: Shield,
-      title: "Security & privacy",
-      subtitle: "Manage your security settings",
-      action: () => setShowSecurityModal(true),
-    },
-    {
-      icon: Smartphone,
-      title: "Two-factor authentication",
-      subtitle: settings.twoFactorAuth ? "Enabled" : "Not enabled",
-      toggle: true,
-      key: "twoFactorAuth" as const,
-    },
-    {
-      icon: Lock,
-      title: "Private session",
-      subtitle: "Hide your activity from friends",
-      toggle: true,
-      key: "privateSession" as const,
-    },
-  ];
-
-  // General Settings
-  const generalSettings = [
-    {
-      icon: Moon,
-      title: "Dark Mode",
-      subtitle: "Use dark theme",
-      toggle: true,
-      key: "darkMode" as const,
-    },
-    {
-      icon: Bell,
-      title: "Notifications",
-      subtitle: "Get updates about new music and features",
-      toggle: true,
-      key: "notifications" as const,
-    },
-    {
-      icon: Globe,
-      title: "Language",
-      subtitle: "English",
-      action: () => {
-        toast({
-          title: "Language Settings",
-          description: "Language preferences coming soon",
-        });
-      },
-    },
-    {
-      icon: Smartphone,
-      title: "Devices",
-      subtitle: "Manage connected devices",
-      action: () => {
-        toast({
-          title: "Connected Devices",
-          description: "Device management coming soon",
-        });
-      },
-    },
-  ];
-
-  // Audio Settings
-  const audioSettings = [
-    {
-      icon: Volume2,
-      title: "Audio Quality",
-      subtitle: settings.highQuality ? "Very High" : "Normal",
-      toggle: true,
-      key: "highQuality" as const,
-    },
-    {
-      icon: Music,
-      title: "Crossfade",
-      subtitle: "Smooth transition between songs",
-      toggle: true,
-      key: "crossfade" as const,
-    },
-    {
-      icon: Volume2,
-      title: "Normalize Volume",
-      subtitle: "Set the same volume level for all tracks",
-      toggle: true,
-      key: "normalize" as const,
-    },
-  ];
-
-  // Download Settings
-  const downloadSettings = [
-    {
-      icon: Download,
-      title: "Auto Download",
-      subtitle: "Download liked songs automatically",
-      toggle: true,
-      key: "autoDownload" as const,
-    },
-    {
-      icon: Wifi,
-      title: "Download using WiFi only",
-      subtitle: "Save mobile data",
-      toggle: true,
-      key: "wifiOnly" as const,
-    },
-    {
-      icon: Download,
-      title: "Download Quality",
-      subtitle: "High",
-      action: () => {
-        toast({
-          title: "Download Quality",
-          description: "Quality settings coming soon",
-        });
-      },
-    },
-  ];
-
-  // Privacy Settings
-  const privacySettings = [
-    {
-      icon: Eye,
-      title: "Show Explicit Content",
-      subtitle: "Allow explicit content in search and recommendations",
-      toggle: true,
-      key: "showExplicit" as const,
-    },
-    {
-      icon: Shield,
-      title: "Privacy Policy",
-      subtitle: "Learn how we protect your data",
-      action: () => {
-        toast({
-          title: "Privacy Policy",
-          description: "View our privacy policy",
-        });
-      },
-    },
-    {
-      icon: UserX,
-      title: "Data & Privacy",
-      subtitle: "Control how your data is used",
-      action: () => {
-        toast({
-          title: "Data & Privacy",
-          description: "Data management coming soon",
-        });
-      },
-    },
-  ];
-
-  // Payment Settings
-  const paymentSettings = [
-    {
-      icon: CreditCard,
-      title: "Payment information",
-      subtitle: "Manage your payment methods",
-      action: () => {
-        toast({
-          title: "Payment Information",
-          description: "Payment management coming soon",
-        });
-      },
-    },
-    {
-      icon: CreditCard,
-      title: "Subscription",
-      subtitle: "Manage your Music Catch plan",
-      action: () => navigate("/profile"),
-    },
-  ];
-
-  // Support Settings
-  const supportSettings = [
-    {
-      icon: HelpCircle,
-      title: "Help & Support",
-      subtitle: "Get help with Music Catch",
-      action: () => {
-        toast({
-          title: "Help & Support",
-          description: "Contact support at help@musiccatch.com",
-        });
-      },
-    },
-    {
-      icon: LogOut,
-      title: "Log Out",
-      subtitle: "Sign out of your account",
-      action: () => {
-        toast({
-          title: "Logged Out",
-          description: "You have been successfully logged out",
-        });
-        navigate("/login");
-      },
-      danger: true,
-    },
-  ];
-
-  const SettingItem = ({
-    item,
-  }: {
-    item: {
-      icon: any;
-      title: string;
-      subtitle: string;
-      toggle?: boolean;
-      key?: keyof typeof settings;
-      action?: () => void;
-      danger?: boolean;
-    };
-  }) => (
-    <div
-      className={`flex items-center justify-between p-4 bg-white/5 rounded-xl backdrop-blur-sm border border-white/10 ${
-        item.action ? "cursor-pointer hover:bg-white/10" : ""
-      } transition-all`}
-      onClick={item.action}
-    >
-      <div className="flex items-center space-x-4">
-        <div
-          className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-            item.danger
-              ? "bg-red-500/20 text-red-400"
-              : "bg-neon-green/20 text-neon-green"
-          }`}
-        >
-          <item.icon className="w-5 h-5" />
-        </div>
-        <div>
-          <h3
-            className={`font-medium ${
-              item.danger ? "text-red-400" : "text-white"
-            }`}
-          >
-            {item.title}
-          </h3>
-          <p className="text-gray-400 text-sm">{item.subtitle}</p>
-        </div>
-      </div>
-      {item.toggle && item.key ? (
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            toggleSetting(item.key!);
-          }}
-          className={`w-12 h-6 rounded-full transition-colors ${
-            settings[item.key] ? "bg-neon-green" : "bg-gray-600"
-          }`}
-        >
-          <div
-            className={`w-5 h-5 bg-white rounded-full transition-transform ${
-              settings[item.key] ? "translate-x-6" : "translate-x-0.5"
-            }`}
-          />
-        </button>
-      ) : (
-        <ChevronRight className="w-5 h-5 text-gray-400" />
-      )}
-    </div>
-  );
-
-  const SettingSection = ({
-    title,
-    items,
-  }: {
-    title: string;
-    items: any[];
-  }) => (
-    <motion.section
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="mb-8"
-    >
-      <h2 className="text-lg font-bold mb-4 px-1">{title}</h2>
-      <div className="space-y-3">
-        {items.map((item, index) => (
-          <SettingItem key={item.title} item={item} />
-        ))}
-      </div>
-    </motion.section>
-  );
+  const handleDeleteAccount = () => {
+    // Add delete account logic here
+    toast({
+      title: "Account Deleted",
+      description: "Your account has been permanently deleted",
+      variant: "destructive",
+    });
+    navigate("/login");
+  };
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      {/* Background Glow Effects */}
-      <div className="fixed inset-0 bg-black">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-neon-green/5 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-neon-blue/5 rounded-full blur-3xl"></div>
+    <div className="min-h-screen bg-gradient-to-br from-purple-darker via-purple-dark to-background text-white relative overflow-hidden">
+      {/* Background Effects */}
+      <div className="fixed inset-0 bg-gradient-to-br from-purple-primary/8 via-purple-secondary/4 to-purple-accent/6"></div>
+
+      {/* Animated Background */}
+      <div className="fixed inset-0 opacity-20">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 30, repeat: Infinity, ease: "linear" }}
+          className="absolute top-1/4 right-1/4 w-24 h-24 border border-purple-primary/20 rounded-full"
+        />
+        <motion.div
+          animate={{ rotate: -360 }}
+          transition={{ duration: 40, repeat: Infinity, ease: "linear" }}
+          className="absolute bottom-1/3 left-1/4 w-16 h-16 border border-purple-secondary/20 rounded-full"
+        />
       </div>
 
       <div className="relative z-10 flex flex-col min-h-screen">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between p-6 pt-12"
+        <motion.header
+          initial={{ y: -50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="flex items-center justify-between p-4 bg-black/20 backdrop-blur-xl border-b border-purple-primary/20"
         >
-          <button
-            onClick={() => navigate("/profile")}
-            className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm"
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => navigate(-1)}
+            className="w-10 h-10 rounded-full bg-purple-dark/50 backdrop-blur-sm flex items-center justify-center border border-purple-primary/30"
           >
-            <ArrowLeft className="w-5 h-5" />
-          </button>
+            <ArrowLeft className="w-5 h-5 text-white" />
+          </motion.button>
+
           <h1 className="text-xl font-bold">Settings</h1>
+
           <div className="w-10 h-10"></div>
-        </motion.div>
+        </motion.header>
 
-        {/* Content */}
-        <div className="flex-1 px-6 pb-8">
-          <SettingSection title="Profile" items={profileSettings} />
-          <SettingSection title="Security & Privacy" items={securitySettings} />
-          <SettingSection title="General" items={generalSettings} />
-          <SettingSection title="Audio" items={audioSettings} />
-          <SettingSection title="Downloads" items={downloadSettings} />
-          <SettingSection title="Privacy" items={privacySettings} />
-          <SettingSection title="Payment" items={paymentSettings} />
-          <SettingSection title="Support" items={supportSettings} />
-
-          {/* App Info */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center py-8 text-gray-500 text-sm"
+        {/* Main Content */}
+        <main className="flex-1 overflow-y-auto pb-32">
+          {/* Profile Section */}
+          <motion.section
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.1 }}
+            className="p-6"
           >
-            <p>Music Catch v2.1.0</p>
-            <p>Build 2024.01.15</p>
-            <p className="mt-2">Made with ❤️ for music lovers</p>
-          </motion.div>
-        </div>
-
-        {/* Security Modal */}
-        {showSecurityModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-          >
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="bg-black rounded-3xl p-6 max-w-md w-full border border-white/10"
-            >
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold flex items-center">
-                  <Shield className="w-6 h-6 mr-3 text-neon-green" />
-                  Security & Privacy
-                </h2>
-                <button
-                  onClick={() => setShowSecurityModal(false)}
-                  className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center"
-                >
-                  ×
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                <div className="bg-white/5 rounded-xl p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <Key className="w-5 h-5 text-blue-400" />
-                      <div>
-                        <h3 className="font-semibold">Password</h3>
-                        <p className="text-sm text-gray-400">
-                          Last changed 3 months ago
-                        </p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => {
-                        setShowSecurityModal(false);
-                        setShowPasswordModal(true);
-                      }}
-                      className="px-4 py-2 bg-neon-green/20 text-neon-green rounded-lg text-sm hover:bg-neon-green/30 transition-colors"
+            <div className="bg-gradient-to-r from-purple-dark/40 to-purple-primary/20 backdrop-blur-sm rounded-2xl p-6 border border-purple-primary/30">
+              <div className="flex items-center space-x-4">
+                <div className="relative">
+                  <img
+                    src={userProfile.profileImage}
+                    alt={userProfile.name}
+                    className="w-16 h-16 rounded-full object-cover border-2 border-neon-green/50"
+                  />
+                  {userProfile.premium && (
+                    <motion.div
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center"
                     >
-                      Change
-                    </button>
-                  </div>
+                      <Star className="w-3 h-3 text-white fill-current" />
+                    </motion.div>
+                  )}
                 </div>
 
-                <div className="bg-white/5 rounded-xl p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <Smartphone className="w-5 h-5 text-green-400" />
-                      <div>
-                        <h3 className="font-semibold">
-                          Two-factor authentication
-                        </h3>
-                        <p className="text-sm text-gray-400">
-                          {settings.twoFactorAuth ? "Enabled" : "Not enabled"}
-                        </p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={() => toggleSetting("twoFactorAuth")}
-                      className={`px-4 py-2 rounded-lg text-sm transition-colors ${
-                        settings.twoFactorAuth
-                          ? "bg-red-500/20 text-red-400 hover:bg-red-500/30"
-                          : "bg-neon-green/20 text-neon-green hover:bg-neon-green/30"
-                      }`}
-                    >
-                      {settings.twoFactorAuth ? "Disable" : "Enable"}
-                    </button>
-                  </div>
-                </div>
-
-                <div className="bg-white/5 rounded-xl p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-3">
-                      <UserX className="w-5 h-5 text-purple-400" />
-                      <div>
-                        <h3 className="font-semibold">Data & Privacy</h3>
-                        <p className="text-sm text-gray-400">
-                          Manage your data
-                        </p>
-                      </div>
-                    </div>
-                    <button className="px-4 py-2 bg-white/10 text-white rounded-lg text-sm hover:bg-white/20 transition-colors">
-                      Manage
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-
-        {/* Dreams Listening - Horizontal Analytics Slideshow */}
-        {showAnalyticsModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="fixed inset-0 bg-gradient-to-br from-purple-900/20 via-black to-blue-900/20 backdrop-blur-xl z-50"
-          >
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              className="w-full h-full overflow-hidden flex flex-col"
-            >
-              {/* Dreams Header */}
-              <div className="flex items-center justify-between p-8 bg-black/30 backdrop-blur-sm border-b border-white/10">
-                <div className="flex items-center space-x-6">
-                  <motion.button
-                    initial={{ x: -20, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    onClick={() => setShowAnalyticsModal(false)}
-                    className="w-14 h-14 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-2xl flex items-center justify-center hover:from-purple-500/30 hover:to-blue-500/30 transition-all duration-300 group"
-                  >
-                    <ArrowLeft className="w-6 h-6 text-white group-hover:text-purple-300 transition-colors" />
-                  </motion.button>
-                  <motion.div
-                    initial={{ x: -20, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: 0.1 }}
-                    className="flex items-center"
-                  >
-                    <div className="w-16 h-16 bg-gradient-to-br from-purple-500 via-pink-500 to-blue-500 rounded-3xl flex items-center justify-center mr-6 relative">
-                      <Music className="w-8 h-8 text-white" />
-                      <div className="absolute inset-0 bg-gradient-to-br from-purple-500/50 to-blue-500/50 rounded-3xl animate-pulse"></div>
-                    </div>
-                    <div>
-                      <h1 className="text-5xl font-black bg-gradient-to-r from-purple-400 via-pink-400 to-blue-400 bg-clip-text text-transparent">
-                        Dreams Listening
-                      </h1>
-                      <p className="text-purple-300 text-xl font-medium">
-                        Your Musical Journey Analytics
-                      </p>
-                    </div>
-                  </motion.div>
-                </div>
-                <div className="flex items-center space-x-4">
-                  <div className="text-right">
-                    <p className="text-purple-300 text-sm">Now Playing</p>
-                    <p className="text-white font-bold">Analytics Stream</p>
-                  </div>
-                  <button
-                    onClick={() => setShowAnalyticsModal(false)}
-                    className="w-14 h-14 bg-gradient-to-r from-red-500/20 to-pink-500/20 rounded-2xl flex items-center justify-center hover:from-red-500/30 hover:to-pink-500/30 transition-all duration-300 group"
-                  >
-                    <span className="text-2xl text-white group-hover:rotate-90 transition-transform duration-300">
-                      ×
-                    </span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Full Screen Metrics Grid */}
-              <div className="grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-10 gap-6 mb-12">
-                <motion.div
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.1 }}
-                  className="bg-gradient-to-br from-neon-green/20 to-neon-green/5 rounded-xl p-3 border border-neon-green/30"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <Headphones className="w-4 h-4 text-neon-green" />
-                    <span className="text-xs text-neon-green bg-neon-green/20 px-2 py-1 rounded-full">
-                      +{analyticsData.growth.streamGrowth}
-                    </span>
-                  </div>
-                  <p className="text-lg font-bold text-white">
-                    {analyticsData.overview.totalStreams.toLocaleString()}
+                <div className="flex-1">
+                  <h2 className="text-xl font-bold text-white">
+                    {userProfile.name}
+                  </h2>
+                  <p className="text-gray-400">{userProfile.email}</p>
+                  <p className="text-sm text-purple-primary">
+                    Member since {userProfile.joinDate}
                   </p>
-                  <p className="text-xs text-gray-300">Streams</p>
-                </motion.div>
+                </div>
 
-                <motion.div
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.2 }}
-                  className="bg-gradient-to-br from-neon-blue/20 to-neon-blue/5 rounded-xl p-3 border border-neon-blue/30"
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setIsEditingProfile(true)}
+                  className="p-3 rounded-full bg-neon-green/20 border border-neon-green/50 text-neon-green"
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <User className="w-4 h-4 text-neon-blue" />
-                    <span className="text-xs text-neon-blue bg-neon-blue/20 px-2 py-1 rounded-full">
-                      +{analyticsData.growth.engagementGrowth}
-                    </span>
-                  </div>
-                  <p className="text-lg font-bold text-white">
-                    {analyticsData.overview.uniqueListeners.toLocaleString()}
-                  </p>
-                  <p className="text-xs text-gray-300">Listeners</p>
-                </motion.div>
-
-                <motion.div
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.3 }}
-                  className="bg-gradient-to-br from-purple-500/20 to-purple-500/5 rounded-xl p-3 border border-purple-500/30"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <Eye className="w-4 h-4 text-purple-400" />
-                    <span className="text-xs text-purple-400 bg-purple-500/20 px-2 py-1 rounded-full">
-                      +{analyticsData.growth.viewsGrowth}
-                    </span>
-                  </div>
-                  <p className="text-lg font-bold text-white">
-                    {analyticsData.overview.profileViews.toLocaleString()}
-                  </p>
-                  <p className="text-xs text-gray-300">Views</p>
-                </motion.div>
-
-                <motion.div
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.4 }}
-                  className="col-span-2 bg-gradient-to-br from-orange-500/20 via-orange-500/10 to-transparent rounded-2xl p-6 border border-orange-500/30 relative overflow-hidden"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent rounded-2xl"></div>
-                  <div className="relative">
-                    <div className="flex items-center justify-between mb-3">
-                      <CreditCard className="w-8 h-8 text-orange-400" />
-                      <span className="text-xs text-orange-400 bg-orange-500/20 px-3 py-1 rounded-full font-semibold">
-                        +{analyticsData.growth.revenueGrowth}
-                      </span>
-                    </div>
-                    <p className="text-3xl font-black text-white mb-1">
-                      {analyticsData.overview.revenue}
-                    </p>
-                    <p className="text-sm text-gray-300 font-medium">Revenue</p>
-                    <div className="mt-3 flex items-center text-xs text-orange-400">
-                      <Target className="w-3 h-3 mr-1" />
-                      <span>$500 goal</span>
-                    </div>
-                  </div>
-                </motion.div>
-
-                <motion.div
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                  className="col-span-2 bg-gradient-to-br from-green-500/20 via-green-500/10 to-transparent rounded-2xl p-6 border border-green-500/30 relative overflow-hidden"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-transparent rounded-2xl"></div>
-                  <div className="relative">
-                    <div className="flex items-center justify-between mb-3">
-                      <Heart className="w-8 h-8 text-green-400" />
-                      <span className="text-xs text-green-400 bg-green-500/20 px-3 py-1 rounded-full font-semibold">
-                        +{analyticsData.growth.engagementGrowth}
-                      </span>
-                    </div>
-                    <p className="text-3xl font-black text-white mb-1">
-                      {analyticsData.overview.saves.toLocaleString()}
-                    </p>
-                    <p className="text-sm text-gray-300 font-medium">Saves</p>
-                    <div className="mt-3 flex items-center text-xs text-green-400">
-                      <Star className="w-3 h-3 mr-1" />
-                      <span>High retention</span>
-                    </div>
-                  </div>
-                </motion.div>
-
-                <motion.div
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.6 }}
-                  className="col-span-2 bg-gradient-to-br from-pink-500/20 via-pink-500/10 to-transparent rounded-2xl p-6 border border-pink-500/30 relative overflow-hidden"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-br from-pink-500/5 to-transparent rounded-2xl"></div>
-                  <div className="relative">
-                    <div className="flex items-center justify-between mb-3">
-                      <Share2 className="w-8 h-8 text-pink-400" />
-                      <span className="text-xs text-pink-400 bg-pink-500/20 px-3 py-1 rounded-full font-semibold">
-                        +24.3%
-                      </span>
-                    </div>
-                    <p className="text-3xl font-black text-white mb-1">
-                      {analyticsData.overview.shares.toLocaleString()}
-                    </p>
-                    <p className="text-sm text-gray-300 font-medium">Shares</p>
-                    <div className="mt-3 flex items-center text-xs text-pink-400">
-                      <TrendingUp className="w-3 h-3 mr-1" />
-                      <span>Viral potential</span>
-                    </div>
-                  </div>
-                </motion.div>
+                  <Edit3 className="w-5 h-5" />
+                </motion.button>
               </div>
+            </div>
+          </motion.section>
 
-              {/* Full Screen Content Layout */}
-              <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-12">
-                {/* Top Tracks */}
-                <div className="bg-white/5 rounded-xl p-6 border border-white/10">
-                  <h3 className="text-xl font-bold mb-4 flex items-center">
-                    <Music className="w-5 h-5 mr-2 text-neon-green" />
-                    Top Performing Tracks
-                  </h3>
-                  <div className="space-y-3">
-                    {analyticsData.performance.topTracks.map((track, index) => (
-                      <div
-                        key={track.title}
-                        className="flex items-center justify-between p-3 bg-white/5 rounded-lg"
-                      >
-                        <div className="flex items-center space-x-3">
-                          <span className="w-6 h-6 bg-neon-green/20 text-neon-green rounded-full flex items-center justify-center text-sm font-bold">
-                            {index + 1}
-                          </span>
-                          <div>
-                            <p className="font-medium text-white">
-                              {track.title}
-                            </p>
-                            <p className="text-sm text-gray-400">
-                              {track.plays.toLocaleString()} plays
-                            </p>
-                          </div>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <Heart className="w-4 h-4 text-red-400" />
-                          <span className="text-sm text-gray-300">
-                            {track.likes}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Demographics */}
-                <div className="bg-white/5 rounded-xl p-6 border border-white/10">
-                  <h3 className="text-xl font-bold mb-4 flex items-center">
-                    <Globe className="w-5 h-5 mr-2 text-neon-blue" />
-                    Audience Demographics
-                  </h3>
-
-                  {/* Top Countries */}
-                  <div className="mb-6">
-                    <h4 className="font-semibold mb-3 text-gray-300">
-                      Top Countries
-                    </h4>
-                    <div className="space-y-2">
-                      {analyticsData.demographics.topCountries.map(
-                        (country) => (
-                          <div
-                            key={country.country}
-                            className="flex items-center justify-between"
-                          >
-                            <span className="text-sm text-gray-300">
-                              {country.country}
-                            </span>
-                            <div className="flex items-center space-x-2">
-                              <div className="w-20 bg-gray-700 rounded-full h-2">
-                                <div
-                                  className="bg-neon-blue h-2 rounded-full"
-                                  style={{ width: `${country.percentage}%` }}
-                                />
-                              </div>
-                              <span className="text-xs text-gray-400 w-8">
-                                {country.percentage}%
-                              </span>
-                            </div>
-                          </div>
-                        ),
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Age Groups */}
-                  <div>
-                    <h4 className="font-semibold mb-3 text-gray-300">
-                      Age Distribution
-                    </h4>
-                    <div className="grid grid-cols-2 gap-2">
-                      {analyticsData.demographics.ageGroups.map((group) => (
-                        <div
-                          key={group.age}
-                          className="bg-white/5 rounded-lg p-3 text-center"
-                        >
-                          <p className="text-lg font-bold text-neon-green">
-                            {group.percentage}%
-                          </p>
-                          <p className="text-xs text-gray-400">{group.age}</p>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Weekly Performance */}
-                <div className="bg-white/5 rounded-xl p-6 border border-white/10">
-                  <h3 className="text-xl font-bold mb-4 flex items-center">
-                    <SettingsIcon className="w-5 h-5 mr-2 text-purple-400" />
-                    Weekly Performance
-                  </h3>
-                  <div className="space-y-3">
-                    {analyticsData.performance.weeklyStats.map(
-                      (week, index) => (
-                        <div
-                          key={week.week}
-                          className="flex items-center justify-between p-3 bg-white/5 rounded-lg"
-                        >
-                          <span className="text-gray-300">{week.week}</span>
-                          <div className="flex items-center space-x-4">
-                            <div className="flex items-center space-x-1">
-                              <Volume2 className="w-4 h-4 text-neon-green" />
-                              <span className="text-sm text-white">
-                                {week.streams.toLocaleString()}
-                              </span>
-                            </div>
-                            <div className="flex items-center space-x-1">
-                              <Heart className="w-4 h-4 text-red-400" />
-                              <span className="text-sm text-white">
-                                {week.likes}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      ),
-                    )}
-                  </div>
-                </div>
-
-                {/* Follower Growth */}
-                <div className="bg-white/5 rounded-xl p-6 border border-white/10">
-                  <h3 className="text-xl font-bold mb-4 flex items-center">
-                    <User className="w-5 h-5 mr-2 text-orange-400" />
-                    Follower Growth
-                  </h3>
-                  <div className="space-y-3">
-                    {analyticsData.growth.followerGrowth.map((month, index) => (
-                      <div
-                        key={month.month}
-                        className="flex items-center justify-between p-3 bg-white/5 rounded-lg"
-                      >
-                        <span className="text-gray-300">{month.month}</span>
-                        <div className="flex items-center space-x-2">
-                          <div className="w-16 bg-gray-700 rounded-full h-2">
-                            <div
-                              className="bg-orange-400 h-2 rounded-full"
-                              style={{ width: `${(month.count / 500) * 100}%` }}
-                            />
-                          </div>
-                          <span className="text-sm text-white">
-                            {month.count}
-                          </span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="mt-4 p-3 bg-gradient-to-r from-neon-green/20 to-neon-blue/20 rounded-lg border border-neon-green/20">
-                    <p className="text-center text-sm">
-                      <span className="text-neon-green font-semibold">
-                        +
-                        {(
-                          ((analyticsData.growth.followerGrowth[4].count -
-                            analyticsData.growth.followerGrowth[0].count) /
-                            analyticsData.growth.followerGrowth[0].count) *
-                          100
-                        ).toFixed(1)}
-                        %
-                      </span>
-                      <span className="text-gray-300">
-                        {" "}
-                        growth since January
-                      </span>
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Full Screen Action Bar */}
-              <motion.div
+          {/* Settings Sections */}
+          <div className="px-6 space-y-6">
+            {settingsSections.map((section, sectionIndex) => (
+              <motion.section
+                key={section.title}
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 1.3 }}
-                className="fixed bottom-8 left-8 right-8 bg-black/80 backdrop-blur-lg rounded-2xl p-6 border border-white/20 shadow-2xl"
+                transition={{ delay: 0.2 + sectionIndex * 0.1 }}
+                className="bg-purple-dark/30 backdrop-blur-sm rounded-2xl border border-purple-primary/20 overflow-hidden"
               >
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-gradient-to-r from-neon-green to-neon-blue rounded-xl flex items-center justify-center">
-                      <BarChart3 className="w-6 h-6 text-black" />
-                    </div>
-                    <div>
-                      <p className="text-white font-semibold">
-                        Analytics Dashboard
-                      </p>
-                      <p className="text-gray-400 text-sm">
-                        Real-time performance data
-                      </p>
-                    </div>
+                <div className="p-4 border-b border-purple-primary/20">
+                  <div className="flex items-center space-x-3">
+                    <section.icon className="w-5 h-5 text-purple-primary" />
+                    <h3 className="text-lg font-semibold text-white">
+                      {section.title}
+                    </h3>
+                  </div>
+                </div>
+
+                <div className="divide-y divide-purple-primary/10">
+                  {section.items.map((item) => (
+                    <motion.div
+                      key={item.key}
+                      whileHover={{
+                        backgroundColor: "rgba(158, 64, 252, 0.1)",
+                      }}
+                      className="p-4 transition-all"
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <item.icon className="w-5 h-5 text-gray-400" />
+                          <div>
+                            <div className="flex items-center space-x-2">
+                              <h4 className="font-medium text-white">
+                                {item.label}
+                              </h4>
+                              {item.badge && (
+                                <span className="px-2 py-1 text-xs font-bold bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full">
+                                  {item.badge}
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm text-gray-400">
+                              {item.description}
+                            </p>
+                          </div>
+                        </div>
+
+                        {item.toggle ? (
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => handleToggleSetting(item.key)}
+                            className={`relative w-12 h-6 rounded-full transition-all ${
+                              item.value ? "bg-neon-green" : "bg-gray-600"
+                            }`}
+                          >
+                            <motion.div
+                              animate={{ x: item.value ? 24 : 2 }}
+                              transition={{
+                                type: "spring",
+                                stiffness: 300,
+                                damping: 30,
+                              }}
+                              className="absolute top-1 w-4 h-4 bg-white rounded-full"
+                            />
+                          </motion.button>
+                        ) : (
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={item.action}
+                            className="p-2 rounded-full hover:bg-purple-primary/20 transition-colors"
+                          >
+                            <ChevronRight className="w-4 h-4 text-gray-400" />
+                          </motion.button>
+                        )}
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.section>
+            ))}
+          </div>
+
+          {/* Danger Zone */}
+          <motion.section
+            initial={{ y: 20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.8 }}
+            className="p-6 space-y-4"
+          >
+            <h3 className="text-lg font-semibold text-red-400 mb-4">
+              Danger Zone
+            </h3>
+
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setShowLogoutModal(true)}
+              className="w-full p-4 bg-red-500/20 border border-red-500/50 rounded-xl text-red-400 font-medium flex items-center justify-center space-x-2 hover:bg-red-500/30 transition-colors"
+            >
+              <LogOut className="w-5 h-5" />
+              <span>Log Out</span>
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setShowDeleteModal(true)}
+              className="w-full p-4 bg-red-600/20 border border-red-600/50 rounded-xl text-red-500 font-medium flex items-center justify-center space-x-2 hover:bg-red-600/30 transition-colors"
+            >
+              <Trash2 className="w-5 h-5" />
+              <span>Delete Account</span>
+            </motion.button>
+          </motion.section>
+        </main>
+
+        {/* Edit Profile Modal */}
+        <AnimatePresence>
+          {isEditingProfile && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            >
+              <motion.div
+                initial={{ scale: 0.9, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.9, y: 20 }}
+                className="bg-gradient-to-br from-purple-dark to-purple-darker border border-purple-primary/30 rounded-2xl p-6 w-full max-w-md"
+              >
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-bold text-white">Edit Profile</h3>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setIsEditingProfile(false)}
+                    className="p-2 rounded-full hover:bg-purple-primary/20 text-gray-400"
+                  >
+                    <X className="w-5 h-5" />
+                  </motion.button>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Name
+                    </label>
+                    <input
+                      type="text"
+                      value={editForm.name}
+                      onChange={(e) =>
+                        setEditForm((prev) => ({
+                          ...prev,
+                          name: e.target.value,
+                        }))
+                      }
+                      className="w-full p-3 bg-purple-dark/50 border border-purple-primary/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-neon-green/50"
+                    />
                   </div>
 
-                  <div className="flex items-center gap-4">
-                    <button
-                      onClick={() => {
-                        toast({
-                          title: "Export Complete!",
-                          description: "Analytics report exported successfully",
-                        });
-                      }}
-                      className="group px-6 py-3 bg-neon-green/20 text-neon-green rounded-xl hover:bg-neon-green/30 transition-all duration-300 flex items-center space-x-3"
-                    >
-                      <Activity className="w-5 h-5 group-hover:animate-pulse" />
-                      <span className="font-semibold">Export Report</span>
-                    </button>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      value={editForm.email}
+                      onChange={(e) =>
+                        setEditForm((prev) => ({
+                          ...prev,
+                          email: e.target.value,
+                        }))
+                      }
+                      className="w-full p-3 bg-purple-dark/50 border border-purple-primary/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-neon-green/50"
+                    />
+                  </div>
 
-                    <button
-                      onClick={() => {
-                        toast({
-                          title: "Analytics Shared",
-                          description: "Shared to your networks",
-                        });
-                      }}
-                      className="group px-6 py-3 bg-neon-blue/20 text-neon-blue rounded-xl hover:bg-neon-blue/30 transition-all duration-300 flex items-center space-x-3"
+                  <div className="flex space-x-3 pt-4">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setIsEditingProfile(false)}
+                      className="flex-1 p-3 bg-gray-600/50 border border-gray-500/50 rounded-xl text-white font-medium"
                     >
-                      <Share2 className="w-5 h-5 group-hover:rotate-12 transition-transform" />
-                      <span className="font-semibold">Share Analytics</span>
-                    </button>
+                      Cancel
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleSaveProfile}
+                      className="flex-1 p-3 bg-neon-green/20 border border-neon-green/50 rounded-xl text-neon-green font-medium"
+                    >
+                      Save
+                    </motion.button>
                   </div>
                 </div>
               </motion.div>
             </motion.div>
-          </motion.div>
-        )}
+          )}
+        </AnimatePresence>
 
-        {/* Password Change Modal */}
-        {showPasswordModal && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-          >
+        {/* Logout Confirmation Modal */}
+        <AnimatePresence>
+          {showLogoutModal && (
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="bg-black rounded-3xl p-6 max-w-md w-full border border-white/10"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
             >
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold flex items-center">
-                  <Key className="w-6 h-6 mr-3 text-neon-blue" />
-                  Change Password
-                </h2>
-                <button
-                  onClick={() => setShowPasswordModal(false)}
-                  className="w-8 h-8 bg-white/10 rounded-full flex items-center justify-center"
-                >
-                  ×
-                </button>
-              </div>
-
-              <form className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Current Password
-                  </label>
-                  <input
-                    type="password"
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-neon-green focus:border-transparent"
-                    placeholder="Enter current password"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    New Password
-                  </label>
-                  <input
-                    type="password"
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-neon-green focus:border-transparent"
-                    placeholder="Enter new password"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Confirm New Password
-                  </label>
-                  <input
-                    type="password"
-                    className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-neon-green focus:border-transparent"
-                    placeholder="Confirm new password"
-                  />
-                </div>
-
-                <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-xl p-4">
-                  <p className="text-yellow-400 text-sm">
-                    <strong>Password requirements:</strong>
-                    <br />• At least 8 characters long
-                    <br />• Contains uppercase and lowercase letters
-                    <br />• Contains at least one number
+              <motion.div
+                initial={{ scale: 0.9, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.9, y: 20 }}
+                className="bg-gradient-to-br from-purple-dark to-purple-darker border border-purple-primary/30 rounded-2xl p-6 w-full max-w-md"
+              >
+                <div className="text-center">
+                  <LogOut className="w-12 h-12 text-red-400 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-2">Log Out</h3>
+                  <p className="text-gray-400 mb-6">
+                    Are you sure you want to log out of your account?
                   </p>
-                </div>
 
-                <div className="flex space-x-3 pt-4">
-                  <button
-                    type="button"
-                    onClick={() => setShowPasswordModal(false)}
-                    className="flex-1 px-4 py-3 bg-white/10 text-white rounded-xl hover:bg-white/20 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      toast({
-                        title: "Password Changed",
-                        description:
-                          "Your password has been updated successfully",
-                      });
-                      setShowPasswordModal(false);
-                    }}
-                    className="flex-1 px-4 py-3 bg-gradient-to-r from-neon-green to-neon-blue text-black font-semibold rounded-xl hover:scale-105 transition-transform"
-                  >
-                    Change Password
-                  </button>
+                  <div className="flex space-x-3">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setShowLogoutModal(false)}
+                      className="flex-1 p-3 bg-gray-600/50 border border-gray-500/50 rounded-xl text-white font-medium"
+                    >
+                      Cancel
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleLogout}
+                      className="flex-1 p-3 bg-red-500/20 border border-red-500/50 rounded-xl text-red-400 font-medium"
+                    >
+                      Log Out
+                    </motion.button>
+                  </div>
                 </div>
-              </form>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
+          )}
+        </AnimatePresence>
+
+        {/* Delete Account Confirmation Modal */}
+        <AnimatePresence>
+          {showDeleteModal && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+            >
+              <motion.div
+                initial={{ scale: 0.9, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.9, y: 20 }}
+                className="bg-gradient-to-br from-purple-dark to-purple-darker border border-red-500/50 rounded-2xl p-6 w-full max-w-md"
+              >
+                <div className="text-center">
+                  <AlertTriangle className="w-12 h-12 text-red-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-bold text-white mb-2">
+                    Delete Account
+                  </h3>
+                  <p className="text-gray-400 mb-6">
+                    This action cannot be undone. This will permanently delete
+                    your account and all your data.
+                  </p>
+
+                  <div className="flex space-x-3">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setShowDeleteModal(false)}
+                      className="flex-1 p-3 bg-gray-600/50 border border-gray-500/50 rounded-xl text-white font-medium"
+                    >
+                      Cancel
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleDeleteAccount}
+                      className="flex-1 p-3 bg-red-600/20 border border-red-600/50 rounded-xl text-red-500 font-medium"
+                    >
+                      Delete
+                    </motion.button>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Mobile Footer */}
+        <MobileFooter />
       </div>
     </div>
   );

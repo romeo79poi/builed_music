@@ -55,8 +55,8 @@
     --purple-glow: 280 100% 80%; /* Light purple for glows */
     --purple-dark: 260 30% 15%; /* Dark purple background */
     --purple-darker: 260 35% 8%; /* Darker purple background */
-    --neon-green: 267 83% 58%; /* Updated to purple primary */
-    --neon-blue: 285 85% 65%; /* Updated to purple secondary */
+    --neon-green: 158 64% 52%; /* Vibrant teal/green for highlights */
+    --neon-blue: 191 79% 52%; /* Bright cyan blue */
     --dark-surface: 260 30% 15%;
     --darker-surface: 260 35% 8%;
   }
@@ -137,7 +137,12 @@
   }
 
   .purple-gradient-text {
-    background: linear-gradient(135deg, hsl(var(--purple-primary)), hsl(var(--purple-secondary)), hsl(var(--purple-accent)));
+    background: linear-gradient(
+      135deg,
+      hsl(var(--purple-primary)),
+      hsl(var(--purple-secondary)),
+      hsl(var(--purple-accent))
+    );
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -145,15 +150,38 @@
 
   .purple-gradient-border {
     border: 1px solid;
-    border-image: linear-gradient(135deg, hsl(var(--purple-primary)), hsl(var(--purple-secondary))) 1;
+    border-image: linear-gradient(
+        135deg,
+        hsl(var(--purple-primary)),
+        hsl(var(--purple-secondary))
+      )
+      1;
   }
 
   .hover-lift {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
   }
 
   .hover-lift:hover {
     transform: translateY(-2px);
     box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Mobile safe area utilities */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .h-safe-bottom {
+    height: env(safe-area-inset-bottom);
+  }
+
+  /* Mobile optimizations */
+  @media (max-width: 640px) {
+    .mobile-footer {
+      padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+    }
   }
 }

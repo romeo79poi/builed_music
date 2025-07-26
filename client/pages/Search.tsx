@@ -21,7 +21,14 @@ import {
   Heart,
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
-import { supabaseAuth, supabaseOperations, Song, Album, Playlist } from "../lib/supabase";
+import {
+  supabaseAuth,
+  supabaseOperations,
+  Song,
+  Album,
+  Playlist,
+} from "../lib/supabase";
+import MobileFooter from "../components/MobileFooter";
 
 export default function Search() {
   const navigate = useNavigate();
@@ -62,7 +69,7 @@ export default function Search() {
     try {
       const { data: userLikes } = await supabaseOperations.getUserLikes(userId);
       if (userLikes) {
-        const likedSongIds = new Set(userLikes.map(like => like.song_id));
+        const likedSongIds = new Set(userLikes.map((like) => like.song_id));
         setLikedSongs(likedSongIds);
       }
     } catch (error) {
@@ -80,7 +87,10 @@ export default function Search() {
       let results: any = {};
 
       if (selectedTab === "all" || selectedTab === "songs") {
-        const { data: songs } = await supabaseOperations.searchSongs(searchQuery, 20);
+        const { data: songs } = await supabaseOperations.searchSongs(
+          searchQuery,
+          20,
+        );
         if (songs) results.songs = songs;
       }
 
@@ -89,9 +99,10 @@ export default function Search() {
         try {
           const { data: albums } = await supabaseOperations.getAlbums(20);
           if (albums) {
-            const filteredAlbums = albums.filter(album => 
-              album.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-              album.artist.toLowerCase().includes(searchQuery.toLowerCase())
+            const filteredAlbums = albums.filter(
+              (album) =>
+                album.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                album.artist.toLowerCase().includes(searchQuery.toLowerCase()),
             );
             results.albums = filteredAlbums;
           }
@@ -103,10 +114,11 @@ export default function Search() {
       if (selectedTab === "all" || selectedTab === "playlists") {
         if (currentUser) {
           try {
-            const { data: playlists } = await supabaseOperations.getUserPlaylists(currentUser.id);
+            const { data: playlists } =
+              await supabaseOperations.getUserPlaylists(currentUser.id);
             if (playlists) {
-              const filteredPlaylists = playlists.filter(playlist => 
-                playlist.name.toLowerCase().includes(searchQuery.toLowerCase())
+              const filteredPlaylists = playlists.filter((playlist) =>
+                playlist.name.toLowerCase().includes(searchQuery.toLowerCase()),
               );
               results.playlists = filteredPlaylists;
             }
@@ -121,12 +133,16 @@ export default function Search() {
       // Save search to history
       if (currentUser) {
         try {
-          await supabaseOperations.addToHistory(currentUser.id, 'search', 0, false);
+          await supabaseOperations.addToHistory(
+            currentUser.id,
+            "search",
+            0,
+            false,
+          );
         } catch (error) {
           console.error("Error saving search history:", error);
         }
       }
-
     } catch (error) {
       console.error("Search error:", error);
       toast({
@@ -177,7 +193,10 @@ export default function Search() {
     }
 
     try {
-      const { liked, error } = await supabaseOperations.toggleLike(currentUser.id, songId);
+      const { liked, error } = await supabaseOperations.toggleLike(
+        currentUser.id,
+        songId,
+      );
 
       if (error) {
         toast({
@@ -201,9 +220,10 @@ export default function Search() {
 
       toast({
         title: liked ? "Added to liked songs" : "Removed from liked songs",
-        description: liked ? "Song added to your favorites" : "Song removed from your favorites",
+        description: liked
+          ? "Song added to your favorites"
+          : "Song removed from your favorites",
       });
-
     } catch (error) {
       console.error("❌ Error toggling like:", error);
       toast({
@@ -246,7 +266,7 @@ export default function Search() {
 
   const quickSearchButtons = [
     "Pop",
-    "Hip-Hop", 
+    "Hip-Hop",
     "Rock",
     "Electronic",
     "Jazz",
@@ -259,7 +279,7 @@ export default function Search() {
     if (!seconds) return "0:00";
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
 
   const renderSearchResults = () => {
@@ -368,7 +388,10 @@ export default function Search() {
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {searchResults.albums.map((album) => (
-                <div key={album.id} className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition-all cursor-pointer">
+                <div
+                  key={album.id}
+                  className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition-all cursor-pointer"
+                >
                   <img
                     src={album.cover_image_url}
                     alt={album.name}
@@ -377,9 +400,7 @@ export default function Search() {
                   <h4 className="font-medium text-white mb-1 truncate">
                     {album.name}
                   </h4>
-                  <p className="text-xs text-gray-400">
-                    {album.artist}
-                  </p>
+                  <p className="text-xs text-gray-400">{album.artist}</p>
                 </div>
               ))}
             </div>
@@ -395,9 +416,15 @@ export default function Search() {
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {searchResults.playlists.map((playlist) => (
-                <div key={playlist.id} className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition-all cursor-pointer">
+                <div
+                  key={playlist.id}
+                  className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition-all cursor-pointer"
+                >
                   <img
-                    src={playlist.cover_image_url || 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop'}
+                    src={
+                      playlist.cover_image_url ||
+                      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop"
+                    }
                     alt={playlist.name}
                     className="w-full aspect-square rounded-lg object-cover mb-3"
                   />
@@ -405,7 +432,7 @@ export default function Search() {
                     {playlist.name}
                   </h4>
                   <p className="text-xs text-gray-400">
-                    {playlist.is_public ? 'Public' : 'Private'} Playlist
+                    {playlist.is_public ? "Public" : "Private"} Playlist
                   </p>
                 </div>
               ))}
@@ -571,37 +598,8 @@ export default function Search() {
           </motion.div>
         </div>
 
-        {/* Bottom Navigation */}
-        <div className="fixed bottom-0 left-0 right-0 bg-black/90 backdrop-blur-sm border-t border-white/10 px-4 py-2 z-20">
-          <div className="flex items-center justify-around max-w-md mx-auto">
-            <Link to="/home" className="flex flex-col items-center py-2">
-              <Home className="w-6 h-6 text-gray-400 mb-1" />
-              <span className="text-gray-400 text-xs">Home</span>
-            </Link>
-
-            <Link to="/search" className="flex flex-col items-center py-2">
-              <SearchIcon className="w-6 h-6 text-purple-primary mb-1" />
-              <span className="text-purple-primary text-xs font-medium">
-                Search
-              </span>
-            </Link>
-
-            <Link to="/library" className="flex flex-col items-center py-2">
-              <Library className="w-6 h-6 text-gray-400 mb-1" />
-              <span className="text-gray-400 text-xs">Library</span>
-            </Link>
-
-            <Link to="/history" className="flex flex-col items-center py-2">
-              <Clock className="w-6 h-6 text-gray-400 mb-1" />
-              <span className="text-gray-400 text-xs">History</span>
-            </Link>
-
-            <Link to="/profile" className="flex flex-col items-center py-2">
-              <User className="w-6 h-6 text-gray-400 mb-1" />
-              <span className="text-gray-400 text-xs">Profile</span>
-            </Link>
-          </div>
-        </div>
+        {/* Mobile Footer */}
+        <MobileFooter />
       </div>
     </div>
   );
