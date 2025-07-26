@@ -200,6 +200,113 @@ export class ErrorHandler {
     }
   }
 
+  private getSupabaseAuthErrorMessage(error: any): string {
+    // Handle Supabase-specific auth errors
+    if (error?.error_description) {
+      return error.error_description;
+    }
+
+    switch (error?.code || error?.error) {
+      case 'invalid_credentials':
+      case 'invalid_grant':
+        return 'Invalid email or password. Please try again.';
+      case 'email_not_confirmed':
+        return 'Please check your email and click the verification link.';
+      case 'phone_not_confirmed':
+        return 'Please verify your phone number with the OTP code.';
+      case 'signup_disabled':
+        return 'New user registration is currently disabled.';
+      case 'user_not_found':
+        return 'No account found with this email address.';
+      case 'weak_password':
+        return 'Password must be at least 6 characters long.';
+      case 'email_address_invalid':
+        return 'Please enter a valid email address.';
+      case 'phone_number_invalid':
+        return 'Please enter a valid phone number with country code.';
+      case 'too_many_requests':
+        return 'Too many login attempts. Please wait a few minutes before trying again.';
+      case 'email_address_not_authorized':
+        return 'This email domain is not authorized for registration.';
+      case 'captcha_failed':
+        return 'Security verification failed. Please try again.';
+      case 'oauth_provider_not_supported':
+        return 'This social login provider is not available.';
+      case 'session_not_found':
+        return 'Your session has expired. Please log in again.';
+      default:
+        return error?.message || 'Authentication error. Please try again.';
+    }
+  }
+
+  private getSupabaseDatabaseErrorMessage(error: any): string {
+    // Handle Supabase/PostgreSQL database errors
+    switch (error?.code) {
+      case 'PGRST116':
+        return 'No data found for your request.';
+      case 'PGRST301':
+        return 'Access denied. You don\'t have permission for this action.';
+      case 'PGRST302':
+        return 'Resource not found.';
+      case 'PGRST204':
+        return 'Data validation failed. Please check your input.';
+      case '23505': // Unique violation
+        return 'This data already exists. Please use different values.';
+      case '23503': // Foreign key violation
+        return 'Cannot complete this action due to data dependencies.';
+      case '42P01': // Table doesn't exist
+        return 'Database configuration error. Please contact support.';
+      case '42703': // Column doesn't exist
+        return 'Database schema error. Please contact support.';
+      default:
+        if (error?.hint) {
+          return `Database error: ${error.hint}`;
+        }
+        return 'Database error. Please try again later.';
+    }
+  }
+
+  private getSupabaseStorageErrorMessage(error: any): string {
+    // Handle Supabase Storage errors
+    switch (error?.error || error?.message) {
+      case 'invalid_request':
+        return 'Invalid file upload request. Please try again.';
+      case 'file_too_large':
+        return 'File is too large. Maximum size is 10MB.';
+      case 'invalid_file_type':
+        return 'File type not supported. Please upload MP3, WAV, or M4A files.';
+      case 'storage_quota_exceeded':
+        return 'Storage limit reached. Please delete some files first.';
+      case 'unauthorized':
+        return 'You don\'t have permission to upload files.';
+      default:
+        if (error?.statusCode === 413) {
+          return 'File is too large. Please choose a smaller file.';
+        }
+        return 'File upload failed. Please try again.';
+    }
+  }
+
+  private getMusicPlayerErrorMessage(error: any): string {
+    // Handle music player specific errors
+    if (error?.message?.includes('CORS')) {
+      return 'Unable to play this song due to security restrictions.';
+    }
+    if (error?.message?.includes('codec') || error?.message?.includes('format')) {
+      return 'Audio format not supported by your browser.';
+    }
+    if (error?.message?.includes('network')) {
+      return 'Network error while loading audio. Please check your connection.';
+    }
+    if (error?.message?.includes('decode')) {
+      return 'Audio file is corrupted or invalid.';
+    }
+    if (error?.code === 'MediaError') {
+      return 'Unable to play this audio file.';
+    }
+    return 'Audio playback error. Please try again.';
+  }
+
   private getFileErrorMessage(error: any): string {
     if (error.message?.includes('size')) {
       return 'File size is too large. Please choose a smaller file.';
