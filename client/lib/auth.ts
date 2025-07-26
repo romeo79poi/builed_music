@@ -350,11 +350,12 @@ export const signInWithGoogle = async (): Promise<{
         };
       }
 
-      // If Firebase project doesn't exist or network issues, use development mode
+      // If Firebase project doesn't exist, network issues, or unauthorized domain, use development mode
       if (
         firebaseError.code === "auth/project-not-found" ||
         firebaseError.code === "auth/invalid-api-key" ||
         firebaseError.code === "auth/network-request-failed" ||
+        firebaseError.code === "auth/unauthorized-domain" ||
         firebaseError.message?.includes("Firebase project") ||
         firebaseError.message?.includes("API key not valid") ||
         firebaseError.message?.includes("network request failed")
