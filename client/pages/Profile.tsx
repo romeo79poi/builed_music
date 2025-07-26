@@ -289,7 +289,7 @@ export default function Profile() {
           transition={{ delay: 0.2 }}
           className="px-6 py-8"
         >
-          <div className="bg-white/5 rounded-2xl p-6 backdrop-blur-sm border border-white/10">
+          <div className="bg-purple-dark/40 rounded-3xl p-6 backdrop-blur-xl border border-purple-primary/20 shadow-2xl shadow-purple-primary/10">
             {/* Profile Picture & Basic Info */}
             <div className="text-center mb-6">
               <div className="relative inline-block mb-4">
