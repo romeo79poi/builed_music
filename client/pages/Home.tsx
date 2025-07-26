@@ -463,7 +463,7 @@ export default function HomeScreen() {
       <div className="relative z-10">
         {/* Top Navigation Bar */}
         <motion.div
-          className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-md border-b border-white/10"
+          className="fixed top-0 left-0 right-0 z-50 bg-black/60 backdrop-blur-xl border-b border-purple-primary/20"
           initial={{ y: -100 }}
           animate={{ y: 0 }}
           transition={{ duration: 0.5 }}
