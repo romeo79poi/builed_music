@@ -489,7 +489,7 @@ export default function Profile() {
               {!isEditing ? (
                 <Button
                   onClick={() => setIsEditing(true)}
-                  className="w-full bg-gradient-to-r from-neon-green to-neon-blue text-black font-semibold"
+                  className="w-full bg-gradient-to-r from-purple-primary to-purple-secondary hover:from-purple-secondary hover:to-purple-accent text-white font-semibold transition-all duration-300 shadow-lg shadow-purple-primary/30 hover:shadow-purple-secondary/40 hover:scale-105"
                 >
                   <Edit3 className="w-4 h-4 mr-2" />
                   Edit Profile
