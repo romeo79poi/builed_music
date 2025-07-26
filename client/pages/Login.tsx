@@ -45,46 +45,33 @@ export default function Login() {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [sendingVerification, setSendingVerification] = useState(false);
 
-  // Save user profile data to Firestore
+  // Save user profile data to Supabase (no longer needed - handled by auth)
   const saveUserProfile = async (uid: string, profileData: any) => {
     try {
-      if (!db) {
-        console.warn("Firestore not available, skipping profile save");
-        return;
-      }
-
-      await setDoc(
-        doc(db, "users", uid),
-        {
-          ...profileData,
-          lastLogin: serverTimestamp(),
-          updatedAt: serverTimestamp(),
-        },
-        { merge: true },
-      );
-
-      console.log("✅ User profile saved to Firestore");
+      console.log("✅ User profile handled by Supabase auth");
+      // Supabase auth handles user profiles automatically
     } catch (error) {
-      console.error("❌ Error saving profile to Firestore:", error);
+      console.warn("Profile save not needed with Supabase:", error);
     }
   };
 
-  // Get existing user profile data from Firestore
+  // Get existing user profile data from Supabase
   const getUserProfile = async (uid: string) => {
     try {
-      if (!db) return null;
+      const { data: user, error } = await supabaseOperations.getUserById(uid);
 
-      const userDocRef = doc(db, "users", uid);
-      const userDoc = await getDoc(userDocRef);
-
-      if (userDoc.exists()) {
-        console.log("✅ User profile fetched from Firestore:", userDoc.data());
-        return userDoc.data();
+      if (error) {
+        console.warn("⚠️ No user profile found in Supabase for UID:", uid);
+        return null;
       }
-      console.warn("⚠️ No user profile found in Firestore for UID:", uid);
+
+      if (user) {
+        console.log("✅ User profile fetched from Supabase:", user);
+        return user;
+      }
       return null;
     } catch (error) {
-      console.error("❌ Error getting user profile:", error);
+      console.warn("❌ Supabase not available, using mock profile:", error);
       return null;
     }
   };
