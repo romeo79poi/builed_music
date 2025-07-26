@@ -140,9 +140,6 @@ export default function MobileFooter({ className = "" }: FooterProps) {
           })}
         </div>
       </div>
-      
-      {/* iOS Home Indicator Safe Area */}
-      <div className="h-safe-bottom bg-black/95"></div>
     </motion.footer>
   );
 }
