@@ -429,6 +429,9 @@ export const loginUser: RequestHandler = async (req, res) => {
       });
     }
 
+    // Generate a simple token (in production, use proper JWT)
+    const token = `token-${user.id}-${Date.now()}`;
+
     // Return success response (without password)
     const { password: _, ...userResponse } = user;
 
@@ -436,6 +439,7 @@ export const loginUser: RequestHandler = async (req, res) => {
       success: true,
       message: "Login successful",
       user: userResponse,
+      token: token,
     });
 
     console.log(`✅ User logged in successfully: ${email}`);
