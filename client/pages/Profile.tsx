@@ -1,571 +1,994 @@
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 import {
   ArrowLeft,
   Settings,
   User,
-  Mail,
-  Phone,
-  Edit3,
-  Loader2,
-  RefreshCw,
-  Camera,
-  Check,
-  X,
-  AlertCircle,
-  CheckCircle,
-  Send,
-  Shield,
-  Heart,
   Music,
-  List,
-  LogOut,
+  Play,
+  Pause,
+  Heart,
+  MessageCircle,
+  Share2,
+  MoreHorizontal,
+  Edit3,
+  Camera,
+  Users,
+  UserPlus,
+  UserCheck,
+  Star,
+  TrendingUp,
+  Calendar,
+  MapPin,
+  Link2,
+  Instagram,
+  Twitter,
+  Youtube,
+  Globe,
+  Verified,
+  Crown,
+  Award,
+  Headphones,
+  Download,
+  Eye,
+  BarChart3,
+  DollarSign,
+  Plus,
+  Grid3X3,
+  ListMusic,
+  Clock,
+  Fire,
+  Sparkles,
+  Upload as UploadIcon,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { useToast } from "../hooks/use-toast";
-import { supabaseAuth, supabaseOperations, User as SupabaseUser } from "../lib/supabase";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
+import MobileFooter from "../components/MobileFooter";
+
+interface UserProfile {
+  id: string;
+  username: string;
+  displayName: string;
+  bio: string;
+  avatar: string;
+  coverImage: string;
+  location: string;
+  website: string;
+  isVerified: boolean;
+  isArtist: boolean;
+  joinedDate: Date;
+  socialLinks: {
+    instagram?: string;
+    twitter?: string;
+    youtube?: string;
+  };
+  stats: {
+    followers: number;
+    following: number;
+    totalPlays: number;
+    totalTracks: number;
+    totalPlaylists: number;
+    monthlyListeners: number;
+  };
+  badges: string[];
+}
+
+interface Track {
+  id: string;
+  title: string;
+  coverUrl: string;
+  duration: number;
+  plays: number;
+  likes: number;
+  comments: number;
+  uploadDate: Date;
+  isPublic: boolean;
+  genre?: string;
+}
+
+interface Playlist {
+  id: string;
+  name: string;
+  description: string;
+  coverUrl: string;
+  trackCount: number;
+  isPublic: boolean;
+  createdDate: Date;
+  plays: number;
+}
+
+const sampleProfile: UserProfile = {
+  id: "user1",
+  username: "alexmusic",
+  displayName: "Alex Johnson",
+  bio: "Music producer & artist 🎵 | Creating beats that move souls | Collabs welcome 💫 | Stream my latest tracks below ⬇️",
+  avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop",
+  coverImage: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=300&fit=crop",
+  location: "Los Angeles, CA",
+  website: "alexmusic.com",
+  isVerified: true,
+  isArtist: true,
+  joinedDate: new Date("2022-03-15"),
+  socialLinks: {
+    instagram: "@alexmusic",
+    twitter: "@alexbeats",
+    youtube: "AlexMusicOfficial",
+  },
+  stats: {
+    followers: 234500,
+    following: 892,
+    totalPlays: 12400000,
+    totalTracks: 47,
+    totalPlaylists: 12,
+    monthlyListeners: 1890000,
+  },
+  badges: ["verified", "top_artist", "trending", "collaboration_king"],
+};
+
+const sampleTracks: Track[] = [
+  {
+    id: "1",
+    title: "Midnight Dreams",
+    coverUrl: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
+    duration: 234,
+    plays: 2340000,
+    likes: 45600,
+    comments: 1230,
+    uploadDate: new Date("2024-01-15"),
+    isPublic: true,
+    genre: "Electronic",
+  },
+  {
+    id: "2",
+    title: "Summer Vibes",
+    coverUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
+    duration: 198,
+    plays: 1890000,
+    likes: 38200,
+    comments: 892,
+    uploadDate: new Date("2024-01-10"),
+    isPublic: true,
+    genre: "Pop",
+  },
+  {
+    id: "3",
+    title: "Neon Nights",
+    coverUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
+    duration: 267,
+    plays: 1560000,
+    likes: 32100,
+    comments: 654,
+    uploadDate: new Date("2024-01-05"),
+    isPublic: true,
+    genre: "Synthwave",
+  },
+  {
+    id: "4",
+    title: "Acoustic Soul",
+    coverUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop",
+    duration: 287,
+    plays: 890000,
+    likes: 18700,
+    comments: 423,
+    uploadDate: new Date("2023-12-28"),
+    isPublic: true,
+    genre: "Acoustic",
+  },
+];
+
+const samplePlaylists: Playlist[] = [
+  {
+    id: "1",
+    name: "Best of Alex",
+    description: "My top tracks handpicked for you",
+    coverUrl: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
+    trackCount: 25,
+    isPublic: true,
+    createdDate: new Date("2024-01-01"),
+    plays: 567000,
+  },
+  {
+    id: "2",
+    name: "Chill Sessions",
+    description: "Perfect for relaxing and studying",
+    coverUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
+    trackCount: 18,
+    isPublic: true,
+    createdDate: new Date("2023-12-15"),
+    plays: 342000,
+  },
+  {
+    id: "3",
+    name: "Work in Progress",
+    description: "Upcoming releases and demos",
+    coverUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
+    trackCount: 8,
+    isPublic: false,
+    createdDate: new Date("2024-01-20"),
+    plays: 0,
+  },
+];
 
 export default function Profile() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  
+  const [profile] = useState<UserProfile>(sampleProfile);
+  const [tracks] = useState<Track[]>(sampleTracks);
+  const [playlists] = useState<Playlist[]>(samplePlaylists);
+  const [selectedTab, setSelectedTab] = useState("tracks");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [isFollowing, setIsFollowing] = useState(false);
+  const [currentPlayingTrack, setCurrentPlayingTrack] = useState<string | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [showStats, setShowStats] = useState(false);
+  
+  const formatNumber = (num: number) => {
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(1) + 'M';
+    } else if (num >= 1000) {
+      return (num / 1000).toFixed(1) + 'K';
+    }
+    return num.toString();
+  };
 
-  // State management
-  const [currentUser, setCurrentUser] = useState<any>(null);
-  const [userData, setUserData] = useState<SupabaseUser | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [editedData, setEditedData] = useState<Partial<SupabaseUser>>({});
-  const [stats, setStats] = useState({
-    likedSongs: 0,
-    playlists: 0,
-    recentlyPlayed: 0,
-  });
+  const formatDuration = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
 
-  // Check authentication and load user data
-  useEffect(() => {
-    checkAuthAndLoadData();
-  }, []);
+  const formatDate = (date: Date) => {
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  };
 
-  const checkAuthAndLoadData = async () => {
-    try {
-      setIsLoading(true);
-      
-      // Check Supabase auth
-      const { data: session } = await supabaseAuth.getCurrentSession();
-      
-      if (session?.user) {
-        setCurrentUser(session.user);
-        await Promise.all([
-          fetchUserData(session.user.id),
-          loadUserStats(session.user.id)
-        ]);
-      } else {
-        // No authenticated user, redirect to login
-        navigate("/login");
-      }
-    } catch (error) {
-      console.error("Auth check error:", error);
-      navigate("/login");
-    } finally {
-      setIsLoading(false);
+  const handlePlay = (trackId: string) => {
+    if (currentPlayingTrack === trackId) {
+      setIsPlaying(!isPlaying);
+    } else {
+      setCurrentPlayingTrack(trackId);
+      setIsPlaying(true);
     }
   };
 
-  // Fetch user data from Supabase
-  const fetchUserData = async (userId: string) => {
-    try {
-      const { data: user, error } = await supabaseOperations.getUserById(userId);
-      
-      if (error) {
-        console.error("Error fetching user data:", error);
-        toast({
-          title: "Error loading profile",
-          description: "Failed to load your profile data",
-          variant: "destructive",
-        });
-        return;
-      }
+  const handleFollow = () => {
+    setIsFollowing(!isFollowing);
+    toast({
+      title: isFollowing ? "Unfollowed" : "Following",
+      description: isFollowing 
+        ? `You unfollowed ${profile.displayName}`
+        : `You're now following ${profile.displayName}`,
+    });
+  };
 
-      if (user) {
-        setUserData(user);
-        setEditedData(user);
-        console.log("✅ User data fetched from Supabase:", user);
-      } else {
-        console.warn("⚠️ No user data found in Supabase");
-        toast({
-          title: "Profile not found",
-          description: "User profile data is missing. Please contact support.",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error("❌ Error fetching user data:", error);
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: `${profile.displayName} on Catch Music`,
+        text: profile.bio,
+        url: `https://catchmusic.app/profile/${profile.username}`,
+      });
+    } else {
+      navigator.clipboard.writeText(`https://catchmusic.app/profile/${profile.username}`);
       toast({
-        title: "Error loading profile",
-        description: "Failed to load your profile data",
-        variant: "destructive",
+        title: "Profile link copied!",
+        description: "Share this link with your friends",
       });
     }
   };
 
-  // Load user statistics
-  const loadUserStats = async (userId: string) => {
-    try {
-      const [
-        { data: likes },
-        { data: playlists },
-        { data: history }
-      ] = await Promise.all([
-        supabaseOperations.getUserLikes(userId),
-        supabaseOperations.getUserPlaylists(userId),
-        supabaseOperations.getUserHistory(userId, 10)
-      ]);
-
-      setStats({
-        likedSongs: likes?.length || 0,
-        playlists: playlists?.length || 0,
-        recentlyPlayed: history?.length || 0,
-      });
-    } catch (error) {
-      console.error("Error loading user stats:", error);
+  const getBadgeInfo = (badge: string) => {
+    switch (badge) {
+      case "verified":
+        return { icon: Verified, color: "text-blue-400", label: "Verified Artist" };
+      case "top_artist":
+        return { icon: Crown, color: "text-yellow-400", label: "Top Artist" };
+      case "trending":
+        return { icon: TrendingUp, color: "text-purple-400", label: "Trending" };
+      case "collaboration_king":
+        return { icon: Users, color: "text-green-400", label: "Collaboration Pro" };
+      default:
+        return { icon: Award, color: "text-gray-400", label: badge };
     }
   };
 
-  // Save updated profile data to Supabase
-  const saveProfile = async () => {
-    if (!currentUser || !userData) return;
+  const tabs = [
+    { id: "tracks", label: "Tracks", count: tracks.length },
+    { id: "playlists", label: "Playlists", count: playlists.length },
+    { id: "about", label: "About" },
+  ];
 
-    try {
-      setIsSaving(true);
-
-      const { data: updatedUser, error } = await supabaseOperations.updateUser(
-        currentUser.id,
-        {
-          name: editedData.name || userData.name,
-          username: editedData.username || userData.username,
-          phone: editedData.phone || userData.phone,
-          profile_image_url: editedData.profile_image_url || userData.profile_image_url,
-        }
-      );
-
-      if (error) {
-        toast({
-          title: "Update failed",
-          description: "Failed to update your profile. Please try again.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      if (updatedUser) {
-        setUserData(updatedUser);
-        setIsEditing(false);
-
-        toast({
-          title: "Profile updated!",
-          description: "Your profile has been successfully updated",
-        });
-
-        console.log("✅ Profile updated in Supabase:", updatedUser);
-      }
-    } catch (error) {
-      console.error("❌ Error updating profile:", error);
-      toast({
-        title: "Update failed",
-        description: "Failed to update your profile. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  // Handle logout
-  const handleLogout = async () => {
-    try {
-      await supabaseAuth.signOut();
-      toast({
-        title: "Logged out",
-        description: "You have been successfully logged out",
-      });
-      navigate("/login");
-    } catch (error) {
-      console.error("Logout error:", error);
-      toast({
-        title: "Logout failed",
-        description: "Failed to log out. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
-
-  // Handle input changes
-  const handleInputChange = (field: keyof SupabaseUser, value: string) => {
-    setEditedData((prev) => ({
-      ...prev,
-      [field]: value,
-    }));
-  };
-
-  // Cancel editing
-  const cancelEditing = () => {
-    setEditedData(userData || {});
-    setIsEditing(false);
-  };
-
-  // Refresh profile data
-  const refreshProfile = async () => {
-    if (currentUser) {
-      await Promise.all([
-        fetchUserData(currentUser.id),
-        loadUserStats(currentUser.id)
-      ]);
-      toast({
-        title: "Profile refreshed",
-        description: "Your profile data has been updated",
-      });
-    }
-  };
-
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-darker via-background to-purple-dark flex items-center justify-center">
-        <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-purple-primary mx-auto mb-4" />
-          <p className="text-white">Loading your profile...</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (!userData) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-darker via-background to-purple-dark flex items-center justify-center">
-        <div className="text-center">
-          <AlertCircle className="w-12 h-12 text-red-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-white mb-2">
-            Profile Not Found
-          </h2>
-          <p className="text-gray-400 mb-4">
-            We couldn't load your profile data
-          </p>
-          <Button
-            onClick={() => navigate("/home")}
-            className="bg-gradient-to-r from-purple-primary to-purple-secondary text-white hover:from-purple-secondary hover:to-purple-accent transition-all duration-300"
-          >
-            Go to Home
-          </Button>
-        </div>
-      </div>
-    );
+  if (profile.isArtist) {
+    tabs.splice(2, 0, { id: "analytics", label: "Analytics" });
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-darker via-background to-purple-dark text-white relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-purple-darker via-background to-purple-dark relative overflow-hidden">
       {/* Background Effects */}
-      <div className="absolute inset-0">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-primary/15 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-purple-secondary/15 rounded-full blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-72 h-72 bg-purple-accent/10 rounded-full blur-3xl"></div>
-      </div>
+      <div className="fixed inset-0 bg-gradient-to-br from-purple-primary/8 via-purple-secondary/4 to-purple-accent/6"></div>
 
-      <div className="relative z-10">
+      <div className="relative z-10 flex flex-col h-screen">
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between p-6 pt-12"
+        <motion.header
+          initial={{ y: -50, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          className="flex items-center justify-between p-4 bg-black/20 backdrop-blur-xl border-b border-purple-primary/20"
         >
-          <button
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={() => navigate("/home")}
-            className="w-10 h-10 bg-purple-primary/20 rounded-full flex items-center justify-center backdrop-blur-sm hover:bg-purple-primary/30 transition-all duration-200 border border-purple-primary/30"
+            className="w-10 h-10 rounded-full bg-purple-dark/50 backdrop-blur-sm flex items-center justify-center border border-purple-primary/30"
           >
-            <ArrowLeft className="w-5 h-5 text-purple-primary" />
-          </button>
+            <ArrowLeft className="w-5 h-5 text-white" />
+          </motion.button>
 
-          <h1 className="text-xl font-bold">My Profile</h1>
+          <h1 className="text-lg font-bold text-white">Profile</h1>
 
           <div className="flex items-center space-x-2">
-            <button
-              onClick={refreshProfile}
-              className="w-10 h-10 bg-purple-secondary/20 rounded-full flex items-center justify-center backdrop-blur-sm hover:bg-purple-secondary/30 transition-all duration-200 border border-purple-secondary/30"
-              title="Refresh Profile"
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleShare}
+              className="w-10 h-10 rounded-full bg-purple-dark/50 backdrop-blur-sm flex items-center justify-center border border-purple-primary/30"
             >
-              <RefreshCw className="w-4 h-4 text-purple-secondary" />
-            </button>
-            <button
-              onClick={handleLogout}
-              className="w-10 h-10 bg-red-500/20 rounded-full flex items-center justify-center backdrop-blur-sm hover:bg-red-500/30 transition-all duration-200 border border-red-500/30"
-              title="Logout"
+              <Share2 className="w-5 h-5 text-white" />
+            </motion.button>
+            
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate("/settings")}
+              className="w-10 h-10 rounded-full bg-purple-dark/50 backdrop-blur-sm flex items-center justify-center border border-purple-primary/30"
             >
-              <LogOut className="w-4 h-4 text-red-500" />
-            </button>
+              <Settings className="w-5 h-5 text-white" />
+            </motion.button>
           </div>
-        </motion.div>
+        </motion.header>
 
-        {/* Profile Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-          className="px-6 py-8"
-        >
-          <div className="bg-purple-dark/40 rounded-3xl p-6 backdrop-blur-xl border border-purple-primary/20 shadow-2xl shadow-purple-primary/10">
-            {/* Profile Picture & Basic Info */}
-            <div className="text-center mb-6">
-              <div className="relative inline-block mb-4">
-                <div className="w-28 h-28 bg-gradient-to-br from-purple-primary via-purple-secondary to-purple-accent rounded-full p-1 shadow-2xl shadow-purple-primary/30">
-                  <div className="w-full h-full bg-purple-darker rounded-full flex items-center justify-center overflow-hidden">
-                    {userData.profile_image_url ? (
-                      <img
-                        src={userData.profile_image_url}
-                        alt={userData.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <User className="w-12 h-12 text-purple-primary" />
-                    )}
-                  </div>
-                </div>
-                {isEditing && (
-                  <button className="absolute -bottom-1 -right-1 w-8 h-8 bg-gradient-to-r from-purple-primary to-purple-secondary rounded-full flex items-center justify-center text-white shadow-lg shadow-purple-primary/50 hover:scale-110 transition-all duration-200">
-                    <Camera className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
+        {/* Main Content */}
+        <div className="flex-1 overflow-y-auto pb-24">
+          {/* Cover Image */}
+          <div className="relative h-48 sm:h-64">
+            <img
+              src={profile.coverImage}
+              alt="Cover"
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+            
+            {/* Edit Cover Button */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="absolute top-4 right-4 w-10 h-10 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center"
+            >
+              <Camera className="w-5 h-5 text-white" />
+            </motion.button>
+          </div>
 
-              <div className="space-y-2">
-                {!isEditing ? (
-                  <>
-                    <h2 className="text-2xl font-bold">{userData.name}</h2>
-                    <p className="text-gray-400">@{userData.username}</p>
-                    <div className="flex items-center justify-center space-x-2 mt-2">
-                      {userData.is_verified && (
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                      )}
-                      <span className="text-sm text-gray-400">
-                        {userData.email_verified ? 'Verified Account' : 'Unverified Account'}
-                      </span>
-                    </div>
-                  </>
-                ) : (
-                  <div className="space-y-3 max-w-sm mx-auto">
-                    <Input
-                      value={editedData.name || ""}
-                      onChange={(e) =>
-                        handleInputChange("name", e.target.value)
-                      }
-                      placeholder="Full Name"
-                      className="bg-white/10 border-white/20 text-white placeholder-gray-400"
-                    />
-                    <Input
-                      value={editedData.username || ""}
-                      onChange={(e) =>
-                        handleInputChange("username", e.target.value)
-                      }
-                      placeholder="Username"
-                      className="bg-white/10 border-white/20 text-white placeholder-gray-400"
-                    />
+          {/* Profile Info */}
+          <div className="px-4 -mt-16 relative z-10">
+            {/* Avatar */}
+            <div className="flex items-end justify-between mb-4">
+              <div className="relative">
+                <img
+                  src={profile.avatar}
+                  alt={profile.displayName}
+                  className="w-24 h-24 rounded-full object-cover border-4 border-purple-dark shadow-xl"
+                />
+                {profile.isVerified && (
+                  <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center border-2 border-purple-dark">
+                    <Verified className="w-5 h-5 text-white" />
                   </div>
                 )}
               </div>
-            </div>
 
-            {/* User Statistics */}
-            <div className="grid grid-cols-3 gap-4 mb-6">
-              <div className="text-center p-3 bg-purple-primary/10 rounded-xl border border-purple-primary/20">
-                <Heart className="w-6 h-6 text-purple-primary mx-auto mb-2" />
-                <div className="text-xl font-bold">{stats.likedSongs}</div>
-                <div className="text-xs text-gray-400">Liked Songs</div>
-              </div>
-              <div className="text-center p-3 bg-purple-secondary/10 rounded-xl border border-purple-secondary/20">
-                <List className="w-6 h-6 text-purple-secondary mx-auto mb-2" />
-                <div className="text-xl font-bold">{stats.playlists}</div>
-                <div className="text-xs text-gray-400">Playlists</div>
-              </div>
-              <div className="text-center p-3 bg-purple-accent/10 rounded-xl border border-purple-accent/20">
-                <Music className="w-6 h-6 text-purple-accent mx-auto mb-2" />
-                <div className="text-xl font-bold">{stats.recentlyPlayed}</div>
-                <div className="text-xs text-gray-400">Recent</div>
-              </div>
-            </div>
-
-            {/* Contact Information */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold mb-4 flex items-center">
-                <User className="w-5 h-5 mr-2 text-purple-primary" />
-                Contact Information
-              </h3>
-
-              {/* Email */}
-              <div className="flex items-center justify-between p-4 bg-purple-dark/30 rounded-xl border border-purple-primary/20 backdrop-blur-sm">
-                <div className="flex items-center space-x-3">
-                  <Mail className="w-5 h-5 text-gray-400" />
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2">
-                      <span className="text-white">{userData.email}</span>
-                    </div>
-                    <div className="flex items-center space-x-2 mt-1">
-                      {userData.email_verified ? (
-                        <div className="flex items-center space-x-1">
-                          <CheckCircle className="w-4 h-4 text-green-500" />
-                          <span className="text-xs text-green-500">
-                            Verified
-                          </span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center space-x-2">
-                          <AlertCircle className="w-4 h-4 text-yellow-500" />
-                          <span className="text-xs text-yellow-500">
-                            Not verified
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Phone */}
-              <div className="flex items-center justify-between p-4 bg-purple-dark/30 rounded-xl border border-purple-secondary/20 backdrop-blur-sm">
-                <div className="flex items-center space-x-3">
-                  <Phone className="w-5 h-5 text-gray-400" />
-                  <div className="flex-1">
-                    <div className="flex items-center space-x-2">
-                      {!isEditing ? (
-                        <span className="text-white">
-                          {userData.phone || "Not provided"}
-                        </span>
-                      ) : (
-                        <Input
-                          value={editedData.phone || ""}
-                          onChange={(e) =>
-                            handleInputChange("phone", e.target.value)
-                          }
-                          placeholder="Phone number"
-                          className="bg-white/10 border-white/20 text-white placeholder-gray-400"
-                        />
-                      )}
-                    </div>
-                    <div className="flex items-center space-x-2 mt-1">
-                      {userData.phone_verified ? (
-                        <div className="flex items-center space-x-1">
-                          <CheckCircle className="w-4 h-4 text-green-500" />
-                          <span className="text-xs text-green-500">
-                            Verified
-                          </span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center space-x-2">
-                          <AlertCircle className="w-4 h-4 text-yellow-500" />
-                          <span className="text-xs text-yellow-500">
-                            Not verified
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Account Information */}
-            <div className="mt-6 pt-6 border-t border-white/10">
-              <h3 className="text-lg font-semibold mb-4 flex items-center">
-                <Shield className="w-5 h-5 mr-2 text-purple-secondary" />
-                Account Information
-              </h3>
-
-              <div className="grid grid-cols-1 gap-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-400">User ID:</span>
-                  <span className="text-white font-mono text-xs">
-                    {userData.id}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Member since:</span>
-                  <span className="text-white">
-                    {new Date(userData.created_at).toLocaleDateString()}
-                  </span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-gray-400">Profile status:</span>
-                  <div className="flex items-center space-x-2">
-                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                    <span className="text-green-500">Active</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="mt-6 pt-6 border-t border-white/10">
-              {!isEditing ? (
-                <Button
-                  onClick={() => setIsEditing(true)}
-                  className="w-full bg-gradient-to-r from-purple-primary to-purple-secondary hover:from-purple-secondary hover:to-purple-accent text-white font-semibold transition-all duration-300 shadow-lg shadow-purple-primary/30 hover:shadow-purple-secondary/40 hover:scale-105"
+              {/* Action Buttons */}
+              <div className="flex items-center space-x-2">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={handleFollow}
+                  className={`px-6 py-2 rounded-full font-medium transition-colors ${
+                    isFollowing
+                      ? "bg-gray-600 text-white"
+                      : "bg-purple-primary text-white hover:bg-purple-secondary"
+                  }`}
                 >
-                  <Edit3 className="w-4 h-4 mr-2" />
-                  Edit Profile
-                </Button>
-              ) : (
-                <div className="flex space-x-3">
-                  <Button
-                    onClick={saveProfile}
-                    disabled={isSaving}
-                    className="flex-1 bg-gradient-to-r from-purple-primary to-purple-secondary hover:from-purple-secondary hover:to-purple-accent text-white font-semibold transition-all duration-300 shadow-lg shadow-purple-primary/30"
-                  >
-                    {isSaving ? (
-                      <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                    ) : (
-                      <Check className="w-4 h-4 mr-2" />
-                    )}
-                    {isSaving ? "Saving..." : "Save Changes"}
-                  </Button>
-                  <Button
-                    onClick={cancelEditing}
-                    variant="outline"
-                    className="border-white/20 text-white hover:bg-white/10"
-                  >
-                    <X className="w-4 h-4 mr-2" />
-                    Cancel
-                  </Button>
+                  {isFollowing ? (
+                    <>
+                      <UserCheck className="w-4 h-4 mr-2 inline" />
+                      Following
+                    </>
+                  ) : (
+                    <>
+                      <UserPlus className="w-4 h-4 mr-2 inline" />
+                      Follow
+                    </>
+                  )}
+                </motion.button>
+
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-4 py-2 bg-purple-dark/50 rounded-full border border-purple-primary/30"
+                >
+                  <MessageCircle className="w-4 h-4 text-white" />
+                </motion.button>
+              </div>
+            </div>
+
+            {/* Name and Bio */}
+            <div className="mb-4">
+              <div className="flex items-center space-x-2 mb-2">
+                <h1 className="text-2xl font-bold text-white">{profile.displayName}</h1>
+                {profile.isArtist && (
+                  <div className="px-2 py-1 bg-purple-primary/20 rounded-full">
+                    <span className="text-xs text-purple-accent font-medium">Artist</span>
+                  </div>
+                )}
+              </div>
+              <p className="text-gray-400 mb-1">@{profile.username}</p>
+              <p className="text-white leading-relaxed mb-3">{profile.bio}</p>
+              
+              {/* Location and Website */}
+              <div className="flex items-center space-x-4 text-sm text-gray-400 mb-3">
+                {profile.location && (
+                  <div className="flex items-center space-x-1">
+                    <MapPin className="w-4 h-4" />
+                    <span>{profile.location}</span>
+                  </div>
+                )}
+                {profile.website && (
+                  <div className="flex items-center space-x-1">
+                    <Link2 className="w-4 h-4" />
+                    <span>{profile.website}</span>
+                  </div>
+                )}
+                <div className="flex items-center space-x-1">
+                  <Calendar className="w-4 h-4" />
+                  <span>Joined {formatDate(profile.joinedDate)}</span>
+                </div>
+              </div>
+
+              {/* Social Links */}
+              {Object.keys(profile.socialLinks).length > 0 && (
+                <div className="flex items-center space-x-3 mb-4">
+                  {profile.socialLinks.instagram && (
+                    <motion.a
+                      whileHover={{ scale: 1.1 }}
+                      href={`https://instagram.com/${profile.socialLinks.instagram}`}
+                      className="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center"
+                    >
+                      <Instagram className="w-4 h-4 text-white" />
+                    </motion.a>
+                  )}
+                  {profile.socialLinks.twitter && (
+                    <motion.a
+                      whileHover={{ scale: 1.1 }}
+                      href={`https://twitter.com/${profile.socialLinks.twitter}`}
+                      className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center"
+                    >
+                      <Twitter className="w-4 h-4 text-white" />
+                    </motion.a>
+                  )}
+                  {profile.socialLinks.youtube && (
+                    <motion.a
+                      whileHover={{ scale: 1.1 }}
+                      href={`https://youtube.com/${profile.socialLinks.youtube}`}
+                      className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center"
+                    >
+                      <Youtube className="w-4 h-4 text-white" />
+                    </motion.a>
+                  )}
+                </div>
+              )}
+
+              {/* Badges */}
+              {profile.badges.length > 0 && (
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {profile.badges.map((badge, index) => {
+                    const badgeInfo = getBadgeInfo(badge);
+                    const BadgeIcon = badgeInfo.icon;
+                    return (
+                      <motion.div
+                        key={badge}
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: index * 0.1 }}
+                        className={`flex items-center space-x-1 px-2 py-1 bg-black/30 rounded-full border border-purple-primary/20`}
+                        title={badgeInfo.label}
+                      >
+                        <BadgeIcon className={`w-3 h-3 ${badgeInfo.color}`} />
+                        <span className="text-xs text-white font-medium">{badgeInfo.label}</span>
+                      </motion.div>
+                    );
+                  })}
                 </div>
               )}
             </div>
-          </div>
-        </motion.div>
 
-        {/* Quick Actions */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="px-6 pb-8"
-        >
-          <div className="grid grid-cols-2 gap-4">
-            <button
-              onClick={() => navigate("/liked-songs")}
-              className="p-4 bg-purple-dark/30 rounded-xl border border-purple-primary/20 hover:bg-purple-primary/10 hover:border-purple-primary/40 transition-all duration-200 backdrop-blur-sm hover:scale-105"
-            >
-              <Heart className="w-6 h-6 text-purple-primary mx-auto mb-2" />
-              <p className="text-sm font-medium">Liked Songs</p>
-              <p className="text-xs text-gray-400">{stats.likedSongs} songs</p>
-            </button>
-            <button
-              onClick={() => navigate("/library")}
-              className="p-4 bg-purple-dark/30 rounded-xl border border-purple-secondary/20 hover:bg-purple-secondary/10 hover:border-purple-secondary/40 transition-all duration-200 backdrop-blur-sm hover:scale-105"
-            >
-              <List className="w-6 h-6 text-purple-secondary mx-auto mb-2" />
-              <p className="text-sm font-medium">My Playlists</p>
-              <p className="text-xs text-gray-400">{stats.playlists} playlists</p>
-            </button>
+            {/* Stats */}
+            <div className="grid grid-cols-3 gap-4 mb-6">
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setShowStats(true)}
+                className="text-center p-3 bg-purple-dark/30 rounded-xl border border-purple-primary/20"
+              >
+                <p className="text-xl font-bold text-white">{formatNumber(profile.stats.followers)}</p>
+                <p className="text-sm text-gray-400">Followers</p>
+              </motion.button>
+              
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setShowStats(true)}
+                className="text-center p-3 bg-purple-dark/30 rounded-xl border border-purple-primary/20"
+              >
+                <p className="text-xl font-bold text-white">{formatNumber(profile.stats.following)}</p>
+                <p className="text-sm text-gray-400">Following</p>
+              </motion.button>
+              
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setShowStats(true)}
+                className="text-center p-3 bg-purple-dark/30 rounded-xl border border-purple-primary/20"
+              >
+                <p className="text-xl font-bold text-white">{formatNumber(profile.stats.totalPlays)}</p>
+                <p className="text-sm text-gray-400">Total Plays</p>
+              </motion.button>
+            </div>
+
+            {/* Upload Button for Artists */}
+            {profile.isArtist && (
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => navigate("/upload")}
+                className="w-full p-4 bg-gradient-to-r from-purple-primary to-purple-secondary rounded-xl text-white font-medium mb-6 flex items-center justify-center space-x-2"
+              >
+                <UploadIcon className="w-5 h-5" />
+                <span>Upload New Track</span>
+              </motion.button>
+            )}
+
+            {/* Tabs */}
+            <div className="flex space-x-1 mb-6 bg-purple-dark/30 rounded-xl p-1">
+              {tabs.map((tab) => (
+                <motion.button
+                  key={tab.id}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setSelectedTab(tab.id)}
+                  className={`flex-1 px-4 py-2 rounded-lg font-medium transition-colors text-sm ${
+                    selectedTab === tab.id
+                      ? "bg-purple-primary text-white"
+                      : "text-gray-400 hover:text-white"
+                  }`}
+                >
+                  {tab.label}
+                  {tab.count !== undefined && (
+                    <span className="ml-1 opacity-60">({tab.count})</span>
+                  )}
+                </motion.button>
+              ))}
+            </div>
+
+            {/* View Mode Toggle for Tracks/Playlists */}
+            {(selectedTab === "tracks" || selectedTab === "playlists") && (
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg font-bold text-white">
+                  {selectedTab === "tracks" ? "My Tracks" : "My Playlists"}
+                </h2>
+                <div className="flex items-center space-x-2">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setViewMode("grid")}
+                    className={`p-2 rounded-lg transition-colors ${
+                      viewMode === "grid" ? "bg-purple-primary text-white" : "text-gray-400"
+                    }`}
+                  >
+                    <Grid3X3 className="w-4 h-4" />
+                  </motion.button>
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setViewMode("list")}
+                    className={`p-2 rounded-lg transition-colors ${
+                      viewMode === "list" ? "bg-purple-primary text-white" : "text-gray-400"
+                    }`}
+                  >
+                    <ListMusic className="w-4 h-4" />
+                  </motion.button>
+                </div>
+              </div>
+            )}
+
+            {/* Content Based on Selected Tab */}
+            <AnimatePresence mode="wait">
+              {selectedTab === "tracks" && (
+                <motion.div
+                  key="tracks"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="space-y-4"
+                >
+                  {viewMode === "grid" ? (
+                    <div className="grid grid-cols-2 gap-4">
+                      {tracks.map((track, index) => (
+                        <motion.div
+                          key={track.id}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: index * 0.1 }}
+                          className="bg-purple-dark/30 rounded-xl p-3 border border-purple-primary/20"
+                        >
+                          <div className="relative mb-3">
+                            <img
+                              src={track.coverUrl}
+                              alt={track.title}
+                              className="w-full aspect-square rounded-lg object-cover"
+                            />
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              onClick={() => handlePlay(track.id)}
+                              className="absolute bottom-2 right-2 w-8 h-8 bg-purple-primary rounded-full flex items-center justify-center shadow-lg"
+                            >
+                              {currentPlayingTrack === track.id && isPlaying ? (
+                                <Pause className="w-4 h-4 text-white" />
+                              ) : (
+                                <Play className="w-4 h-4 text-white ml-0.5" />
+                              )}
+                            </motion.button>
+                            {track.genre && (
+                              <div className="absolute top-2 left-2 px-2 py-1 bg-black/60 rounded-md">
+                                <span className="text-xs text-white font-medium">{track.genre}</span>
+                              </div>
+                            )}
+                          </div>
+                          <h3 className="font-medium text-white mb-1 truncate">{track.title}</h3>
+                          <div className="flex items-center justify-between text-xs text-gray-400">
+                            <span>{formatNumber(track.plays)} plays</span>
+                            <span>{formatDuration(track.duration)}</span>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {tracks.map((track, index) => (
+                        <motion.div
+                          key={track.id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                          className="flex items-center space-x-3 p-3 bg-purple-dark/30 rounded-xl border border-purple-primary/20 hover:bg-purple-primary/10 transition-colors cursor-pointer"
+                          onClick={() => handlePlay(track.id)}
+                        >
+                          <div className="relative">
+                            <img
+                              src={track.coverUrl}
+                              alt={track.title}
+                              className="w-12 h-12 rounded-lg object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                              {currentPlayingTrack === track.id && isPlaying ? (
+                                <Pause className="w-4 h-4 text-white" />
+                              ) : (
+                                <Play className="w-4 h-4 text-white ml-0.5" />
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="font-medium text-white mb-1">{track.title}</h3>
+                            <div className="flex items-center space-x-4 text-xs text-gray-400">
+                              <span>{formatNumber(track.plays)} plays</span>
+                              <span>{formatNumber(track.likes)} likes</span>
+                              <span>{formatDate(track.uploadDate)}</span>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm text-gray-400">{formatDuration(track.duration)}</p>
+                          </div>
+                          <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            className="p-2 rounded-full hover:bg-purple-primary/20 transition-colors"
+                          >
+                            <MoreHorizontal className="w-4 h-4 text-gray-400" />
+                          </motion.button>
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+                </motion.div>
+              )}
+
+              {selectedTab === "playlists" && (
+                <motion.div
+                  key="playlists"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="space-y-4"
+                >
+                  {viewMode === "grid" ? (
+                    <div className="grid grid-cols-2 gap-4">
+                      {playlists.map((playlist, index) => (
+                        <motion.div
+                          key={playlist.id}
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: index * 0.1 }}
+                          className="bg-purple-dark/30 rounded-xl p-3 border border-purple-primary/20"
+                        >
+                          <div className="relative mb-3">
+                            <img
+                              src={playlist.coverUrl}
+                              alt={playlist.name}
+                              className="w-full aspect-square rounded-lg object-cover"
+                            />
+                            {!playlist.isPublic && (
+                              <div className="absolute top-2 left-2 px-2 py-1 bg-black/60 rounded-md">
+                                <span className="text-xs text-white font-medium">Private</span>
+                              </div>
+                            )}
+                          </div>
+                          <h3 className="font-medium text-white mb-1 truncate">{playlist.name}</h3>
+                          <div className="flex items-center justify-between text-xs text-gray-400">
+                            <span>{playlist.trackCount} tracks</span>
+                            <span>{formatNumber(playlist.plays)} plays</span>
+                          </div>
+                        </motion.div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      {playlists.map((playlist, index) => (
+                        <motion.div
+                          key={playlist.id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.05 }}
+                          className="flex items-center space-x-3 p-3 bg-purple-dark/30 rounded-xl border border-purple-primary/20 hover:bg-purple-primary/10 transition-colors cursor-pointer"
+                        >
+                          <img
+                            src={playlist.coverUrl}
+                            alt={playlist.name}
+                            className="w-12 h-12 rounded-lg object-cover"
+                          />
+                          <div className="flex-1">
+                            <h3 className="font-medium text-white mb-1">{playlist.name}</h3>
+                            <p className="text-sm text-gray-400 mb-1 line-clamp-1">{playlist.description}</p>
+                            <div className="flex items-center space-x-4 text-xs text-gray-400">
+                              <span>{playlist.trackCount} tracks</span>
+                              <span>{formatNumber(playlist.plays)} plays</span>
+                              <span>{playlist.isPublic ? "Public" : "Private"}</span>
+                            </div>
+                          </div>
+                          <motion.button
+                            whileHover={{ scale: 1.1 }}
+                            whileTap={{ scale: 0.9 }}
+                            className="p-2 rounded-full hover:bg-purple-primary/20 transition-colors"
+                          >
+                            <MoreHorizontal className="w-4 h-4 text-gray-400" />
+                          </motion.button>
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+                </motion.div>
+              )}
+
+              {selectedTab === "analytics" && profile.isArtist && (
+                <motion.div
+                  key="analytics"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="space-y-6"
+                >
+                  {/* Quick Stats */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-purple-dark/30 rounded-xl p-4 border border-purple-primary/20">
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-sm font-medium text-gray-400">Monthly Listeners</h3>
+                        <Headphones className="w-4 h-4 text-purple-primary" />
+                      </div>
+                      <p className="text-2xl font-bold text-white">{formatNumber(profile.stats.monthlyListeners)}</p>
+                      <p className="text-xs text-green-400">+12.5% from last month</p>
+                    </div>
+
+                    <div className="bg-purple-dark/30 rounded-xl p-4 border border-purple-primary/20">
+                      <div className="flex items-center justify-between mb-2">
+                        <h3 className="text-sm font-medium text-gray-400">Total Streams</h3>
+                        <Play className="w-4 h-4 text-green-400" />
+                      </div>
+                      <p className="text-2xl font-bold text-white">{formatNumber(profile.stats.totalPlays)}</p>
+                      <p className="text-xs text-green-400">+8.3% this month</p>
+                    </div>
+                  </div>
+
+                  {/* Top Tracks Performance */}
+                  <div className="bg-purple-dark/30 rounded-xl p-4 border border-purple-primary/20">
+                    <h3 className="text-lg font-bold text-white mb-4 flex items-center">
+                      <BarChart3 className="w-5 h-5 mr-2 text-purple-primary" />
+                      Top Performing Tracks
+                    </h3>
+                    <div className="space-y-3">
+                      {tracks.slice(0, 3).map((track, index) => (
+                        <div key={track.id} className="flex items-center space-x-3 p-2 rounded-lg bg-purple-primary/5">
+                          <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                            index === 0 ? 'bg-yellow-500 text-black' :
+                            index === 1 ? 'bg-gray-400 text-black' :
+                            'bg-amber-600 text-white'
+                          }`}>
+                            {index + 1}
+                          </div>
+                          <img
+                            src={track.coverUrl}
+                            alt={track.title}
+                            className="w-8 h-8 rounded object-cover"
+                          />
+                          <div className="flex-1">
+                            <h4 className="font-medium text-white text-sm">{track.title}</h4>
+                            <p className="text-xs text-gray-400">{formatNumber(track.plays)} plays</p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-xs text-gray-400">{formatNumber(track.likes)} likes</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Quick Actions */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => navigate("/rewards")}
+                      className="p-4 bg-gradient-to-r from-green-500/20 to-blue-500/20 rounded-xl border border-green-500/30 text-left"
+                    >
+                      <DollarSign className="w-6 h-6 text-green-400 mb-2" />
+                      <h3 className="font-medium text-white">View Earnings</h3>
+                      <p className="text-xs text-gray-400">Check your revenue</p>
+                    </motion.button>
+
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => navigate("/notifications")}
+                      className="p-4 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-xl border border-purple-500/30 text-left"
+                    >
+                      <Star className="w-6 h-6 text-purple-400 mb-2" />
+                      <h3 className="font-medium text-white">Fan Activity</h3>
+                      <p className="text-xs text-gray-400">See fan interactions</p>
+                    </motion.button>
+                  </div>
+                </motion.div>
+              )}
+
+              {selectedTab === "about" && (
+                <motion.div
+                  key="about"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="space-y-6"
+                >
+                  {/* Detailed Stats */}
+                  <div className="bg-purple-dark/30 rounded-xl p-4 border border-purple-primary/20">
+                    <h3 className="text-lg font-bold text-white mb-4">Profile Statistics</h3>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-purple-accent">{formatNumber(profile.stats.totalTracks)}</p>
+                        <p className="text-sm text-gray-400">Tracks</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-2xl font-bold text-purple-accent">{formatNumber(profile.stats.totalPlaylists)}</p>
+                        <p className="text-sm text-gray-400">Playlists</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bio Section */}
+                  <div className="bg-purple-dark/30 rounded-xl p-4 border border-purple-primary/20">
+                    <h3 className="text-lg font-bold text-white mb-4">About</h3>
+                    <p className="text-gray-300 leading-relaxed">{profile.bio}</p>
+                  </div>
+
+                  {/* Contact Info */}
+                  <div className="bg-purple-dark/30 rounded-xl p-4 border border-purple-primary/20">
+                    <h3 className="text-lg font-bold text-white mb-4">Contact & Links</h3>
+                    <div className="space-y-3">
+                      {profile.website && (
+                        <div className="flex items-center space-x-3">
+                          <Globe className="w-5 h-5 text-gray-400" />
+                          <a href={`https://${profile.website}`} className="text-purple-accent hover:underline">
+                            {profile.website}
+                          </a>
+                        </div>
+                      )}
+                      {profile.location && (
+                        <div className="flex items-center space-x-3">
+                          <MapPin className="w-5 h-5 text-gray-400" />
+                          <span className="text-white">{profile.location}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
-        </motion.div>
+        </div>
+
+        {/* Stats Modal */}
+        <AnimatePresence>
+          {showStats && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+              onClick={() => setShowStats(false)}
+            >
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                onClick={(e) => e.stopPropagation()}
+                className="bg-purple-dark rounded-2xl p-6 w-full max-w-md border border-purple-primary/30"
+              >
+                <h2 className="text-xl font-bold text-white mb-6 text-center">Profile Statistics</h2>
+                
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center p-3 bg-purple-primary/10 rounded-xl">
+                    <span className="text-white">Followers</span>
+                    <span className="font-bold text-purple-accent">{formatNumber(profile.stats.followers)}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3 bg-purple-primary/10 rounded-xl">
+                    <span className="text-white">Following</span>
+                    <span className="font-bold text-purple-accent">{formatNumber(profile.stats.following)}</span>
+                  </div>
+                  <div className="flex justify-between items-center p-3 bg-purple-primary/10 rounded-xl">
+                    <span className="text-white">Total Plays</span>
+                    <span className="font-bold text-purple-accent">{formatNumber(profile.stats.totalPlays)}</span>
+                  </div>
+                  {profile.isArtist && (
+                    <div className="flex justify-between items-center p-3 bg-purple-primary/10 rounded-xl">
+                      <span className="text-white">Monthly Listeners</span>
+                      <span className="font-bold text-purple-accent">{formatNumber(profile.stats.monthlyListeners)}</span>
+                    </div>
+                  )}
+                </div>
+
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => setShowStats(false)}
+                  className="w-full py-3 mt-6 bg-purple-primary rounded-xl text-white font-medium"
+                >
+                  Close
+                </motion.button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Mobile Footer */}
+        <MobileFooter />
       </div>
     </div>
   );
