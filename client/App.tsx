@@ -25,6 +25,9 @@ import LikedSongs from "./pages/LikedSongs";
 import Library from "./pages/Library";
 import History from "./pages/History";
 import Settings from "./pages/Settings";
+import Notifications from "./pages/Notifications";
+import Upload from "./pages/Upload";
+import Rewards from "./pages/Rewards";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -54,6 +57,9 @@ const App = () => {
                   <Route path="/library" element={<Library />} />
                   <Route path="/history" element={<History />} />
                   <Route path="/settings" element={<Settings />} />
+                  <Route path="/notifications" element={<Notifications />} />
+                  <Route path="/upload" element={<Upload />} />
+                  <Route path="/rewards" element={<Rewards />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>
