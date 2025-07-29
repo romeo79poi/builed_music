@@ -20,6 +20,20 @@ import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
 
+// Featured Artist/Album of the Day
+const featuredContent = {
+  id: "featured-1",
+  type: "album",
+  title: "Midnight Memories",
+  artist: "One Direction",
+  description: "The perfect soundtrack for late-night vibes and nostalgic moments.",
+  coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&h=400&fit=crop",
+  genre: "Pop",
+  releaseYear: "2013",
+  totalTracks: 18,
+  isNew: true,
+};
+
 // Sample data for the layout
 const sampleAlbums = [
   {
@@ -28,6 +42,7 @@ const sampleAlbums = [
     artist: "The Weeknd",
     coverImageURL:
       "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
+    isNew: true,
   },
   {
     id: "2",
@@ -35,6 +50,7 @@ const sampleAlbums = [
     artist: "Harry Styles",
     coverImageURL:
       "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
+    isNew: false,
   },
   {
     id: "3",
@@ -42,6 +58,7 @@ const sampleAlbums = [
     artist: "Dua Lipa",
     coverImageURL:
       "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
+    isNew: true,
   },
   {
     id: "4",
@@ -49,6 +66,7 @@ const sampleAlbums = [
     artist: "Ariana Grande",
     coverImageURL:
       "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop",
+    isNew: false,
   },
   {
     id: "5",
@@ -56,6 +74,68 @@ const sampleAlbums = [
     artist: "Taylor Swift",
     coverImageURL:
       "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=200&fit=crop",
+    isNew: true,
+  },
+];
+
+// New Releases
+const newReleases = [
+  {
+    id: "nr1",
+    title: "As It Was",
+    artist: "Harry Styles",
+    coverImageURL: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
+    releaseDate: "2024-01-15",
+  },
+  {
+    id: "nr2",
+    title: "Anti-Hero",
+    artist: "Taylor Swift",
+    coverImageURL: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=200&fit=crop",
+    releaseDate: "2024-01-12",
+  },
+  {
+    id: "nr3",
+    title: "Unholy",
+    artist: "Sam Smith",
+    coverImageURL: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
+    releaseDate: "2024-01-10",
+  },
+];
+
+// Mood-based playlists
+const moodPlaylists = [
+  {
+    id: "mood1",
+    name: "Chill Vibes",
+    description: "Relax and unwind",
+    coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
+    mood: "chill",
+    color: "from-blue-400 to-purple-400",
+  },
+  {
+    id: "mood2",
+    name: "Workout Beats",
+    description: "Get pumped up",
+    coverImageURL: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
+    mood: "energetic",
+    color: "from-red-400 to-orange-400",
+  },
+  {
+    id: "mood3",
+    name: "Party Mix",
+    description: "Dance the night away",
+    coverImageURL: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
+    mood: "party",
+    color: "from-pink-400 to-purple-400",
+  },
+  {
+    id: "mood4",
+    name: "Focus Flow",
+    description: "Stay concentrated",
+    coverImageURL: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop",
+    mood: "focus",
+    color: "from-green-400 to-teal-400",
   },
 ];
 
@@ -161,6 +241,23 @@ export default function Home() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [likedSongs, setLikedSongs] = useState<Set<string>>(new Set());
   const [hoveredAlbum, setHoveredAlbum] = useState<string | null>(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // Update time for greeting
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 60000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Get appropriate greeting
+  const getGreeting = () => {
+    const hour = currentTime.getHours();
+    if (hour < 12) return "Good Morning";
+    if (hour < 17) return "Good Afternoon";
+    return "Good Evening";
+  };
 
   const handlePlaySong = (songId: string) => {
     if (currentSong === songId) {
@@ -319,15 +416,42 @@ export default function Home() {
 
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto pb-24 px-4 space-y-6">
+          {/* Search Bar */}
+          <motion.div variants={itemVariants} className="pt-6 mb-6">
+            <div className="relative">
+              <motion.div
+                animate={{
+                  scale: isSearchFocused ? 1.02 : 1,
+                  boxShadow: isSearchFocused
+                    ? "0 0 20px rgba(158, 64, 252, 0.4)"
+                    : "0 0 0px rgba(158, 64, 252, 0)",
+                }}
+                className="relative"
+              >
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onFocus={() => setIsSearchFocused(true)}
+                  onBlur={() => setIsSearchFocused(false)}
+                  onClick={() => navigate("/search")}
+                  placeholder="Search songs, artists, albums..."
+                  className="w-full h-14 bg-white/10 backdrop-blur-sm rounded-2xl pl-12 pr-4 text-white placeholder-gray-400 focus:outline-none focus:bg-white/15 border border-purple-primary/20 focus:border-purple-primary/50 transition-all"
+                />
+              </motion.div>
+            </div>
+          </motion.div>
+
           {/* Enhanced Welcome Section */}
-          <motion.div variants={itemVariants} className="pt-6">
+          <motion.div variants={itemVariants} className="mb-8">
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
               className="text-2xl sm:text-3xl font-bold mb-2 bg-gradient-to-r from-white via-purple-primary to-purple-secondary bg-clip-text text-transparent"
             >
-              Good Evening
+              {getGreeting()}
             </motion.h1>
             <motion.p
               initial={{ opacity: 0, y: 20 }}
@@ -340,8 +464,153 @@ export default function Home() {
             </motion.p>
           </motion.div>
 
+          {/* Hero Section - Featured Content */}
+          <motion.section
+            variants={itemVariants}
+            className="mb-8"
+          >
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              className="relative bg-gradient-to-r from-purple-primary/20 via-purple-secondary/15 to-purple-accent/20 rounded-3xl p-6 overflow-hidden cursor-pointer backdrop-blur-sm border border-purple-primary/30"
+              onClick={() => {
+                toast({
+                  title: "Playing Featured Album",
+                  description: `Now playing: ${featuredContent.title} by ${featuredContent.artist}`,
+                });
+              }}
+            >
+              {/* Background Pattern */}
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-primary/10 to-purple-secondary/10"></div>
+
+              <div className="relative z-10 flex flex-col sm:flex-row items-center">
+                <div className="flex-1 mb-4 sm:mb-0 sm:mr-6">
+                  {featuredContent.isNew && (
+                    <motion.span
+                      animate={{ scale: [1, 1.05, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="inline-block bg-neon-green text-black px-3 py-1 rounded-full text-xs font-bold mb-3"
+                    >
+                      NEW RELEASE
+                    </motion.span>
+                  )}
+                  <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+                    {featuredContent.title}
+                  </h3>
+                  <p className="text-purple-accent text-lg font-medium mb-3">
+                    {featuredContent.artist}
+                  </p>
+                  <p className="text-gray-300 text-sm mb-4 leading-relaxed">
+                    {featuredContent.description}
+                  </p>
+                  <div className="flex items-center space-x-4 text-sm text-gray-400">
+                    <span>{featuredContent.genre}</span>
+                    <span>•</span>
+                    <span>{featuredContent.releaseYear}</span>
+                    <span>•</span>
+                    <span>{featuredContent.totalTracks} tracks</span>
+                  </div>
+                </div>
+
+                <div className="relative">
+                  <motion.img
+                    whileHover={{ scale: 1.05 }}
+                    src={featuredContent.coverImageURL}
+                    alt={featuredContent.title}
+                    className="w-32 h-32 sm:w-40 sm:h-40 rounded-2xl object-cover shadow-2xl shadow-purple-primary/30"
+                  />
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    className="absolute bottom-2 right-2 w-12 h-12 bg-gradient-to-r from-neon-green to-purple-secondary rounded-full flex items-center justify-center shadow-xl shadow-neon-green/50"
+                  >
+                    <Play className="w-6 h-6 text-white ml-0.5" />
+                  </motion.button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.section>
+
+          {/* New Releases Section */}
+          <motion.section variants={itemVariants} className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <motion.h2
+                whileHover={{ scale: 1.02 }}
+                className="text-xl font-bold flex items-center space-x-2"
+              >
+                <Sparkles className="w-5 h-5 text-neon-green" />
+                <span>New Releases</span>
+              </motion.h2>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                className="text-gray-400 hover:text-white text-sm font-medium transition-colors"
+              >
+                See all
+              </motion.button>
+            </div>
+
+            <div className="flex space-x-4 overflow-x-auto scrollbar-hide pb-4">
+              {newReleases.map((release, index) => (
+                <motion.div
+                  key={release.id}
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.3 + index * 0.1 }}
+                  whileHover={{ scale: 1.05, y: -5 }}
+                  className="flex-shrink-0 w-40 bg-purple-dark/40 backdrop-blur-sm rounded-xl p-4 hover:bg-purple-dark/60 transition-all cursor-pointer border border-purple-primary/20 hover:border-purple-primary/50"
+                >
+                  <div className="relative mb-3">
+                    <img
+                      src={release.coverImageURL}
+                      alt={release.title}
+                      className="w-full aspect-square rounded-lg object-cover"
+                    />
+                    <div className="absolute top-2 left-2 bg-neon-green text-black px-2 py-1 rounded-md text-xs font-bold">
+                      NEW
+                    </div>
+                  </div>
+                  <h3 className="font-medium text-sm mb-1 truncate">{release.title}</h3>
+                  <p className="text-gray-400 text-xs truncate">{release.artist}</p>
+                </motion.div>
+              ))}
+            </div>
+          </motion.section>
+
+          {/* Mood-Based Playlists */}
+          <motion.section variants={itemVariants} className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <motion.h2
+                whileHover={{ scale: 1.02 }}
+                className="text-xl font-bold flex items-center space-x-2"
+              >
+                <Heart className="w-5 h-5 text-purple-secondary" />
+                <span>Playlists for You</span>
+              </motion.h2>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              {moodPlaylists.map((playlist, index) => (
+                <motion.div
+                  key={playlist.id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.4 + index * 0.1 }}
+                  whileHover={{ scale: 1.02 }}
+                  className={`relative bg-gradient-to-br ${playlist.color} rounded-2xl p-4 h-24 cursor-pointer overflow-hidden`}
+                >
+                  <div className="relative z-10">
+                    <h3 className="font-bold text-white text-sm mb-1">{playlist.name}</h3>
+                    <p className="text-white/80 text-xs">{playlist.description}</p>
+                  </div>
+                  <div className="absolute top-2 right-2 w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
+                    <Music className="w-4 h-4 text-white" />
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.section>
+
           {/* Enhanced Albums Section */}
-          <motion.section variants={itemVariants}>
+          <motion.section variants={itemVariants} className="mb-8">
             <div className="flex items-center justify-between mb-4">
               <motion.h2
                 whileHover={{ scale: 1.02 }}
@@ -396,6 +665,11 @@ export default function Home() {
                         damping: 25,
                       }}
                     />
+                    {album.isNew && (
+                      <div className="absolute top-1 left-1 bg-neon-green text-black px-1.5 py-0.5 rounded text-xs font-bold">
+                        NEW
+                      </div>
+                    )}
                     <AnimatePresence>
                       {hoveredAlbum === album.id && (
                         <motion.button
