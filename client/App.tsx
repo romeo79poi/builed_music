@@ -28,6 +28,7 @@ import Settings from "./pages/Settings";
 import Notifications from "./pages/Notifications";
 import Upload from "./pages/Upload";
 import Rewards from "./pages/Rewards";
+import Reels from "./pages/Reels";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -60,6 +61,7 @@ const App = () => {
                   <Route path="/notifications" element={<Notifications />} />
                   <Route path="/upload" element={<Upload />} />
                   <Route path="/rewards" element={<Rewards />} />
+                  <Route path="/reels" element={<Reels />} />
                   {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                   <Route path="*" element={<NotFound />} />
                 </Routes>

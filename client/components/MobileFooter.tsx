@@ -34,10 +34,11 @@ export default function MobileFooter({ className = "" }: FooterProps) {
       path: "/search",
     },
     {
-      id: "upload",
-      label: "Upload",
-      icon: Upload,
-      path: "/upload",
+      id: "reels",
+      label: "Reels",
+      icon: Plus,
+      path: "/reels",
+      isSpecial: true,
     },
     {
       id: "library",
@@ -69,6 +70,11 @@ export default function MobileFooter({ className = "" }: FooterProps) {
     // History page should show Library as active since it's part of library functionality
     if (currentPath === "/history") {
       return navItems.find((item) => item.id === "library");
+    }
+
+    // Reels page
+    if (currentPath === "/reels") {
+      return navItems.find((item) => item.id === "reels");
     }
 
     return null;
@@ -122,28 +128,39 @@ export default function MobileFooter({ className = "" }: FooterProps) {
                     }
                     transition={{ duration: 2, repeat: Infinity }}
                     className={`relative p-2 transition-all duration-300 ${
-                      isActive ? "" : ""
+                      item.isSpecial ? 'rounded-xl' : 'rounded-full'
                     }`}
                   >
-                    {/* Active state background circle */}
-                    {isActive && (
-                      <motion.div
-                        initial={{ scale: 0 }}
-                        animate={{ scale: 1 }}
-                        className="absolute inset-0 bg-gradient-to-r from-neon-green/20 to-purple-secondary/20 rounded-full border border-neon-green/30"
-                      />
+                    {/* Special Reels button styling */}
+                    {item.isSpecial ? (
+                      <div className={`w-8 h-8 rounded-xl bg-gradient-to-r from-purple-primary to-purple-secondary flex items-center justify-center ${
+                        isActive ? 'scale-110' : ''
+                      }`}>
+                        <Icon className="w-5 h-5 text-white" />
+                      </div>
+                    ) : (
+                      <>
+                        {/* Active state background circle */}
+                        {isActive && (
+                          <motion.div
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1 }}
+                            className="absolute inset-0 bg-gradient-to-r from-neon-green/20 to-purple-secondary/20 rounded-full border border-neon-green/30"
+                          />
+                        )}
+
+                        <Icon
+                          className={`w-6 h-6 relative z-10 transition-all duration-300 ${
+                            isActive
+                              ? "text-neon-green scale-110"
+                              : "text-gray-400 group-hover:text-purple-primary"
+                          }`}
+                        />
+                      </>
                     )}
 
-                    <Icon
-                      className={`w-6 h-6 relative z-10 transition-all duration-300 ${
-                        isActive
-                          ? "text-neon-green scale-110"
-                          : "text-gray-400 group-hover:text-purple-primary"
-                      }`}
-                    />
-
                     {/* Active indicator dot */}
-                    {isActive && (
+                    {isActive && !item.isSpecial && (
                       <motion.div
                         initial={{ scale: 0, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
