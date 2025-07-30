@@ -549,10 +549,10 @@ export default function Profile() {
             {/* Upload Button for Artists */}
             {profile.isArtist && (
               <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
                 onClick={() => navigate("/upload")}
-                className="w-full p-4 bg-gradient-to-r from-purple-primary to-purple-secondary rounded-xl text-white font-medium mb-6 flex items-center justify-center space-x-2"
+                className="w-full p-4 bg-primary hover:bg-primary/90 rounded-lg text-primary-foreground font-medium mb-6 flex items-center justify-center space-x-2 transition-colors"
               >
                 <UploadIcon className="w-5 h-5" />
                 <span>Upload New Track</span>
