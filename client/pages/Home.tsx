@@ -427,8 +427,8 @@ export default function Home() {
             className="mb-8"
           >
             <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="relative bg-gradient-to-r from-purple-primary/20 via-purple-secondary/15 to-purple-accent/20 rounded-3xl p-6 overflow-hidden cursor-pointer backdrop-blur-sm border border-purple-primary/30"
+              whileHover={{ scale: 1.01 }}
+              className="relative bg-card rounded-2xl p-6 overflow-hidden cursor-pointer youtube-shadow hover:youtube-shadow-hover dark:google-dark-shadow dark:hover:google-dark-shadow-hover border border-border"
               onClick={() => {
                 toast({
                   title: "Playing Featured Album",
