@@ -440,7 +440,8 @@ export default function Home() {
                     <motion.span
                       animate={{ scale: [1, 1.05, 1] }}
                       transition={{ duration: 2, repeat: Infinity }}
-                      className="inline-block bg-neon-green text-black px-3 py-1 rounded-full text-xs font-bold mb-3"
+                      className="inline-block px-3 py-1 rounded-full text-xs font-bold mb-3"
+                      style={{ backgroundColor: 'rgba(172, 126, 190, 1)', color: 'white' }}
                     >
                       NEW RELEASE
                     </motion.span>
