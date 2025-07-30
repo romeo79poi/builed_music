@@ -69,7 +69,7 @@ const Messages = () => {
   const [isRecording, setIsRecording] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
   const [showReactions, setShowReactions] = useState<string | null>(null);
-  const [showStories, setShowStories] = useState(true);
+
   const [currentView, setCurrentView] = useState<'primary' | 'requests' | 'archived'>('primary');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
