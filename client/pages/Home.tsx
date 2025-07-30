@@ -349,7 +349,7 @@ export default function Home() {
             variants={glowVariants}
             initial="initial"
             animate="animate"
-            className="w-10 h-10 bg-gradient-to-r from-purple-primary to-purple-secondary rounded-full flex items-center justify-center shadow-lg hover:shadow-purple-primary/60 transition-all duration-300 relative overflow-hidden"
+            className="w-10 h-10 bg-gradient-to-r dark:from-purple-primary dark:to-purple-secondary light:bg-gray-200 rounded-full flex items-center justify-center shadow-lg dark:hover:shadow-purple-primary/60 light:hover:shadow-md transition-all duration-300 relative overflow-hidden"
           >
             <MessageCircle className="w-5 h-5 text-white relative z-10" />
             <motion.span
