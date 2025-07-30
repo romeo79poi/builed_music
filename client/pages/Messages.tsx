@@ -40,6 +40,8 @@ import {
   Frown,
   Surprise,
   X,
+  Bot,
+  Zap,
 } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -47,6 +49,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useToast } from "@/hooks/use-toast";
+import { useMessaging, useChat } from "@/lib/messaging-service";
 
 interface Story {
   id: string;
@@ -56,58 +60,32 @@ interface Story {
   isViewed: boolean;
 }
 
-interface Reaction {
-  emoji: string;
-  count: number;
-  users: string[];
-}
-
-interface Message {
-  id: string;
-  content: string;
-  time: string;
-  isOwn: boolean;
-  isRead?: boolean;
-  type: 'text' | 'image' | 'voice' | 'video' | 'sticker' | 'gif';
-  reactions?: Reaction[];
-  replyTo?: string;
-  isForwarded?: boolean;
-  status?: 'sent' | 'delivered' | 'read';
-  duration?: number; // for voice messages
-  imageUrl?: string;
-  videoUrl?: string;
-  isDisappearing?: boolean;
-}
-
-interface Chat {
-  id: string;
-  name: string;
-  avatar: string;
-  lastMessage: string;
-  time: string;
-  unreadCount: number;
-  isOnline: boolean;
-  isVerified?: boolean;
-  isTyping?: boolean;
-  isPinned?: boolean;
-  isArchived?: boolean;
-  isGroup?: boolean;
-  lastSeen?: string;
-  groupMembers?: number;
-}
-
 const Messages = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [activeChat, setActiveChat] = useState<string | null>(null);
   const [messageInput, setMessageInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [isRecording, setIsRecording] = useState(false);
   const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
   const [showReactions, setShowReactions] = useState<string | null>(null);
-  const [isTyping, setIsTyping] = useState(false);
   const [showStories, setShowStories] = useState(true);
   const [currentView, setCurrentView] = useState<'primary' | 'requests' | 'archived'>('primary');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const typingTimeoutRef = useRef<NodeJS.Timeout>();
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Real-time messaging hooks
+  const { chats, loading: chatsLoading, refreshChats } = useMessaging();
+  const { 
+    messages, 
+    loading: messagesLoading, 
+    typingUsers,
+    sendMessage: sendChatMessage,
+    setTyping,
+    addReaction,
+    refreshMessages 
+  } = useChat(activeChat || '');
 
   const stories: Story[] = [
     { id: "own", name: "Your Story", avatar: "/placeholder.svg", hasStory: false, isViewed: false },
@@ -117,124 +95,92 @@ const Messages = () => {
     { id: "4", name: "Music Squad", avatar: "/placeholder.svg", hasStory: true, isViewed: true },
   ];
 
-  const chats: Chat[] = [
-    {
-      id: "1",
-      name: "Priya Sharma",
-      avatar: "/placeholder.svg",
-      lastMessage: "That song you shared is amazing! 🎵",
-      time: "2m",
-      unreadCount: 2,
-      isOnline: true,
-      isVerified: true,
-      isPinned: true,
-      isTyping: true,
-    },
-    {
-      id: "2", 
-      name: "Rohit Kumar",
-      avatar: "/placeholder.svg",
-      lastMessage: "When are we jamming next?",
-      time: "1h",
-      unreadCount: 0,
-      isOnline: true,
-      lastSeen: "Active 5m ago",
-    },
-    {
-      id: "3",
-      name: "Music Squad",
-      avatar: "/placeholder.svg",
-      lastMessage: "Check out this new playlist 🔥",
-      time: "3h",
-      unreadCount: 5,
-      isOnline: false,
-      isGroup: true,
-      groupMembers: 12,
-    },
-    {
-      id: "4",
-      name: "Anita Singh",
-      avatar: "/placeholder.svg",
-      lastMessage: "Loved your latest upload!",
-      time: "1d",
-      unreadCount: 0,
-      isOnline: false,
-      lastSeen: "Active 2h ago",
-    },
-  ];
-
-  const messages: Message[] = [
-    {
-      id: "1",
-      content: "Hey! Did you listen to that new track?",
-      time: "10:30 AM",
-      isOwn: false,
-      type: 'text',
-      status: 'read',
-    },
-    {
-      id: "2",
-      content: "Yes! It's absolutely incredible 🎵",
-      time: "10:32 AM",
-      isOwn: true,
-      isRead: true,
-      type: 'text',
-      status: 'read',
-      reactions: [
-        { emoji: "❤️", count: 1, users: ["Priya"] },
-        { emoji: "🔥", count: 1, users: ["Priya"] }
-      ]
-    },
-    {
-      id: "3",
-      content: "",
-      time: "10:33 AM",
-      isOwn: false,
-      type: 'voice',
-      duration: 15,
-      status: 'read',
-    },
-    {
-      id: "4",
-      content: "We should collaborate on something like this",
-      time: "10:35 AM",
-      isOwn: true,
-      isRead: true,
-      type: 'text',
-      status: 'delivered',
-      isDisappearing: true,
-    },
-    {
-      id: "5",
-      content: "",
-      time: "10:36 AM",
-      isOwn: false,
-      type: 'image',
-      imageUrl: "/placeholder.svg",
-      status: 'read',
-    },
-  ];
-
   const reactionEmojis = ["❤️", "😂", "😮", "😢", "😡", "👍"];
 
   const filteredChats = chats.filter(chat => {
     if (currentView === 'requests') return false; // Placeholder for message requests
     if (currentView === 'archived') return chat.isArchived;
-    return !chat.isArchived && chat.name.toLowerCase().includes(searchQuery.toLowerCase());
+    return !chat.isArchived && (chat.name?.toLowerCase().includes(searchQuery.toLowerCase()) || '');
   });
 
   const selectedChat = chats.find(chat => chat.id === activeChat);
 
-  const sendMessage = () => {
-    if (messageInput.trim()) {
-      // Handle message sending logic here
-      setMessageInput("");
+  // Auto-scroll to bottom when new messages arrive
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
+
+  // Handle typing indicators
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setMessageInput(value);
+
+    if (activeChat) {
+      // Set typing status
+      setTyping(true);
+
+      // Clear previous timeout
+      if (typingTimeoutRef.current) {
+        clearTimeout(typingTimeoutRef.current);
+      }
+
+      // Stop typing after 3 seconds of inactivity
+      typingTimeoutRef.current = setTimeout(() => {
+        setTyping(false);
+      }, 3000);
     }
   };
 
-  const addReaction = (messageId: string, emoji: string) => {
-    // Handle reaction logic here
-    setShowReactions(null);
+  const sendMessage = async () => {
+    if (messageInput.trim() && activeChat) {
+      try {
+        await sendChatMessage(messageInput.trim());
+        setMessageInput("");
+        
+        // Stop typing indicator
+        setTyping(false);
+        if (typingTimeoutRef.current) {
+          clearTimeout(typingTimeoutRef.current);
+        }
+
+        toast({
+          title: "Message sent",
+          description: "Your message has been delivered",
+        });
+      } catch (error) {
+        toast({
+          title: "Failed to send message",
+          description: "Please try again",
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
+  const handleReaction = async (messageId: string, emoji: string) => {
+    try {
+      await addReaction(messageId, emoji);
+      setShowReactions(null);
+      toast({
+        title: "Reaction added",
+        description: `You reacted with ${emoji}`,
+      });
+    } catch (error) {
+      toast({
+        title: "Failed to add reaction",
+        description: "Please try again",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const formatTime = (timestamp: Date | string) => {
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString('en-US', { 
+      hour: 'numeric', 
+      minute: '2-digit',
+      hour12: true 
+    });
   };
 
   const containerVariants = {
@@ -284,10 +230,15 @@ const Messages = () => {
                   <Avatar className="h-10 w-10 cursor-pointer">
                     <AvatarImage src={selectedChat?.avatar} />
                     <AvatarFallback>
-                      {selectedChat?.name.charAt(0)}
+                      {selectedChat?.type === 'ai' ? <Bot className="h-5 w-5" /> : selectedChat?.name?.charAt(0)}
                     </AvatarFallback>
                   </Avatar>
-                  {selectedChat?.isOnline && (
+                  {selectedChat?.type === 'ai' && (
+                    <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-blue-500 rounded-full border-2 border-background">
+                      <Zap className="h-2 w-2 text-white" />
+                    </div>
+                  )}
+                  {selectedChat?.isOnline && selectedChat?.type !== 'ai' && (
                     <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
                   )}
                 </div>
@@ -302,12 +253,15 @@ const Messages = () => {
                         <div className="w-2 h-2 bg-white rounded-full" />
                       </div>
                     )}
-                    {selectedChat?.isGroup && (
+                    {selectedChat?.type === 'group' && (
                       <Users className="h-3 w-3 text-muted-foreground" />
+                    )}
+                    {selectedChat?.type === 'ai' && (
+                      <Bot className="h-3 w-3 text-blue-500" />
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {selectedChat?.isTyping ? (
+                    {typingUsers.length > 0 ? (
                       <span className="flex items-center space-x-1">
                         <span>Typing</span>
                         <div className="flex space-x-1">
@@ -316,6 +270,8 @@ const Messages = () => {
                           <div className="w-1 h-1 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
                         </div>
                       </span>
+                    ) : selectedChat?.type === 'ai' ? (
+                      "AI Assistant • Always active"
                     ) : selectedChat?.isOnline ? "Active now" : selectedChat?.lastSeen}
                   </p>
                 </div>
@@ -323,12 +279,16 @@ const Messages = () => {
             </div>
 
             <div className="flex items-center space-x-2">
-              <Button variant="ghost" size="icon" className="hover:bg-accent">
-                <Phone className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon" className="hover:bg-accent">
-                <Video className="h-5 w-5" />
-              </Button>
+              {selectedChat?.type !== 'ai' && (
+                <>
+                  <Button variant="ghost" size="icon" className="hover:bg-accent">
+                    <Phone className="h-5 w-5" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="hover:bg-accent">
+                    <Video className="h-5 w-5" />
+                  </Button>
+                </>
+              )}
               <Button variant="ghost" size="icon" className="hover:bg-accent">
                 <Info className="h-5 w-5" />
               </Button>
@@ -338,123 +298,132 @@ const Messages = () => {
 
         {/* Messages */}
         <ScrollArea className="flex-1 p-4">
-          <div className="space-y-4">
-            {messages.map((message) => (
-              <motion.div
-                key={message.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                className={`flex ${
-                  message.isOwn ? "justify-end" : "justify-start"
-                }`}
-              >
-                <div className="flex items-end space-x-2 max-w-[75%]">
-                  {!message.isOwn && (
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src={selectedChat?.avatar} />
-                      <AvatarFallback className="text-xs">
-                        {selectedChat?.name.charAt(0)}
-                      </AvatarFallback>
-                    </Avatar>
-                  )}
-                  
-                  <div className="space-y-1">
-                    <div
-                      className={`relative group rounded-2xl px-4 py-2 ${
-                        message.isOwn
-                          ? "bg-primary text-primary-foreground rounded-br-md"
-                          : "bg-muted text-foreground rounded-bl-md"
-                      } ${message.isDisappearing ? 'opacity-50' : ''}`}
-                      onDoubleClick={() => setShowReactions(message.id)}
-                    >
-                      {message.type === 'text' && (
-                        <p className="text-sm">{message.content}</p>
-                      )}
-                      
-                      {message.type === 'voice' && (
-                        <div className="flex items-center space-x-2 min-w-[120px]">
-                          <Button variant="ghost" size="icon" className="h-8 w-8">
-                            <Play className="h-4 w-4" />
-                          </Button>
-                          <div className="flex-1 h-1 bg-muted-foreground/30 rounded-full">
-                            <div className="h-full w-1/3 bg-primary rounded-full" />
-                          </div>
-                          <span className="text-xs">{message.duration}s</span>
-                        </div>
-                      )}
-                      
-                      {message.type === 'image' && (
-                        <div className="rounded-lg overflow-hidden">
-                          <img 
-                            src={message.imageUrl} 
-                            alt="Shared image"
-                            className="w-48 h-32 object-cover"
-                          />
-                        </div>
-                      )}
-
-                      {message.isForwarded && (
-                        <div className="flex items-center space-x-1 text-xs text-muted-foreground mb-1">
-                          <Forward className="h-3 w-3" />
-                          <span>Forwarded</span>
-                        </div>
-                      )}
-
-                      {message.isDisappearing && (
-                        <Clock className="h-3 w-3 text-muted-foreground inline ml-2" />
-                      )}
-
-                      {/* Message options */}
-                      <div className="absolute -top-8 right-0 opacity-0 group-hover:opacity-100 transition-opacity bg-background border rounded-lg shadow-lg flex items-center p-1 space-x-1">
-                        <Button variant="ghost" size="icon" className="h-6 w-6">
-                          <Reply className="h-3 w-3" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-6 w-6">
-                          <Forward className="h-3 w-3" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-6 w-6">
-                          <Copy className="h-3 w-3" />
-                        </Button>
-                        <Button variant="ghost" size="icon" className="h-6 w-6">
-                          <MoreHorizontal className="h-3 w-3" />
-                        </Button>
-                      </div>
-                    </div>
-
-                    {/* Reactions */}
-                    {message.reactions && message.reactions.length > 0 && (
-                      <div className="flex items-center space-x-1">
-                        {message.reactions.map((reaction, index) => (
-                          <div
-                            key={index}
-                            className="flex items-center space-x-1 bg-background border rounded-full px-2 py-1"
-                          >
-                            <span className="text-xs">{reaction.emoji}</span>
-                            <span className="text-xs text-muted-foreground">
-                              {reaction.count}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
+          {messagesLoading ? (
+            <div className="flex items-center justify-center h-32">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {messages.map((message) => (
+                <motion.div
+                  key={message.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className={`flex ${
+                    message.senderId === 'user' ? "justify-end" : "justify-start"
+                  }`}
+                >
+                  <div className="flex items-end space-x-2 max-w-[75%]">
+                    {message.senderId !== 'user' && (
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={selectedChat?.avatar} />
+                        <AvatarFallback className="text-xs">
+                          {selectedChat?.type === 'ai' ? <Bot className="h-4 w-4" /> : selectedChat?.name?.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
                     )}
+                    
+                    <div className="space-y-1">
+                      <div
+                        className={`relative group rounded-2xl px-4 py-2 ${
+                          message.senderId === 'user'
+                            ? "bg-primary text-primary-foreground rounded-br-md"
+                            : message.senderId === 'ai'
+                            ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-bl-md"
+                            : "bg-muted text-foreground rounded-bl-md"
+                        } ${message.isDisappearing ? 'opacity-50' : ''}`}
+                        onDoubleClick={() => setShowReactions(message.id)}
+                      >
+                        {message.type === 'text' && (
+                          <p className="text-sm">{message.content}</p>
+                        )}
+                        
+                        {message.type === 'voice' && (
+                          <div className="flex items-center space-x-2 min-w-[120px]">
+                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                              <Play className="h-4 w-4" />
+                            </Button>
+                            <div className="flex-1 h-1 bg-muted-foreground/30 rounded-full">
+                              <div className="h-full w-1/3 bg-primary rounded-full" />
+                            </div>
+                            <span className="text-xs">{message.metadata?.duration || 15}s</span>
+                          </div>
+                        )}
+                        
+                        {message.type === 'image' && (
+                          <div className="rounded-lg overflow-hidden">
+                            <img 
+                              src={message.metadata?.imageUrl || "/placeholder.svg"} 
+                              alt="Shared image"
+                              className="w-48 h-32 object-cover"
+                            />
+                          </div>
+                        )}
 
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs text-muted-foreground">{message.time}</p>
-                      {message.isOwn && (
-                        <div className="text-xs text-muted-foreground">
-                          {message.status === 'sent' && '✓'}
-                          {message.status === 'delivered' && '✓✓'}
-                          {message.status === 'read' && (
-                            <span className="text-blue-500">✓✓</span>
-                          )}
+                        {message.isForwarded && (
+                          <div className="flex items-center space-x-1 text-xs text-muted-foreground mb-1">
+                            <Forward className="h-3 w-3" />
+                            <span>Forwarded</span>
+                          </div>
+                        )}
+
+                        {message.isDisappearing && (
+                          <Clock className="h-3 w-3 text-muted-foreground inline ml-2" />
+                        )}
+
+                        {/* Message options */}
+                        <div className="absolute -top-8 right-0 opacity-0 group-hover:opacity-100 transition-opacity bg-background border rounded-lg shadow-lg flex items-center p-1 space-x-1">
+                          <Button variant="ghost" size="icon" className="h-6 w-6">
+                            <Reply className="h-3 w-3" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-6 w-6">
+                            <Forward className="h-3 w-3" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-6 w-6">
+                            <Copy className="h-3 w-3" />
+                          </Button>
+                          <Button variant="ghost" size="icon" className="h-6 w-6">
+                            <MoreHorizontal className="h-3 w-3" />
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Reactions */}
+                      {message.reactions && message.reactions.length > 0 && (
+                        <div className="flex items-center space-x-1">
+                          {message.reactions.map((reaction, index) => (
+                            <div
+                              key={index}
+                              className="flex items-center space-x-1 bg-background border rounded-full px-2 py-1"
+                            >
+                              <span className="text-xs">{reaction.emoji}</span>
+                              <span className="text-xs text-muted-foreground">1</span>
+                            </div>
+                          ))}
                         </div>
                       )}
+
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs text-muted-foreground">
+                          {formatTime(message.timestamp)}
+                        </p>
+                        {message.senderId === 'user' && (
+                          <div className="text-xs text-muted-foreground">
+                            {message.isRead ? (
+                              <span className="text-blue-500">✓✓</span>
+                            ) : (
+                              '✓✓'
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+                </motion.div>
+              ))}
+              <div ref={messagesEndRef} />
+            </div>
+          )}
         </ScrollArea>
 
         {/* Quick Reactions */}
@@ -473,7 +442,10 @@ const Messages = () => {
                     key={emoji}
                     variant="ghost"
                     className="text-2xl hover:scale-110 transition-transform"
-                    onClick={() => addReaction(showReactions, emoji)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleReaction(showReactions, emoji);
+                    }}
                   >
                     {emoji}
                   </Button>
@@ -509,8 +481,8 @@ const Messages = () => {
             <div className="flex-1 relative">
               <Input
                 value={messageInput}
-                onChange={(e) => setMessageInput(e.target.value)}
-                placeholder="Message..."
+                onChange={handleInputChange}
+                placeholder={selectedChat?.type === 'ai' ? "Ask AI anything..." : "Message..."}
                 className="rounded-full bg-muted border-0 pr-12"
                 onKeyPress={(e) => e.key === "Enter" && sendMessage()}
               />
@@ -587,7 +559,7 @@ const Messages = () => {
             </Button>
             <h1 className="text-xl font-bold">Messages</h1>
             <Badge variant="secondary" className="text-xs">
-              {filteredChats.filter(chat => chat.unreadCount > 0).length}
+              {filteredChats.filter(chat => (chat.unreadCount || 0) > 0).length}
             </Badge>
           </div>
 
@@ -685,124 +657,119 @@ const Messages = () => {
         </motion.div>
       )}
 
-      {/* Quick Actions */}
-      {currentView === 'primary' && (
-        <motion.div variants={itemVariants} className="px-4 py-2">
-          <div className="flex space-x-3">
-            <Button variant="outline" size="sm" className="rounded-full">
-              <Archive className="h-4 w-4 mr-2" />
-              Archived
-            </Button>
-            <Button variant="outline" size="sm" className="rounded-full">
-              <MessageCircle className="h-4 w-4 mr-2" />
-              Message Requests
-            </Button>
-          </div>
-        </motion.div>
-      )}
-
       {/* Chat List */}
       <motion.div variants={itemVariants} className="flex-1 overflow-y-auto">
-        <div className="space-y-1 p-2">
-          {currentView === 'requests' && (
-            <div className="text-center py-12">
-              <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="font-semibold mb-2">No message requests</h3>
-              <p className="text-sm text-muted-foreground">
-                Message requests from people you don't follow will appear here
-              </p>
-            </div>
-          )}
-
-          {currentView === 'archived' && filteredChats.length === 0 && (
-            <div className="text-center py-12">
-              <Archive className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="font-semibold mb-2">No archived chats</h3>
-              <p className="text-sm text-muted-foreground">
-                Chats you archive will appear here
-              </p>
-            </div>
-          )}
-
-          {filteredChats.map((chat) => (
-            <motion.div
-              key={chat.id}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              whileHover={{ backgroundColor: "hsl(var(--accent))" }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setActiveChat(chat.id)}
-              className="flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition-colors group"
-            >
-              <div className="relative">
-                <Avatar className="h-14 w-14">
-                  <AvatarImage src={chat.avatar} />
-                  <AvatarFallback>{chat.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                {chat.isOnline && (
-                  <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-background" />
-                )}
+        {chatsLoading ? (
+          <div className="flex items-center justify-center h-32">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          </div>
+        ) : (
+          <div className="space-y-1 p-2">
+            {currentView === 'requests' && (
+              <div className="text-center py-12">
+                <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="font-semibold mb-2">No message requests</h3>
+                <p className="text-sm text-muted-foreground">
+                  Message requests from people you don't follow will appear here
+                </p>
               </div>
+            )}
 
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-1">
-                    {chat.isPinned && (
-                      <Pin className="h-3 w-3 text-muted-foreground" />
-                    )}
-                    <h3 className={`text-sm truncate ${chat.unreadCount > 0 ? 'font-bold' : 'font-semibold'}`}>
-                      {chat.name}
-                    </h3>
-                    {chat.isVerified && (
-                      <div className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
-                        <div className="w-2 h-2 bg-white rounded-full" />
-                      </div>
-                    )}
-                    {chat.isGroup && (
-                      <Users className="h-3 w-3 text-muted-foreground" />
-                    )}
-                  </div>
-                  <div className="flex items-center space-x-2 flex-shrink-0">
-                    <span className="text-xs text-muted-foreground">
-                      {chat.time}
-                    </span>
-                    {chat.unreadCount > 0 && (
-                      <Badge className="bg-primary text-primary-foreground text-xs px-2 py-0.5 min-w-[20px] h-5 flex items-center justify-center">
-                        {chat.unreadCount}
-                      </Badge>
-                    )}
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        // Handle more options
-                      }}
-                    >
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-                <div className="flex items-center space-x-1 mt-1">
-                  {chat.isTyping && (
-                    <span className="text-sm text-primary">Typing...</span>
+            {currentView === 'archived' && filteredChats.length === 0 && (
+              <div className="text-center py-12">
+                <Archive className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="font-semibold mb-2">No archived chats</h3>
+                <p className="text-sm text-muted-foreground">
+                  Chats you archive will appear here
+                </p>
+              </div>
+            )}
+
+            {filteredChats.map((chat) => (
+              <motion.div
+                key={chat.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                whileHover={{ backgroundColor: "hsl(var(--accent))" }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setActiveChat(chat.id)}
+                className="flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition-colors group"
+              >
+                <div className="relative">
+                  <Avatar className="h-14 w-14">
+                    <AvatarImage src={chat.avatar} />
+                    <AvatarFallback>
+                      {chat.type === 'ai' ? <Bot className="h-6 w-6" /> : chat.name?.charAt(0)}
+                    </AvatarFallback>
+                  </Avatar>
+                  {chat.type === 'ai' && (
+                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-blue-500 rounded-full border-2 border-background flex items-center justify-center">
+                      <Zap className="h-2 w-2 text-white" />
+                    </div>
                   )}
-                  {!chat.isTyping && (
-                    <p className={`text-sm truncate ${chat.unreadCount > 0 ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
-                      {chat.lastMessage}
+                  {chat.isOnline && chat.type !== 'ai' && (
+                    <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-background" />
+                  )}
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-1">
+                      {chat.isPinned && (
+                        <Pin className="h-3 w-3 text-muted-foreground" />
+                      )}
+                      <h3 className={`text-sm truncate ${(chat.unreadCount || 0) > 0 ? 'font-bold' : 'font-semibold'}`}>
+                        {chat.name}
+                      </h3>
+                      {chat.isVerified && (
+                        <div className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+                          <div className="w-2 h-2 bg-white rounded-full" />
+                        </div>
+                      )}
+                      {chat.type === 'group' && (
+                        <Users className="h-3 w-3 text-muted-foreground" />
+                      )}
+                      {chat.type === 'ai' && (
+                        <Bot className="h-3 w-3 text-blue-500" />
+                      )}
+                    </div>
+                    <div className="flex items-center space-x-2 flex-shrink-0">
+                      <span className="text-xs text-muted-foreground">
+                        {chat.lastMessage ? formatTime(chat.lastMessage.timestamp) : ''}
+                      </span>
+                      {(chat.unreadCount || 0) > 0 && (
+                        <Badge className="bg-primary text-primary-foreground text-xs px-2 py-0.5 min-w-[20px] h-5 flex items-center justify-center">
+                          {chat.unreadCount}
+                        </Badge>
+                      )}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // Handle more options
+                        }}
+                      >
+                        <MoreHorizontal className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-1 mt-1">
+                    <p className={`text-sm truncate ${(chat.unreadCount || 0) > 0 ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
+                      {chat.lastMessage?.content || (chat.type === 'ai' ? 'AI Assistant ready to help!' : 'Start a conversation')}
                     </p>
-                  )}
-                  {chat.isGroup && (
-                    <span className="text-xs text-muted-foreground">
-                      · {chat.groupMembers} members
-                    </span>
-                  )}
+                    {chat.type === 'group' && chat.groupMembers && (
+                      <span className="text-xs text-muted-foreground">
+                        · {chat.groupMembers} members
+                      </span>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
-        </div>
+              </motion.div>
+            ))}
+          </div>
+        )}
       </motion.div>
 
       {/* Floating Action Button */}
