@@ -38,7 +38,7 @@ import {
   Grid3X3,
   ListMusic,
   Clock,
-  Fire,
+  Flame,
   Sparkles,
   Upload as UploadIcon,
 } from "lucide-react";
