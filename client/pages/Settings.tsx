@@ -455,7 +455,7 @@ export default function Settings() {
                               className={`flex items-center justify-between p-3 rounded-lg transition-all border ${
                                 theme === 'dark'
                                   ? 'bg-purple-primary border-purple-primary text-white'
-                                  : 'bg-white/5 dark:bg-white/5 light:bg-gray-50 border-gray-300 dark:border-purple-primary/20 light:border-gray-300 text-gray-400 hover:text-white dark:hover:text-white light:hover:text-purple-primary'
+                                  : 'bg-white/5 dark:bg-white/5 light:bg-gray-50 border-gray-300 dark:border-purple-primary/20 light:border-gray-300 text-gray-400 dark:text-gray-400 light:text-gray-700 hover:text-white dark:hover:text-white light:hover:text-purple-primary'
                               }`}
                             >
                               <div className="flex items-center space-x-2">
