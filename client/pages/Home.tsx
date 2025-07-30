@@ -378,10 +378,10 @@ export default function Home() {
             <div className="relative">
               <motion.div
                 animate={{
-                  scale: isSearchFocused ? 1.02 : 1,
+                  scale: isSearchFocused ? 1.01 : 1,
                   boxShadow: isSearchFocused
-                    ? "0 0 20px rgba(158, 64, 252, 0.4)"
-                    : "0 0 0px rgba(158, 64, 252, 0)",
+                    ? "0 2px 8px rgba(0, 0, 0, 0.1)"
+                    : "0 1px 3px rgba(0, 0, 0, 0.05)",
                 }}
                 className="relative"
               >
