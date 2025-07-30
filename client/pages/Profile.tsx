@@ -584,16 +584,16 @@ export default function Profile() {
             {/* View Mode Toggle for Tracks/Playlists */}
             {(selectedTab === "tracks" || selectedTab === "playlists") && (
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold text-white">
+                <h2 className="text-lg font-bold text-foreground">
                   {selectedTab === "tracks" ? "My Tracks" : "My Playlists"}
                 </h2>
                 <div className="flex items-center space-x-2">
                   <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={() => setViewMode("grid")}
-                    className={`p-2 rounded-lg transition-colors ${
-                      viewMode === "grid" ? "bg-purple-primary text-white" : "text-gray-400"
+                    className={`p-2 rounded-md transition-colors ${
+                      viewMode === "grid" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
                     }`}
                   >
                     <Grid3X3 className="w-4 h-4" />
