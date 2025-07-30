@@ -52,8 +52,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { useMessaging, useChat } from "@/lib/messaging-service";
 
-
-
 const Messages = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -64,38 +62,41 @@ const Messages = () => {
   const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
   const [showReactions, setShowReactions] = useState<string | null>(null);
 
-  const [currentView, setCurrentView] = useState<'primary' | 'requests' | 'archived'>('primary');
+  const [currentView, setCurrentView] = useState<
+    "primary" | "requests" | "archived"
+  >("primary");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout>();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Real-time messaging hooks
   const { chats, loading: chatsLoading, refreshChats } = useMessaging();
-  const { 
-    messages, 
-    loading: messagesLoading, 
+  const {
+    messages,
+    loading: messagesLoading,
     typingUsers,
     sendMessage: sendChatMessage,
     setTyping,
     addReaction,
-    refreshMessages 
-  } = useChat(activeChat || '');
-
-
+    refreshMessages,
+  } = useChat(activeChat || "");
 
   const reactionEmojis = ["❤️", "😂", "😮", "😢", "😡", "👍"];
 
-  const filteredChats = chats.filter(chat => {
-    if (currentView === 'requests') return false; // Placeholder for message requests
-    if (currentView === 'archived') return chat.isArchived;
-    return !chat.isArchived && (chat.name?.toLowerCase().includes(searchQuery.toLowerCase()) || '');
+  const filteredChats = chats.filter((chat) => {
+    if (currentView === "requests") return false; // Placeholder for message requests
+    if (currentView === "archived") return chat.isArchived;
+    return (
+      !chat.isArchived &&
+      (chat.name?.toLowerCase().includes(searchQuery.toLowerCase()) || "")
+    );
   });
 
-  const selectedChat = chats.find(chat => chat.id === activeChat);
+  const selectedChat = chats.find((chat) => chat.id === activeChat);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   // Handle typing indicators
@@ -124,7 +125,7 @@ const Messages = () => {
       try {
         await sendChatMessage(messageInput.trim());
         setMessageInput("");
-        
+
         // Stop typing indicator
         setTyping(false);
         if (typingTimeoutRef.current) {
@@ -164,10 +165,10 @@ const Messages = () => {
 
   const formatTime = (timestamp: Date | string) => {
     const date = new Date(timestamp);
-    return date.toLocaleTimeString('en-US', { 
-      hour: 'numeric', 
-      minute: '2-digit',
-      hour12: true 
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
     });
   };
 
@@ -212,25 +213,29 @@ const Messages = () => {
               >
                 <ArrowLeft className="h-5 w-5" />
               </Button>
-              
+
               <div className="flex items-center space-x-3">
                 <div className="relative">
                   <Avatar className="h-10 w-10 cursor-pointer">
                     <AvatarImage src={selectedChat?.avatar} />
                     <AvatarFallback>
-                      {selectedChat?.type === 'ai' ? <Bot className="h-5 w-5" /> : selectedChat?.name?.charAt(0)}
+                      {selectedChat?.type === "ai" ? (
+                        <Bot className="h-5 w-5" />
+                      ) : (
+                        selectedChat?.name?.charAt(0)
+                      )}
                     </AvatarFallback>
                   </Avatar>
-                  {selectedChat?.type === 'ai' && (
+                  {selectedChat?.type === "ai" && (
                     <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-blue-500 rounded-full border-2 border-background">
                       <Zap className="h-2 w-2 text-white" />
                     </div>
                   )}
-                  {selectedChat?.isOnline && selectedChat?.type !== 'ai' && (
+                  {selectedChat?.isOnline && selectedChat?.type !== "ai" && (
                     <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 rounded-full border-2 border-background" />
                   )}
                 </div>
-                
+
                 <div>
                   <div className="flex items-center space-x-1">
                     <h2 className="font-semibold text-sm">
@@ -241,10 +246,10 @@ const Messages = () => {
                         <div className="w-2 h-2 bg-white rounded-full" />
                       </div>
                     )}
-                    {selectedChat?.type === 'group' && (
+                    {selectedChat?.type === "group" && (
                       <Users className="h-3 w-3 text-muted-foreground" />
                     )}
-                    {selectedChat?.type === 'ai' && (
+                    {selectedChat?.type === "ai" && (
                       <Bot className="h-3 w-3 text-blue-500" />
                     )}
                   </div>
@@ -254,25 +259,43 @@ const Messages = () => {
                         <span>Typing</span>
                         <div className="flex space-x-1">
                           <div className="w-1 h-1 bg-primary rounded-full animate-bounce" />
-                          <div className="w-1 h-1 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.1s' }} />
-                          <div className="w-1 h-1 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0.2s' }} />
+                          <div
+                            className="w-1 h-1 bg-primary rounded-full animate-bounce"
+                            style={{ animationDelay: "0.1s" }}
+                          />
+                          <div
+                            className="w-1 h-1 bg-primary rounded-full animate-bounce"
+                            style={{ animationDelay: "0.2s" }}
+                          />
                         </div>
                       </span>
-                    ) : selectedChat?.type === 'ai' ? (
+                    ) : selectedChat?.type === "ai" ? (
                       "AI Assistant • Always active"
-                    ) : selectedChat?.isOnline ? "Active now" : selectedChat?.lastSeen}
+                    ) : selectedChat?.isOnline ? (
+                      "Active now"
+                    ) : (
+                      selectedChat?.lastSeen
+                    )}
                   </p>
                 </div>
               </div>
             </div>
 
             <div className="flex items-center space-x-2">
-              {selectedChat?.type !== 'ai' && (
+              {selectedChat?.type !== "ai" && (
                 <>
-                  <Button variant="ghost" size="icon" className="hover:bg-accent">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="hover:bg-accent"
+                  >
                     <Phone className="h-5 w-5" />
                   </Button>
-                  <Button variant="ghost" size="icon" className="hover:bg-accent">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="hover:bg-accent"
+                  >
                     <Video className="h-5 w-5" />
                   </Button>
                 </>
@@ -298,50 +321,64 @@ const Messages = () => {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className={`flex ${
-                    message.senderId === 'user' ? "justify-end" : "justify-start"
+                    message.senderId === "user"
+                      ? "justify-end"
+                      : "justify-start"
                   }`}
                 >
                   <div className="flex items-end space-x-2 max-w-[75%]">
-                    {message.senderId !== 'user' && (
+                    {message.senderId !== "user" && (
                       <Avatar className="h-8 w-8">
                         <AvatarImage src={selectedChat?.avatar} />
                         <AvatarFallback className="text-xs">
-                          {selectedChat?.type === 'ai' ? <Bot className="h-4 w-4" /> : selectedChat?.name?.charAt(0)}
+                          {selectedChat?.type === "ai" ? (
+                            <Bot className="h-4 w-4" />
+                          ) : (
+                            selectedChat?.name?.charAt(0)
+                          )}
                         </AvatarFallback>
                       </Avatar>
                     )}
-                    
+
                     <div className="space-y-1">
                       <div
                         className={`relative group rounded-2xl px-4 py-2 ${
-                          message.senderId === 'user'
+                          message.senderId === "user"
                             ? "bg-primary text-primary-foreground rounded-br-md"
-                            : message.senderId === 'ai'
-                            ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-bl-md"
-                            : "bg-muted text-foreground rounded-bl-md"
-                        } ${message.isDisappearing ? 'opacity-50' : ''}`}
+                            : message.senderId === "ai"
+                              ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-bl-md"
+                              : "bg-muted text-foreground rounded-bl-md"
+                        } ${message.isDisappearing ? "opacity-50" : ""}`}
                         onDoubleClick={() => setShowReactions(message.id)}
                       >
-                        {message.type === 'text' && (
+                        {message.type === "text" && (
                           <p className="text-sm">{message.content}</p>
                         )}
-                        
-                        {message.type === 'voice' && (
+
+                        {message.type === "voice" && (
                           <div className="flex items-center space-x-2 min-w-[120px]">
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                            >
                               <Play className="h-4 w-4" />
                             </Button>
                             <div className="flex-1 h-1 bg-muted-foreground/30 rounded-full">
                               <div className="h-full w-1/3 bg-primary rounded-full" />
                             </div>
-                            <span className="text-xs">{message.metadata?.duration || 15}s</span>
+                            <span className="text-xs">
+                              {message.metadata?.duration || 15}s
+                            </span>
                           </div>
                         )}
-                        
-                        {message.type === 'image' && (
+
+                        {message.type === "image" && (
                           <div className="rounded-lg overflow-hidden">
-                            <img 
-                              src={message.metadata?.imageUrl || "/placeholder.svg"} 
+                            <img
+                              src={
+                                message.metadata?.imageUrl || "/placeholder.svg"
+                              }
                               alt="Shared image"
                               className="w-48 h-32 object-cover"
                             />
@@ -361,16 +398,32 @@ const Messages = () => {
 
                         {/* Message options */}
                         <div className="absolute -top-8 right-0 opacity-0 group-hover:opacity-100 transition-opacity bg-background border rounded-lg shadow-lg flex items-center p-1 space-x-1">
-                          <Button variant="ghost" size="icon" className="h-6 w-6">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6"
+                          >
                             <Reply className="h-3 w-3" />
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-6 w-6">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6"
+                          >
                             <Forward className="h-3 w-3" />
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-6 w-6">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6"
+                          >
                             <Copy className="h-3 w-3" />
                           </Button>
-                          <Button variant="ghost" size="icon" className="h-6 w-6">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6"
+                          >
                             <MoreHorizontal className="h-3 w-3" />
                           </Button>
                         </div>
@@ -385,7 +438,9 @@ const Messages = () => {
                               className="flex items-center space-x-1 bg-background border rounded-full px-2 py-1"
                             >
                               <span className="text-xs">{reaction.emoji}</span>
-                              <span className="text-xs text-muted-foreground">1</span>
+                              <span className="text-xs text-muted-foreground">
+                                1
+                              </span>
                             </div>
                           ))}
                         </div>
@@ -395,12 +450,12 @@ const Messages = () => {
                         <p className="text-xs text-muted-foreground">
                           {formatTime(message.timestamp)}
                         </p>
-                        {message.senderId === 'user' && (
+                        {message.senderId === "user" && (
                           <div className="text-xs text-muted-foreground">
                             {message.isRead ? (
                               <span className="text-blue-500">✓✓</span>
                             ) : (
-                              '✓✓'
+                              "✓✓"
                             )}
                           </div>
                         )}
@@ -452,25 +507,29 @@ const Messages = () => {
             <Button variant="ghost" size="icon" className="hover:bg-accent">
               <Plus className="h-5 w-5" />
             </Button>
-            
-            <Button 
-              variant="ghost" 
-              size="icon" 
+
+            <Button
+              variant="ghost"
+              size="icon"
               className="hover:bg-accent"
               onClick={() => fileInputRef.current?.click()}
             >
               <Camera className="h-5 w-5" />
             </Button>
-            
+
             <Button variant="ghost" size="icon" className="hover:bg-accent">
               <Image className="h-5 w-5" />
             </Button>
-            
+
             <div className="flex-1 relative">
               <Input
                 value={messageInput}
                 onChange={handleInputChange}
-                placeholder={selectedChat?.type === 'ai' ? "Ask AI anything..." : "Message..."}
+                placeholder={
+                  selectedChat?.type === "ai"
+                    ? "Ask AI anything..."
+                    : "Message..."
+                }
                 className="rounded-full bg-muted border-0 pr-12"
                 onKeyPress={(e) => e.key === "Enter" && sendMessage()}
               />
@@ -483,16 +542,16 @@ const Messages = () => {
               </Button>
             </div>
 
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className={`hover:bg-accent ${isRecording ? 'text-red-500' : ''}`}
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`hover:bg-accent ${isRecording ? "text-red-500" : ""}`}
               onMouseDown={() => setIsRecording(true)}
               onMouseUp={() => setIsRecording(false)}
             >
               <Mic className="h-5 w-5" />
             </Button>
-            
+
             {messageInput.trim() ? (
               <Button
                 onClick={sendMessage}
@@ -547,7 +606,10 @@ const Messages = () => {
             </Button>
             <h1 className="text-xl font-bold">Messages</h1>
             <Badge variant="secondary" className="text-xs">
-              {filteredChats.filter(chat => (chat.unreadCount || 0) > 0).length}
+              {
+                filteredChats.filter((chat) => (chat.unreadCount || 0) > 0)
+                  .length
+              }
             </Badge>
           </div>
 
@@ -567,23 +629,23 @@ const Messages = () => {
         {/* Navigation Tabs */}
         <div className="flex px-4 space-x-6">
           <Button
-            variant={currentView === 'primary' ? 'default' : 'ghost'}
-            className={`text-sm ${currentView === 'primary' ? 'text-white' : ''}`}
-            onClick={() => setCurrentView('primary')}
+            variant={currentView === "primary" ? "default" : "ghost"}
+            className={`text-sm ${currentView === "primary" ? "text-white" : ""}`}
+            onClick={() => setCurrentView("primary")}
           >
             Primary
           </Button>
           <Button
-            variant={currentView === 'requests' ? 'default' : 'ghost'}
-            className={`text-sm ${currentView === 'requests' ? 'text-white' : ''}`}
-            onClick={() => setCurrentView('requests')}
+            variant={currentView === "requests" ? "default" : "ghost"}
+            className={`text-sm ${currentView === "requests" ? "text-white" : ""}`}
+            onClick={() => setCurrentView("requests")}
           >
             Requests
           </Button>
           <Button
-            variant={currentView === 'archived' ? 'default' : 'ghost'}
-            className={`text-sm ${currentView === 'archived' ? 'text-white' : ''}`}
-            onClick={() => setCurrentView('archived')}
+            variant={currentView === "archived" ? "default" : "ghost"}
+            className={`text-sm ${currentView === "archived" ? "text-white" : ""}`}
+            onClick={() => setCurrentView("archived")}
           >
             Archived
           </Button>
@@ -603,8 +665,6 @@ const Messages = () => {
         </div>
       </motion.header>
 
-
-
       {/* Chat List */}
       <motion.div variants={itemVariants} className="flex-1 overflow-y-auto">
         {chatsLoading ? (
@@ -613,7 +673,7 @@ const Messages = () => {
           </div>
         ) : (
           <div className="space-y-1 p-2">
-            {currentView === 'requests' && (
+            {currentView === "requests" && (
               <div className="text-center py-12">
                 <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <h3 className="font-semibold mb-2">No message requests</h3>
@@ -623,7 +683,7 @@ const Messages = () => {
               </div>
             )}
 
-            {currentView === 'archived' && filteredChats.length === 0 && (
+            {currentView === "archived" && filteredChats.length === 0 && (
               <div className="text-center py-12">
                 <Archive className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                 <h3 className="font-semibold mb-2">No archived chats</h3>
@@ -647,15 +707,19 @@ const Messages = () => {
                   <Avatar className="h-14 w-14">
                     <AvatarImage src={chat.avatar} />
                     <AvatarFallback>
-                      {chat.type === 'ai' ? <Bot className="h-6 w-6" /> : chat.name?.charAt(0)}
+                      {chat.type === "ai" ? (
+                        <Bot className="h-6 w-6" />
+                      ) : (
+                        chat.name?.charAt(0)
+                      )}
                     </AvatarFallback>
                   </Avatar>
-                  {chat.type === 'ai' && (
+                  {chat.type === "ai" && (
                     <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-blue-500 rounded-full border-2 border-background flex items-center justify-center">
                       <Zap className="h-2 w-2 text-white" />
                     </div>
                   )}
-                  {chat.isOnline && chat.type !== 'ai' && (
+                  {chat.isOnline && chat.type !== "ai" && (
                     <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-background" />
                   )}
                 </div>
@@ -666,7 +730,9 @@ const Messages = () => {
                       {chat.isPinned && (
                         <Pin className="h-3 w-3 text-muted-foreground" />
                       )}
-                      <h3 className={`text-sm truncate ${(chat.unreadCount || 0) > 0 ? 'font-bold' : 'font-semibold'}`}>
+                      <h3
+                        className={`text-sm truncate ${(chat.unreadCount || 0) > 0 ? "font-bold" : "font-semibold"}`}
+                      >
                         {chat.name}
                       </h3>
                       {chat.isVerified && (
@@ -674,16 +740,18 @@ const Messages = () => {
                           <div className="w-2 h-2 bg-white rounded-full" />
                         </div>
                       )}
-                      {chat.type === 'group' && (
+                      {chat.type === "group" && (
                         <Users className="h-3 w-3 text-muted-foreground" />
                       )}
-                      {chat.type === 'ai' && (
+                      {chat.type === "ai" && (
                         <Bot className="h-3 w-3 text-blue-500" />
                       )}
                     </div>
                     <div className="flex items-center space-x-2 flex-shrink-0">
                       <span className="text-xs text-muted-foreground">
-                        {chat.lastMessage ? formatTime(chat.lastMessage.timestamp) : ''}
+                        {chat.lastMessage
+                          ? formatTime(chat.lastMessage.timestamp)
+                          : ""}
                       </span>
                       {(chat.unreadCount || 0) > 0 && (
                         <Badge className="bg-primary text-primary-foreground text-xs px-2 py-0.5 min-w-[20px] h-5 flex items-center justify-center">
@@ -704,10 +772,15 @@ const Messages = () => {
                     </div>
                   </div>
                   <div className="flex items-center space-x-1 mt-1">
-                    <p className={`text-sm truncate ${(chat.unreadCount || 0) > 0 ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
-                      {chat.lastMessage?.content || (chat.type === 'ai' ? 'AI Assistant ready to help!' : 'Start a conversation')}
+                    <p
+                      className={`text-sm truncate ${(chat.unreadCount || 0) > 0 ? "font-medium text-foreground" : "text-muted-foreground"}`}
+                    >
+                      {chat.lastMessage?.content ||
+                        (chat.type === "ai"
+                          ? "AI Assistant ready to help!"
+                          : "Start a conversation")}
                     </p>
-                    {chat.type === 'group' && chat.groupMembers && (
+                    {chat.type === "group" && chat.groupMembers && (
                       <span className="text-xs text-muted-foreground">
                         · {chat.groupMembers} members
                       </span>

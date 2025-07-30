@@ -351,7 +351,7 @@ export default function Home() {
 
           {/* Static Message Icon */}
           <button
-            onClick={() => navigate('/messages')}
+            onClick={() => navigate("/messages")}
             className="group relative flex items-center justify-center"
           >
             {/* Modern circular container */}
@@ -441,7 +441,10 @@ export default function Home() {
                       animate={{ scale: [1, 1.05, 1] }}
                       transition={{ duration: 2, repeat: Infinity }}
                       className="inline-block px-3 py-1 rounded-full text-xs font-bold mb-3"
-                      style={{ backgroundColor: 'rgba(172, 126, 190, 1)', color: 'white' }}
+                      style={{
+                        backgroundColor: "rgba(172, 126, 190, 1)",
+                        color: "white",
+                      }}
                     >
                       NEW RELEASE
                     </motion.span>
