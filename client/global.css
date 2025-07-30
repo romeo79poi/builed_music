@@ -210,12 +210,16 @@
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
   }
 
-  /* Light mode specific utilities - YouTube style */
-  .light .light-shadow {
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  /* Google/YouTube style light mode utilities */
+  .light .google-shadow {
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   }
 
-  .light .light-shadow-lg {
+  .light .google-shadow-hover {
+    box-shadow: 0 2px 8px 0 rgb(0 0 0 / 0.1);
+  }
+
+  .light .google-shadow-lg {
     box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
   }
 
@@ -225,20 +229,20 @@
   }
 
   .light .youtube-shadow-hover {
-    box-shadow: 0 4px 8px 0 rgb(0 0 0 / 0.12), 0 2px 4px 0 rgb(0 0 0 / 0.08);
+    box-shadow: 0 2px 8px 0 rgb(0 0 0 / 0.1), 0 1px 4px 0 rgb(0 0 0 / 0.06);
   }
 
-  /* Enhanced light mode text colors for better contrast */
+  /* Google style light mode text colors */
   .light .text-light-primary {
-    color: rgb(10 10 10); /* Almost black for maximum contrast */
+    color: rgb(32 33 36); /* Google text color */
   }
 
   .light .text-light-secondary {
-    color: rgb(70 70 70); /* Darker gray for better readability */
+    color: rgb(95 99 104); /* Google secondary text */
   }
 
   .light .text-light-tertiary {
-    color: rgb(120 120 120); /* Medium gray, still readable */
+    color: rgb(128 134 139); /* Google tertiary text */
   }
 
   /* Enhanced dark mode utilities with purple accents */
