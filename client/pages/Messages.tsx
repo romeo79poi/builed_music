@@ -552,8 +552,11 @@ const Messages = () => {
           </div>
 
           <div className="flex items-center space-x-2">
+            <Button variant="outline" className="hover:bg-accent">
+              Join
+            </Button>
             <Button variant="ghost" size="icon" className="hover:bg-accent">
-              <Video className="h-5 w-5" />
+              <Send className="h-5 w-5" />
             </Button>
             <Button variant="ghost" size="icon" className="hover:bg-accent">
               <Edit className="h-5 w-5" />
