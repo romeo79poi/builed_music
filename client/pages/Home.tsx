@@ -428,7 +428,7 @@ export default function Home() {
           >
             <motion.div
               whileHover={{ scale: 1.01 }}
-              className="relative bg-card rounded-2xl p-6 overflow-hidden cursor-pointer youtube-shadow hover:youtube-shadow-hover dark:google-dark-shadow dark:hover:google-dark-shadow-hover border border-border"
+              className="relative bg-card rounded-2xl p-6 overflow-hidden cursor-pointer claude-shadow hover:claude-shadow-hover dark:claude-dark-shadow dark:hover:claude-dark-shadow-hover border border-border"
               onClick={() => {
                 toast({
                   title: "Playing Featured Album",
