@@ -19,6 +19,7 @@ import {
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
+import ThemeToggle from "../components/ThemeToggle";
 
 // Featured Artist/Album of the Day
 const featuredContent = {
@@ -280,9 +281,9 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-darker via-purple-dark to-background text-white relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-purple-darker via-purple-dark to-background dark:from-purple-darker dark:via-purple-dark dark:to-background light:from-gray-50 light:via-white light:to-purple-50 text-white dark:text-white light:text-gray-900 relative overflow-hidden theme-transition">
       {/* Enhanced Background Effects */}
-      <div className="fixed inset-0 bg-gradient-to-br from-purple-primary/8 via-purple-secondary/4 to-purple-accent/6"></div>
+      <div className="fixed inset-0 bg-gradient-to-br from-purple-primary/8 via-purple-secondary/4 to-purple-accent/6 dark:from-purple-primary/8 dark:via-purple-secondary/4 dark:to-purple-accent/6 light:from-purple-primary/3 light:via-purple-secondary/2 light:to-purple-accent/3 theme-transition"></div>
 
       {/* Animated floating elements */}
       <div className="fixed inset-0 opacity-20">
@@ -339,7 +340,7 @@ export default function Home() {
         {/* Enhanced Header */}
         <motion.header
           variants={itemVariants}
-          className="flex items-center justify-between px-4 py-3 bg-black/30 backdrop-blur-xl border-b border-purple-primary/30"
+          className="flex items-center justify-between px-4 py-3 bg-black/30 dark:bg-black/30 light:bg-white/80 backdrop-blur-xl border-b border-purple-primary/30 dark:border-purple-primary/30 light:border-purple-primary/20 theme-transition"
         >
           {/* Profile Icon with enhanced glow */}
           <motion.button
@@ -384,6 +385,9 @@ export default function Home() {
               MusicCatch
             </motion.span>
           </motion.div>
+
+          {/* Theme Toggle */}
+          <ThemeToggle size="md" />
 
           {/* Message Icon with enhanced effects */}
           <motion.button
