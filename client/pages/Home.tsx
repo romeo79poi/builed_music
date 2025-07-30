@@ -349,84 +349,26 @@ export default function Home() {
             </motion.span>
           </motion.div>
 
-          {/* Modern Message Icon like Instagram/Messenger */}
-          <motion.button
-            whileHover={{
-              scale: 1.1,
-              rotate: [0, -5, 5, 0],
-              transition: { duration: 0.3 }
-            }}
-            whileTap={{ scale: 0.9 }}
-            className="group relative flex items-center justify-center"
-          >
+          {/* Static Message Icon */}
+          <button className="group relative flex items-center justify-center">
             {/* Modern circular container */}
-            <div className="relative w-11 h-11 rounded-full bg-gradient-to-br dark:from-blue-500 dark:via-purple-500 dark:to-pink-500 light:from-blue-600 light:via-purple-600 light:to-pink-600 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center">
+            <div className="relative w-11 h-11 rounded-full bg-gradient-to-br dark:from-blue-500 dark:via-purple-500 dark:to-pink-500 light:from-blue-600 light:via-purple-600 light:to-pink-600 shadow-lg hover:shadow-xl transition-shadow duration-300 flex items-center justify-center">
 
               {/* Paper plane icon like Instagram DM */}
               <svg
                 viewBox="0 0 24 24"
-                className="w-5 h-5 text-white transform rotate-45 group-hover:scale-110 transition-transform duration-200"
+                className="w-5 h-5 text-white transform rotate-45"
                 fill="currentColor"
               >
                 <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
               </svg>
-
-              {/* Shimmer effect */}
-              <motion.div
-                animate={{
-                  x: [-20, 20],
-                  opacity: [0, 1, 0],
-                }}
-                transition={{
-                  duration: 1.5,
-                  repeat: Infinity,
-                  ease: "easeInOut"
-                }}
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent rounded-full transform -skew-x-12"
-              />
             </div>
 
-            {/* Notification Badge with WhatsApp style */}
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{
-                scale: 1,
-                y: [0, -1, 0],
-                transition: {
-                  scale: { duration: 0.3, ease: "backOut" },
-                  y: { duration: 1.5, repeat: Infinity }
-                }
-              }}
-              className="absolute -top-1 -right-1 min-w-[20px] h-5 bg-gradient-to-r from-red-500 to-red-600 rounded-full flex items-center justify-center px-1.5 shadow-lg border-2 border-white dark:border-gray-800"
-            >
+            {/* Notification Badge */}
+            <div className="absolute -top-1 -right-1 min-w-[20px] h-5 bg-gradient-to-r from-red-500 to-red-600 rounded-full flex items-center justify-center px-1.5 shadow-lg border-2 border-white dark:border-gray-800">
               <span className="text-xs font-bold text-white leading-none">3</span>
-            </motion.div>
-
-            {/* Active indicator pulse */}
-            <motion.div
-              animate={{
-                scale: [1, 1.5, 1],
-                opacity: [0.6, 0, 0.6],
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-              className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-400 to-purple-400 opacity-30"
-            />
-
-            {/* Hover glow effect */}
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              whileHover={{
-                scale: 1.4,
-                opacity: 0.3,
-                transition: { duration: 0.3 }
-              }}
-              className="absolute inset-0 rounded-full bg-gradient-to-br from-blue-300 to-purple-300 blur-sm"
-            />
-          </motion.button>
+            </div>
+          </button>
         </motion.header>
 
         {/* Main Content */}
