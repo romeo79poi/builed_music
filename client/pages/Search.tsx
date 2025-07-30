@@ -29,7 +29,6 @@ import {
   Playlist,
 } from "../lib/supabase";
 import MobileFooter from "../components/MobileFooter";
-import ThemeToggle from "../components/ThemeToggle";
 
 export default function Search() {
   const navigate = useNavigate();
