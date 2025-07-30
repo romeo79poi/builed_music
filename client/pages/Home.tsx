@@ -280,9 +280,9 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-darker via-purple-dark to-background dark:from-purple-darker dark:via-purple-dark dark:to-background light:bg-white text-white dark:text-white light:text-gray-900 relative overflow-hidden theme-transition">
-      {/* Enhanced Background Effects */}
-      <div className="fixed inset-0 bg-gradient-to-br from-purple-primary/8 via-purple-secondary/4 to-purple-accent/6 dark:from-purple-primary/8 dark:via-purple-secondary/4 dark:to-purple-accent/6 light:bg-gradient-to-br light:from-purple-primary/2 light:via-transparent light:to-transparent theme-transition"></div>
+    <div className="min-h-screen bg-background text-foreground relative overflow-hidden theme-transition">
+      {/* Clean minimalist background like Google/YouTube */}
+      <div className="fixed inset-0 bg-gradient-to-b from-background to-secondary/20 theme-transition"></div>
 
       {/* Animated floating elements */}
       <div className="fixed inset-0 opacity-20">
