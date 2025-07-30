@@ -382,7 +382,7 @@ export default function Profile() {
                   className="w-24 h-24 rounded-full object-cover border-4 border-background shadow-xl"
                 />
                 {profile.isVerified && (
-                  <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center border-2 border-purple-dark">
+                  <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center border-2 border-background">
                     <Verified className="w-5 h-5 text-white" />
                   </div>
                 )}
