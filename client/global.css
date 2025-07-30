@@ -229,83 +229,105 @@
       border-color 0.3s ease;
   }
 
-  /* Google/YouTube style light mode utilities */
+  /* High contrast black and white light mode utilities */
   .light .google-shadow {
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.15);
   }
 
   .light .google-shadow-hover {
-    box-shadow: 0 2px 8px 0 rgb(0 0 0 / 0.1);
+    box-shadow: 0 2px 8px 0 rgb(0 0 0 / 0.2);
   }
 
   .light .google-shadow-lg {
     box-shadow:
-      0 4px 6px -1px rgb(0 0 0 / 0.1),
-      0 2px 4px -1px rgb(0 0 0 / 0.06);
+      0 4px 6px -1px rgb(0 0 0 / 0.15),
+      0 2px 4px -1px rgb(0 0 0 / 0.1);
   }
 
-  /* YouTube-style light mode card shadows */
+  /* High contrast light mode card shadows */
   .light .youtube-shadow {
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.15);
   }
 
   .light .youtube-shadow-hover {
     box-shadow:
-      0 2px 8px 0 rgb(0 0 0 / 0.1),
-      0 1px 4px 0 rgb(0 0 0 / 0.06);
+      0 2px 8px 0 rgb(0 0 0 / 0.2),
+      0 1px 4px 0 rgb(0 0 0 / 0.1);
   }
 
-  /* Google style light mode text colors - monochrome */
+  /* High contrast text colors - pure black and white */
   .light .text-light-primary {
-    color: rgb(32 33 36); /* Google text color */
+    color: rgb(0 0 0); /* Pure black text */
   }
 
   .light .text-light-secondary {
-    color: rgb(95 99 104); /* Google secondary text */
+    color: rgb(60 60 60); /* Dark gray secondary text */
   }
 
   .light .text-light-tertiary {
-    color: rgb(128 134 139); /* Google tertiary text */
+    color: rgb(100 100 100); /* Medium gray tertiary text */
   }
 
-  /* Black styling for light mode like YouTube */
+  /* Force black text for all gradients in light mode */
   .light .purple-gradient-text {
-    background: none;
-    -webkit-background-clip: unset;
-    background-clip: unset;
-    -webkit-text-fill-color: unset;
-    color: rgb(15 15 15); /* Dark text */
+    background: none !important;
+    -webkit-background-clip: unset !important;
+    background-clip: unset !important;
+    -webkit-text-fill-color: unset !important;
+    color: rgb(0 0 0) !important; /* Pure black text */
   }
 
-  /* Black light mode utilities like YouTube */
+  /* Pure black accents for light mode */
   .light .light-accent {
-    color: rgb(15 15 15); /* Black */
+    color: rgb(0 0 0) !important; /* Pure black */
   }
 
   .light .light-accent-bg {
-    background-color: rgb(15 15 15);
-    color: white;
+    background-color: rgb(0 0 0) !important;
+    color: rgb(255 255 255) !important;
   }
 
   .light .light-hover-accent {
-    transition: color 0.2s ease;
+    transition: all 0.2s ease;
   }
 
   .light .light-hover-accent:hover {
-    color: rgb(15 15 15);
+    color: rgb(0 0 0) !important;
+    background-color: rgb(240 240 240);
   }
 
-  /* Clean black and white shadows */
+  /* High contrast black and white shadows */
   .light .claude-shadow {
     box-shadow:
-      0 1px 3px 0 rgb(0 0 0 / 0.1),
+      0 1px 3px 0 rgb(0 0 0 / 0.15),
       0 1px 2px -1px rgb(0 0 0 / 0.1);
   }
 
   .light .claude-shadow-hover {
     box-shadow:
-      0 4px 6px -1px rgb(0 0 0 / 0.1),
-      0 2px 4px -1px rgb(0 0 0 / 0.06);
+      0 4px 6px -1px rgb(0 0 0 / 0.15),
+      0 2px 4px -1px rgb(0 0 0 / 0.1);
+  }
+
+  /* Force black text and icons everywhere in light mode */
+  .light * {
+    color: inherit;
+  }
+
+  .light svg {
+    color: inherit !important;
+  }
+
+  .light button {
+    color: inherit;
+  }
+
+  .light a {
+    color: rgb(0 0 0);
+  }
+
+  .light a:hover {
+    color: rgb(60 60 60);
   }
 
   /* Claude-like dark mode utilities */
