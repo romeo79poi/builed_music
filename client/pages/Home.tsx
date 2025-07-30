@@ -350,7 +350,10 @@ export default function Home() {
           </motion.div>
 
           {/* Static Message Icon */}
-          <button className="group relative flex items-center justify-center">
+          <button
+            onClick={() => navigate('/messages')}
+            className="group relative flex items-center justify-center"
+          >
             {/* Modern circular container */}
             <div className="relative w-11 h-11 rounded-full bg-gradient-to-br dark:from-blue-500 dark:via-purple-500 dark:to-pink-500 light:from-blue-600 light:via-purple-600 light:to-pink-600 shadow-lg hover:shadow-xl transition-shadow duration-300 flex items-center justify-center">
               {/* Message Circle icon */}
