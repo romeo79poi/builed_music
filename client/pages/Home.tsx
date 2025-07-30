@@ -651,7 +651,7 @@ export default function Home() {
                   }}
                   onHoverStart={() => setHoveredAlbum(album.id)}
                   onHoverEnd={() => setHoveredAlbum(null)}
-                  className="flex-shrink-0 w-32 sm:w-36 bg-purple-dark/40 backdrop-blur-sm rounded-xl p-3 hover:bg-purple-dark/60 transition-all cursor-pointer group border border-purple-primary/20 hover:border-purple-primary/50 hover:shadow-xl hover:shadow-purple-primary/20"
+                  className="flex-shrink-0 w-32 sm:w-36 bg-purple-dark/40 dark:bg-purple-dark/40 light:bg-white light:youtube-shadow light:hover:youtube-shadow-hover backdrop-blur-sm rounded-xl p-3 hover:bg-purple-dark/60 dark:hover:bg-purple-dark/60 light:hover:bg-gray-50 transition-all cursor-pointer group border border-purple-primary/20 dark:border-purple-primary/20 light:border-gray-200 hover:border-purple-primary/50 hover:shadow-xl hover:shadow-purple-primary/20 theme-transition"
                 >
                   <div className="relative mb-3">
                     <motion.img
