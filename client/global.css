@@ -245,13 +245,30 @@
     color: rgb(128 134 139); /* Google tertiary text */
   }
 
-  /* Remove all color gradients in light mode */
+  /* Attractive gradients for light mode */
   .light .purple-gradient-text {
-    background: none;
-    -webkit-background-clip: unset;
-    background-clip: unset;
-    -webkit-text-fill-color: unset;
-    color: rgb(32 33 36); /* Use regular text color */
+    background: linear-gradient(135deg, hsl(220 100% 50%), hsl(200 100% 55%));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Add attractive light mode utilities */
+  .light .light-accent {
+    color: hsl(220 100% 50%); /* YouTube blue */
+  }
+
+  .light .light-accent-bg {
+    background-color: hsl(220 100% 50%);
+    color: white;
+  }
+
+  .light .light-hover-accent {
+    transition: color 0.2s ease;
+  }
+
+  .light .light-hover-accent:hover {
+    color: hsl(220 100% 50%);
   }
 
   /* Google/YouTube style dark mode utilities */
