@@ -145,7 +145,7 @@ export default function MobileFooter({ className = "" }: FooterProps) {
                           <motion.div
                             initial={{ scale: 0 }}
                             animate={{ scale: 1 }}
-                            className="absolute inset-0 bg-gradient-to-r dark:from-neon-green/20 dark:to-purple-secondary/20 light:from-purple-primary/20 light:to-purple-secondary/20 rounded-full border dark:border-neon-green/30 light:border-purple-primary/30"
+                            className="absolute inset-0 bg-gradient-to-r dark:from-neon-green/20 dark:to-purple-secondary/20 light:bg-black/10 rounded-full border dark:border-neon-green/30 light:border-black/30"
                           />
                         )}
 
