@@ -516,33 +516,33 @@ export default function Profile() {
             {/* Stats */}
             <div className="grid grid-cols-3 gap-4 mb-6">
               <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
                 onClick={() => setShowStats(true)}
-                className="text-center p-3 bg-purple-dark/30 rounded-xl border border-purple-primary/20"
+                className="text-center p-3 bg-card rounded-lg border border-border hover:bg-muted/50 transition-colors youtube-shadow hover:youtube-shadow-hover dark:google-dark-shadow dark:hover:google-dark-shadow-hover"
               >
-                <p className="text-xl font-bold text-white">{formatNumber(profile.stats.followers)}</p>
-                <p className="text-sm text-gray-400">Followers</p>
+                <p className="text-xl font-bold text-foreground">{formatNumber(profile.stats.followers)}</p>
+                <p className="text-sm text-muted-foreground">Followers</p>
               </motion.button>
-              
+
               <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
                 onClick={() => setShowStats(true)}
-                className="text-center p-3 bg-purple-dark/30 rounded-xl border border-purple-primary/20"
+                className="text-center p-3 bg-card rounded-lg border border-border hover:bg-muted/50 transition-colors youtube-shadow hover:youtube-shadow-hover dark:google-dark-shadow dark:hover:google-dark-shadow-hover"
               >
-                <p className="text-xl font-bold text-white">{formatNumber(profile.stats.following)}</p>
-                <p className="text-sm text-gray-400">Following</p>
+                <p className="text-xl font-bold text-foreground">{formatNumber(profile.stats.following)}</p>
+                <p className="text-sm text-muted-foreground">Following</p>
               </motion.button>
-              
+
               <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
                 onClick={() => setShowStats(true)}
-                className="text-center p-3 bg-purple-dark/30 rounded-xl border border-purple-primary/20"
+                className="text-center p-3 bg-card rounded-lg border border-border hover:bg-muted/50 transition-colors youtube-shadow hover:youtube-shadow-hover dark:google-dark-shadow dark:hover:google-dark-shadow-hover"
               >
-                <p className="text-xl font-bold text-white">{formatNumber(profile.stats.totalPlays)}</p>
-                <p className="text-sm text-gray-400">Total Plays</p>
+                <p className="text-xl font-bold text-foreground">{formatNumber(profile.stats.totalPlays)}</p>
+                <p className="text-sm text-muted-foreground">Total Plays</p>
               </motion.button>
             </div>
 
