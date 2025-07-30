@@ -568,7 +568,7 @@ const Messages = () => {
         <div className="flex px-4 space-x-6">
           <Button
             variant={currentView === 'primary' ? 'default' : 'ghost'}
-            className="text-sm"
+            className={`text-sm ${currentView === 'primary' ? 'text-white' : ''}`}
             onClick={() => setCurrentView('primary')}
           >
             Primary
