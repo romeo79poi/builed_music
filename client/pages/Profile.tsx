@@ -426,15 +426,15 @@ export default function Profile() {
             {/* Name and Bio */}
             <div className="mb-4">
               <div className="flex items-center space-x-2 mb-2">
-                <h1 className="text-2xl font-bold text-white">{profile.displayName}</h1>
+                <h1 className="text-2xl font-bold text-foreground">{profile.displayName}</h1>
                 {profile.isArtist && (
-                  <div className="px-2 py-1 bg-purple-primary/20 rounded-full">
-                    <span className="text-xs text-purple-accent font-medium">Artist</span>
+                  <div className="px-2 py-1 bg-primary/10 rounded-full">
+                    <span className="text-xs text-primary font-medium">Artist</span>
                   </div>
                 )}
               </div>
-              <p className="text-gray-400 mb-1">@{profile.username}</p>
-              <p className="text-white leading-relaxed mb-3">{profile.bio}</p>
+              <p className="text-muted-foreground mb-1">@{profile.username}</p>
+              <p className="text-foreground leading-relaxed mb-3">{profile.bio}</p>
               
               {/* Location and Website */}
               <div className="flex items-center space-x-4 text-sm text-gray-400 mb-3">
