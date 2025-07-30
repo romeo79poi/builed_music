@@ -245,21 +245,21 @@
     color: rgb(128 134 139); /* Google tertiary text */
   }
 
-  /* Attractive gradients for light mode */
+  /* Claude-like gradients for light mode */
   .light .purple-gradient-text {
-    background: linear-gradient(135deg, hsl(220 100% 50%), hsl(200 100% 55%));
+    background: linear-gradient(135deg, hsl(25 95% 53%), hsl(35 100% 50%));
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
   }
 
-  /* Add attractive light mode utilities */
+  /* Claude-like light mode utilities */
   .light .light-accent {
-    color: hsl(220 100% 50%); /* YouTube blue */
+    color: hsl(25 95% 53%); /* Warm orange */
   }
 
   .light .light-accent-bg {
-    background-color: hsl(220 100% 50%);
+    background-color: hsl(25 95% 53%);
     color: white;
   }
 
@@ -268,7 +268,16 @@
   }
 
   .light .light-hover-accent:hover {
-    color: hsl(220 100% 50%);
+    color: hsl(25 95% 53%);
+  }
+
+  /* Professional shadows for Claude-like appearance */
+  .light .claude-shadow {
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  }
+
+  .light .claude-shadow-hover {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
   }
 
   /* Google/YouTube style dark mode utilities */
