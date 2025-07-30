@@ -688,7 +688,7 @@ export default function Home() {
                     transition: { type: "spring", stiffness: 400, damping: 25 },
                   }}
                   onClick={() => handlePlaySong(song.id)}
-                  className="flex items-center space-x-4 p-3 rounded-xl hover:bg-purple-primary/10 transition-all cursor-pointer group border border-transparent hover:border-purple-primary/30 hover:shadow-lg hover:shadow-purple-primary/10"
+                  className="flex items-center space-x-4 p-3 rounded-lg hover:bg-muted/50 transition-all cursor-pointer group"
                 >
                   <div className="relative">
                     <motion.img
