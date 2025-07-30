@@ -280,41 +280,41 @@
     box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
   }
 
-  /* Google/YouTube style dark mode utilities */
-  .dark .google-dark-shadow {
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4);
+  /* Claude-like dark mode utilities */
+  .dark .claude-dark-shadow {
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.5);
   }
 
-  .dark .google-dark-shadow-hover {
-    box-shadow: 0 2px 8px 0 rgb(0 0 0 / 0.3);
+  .dark .claude-dark-shadow-hover {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -1px rgb(0 0 0 / 0.4);
   }
 
-  .dark .google-dark-shadow-lg {
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -1px rgb(0 0 0 / 0.3);
+  .dark .claude-dark-shadow-lg {
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
   }
 
-  .dark .dark-shadow-purple {
-    box-shadow: 0 4px 12px 0 hsl(267 83% 65% / 0.15), 0 2px 6px 0 rgb(0 0 0 / 0.4);
+  .dark .dark-shadow-orange {
+    box-shadow: 0 4px 12px 0 hsl(25 95% 53% / 0.2), 0 2px 6px 0 rgb(0 0 0 / 0.5);
   }
 
   .dark .text-dark-primary {
-    color: rgb(241 243 244); /* YouTube dark text */
+    color: rgb(241 243 244); /* Clean light text */
   }
 
   .dark .text-dark-secondary {
-    color: rgb(170 170 170); /* YouTube secondary text */
+    color: rgb(170 170 170); /* Secondary text */
   }
 
   .dark .text-dark-tertiary {
-    color: rgb(136 136 136); /* YouTube tertiary text */
+    color: rgb(136 136 136); /* Tertiary text */
   }
 
   .dark .bg-dark-card {
-    background-color: hsl(0 0% 13%); /* Dark cards like YouTube */
+    background-color: hsl(218 11% 15%); /* Dark blue-gray cards */
   }
 
   .dark .bg-dark-surface {
-    background-color: hsl(0 0% 9%); /* Dark surface like YouTube */
+    background-color: hsl(218 11% 12%); /* Dark blue-gray surface */
   }
 
   .purple-gradient-text {
