@@ -379,7 +379,7 @@ export default function Profile() {
                 <img
                   src={profile.avatar}
                   alt={profile.displayName}
-                  className="w-24 h-24 rounded-full object-cover border-4 border-purple-dark shadow-xl"
+                  className="w-24 h-24 rounded-full object-cover border-4 border-background shadow-xl"
                 />
                 {profile.isVerified && (
                   <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center border-2 border-purple-dark">
