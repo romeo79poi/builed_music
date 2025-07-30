@@ -353,14 +353,8 @@ export default function Home() {
           <button className="group relative flex items-center justify-center">
             {/* Modern circular container */}
             <div className="relative w-11 h-11 rounded-full bg-gradient-to-br dark:from-blue-500 dark:via-purple-500 dark:to-pink-500 light:from-blue-600 light:via-purple-600 light:to-pink-600 shadow-lg hover:shadow-xl transition-shadow duration-300 flex items-center justify-center">
-              {/* Paper plane icon like Instagram DM */}
-              <svg
-                viewBox="0 0 24 24"
-                className="w-5 h-5 text-white transform rotate-45"
-                fill="currentColor"
-              >
-                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-              </svg>
+              {/* Message Circle icon */}
+              <MessageCircle className="w-5 h-5 text-white" />
             </div>
 
             {/* Notification Badge */}
