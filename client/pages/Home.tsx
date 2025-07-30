@@ -308,7 +308,7 @@ export default function Home() {
             onClick={() => navigate("/profile")}
             className="w-10 h-10 bg-gradient-to-r dark:from-neon-green dark:to-purple-secondary light:bg-gradient-to-r light:from-blue-500 light:to-blue-600 rounded-full flex items-center justify-center shadow-lg hover:shadow-lg dark:hover:shadow-neon-green/60 light:hover:shadow-blue-500/40 transition-all duration-300 relative overflow-hidden"
           >
-            <User className="w-5 h-5 text-white dark:text-white light:text-gray-700 relative z-10" />
+            <User className="w-5 h-5 text-white relative z-10" />
             <motion.div
               animate={{
                 rotate: 360,
