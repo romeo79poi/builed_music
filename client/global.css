@@ -9,57 +9,57 @@
    * A different format will require also updating the theme in tailwind.config.ts.
   */
   :root {
-    /* ChatGPT-like Dark Mode */
-    --background: 0 0% 7%; /* Dark gray background (#121212) */
-    --foreground: 0 0% 88%; /* Light gray text (#e0e0e0) */
+    /* Purple Dark Mode */
+    --background: 260 30% 8%; /* Deep purple background */
+    --foreground: 280 20% 92%; /* Light purple-tinted text */
 
-    --card: 0 0% 10%; /* Slightly lighter dark cards */
-    --card-foreground: 0 0% 88%;
+    --card: 260 25% 12%; /* Purple-tinted dark cards */
+    --card-foreground: 280 20% 92%;
 
-    --popover: 0 0% 10%;
-    --popover-foreground: 0 0% 88%;
+    --popover: 260 25% 12%;
+    --popover-foreground: 280 20% 92%;
 
     --primary: 258 100% 56%; /* Purple accent (#6200ea) */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 15%; /* Dark secondary */
-    --secondary-foreground: 0 0% 88%;
+    --secondary: 260 20% 18%; /* Purple-tinted secondary */
+    --secondary-foreground: 280 20% 92%;
 
-    --muted: 0 0% 12%; /* Dark muted */
-    --muted-foreground: 0 0% 65%; /* Medium gray text */
+    --muted: 260 25% 15%; /* Purple-tinted muted */
+    --muted-foreground: 260 15% 70%; /* Purple-tinted gray text */
 
-    --accent: 258 100% 56%; /* Purple accent */
-    --accent-foreground: 0 0% 100%;
+    --accent: 273 85% 65%; /* Light purple accent */
+    --accent-foreground: 260 30% 8%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 20%; /* Subtle dark borders */
-    --input: 0 0% 12%; /* Dark inputs */
+    --border: 260 20% 25%; /* Purple-tinted borders */
+    --input: 260 25% 15%; /* Purple-tinted inputs */
     --ring: 258 100% 56%;
 
     --radius: 0.75rem;
 
-    --sidebar-background: 0 0% 7%;
-    --sidebar-foreground: 0 0% 88%;
+    --sidebar-background: 260 30% 8%;
+    --sidebar-foreground: 280 20% 92%;
     --sidebar-primary: 258 100% 56%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 15%;
-    --sidebar-accent-foreground: 0 0% 88%;
-    --sidebar-border: 0 0% 20%;
+    --sidebar-accent: 260 20% 18%;
+    --sidebar-accent-foreground: 280 20% 92%;
+    --sidebar-border: 260 20% 25%;
     --sidebar-ring: 258 100% 56%;
 
-    /* ChatGPT-like theme colors */
+    /* Purple theme colors */
     --purple-primary: 258 100% 56%; /* Purple primary (#6200ea) */
-    --purple-secondary: 243 100% 62%; /* Blue-purple */
-    --purple-accent: 273 100% 70%; /* Light purple */
-    --purple-glow: 258 100% 80%; /* Light purple glow */
-    --purple-dark: 0 0% 10%; /* Dark surface */
-    --purple-darker: 0 0% 7%; /* Darker surface */
-    --neon-green: 142 76% 56%; /* Green accent */
-    --neon-blue: 210 100% 56%; /* Blue accent */
-    --dark-surface: 0 0% 10%;
-    --darker-surface: 0 0% 7%;
+    --purple-secondary: 273 85% 65%; /* Violet */
+    --purple-accent: 285 85% 70%; /* Pink-purple */
+    --purple-glow: 280 100% 80%; /* Light purple glow */
+    --purple-dark: 260 25% 12%; /* Purple-tinted surface */
+    --purple-darker: 260 30% 8%; /* Deep purple background */
+    --neon-green: 158 64% 52%; /* Vibrant teal/green for highlights */
+    --neon-blue: 191 79% 52%; /* Bright cyan blue */
+    --dark-surface: 260 25% 12%;
+    --darker-surface: 260 30% 8%;
   }
 
   .light {
