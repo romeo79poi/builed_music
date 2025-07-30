@@ -575,14 +575,14 @@ const Messages = () => {
           </Button>
           <Button
             variant={currentView === 'requests' ? 'default' : 'ghost'}
-            className="text-sm"
+            className={`text-sm ${currentView === 'requests' ? 'text-white' : ''}`}
             onClick={() => setCurrentView('requests')}
           >
             Requests
           </Button>
           <Button
             variant={currentView === 'archived' ? 'default' : 'ghost'}
-            className="text-sm"
+            className={`text-sm ${currentView === 'archived' ? 'text-white' : ''}`}
             onClick={() => setCurrentView('archived')}
           >
             Archived
