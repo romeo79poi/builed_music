@@ -414,11 +414,11 @@ export default function Profile() {
                 </motion.button>
 
                 <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="px-4 py-2 bg-purple-dark/50 rounded-full border border-purple-primary/30"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg border border-border transition-colors"
                 >
-                  <MessageCircle className="w-4 h-4 text-white" />
+                  <MessageCircle className="w-4 h-4 text-foreground" />
                 </motion.button>
               </div>
             </div>
