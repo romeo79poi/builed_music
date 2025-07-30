@@ -9,106 +9,108 @@
    * A different format will require also updating the theme in tailwind.config.ts.
   */
   :root {
-    --background: 260 35% 8%;
-    --foreground: 210 40% 98%;
+    /* YouTube-like Dark Mode */
+    --background: 0 0% 7%; /* Dark background like YouTube */
+    --foreground: 0 0% 95%; /* Light text */
 
-    --card: 260 30% 15%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 10%; /* Dark cards */
+    --card-foreground: 0 0% 95%;
 
-    --popover: 260 30% 15%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 267 83% 58%;
-    --primary-foreground: 260 35% 8%;
+    --primary: 0 0% 95%; /* White primary */
+    --primary-foreground: 0 0% 7%;
 
-    --secondary: 260 25% 20%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 0 0% 15%; /* Dark secondary */
+    --secondary-foreground: 0 0% 95%;
 
-    --muted: 260 25% 20%;
-    --muted-foreground: 215 16% 65%;
+    --muted: 0 0% 12%; /* Dark muted */
+    --muted-foreground: 0 0% 70%; /* Gray text */
 
-    --accent: 285 85% 65%;
-    --accent-foreground: 260 35% 8%;
+    --accent: 0 0% 95%; /* White accent */
+    --accent-foreground: 0 0% 7%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 260 30% 25%;
-    --input: 260 30% 18%;
-    --ring: 267 83% 58%;
+    --border: 0 0% 20%; /* Gray borders */
+    --input: 0 0% 12%; /* Dark inputs */
+    --ring: 0 0% 95%;
 
     --radius: 0.75rem;
 
-    --sidebar-background: 260 30% 15%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 267 83% 58%;
-    --sidebar-primary-foreground: 260 35% 8%;
-    --sidebar-accent: 260 25% 20%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 260 30% 25%;
-    --sidebar-ring: 267 83% 58%;
+    --sidebar-background: 0 0% 7%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 0 0% 95%;
+    --sidebar-primary-foreground: 0 0% 7%;
+    --sidebar-accent: 0 0% 15%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 0 0% 20%;
+    --sidebar-ring: 0 0% 95%;
 
-    /* Catch app specific colors - Purple gradient theme */
-    --purple-primary: 267 83% 58%; /* Deep purple */
-    --purple-secondary: 285 85% 65%; /* Violet */
-    --purple-accent: 320 85% 70%; /* Pink-purple */
-    --purple-glow: 280 100% 80%; /* Light purple for glows */
-    --purple-dark: 260 30% 15%; /* Dark purple background */
-    --purple-darker: 260 35% 8%; /* Darker purple background */
-    --neon-green: 158 64% 52%; /* Vibrant teal/green for highlights */
-    --neon-blue: 191 79% 52%; /* Bright cyan blue */
-    --dark-surface: 260 30% 15%;
-    --darker-surface: 260 35% 8%;
+    /* YouTube-like theme colors */
+    --purple-primary: 0 0% 95%; /* White */
+    --purple-secondary: 0 0% 85%; /* Light gray */
+    --purple-accent: 0 0% 75%; /* Medium gray */
+    --purple-glow: 0 0% 50%; /* Gray glow */
+    --purple-dark: 0 0% 10%; /* Dark surface */
+    --purple-darker: 0 0% 7%; /* Darker surface */
+    --neon-green: 0 0% 95%; /* White instead of green */
+    --neon-blue: 0 0% 95%; /* White instead of blue */
+    --dark-surface: 0 0% 10%;
+    --darker-surface: 0 0% 7%;
   }
 
   .light {
-    --background: 0 0% 100%; /* Pure white */
-    --foreground: 0 0% 9%; /* Dark black text like YouTube */
+    /* High Contrast Black & White Light Mode */
+    --background: 0 0% 100%; /* Pure white background */
+    --foreground: 0 0% 0%; /* Pure black text */
 
     --card: 0 0% 100%; /* Pure white cards */
-    --card-foreground: 0 0% 9%;
+    --card-foreground: 0 0% 0%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 9%;
+    --popover-foreground: 0 0% 0%;
 
-    --primary: 0 0% 9%; /* Black primary like YouTube */
+    --primary: 0 0% 0%; /* Pure black primary */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 96%; /* Very light gray */
-    --secondary-foreground: 0 0% 9%;
+    --secondary: 0 0% 95%; /* Very light gray */
+    --secondary-foreground: 0 0% 0%;
 
-    --muted: 0 0% 98%; /* Very light gray background */
-    --muted-foreground: 0 0% 40%; /* Medium gray for secondary text */
+    --muted: 0 0% 97%; /* Light gray background */
+    --muted-foreground: 0 0% 35%; /* Dark gray for readability */
 
-    --accent: 0 0% 9%; /* Black accent like YouTube */
+    --accent: 0 0% 0%; /* Pure black accent */
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%; /* Red for destructive actions */
+    --destructive: 0 100% 40%; /* Dark red for visibility */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 88%; /* Light gray borders */
-    --input: 0 0% 98%; /* Very light inputs */
-    --ring: 0 0% 9%; /* Black focus ring like YouTube */
+    --border: 0 0% 80%; /* Clear gray borders */
+    --input: 0 0% 97%; /* Very light inputs */
+    --ring: 0 0% 0%; /* Pure black focus ring */
 
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 0 0% 9%;
-    --sidebar-primary: 0 0% 9%;
+    --sidebar-foreground: 0 0% 0%;
+    --sidebar-primary: 0 0% 0%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 96%;
-    --sidebar-accent-foreground: 0 0% 9%;
-    --sidebar-border: 0 0% 88%;
-    --sidebar-ring: 0 0% 9%;
+    --sidebar-accent: 0 0% 95%;
+    --sidebar-accent-foreground: 0 0% 0%;
+    --sidebar-border: 0 0% 80%;
+    --sidebar-ring: 0 0% 0%;
 
-    /* Light mode with black accents like YouTube */
-    --purple-primary: 0 0% 9%; /* Black primary */
-    --purple-secondary: 0 0% 20%; /* Dark gray */
-    --purple-accent: 0 0% 30%; /* Medium gray */
-    --purple-glow: 0 0% 50%; /* Medium gray */
-    --purple-dark: 0 0% 96%; /* Very light gray background */
+    /* Pure black and white theme colors */
+    --purple-primary: 0 0% 0%; /* Pure black */
+    --purple-secondary: 0 0% 15%; /* Dark gray */
+    --purple-accent: 0 0% 25%; /* Medium gray */
+    --purple-glow: 0 0% 50%; /* Gray */
+    --purple-dark: 0 0% 95%; /* Light gray background */
     --purple-darker: 0 0% 100%; /* Pure white */
-    --neon-green: 0 0% 9%; /* Black instead of green */
-    --neon-blue: 0 0% 9%; /* Black instead of blue */
-    --dark-surface: 0 0% 98%; /* Light surface */
+    --neon-green: 0 0% 0%; /* Pure black */
+    --neon-blue: 0 0% 0%; /* Pure black */
+    --dark-surface: 0 0% 95%; /* Light surface */
     --darker-surface: 0 0% 100%; /* White surface */
   }
 
@@ -227,83 +229,105 @@
       border-color 0.3s ease;
   }
 
-  /* Google/YouTube style light mode utilities */
+  /* High contrast black and white light mode utilities */
   .light .google-shadow {
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.15);
   }
 
   .light .google-shadow-hover {
-    box-shadow: 0 2px 8px 0 rgb(0 0 0 / 0.1);
+    box-shadow: 0 2px 8px 0 rgb(0 0 0 / 0.2);
   }
 
   .light .google-shadow-lg {
     box-shadow:
-      0 4px 6px -1px rgb(0 0 0 / 0.1),
-      0 2px 4px -1px rgb(0 0 0 / 0.06);
+      0 4px 6px -1px rgb(0 0 0 / 0.15),
+      0 2px 4px -1px rgb(0 0 0 / 0.1);
   }
 
-  /* YouTube-style light mode card shadows */
+  /* High contrast light mode card shadows */
   .light .youtube-shadow {
-    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.15);
   }
 
   .light .youtube-shadow-hover {
     box-shadow:
-      0 2px 8px 0 rgb(0 0 0 / 0.1),
-      0 1px 4px 0 rgb(0 0 0 / 0.06);
+      0 2px 8px 0 rgb(0 0 0 / 0.2),
+      0 1px 4px 0 rgb(0 0 0 / 0.1);
   }
 
-  /* Google style light mode text colors - monochrome */
+  /* High contrast text colors - pure black and white */
   .light .text-light-primary {
-    color: rgb(32 33 36); /* Google text color */
+    color: rgb(0 0 0); /* Pure black text */
   }
 
   .light .text-light-secondary {
-    color: rgb(95 99 104); /* Google secondary text */
+    color: rgb(60 60 60); /* Dark gray secondary text */
   }
 
   .light .text-light-tertiary {
-    color: rgb(128 134 139); /* Google tertiary text */
+    color: rgb(100 100 100); /* Medium gray tertiary text */
   }
 
-  /* Black styling for light mode like YouTube */
+  /* Force black text for all gradients in light mode */
   .light .purple-gradient-text {
-    background: none;
-    -webkit-background-clip: unset;
-    background-clip: unset;
-    -webkit-text-fill-color: unset;
-    color: rgb(15 15 15); /* Dark text */
+    background: none !important;
+    -webkit-background-clip: unset !important;
+    background-clip: unset !important;
+    -webkit-text-fill-color: unset !important;
+    color: rgb(0 0 0) !important; /* Pure black text */
   }
 
-  /* Black light mode utilities like YouTube */
+  /* Pure black accents for light mode */
   .light .light-accent {
-    color: rgb(15 15 15); /* Black */
+    color: rgb(0 0 0) !important; /* Pure black */
   }
 
   .light .light-accent-bg {
-    background-color: rgb(15 15 15);
-    color: white;
+    background-color: rgb(0 0 0) !important;
+    color: rgb(255 255 255) !important;
   }
 
   .light .light-hover-accent {
-    transition: color 0.2s ease;
+    transition: all 0.2s ease;
   }
 
   .light .light-hover-accent:hover {
-    color: rgb(15 15 15);
+    color: rgb(0 0 0) !important;
+    background-color: rgb(240 240 240);
   }
 
-  /* Clean black and white shadows */
+  /* High contrast black and white shadows */
   .light .claude-shadow {
     box-shadow:
-      0 1px 3px 0 rgb(0 0 0 / 0.1),
+      0 1px 3px 0 rgb(0 0 0 / 0.15),
       0 1px 2px -1px rgb(0 0 0 / 0.1);
   }
 
   .light .claude-shadow-hover {
     box-shadow:
-      0 4px 6px -1px rgb(0 0 0 / 0.1),
-      0 2px 4px -1px rgb(0 0 0 / 0.06);
+      0 4px 6px -1px rgb(0 0 0 / 0.15),
+      0 2px 4px -1px rgb(0 0 0 / 0.1);
+  }
+
+  /* Force black text and icons everywhere in light mode */
+  .light * {
+    color: inherit;
+  }
+
+  .light svg {
+    color: inherit !important;
+  }
+
+  .light button {
+    color: inherit;
+  }
+
+  .light a {
+    color: rgb(0 0 0);
+  }
+
+  .light a:hover {
+    color: rgb(60 60 60);
   }
 
   /* Claude-like dark mode utilities */

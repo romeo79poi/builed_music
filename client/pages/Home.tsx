@@ -349,33 +349,27 @@ export default function Home() {
             </motion.span>
           </motion.div>
 
-          {/* Message Icon with enhanced effects */}
-          <motion.button
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            variants={glowVariants}
-            initial="initial"
-            animate="animate"
-            className="w-10 h-10 bg-gradient-to-r dark:from-purple-primary dark:to-purple-secondary light:bg-black rounded-full flex items-center justify-center shadow-lg dark:hover:shadow-purple-primary/60 light:hover:shadow-lg transition-all duration-300 relative overflow-hidden"
-          >
-            <MessageCircle className="w-5 h-5 text-white relative z-10" />
-            <motion.span
-              animate={{
-                scale: [1, 1.2, 1],
-                transition: { duration: 1.5, repeat: Infinity },
-              }}
-              className="absolute -top-1 -right-1 w-4 h-4 bg-neon-green dark:bg-neon-green light:bg-black rounded-full flex items-center justify-center text-xs font-bold text-white shadow-lg dark:shadow-neon-green/50 light:shadow-lg"
-            >
-              3
-            </motion.span>
-            <motion.div
-              animate={{
-                rotate: -360,
-                transition: { duration: 4, repeat: Infinity, ease: "linear" },
-              }}
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-            />
-          </motion.button>
+          {/* Static Message Icon */}
+          <button className="group relative flex items-center justify-center">
+            {/* Modern circular container */}
+            <div className="relative w-11 h-11 rounded-full bg-gradient-to-br dark:from-blue-500 dark:via-purple-500 dark:to-pink-500 light:from-blue-600 light:via-purple-600 light:to-pink-600 shadow-lg hover:shadow-xl transition-shadow duration-300 flex items-center justify-center">
+              {/* Paper plane icon like Instagram DM */}
+              <svg
+                viewBox="0 0 24 24"
+                className="w-5 h-5 text-white transform rotate-45"
+                fill="currentColor"
+              >
+                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+              </svg>
+            </div>
+
+            {/* Notification Badge */}
+            <div className="absolute -top-1 -right-1 min-w-[20px] h-5 bg-gradient-to-r from-red-500 to-red-600 rounded-full flex items-center justify-center px-1.5 shadow-lg border-2 border-white dark:border-gray-800">
+              <span className="text-xs font-bold text-white leading-none">
+                3
+              </span>
+            </div>
+          </button>
         </motion.header>
 
         {/* Main Content */}
