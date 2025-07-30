@@ -391,13 +391,13 @@ export default function Profile() {
               {/* Action Buttons */}
               <div className="flex items-center space-x-2">
                 <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
                   onClick={handleFollow}
-                  className={`px-6 py-2 rounded-full font-medium transition-colors ${
+                  className={`px-6 py-2 rounded-lg font-medium transition-all ${
                     isFollowing
-                      ? "bg-gray-600 text-white"
-                      : "bg-purple-primary text-white hover:bg-purple-secondary"
+                      ? "bg-muted text-foreground hover:bg-muted/80"
+                      : "bg-primary text-primary-foreground hover:bg-primary/90"
                   }`}
                 >
                   {isFollowing ? (
