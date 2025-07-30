@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { MusicProvider } from "./context/MusicContext";
 import { ProfileProvider } from "./context/ProfileContext";
+import { ThemeProvider } from "./context/ThemeContext";
 import {
   FirebaseProvider,
   firebaseApp,
@@ -37,12 +38,13 @@ const App = () => {
   // अब firebaseAuth का use कर सकते हो login/signup में
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <FirebaseProvider>
-          <MusicProvider>
-            <ProfileProvider>
-              <Toaster />
-              <Sonner />
+      <ThemeProvider>
+        <TooltipProvider>
+          <FirebaseProvider>
+            <MusicProvider>
+              <ProfileProvider>
+                <Toaster />
+                <Sonner />
               <BrowserRouter>
                 <Routes>
                   <Route path="/" element={<Home />} />
@@ -66,10 +68,11 @@ const App = () => {
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>
-            </ProfileProvider>
-          </MusicProvider>
-        </FirebaseProvider>
-      </TooltipProvider>
+              </ProfileProvider>
+            </MusicProvider>
+          </FirebaseProvider>
+        </TooltipProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 };
