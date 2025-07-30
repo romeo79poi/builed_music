@@ -133,7 +133,7 @@ export default function MobileFooter({ className = "" }: FooterProps) {
                   >
                     {/* Special Reels button styling */}
                     {item.isSpecial ? (
-                      <div className={`w-8 h-8 rounded-xl bg-gradient-to-r dark:from-purple-primary dark:to-purple-secondary light:bg-black flex items-center justify-center ${
+                      <div className={`w-8 h-8 rounded-xl bg-gradient-to-r dark:from-purple-primary dark:to-purple-secondary light:bg-gradient-to-r light:from-purple-primary light:to-purple-secondary flex items-center justify-center ${
                         isActive ? 'scale-110' : ''
                       }`}>
                         <Icon className="w-5 h-5 text-white" />
