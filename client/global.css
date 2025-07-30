@@ -63,25 +63,26 @@
   }
 
   .light {
-    --background: 0 0% 100%; /* Pure white */
-    --foreground: 0 0% 9%; /* Dark black text like YouTube */
+    /* ChatGPT-like Light Mode */
+    --background: 0 0% 100%; /* Pure white background (#ffffff) */
+    --foreground: 0 0% 7%; /* Dark gray text (#121212) */
 
     --card: 0 0% 100%; /* Pure white cards */
-    --card-foreground: 0 0% 9%;
+    --card-foreground: 0 0% 7%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 9%;
+    --popover-foreground: 0 0% 7%;
 
-    --primary: 0 0% 9%; /* Black primary like YouTube */
+    --primary: 258 100% 56%; /* Purple primary (#6200ea) */
     --primary-foreground: 0 0% 100%;
 
     --secondary: 0 0% 96%; /* Very light gray */
-    --secondary-foreground: 0 0% 9%;
+    --secondary-foreground: 0 0% 7%;
 
-    --muted: 0 0% 98%; /* Very light gray background */
+    --muted: 0 0% 96%; /* Light gray background (#f4f4f4) */
     --muted-foreground: 0 0% 40%; /* Medium gray for secondary text */
 
-    --accent: 0 0% 9%; /* Black accent like YouTube */
+    --accent: 258 100% 56%; /* Purple accent */
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%; /* Red for destructive actions */
@@ -89,27 +90,27 @@
 
     --border: 0 0% 88%; /* Light gray borders */
     --input: 0 0% 98%; /* Very light inputs */
-    --ring: 0 0% 9%; /* Black focus ring like YouTube */
+    --ring: 258 100% 56%; /* Purple focus ring */
 
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 0 0% 9%;
-    --sidebar-primary: 0 0% 9%;
+    --sidebar-foreground: 0 0% 7%;
+    --sidebar-primary: 258 100% 56%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 0 0% 96%;
-    --sidebar-accent-foreground: 0 0% 9%;
+    --sidebar-accent-foreground: 0 0% 7%;
     --sidebar-border: 0 0% 88%;
-    --sidebar-ring: 0 0% 9%;
+    --sidebar-ring: 258 100% 56%;
 
-    /* Light mode with black accents like YouTube */
-    --purple-primary: 0 0% 9%; /* Black primary */
-    --purple-secondary: 0 0% 20%; /* Dark gray */
-    --purple-accent: 0 0% 30%; /* Medium gray */
-    --purple-glow: 0 0% 50%; /* Medium gray */
-    --purple-dark: 0 0% 96%; /* Very light gray background */
+    /* ChatGPT-like light mode colors */
+    --purple-primary: 258 100% 56%; /* Purple primary (#6200ea) */
+    --purple-secondary: 243 100% 62%; /* Blue-purple */
+    --purple-accent: 273 100% 70%; /* Light purple */
+    --purple-glow: 258 100% 80%; /* Light purple glow */
+    --purple-dark: 0 0% 96%; /* Light gray background */
     --purple-darker: 0 0% 100%; /* Pure white */
-    --neon-green: 0 0% 9%; /* Black instead of green */
-    --neon-blue: 0 0% 9%; /* Black instead of blue */
-    --dark-surface: 0 0% 98%; /* Light surface */
+    --neon-green: 142 76% 36%; /* Green accent */
+    --neon-blue: 210 100% 50%; /* Blue accent */
+    --dark-surface: 0 0% 96%; /* Light surface */
     --darker-surface: 0 0% 100%; /* White surface */
   }
 
