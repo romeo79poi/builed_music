@@ -293,10 +293,10 @@ export default function Home() {
         variants={containerVariants}
         className="relative z-10 flex flex-col min-h-screen"
       >
-        {/* Enhanced Header */}
+        {/* Clean Header - Google/YouTube Style */}
         <motion.header
           variants={itemVariants}
-          className="flex items-center justify-between px-4 py-3 bg-black/30 dark:bg-black/30 light:bg-white/95 light:youtube-shadow backdrop-blur-xl border-b border-purple-primary/30 dark:border-purple-primary/30 light:border-gray-200 theme-transition"
+          className="flex items-center justify-between px-4 py-3 bg-background/95 dark:bg-background/95 light:bg-background/95 backdrop-blur-sm border-b border-border google-shadow dark:google-dark-shadow theme-transition"
         >
           {/* Profile Icon with enhanced glow */}
           <motion.button
