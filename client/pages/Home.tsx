@@ -494,7 +494,7 @@ export default function Home() {
                 whileHover={{ scale: 1.02 }}
                 className="text-xl font-bold flex items-center space-x-2"
               >
-                <Sparkles className="w-5 h-5 text-primary" />
+                <Sparkles className="w-5 h-5 text-foreground" />
                 <span>New Releases</span>
               </motion.h2>
               <motion.button
