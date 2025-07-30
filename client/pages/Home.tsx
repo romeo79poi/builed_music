@@ -406,7 +406,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
-              className="text-2xl sm:text-3xl font-bold mb-2 bg-gradient-to-r from-white via-purple-primary to-purple-secondary bg-clip-text text-transparent"
+              className="text-2xl sm:text-3xl font-bold mb-2 text-foreground"
             >
               {getGreeting()}
             </motion.h1>
