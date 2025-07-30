@@ -61,42 +61,105 @@
     --darker-surface: 260 35% 8%;
   }
 
+  .light {
+    --background: 0 0% 100%; /* Pure white */
+    --foreground: 0 0% 9%; /* Dark black text like YouTube */
+
+    --card: 0 0% 100%; /* Pure white cards */
+    --card-foreground: 0 0% 9%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 9%;
+
+    --primary: 0 0% 9%; /* Black primary like YouTube */
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 0 0% 96%; /* Very light gray */
+    --secondary-foreground: 0 0% 9%;
+
+    --muted: 0 0% 98%; /* Very light gray background */
+    --muted-foreground: 0 0% 40%; /* Medium gray for secondary text */
+
+    --accent: 0 0% 9%; /* Black accent like YouTube */
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84% 60%; /* Red for destructive actions */
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 0 0% 88%; /* Light gray borders */
+    --input: 0 0% 98%; /* Very light inputs */
+    --ring: 0 0% 9%; /* Black focus ring like YouTube */
+
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 0 0% 9%;
+    --sidebar-primary: 0 0% 9%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 9%;
+    --sidebar-border: 0 0% 88%;
+    --sidebar-ring: 0 0% 9%;
+
+    /* Light mode with black accents like YouTube */
+    --purple-primary: 0 0% 9%; /* Black primary */
+    --purple-secondary: 0 0% 20%; /* Dark gray */
+    --purple-accent: 0 0% 30%; /* Medium gray */
+    --purple-glow: 0 0% 50%; /* Medium gray */
+    --purple-dark: 0 0% 96%; /* Very light gray background */
+    --purple-darker: 0 0% 100%; /* Pure white */
+    --neon-green: 0 0% 9%; /* Black instead of green */
+    --neon-blue: 0 0% 9%; /* Black instead of blue */
+    --dark-surface: 0 0% 98%; /* Light surface */
+    --darker-surface: 0 0% 100%; /* White surface */
+  }
+
   .dark {
-    --background: 260 35% 8%;
-    --foreground: 210 40% 98%;
+    --background: 218 11% 12%; /* Cool dark blue-gray like Claude dark */
+    --foreground: 0 0% 95%; /* Light text */
 
-    --card: 260 30% 15%;
-    --card-foreground: 210 40% 98%;
+    --card: 218 11% 15%; /* Slightly lighter cards */
+    --card-foreground: 0 0% 95%;
 
-    --popover: 260 30% 15%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 218 11% 15%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 267 83% 58%;
-    --primary-foreground: 260 35% 8%;
+    --primary: 25 95% 53%; /* Same warm orange accent in dark mode */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 260 25% 20%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 218 11% 18%; /* Dark blue-gray secondary */
+    --secondary-foreground: 0 0% 85%;
 
-    --muted: 260 25% 20%;
-    --muted-foreground: 215 16% 65%;
+    --muted: 218 11% 16%; /* Dark muted */
+    --muted-foreground: 0 0% 65%; /* Medium gray text */
 
-    --accent: 285 85% 65%;
-    --accent-foreground: 260 35% 8%;
+    --accent: 25 95% 53%; /* Warm orange accent */
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 260 30% 25%;
-    --input: 260 30% 18%;
-    --ring: 267 83% 58%;
-    --sidebar-background: 260 30% 15%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 267 83% 58%;
-    --sidebar-primary-foreground: 260 35% 8%;
-    --sidebar-accent: 260 25% 20%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 260 30% 25%;
-    --sidebar-ring: 267 83% 58%;
+    --border: 218 11% 20%; /* Subtle dark borders */
+    --input: 218 11% 14%; /* Dark inputs */
+    --ring: 25 95% 53%;
+    --sidebar-background: 218 11% 12%;
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 25 95% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 218 11% 18%;
+    --sidebar-accent-foreground: 0 0% 85%;
+    --sidebar-border: 218 11% 20%;
+    --sidebar-ring: 25 95% 53%;
+
+    /* Claude-like dark mode colors */
+    --purple-primary: 25 95% 53%; /* Orange primary */
+    --purple-secondary: 35 100% 50%; /* Golden yellow */
+    --purple-accent: 15 100% 55%; /* Red-orange */
+    --purple-glow: 25 95% 70%; /* Light orange glow */
+    --purple-dark: 218 11% 15%; /* Dark surface */
+    --purple-darker: 218 11% 12%; /* Darker surface */
+    --neon-green: 142 76% 36%; /* Professional green */
+    --neon-blue: 210 100% 50%; /* Professional blue */
+    --dark-surface: 218 11% 15%; /* Dark surface */
+    --darker-surface: 218 11% 12%; /* Darker surface */
   }
 }
 
@@ -107,6 +170,24 @@
 
   body {
     @apply bg-background text-foreground;
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease;
+    /* Claude-style font smoothing and typography */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+    font-family:
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      Roboto,
+      "Helvetica Neue",
+      Arial,
+      "Noto Sans",
+      sans-serif;
   }
 }
 
@@ -130,10 +211,142 @@
   /* Purple theme utilities */
   .glow-purple {
     box-shadow: 0 0 20px hsl(var(--purple-primary) / 0.3);
+    transition: box-shadow 0.3s ease;
   }
 
   .glow-purple-lg {
     box-shadow: 0 0 40px hsl(var(--purple-primary) / 0.4);
+    transition: box-shadow 0.3s ease;
+  }
+
+  /* Theme transition utilities */
+  .theme-transition {
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease,
+      border-color 0.3s ease;
+  }
+
+  /* Google/YouTube style light mode utilities */
+  .light .google-shadow {
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  }
+
+  .light .google-shadow-hover {
+    box-shadow: 0 2px 8px 0 rgb(0 0 0 / 0.1);
+  }
+
+  .light .google-shadow-lg {
+    box-shadow:
+      0 4px 6px -1px rgb(0 0 0 / 0.1),
+      0 2px 4px -1px rgb(0 0 0 / 0.06);
+  }
+
+  /* YouTube-style light mode card shadows */
+  .light .youtube-shadow {
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  }
+
+  .light .youtube-shadow-hover {
+    box-shadow:
+      0 2px 8px 0 rgb(0 0 0 / 0.1),
+      0 1px 4px 0 rgb(0 0 0 / 0.06);
+  }
+
+  /* Google style light mode text colors - monochrome */
+  .light .text-light-primary {
+    color: rgb(32 33 36); /* Google text color */
+  }
+
+  .light .text-light-secondary {
+    color: rgb(95 99 104); /* Google secondary text */
+  }
+
+  .light .text-light-tertiary {
+    color: rgb(128 134 139); /* Google tertiary text */
+  }
+
+  /* Black styling for light mode like YouTube */
+  .light .purple-gradient-text {
+    background: none;
+    -webkit-background-clip: unset;
+    background-clip: unset;
+    -webkit-text-fill-color: unset;
+    color: rgb(15 15 15); /* Dark text */
+  }
+
+  /* Black light mode utilities like YouTube */
+  .light .light-accent {
+    color: rgb(15 15 15); /* Black */
+  }
+
+  .light .light-accent-bg {
+    background-color: rgb(15 15 15);
+    color: white;
+  }
+
+  .light .light-hover-accent {
+    transition: color 0.2s ease;
+  }
+
+  .light .light-hover-accent:hover {
+    color: rgb(15 15 15);
+  }
+
+  /* Clean black and white shadows */
+  .light .claude-shadow {
+    box-shadow:
+      0 1px 3px 0 rgb(0 0 0 / 0.1),
+      0 1px 2px -1px rgb(0 0 0 / 0.1);
+  }
+
+  .light .claude-shadow-hover {
+    box-shadow:
+      0 4px 6px -1px rgb(0 0 0 / 0.1),
+      0 2px 4px -1px rgb(0 0 0 / 0.06);
+  }
+
+  /* Claude-like dark mode utilities */
+  .dark .claude-dark-shadow {
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.5);
+  }
+
+  .dark .claude-dark-shadow-hover {
+    box-shadow:
+      0 4px 6px -1px rgb(0 0 0 / 0.4),
+      0 2px 4px -1px rgb(0 0 0 / 0.4);
+  }
+
+  .dark .claude-dark-shadow-lg {
+    box-shadow:
+      0 10px 15px -3px rgb(0 0 0 / 0.4),
+      0 4px 6px -4px rgb(0 0 0 / 0.4);
+  }
+
+  .dark .dark-shadow-orange {
+    box-shadow:
+      0 4px 12px 0 hsl(25 95% 53% / 0.2),
+      0 2px 6px 0 rgb(0 0 0 / 0.5);
+  }
+
+  .dark .text-dark-primary {
+    color: rgb(241 243 244); /* Clean light text */
+  }
+
+  .dark .text-dark-secondary {
+    color: rgb(170 170 170); /* Secondary text */
+  }
+
+  .dark .text-dark-tertiary {
+    color: rgb(136 136 136); /* Tertiary text */
+  }
+
+  .dark .bg-dark-card {
+    background-color: hsl(218 11% 15%); /* Dark blue-gray cards */
+  }
+
+  .dark .bg-dark-surface {
+    background-color: hsl(218 11% 12%); /* Dark blue-gray surface */
   }
 
   .purple-gradient-text {
@@ -165,8 +378,26 @@
   }
 
   .hover-lift:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Claude-like smooth interactions */
+  .claude-transition {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .claude-button {
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateZ(0);
+  }
+
+  .claude-button:hover {
+    transform: translateY(-1px) translateZ(0);
+  }
+
+  .claude-button:active {
+    transform: translateY(0) translateZ(0);
   }
 
   /* Mobile safe area utilities */

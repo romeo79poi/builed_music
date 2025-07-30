@@ -444,9 +444,9 @@ export default function Search() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-darker via-background to-purple-dark relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-purple-darker via-background to-purple-dark dark:from-purple-darker dark:via-background dark:to-purple-dark light:from-gray-50 light:via-white light:to-purple-50 relative overflow-hidden theme-transition">
       {/* Background glow effect */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-primary/8 via-purple-secondary/4 to-purple-accent/6"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-primary/8 via-purple-secondary/4 to-purple-accent/6 dark:from-purple-primary/8 dark:via-purple-secondary/4 dark:to-purple-accent/6 light:from-purple-primary/3 light:via-purple-secondary/2 light:to-purple-accent/3 theme-transition"></div>
 
       <div className="relative z-10 flex flex-col h-screen">
         {/* Header */}

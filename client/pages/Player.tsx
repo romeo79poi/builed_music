@@ -69,6 +69,7 @@ export default function Player() {
   const [isShuffle, setIsShuffle] = useState(false);
   const [repeatMode, setRepeatMode] = useState(0); // 0: off, 1: all, 2: one
   const [showQueue, setShowQueue] = useState(false);
+  const [showRelated, setShowRelated] = useState(false);
 
   // Refs
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -82,6 +83,7 @@ export default function Player() {
       artist: "The Weeknd",
       coverImageURL:
         "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=80&h=80&fit=crop",
+      duration: 200,
     },
     {
       id: "2",
@@ -89,6 +91,7 @@ export default function Player() {
       artist: "Harry Styles",
       coverImageURL:
         "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop",
+      duration: 174,
     },
     {
       id: "3",
@@ -96,6 +99,56 @@ export default function Player() {
       artist: "Dua Lipa",
       coverImageURL:
         "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop",
+      duration: 203,
+    },
+  ]);
+
+  // Related songs data
+  const [relatedSongs] = useState([
+    {
+      id: "r1",
+      title: "Can't Feel My Face",
+      artist: "The Weeknd",
+      coverImageURL:
+        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=80&h=80&fit=crop",
+      duration: 213,
+      plays: 1200000,
+    },
+    {
+      id: "r2",
+      title: "Starboy",
+      artist: "The Weeknd ft. Daft Punk",
+      coverImageURL:
+        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=80&h=80&fit=crop",
+      duration: 230,
+      plays: 980000,
+    },
+    {
+      id: "r3",
+      title: "Save Your Tears",
+      artist: "The Weeknd",
+      coverImageURL:
+        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=80&h=80&fit=crop",
+      duration: 215,
+      plays: 850000,
+    },
+    {
+      id: "r4",
+      title: "After Hours",
+      artist: "The Weeknd",
+      coverImageURL:
+        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=80&h=80&fit=crop",
+      duration: 361,
+      plays: 750000,
+    },
+    {
+      id: "r5",
+      title: "Earned It",
+      artist: "The Weeknd",
+      coverImageURL:
+        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=80&h=80&fit=crop",
+      duration: 252,
+      plays: 920000,
     },
   ]);
 
@@ -433,12 +486,12 @@ export default function Player() {
             </div>
           </motion.div>
 
-          {/* Lyrics/Queue Toggle */}
+          {/* Lyrics/Queue/Related Toggle */}
           <motion.div
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 1.2 }}
-            className="flex items-center justify-center space-x-4"
+            className="flex items-center justify-center space-x-3 flex-wrap"
           >
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -446,14 +499,15 @@ export default function Player() {
               onClick={() => {
                 setShowLyrics(true);
                 setShowQueue(false);
+                setShowRelated(false);
               }}
-              className={`px-6 py-3 rounded-full transition-all ${
+              className={`px-4 py-2 rounded-full transition-all text-sm ${
                 showLyrics
                   ? "bg-neon-green/20 text-neon-green border border-neon-green/50"
                   : "bg-purple-dark/50 text-gray-400 border border-purple-primary/30"
               }`}
             >
-              <Mic2 className="w-5 h-5 mr-2 inline" />
+              <Mic2 className="w-4 h-4 mr-1 inline" />
               Lyrics
             </motion.button>
 
@@ -463,22 +517,41 @@ export default function Player() {
               onClick={() => {
                 setShowQueue(true);
                 setShowLyrics(false);
+                setShowRelated(false);
               }}
-              className={`px-6 py-3 rounded-full transition-all ${
+              className={`px-4 py-2 rounded-full transition-all text-sm ${
                 showQueue
                   ? "bg-purple-primary/20 text-purple-primary border border-purple-primary/50"
                   : "bg-purple-dark/50 text-gray-400 border border-purple-primary/30"
               }`}
             >
-              <Music className="w-5 h-5 mr-2 inline" />
+              <Music className="w-4 h-4 mr-1 inline" />
               Queue
+            </motion.button>
+
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => {
+                setShowRelated(true);
+                setShowLyrics(false);
+                setShowQueue(false);
+              }}
+              className={`px-4 py-2 rounded-full transition-all text-sm ${
+                showRelated
+                  ? "bg-purple-secondary/20 text-purple-secondary border border-purple-secondary/50"
+                  : "bg-purple-dark/50 text-gray-400 border border-purple-primary/30"
+              }`}
+            >
+              <Headphones className="w-4 h-4 mr-1 inline" />
+              Related
             </motion.button>
           </motion.div>
         </main>
 
-        {/* Lyrics/Queue Overlay */}
+        {/* Lyrics/Queue/Related Overlay */}
         <AnimatePresence>
-          {(showLyrics || showQueue) && (
+          {(showLyrics || showQueue || showRelated) && (
             <motion.div
               initial={{ y: "100%" }}
               animate={{ y: 0 }}
@@ -530,17 +603,27 @@ export default function Player() {
                           whileHover={{ scale: 1.02 }}
                           className="flex items-center space-x-4 p-3 rounded-xl bg-purple-dark/30 hover:bg-purple-primary/20 transition-all"
                         >
-                          <img
-                            src={song.coverImageURL}
-                            alt={song.title}
-                            className="w-12 h-12 rounded-lg object-cover"
-                          />
+                          <div className="relative">
+                            <img
+                              src={song.coverImageURL}
+                              alt={song.title}
+                              className="w-12 h-12 rounded-lg object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                              <Play className="w-5 h-5 text-white" />
+                            </div>
+                          </div>
                           <div className="flex-1">
                             <h4 className="font-medium text-white">
                               {song.title}
                             </h4>
                             <p className="text-sm text-gray-400">
                               {song.artist}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-xs text-gray-400">
+                              {formatTime(song.duration)}
                             </p>
                           </div>
                           <motion.button
@@ -550,6 +633,72 @@ export default function Player() {
                           >
                             <Play className="w-4 h-4" />
                           </motion.button>
+                        </motion.div>
+                      ))}
+                    </div>
+                  )}
+
+                  {showRelated && (
+                    <div className="space-y-4">
+                      <h3 className="text-xl font-bold text-center mb-8">
+                        Related Songs
+                      </h3>
+                      <p className="text-center text-gray-400 text-sm mb-6">
+                        More from {currentSong.artist} and similar artists
+                      </p>
+                      {relatedSongs.map((song, index) => (
+                        <motion.div
+                          key={song.id}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                          whileHover={{ scale: 1.02 }}
+                          className="flex items-center space-x-4 p-3 rounded-xl bg-purple-dark/30 hover:bg-purple-primary/20 transition-all cursor-pointer"
+                        >
+                          <div className="relative">
+                            <img
+                              src={song.coverImageURL}
+                              alt={song.title}
+                              className="w-12 h-12 rounded-lg object-cover"
+                            />
+                            <div className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                              <Play className="w-5 h-5 text-white" />
+                            </div>
+                          </div>
+                          <div className="flex-1">
+                            <h4 className="font-medium text-white">
+                              {song.title}
+                            </h4>
+                            <p className="text-sm text-gray-400">
+                              {song.artist}
+                            </p>
+                            <div className="flex items-center space-x-3 mt-1">
+                              <span className="text-xs text-gray-500">
+                                {formatTime(song.duration)}
+                              </span>
+                              <span className="text-xs text-gray-500">
+                                {(song.plays / 1000000).toFixed(1)}M plays
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              className="p-2 rounded-full bg-purple-primary/20 text-purple-primary hover:bg-purple-primary hover:text-white transition-colors"
+                              title="Add to playlist"
+                            >
+                              <Plus className="w-4 h-4" />
+                            </motion.button>
+                            <motion.button
+                              whileHover={{ scale: 1.1 }}
+                              whileTap={{ scale: 0.9 }}
+                              className="p-2 rounded-full bg-neon-green/20 text-neon-green"
+                              title="Play now"
+                            >
+                              <Play className="w-4 h-4" />
+                            </motion.button>
+                          </div>
                         </motion.div>
                       ))}
                     </div>
@@ -564,6 +713,7 @@ export default function Player() {
                     onClick={() => {
                       setShowLyrics(false);
                       setShowQueue(false);
+                      setShowRelated(false);
                     }}
                     className="w-full py-4 bg-purple-primary/20 border border-purple-primary/50 rounded-full text-white font-medium"
                   >
