@@ -348,8 +348,26 @@
   }
 
   .hover-lift:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Claude-like smooth interactions */
+  .claude-transition {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .claude-button {
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateZ(0);
+  }
+
+  .claude-button:hover {
+    transform: translateY(-1px) translateZ(0);
+  }
+
+  .claude-button:active {
+    transform: translateY(0) translateZ(0);
   }
 
   /* Mobile safe area utilities */
