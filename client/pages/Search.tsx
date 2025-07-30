@@ -456,16 +456,12 @@ export default function Search() {
             <ArrowLeft className="w-6 h-6 text-white" />
           </button>
           <Music className="w-6 h-6 text-purple-primary" />
-          <div className="flex items-center space-x-2">
-            <ThemeToggle size="sm" />
-
-            <button
-              onClick={() => navigate("/profile")}
-              className="w-8 h-8 bg-gradient-to-r from-purple-primary to-purple-secondary rounded-full flex items-center justify-center"
-            >
-              <User className="w-5 h-5 text-white" />
-            </button>
-          </div>
+          <button
+            onClick={() => navigate("/profile")}
+            className="w-8 h-8 bg-gradient-to-r from-purple-primary to-purple-secondary rounded-full flex items-center justify-center"
+          >
+            <User className="w-5 h-5 text-white" />
+          </button>
         </div>
 
         {/* Main Content */}
