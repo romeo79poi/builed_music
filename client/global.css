@@ -63,22 +63,22 @@
 
   .light {
     --background: 0 0% 100%; /* Pure white like YouTube */
-    --foreground: 0 0% 9%; /* Very dark text for better contrast */
+    --foreground: 0 0% 13%; /* Dark text like YouTube */
 
     --card: 0 0% 100%; /* White cards */
-    --card-foreground: 0 0% 9%; /* Dark text on cards */
+    --card-foreground: 0 0% 13%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 9%;
+    --popover-foreground: 0 0% 13%;
 
     --primary: 267 83% 58%; /* Keep purple primary */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 96%; /* Light gray like YouTube */
-    --secondary-foreground: 0 0% 9%; /* Dark text */
+    --secondary: 0 0% 98%; /* Very light gray like YouTube */
+    --secondary-foreground: 0 0% 13%;
 
-    --muted: 0 0% 96%; /* Light gray background */
-    --muted-foreground: 0 0% 35%; /* Darker gray text for better readability */
+    --muted: 0 0% 97%; /* Very light gray background */
+    --muted-foreground: 0 0% 45%; /* Medium gray text for better readability */
 
     --accent: 267 83% 58%;
     --accent-foreground: 0 0% 100%;
@@ -86,29 +86,29 @@
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 88%; /* Slightly darker borders */
-    --input: 0 0% 96%; /* Light input backgrounds */
+    --border: 0 0% 90%; /* Light borders like YouTube */
+    --input: 0 0% 98%; /* Very light input backgrounds */
     --ring: 267 83% 58%;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 0 0% 9%; /* Dark sidebar text */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 0 0% 13%;
     --sidebar-primary: 267 83% 58%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 96%;
-    --sidebar-accent-foreground: 0 0% 9%;
-    --sidebar-border: 0 0% 88%;
+    --sidebar-accent: 0 0% 98%;
+    --sidebar-accent-foreground: 0 0% 13%;
+    --sidebar-border: 0 0% 90%;
     --sidebar-ring: 267 83% 58%;
 
-    /* Light mode specific colors - YouTube inspired */
+    /* Light mode specific colors - Google/YouTube style */
     --purple-primary: 267 83% 58%;
     --purple-secondary: 285 85% 65%;
     --purple-accent: 320 85% 70%;
     --purple-glow: 280 100% 80%;
-    --purple-dark: 0 0% 96%; /* Light background like YouTube */
+    --purple-dark: 0 0% 97%; /* Very light background */
     --purple-darker: 0 0% 100%; /* Pure white */
     --neon-green: 158 64% 52%;
     --neon-blue: 191 79% 52%;
-    --dark-surface: 0 0% 96%; /* Light surface */
+    --dark-surface: 0 0% 98%; /* Light surface */
     --darker-surface: 0 0% 100%; /* White surface */
   }
 
