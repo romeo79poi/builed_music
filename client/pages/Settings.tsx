@@ -32,10 +32,13 @@ import {
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
+import ThemeToggle from "../components/ThemeToggle";
+import { useTheme } from "../context/ThemeContext";
 
 export default function Settings() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { theme, actualTheme, setTheme } = useTheme();
 
   // User data state
   const [userProfile, setUserProfile] = useState({
@@ -146,12 +149,12 @@ export default function Settings() {
       icon: SettingsIcon,
       items: [
         {
-          key: "darkTheme",
-          label: "Dark Theme",
-          icon: settings.darkTheme ? Moon : Sun,
-          toggle: true,
-          value: settings.darkTheme,
-          description: "Use dark theme throughout the app",
+          key: "theme",
+          label: "Theme",
+          icon: actualTheme === 'dark' ? Moon : Sun,
+          description: `Currently using ${actualTheme} mode (${theme === 'system' ? 'automatic' : theme})`,
+          action: () => {},
+          customComponent: true,
         },
         {
           key: "notifications",
@@ -275,9 +278,9 @@ export default function Settings() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-darker via-purple-dark to-background text-white relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-purple-darker via-purple-dark to-background dark:from-purple-darker dark:via-purple-dark dark:to-background light:from-gray-50 light:via-white light:to-purple-50 text-white dark:text-white light:text-gray-900 relative overflow-hidden theme-transition">
       {/* Background Effects */}
-      <div className="fixed inset-0 bg-gradient-to-br from-purple-primary/8 via-purple-secondary/4 to-purple-accent/6"></div>
+      <div className="fixed inset-0 bg-gradient-to-br from-purple-primary/8 via-purple-secondary/4 to-purple-accent/6 dark:from-purple-primary/8 dark:via-purple-secondary/4 dark:to-purple-accent/6 light:from-purple-primary/3 light:via-purple-secondary/2 light:to-purple-accent/3 theme-transition"></div>
 
       {/* Animated Background */}
       <div className="fixed inset-0 opacity-20">
@@ -298,7 +301,7 @@ export default function Settings() {
         <motion.header
           initial={{ y: -50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="flex items-center justify-between p-4 bg-black/20 backdrop-blur-xl border-b border-purple-primary/20"
+          className="flex items-center justify-between p-4 bg-black/20 dark:bg-black/20 light:bg-white/80 backdrop-blur-xl border-b border-purple-primary/20 theme-transition"
         >
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -309,9 +312,9 @@ export default function Settings() {
             <ArrowLeft className="w-5 h-5 text-white" />
           </motion.button>
 
-          <h1 className="text-xl font-bold">Settings</h1>
+          <h1 className="text-xl font-bold text-white dark:text-white light:text-gray-900">Settings</h1>
 
-          <div className="w-10 h-10"></div>
+          <ThemeToggle size="md" />
         </motion.header>
 
         {/* Main Content */}
@@ -412,7 +415,51 @@ export default function Settings() {
                           </div>
                         </div>
 
-                        {item.toggle ? (
+                        {item.key === 'theme' && item.customComponent ? (
+                          <div className="flex items-center space-x-1 bg-purple-dark/30 dark:bg-purple-dark/30 light:bg-white light:border light:border-purple-primary/20 rounded-lg p-1 theme-transition">
+                            <motion.button
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => setTheme('light')}
+                              className={`p-2 rounded-md transition-all ${
+                                theme === 'light'
+                                  ? 'bg-purple-primary text-white'
+                                  : 'text-gray-400 hover:text-white dark:hover:text-white light:hover:text-purple-primary'
+                              }`}
+                              title="Light Mode"
+                            >
+                              <Sun className="w-4 h-4" />
+                            </motion.button>
+
+                            <motion.button
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => setTheme('dark')}
+                              className={`p-2 rounded-md transition-all ${
+                                theme === 'dark'
+                                  ? 'bg-purple-primary text-white'
+                                  : 'text-gray-400 hover:text-white dark:hover:text-white light:hover:text-purple-primary'
+                              }`}
+                              title="Dark Mode"
+                            >
+                              <Moon className="w-4 h-4" />
+                            </motion.button>
+
+                            <motion.button
+                              whileHover={{ scale: 1.05 }}
+                              whileTap={{ scale: 0.95 }}
+                              onClick={() => setTheme('system')}
+                              className={`p-2 rounded-md transition-all ${
+                                theme === 'system'
+                                  ? 'bg-purple-primary text-white'
+                                  : 'text-gray-400 hover:text-white dark:hover:text-white light:hover:text-purple-primary'
+                              }`}
+                              title="System"
+                            >
+                              <SettingsIcon className="w-4 h-4" />
+                            </motion.button>
+                          </div>
+                        ) : item.toggle ? (
                           <motion.button
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
