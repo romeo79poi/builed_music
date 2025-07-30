@@ -44,7 +44,6 @@ import {
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
-import ThemeToggle from "../components/ThemeToggle";
 
 interface UserProfile {
   id: string;
@@ -331,8 +330,6 @@ export default function Profile() {
           <h1 className="text-lg font-bold text-white">Profile</h1>
 
           <div className="flex items-center space-x-2">
-            <ThemeToggle size="md" />
-
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}

@@ -19,7 +19,6 @@ import {
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
-import ThemeToggle from "../components/ThemeToggle";
 
 // Featured Artist/Album of the Day
 const featuredContent = {
@@ -385,9 +384,6 @@ export default function Home() {
               MusicCatch
             </motion.span>
           </motion.div>
-
-          {/* Theme Toggle */}
-          <ThemeToggle size="md" />
 
           {/* Message Icon with enhanced effects */}
           <motion.button
