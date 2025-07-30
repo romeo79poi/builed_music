@@ -29,6 +29,7 @@ import {
   Playlist,
 } from "../lib/supabase";
 import MobileFooter from "../components/MobileFooter";
+import ThemeToggle from "../components/ThemeToggle";
 
 export default function Search() {
   const navigate = useNavigate();
@@ -444,9 +445,9 @@ export default function Search() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-darker via-background to-purple-dark relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-purple-darker via-background to-purple-dark dark:from-purple-darker dark:via-background dark:to-purple-dark light:from-gray-50 light:via-white light:to-purple-50 relative overflow-hidden theme-transition">
       {/* Background glow effect */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-primary/8 via-purple-secondary/4 to-purple-accent/6"></div>
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-primary/8 via-purple-secondary/4 to-purple-accent/6 dark:from-purple-primary/8 dark:via-purple-secondary/4 dark:to-purple-accent/6 light:from-purple-primary/3 light:via-purple-secondary/2 light:to-purple-accent/3 theme-transition"></div>
 
       <div className="relative z-10 flex flex-col h-screen">
         {/* Header */}
@@ -455,12 +456,16 @@ export default function Search() {
             <ArrowLeft className="w-6 h-6 text-white" />
           </button>
           <Music className="w-6 h-6 text-purple-primary" />
-          <button
-            onClick={() => navigate("/profile")}
-            className="w-8 h-8 bg-gradient-to-r from-purple-primary to-purple-secondary rounded-full flex items-center justify-center"
-          >
-            <User className="w-5 h-5 text-white" />
-          </button>
+          <div className="flex items-center space-x-2">
+            <ThemeToggle size="sm" />
+
+            <button
+              onClick={() => navigate("/profile")}
+              className="w-8 h-8 bg-gradient-to-r from-purple-primary to-purple-secondary rounded-full flex items-center justify-center"
+            >
+              <User className="w-5 h-5 text-white" />
+            </button>
+          </div>
         </div>
 
         {/* Main Content */}
