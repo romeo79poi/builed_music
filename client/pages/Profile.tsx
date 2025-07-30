@@ -312,11 +312,11 @@ export default function Profile() {
       <div className="fixed inset-0 bg-gradient-to-b from-background to-secondary/30 theme-transition"></div>
 
       <div className="relative z-10 flex flex-col h-screen">
-        {/* Header - YouTube/Google Style */}
+        {/* Header - Claude/AI Style */}
         <motion.header
           initial={{ y: -50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="flex items-center justify-between p-4 bg-background/95 backdrop-blur-sm border-b border-border google-shadow dark:google-dark-shadow theme-transition"
+          className="flex items-center justify-between p-4 bg-background/95 backdrop-blur-sm border-b border-border claude-shadow dark:claude-dark-shadow theme-transition"
         >
           <motion.button
             whileHover={{ scale: 1.05 }}
