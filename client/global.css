@@ -62,53 +62,53 @@
   }
 
   .light {
-    --background: 20 14% 98%; /* Warm off-white like Claude */
-    --foreground: 0 0% 9%; /* Deep charcoal text */
+    --background: 0 0% 100%; /* Pure white */
+    --foreground: 0 0% 0%; /* Pure black text */
 
     --card: 0 0% 100%; /* Pure white cards */
-    --card-foreground: 0 0% 9%;
+    --card-foreground: 0 0% 0%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 9%;
+    --popover-foreground: 0 0% 0%;
 
-    --primary: 25 95% 53%; /* Warm orange like Claude accent */
+    --primary: 0 0% 0%; /* Black primary */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 20 14% 96%; /* Very light warm gray */
-    --secondary-foreground: 0 0% 15%;
+    --secondary: 0 0% 96%; /* Very light gray */
+    --secondary-foreground: 0 0% 0%;
 
-    --muted: 20 14% 95%; /* Light warm background */
+    --muted: 0 0% 98%; /* Very light gray background */
     --muted-foreground: 0 0% 40%; /* Medium gray for secondary text */
 
-    --accent: 25 95% 53%; /* Warm orange accent */
+    --accent: 0 0% 0%; /* Black accent */
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 0% 0%; /* Black for destructive actions */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 20 14% 89%; /* Subtle warm borders */
-    --input: 20 14% 97%; /* Very light inputs */
-    --ring: 25 95% 53%; /* Orange focus ring */
+    --border: 0 0% 90%; /* Light gray borders */
+    --input: 0 0% 98%; /* Very light inputs */
+    --ring: 0 0% 0%; /* Black focus ring */
 
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 0 0% 9%;
-    --sidebar-primary: 25 95% 53%;
+    --sidebar-foreground: 0 0% 0%;
+    --sidebar-primary: 0 0% 0%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 20 14% 96%;
-    --sidebar-accent-foreground: 0 0% 15%;
-    --sidebar-border: 20 14% 89%;
-    --sidebar-ring: 25 95% 53%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 0%;
+    --sidebar-border: 0 0% 90%;
+    --sidebar-ring: 0 0% 0%;
 
-    /* Claude-like light mode colors */
-    --purple-primary: 25 95% 53%; /* Orange primary */
-    --purple-secondary: 35 100% 50%; /* Golden yellow */
-    --purple-accent: 15 100% 55%; /* Red-orange */
-    --purple-glow: 25 95% 70%; /* Light orange glow */
-    --purple-dark: 20 14% 96%; /* Light warm background */
+    /* Black and white only light mode colors */
+    --purple-primary: 0 0% 0%; /* Black primary */
+    --purple-secondary: 0 0% 20%; /* Dark gray */
+    --purple-accent: 0 0% 40%; /* Medium gray */
+    --purple-glow: 0 0% 60%; /* Light gray */
+    --purple-dark: 0 0% 98%; /* Very light gray background */
     --purple-darker: 0 0% 100%; /* Pure white */
-    --neon-green: 142 76% 36%; /* Professional green */
-    --neon-blue: 210 100% 50%; /* Professional blue */
-    --dark-surface: 20 14% 97%; /* Light surface */
+    --neon-green: 0 0% 0%; /* Black instead of green */
+    --neon-blue: 0 0% 0%; /* Black instead of blue */
+    --dark-surface: 0 0% 98%; /* Light surface */
     --darker-surface: 0 0% 100%; /* White surface */
   }
 
