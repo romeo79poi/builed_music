@@ -478,7 +478,7 @@ export default function Home() {
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
-                    className="absolute bottom-2 right-2 w-12 h-12 bg-primary rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all"
+                    className="absolute bottom-2 right-2 w-12 h-12 bg-primary hover:bg-primary/90 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all"
                   >
                     <Play className="w-6 h-6 text-white ml-0.5" />
                   </motion.button>
