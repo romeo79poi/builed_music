@@ -334,18 +334,18 @@ export default function Profile() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleShare}
-              className="w-10 h-10 rounded-full bg-purple-dark/50 dark:bg-purple-dark/50 light:bg-white light:border backdrop-blur-sm flex items-center justify-center border border-purple-primary/30 theme-transition"
+              className="w-10 h-10 rounded-full bg-muted hover:bg-muted/80 flex items-center justify-center transition-colors"
             >
-              <Share2 className="w-5 h-5 text-white dark:text-white light:text-purple-primary" />
+              <Share2 className="w-5 h-5 text-foreground" />
             </motion.button>
 
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => navigate("/settings")}
-              className="w-10 h-10 rounded-full bg-purple-dark/50 dark:bg-purple-dark/50 light:bg-white light:border backdrop-blur-sm flex items-center justify-center border border-purple-primary/30 theme-transition"
+              className="w-10 h-10 rounded-full bg-muted hover:bg-muted/80 flex items-center justify-center transition-colors"
             >
-              <Settings className="w-5 h-5 text-white dark:text-white light:text-purple-primary" />
+              <Settings className="w-5 h-5 text-foreground" />
             </motion.button>
           </div>
         </motion.header>
