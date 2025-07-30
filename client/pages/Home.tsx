@@ -349,17 +349,28 @@ export default function Home() {
             </motion.span>
           </motion.div>
 
-          {/* Enhanced Message Icon */}
+          {/* Speech Bubble Message Icon */}
           <motion.button
             whileHover={{
               scale: 1.05,
               boxShadow: "0 0 25px rgba(0, 0, 0, 0.3)"
             }}
             whileTap={{ scale: 0.95 }}
-            className="group relative w-12 h-12 rounded-xl dark:bg-gradient-to-br dark:from-gray-800 dark:to-gray-900 light:bg-white light:border-2 light:border-gray-200 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm"
+            className="group relative flex items-center justify-center"
           >
-            {/* Message Icon */}
-            <MessageCircle className="w-6 h-6 dark:text-white light:text-black relative z-10 group-hover:scale-110 transition-transform duration-200" />
+            {/* Speech Bubble Shape */}
+            <div className="relative">
+              {/* Main bubble body */}
+              <div className="w-12 h-10 dark:bg-gradient-to-br dark:from-gray-800 dark:to-gray-900 light:bg-white light:border-2 light:border-gray-200 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm flex items-center justify-center relative z-10">
+                <MessageCircle className="w-5 h-5 dark:text-white light:text-black group-hover:scale-110 transition-transform duration-200" />
+              </div>
+
+              {/* Speech bubble tail */}
+              <div className="absolute -bottom-1 left-3 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-l-transparent border-r-transparent dark:border-t-gray-900 light:border-t-white shadow-sm"></div>
+
+              {/* Tail border for light mode */}
+              <div className="absolute -bottom-1.5 left-2.5 w-0 h-0 border-l-[7px] border-r-[7px] border-t-[7px] border-l-transparent border-r-transparent light:border-t-gray-200 dark:border-t-transparent"></div>
+            </div>
 
             {/* Notification Badge */}
             <motion.span
@@ -372,34 +383,34 @@ export default function Home() {
                   y: { duration: 2, repeat: Infinity }
                 }
               }}
-              className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-red-500 to-red-600 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-lg ring-2 ring-white dark:ring-gray-800"
+              className="absolute -top-2 -right-1 w-6 h-6 bg-gradient-to-r from-red-500 to-red-600 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-lg ring-2 ring-white dark:ring-gray-800 z-20"
             >
               3
             </motion.span>
 
-            {/* Hover Effect Ring */}
+            {/* Hover Effect */}
             <motion.div
               initial={{ scale: 0.8, opacity: 0 }}
               whileHover={{
-                scale: 1.3,
-                opacity: 0.3,
+                scale: 1.2,
+                opacity: 0.2,
                 transition: { duration: 0.3 }
               }}
-              className="absolute inset-0 rounded-xl dark:bg-white light:bg-black"
+              className="absolute top-0 left-0 w-12 h-10 rounded-2xl dark:bg-white light:bg-black"
             />
 
             {/* Pulse Effect for New Messages */}
             <motion.div
               animate={{
-                scale: [1, 1.4, 1],
-                opacity: [0.5, 0, 0.5],
+                scale: [1, 1.3, 1],
+                opacity: [0.3, 0, 0.3],
               }}
               transition={{
                 duration: 2,
                 repeat: Infinity,
                 ease: "easeInOut"
               }}
-              className="absolute inset-0 rounded-xl dark:bg-blue-400 light:bg-blue-500 opacity-30"
+              className="absolute top-0 left-0 w-12 h-10 rounded-2xl dark:bg-blue-400 light:bg-blue-500 opacity-20"
             />
           </motion.button>
         </motion.header>
