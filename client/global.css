@@ -113,53 +113,53 @@
   }
 
   .dark {
-    --background: 260 35% 8%;
-    --foreground: 210 40% 98%;
+    --background: 0 0% 7%; /* Deep black background */
+    --foreground: 0 0% 95%; /* Very light text */
 
-    --card: 260 30% 15%;
-    --card-foreground: 210 40% 98%;
+    --card: 260 15% 10%; /* Dark purple-black cards */
+    --card-foreground: 0 0% 95%;
 
-    --popover: 260 30% 15%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 260 15% 10%;
+    --popover-foreground: 0 0% 95%;
 
-    --primary: 267 83% 58%;
-    --primary-foreground: 260 35% 8%;
+    --primary: 267 83% 65%; /* Brighter purple for dark mode */
+    --primary-foreground: 0 0% 0%; /* Pure black text on purple */
 
-    --secondary: 260 25% 20%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 260 20% 15%; /* Dark purple secondary */
+    --secondary-foreground: 0 0% 90%;
 
-    --muted: 260 25% 20%;
-    --muted-foreground: 215 16% 65%;
+    --muted: 260 15% 12%; /* Very dark purple muted */
+    --muted-foreground: 0 0% 65%; /* Light gray text */
 
-    --accent: 285 85% 65%;
-    --accent-foreground: 260 35% 8%;
+    --accent: 285 90% 70%; /* Bright purple accent */
+    --accent-foreground: 0 0% 0%;
 
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 75% 55%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 260 30% 25%;
-    --input: 260 30% 18%;
-    --ring: 267 83% 58%;
-    --sidebar-background: 260 30% 15%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 267 83% 58%;
-    --sidebar-primary-foreground: 260 35% 8%;
-    --sidebar-accent: 260 25% 20%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 260 30% 25%;
-    --sidebar-ring: 267 83% 58%;
+    --border: 260 20% 18%; /* Dark purple borders */
+    --input: 260 15% 8%; /* Very dark inputs */
+    --ring: 267 83% 65%;
+    --sidebar-background: 260 15% 8%; /* Very dark sidebar */
+    --sidebar-foreground: 0 0% 95%;
+    --sidebar-primary: 267 83% 65%;
+    --sidebar-primary-foreground: 0 0% 0%;
+    --sidebar-accent: 260 20% 15%;
+    --sidebar-accent-foreground: 0 0% 90%;
+    --sidebar-border: 260 20% 18%;
+    --sidebar-ring: 267 83% 65%;
 
-    /* Dark mode specific colors */
-    --purple-primary: 267 83% 58%;
-    --purple-secondary: 285 85% 65%;
-    --purple-accent: 320 85% 70%;
-    --purple-glow: 280 100% 80%;
-    --purple-dark: 260 30% 15%;
-    --purple-darker: 260 35% 8%;
-    --neon-green: 158 64% 52%;
-    --neon-blue: 191 79% 52%;
-    --dark-surface: 260 30% 15%;
-    --darker-surface: 260 35% 8%;
+    /* Enhanced dark mode colors - Black and Purple theme */
+    --purple-primary: 267 83% 65%; /* Brighter purple for visibility */
+    --purple-secondary: 285 90% 70%; /* Bright violet */
+    --purple-accent: 320 85% 75%; /* Bright pink-purple */
+    --purple-glow: 280 100% 85%; /* Bright purple glow */
+    --purple-dark: 260 15% 10%; /* Dark purple surface */
+    --purple-darker: 0 0% 7%; /* Deep black */
+    --neon-green: 158 70% 60%; /* Brighter green for dark mode */
+    --neon-blue: 191 85% 60%; /* Brighter blue */
+    --dark-surface: 260 15% 10%; /* Dark purple surface */
+    --darker-surface: 0 0% 7%; /* Deep black surface */
   }
 }
 
