@@ -71,7 +71,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 13%;
 
-    --primary: 267 83% 58%; /* Keep purple primary */
+    --primary: 0 0% 20%; /* Dark gray primary instead of purple */
     --primary-foreground: 0 0% 100%;
 
     --secondary: 0 0% 98%; /* Very light gray like YouTube */
@@ -80,7 +80,7 @@
     --muted: 0 0% 97%; /* Very light gray background */
     --muted-foreground: 0 0% 45%; /* Medium gray text for better readability */
 
-    --accent: 267 83% 58%;
+    --accent: 0 0% 20%; /* Dark gray accent */
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
@@ -88,26 +88,26 @@
 
     --border: 0 0% 90%; /* Light borders like YouTube */
     --input: 0 0% 98%; /* Very light input backgrounds */
-    --ring: 267 83% 58%;
+    --ring: 0 0% 20%; /* Dark gray ring */
 
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 0 0% 13%;
-    --sidebar-primary: 267 83% 58%;
+    --sidebar-primary: 0 0% 20%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 0 0% 98%;
     --sidebar-accent-foreground: 0 0% 13%;
     --sidebar-border: 0 0% 90%;
-    --sidebar-ring: 267 83% 58%;
+    --sidebar-ring: 0 0% 20%;
 
-    /* Light mode specific colors - Google/YouTube style */
-    --purple-primary: 267 83% 58%;
-    --purple-secondary: 285 85% 65%;
-    --purple-accent: 320 85% 70%;
-    --purple-glow: 280 100% 80%;
+    /* Light mode - No colors, Google/YouTube style */
+    --purple-primary: 0 0% 20%; /* Dark gray instead of purple */
+    --purple-secondary: 0 0% 30%; /* Medium gray */
+    --purple-accent: 0 0% 40%; /* Light gray */
+    --purple-glow: 0 0% 50%; /* No glow effect */
     --purple-dark: 0 0% 97%; /* Very light background */
     --purple-darker: 0 0% 100%; /* Pure white */
-    --neon-green: 158 64% 52%;
-    --neon-blue: 191 79% 52%;
+    --neon-green: 0 0% 20%; /* Dark gray instead of green */
+    --neon-blue: 0 0% 20%; /* Dark gray instead of blue */
     --dark-surface: 0 0% 98%; /* Light surface */
     --darker-surface: 0 0% 100%; /* White surface */
   }
