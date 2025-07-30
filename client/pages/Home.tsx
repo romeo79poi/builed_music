@@ -663,7 +663,7 @@ export default function Home() {
                 whileHover={{ scale: 1.02 }}
                 className="text-xl font-bold flex items-center space-x-2"
               >
-                <Music className="w-5 h-5 text-foreground" />
+                <Music className="w-5 h-5 text-foreground dark:text-foreground light:text-blue-600" />
                 <span>Popular Songs</span>
               </motion.h2>
               <motion.button
