@@ -63,54 +63,54 @@
   }
 
   .light {
-    /* YouTube-like Light Mode */
+    /* High Contrast Black & White Light Mode */
     --background: 0 0% 100%; /* Pure white background */
-    --foreground: 0 0% 7%; /* Dark text */
+    --foreground: 0 0% 0%; /* Pure black text */
 
     --card: 0 0% 100%; /* Pure white cards */
-    --card-foreground: 0 0% 7%;
+    --card-foreground: 0 0% 0%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 7%;
+    --popover-foreground: 0 0% 0%;
 
-    --primary: 0 0% 7%; /* Black primary */
+    --primary: 0 0% 0%; /* Pure black primary */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 96%; /* Very light gray */
-    --secondary-foreground: 0 0% 7%;
+    --secondary: 0 0% 95%; /* Very light gray */
+    --secondary-foreground: 0 0% 0%;
 
-    --muted: 0 0% 98%; /* Light gray background */
-    --muted-foreground: 0 0% 45%; /* Medium gray */
+    --muted: 0 0% 97%; /* Light gray background */
+    --muted-foreground: 0 0% 35%; /* Dark gray for readability */
 
-    --accent: 0 0% 7%; /* Black accent */
+    --accent: 0 0% 0%; /* Pure black accent */
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%; /* Red for destructive actions */
+    --destructive: 0 100% 40%; /* Dark red for visibility */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 88%; /* Light gray borders */
-    --input: 0 0% 98%; /* Very light inputs */
-    --ring: 0 0% 7%; /* Black focus ring */
+    --border: 0 0% 80%; /* Clear gray borders */
+    --input: 0 0% 97%; /* Very light inputs */
+    --ring: 0 0% 0%; /* Pure black focus ring */
 
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 0 0% 7%;
-    --sidebar-primary: 0 0% 7%;
+    --sidebar-foreground: 0 0% 0%;
+    --sidebar-primary: 0 0% 0%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 96%;
-    --sidebar-accent-foreground: 0 0% 7%;
-    --sidebar-border: 0 0% 88%;
-    --sidebar-ring: 0 0% 7%;
+    --sidebar-accent: 0 0% 95%;
+    --sidebar-accent-foreground: 0 0% 0%;
+    --sidebar-border: 0 0% 80%;
+    --sidebar-ring: 0 0% 0%;
 
-    /* YouTube-like light mode colors */
-    --purple-primary: 0 0% 7%; /* Black */
-    --purple-secondary: 0 0% 20%; /* Dark gray */
-    --purple-accent: 0 0% 30%; /* Medium gray */
+    /* Pure black and white theme colors */
+    --purple-primary: 0 0% 0%; /* Pure black */
+    --purple-secondary: 0 0% 15%; /* Dark gray */
+    --purple-accent: 0 0% 25%; /* Medium gray */
     --purple-glow: 0 0% 50%; /* Gray */
-    --purple-dark: 0 0% 96%; /* Light gray background */
+    --purple-dark: 0 0% 95%; /* Light gray background */
     --purple-darker: 0 0% 100%; /* Pure white */
-    --neon-green: 0 0% 7%; /* Black instead of green */
-    --neon-blue: 0 0% 7%; /* Black instead of blue */
-    --dark-surface: 0 0% 96%; /* Light surface */
+    --neon-green: 0 0% 0%; /* Pure black */
+    --neon-blue: 0 0% 0%; /* Pure black */
+    --dark-surface: 0 0% 95%; /* Light surface */
     --darker-surface: 0 0% 100%; /* White surface */
   }
 
