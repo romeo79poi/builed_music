@@ -153,7 +153,7 @@ export default function MobileFooter({ className = "" }: FooterProps) {
                           className={`w-6 h-6 relative z-10 transition-all duration-300 ${
                             isActive
                               ? "text-neon-green dark:text-neon-green light:text-black scale-110"
-                            : "text-gray-400 dark:text-gray-400 light:text-gray-600 group-hover:text-purple-primary"
+                            : "text-gray-400 dark:text-gray-400 light:text-gray-600 group-hover:text-purple-primary dark:group-hover:text-purple-primary light:group-hover:text-black"
                           }`}
                         />
                       </>
