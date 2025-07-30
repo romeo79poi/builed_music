@@ -26,8 +26,10 @@ const featuredContent = {
   type: "album",
   title: "Midnight Memories",
   artist: "One Direction",
-  description: "The perfect soundtrack for late-night vibes and nostalgic moments.",
-  coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&h=400&fit=crop",
+  description:
+    "The perfect soundtrack for late-night vibes and nostalgic moments.",
+  coverImageURL:
+    "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&h=400&fit=crop",
   genre: "Pop",
   releaseYear: "2013",
   totalTracks: 18,
@@ -84,21 +86,24 @@ const newReleases = [
     id: "nr1",
     title: "As It Was",
     artist: "Harry Styles",
-    coverImageURL: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
     releaseDate: "2024-01-15",
   },
   {
     id: "nr2",
     title: "Anti-Hero",
     artist: "Taylor Swift",
-    coverImageURL: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=200&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=200&fit=crop",
     releaseDate: "2024-01-12",
   },
   {
     id: "nr3",
     title: "Unholy",
     artist: "Sam Smith",
-    coverImageURL: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
     releaseDate: "2024-01-10",
   },
 ];
@@ -109,7 +114,8 @@ const moodPlaylists = [
     id: "mood1",
     name: "Chill Vibes",
     description: "Relax and unwind",
-    coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
     mood: "chill",
     color: "from-blue-400 to-purple-400",
   },
@@ -117,7 +123,8 @@ const moodPlaylists = [
     id: "mood2",
     name: "Workout Beats",
     description: "Get pumped up",
-    coverImageURL: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
     mood: "energetic",
     color: "from-red-400 to-orange-400",
   },
@@ -125,7 +132,8 @@ const moodPlaylists = [
     id: "mood3",
     name: "Party Mix",
     description: "Dance the night away",
-    coverImageURL: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
     mood: "party",
     color: "from-pink-400 to-purple-400",
   },
@@ -133,7 +141,8 @@ const moodPlaylists = [
     id: "mood4",
     name: "Focus Flow",
     description: "Stay concentrated",
-    coverImageURL: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop",
     mood: "focus",
     color: "from-green-400 to-teal-400",
   },
@@ -284,8 +293,6 @@ export default function Home() {
       {/* Clean minimalist background like Google/YouTube */}
       <div className="fixed inset-0 bg-gradient-to-b from-background to-secondary/20 theme-transition"></div>
 
-
-
       {/* Main Container */}
       <motion.div
         initial="hidden"
@@ -422,10 +429,7 @@ export default function Home() {
           </motion.div>
 
           {/* Hero Section - Featured Content */}
-          <motion.section
-            variants={itemVariants}
-            className="mb-8"
-          >
+          <motion.section variants={itemVariants} className="mb-8">
             <motion.div
               whileHover={{ scale: 1.01 }}
               className="relative bg-card rounded-2xl p-6 overflow-hidden cursor-pointer claude-shadow hover:claude-shadow-hover dark:claude-dark-shadow dark:hover:claude-dark-shadow-hover border border-border"
@@ -525,8 +529,12 @@ export default function Home() {
                       NEW
                     </div>
                   </div>
-                  <h3 className="font-medium text-sm mb-1 truncate">{release.title}</h3>
-                  <p className="text-gray-400 text-xs truncate">{release.artist}</p>
+                  <h3 className="font-medium text-sm mb-1 truncate">
+                    {release.title}
+                  </h3>
+                  <p className="text-gray-400 text-xs truncate">
+                    {release.artist}
+                  </p>
                 </motion.div>
               ))}
             </div>
@@ -555,8 +563,12 @@ export default function Home() {
                   className={`relative bg-gradient-to-br ${playlist.color} rounded-2xl p-4 h-24 cursor-pointer overflow-hidden`}
                 >
                   <div className="relative z-10">
-                    <h3 className="font-bold text-white text-sm mb-1">{playlist.name}</h3>
-                    <p className="text-white/80 text-xs">{playlist.description}</p>
+                    <h3 className="font-bold text-white text-sm mb-1">
+                      {playlist.name}
+                    </h3>
+                    <p className="text-white/80 text-xs">
+                      {playlist.description}
+                    </p>
                   </div>
                   <div className="absolute top-2 right-2 w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
                     <Music className="w-4 h-4 text-white" />

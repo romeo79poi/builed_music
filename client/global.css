@@ -170,12 +170,24 @@
 
   body {
     @apply bg-background text-foreground;
-    transition: background-color 0.3s ease, color 0.3s ease;
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease;
     /* Claude-style font smoothing and typography */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-feature-settings: "cv02", "cv03", "cv04", "cv11";
-    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    font-family:
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      Roboto,
+      "Helvetica Neue",
+      Arial,
+      "Noto Sans",
+      sans-serif;
   }
 }
 
@@ -209,7 +221,10 @@
 
   /* Theme transition utilities */
   .theme-transition {
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease,
+      border-color 0.3s ease;
   }
 
   /* Google/YouTube style light mode utilities */
@@ -222,7 +237,9 @@
   }
 
   .light .google-shadow-lg {
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
+    box-shadow:
+      0 4px 6px -1px rgb(0 0 0 / 0.1),
+      0 2px 4px -1px rgb(0 0 0 / 0.06);
   }
 
   /* YouTube-style light mode card shadows */
@@ -231,7 +248,9 @@
   }
 
   .light .youtube-shadow-hover {
-    box-shadow: 0 2px 8px 0 rgb(0 0 0 / 0.1), 0 1px 4px 0 rgb(0 0 0 / 0.06);
+    box-shadow:
+      0 2px 8px 0 rgb(0 0 0 / 0.1),
+      0 1px 4px 0 rgb(0 0 0 / 0.06);
   }
 
   /* Google style light mode text colors - monochrome */
@@ -276,11 +295,15 @@
 
   /* Clean black and white shadows */
   .light .claude-shadow {
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    box-shadow:
+      0 1px 3px 0 rgb(0 0 0 / 0.1),
+      0 1px 2px -1px rgb(0 0 0 / 0.1);
   }
 
   .light .claude-shadow-hover {
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
+    box-shadow:
+      0 4px 6px -1px rgb(0 0 0 / 0.1),
+      0 2px 4px -1px rgb(0 0 0 / 0.06);
   }
 
   /* Claude-like dark mode utilities */
@@ -289,15 +312,21 @@
   }
 
   .dark .claude-dark-shadow-hover {
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -1px rgb(0 0 0 / 0.4);
+    box-shadow:
+      0 4px 6px -1px rgb(0 0 0 / 0.4),
+      0 2px 4px -1px rgb(0 0 0 / 0.4);
   }
 
   .dark .claude-dark-shadow-lg {
-    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.4), 0 4px 6px -4px rgb(0 0 0 / 0.4);
+    box-shadow:
+      0 10px 15px -3px rgb(0 0 0 / 0.4),
+      0 4px 6px -4px rgb(0 0 0 / 0.4);
   }
 
   .dark .dark-shadow-orange {
-    box-shadow: 0 4px 12px 0 hsl(25 95% 53% / 0.2), 0 2px 6px 0 rgb(0 0 0 / 0.5);
+    box-shadow:
+      0 4px 12px 0 hsl(25 95% 53% / 0.2),
+      0 2px 6px 0 rgb(0 0 0 / 0.5);
   }
 
   .dark .text-dark-primary {

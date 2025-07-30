@@ -128,14 +128,16 @@ export default function MobileFooter({ className = "" }: FooterProps) {
                     }
                     transition={{ duration: 2, repeat: Infinity }}
                     className={`relative p-2 transition-all duration-300 ${
-                      item.isSpecial ? 'rounded-xl' : 'rounded-full'
+                      item.isSpecial ? "rounded-xl" : "rounded-full"
                     }`}
                   >
                     {/* Special Reels button styling */}
                     {item.isSpecial ? (
-                      <div className={`w-8 h-8 rounded-xl bg-gradient-to-r dark:from-purple-primary dark:to-purple-secondary light:bg-black flex items-center justify-center ${
-                        isActive ? 'scale-110' : ''
-                      }`}>
+                      <div
+                        className={`w-8 h-8 rounded-xl bg-gradient-to-r dark:from-purple-primary dark:to-purple-secondary light:bg-black flex items-center justify-center ${
+                          isActive ? "scale-110" : ""
+                        }`}
+                      >
                         <Icon className="w-5 h-5 text-white" />
                       </div>
                     ) : (
@@ -153,7 +155,7 @@ export default function MobileFooter({ className = "" }: FooterProps) {
                           className={`w-6 h-6 relative z-10 transition-all duration-300 ${
                             isActive
                               ? "text-neon-green dark:text-neon-green light:text-black scale-110"
-                            : "text-gray-400 dark:text-gray-400 light:text-gray-600 group-hover:text-purple-primary dark:group-hover:text-purple-primary light:group-hover:text-black"
+                              : "text-gray-400 dark:text-gray-400 light:text-gray-600 group-hover:text-purple-primary dark:group-hover:text-purple-primary light:group-hover:text-black"
                           }`}
                         />
                       </>
@@ -191,7 +193,9 @@ export default function MobileFooter({ className = "" }: FooterProps) {
                     }}
                     transition={{ duration: 0.2 }}
                     className={`text-[10px] mt-1 font-medium transition-all duration-300 ${
-                      isActive ? "text-neon-green dark:text-neon-green light:text-black" : "text-transparent"
+                      isActive
+                        ? "text-neon-green dark:text-neon-green light:text-black"
+                        : "text-transparent"
                     }`}
                   >
                     {item.label}
