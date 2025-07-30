@@ -62,54 +62,54 @@
   }
 
   .light {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --background: 0 0% 100%; /* Pure white like YouTube */
+    --foreground: 0 0% 13%; /* Dark text like YouTube */
 
-    --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card: 0 0% 100%; /* White cards */
+    --card-foreground: 0 0% 13%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
+    --popover-foreground: 0 0% 13%;
 
-    --primary: 267 83% 58%;
+    --primary: 267 83% 58%; /* Keep purple primary */
     --primary-foreground: 0 0% 98%;
 
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
+    --secondary: 0 0% 96%; /* Light gray like YouTube */
+    --secondary-foreground: 0 0% 13%;
 
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
+    --muted: 0 0% 96%; /* Light gray background */
+    --muted-foreground: 0 0% 45%; /* Medium gray text */
 
-    --accent: 285 85% 65%;
-    --accent-foreground: 240 5.9% 10%;
+    --accent: 267 83% 58%;
+    --accent-foreground: 0 0% 98%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
+    --border: 0 0% 90%; /* Light gray borders */
+    --input: 0 0% 96%; /* Light input backgrounds */
     --ring: 267 83% 58%;
 
     --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-foreground: 0 0% 13%;
     --sidebar-primary: 267 83% 58%;
     --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 240 4.8% 95.9%;
-    --sidebar-accent-foreground: 240 5.9% 10%;
-    --sidebar-border: 240 5.9% 90%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 13%;
+    --sidebar-border: 0 0% 90%;
     --sidebar-ring: 267 83% 58%;
 
-    /* Light mode specific colors */
+    /* Light mode specific colors - YouTube inspired */
     --purple-primary: 267 83% 58%;
     --purple-secondary: 285 85% 65%;
     --purple-accent: 320 85% 70%;
     --purple-glow: 280 100% 80%;
-    --purple-dark: 240 4.8% 95.9%; /* Light purple background */
-    --purple-darker: 0 0% 100%; /* Lighter purple background */
+    --purple-dark: 0 0% 96%; /* Light background like YouTube */
+    --purple-darker: 0 0% 100%; /* Pure white */
     --neon-green: 158 64% 52%;
     --neon-blue: 191 79% 52%;
-    --dark-surface: 240 4.8% 95.9%;
-    --darker-surface: 0 0% 100%;
+    --dark-surface: 0 0% 96%; /* Light surface */
+    --darker-surface: 0 0% 100%; /* White surface */
   }
 
   .dark {
@@ -171,6 +171,9 @@
   body {
     @apply bg-background text-foreground;
     transition: background-color 0.3s ease, color 0.3s ease;
+    /* YouTube-style font smoothing */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 }
 
@@ -207,13 +210,35 @@
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
   }
 
-  /* Light mode specific utilities */
+  /* Light mode specific utilities - YouTube style */
   .light .light-shadow {
     box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   }
 
   .light .light-shadow-lg {
-    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
+  }
+
+  /* YouTube-style light mode card shadows */
+  .light .youtube-shadow {
+    box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  }
+
+  .light .youtube-shadow-hover {
+    box-shadow: 0 4px 8px 0 rgb(0 0 0 / 0.12), 0 2px 4px 0 rgb(0 0 0 / 0.08);
+  }
+
+  /* Enhanced light mode text colors */
+  .light .text-light-primary {
+    color: rgb(15 15 15);
+  }
+
+  .light .text-light-secondary {
+    color: rgb(96 96 96);
+  }
+
+  .light .text-light-tertiary {
+    color: rgb(144 144 144);
   }
 
   /* Dark mode specific utilities */
