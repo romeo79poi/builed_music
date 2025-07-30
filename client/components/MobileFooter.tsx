@@ -87,10 +87,10 @@ export default function MobileFooter({ className = "" }: FooterProps) {
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.5, type: "spring", stiffness: 300 }}
-      className={`fixed bottom-0 left-0 right-0 bg-black/95 dark:bg-black/95 light:bg-white/95 backdrop-blur-xl border-t border-purple-primary/20 z-50 theme-transition ${className}`}
+      className={`fixed bottom-0 left-0 right-0 bg-black/95 dark:bg-black/95 light:bg-white/98 light:youtube-shadow backdrop-blur-xl border-t border-purple-primary/20 dark:border-purple-primary/20 light:border-gray-200 z-50 theme-transition ${className}`}
     >
       {/* Background Effects */}
-      <div className="absolute inset-0 bg-gradient-to-t from-purple-primary/5 via-purple-secondary/2 to-transparent dark:from-purple-primary/5 dark:via-purple-secondary/2 dark:to-transparent light:from-purple-primary/2 light:via-purple-secondary/1 light:to-transparent theme-transition"></div>
+      <div className="absolute inset-0 bg-gradient-to-t from-purple-primary/5 via-purple-secondary/2 to-transparent dark:from-purple-primary/5 dark:via-purple-secondary/2 dark:to-transparent light:from-transparent light:to-transparent theme-transition"></div>
 
       {/* Instagram-style Mobile Navigation */}
       <div
