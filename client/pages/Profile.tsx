@@ -322,12 +322,12 @@ export default function Profile() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate("/home")}
-            className="w-10 h-10 rounded-full bg-purple-dark/50 backdrop-blur-sm flex items-center justify-center border border-purple-primary/30"
+            className="w-10 h-10 rounded-full bg-muted hover:bg-muted/80 flex items-center justify-center transition-colors"
           >
-            <ArrowLeft className="w-5 h-5 text-white" />
+            <ArrowLeft className="w-5 h-5 text-foreground" />
           </motion.button>
 
-          <h1 className="text-lg font-bold text-white">Profile</h1>
+          <h1 className="text-lg font-bold text-foreground">Profile</h1>
 
           <div className="flex items-center space-x-2">
             <motion.button
