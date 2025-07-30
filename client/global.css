@@ -247,21 +247,22 @@
     color: rgb(128 134 139); /* Google tertiary text */
   }
 
-  /* Purple gradients for light mode with dark text */
+  /* Black styling for light mode like YouTube */
   .light .purple-gradient-text {
-    background: linear-gradient(135deg, hsl(267 83% 58%), hsl(285 85% 65%));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+    background: none;
+    -webkit-background-clip: unset;
+    background-clip: unset;
+    -webkit-text-fill-color: unset;
+    color: rgb(15 15 15); /* Dark text */
   }
 
-  /* Purple light mode utilities with dark text */
+  /* Black light mode utilities like YouTube */
   .light .light-accent {
-    color: hsl(267 83% 58%); /* Purple */
+    color: rgb(15 15 15); /* Black */
   }
 
   .light .light-accent-bg {
-    background-color: hsl(267 83% 58%);
+    background-color: rgb(15 15 15);
     color: white;
   }
 
@@ -270,7 +271,7 @@
   }
 
   .light .light-hover-accent:hover {
-    color: hsl(267 83% 58%);
+    color: rgb(15 15 15);
   }
 
   /* Clean black and white shadows */
