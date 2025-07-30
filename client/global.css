@@ -63,51 +63,51 @@
 
   .light {
     --background: 0 0% 100%; /* Pure white */
-    --foreground: 0 0% 0%; /* Pure black text */
+    --foreground: 0 0% 15%; /* Dark charcoal text for readability */
 
     --card: 0 0% 100%; /* Pure white cards */
-    --card-foreground: 0 0% 0%;
+    --card-foreground: 0 0% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 0%;
+    --popover-foreground: 0 0% 15%;
 
-    --primary: 0 0% 0%; /* Black primary */
+    --primary: 267 83% 58%; /* Purple primary */
     --primary-foreground: 0 0% 100%;
 
     --secondary: 0 0% 96%; /* Very light gray */
-    --secondary-foreground: 0 0% 0%;
+    --secondary-foreground: 0 0% 15%;
 
     --muted: 0 0% 98%; /* Very light gray background */
-    --muted-foreground: 0 0% 40%; /* Medium gray for secondary text */
+    --muted-foreground: 0 0% 45%; /* Medium gray for secondary text */
 
-    --accent: 0 0% 0%; /* Black accent */
+    --accent: 267 83% 58%; /* Purple accent */
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 0% 0%; /* Black for destructive actions */
+    --destructive: 0 84% 60%; /* Red for destructive actions */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 90%; /* Light gray borders */
+    --border: 0 0% 88%; /* Light gray borders */
     --input: 0 0% 98%; /* Very light inputs */
-    --ring: 0 0% 0%; /* Black focus ring */
+    --ring: 267 83% 58%; /* Purple focus ring */
 
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 0 0% 0%;
-    --sidebar-primary: 0 0% 0%;
+    --sidebar-foreground: 0 0% 15%;
+    --sidebar-primary: 267 83% 58%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 0 0% 96%;
-    --sidebar-accent-foreground: 0 0% 0%;
-    --sidebar-border: 0 0% 90%;
-    --sidebar-ring: 0 0% 0%;
+    --sidebar-accent-foreground: 0 0% 15%;
+    --sidebar-border: 0 0% 88%;
+    --sidebar-ring: 267 83% 58%;
 
-    /* Black and white only light mode colors */
-    --purple-primary: 0 0% 0%; /* Black primary */
-    --purple-secondary: 0 0% 20%; /* Dark gray */
-    --purple-accent: 0 0% 40%; /* Medium gray */
-    --purple-glow: 0 0% 60%; /* Light gray */
-    --purple-dark: 0 0% 98%; /* Very light gray background */
+    /* Light mode with purple accents and dark text */
+    --purple-primary: 267 83% 58%; /* Purple primary */
+    --purple-secondary: 285 85% 65%; /* Light purple */
+    --purple-accent: 320 85% 70%; /* Pink-purple */
+    --purple-glow: 280 100% 80%; /* Light purple glow */
+    --purple-dark: 0 0% 96%; /* Very light gray background */
     --purple-darker: 0 0% 100%; /* Pure white */
-    --neon-green: 0 0% 0%; /* Black instead of green */
-    --neon-blue: 0 0% 0%; /* Black instead of blue */
+    --neon-green: 158 64% 52%; /* Green for accents */
+    --neon-blue: 191 79% 52%; /* Blue for accents */
     --dark-surface: 0 0% 98%; /* Light surface */
     --darker-surface: 0 0% 100%; /* White surface */
   }
