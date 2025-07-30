@@ -247,21 +247,22 @@
     color: rgb(128 134 139); /* Google tertiary text */
   }
 
-  /* Claude-like gradients for light mode */
+  /* Black and white only gradients for light mode */
   .light .purple-gradient-text {
-    background: linear-gradient(135deg, hsl(25 95% 53%), hsl(35 100% 50%));
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
+    background: none;
+    -webkit-background-clip: unset;
+    background-clip: unset;
+    -webkit-text-fill-color: unset;
+    color: rgb(0 0 0); /* Pure black text */
   }
 
-  /* Claude-like light mode utilities */
+  /* Black and white light mode utilities */
   .light .light-accent {
-    color: hsl(25 95% 53%); /* Warm orange */
+    color: rgb(0 0 0); /* Black */
   }
 
   .light .light-accent-bg {
-    background-color: hsl(25 95% 53%);
+    background-color: rgb(0 0 0);
     color: white;
   }
 
@@ -270,10 +271,10 @@
   }
 
   .light .light-hover-accent:hover {
-    color: hsl(25 95% 53%);
+    color: rgb(0 0 0);
   }
 
-  /* Professional shadows for Claude-like appearance */
+  /* Clean black and white shadows */
   .light .claude-shadow {
     box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
   }
