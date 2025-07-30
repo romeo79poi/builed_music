@@ -668,7 +668,7 @@ export default function Home() {
               </motion.h2>
               <motion.button
                 whileHover={{ scale: 1.05 }}
-                className="text-gray-400 dark:text-gray-400 light:text-gray-600 hover:text-white dark:hover:text-white light:hover:text-black text-sm font-medium transition-colors flex items-center space-x-1"
+                className="text-gray-400 dark:text-gray-400 light:text-gray-600 hover:text-white dark:hover:text-white light:hover:text-blue-600 text-sm font-medium transition-colors flex items-center space-x-1"
               >
                 <span>Show all</span>
                 <Star className="w-3 h-3" />
