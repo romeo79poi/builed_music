@@ -85,6 +85,19 @@ import {
   getSocialAnalytics,
 } from "./routes/analytics";
 
+// Message routes
+import {
+  getChats,
+  getChatMessages,
+  sendMessage,
+  markAsRead,
+  addReaction,
+  setTyping,
+  getTypingUsers,
+  createChat,
+  deleteMessage,
+} from "./routes/messages";
+
 export function createServer() {
   const app = express();
 
