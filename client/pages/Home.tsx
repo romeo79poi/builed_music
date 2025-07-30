@@ -284,50 +284,7 @@ export default function Home() {
       {/* Clean minimalist background like Google/YouTube */}
       <div className="fixed inset-0 bg-gradient-to-b from-background to-secondary/20 theme-transition"></div>
 
-      {/* Animated floating elements */}
-      <div className="fixed inset-0 opacity-20">
-        <motion.div
-          animate={floatAnimation}
-          className="absolute top-5 left-5 w-16 h-16 border border-purple-primary/20 rotate-45 rounded-lg"
-        />
-        <motion.div
-          animate={{
-            ...floatAnimation,
-            transition: { ...floatAnimation.transition, delay: 0.5 },
-          }}
-          className="absolute top-10 right-10 w-12 h-12 border border-purple-secondary/20 rotate-12 rounded-lg"
-        />
-        <motion.div
-          animate={{
-            ...floatAnimation,
-            transition: { ...floatAnimation.transition, delay: 1 },
-          }}
-          className="absolute bottom-10 left-10 w-10 h-10 border border-purple-accent/20 -rotate-12 rounded-lg"
-        />
-        <motion.div
-          animate={{
-            ...floatAnimation,
-            transition: { ...floatAnimation.transition, delay: 1.5 },
-          }}
-          className="absolute bottom-5 right-5 w-14 h-14 border border-purple-primary/20 rotate-45 rounded-lg"
-        />
 
-        {/* Additional floating particles */}
-        <motion.div
-          animate={{
-            rotate: 360,
-            transition: { duration: 20, repeat: Infinity, ease: "linear" },
-          }}
-          className="absolute top-1/4 left-1/4 w-2 h-2 bg-purple-primary/30 rounded-full"
-        />
-        <motion.div
-          animate={{
-            rotate: -360,
-            transition: { duration: 15, repeat: Infinity, ease: "linear" },
-          }}
-          className="absolute top-3/4 right-1/4 w-3 h-3 bg-purple-secondary/30 rounded-full"
-        />
-      </div>
 
       {/* Main Container */}
       <motion.div
