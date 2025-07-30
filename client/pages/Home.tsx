@@ -638,7 +638,7 @@ export default function Home() {
                             stiffness: 400,
                             damping: 25,
                           }}
-                          className="absolute bottom-2 right-2 w-8 h-8 bg-primary rounded-full flex items-center justify-center shadow-lg"
+                          className="absolute bottom-2 right-2 w-8 h-8 bg-primary hover:bg-primary/90 rounded-full flex items-center justify-center shadow-lg transition-all"
                         >
                           <Play className="w-4 h-4 text-white ml-0.5" />
                         </motion.button>
