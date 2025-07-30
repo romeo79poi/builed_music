@@ -612,50 +612,7 @@ const Messages = () => {
         </div>
       </motion.header>
 
-      {/* Stories Section */}
-      {showStories && currentView === 'primary' && (
-        <motion.div variants={itemVariants} className="p-4 border-b border-border">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold text-sm">Stories</h3>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-6 w-6"
-              onClick={() => setShowStories(false)}
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-          <ScrollArea className="w-full">
-            <div className="flex space-x-4">
-              {stories.map((story) => (
-                <div key={story.id} className="flex-shrink-0 text-center">
-                  <div
-                    className={`relative p-1 rounded-full ${
-                      story.hasStory && !story.isViewed
-                        ? 'bg-gradient-to-tr from-yellow-400 to-pink-600'
-                        : story.hasStory && story.isViewed
-                        ? 'bg-gray-300'
-                        : 'bg-transparent'
-                    }`}
-                  >
-                    <Avatar className="h-14 w-14 border-2 border-background">
-                      <AvatarImage src={story.avatar} />
-                      <AvatarFallback>{story.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    {story.id === 'own' && !story.hasStory && (
-                      <div className="absolute bottom-0 right-0 w-5 h-5 bg-primary rounded-full flex items-center justify-center border-2 border-background">
-                        <Plus className="h-3 w-3 text-primary-foreground" />
-                      </div>
-                    )}
-                  </div>
-                  <p className="text-xs mt-1 truncate w-16">{story.name}</p>
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
-        </motion.div>
-      )}
+
 
       {/* Chat List */}
       <motion.div variants={itemVariants} className="flex-1 overflow-y-auto">
