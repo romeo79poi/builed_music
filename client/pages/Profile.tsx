@@ -505,7 +505,7 @@ export default function Profile() {
                         title={badgeInfo.label}
                       >
                         <BadgeIcon className={`w-3 h-3 ${badgeInfo.color}`} />
-                        <span className="text-xs text-white font-medium">{badgeInfo.label}</span>
+                        <span className="text-xs text-foreground font-medium">{badgeInfo.label}</span>
                       </motion.div>
                     );
                   })}
