@@ -416,7 +416,7 @@ export default function Home() {
               transition={{ delay: 0.4 }}
               className="text-gray-400 dark:text-gray-400 light:text-gray-600 text-base flex items-center space-x-2"
             >
-              <Sparkles className="w-4 h-4 text-muted-foreground" />
+              <Sparkles className="w-4 h-4 text-muted-foreground dark:text-muted-foreground light:text-blue-500" />
               <span>Ready to discover amazing music?</span>
             </motion.p>
           </motion.div>
