@@ -357,7 +357,7 @@ export default function Home() {
                 scale: [1, 1.2, 1],
                 transition: { duration: 1.5, repeat: Infinity },
               }}
-              className="absolute -top-1 -right-1 w-4 h-4 bg-neon-green dark:bg-neon-green light:bg-black rounded-full flex items-center justify-center text-xs font-bold text-white shadow-lg dark:shadow-neon-green/50 light:shadow-md"
+              className="absolute -top-1 -right-1 w-4 h-4 bg-neon-green dark:bg-neon-green light:bg-purple-primary rounded-full flex items-center justify-center text-xs font-bold text-white shadow-lg dark:shadow-neon-green/50 light:shadow-purple-primary/30"
             >
               3
             </motion.span>
