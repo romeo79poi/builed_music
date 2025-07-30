@@ -437,7 +437,7 @@ export default function Home() {
                   onBlur={() => setIsSearchFocused(false)}
                   onClick={() => navigate("/search")}
                   placeholder="Search songs, artists, albums..."
-                  className="w-full h-14 bg-white/10 backdrop-blur-sm rounded-2xl pl-12 pr-4 text-white placeholder-gray-400 focus:outline-none focus:bg-white/15 border border-purple-primary/20 focus:border-purple-primary/50 transition-all"
+                  className="w-full h-14 bg-white/10 dark:bg-white/10 light:bg-gray-100 backdrop-blur-sm rounded-2xl pl-12 pr-4 text-white dark:text-white light:text-gray-900 placeholder-gray-400 dark:placeholder-gray-400 light:placeholder-gray-500 focus:outline-none focus:bg-white/15 dark:focus:bg-white/15 light:focus:bg-white border border-purple-primary/20 dark:border-purple-primary/20 light:border-gray-300 focus:border-purple-primary/50 transition-all theme-transition"
                 />
               </motion.div>
             </div>
