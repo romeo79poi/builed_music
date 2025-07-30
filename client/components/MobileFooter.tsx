@@ -165,7 +165,7 @@ export default function MobileFooter({ className = "" }: FooterProps) {
                         initial={{ scale: 0, opacity: 0 }}
                         animate={{ scale: 1, opacity: 1 }}
                         transition={{ delay: 0.1 }}
-                        className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-neon-green rounded-full"
+                        className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-1 h-1 bg-neon-green dark:bg-neon-green light:bg-black rounded-full"
                       />
                     )}
 
