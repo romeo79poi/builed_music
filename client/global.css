@@ -232,7 +232,7 @@
     box-shadow: 0 2px 8px 0 rgb(0 0 0 / 0.1), 0 1px 4px 0 rgb(0 0 0 / 0.06);
   }
 
-  /* Google style light mode text colors */
+  /* Google style light mode text colors - monochrome */
   .light .text-light-primary {
     color: rgb(32 33 36); /* Google text color */
   }
@@ -243,6 +243,15 @@
 
   .light .text-light-tertiary {
     color: rgb(128 134 139); /* Google tertiary text */
+  }
+
+  /* Remove all color gradients in light mode */
+  .light .purple-gradient-text {
+    background: none;
+    -webkit-background-clip: unset;
+    background-clip: unset;
+    -webkit-text-fill-color: unset;
+    color: rgb(32 33 36); /* Use regular text color */
   }
 
   /* Google/YouTube style dark mode utilities */
