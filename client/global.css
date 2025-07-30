@@ -245,13 +245,17 @@
     color: rgb(128 134 139); /* Google tertiary text */
   }
 
-  /* Enhanced dark mode utilities with purple accents */
-  .dark .dark-shadow {
-    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4), 0 1px 2px -1px rgb(0 0 0 / 0.4);
+  /* Google/YouTube style dark mode utilities */
+  .dark .google-dark-shadow {
+    box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4);
   }
 
-  .dark .dark-shadow-lg {
-    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.5), 0 4px 6px -4px rgb(0 0 0 / 0.5);
+  .dark .google-dark-shadow-hover {
+    box-shadow: 0 2px 8px 0 rgb(0 0 0 / 0.3);
+  }
+
+  .dark .google-dark-shadow-lg {
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.3), 0 2px 4px -1px rgb(0 0 0 / 0.3);
   }
 
   .dark .dark-shadow-purple {
@@ -259,23 +263,23 @@
   }
 
   .dark .text-dark-primary {
-    color: rgb(245 245 245); /* Very light text */
+    color: rgb(241 243 244); /* YouTube dark text */
   }
 
   .dark .text-dark-secondary {
-    color: rgb(180 180 180); /* Light gray text */
+    color: rgb(170 170 170); /* YouTube secondary text */
   }
 
   .dark .text-dark-tertiary {
-    color: rgb(140 140 140); /* Medium gray text */
+    color: rgb(136 136 136); /* YouTube tertiary text */
   }
 
   .dark .bg-dark-card {
-    background-color: hsl(260 15% 10%); /* Dark purple-black cards */
+    background-color: hsl(0 0% 13%); /* Dark cards like YouTube */
   }
 
   .dark .bg-dark-surface {
-    background-color: hsl(260 15% 8%); /* Very dark surface */
+    background-color: hsl(0 0% 9%); /* Dark surface like YouTube */
   }
 
   .purple-gradient-text {
