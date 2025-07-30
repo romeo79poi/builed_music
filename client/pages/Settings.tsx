@@ -409,7 +409,7 @@ export default function Settings() {
                                 </span>
                               )}
                             </div>
-                            <p className="text-sm text-gray-400">
+                            <p className="text-sm text-gray-400 dark:text-gray-400 light:text-gray-600">
                               {item.description}
                             </p>
                           </div>
