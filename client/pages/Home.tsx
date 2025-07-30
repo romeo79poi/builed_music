@@ -691,7 +691,7 @@ export default function Home() {
                   <h3 className="font-medium text-sm mb-1 truncate leading-tight">
                     {album.name}
                   </h3>
-                  <p className="text-gray-400 text-xs truncate leading-tight">
+                  <p className="text-gray-400 dark:text-gray-400 light:text-gray-600 text-xs truncate leading-tight">
                     {album.artist}
                   </p>
                 </motion.div>
@@ -711,7 +711,7 @@ export default function Home() {
               </motion.h2>
               <motion.button
                 whileHover={{ scale: 1.05 }}
-                className="text-gray-400 hover:text-white text-sm font-medium transition-colors flex items-center space-x-1"
+                className="text-gray-400 dark:text-gray-400 light:text-gray-600 hover:text-white dark:hover:text-white light:hover:text-black text-sm font-medium transition-colors flex items-center space-x-1"
               >
                 <span>Show all</span>
                 <Star className="w-3 h-3" />
@@ -762,7 +762,7 @@ export default function Home() {
                     <h3 className="font-medium text-base truncate leading-tight">
                       {song.title}
                     </h3>
-                    <p className="text-gray-400 text-sm truncate leading-tight">
+                    <p className="text-gray-400 dark:text-gray-400 light:text-gray-600 text-sm truncate leading-tight">
                       {song.artist}
                     </p>
                   </div>
@@ -789,7 +789,7 @@ export default function Home() {
                       />
                     </motion.button>
 
-                    <span className="text-gray-400 text-sm min-w-[40px]">
+                    <span className="text-gray-400 dark:text-gray-400 light:text-gray-600 text-sm min-w-[40px]">
                       {song.duration}
                     </span>
 
