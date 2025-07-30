@@ -228,17 +228,17 @@
     box-shadow: 0 4px 8px 0 rgb(0 0 0 / 0.12), 0 2px 4px 0 rgb(0 0 0 / 0.08);
   }
 
-  /* Enhanced light mode text colors */
+  /* Enhanced light mode text colors for better contrast */
   .light .text-light-primary {
-    color: rgb(15 15 15);
+    color: rgb(10 10 10); /* Almost black for maximum contrast */
   }
 
   .light .text-light-secondary {
-    color: rgb(96 96 96);
+    color: rgb(70 70 70); /* Darker gray for better readability */
   }
 
   .light .text-light-tertiary {
-    color: rgb(144 144 144);
+    color: rgb(120 120 120); /* Medium gray, still readable */
   }
 
   /* Dark mode specific utilities */
