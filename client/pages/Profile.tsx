@@ -437,7 +437,7 @@ export default function Profile() {
               <p className="text-foreground leading-relaxed mb-3">{profile.bio}</p>
               
               {/* Location and Website */}
-              <div className="flex items-center space-x-4 text-sm text-gray-400 mb-3">
+              <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-3">
                 {profile.location && (
                   <div className="flex items-center space-x-1">
                     <MapPin className="w-4 h-4" />
