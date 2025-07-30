@@ -87,13 +87,7 @@ const Messages = () => {
     refreshMessages 
   } = useChat(activeChat || '');
 
-  const stories: Story[] = [
-    { id: "own", name: "Your Story", avatar: "/placeholder.svg", hasStory: false, isViewed: false },
-    { id: "1", name: "Priya", avatar: "/placeholder.svg", hasStory: true, isViewed: false },
-    { id: "2", name: "Rohit", avatar: "/placeholder.svg", hasStory: true, isViewed: true },
-    { id: "3", name: "Anita", avatar: "/placeholder.svg", hasStory: true, isViewed: false },
-    { id: "4", name: "Music Squad", avatar: "/placeholder.svg", hasStory: true, isViewed: true },
-  ];
+
 
   const reactionEmojis = ["❤️", "😂", "😮", "😢", "😡", "👍"];
 
