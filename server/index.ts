@@ -201,5 +201,16 @@ export function createServer() {
   app.get("/api/analytics/:userId/export", exportAnalytics);
   app.get("/api/analytics/:userId/social", getSocialAnalytics);
 
+  // Messages API routes
+  app.get("/api/messages/chats/:userId?", getChats);
+  app.get("/api/messages/:chatId", getChatMessages);
+  app.post("/api/messages/:chatId", sendMessage);
+  app.put("/api/messages/:chatId/read", markAsRead);
+  app.post("/api/messages/reaction/:messageId", addReaction);
+  app.post("/api/messages/:chatId/typing", setTyping);
+  app.get("/api/messages/:chatId/typing", getTypingUsers);
+  app.post("/api/messages/chats", createChat);
+  app.delete("/api/messages/message/:messageId", deleteMessage);
+
   return app;
 }
