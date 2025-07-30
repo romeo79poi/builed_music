@@ -113,53 +113,53 @@
   }
 
   .dark {
-    --background: 0 0% 9%; /* YouTube dark background */
+    --background: 218 11% 12%; /* Cool dark blue-gray like Claude dark */
     --foreground: 0 0% 95%; /* Light text */
 
-    --card: 0 0% 13%; /* Dark gray cards like YouTube */
+    --card: 218 11% 15%; /* Slightly lighter cards */
     --card-foreground: 0 0% 95%;
 
-    --popover: 0 0% 13%;
+    --popover: 218 11% 15%;
     --popover-foreground: 0 0% 95%;
 
-    --primary: 267 83% 65%; /* Purple primary */
+    --primary: 25 95% 53%; /* Same warm orange accent in dark mode */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 15%; /* Dark gray secondary */
-    --secondary-foreground: 0 0% 90%;
+    --secondary: 218 11% 18%; /* Dark blue-gray secondary */
+    --secondary-foreground: 0 0% 85%;
 
-    --muted: 0 0% 15%; /* Dark gray muted */
+    --muted: 218 11% 16%; /* Dark muted */
     --muted-foreground: 0 0% 65%; /* Medium gray text */
 
-    --accent: 267 83% 65%; /* Purple accent */
+    --accent: 25 95% 53%; /* Warm orange accent */
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 75% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 20%; /* Gray borders like YouTube */
-    --input: 0 0% 11%; /* Dark inputs */
-    --ring: 267 83% 65%;
-    --sidebar-background: 0 0% 9%;
+    --border: 218 11% 20%; /* Subtle dark borders */
+    --input: 218 11% 14%; /* Dark inputs */
+    --ring: 25 95% 53%;
+    --sidebar-background: 218 11% 12%;
     --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 267 83% 65%;
+    --sidebar-primary: 25 95% 53%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 15%;
-    --sidebar-accent-foreground: 0 0% 90%;
-    --sidebar-border: 0 0% 20%;
-    --sidebar-ring: 267 83% 65%;
+    --sidebar-accent: 218 11% 18%;
+    --sidebar-accent-foreground: 0 0% 85%;
+    --sidebar-border: 218 11% 20%;
+    --sidebar-ring: 25 95% 53%;
 
-    /* Dark mode colors - Google/YouTube style with purple accents */
-    --purple-primary: 267 83% 65%;
-    --purple-secondary: 285 85% 70%;
-    --purple-accent: 320 85% 75%;
-    --purple-glow: 280 100% 80%;
-    --purple-dark: 0 0% 13%; /* Dark surface like YouTube */
-    --purple-darker: 0 0% 9%; /* Darker surface */
-    --neon-green: 158 64% 52%;
-    --neon-blue: 191 79% 52%;
-    --dark-surface: 0 0% 13%; /* Dark surface */
-    --darker-surface: 0 0% 9%; /* Darker surface */
+    /* Claude-like dark mode colors */
+    --purple-primary: 25 95% 53%; /* Orange primary */
+    --purple-secondary: 35 100% 50%; /* Golden yellow */
+    --purple-accent: 15 100% 55%; /* Red-orange */
+    --purple-glow: 25 95% 70%; /* Light orange glow */
+    --purple-dark: 218 11% 15%; /* Dark surface */
+    --purple-darker: 218 11% 12%; /* Darker surface */
+    --neon-green: 142 76% 36%; /* Professional green */
+    --neon-blue: 210 100% 50%; /* Professional blue */
+    --dark-surface: 218 11% 15%; /* Dark surface */
+    --darker-surface: 218 11% 12%; /* Darker surface */
   }
 }
 
