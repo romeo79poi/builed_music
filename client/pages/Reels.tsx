@@ -20,7 +20,7 @@ import {
   Mic,
   Sparkles,
   TrendingUp,
-  Fire,
+  Flame,
   Hash,
   Download,
   Flag,
@@ -603,7 +603,7 @@ export default function Reels() {
                   )}
                   {reel.viralScore > 80 && (
                     <div className="flex items-center space-x-1 px-2 py-1 bg-red-500/20 rounded-full">
-                      <Fire className="w-3 h-3 text-red-400" />
+                      <Flame className="w-3 h-3 text-red-400" />
                       <span className="text-xs text-red-400 font-medium">Viral</span>
                     </div>
                   )}

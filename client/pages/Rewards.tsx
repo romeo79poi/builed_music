@@ -24,7 +24,7 @@ import {
   CreditCard,
   ExternalLink,
   Clock,
-  Fire,
+  Flame,
   Medal,
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
