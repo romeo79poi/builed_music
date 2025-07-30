@@ -9,56 +9,57 @@
    * A different format will require also updating the theme in tailwind.config.ts.
   */
   :root {
-    --background: 260 35% 8%;
-    --foreground: 210 40% 98%;
+    /* ChatGPT-like Dark Mode */
+    --background: 0 0% 7%; /* Dark gray background (#121212) */
+    --foreground: 0 0% 88%; /* Light gray text (#e0e0e0) */
 
-    --card: 260 30% 15%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 10%; /* Slightly lighter dark cards */
+    --card-foreground: 0 0% 88%;
 
-    --popover: 260 30% 15%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 88%;
 
-    --primary: 267 83% 58%;
-    --primary-foreground: 260 35% 8%;
+    --primary: 258 100% 56%; /* Purple accent (#6200ea) */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 260 25% 20%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 0 0% 15%; /* Dark secondary */
+    --secondary-foreground: 0 0% 88%;
 
-    --muted: 260 25% 20%;
-    --muted-foreground: 215 16% 65%;
+    --muted: 0 0% 12%; /* Dark muted */
+    --muted-foreground: 0 0% 65%; /* Medium gray text */
 
-    --accent: 285 85% 65%;
-    --accent-foreground: 260 35% 8%;
+    --accent: 258 100% 56%; /* Purple accent */
+    --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 260 30% 25%;
-    --input: 260 30% 18%;
-    --ring: 267 83% 58%;
+    --border: 0 0% 20%; /* Subtle dark borders */
+    --input: 0 0% 12%; /* Dark inputs */
+    --ring: 258 100% 56%;
 
     --radius: 0.75rem;
 
-    --sidebar-background: 260 30% 15%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 267 83% 58%;
-    --sidebar-primary-foreground: 260 35% 8%;
-    --sidebar-accent: 260 25% 20%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 260 30% 25%;
-    --sidebar-ring: 267 83% 58%;
+    --sidebar-background: 0 0% 7%;
+    --sidebar-foreground: 0 0% 88%;
+    --sidebar-primary: 258 100% 56%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 15%;
+    --sidebar-accent-foreground: 0 0% 88%;
+    --sidebar-border: 0 0% 20%;
+    --sidebar-ring: 258 100% 56%;
 
-    /* Catch app specific colors - Purple gradient theme */
-    --purple-primary: 267 83% 58%; /* Deep purple */
-    --purple-secondary: 285 85% 65%; /* Violet */
-    --purple-accent: 320 85% 70%; /* Pink-purple */
-    --purple-glow: 280 100% 80%; /* Light purple for glows */
-    --purple-dark: 260 30% 15%; /* Dark purple background */
-    --purple-darker: 260 35% 8%; /* Darker purple background */
-    --neon-green: 158 64% 52%; /* Vibrant teal/green for highlights */
-    --neon-blue: 191 79% 52%; /* Bright cyan blue */
-    --dark-surface: 260 30% 15%;
-    --darker-surface: 260 35% 8%;
+    /* ChatGPT-like theme colors */
+    --purple-primary: 258 100% 56%; /* Purple primary (#6200ea) */
+    --purple-secondary: 243 100% 62%; /* Blue-purple */
+    --purple-accent: 273 100% 70%; /* Light purple */
+    --purple-glow: 258 100% 80%; /* Light purple glow */
+    --purple-dark: 0 0% 10%; /* Dark surface */
+    --purple-darker: 0 0% 7%; /* Darker surface */
+    --neon-green: 142 76% 56%; /* Green accent */
+    --neon-blue: 210 100% 56%; /* Blue accent */
+    --dark-surface: 0 0% 10%;
+    --darker-surface: 0 0% 7%;
   }
 
   .light {
