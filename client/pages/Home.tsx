@@ -457,7 +457,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
-              className="text-gray-400 text-base flex items-center space-x-2"
+              className="text-gray-400 dark:text-gray-400 light:text-gray-600 text-base flex items-center space-x-2"
             >
               <Sparkles className="w-4 h-4 text-purple-primary" />
               <span>Ready to discover amazing music?</span>
@@ -499,10 +499,10 @@ export default function Home() {
                   <p className="text-purple-accent text-lg font-medium mb-3">
                     {featuredContent.artist}
                   </p>
-                  <p className="text-gray-300 text-sm mb-4 leading-relaxed">
+                  <p className="text-gray-300 dark:text-gray-300 light:text-gray-700 text-sm mb-4 leading-relaxed">
                     {featuredContent.description}
                   </p>
-                  <div className="flex items-center space-x-4 text-sm text-gray-400">
+                  <div className="flex items-center space-x-4 text-sm text-gray-400 dark:text-gray-400 light:text-gray-600">
                     <span>{featuredContent.genre}</span>
                     <span>•</span>
                     <span>{featuredContent.releaseYear}</span>
@@ -542,7 +542,7 @@ export default function Home() {
               </motion.h2>
               <motion.button
                 whileHover={{ scale: 1.05 }}
-                className="text-gray-400 hover:text-white text-sm font-medium transition-colors"
+                className="text-gray-400 dark:text-gray-400 light:text-gray-600 hover:text-white dark:hover:text-white light:hover:text-black text-sm font-medium transition-colors"
               >
                 See all
               </motion.button>
