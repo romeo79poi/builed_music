@@ -191,7 +191,7 @@ export default function MobileFooter({ className = "" }: FooterProps) {
                     }}
                     transition={{ duration: 0.2 }}
                     className={`text-[10px] mt-1 font-medium transition-all duration-300 ${
-                      isActive ? "text-neon-green" : "text-transparent"
+                      isActive ? "text-neon-green dark:text-neon-green light:text-black" : "text-transparent"
                     }`}
                   >
                     {item.label}
