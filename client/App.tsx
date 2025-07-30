@@ -30,6 +30,7 @@ import Notifications from "./pages/Notifications";
 import Upload from "./pages/Upload";
 import Rewards from "./pages/Rewards";
 import Reels from "./pages/Reels";
+import Messages from "./pages/Messages";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -45,29 +46,30 @@ const App = () => {
               <ProfileProvider>
                 <Toaster />
                 <Sonner />
-              <BrowserRouter>
-                <Routes>
-                  <Route path="/" element={<Home />} />
-                  <Route path="/splash" element={<Splash />} />
-                  <Route path="/login" element={<Login />} />
-                  <Route path="/signup" element={<Signup />} />
-                  <Route path="/home" element={<Home />} />
-                  <Route path="/search" element={<Search />} />
-                  <Route path="/player" element={<Player />} />
-                  <Route path="/profile" element={<Profile />} />
-                  <Route path="/edit-profile" element={<EditProfile />} />
-                  <Route path="/liked-songs" element={<LikedSongs />} />
-                  <Route path="/library" element={<Library />} />
-                  <Route path="/history" element={<History />} />
-                  <Route path="/settings" element={<Settings />} />
-                  <Route path="/notifications" element={<Notifications />} />
-                  <Route path="/upload" element={<Upload />} />
-                  <Route path="/rewards" element={<Rewards />} />
-                  <Route path="/reels" element={<Reels />} />
-                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </BrowserRouter>
+                <BrowserRouter>
+                  <Routes>
+                    <Route path="/" element={<Home />} />
+                    <Route path="/splash" element={<Splash />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/signup" element={<Signup />} />
+                    <Route path="/home" element={<Home />} />
+                    <Route path="/search" element={<Search />} />
+                    <Route path="/player" element={<Player />} />
+                    <Route path="/profile" element={<Profile />} />
+                    <Route path="/edit-profile" element={<EditProfile />} />
+                    <Route path="/liked-songs" element={<LikedSongs />} />
+                    <Route path="/library" element={<Library />} />
+                    <Route path="/history" element={<History />} />
+                    <Route path="/settings" element={<Settings />} />
+                    <Route path="/notifications" element={<Notifications />} />
+                    <Route path="/upload" element={<Upload />} />
+                    <Route path="/rewards" element={<Rewards />} />
+                    <Route path="/reels" element={<Reels />} />
+                    <Route path="/messages" element={<Messages />} />
+                    {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                    <Route path="*" element={<NotFound />} />
+                  </Routes>
+                </BrowserRouter>
               </ProfileProvider>
             </MusicProvider>
           </FirebaseProvider>

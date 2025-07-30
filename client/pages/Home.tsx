@@ -350,17 +350,14 @@ export default function Home() {
           </motion.div>
 
           {/* Static Message Icon */}
-          <button className="group relative flex items-center justify-center">
+          <button
+            onClick={() => navigate("/messages")}
+            className="group relative flex items-center justify-center"
+          >
             {/* Modern circular container */}
             <div className="relative w-11 h-11 rounded-full bg-gradient-to-br dark:from-blue-500 dark:via-purple-500 dark:to-pink-500 light:from-blue-600 light:via-purple-600 light:to-pink-600 shadow-lg hover:shadow-xl transition-shadow duration-300 flex items-center justify-center">
-              {/* Paper plane icon like Instagram DM */}
-              <svg
-                viewBox="0 0 24 24"
-                className="w-5 h-5 text-white transform rotate-45"
-                fill="currentColor"
-              >
-                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-              </svg>
+              {/* Message Circle icon */}
+              <MessageCircle className="w-5 h-5 text-white" />
             </div>
 
             {/* Notification Badge */}
@@ -443,7 +440,11 @@ export default function Home() {
                     <motion.span
                       animate={{ scale: [1, 1.05, 1] }}
                       transition={{ duration: 2, repeat: Infinity }}
-                      className="inline-block bg-neon-green text-black px-3 py-1 rounded-full text-xs font-bold mb-3"
+                      className="inline-block px-3 py-1 rounded-full text-xs font-bold mb-3"
+                      style={{
+                        backgroundColor: "rgba(172, 126, 190, 1)",
+                        color: "white",
+                      }}
                     >
                       NEW RELEASE
                     </motion.span>
