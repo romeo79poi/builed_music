@@ -44,6 +44,7 @@ import {
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
+import ThemeToggle from "../components/ThemeToggle";
 
 interface UserProfile {
   id: string;
@@ -307,16 +308,16 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-darker via-background to-purple-dark relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-purple-darker via-background to-purple-dark dark:from-purple-darker dark:via-background dark:to-purple-dark light:from-gray-50 light:via-white light:to-purple-50 relative overflow-hidden theme-transition">
       {/* Background Effects */}
-      <div className="fixed inset-0 bg-gradient-to-br from-purple-primary/8 via-purple-secondary/4 to-purple-accent/6"></div>
+      <div className="fixed inset-0 bg-gradient-to-br from-purple-primary/8 via-purple-secondary/4 to-purple-accent/6 dark:from-purple-primary/8 dark:via-purple-secondary/4 dark:to-purple-accent/6 light:from-purple-primary/3 light:via-purple-secondary/2 light:to-purple-accent/3 theme-transition"></div>
 
       <div className="relative z-10 flex flex-col h-screen">
         {/* Header */}
         <motion.header
           initial={{ y: -50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="flex items-center justify-between p-4 bg-black/20 backdrop-blur-xl border-b border-purple-primary/20"
+          className="flex items-center justify-between p-4 bg-black/20 dark:bg-black/20 light:bg-white/80 backdrop-blur-xl border-b border-purple-primary/20 theme-transition"
         >
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -330,22 +331,24 @@ export default function Profile() {
           <h1 className="text-lg font-bold text-white">Profile</h1>
 
           <div className="flex items-center space-x-2">
+            <ThemeToggle size="md" />
+
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={handleShare}
-              className="w-10 h-10 rounded-full bg-purple-dark/50 backdrop-blur-sm flex items-center justify-center border border-purple-primary/30"
+              className="w-10 h-10 rounded-full bg-purple-dark/50 dark:bg-purple-dark/50 light:bg-white light:border backdrop-blur-sm flex items-center justify-center border border-purple-primary/30 theme-transition"
             >
-              <Share2 className="w-5 h-5 text-white" />
+              <Share2 className="w-5 h-5 text-white dark:text-white light:text-purple-primary" />
             </motion.button>
-            
+
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => navigate("/settings")}
-              className="w-10 h-10 rounded-full bg-purple-dark/50 backdrop-blur-sm flex items-center justify-center border border-purple-primary/30"
+              className="w-10 h-10 rounded-full bg-purple-dark/50 dark:bg-purple-dark/50 light:bg-white light:border backdrop-blur-sm flex items-center justify-center border border-purple-primary/30 theme-transition"
             >
-              <Settings className="w-5 h-5 text-white" />
+              <Settings className="w-5 h-5 text-white dark:text-white light:text-purple-primary" />
             </motion.button>
           </div>
         </motion.header>
