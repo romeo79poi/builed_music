@@ -30,6 +30,7 @@ import Notifications from "./pages/Notifications";
 import Upload from "./pages/Upload";
 import Rewards from "./pages/Rewards";
 import Reels from "./pages/Reels";
+import Messages from "./pages/Messages";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
