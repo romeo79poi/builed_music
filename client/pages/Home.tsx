@@ -349,31 +349,57 @@ export default function Home() {
             </motion.span>
           </motion.div>
 
-          {/* Message Icon with enhanced effects */}
+          {/* Enhanced Message Icon */}
           <motion.button
-            whileHover={{ scale: 1.1 }}
+            whileHover={{
+              scale: 1.05,
+              boxShadow: "0 0 25px rgba(0, 0, 0, 0.3)"
+            }}
             whileTap={{ scale: 0.95 }}
-            variants={glowVariants}
-            initial="initial"
-            animate="animate"
-            className="w-10 h-10 bg-gradient-to-r dark:from-purple-primary dark:to-purple-secondary light:bg-black rounded-full flex items-center justify-center shadow-lg dark:hover:shadow-purple-primary/60 light:hover:shadow-lg transition-all duration-300 relative overflow-hidden"
+            className="group relative w-12 h-12 rounded-xl dark:bg-gradient-to-br dark:from-gray-800 dark:to-gray-900 light:bg-white light:border-2 light:border-gray-200 flex items-center justify-center shadow-lg hover:shadow-xl transition-all duration-300 backdrop-blur-sm"
           >
-            <MessageCircle className="w-5 h-5 text-white relative z-10" />
+            {/* Message Icon */}
+            <MessageCircle className="w-6 h-6 dark:text-white light:text-black relative z-10 group-hover:scale-110 transition-transform duration-200" />
+
+            {/* Notification Badge */}
             <motion.span
+              initial={{ scale: 0 }}
               animate={{
-                scale: [1, 1.2, 1],
-                transition: { duration: 1.5, repeat: Infinity },
+                scale: 1,
+                y: [0, -2, 0],
+                transition: {
+                  scale: { duration: 0.3 },
+                  y: { duration: 2, repeat: Infinity }
+                }
               }}
-              className="absolute -top-1 -right-1 w-4 h-4 bg-neon-green dark:bg-neon-green light:bg-black rounded-full flex items-center justify-center text-xs font-bold text-white shadow-lg dark:shadow-neon-green/50 light:shadow-lg"
+              className="absolute -top-2 -right-2 w-6 h-6 bg-gradient-to-r from-red-500 to-red-600 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-lg ring-2 ring-white dark:ring-gray-800"
             >
               3
             </motion.span>
+
+            {/* Hover Effect Ring */}
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              whileHover={{
+                scale: 1.3,
+                opacity: 0.3,
+                transition: { duration: 0.3 }
+              }}
+              className="absolute inset-0 rounded-xl dark:bg-white light:bg-black"
+            />
+
+            {/* Pulse Effect for New Messages */}
             <motion.div
               animate={{
-                rotate: -360,
-                transition: { duration: 4, repeat: Infinity, ease: "linear" },
+                scale: [1, 1.4, 1],
+                opacity: [0.5, 0, 0.5],
               }}
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
+              transition={{
+                duration: 2,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+              className="absolute inset-0 rounded-xl dark:bg-blue-400 light:bg-blue-500 opacity-30"
             />
           </motion.button>
         </motion.header>
