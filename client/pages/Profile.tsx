@@ -501,7 +501,7 @@ export default function Profile() {
                         initial={{ opacity: 0, scale: 0.8 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: index * 0.1 }}
-                        className={`flex items-center space-x-1 px-2 py-1 bg-black/30 rounded-full border border-purple-primary/20`}
+                        className={`flex items-center space-x-1 px-2 py-1 bg-muted/50 rounded-full border border-border`}
                         title={badgeInfo.label}
                       >
                         <BadgeIcon className={`w-3 h-3 ${badgeInfo.color}`} />
