@@ -52,13 +52,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { useMessaging, useChat } from "@/lib/messaging-service";
 
-interface Story {
-  id: string;
-  name: string;
-  avatar: string;
-  hasStory: boolean;
-  isViewed: boolean;
-}
+
 
 const Messages = () => {
   const navigate = useNavigate();
