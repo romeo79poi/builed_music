@@ -581,7 +581,14 @@ export default function Home() {
                   }}
                   onHoverStart={() => setHoveredAlbum(album.id)}
                   onHoverEnd={() => setHoveredAlbum(null)}
-                  className="flex-shrink-0 w-32 sm:w-36 bg-gray-900 rounded-lg p-3 hover:bg-gray-800 transition-all cursor-pointer group border-l-4 border-pink-500"
+                  className="flex-shrink-0 w-32 sm:w-36 bg-black rounded-lg p-3 hover:bg-gray-900 transition-all cursor-pointer group relative overflow-hidden"
+                  style={{
+                    boxShadow: `
+                      0 0 0 1px rgba(236, 72, 153, 0.6),
+                      inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                    `,
+                    animation: 'borderGlow 2s ease-in-out infinite'
+                  }}
                 >
                   <div className="relative mb-3">
                     <motion.img
