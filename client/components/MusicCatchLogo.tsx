@@ -14,90 +14,25 @@ export function MusicCatchLogo({
   blinkMode = false,
 }: MusicCatchLogoProps) {
   const containerVariants = {
-    hidden: { opacity: 0, scale: 0.5, rotateY: -180 },
+    hidden: { opacity: 0, scale: 0.8 },
     visible: {
       opacity: 1,
       scale: 1,
-      rotateY: 0,
       transition: {
-        duration: signupMode ? 1.2 : 1,
+        duration: 0.5,
         ease: "easeOut",
-        staggerChildren: signupMode ? 0.15 : 0.1,
       },
     },
   };
 
-  const barVariants = {
-    hidden: { scaleY: 0.2, opacity: 0, y: 10 },
-    visible: {
-      scaleY: signupMode ? [0.2, 1.4, 0.9, 1] : [0.3, 1.2, 0.8, 1],
-      opacity: 1,
-      y: 0,
-      transition: {
-        duration: signupMode ? 2 : 1.5,
-        ease: "easeOut",
-        repeat: animated ? Infinity : 0,
-        repeatType: "reverse" as const,
-        repeatDelay: signupMode ? 3 : 2,
-      },
-    },
-  };
-
-  const diamondVariants = {
-    hidden: { scale: 0, rotate: -180 },
-    visible: {
-      scale: [0, 1.2, 1],
-      rotate: signupMode ? [0, 180, 360] : 360,
-      transition: {
-        duration: signupMode ? 2.5 : 1.5,
-        ease: "easeOut",
-        repeat: signupMode && animated ? Infinity : 0,
-        repeatType: "loop" as const,
-        repeatDelay: signupMode ? 4 : 0,
-      },
-    },
-  };
-
-  const glowVariants = {
+  const logoVariants = {
     hidden: { opacity: 0, scale: 0.8 },
     visible: {
-      opacity: signupMode ? [0.3, 0.8, 0.3] : 0.5,
-      scale: signupMode ? [0.8, 1.2, 0.8] : 1,
+      opacity: 1,
+      scale: 1,
       transition: {
-        duration: signupMode ? 3 : 2,
-        ease: "easeInOut",
-        repeat: signupMode && animated ? Infinity : 0,
-        repeatType: "loop" as const,
-      },
-    },
-  };
-
-  const waveVariants = {
-    hidden: { scaleX: 0, opacity: 0 },
-    visible: {
-      scaleX: 1,
-      opacity: [0, 1, 0.7],
-      transition: {
-        duration: signupMode ? 2.5 : 1.8,
+        duration: 0.5,
         ease: "easeOut",
-        repeat: animated ? Infinity : 0,
-        repeatType: "reverse" as const,
-        repeatDelay: signupMode ? 2.5 : 2,
-      },
-    },
-  };
-
-  // Blink animation variants for login page
-  const blinkVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: blinkMode ? [1, 0.3, 1, 0.1, 1] : 1,
-      transition: {
-        duration: blinkMode ? 1.5 : 0.8,
-        ease: "easeInOut",
-        repeat: blinkMode && animated ? Infinity : 0,
-        repeatType: "loop" as const,
-        repeatDelay: blinkMode ? 2 : 0,
       },
     },
   };
@@ -105,197 +40,18 @@ export function MusicCatchLogo({
   return (
     <motion.div
       className={`flex items-center justify-center ${className}`}
-      variants={blinkMode ? blinkVariants : containerVariants}
+      variants={containerVariants}
       initial="hidden"
       animate="visible"
     >
-      <div className="relative flex flex-col">
-        {/* Enhanced circular background with multiple glows */}
-        <motion.div
-          variants={glowVariants}
-          className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-primary/40 via-purple-secondary/40 to-purple-accent/40 absolute -inset-4 blur-xl"
-        />
-        <motion.div
-          variants={glowVariants}
-          className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-primary/30 via-purple-secondary/30 to-purple-accent/30 absolute -inset-2 blur-lg"
-        />
-
-        {/* Main logo container */}
-        <div className="relative w-12 justify-center flex flex-row items-center">
-          {/* Animated side dots with pulse effect */}
-          <motion.div
-            variants={barVariants}
-            className="absolute -left-6 top-1/2 transform -translate-y-1/2 w-1.5 h-1.5 bg-purple-primary rounded-full shadow-lg shadow-purple-primary/50"
-            animate={
-              animated && signupMode
-                ? {
-                    scale: [1, 1.5, 1],
-                    opacity: [0.7, 1, 0.7],
-                  }
-                : animated && blinkMode
-                  ? {
-                      opacity: [1, 0.1, 1, 0.3, 1, 0.1, 1],
-                      scale: [1, 1.2, 1, 1.1, 1, 1.3, 1],
-                    }
-                  : {}
-            }
-            transition={{
-              duration: blinkMode ? 1.8 : 2,
-              repeat: Infinity,
-              ease: "easeInOut",
-              repeatDelay: blinkMode ? 0.5 : 0,
-            }}
-          />
-
-          {/* Left side bars with stagger */}
-          <div className="absolute left-0 flex items-end space-x-0.5">
-            <motion.div
-              variants={barVariants}
-              className="w-0.5 h-2 bg-gradient-to-t from-purple-primary to-purple-secondary rounded-full shadow-sm shadow-purple-primary/30"
-              style={{ animationDelay: "0.1s" }}
-            />
-            <motion.div
-              variants={barVariants}
-              className="w-0.5 h-4 bg-gradient-to-t from-purple-primary to-purple-secondary rounded-full shadow-sm shadow-purple-primary/30"
-              style={{ animationDelay: "0.2s" }}
-            />
-            <motion.div
-              variants={barVariants}
-              className="w-0.5 h-3 bg-gradient-to-t from-purple-primary to-purple-secondary rounded-full shadow-sm shadow-purple-primary/30"
-              style={{ animationDelay: "0.3s" }}
-            />
-          </div>
-
-          {/* Center diamond with enhanced effects */}
-          <div className="relative">
-            <motion.div
-              variants={diamondVariants}
-              className="w-4 h-4 bg-gradient-to-br from-purple-primary to-purple-secondary rotate-45 rounded-sm shadow-lg shadow-purple-primary/50"
-              animate={
-                animated && signupMode
-                  ? {
-                      boxShadow: [
-                        "0 0 10px rgba(139, 92, 246, 0.5)",
-                        "0 0 20px rgba(139, 92, 246, 0.8)",
-                        "0 0 10px rgba(139, 92, 246, 0.5)",
-                      ],
-                    }
-                  : animated && blinkMode
-                    ? {
-                        opacity: [1, 0.2, 1, 0.4, 1],
-                        scale: [1, 0.9, 1, 0.95, 1],
-                        boxShadow: [
-                          "0 0 15px rgba(139, 92, 246, 0.8)",
-                          "0 0 5px rgba(139, 92, 246, 0.3)",
-                          "0 0 25px rgba(139, 92, 246, 1)",
-                          "0 0 8px rgba(139, 92, 246, 0.4)",
-                          "0 0 15px rgba(139, 92, 246, 0.8)",
-                        ],
-                      }
-                    : {}
-              }
-              transition={{
-                duration: blinkMode ? 2 : 3,
-                repeat: Infinity,
-                ease: "easeInOut",
-                repeatDelay: blinkMode ? 1 : 0,
-              }}
-            />
-
-            {/* Enhanced curved wave elements */}
-            <div className="absolute -left-2 top-1/2 transform -translate-y-1/2">
-              <motion.div
-                variants={waveVariants}
-                className="w-5 h-0.5 bg-gradient-to-r from-purple-primary to-transparent rounded-full transform -rotate-12 shadow-sm shadow-purple-primary/30"
-              />
-            </div>
-            <div className="absolute -right-2 top-1/2 transform -translate-y-1/2">
-              <motion.div
-                variants={waveVariants}
-                className="w-5 h-0.5 bg-gradient-to-r from-transparent to-purple-secondary rounded-full transform rotate-12 shadow-sm shadow-purple-secondary/30"
-              />
-            </div>
-          </div>
-
-          {/* Right side bars with stagger */}
-          <div className="absolute right-0 flex items-end space-x-0.5">
-            <motion.div
-              variants={barVariants}
-              className="w-0.5 h-3 bg-gradient-to-t from-purple-secondary to-purple-accent rounded-full shadow-sm shadow-purple-secondary/30"
-              style={{ animationDelay: "0.4s" }}
-            />
-            <motion.div
-              variants={barVariants}
-              className="w-0.5 h-5 bg-gradient-to-t from-purple-secondary to-purple-accent rounded-full shadow-sm shadow-purple-secondary/30"
-              style={{ animationDelay: "0.5s" }}
-            />
-            <motion.div
-              variants={barVariants}
-              className="w-0.5 h-2 bg-gradient-to-t from-purple-secondary to-purple-accent rounded-full shadow-sm shadow-purple-secondary/30"
-              style={{ animationDelay: "0.6s" }}
-            />
-          </div>
-
-          <motion.div
-            variants={barVariants}
-            className="absolute -right-6 top-1/2 transform -translate-y-1/2 w-1.5 h-1.5 bg-purple-secondary rounded-full shadow-lg shadow-purple-secondary/50"
-            animate={
-              animated && signupMode
-                ? {
-                    scale: [1, 1.5, 1],
-                    opacity: [0.7, 1, 0.7],
-                  }
-                : animated && blinkMode
-                  ? {
-                      opacity: [1, 0.2, 1, 0.1, 1, 0.4, 1],
-                      scale: [1, 1.1, 1, 1.3, 1, 1.2, 1],
-                    }
-                  : {}
-            }
-            transition={{
-              duration: blinkMode ? 1.8 : 2,
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: blinkMode ? 0.3 : 1,
-              repeatDelay: blinkMode ? 0.7 : 0,
-            }}
-          />
-        </div>
-
-        {/* Additional signup mode effects */}
-        {signupMode && animated && (
-          <>
-            {/* Floating particles */}
-            <motion.div
-              className="absolute -top-2 -left-2 w-1 h-1 bg-purple-primary rounded-full"
-              animate={{
-                y: [-4, -8, -4],
-                x: [-2, 2, -2],
-                opacity: [0.3, 0.8, 0.3],
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                ease: "easeInOut",
-              }}
-            />
-            <motion.div
-              className="absolute -bottom-1 -right-1 w-1 h-1 bg-purple-secondary rounded-full"
-              animate={{
-                y: [4, 8, 4],
-                x: [2, -2, 2],
-                opacity: [0.3, 0.8, 0.3],
-              }}
-              transition={{
-                duration: 3,
-                repeat: Infinity,
-                ease: "easeInOut",
-                delay: 1.5,
-              }}
-            />
-          </>
-        )}
-      </div>
+      <motion.img
+        src="https://cdn.builder.io/api/v1/image/assets%2F1fb5a7352bf940ee8ca56f08d2a50bd7%2F3a45c23044eb44e8bd3833b80541721e?format=webp&width=800"
+        alt="C Logo"
+        variants={logoVariants}
+        className="w-8 h-8 object-contain"
+        whileHover={animated ? { scale: 1.1 } : {}}
+        transition={{ duration: 0.2 }}
+      />
     </motion.div>
   );
 }
