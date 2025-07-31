@@ -391,7 +391,7 @@ export default function Home() {
           <motion.section variants={itemVariants} className="mb-6">
             <motion.div
               whileHover={{ scale: 1.01 }}
-              className="relative bg-gray-500 rounded-2xl p-4 overflow-hidden cursor-pointer border border-gray-400"
+              className="relative bg-gray-900 rounded-lg p-4 overflow-hidden cursor-pointer border-l-4 border-pink-500"
               onClick={() => {
                 toast({
                   title: "Playing Featured Album",
