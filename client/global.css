@@ -63,52 +63,52 @@
   }
 
   .light {
-    /* Light Purple with Black Text Mode */
+    /* Light Purple with White Text Mode */
     --background: 295 70% 97%; /* Very light purple background (#F5EBFA) */
-    --foreground: 0 0% 0%; /* Pure black text */
+    --foreground: 0 0% 100%; /* Pure white text */
 
     --card: 295 40% 94%; /* Light purple cards (#E7DBEF) */
-    --card-foreground: 0 0% 0%; /* Black text on cards */
+    --card-foreground: 0 0% 100%; /* White text on cards */
 
     --popover: 295 40% 94%;
-    --popover-foreground: 0 0% 0%;
+    --popover-foreground: 0 0% 100%;
 
     --primary: 0 0% 0%; /* Black primary buttons */
     --primary-foreground: 0 0% 100%; /* White text on black buttons */
 
     --secondary: 295 40% 94%; /* Light purple secondary (#E7DBEF) */
-    --secondary-foreground: 0 0% 0%; /* Black text */
+    --secondary-foreground: 0 0% 100%; /* White text */
 
     --muted: 295 50% 91%; /* Medium light purple background */
-    --muted-foreground: 0 0% 30%; /* Dark gray for subtle text */
+    --muted-foreground: 0 0% 80%; /* Light gray for subtle text */
 
     --accent: 283 35% 60%; /* Light purple accent (#A56ABD) */
-    --accent-foreground: 0 0% 0%; /* Black text on accent */
+    --accent-foreground: 0 0% 100%; /* White text on accent */
 
     --destructive: 0 100% 40%; /* Red for errors */
     --destructive-foreground: 0 0% 100%;
 
     --border: 295 30% 85%; /* Light purple borders */
     --input: 295 50% 96%; /* Very light purple inputs */
-    --ring: 0 0% 0%; /* Black focus ring */
+    --ring: 0 0% 100%; /* White focus ring */
 
     --sidebar-background: 295 70% 97%;
-    --sidebar-foreground: 0 0% 0%;
+    --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 0 0% 0%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 295 40% 94%;
-    --sidebar-accent-foreground: 0 0% 0%;
+    --sidebar-accent-foreground: 0 0% 100%;
     --sidebar-border: 295 30% 85%;
-    --sidebar-ring: 0 0% 0%;
+    --sidebar-ring: 0 0% 100%;
 
-    /* Light purple theme colors with black accents */
-    --purple-primary: 0 0% 0%; /* Black instead of dark purple */
+    /* Light purple theme colors with white text */
+    --purple-primary: 0 0% 100%; /* White instead of black */
     --purple-secondary: 283 35% 60%; /* Light purple (#A56ABD) */
     --purple-accent: 283 35% 70%; /* Lighter purple */
     --purple-glow: 283 35% 60%; /* Light purple glow */
     --purple-dark: 295 40% 94%; /* Light purple background (#E7DBEF) */
     --purple-darker: 295 70% 97%; /* Very light purple (#F5EBFA) */
-    --neon-green: 0 0% 0%; /* Black instead of green */
+    --neon-green: 0 0% 100%; /* White instead of black */
     --neon-blue: 283 35% 60%; /* Light purple instead of blue */
     --dark-surface: 295 40% 94%; /* Light purple surface */
     --darker-surface: 295 70% 97%; /* Very light purple surface */
