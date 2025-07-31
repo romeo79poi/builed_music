@@ -494,19 +494,19 @@ export default function Profile() {
 
 
           {/* Profile Info */}
-          <div className="px-3 relative z-10">
+          <div className="px-3 relative z-10 mt-4">
             {/* Avatar */}
-            <div className="flex items-end justify-between mb-3">
+            <div className="flex items-end justify-between mb-2">
               <div className="relative">
                 <img
                   src={profile.avatar}
                   alt={profile.displayName}
-                  className="w-20 h-20 rounded-full object-cover border-3 border-background shadow-lg cursor-pointer"
+                  className="w-16 h-16 rounded-full object-cover border-2 border-background shadow-md cursor-pointer"
                   onClick={() => document.getElementById('avatar-upload')?.click()}
                 />
                 {profile.isVerified && (
-                  <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center border-2 border-background">
-                    <Verified className="w-5 h-5 text-white" />
+                  <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center border-2 border-background">
+                    <Verified className="w-3 h-3 text-white" />
                   </div>
                 )}
 
@@ -557,7 +557,7 @@ export default function Profile() {
             </div>
 
             {/* Name and Bio */}
-            <div className="mb-3">
+            <div className="mb-2">
               {isEditing ? (
                 <div className="space-y-4">
                   {/* Display Name */}
