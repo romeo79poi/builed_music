@@ -657,6 +657,98 @@ export default function Home() {
             </div>
           </motion.section>
 
+          {/* Album Tracks Section */}
+          <motion.section variants={itemVariants} className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <motion.h2
+                whileHover={{ scale: 1.02 }}
+                className="text-xl font-bold flex items-center space-x-2"
+              >
+                <Music className="w-5 h-5 text-foreground" />
+                <span>Album Tracks</span>
+              </motion.h2>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                className="text-gray-400 dark:text-gray-400 light:text-gray-600 hover:text-white dark:hover:text-white light:hover:text-black text-sm font-medium transition-colors"
+              >
+                View All
+              </motion.button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+              {[
+                {
+                  id: "album1",
+                  title: "After Hours",
+                  artist: "The Weeknd",
+                  tracks: ["Blinding Lights", "Heartless", "In Your Eyes", "Save Your Tears"],
+                  coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop"
+                },
+                {
+                  id: "album2",
+                  title: "Fine Line",
+                  artist: "Harry Styles",
+                  tracks: ["Watermelon Sugar", "Adore You", "Golden", "Falling"],
+                  coverImageURL: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop"
+                }
+              ].map((album, index) => (
+                <motion.div
+                  key={album.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6 + index * 0.2 }}
+                  className="bg-black rounded-lg p-4 overflow-hidden"
+                  style={{
+                    boxShadow: `
+                      0 0 0 1px rgba(236, 72, 153, 0.6),
+                      inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                    `,
+                    animation: 'borderGlow 2s ease-in-out infinite'
+                  }}
+                >
+                  <div className="flex items-start space-x-4 mb-4">
+                    <img
+                      src={album.coverImageURL}
+                      alt={album.title}
+                      className="w-16 h-16 rounded-lg object-cover"
+                    />
+                    <div className="flex-1">
+                      <h3 className="font-bold text-white text-lg mb-1">{album.title}</h3>
+                      <p className="text-purple-accent text-sm">{album.artist}</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    {album.tracks.map((track, trackIndex) => (
+                      <motion.div
+                        key={track}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.8 + index * 0.2 + trackIndex * 0.1 }}
+                        whileHover={{ backgroundColor: "rgba(158, 64, 252, 0.15)" }}
+                        className="flex items-center justify-between p-2 rounded cursor-pointer hover:bg-purple-primary/10 transition-all group"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <span className="text-gray-400 text-sm w-6">{trackIndex + 1}</span>
+                          <span className="text-white group-hover:text-purple-accent transition-colors">{track}</span>
+                        </div>
+                        <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <motion.button
+                            whileHover={{ scale: 1.2 }}
+                            whileTap={{ scale: 0.9 }}
+                            className="w-8 h-8 bg-purple-primary hover:bg-purple-secondary rounded-full flex items-center justify-center transition-all"
+                          >
+                            <Play className="w-3 h-3 text-white ml-0.5" />
+                          </motion.button>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.section>
+
           {/* Enhanced Songs Section */}
           <motion.section variants={itemVariants}>
             <div className="flex items-center justify-between mb-4">
