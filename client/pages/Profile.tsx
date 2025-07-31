@@ -966,7 +966,7 @@ export default function Profile() {
                               <motion.button
                                 whileHover={{ scale: 1.1 }}
                                 whileTap={{ scale: 0.9 }}
-                                className="p-2 rounded-full hover:bg-purple-primary/20 transition-colors"
+                                className="p-2 rounded-full hover:bg-gray-700 transition-colors"
                               >
                                 <MoreHorizontal className="w-4 h-4 text-gray-400" />
                               </motion.button>
