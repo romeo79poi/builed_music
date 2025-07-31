@@ -439,4 +439,19 @@
       padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
     }
   }
+
+  /* Animated pink border glow for albums */
+  @keyframes borderGlow {
+    0%, 100% {
+      box-shadow:
+        0 0 0 1px rgba(236, 72, 153, 0.6),
+        inset 0 0 0 1px rgba(236, 72, 153, 0.3);
+    }
+    50% {
+      box-shadow:
+        0 0 0 2px rgba(236, 72, 153, 0.8),
+        inset 0 0 0 2px rgba(236, 72, 153, 0.5),
+        0 0 10px rgba(236, 72, 153, 0.4);
+    }
+  }
 }
