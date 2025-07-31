@@ -115,53 +115,53 @@
   }
 
   .dark {
-    --background: 0 0% 6%; /* YouTube dark background (#0f0f0f) */
+    --background: 0 0% 2%; /* Ultra deep black background (#050505) */
     --foreground: 0 0% 100%; /* Pure white text */
 
-    --card: 0 0% 9%; /* Dark cards (#181818) */
+    --card: 0 0% 4%; /* Very dark cards (#0a0a0a) */
     --card-foreground: 0 0% 100%;
 
-    --popover: 0 0% 9%;
+    --popover: 0 0% 4%;
     --popover-foreground: 0 0% 100%;
 
-    --primary: 0 100% 50%; /* YouTube red primary (#ff0000) */
+    --primary: 0 100% 50%; /* Red primary (#ff0000) */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 15%; /* Dark grey secondary (#272727) */
-    --secondary-foreground: 0 0% 90%;
+    --secondary: 0 0% 8%; /* Ultra dark grey secondary (#141414) */
+    --secondary-foreground: 0 0% 95%;
 
-    --muted: 0 0% 12%; /* Dark grey muted */
-    --muted-foreground: 0 0% 65%; /* Medium grey text */
+    --muted: 0 0% 6%; /* Ultra dark muted */
+    --muted-foreground: 0 0% 60%; /* Dimmer grey text */
 
-    --accent: 0 100% 50%; /* YouTube red accent */
+    --accent: 0 100% 50%; /* Red accent */
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 75% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 20%; /* Dark grey borders */
-    --input: 0 0% 8%; /* Very dark inputs */
+    --border: 0 0% 12%; /* Darker borders */
+    --input: 0 0% 3%; /* Ultra dark inputs */
     --ring: 0 100% 50%;
-    --sidebar-background: 0 0% 6%;
+    --sidebar-background: 0 0% 2%;
     --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 0 100% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 15%;
-    --sidebar-accent-foreground: 0 0% 90%;
-    --sidebar-border: 0 0% 20%;
+    --sidebar-accent: 0 0% 8%;
+    --sidebar-accent-foreground: 0 0% 95%;
+    --sidebar-border: 0 0% 12%;
     --sidebar-ring: 0 100% 50%;
 
-    /* YouTube-style theme colors for dark mode */
-    --purple-primary: 0 100% 50%; /* YouTube red primary */
-    --purple-secondary: 0 0% 70%; /* Light grey secondary */
+    /* Ultra dark theme colors */
+    --purple-primary: 0 100% 50%; /* Red primary */
+    --purple-secondary: 0 0% 65%; /* Light grey secondary */
     --purple-accent: 0 100% 60%; /* Bright red accent */
     --purple-glow: 0 100% 70%; /* Red glow */
-    --purple-dark: 0 0% 9%; /* Dark surface (#181818) */
-    --purple-darker: 0 0% 6%; /* Darker surface (#0f0f0f) */
+    --purple-dark: 0 0% 4%; /* Ultra dark surface (#0a0a0a) */
+    --purple-darker: 0 0% 2%; /* Ultra darker surface (#050505) */
     --neon-green: 0 100% 50%; /* Red instead of green */
-    --neon-blue: 0 0% 70%; /* Grey instead of blue */
-    --dark-surface: 0 0% 9%; /* Dark surface */
-    --darker-surface: 0 0% 6%; /* Darker surface */
+    --neon-blue: 0 0% 65%; /* Grey instead of blue */
+    --dark-surface: 0 0% 4%; /* Ultra dark surface */
+    --darker-surface: 0 0% 2%; /* Ultra darker surface */
   }
 }
 
