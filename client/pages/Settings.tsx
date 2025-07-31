@@ -566,7 +566,7 @@ export default function Settings() {
                           name: e.target.value,
                         }))
                       }
-                      className="w-full p-3 bg-purple-dark/50 border border-purple-primary/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-neon-green/50"
+                      className="w-full p-3 bg-purple-dark/50 border border-purple-primary/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-primary/50"
                     />
                   </div>
 
@@ -583,7 +583,7 @@ export default function Settings() {
                           email: e.target.value,
                         }))
                       }
-                      className="w-full p-3 bg-purple-dark/50 border border-purple-primary/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-neon-green/50"
+                      className="w-full p-3 bg-purple-dark/50 border border-purple-primary/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-primary/50"
                     />
                   </div>
 
