@@ -788,7 +788,12 @@ export default function Profile() {
             {/* Tabs */}
             {!isEditing && (
               <>
-                <div className="flex space-x-1 mb-4 bg-muted/30 rounded-lg p-1">
+                <div className="flex space-x-1 mb-4 bg-black rounded-lg p-1" style={{
+                  boxShadow: `
+                    0 0 0 1px rgba(236, 72, 153, 0.6),
+                    inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                  `,
+                }}>
                   {tabs.map((tab) => (
                     <motion.button
                       key={tab.id}
@@ -797,8 +802,8 @@ export default function Profile() {
                       onClick={() => setSelectedTab(tab.id)}
                       className={`flex-1 px-3 py-1.5 rounded-md font-medium transition-colors text-xs ${
                         selectedTab === tab.id
-                          ? "bg-primary text-primary-foreground"
-                          : "text-muted-foreground hover:text-foreground"
+                          ? "bg-purple-primary text-white"
+                          : "text-gray-400 hover:text-white"
                       }`}
                     >
                       {tab.label}
