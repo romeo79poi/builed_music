@@ -263,6 +263,7 @@ export default function Home() {
   // Get appropriate greeting
   const getGreeting = () => {
     const hour = currentTime.getHours();
+    if (hour >= 0 && hour < 6) return "Good Midnight";
     if (hour < 12) return "Good Morning";
     if (hour < 17) return "Good Afternoon";
     return "Good Evening";
@@ -400,7 +401,14 @@ export default function Home() {
           <motion.section variants={itemVariants} className="mb-6">
             <motion.div
               whileHover={{ scale: 1.01 }}
-              className="relative bg-gray-900 rounded-lg p-4 overflow-hidden cursor-pointer border-l-4 border-pink-500"
+              className="relative bg-black rounded-lg p-4 overflow-hidden cursor-pointer"
+              style={{
+                boxShadow: `
+                  0 0 0 1px rgba(236, 72, 153, 0.6),
+                  inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                `,
+
+              }}
               onClick={() => {
                 toast({
                   title: "Playing Featured Album",
@@ -414,7 +422,7 @@ export default function Home() {
                     whileHover={{ scale: 1.05 }}
                     src={featuredContent.coverImageURL}
                     alt={featuredContent.title}
-                    className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover shadow-lg shadow-purple-primary/30"
+                    className="w-24 h-24 rounded-xl object-cover shadow-lg shadow-purple-primary/30"
                   />
                   <motion.button
                     whileHover={{ scale: 1.1 }}
@@ -477,13 +485,20 @@ export default function Home() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 + index * 0.1 }}
                   whileHover={{ scale: 1.05, y: -5 }}
-                  className="flex-shrink-0 w-40 bg-gray-900 rounded-lg p-4 hover:bg-gray-800 transition-all cursor-pointer border-l-4 border-pink-500"
+                  className="flex-shrink-0 w-40 bg-black rounded-lg p-4 hover:bg-gray-900 transition-all cursor-pointer relative overflow-hidden"
+                  style={{
+                    boxShadow: `
+                      0 0 0 1px rgba(236, 72, 153, 0.6),
+                      inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                    `,
+    
+                  }}
                 >
                   <div className="relative mb-3">
                     <img
                       src={release.coverImageURL}
                       alt={release.title}
-                      className="w-full aspect-square rounded-lg object-cover"
+                      className="w-24 h-24 rounded-lg object-cover"
                     />
                     <div className="absolute top-2 left-2 bg-neon-green text-black px-2 py-1 rounded-md text-xs font-bold">
                       NEW
@@ -520,7 +535,14 @@ export default function Home() {
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.4 + index * 0.1 }}
                   whileHover={{ scale: 1.02 }}
-                  className="relative bg-gray-900 rounded-lg p-4 h-24 cursor-pointer overflow-hidden border-l-4 border-pink-500"
+                  className="relative bg-black rounded-lg p-4 h-24 cursor-pointer overflow-hidden"
+                  style={{
+                    boxShadow: `
+                      0 0 0 1px rgba(236, 72, 153, 0.6),
+                      inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                    `,
+    
+                  }}
                 >
                   <div className="relative z-10">
                     <h3 className="font-bold text-white text-sm mb-1">
@@ -580,13 +602,20 @@ export default function Home() {
                   }}
                   onHoverStart={() => setHoveredAlbum(album.id)}
                   onHoverEnd={() => setHoveredAlbum(null)}
-                  className="flex-shrink-0 w-32 sm:w-36 bg-gray-900 rounded-lg p-3 hover:bg-gray-800 transition-all cursor-pointer group border-l-4 border-pink-500"
+                  className="flex-shrink-0 w-32 sm:w-36 bg-black rounded-lg p-3 hover:bg-gray-900 transition-all cursor-pointer group relative overflow-hidden"
+                  style={{
+                    boxShadow: `
+                      0 0 0 1px rgba(236, 72, 153, 0.6),
+                      inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                    `,
+    
+                  }}
                 >
                   <div className="relative mb-3">
                     <motion.img
                       src={album.coverImageURL}
                       alt={album.name}
-                      className="w-full aspect-square rounded-lg object-cover shadow-md"
+                      className="w-24 h-24 rounded-lg object-cover shadow-md"
                       whileHover={{ scale: 1.05 }}
                       transition={{
                         type: "spring",
@@ -628,6 +657,98 @@ export default function Home() {
             </div>
           </motion.section>
 
+          {/* Album Tracks Section */}
+          <motion.section variants={itemVariants} className="mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <motion.h2
+                whileHover={{ scale: 1.02 }}
+                className="text-xl font-bold flex items-center space-x-2"
+              >
+                <Music className="w-5 h-5 text-foreground" />
+                <span>Album Tracks</span>
+              </motion.h2>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                className="text-gray-400 dark:text-gray-400 light:text-gray-600 hover:text-white dark:hover:text-white light:hover:text-black text-sm font-medium transition-colors"
+              >
+                View All
+              </motion.button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+              {[
+                {
+                  id: "album1",
+                  title: "After Hours",
+                  artist: "The Weeknd",
+                  tracks: ["Blinding Lights", "Heartless", "In Your Eyes", "Save Your Tears"],
+                  coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop"
+                },
+                {
+                  id: "album2",
+                  title: "Fine Line",
+                  artist: "Harry Styles",
+                  tracks: ["Watermelon Sugar", "Adore You", "Golden", "Falling"],
+                  coverImageURL: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop"
+                }
+              ].map((album, index) => (
+                <motion.div
+                  key={album.id}
+                  initial={{ opacity: 0, y: 30 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.6 + index * 0.2 }}
+                  className="bg-black rounded-lg p-4 overflow-hidden"
+                  style={{
+                    boxShadow: `
+                      0 0 0 1px rgba(236, 72, 153, 0.6),
+                      inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                    `,
+    
+                  }}
+                >
+                  <div className="flex items-start space-x-4 mb-4">
+                    <img
+                      src={album.coverImageURL}
+                      alt={album.title}
+                      className="w-24 h-24 rounded-lg object-cover"
+                    />
+                    <div className="flex-1">
+                      <h3 className="font-bold text-white text-lg mb-1">{album.title}</h3>
+                      <p className="text-purple-accent text-sm">{album.artist}</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    {album.tracks.map((track, trackIndex) => (
+                      <motion.div
+                        key={track}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: 0.8 + index * 0.2 + trackIndex * 0.1 }}
+                        whileHover={{ backgroundColor: "rgba(158, 64, 252, 0.15)" }}
+                        className="flex items-center justify-between p-2 rounded cursor-pointer hover:bg-purple-primary/10 transition-all group"
+                      >
+                        <div className="flex items-center space-x-3">
+                          <span className="text-gray-400 text-sm w-6">{trackIndex + 1}</span>
+                          <span className="text-white group-hover:text-purple-accent transition-colors">{track}</span>
+                        </div>
+                        <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <motion.button
+                            whileHover={{ scale: 1.2 }}
+                            whileTap={{ scale: 0.9 }}
+                            className="w-8 h-8 bg-purple-primary hover:bg-purple-secondary rounded-full flex items-center justify-center transition-all"
+                          >
+                            <Play className="w-3 h-3 text-white ml-0.5" />
+                          </motion.button>
+                        </div>
+                      </motion.div>
+                    ))}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.section>
+
           {/* Enhanced Songs Section */}
           <motion.section variants={itemVariants}>
             <div className="flex items-center justify-between mb-4">
@@ -660,13 +781,20 @@ export default function Home() {
                     transition: { type: "spring", stiffness: 400, damping: 25 },
                   }}
                   onClick={() => handlePlaySong(song.id)}
-                  className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-800 transition-all cursor-pointer group border-l-4 border-transparent hover:border-pink-500"
+                  className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-900 transition-all cursor-pointer group bg-black"
+                  style={{
+                    boxShadow: `
+                      0 0 0 1px rgba(236, 72, 153, 0.6),
+                      inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                    `,
+    
+                  }}
                 >
                   <div className="relative">
                     <motion.img
                       src={song.coverImageURL}
                       alt={song.title}
-                      className="w-12 h-12 rounded-md object-cover"
+                      className="w-24 h-24 rounded-lg object-cover"
                       whileHover={{ scale: 1.1 }}
                       transition={{
                         type: "spring",
