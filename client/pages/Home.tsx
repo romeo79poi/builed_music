@@ -303,7 +303,7 @@ export default function Home() {
         {/* Clean Header - Claude/AI Style */}
         <motion.header
           variants={itemVariants}
-          className="flex items-center justify-between px-4 py-3 bg-background/95 backdrop-blur-sm border-b border-border claude-shadow dark:claude-dark-shadow theme-transition"
+          className="flex items-center justify-between px-4 py-3 bg-background/95 backdrop-blur-sm claude-shadow dark:claude-dark-shadow theme-transition"
         >
           {/* Profile Icon with enhanced glow */}
           <motion.button
