@@ -653,6 +653,35 @@ export default function Profile() {
                       />
                     </div>
                   </div>
+
+                  {/* Edit Mode Action Buttons */}
+                  <div className="flex items-center space-x-2 mt-4">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleCancelEdit}
+                      className="px-4 py-2 rounded-lg font-medium transition-all bg-black text-white"
+                      style={{
+                        boxShadow: `
+                          0 0 0 1px rgba(236, 72, 153, 0.6),
+                          inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                        `,
+                      }}
+                    >
+                      <X className="w-4 h-4 mr-2 inline" />
+                      Cancel
+                    </motion.button>
+
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleSaveProfile}
+                      className="px-4 py-2 rounded-lg font-medium transition-all bg-purple-primary text-white"
+                    >
+                      <Save className="w-4 h-4 mr-2 inline" />
+                      Save
+                    </motion.button>
+                  </div>
                 </div>
               ) : (
                 <>
