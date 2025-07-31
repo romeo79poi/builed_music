@@ -763,15 +763,15 @@ export default function Profile() {
 
             {/* Stats */}
             {!isEditing && (
-              <div className="grid grid-cols-3 gap-2 mb-4">
+              <div className="grid grid-cols-3 gap-1.5 mb-3">
                 <motion.button
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
                   onClick={() => setShowStats(true)}
-                  className="text-center p-2.5 bg-card rounded-lg border border-border hover:bg-muted/50 transition-colors"
+                  className="text-center p-2 bg-card rounded-lg border border-border hover:bg-muted/50 transition-colors"
                 >
-                  <p className="text-lg font-bold text-foreground">{formatNumber(profile.stats.followers)}</p>
-                  <p className="text-xs text-muted-foreground">Followers</p>
+                  <p className="text-sm font-bold text-foreground">{formatNumber(profile.stats.followers)}</p>
+                  <p className="text-[10px] text-muted-foreground">Followers</p>
                 </motion.button>
 
                 <motion.button
