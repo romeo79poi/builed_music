@@ -457,14 +457,14 @@ export default function Profile() {
           </div>
 
           {/* Profile Info */}
-          <div className="px-4 -mt-16 relative z-10">
+          <div className="px-3 -mt-12 relative z-10">
             {/* Avatar */}
-            <div className="flex items-end justify-between mb-4">
+            <div className="flex items-end justify-between mb-3">
               <div className="relative">
                 <img
                   src={profile.avatar}
                   alt={profile.displayName}
-                  className="w-24 h-24 rounded-full object-cover border-4 border-background shadow-xl"
+                  className="w-20 h-20 rounded-full object-cover border-3 border-background shadow-lg"
                 />
                 {profile.isVerified && (
                   <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center border-2 border-background">
