@@ -512,7 +512,7 @@ export default function Home() {
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.4 + index * 0.1 }}
                   whileHover={{ scale: 1.02 }}
-                  className={`relative bg-gradient-to-br ${playlist.color} rounded-2xl p-4 h-24 cursor-pointer overflow-hidden`}
+                  className="relative bg-gray-900 rounded-lg p-4 h-24 cursor-pointer overflow-hidden border-l-4 border-pink-500"
                 >
                   <div className="relative z-10">
                     <h3 className="font-bold text-white text-sm mb-1">
