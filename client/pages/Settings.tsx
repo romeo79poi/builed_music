@@ -82,13 +82,7 @@ export default function Settings() {
       title: "Account",
       icon: User,
       items: [
-        {
-          key: "profile",
-          label: "Edit Profile",
-          icon: Edit3,
-          action: () => setIsEditingProfile(true),
-          description: "Change your name, email, and profile picture",
-        },
+
         {
           key: "subscription",
           label: "Manage Subscription",
@@ -357,14 +351,7 @@ export default function Settings() {
                   </p>
                 </div>
 
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setIsEditingProfile(true)}
-                  className="p-3 rounded-full bg-purple-primary/20 border border-purple-primary/50 text-purple-primary"
-                >
-                  <Edit3 className="w-5 h-5" />
-                </motion.button>
+
               </div>
             </div>
           </motion.section>
@@ -519,91 +506,7 @@ export default function Settings() {
           </motion.section>
         </main>
 
-        {/* Edit Profile Modal */}
-        <AnimatePresence>
-          {isEditingProfile && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-            >
-              <motion.div
-                initial={{ scale: 0.9, y: 20 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.9, y: 20 }}
-                className="bg-gradient-to-br from-purple-dark to-purple-darker border border-purple-primary/30 rounded-2xl p-6 w-full max-w-md"
-              >
-                <div className="flex items-center justify-between mb-6">
-                  <h3 className="text-xl font-bold text-white">Edit Profile</h3>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setIsEditingProfile(false)}
-                    className="p-2 rounded-full hover:bg-purple-primary/20 text-gray-400"
-                  >
-                    <X className="w-5 h-5" />
-                  </motion.button>
-                </div>
 
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Name
-                    </label>
-                    <input
-                      type="text"
-                      value={editForm.name}
-                      onChange={(e) =>
-                        setEditForm((prev) => ({
-                          ...prev,
-                          name: e.target.value,
-                        }))
-                      }
-                      className="w-full p-3 bg-purple-dark/50 border border-purple-primary/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-primary/50"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Email
-                    </label>
-                    <input
-                      type="email"
-                      value={editForm.email}
-                      onChange={(e) =>
-                        setEditForm((prev) => ({
-                          ...prev,
-                          email: e.target.value,
-                        }))
-                      }
-                      className="w-full p-3 bg-purple-dark/50 border border-purple-primary/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-primary/50"
-                    />
-                  </div>
-
-                  <div className="flex space-x-3 pt-4">
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => setIsEditingProfile(false)}
-                      className="flex-1 p-3 bg-gray-600/50 border border-gray-500/50 rounded-xl text-white font-medium"
-                    >
-                      Cancel
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={handleSaveProfile}
-                      className="flex-1 p-3 bg-purple-primary/20 border border-purple-primary/50 rounded-xl text-purple-primary font-medium"
-                    >
-                      Save
-                    </motion.button>
-                  </div>
-                </div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         {/* Logout Confirmation Modal */}
         <AnimatePresence>
