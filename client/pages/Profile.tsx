@@ -362,29 +362,29 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground relative overflow-hidden theme-transition">
-      {/* Clean YouTube/Google style background */}
+    <div className="h-screen bg-background text-foreground relative overflow-hidden theme-transition max-w-sm mx-auto">
+      {/* App background */}
       <div className="fixed inset-0 bg-gradient-to-b from-background to-secondary/30 theme-transition"></div>
 
       <div className="relative z-10 flex flex-col h-screen">
-        {/* Header - Claude/AI Style */}
+        {/* Compact App Header */}
         <motion.header
           initial={{ y: -50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="flex items-center justify-between p-4 bg-background/95 backdrop-blur-sm border-b border-border claude-shadow dark:claude-dark-shadow theme-transition"
+          className="flex items-center justify-between px-3 py-2 bg-background/95 backdrop-blur-sm border-b border-border theme-transition"
         >
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate("/home")}
-            className="w-10 h-10 rounded-full bg-muted hover:bg-muted/80 flex items-center justify-center transition-colors"
+            className="w-8 h-8 rounded-full bg-muted hover:bg-muted/80 flex items-center justify-center transition-colors"
           >
-            <ArrowLeft className="w-5 h-5 text-foreground" />
+            <ArrowLeft className="w-4 h-4 text-foreground" />
           </motion.button>
 
-          <h1 className="text-lg font-bold text-foreground">Profile</h1>
+          <h1 className="text-base font-bold text-foreground">Profile</h1>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-1">
             {!isEditing ? (
               <motion.button
                 whileHover={{ scale: 1.05 }}
@@ -436,9 +436,9 @@ export default function Profile() {
         </motion.header>
 
         {/* Main Content */}
-        <div className="flex-1 overflow-y-auto pb-24">
-          {/* Cover Image */}
-          <div className="relative h-48 sm:h-64">
+        <div className="flex-1 overflow-y-auto pb-20">
+          {/* Compact Cover Image */}
+          <div className="relative h-32">
             <img
               src={profile.coverImage}
               alt="Cover"
@@ -457,14 +457,14 @@ export default function Profile() {
           </div>
 
           {/* Profile Info */}
-          <div className="px-4 -mt-16 relative z-10">
+          <div className="px-3 -mt-12 relative z-10">
             {/* Avatar */}
-            <div className="flex items-end justify-between mb-4">
+            <div className="flex items-end justify-between mb-3">
               <div className="relative">
                 <img
                   src={profile.avatar}
                   alt={profile.displayName}
-                  className="w-24 h-24 rounded-full object-cover border-4 border-background shadow-xl"
+                  className="w-20 h-20 rounded-full object-cover border-3 border-background shadow-lg"
                 />
                 {profile.isVerified && (
                   <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center border-2 border-background">
@@ -519,7 +519,7 @@ export default function Profile() {
             </div>
 
             {/* Name and Bio */}
-            <div className="mb-4">
+            <div className="mb-3">
               {isEditing ? (
                 <div className="space-y-4">
                   {/* Display Name */}
@@ -633,16 +633,16 @@ export default function Profile() {
                 </div>
               ) : (
                 <>
-                  <div className="flex items-center space-x-2 mb-2">
-                    <h1 className="text-2xl font-bold text-foreground">{profile.displayName}</h1>
+                  <div className="flex items-center space-x-2 mb-1.5">
+                    <h1 className="text-xl font-bold text-foreground">{profile.displayName}</h1>
                     {profile.isArtist && (
-                      <div className="px-2 py-1 bg-primary/10 rounded-full">
+                      <div className="px-1.5 py-0.5 bg-primary/10 rounded-full">
                         <span className="text-xs text-primary font-medium">Artist</span>
                       </div>
                     )}
                   </div>
-                  <p className="text-muted-foreground mb-1">@{profile.username}</p>
-                  <p className="text-foreground leading-relaxed mb-3">{profile.bio}</p>
+                  <p className="text-sm text-muted-foreground mb-1">@{profile.username}</p>
+                  <p className="text-sm text-foreground leading-relaxed mb-2">{profile.bio}</p>
                   
                   {/* Location and Website */}
                   <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-3">
@@ -725,15 +725,15 @@ export default function Profile() {
 
             {/* Stats */}
             {!isEditing && (
-              <div className="grid grid-cols-3 gap-4 mb-6">
+              <div className="grid grid-cols-3 gap-2 mb-4">
                 <motion.button
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
                   onClick={() => setShowStats(true)}
-                  className="text-center p-3 bg-card rounded-lg border border-border hover:bg-muted/50 transition-colors claude-shadow hover:claude-shadow-hover dark:claude-dark-shadow dark:hover:claude-dark-shadow-hover"
+                  className="text-center p-2.5 bg-card rounded-lg border border-border hover:bg-muted/50 transition-colors"
                 >
-                  <p className="text-xl font-bold text-foreground">{formatNumber(profile.stats.followers)}</p>
-                  <p className="text-sm text-muted-foreground">Followers</p>
+                  <p className="text-lg font-bold text-foreground">{formatNumber(profile.stats.followers)}</p>
+                  <p className="text-xs text-muted-foreground">Followers</p>
                 </motion.button>
 
                 <motion.button
