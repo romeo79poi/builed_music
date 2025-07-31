@@ -929,7 +929,13 @@ export default function Profile() {
                               initial={{ opacity: 0, x: -20 }}
                               animate={{ opacity: 1, x: 0 }}
                               transition={{ delay: index * 0.05 }}
-                              className="flex items-center space-x-3 p-3 bg-purple-dark/30 rounded-xl border border-purple-primary/20 hover:bg-purple-primary/10 transition-colors cursor-pointer"
+                              className="flex items-center space-x-3 p-3 bg-black rounded-xl hover:bg-gray-900 transition-colors cursor-pointer"
+                              style={{
+                                boxShadow: `
+                                  0 0 0 1px rgba(236, 72, 153, 0.6),
+                                  inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                                `,
+                              }}
                               onClick={() => handlePlay(track.id)}
                             >
                               <div className="relative">
