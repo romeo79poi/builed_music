@@ -621,36 +621,56 @@ export default function Profile() {
                       Social Links
                     </label>
                     <div className="space-y-2">
-                      <input
-                        type="text"
-                        value={editForm.socialLinks.instagram}
-                        onChange={(e) => setEditForm({ 
-                          ...editForm, 
-                          socialLinks: { ...editForm.socialLinks, instagram: e.target.value }
-                        })}
-                        className="w-full p-3 bg-card border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:border-purple-primary/50"
-                        placeholder="Instagram username"
-                      />
-                      <input
-                        type="text"
-                        value={editForm.socialLinks.twitter}
-                        onChange={(e) => setEditForm({ 
-                          ...editForm, 
-                          socialLinks: { ...editForm.socialLinks, twitter: e.target.value }
-                        })}
-                        className="w-full p-3 bg-card border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:border-purple-primary/50"
-                        placeholder="Twitter username"
-                      />
-                      <input
-                        type="text"
-                        value={editForm.socialLinks.youtube}
-                        onChange={(e) => setEditForm({ 
-                          ...editForm, 
-                          socialLinks: { ...editForm.socialLinks, youtube: e.target.value }
-                        })}
-                        className="w-full p-3 bg-card border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:border-purple-primary/50"
-                        placeholder="YouTube channel"
-                      />
+                      {/* Instagram */}
+                      <div className="relative">
+                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                          <Instagram className="w-4 h-4 text-pink-500" />
+                        </div>
+                        <input
+                          type="text"
+                          value={editForm.socialLinks.instagram}
+                          onChange={(e) => setEditForm({
+                            ...editForm,
+                            socialLinks: { ...editForm.socialLinks, instagram: e.target.value }
+                          })}
+                          className="w-full p-3 pl-10 bg-card border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:border-purple-primary/50"
+                          placeholder="Instagram username"
+                        />
+                      </div>
+
+                      {/* Twitter */}
+                      <div className="relative">
+                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                          <Twitter className="w-4 h-4 text-blue-400" />
+                        </div>
+                        <input
+                          type="text"
+                          value={editForm.socialLinks.twitter}
+                          onChange={(e) => setEditForm({
+                            ...editForm,
+                            socialLinks: { ...editForm.socialLinks, twitter: e.target.value }
+                          })}
+                          className="w-full p-3 pl-10 bg-card border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:border-purple-primary/50"
+                          placeholder="Twitter username"
+                        />
+                      </div>
+
+                      {/* YouTube */}
+                      <div className="relative">
+                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                          <Youtube className="w-4 h-4 text-red-500" />
+                        </div>
+                        <input
+                          type="text"
+                          value={editForm.socialLinks.youtube}
+                          onChange={(e) => setEditForm({
+                            ...editForm,
+                            socialLinks: { ...editForm.socialLinks, youtube: e.target.value }
+                          })}
+                          className="w-full p-3 pl-10 bg-card border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:border-purple-primary/50"
+                          placeholder="YouTube channel"
+                        />
+                      </div>
                     </div>
                   </div>
 
