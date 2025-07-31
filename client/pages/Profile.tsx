@@ -725,7 +725,7 @@ export default function Profile() {
 
             {/* Stats */}
             {!isEditing && (
-              <div className="grid grid-cols-3 gap-4 mb-6">
+              <div className="grid grid-cols-3 gap-2 mb-4">
                 <motion.button
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
