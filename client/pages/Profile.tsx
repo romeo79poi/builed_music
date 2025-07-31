@@ -325,7 +325,6 @@ export default function Profile() {
       username: profile.username,
       bio: profile.bio,
       location: profile.location,
-      website: profile.website,
       socialLinks: {
         instagram: profile.socialLinks.instagram || "",
         twitter: profile.socialLinks.twitter || "",
