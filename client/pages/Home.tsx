@@ -263,6 +263,7 @@ export default function Home() {
   // Get appropriate greeting
   const getGreeting = () => {
     const hour = currentTime.getHours();
+    if (hour >= 0 && hour < 6) return "Good Midnight";
     if (hour < 12) return "Good Morning";
     if (hour < 17) return "Good Afternoon";
     return "Good Evening";
