@@ -515,15 +515,7 @@ export default function Settings() {
               <span>Log Out</span>
             </motion.button>
 
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setShowDeleteModal(true)}
-              className="w-full p-4 bg-red-600/20 border border-red-600/50 rounded-xl text-red-500 font-medium flex items-center justify-center space-x-2 hover:bg-red-600/30 transition-colors"
-            >
-              <Trash2 className="w-5 h-5" />
-              <span>Delete Account</span>
-            </motion.button>
+
           </motion.section>
         </main>
 
