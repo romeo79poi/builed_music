@@ -601,18 +601,40 @@ export default function Profile() {
                     />
                   </div>
 
-                  {/* Website */}
+                  {/* Profile Image Upload */}
                   <div>
                     <label className="block text-sm font-medium text-muted-foreground mb-2">
-                      Website
+                      Profile Image
                     </label>
-                    <input
-                      type="text"
-                      value={editForm.website}
-                      onChange={(e) => setEditForm({ ...editForm, website: e.target.value })}
-                      className="w-full p-3 bg-card border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:border-purple-primary/50"
-                      placeholder="yourwebsite.com"
-                    />
+                    <div className="flex items-center space-x-4">
+                      <div className="relative">
+                        <img
+                          src={profile.avatar}
+                          alt="Profile Preview"
+                          className="w-16 h-16 rounded-full object-cover border-2 border-border"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => document.getElementById('avatar-upload')?.click()}
+                          className="px-4 py-2 bg-black rounded-lg font-medium transition-all text-white flex items-center space-x-2"
+                          style={{
+                            boxShadow: `
+                              0 0 0 1px rgba(236, 72, 153, 0.6),
+                              inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                            `,
+                          }}
+                        >
+                          <Camera className="w-4 h-4" />
+                          <span>Change Photo</span>
+                        </motion.button>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          JPG, PNG up to 5MB
+                        </p>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Social Links */}
