@@ -407,7 +407,7 @@ export default function Home() {
                   0 0 0 1px rgba(236, 72, 153, 0.6),
                   inset 0 0 0 1px rgba(236, 72, 153, 0.3)
                 `,
-                animation: 'borderGlow 2s ease-in-out infinite'
+
               }}
               onClick={() => {
                 toast({
@@ -491,7 +491,7 @@ export default function Home() {
                       0 0 0 1px rgba(236, 72, 153, 0.6),
                       inset 0 0 0 1px rgba(236, 72, 153, 0.3)
                     `,
-                    animation: 'borderGlow 2s ease-in-out infinite'
+    
                   }}
                 >
                   <div className="relative mb-3">
@@ -541,7 +541,7 @@ export default function Home() {
                       0 0 0 1px rgba(236, 72, 153, 0.6),
                       inset 0 0 0 1px rgba(236, 72, 153, 0.3)
                     `,
-                    animation: 'borderGlow 2s ease-in-out infinite'
+    
                   }}
                 >
                   <div className="relative z-10">
@@ -608,7 +608,7 @@ export default function Home() {
                       0 0 0 1px rgba(236, 72, 153, 0.6),
                       inset 0 0 0 1px rgba(236, 72, 153, 0.3)
                     `,
-                    animation: 'borderGlow 2s ease-in-out infinite'
+    
                   }}
                 >
                   <div className="relative mb-3">
@@ -703,7 +703,7 @@ export default function Home() {
                       0 0 0 1px rgba(236, 72, 153, 0.6),
                       inset 0 0 0 1px rgba(236, 72, 153, 0.3)
                     `,
-                    animation: 'borderGlow 2s ease-in-out infinite'
+    
                   }}
                 >
                   <div className="flex items-start space-x-4 mb-4">
@@ -787,7 +787,7 @@ export default function Home() {
                       0 0 0 1px rgba(236, 72, 153, 0.6),
                       inset 0 0 0 1px rgba(236, 72, 153, 0.3)
                     `,
-                    animation: 'borderGlow 2s ease-in-out infinite'
+    
                   }}
                 >
                   <div className="relative">
