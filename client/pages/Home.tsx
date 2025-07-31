@@ -391,13 +391,7 @@ export default function Home() {
           <motion.section variants={itemVariants} className="mb-6">
             <motion.div
               whileHover={{ scale: 1.01 }}
-              className="relative rounded-2xl p-4 overflow-hidden cursor-pointer border border-purple-primary/20"
-              style={{
-                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=600&h=300&fit=crop')`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center',
-                backgroundRepeat: 'no-repeat'
-              }}
+              className="relative bg-gray-500 rounded-2xl p-4 overflow-hidden cursor-pointer border border-gray-400"
               onClick={() => {
                 toast({
                   title: "Playing Featured Album",
