@@ -124,44 +124,44 @@
     --popover: 0 0% 4%;
     --popover-foreground: 0 0% 100%;
 
-    --primary: 0 100% 50%; /* Red primary (#ff0000) */
+    --primary: 280 100% 70%; /* Bright purple primary */
     --primary-foreground: 0 0% 100%;
 
     --secondary: 0 0% 8%; /* Ultra dark grey secondary (#141414) */
-    --secondary-foreground: 0 0% 95%;
+    --secondary-foreground: 320 30% 85%; /* Light pink text */
 
     --muted: 0 0% 6%; /* Ultra dark muted */
-    --muted-foreground: 0 0% 60%; /* Dimmer grey text */
+    --muted-foreground: 320 25% 75%; /* Pink-tinted grey text */
 
-    --accent: 0 100% 50%; /* Red accent */
+    --accent: 320 100% 75%; /* Bright pink accent */
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 75% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 12%; /* Darker borders */
+    --border: 280 30% 15%; /* Purple-tinted borders */
     --input: 0 0% 3%; /* Ultra dark inputs */
-    --ring: 0 100% 50%;
+    --ring: 280 100% 70%;
     --sidebar-background: 0 0% 2%;
     --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 0 100% 50%;
+    --sidebar-primary: 280 100% 70%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 0 0% 8%;
-    --sidebar-accent-foreground: 0 0% 95%;
-    --sidebar-border: 0 0% 12%;
-    --sidebar-ring: 0 100% 50%;
+    --sidebar-accent-foreground: 320 30% 85%;
+    --sidebar-border: 280 30% 15%;
+    --sidebar-ring: 280 100% 70%;
 
-    /* Ultra dark theme colors */
-    --purple-primary: 0 100% 50%; /* Red primary */
-    --purple-secondary: 0 0% 65%; /* Light grey secondary */
-    --purple-accent: 0 100% 60%; /* Bright red accent */
-    --purple-glow: 0 100% 70%; /* Red glow */
-    --purple-dark: 0 0% 4%; /* Ultra dark surface (#0a0a0a) */
-    --purple-darker: 0 0% 2%; /* Ultra darker surface (#050505) */
-    --neon-green: 0 100% 50%; /* Red instead of green */
-    --neon-blue: 0 0% 65%; /* Grey instead of blue */
-    --dark-surface: 0 0% 4%; /* Ultra dark surface */
-    --darker-surface: 0 0% 2%; /* Ultra darker surface */
+    /* Purple-pink-white theme colors with black base */
+    --purple-primary: 280 100% 70%; /* Bright purple primary */
+    --purple-secondary: 320 90% 75%; /* Light pink secondary */
+    --purple-accent: 300 100% 80%; /* Bright purple-pink accent */
+    --purple-glow: 290 100% 85%; /* Bright pink-purple glow */
+    --purple-dark: 0 0% 4%; /* Keep black surface (#0a0a0a) */
+    --purple-darker: 0 0% 2%; /* Keep deep black surface (#050505) */
+    --neon-green: 280 100% 70%; /* Purple instead of green */
+    --neon-blue: 320 90% 75%; /* Pink instead of blue */
+    --dark-surface: 0 0% 4%; /* Keep black surface */
+    --darker-surface: 0 0% 2%; /* Keep deep black surface */
   }
 }
 
