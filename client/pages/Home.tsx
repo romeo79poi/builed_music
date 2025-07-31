@@ -453,18 +453,18 @@ export default function Home() {
           </motion.section>
 
           {/* New Releases Section */}
-          <motion.section variants={itemVariants} className="mb-8">
-            <div className="flex items-center justify-between mb-4">
+          <motion.section variants={itemVariants} className="mb-6">
+            <div className="flex items-center justify-between mb-3">
               <motion.h2
                 whileHover={{ scale: 1.02 }}
-                className="text-xl font-bold flex items-center space-x-2"
+                className="text-lg font-bold flex items-center space-x-2"
               >
-                <Sparkles className="w-5 h-5 text-foreground" />
+                <Sparkles className="w-4 h-4 text-foreground" />
                 <span>New Releases</span>
               </motion.h2>
               <motion.button
                 whileHover={{ scale: 1.05 }}
-                className="text-gray-400 dark:text-gray-400 light:text-gray-600 hover:text-white dark:hover:text-white light:hover:text-black text-sm font-medium transition-colors"
+                className="text-gray-400 dark:text-gray-400 light:text-gray-600 hover:text-white dark:hover:text-white light:hover:text-black text-xs font-medium transition-colors"
               >
                 See all
               </motion.button>
