@@ -392,7 +392,13 @@ export default function Home() {
           <motion.section variants={itemVariants} className="mb-6">
             <motion.div
               whileHover={{ scale: 1.01 }}
-              className="relative bg-gradient-to-br from-purple-primary/15 via-purple-secondary/10 to-purple-accent/5 rounded-2xl p-4 overflow-hidden cursor-pointer border border-purple-primary/20"
+              className="relative rounded-2xl p-4 overflow-hidden cursor-pointer border border-purple-primary/20"
+              style={{
+                backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1514320291840-2e0a9bf2a9ae?w=600&h=300&fit=crop')`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat'
+              }}
               onClick={() => {
                 toast({
                   title: "Playing Featured Album",
@@ -400,8 +406,6 @@ export default function Home() {
                 });
               }}
             >
-              {/* Background Pattern */}
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-primary/15 to-purple-secondary/15"></div>
 
               <div className="relative z-10 flex flex-row items-center gap-4">
                 <div className="relative">
