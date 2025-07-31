@@ -253,11 +253,31 @@ export default function Home() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [userAvatar, setUserAvatar] = useState<string | null>(null);
 
   // Update time for greeting
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(timer);
+  }, []);
+
+  // Load user avatar from localStorage
+  useEffect(() => {
+    const savedAvatar = localStorage.getItem('userAvatar');
+    if (savedAvatar) {
+      setUserAvatar(savedAvatar);
+    }
+  }, []);
+
+  // Listen for avatar updates
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const savedAvatar = localStorage.getItem('userAvatar');
+      setUserAvatar(savedAvatar);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   // Get appropriate greeting
@@ -319,8 +339,16 @@ export default function Home() {
               `,
             }}
           >
-            <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center relative z-10">
-              <User className="w-4 h-4 text-white" />
+            <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center relative z-10 overflow-hidden">
+              {userAvatar ? (
+                <img
+                  src={userAvatar}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <User className="w-4 h-4 text-white" />
+              )}
             </div>
             <motion.div
               animate={{
