@@ -290,8 +290,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background text-foreground relative overflow-hidden theme-transition">
-      {/* Clean minimalist background like Google/YouTube */}
-      <div className="fixed inset-0 bg-gradient-to-b from-background to-secondary/20 theme-transition"></div>
+
 
       {/* Main Container */}
       <motion.div
