@@ -436,9 +436,9 @@ export default function Profile() {
         </motion.header>
 
         {/* Main Content */}
-        <div className="flex-1 overflow-y-auto pb-24">
-          {/* Cover Image */}
-          <div className="relative h-48 sm:h-64">
+        <div className="flex-1 overflow-y-auto pb-20">
+          {/* Compact Cover Image */}
+          <div className="relative h-32">
             <img
               src={profile.coverImage}
               alt="Cover"
