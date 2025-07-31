@@ -470,7 +470,7 @@ export default function Home() {
               </motion.button>
             </div>
 
-            <div className="flex space-x-4 overflow-x-auto scrollbar-hide pb-4">
+            <div className="flex space-x-3 overflow-x-auto scrollbar-hide pb-3">
               {newReleases.map((release, index) => (
                 <motion.div
                   key={release.id}
@@ -478,19 +478,19 @@ export default function Home() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 + index * 0.1 }}
                   whileHover={{ scale: 1.05, y: -5 }}
-                  className="flex-shrink-0 w-40 bg-card rounded-xl p-4 hover:bg-muted/50 transition-all cursor-pointer claude-shadow hover:claude-shadow-hover dark:claude-dark-shadow dark:hover:claude-dark-shadow-hover"
+                  className="flex-shrink-0 w-32 bg-card rounded-lg p-3 hover:bg-muted/50 transition-all cursor-pointer claude-shadow hover:claude-shadow-hover dark:claude-dark-shadow dark:hover:claude-dark-shadow-hover"
                 >
-                  <div className="relative mb-3">
+                  <div className="relative mb-2">
                     <img
                       src={release.coverImageURL}
                       alt={release.title}
-                      className="w-full aspect-square rounded-lg object-cover"
+                      className="w-full aspect-square rounded-md object-cover"
                     />
-                    <div className="absolute top-2 left-2 bg-neon-green text-black px-2 py-1 rounded-md text-xs font-bold">
+                    <div className="absolute top-1 left-1 bg-neon-green text-black px-1.5 py-0.5 rounded text-xs font-bold">
                       NEW
                     </div>
                   </div>
-                  <h3 className="font-medium text-sm mb-1 truncate">
+                  <h3 className="font-medium text-xs mb-1 truncate">
                     {release.title}
                   </h3>
                   <p className="text-gray-400 text-xs truncate">
