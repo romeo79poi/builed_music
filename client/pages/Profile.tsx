@@ -887,7 +887,13 @@ export default function Profile() {
                                   whileHover={{ scale: 1.1 }}
                                   whileTap={{ scale: 0.9 }}
                                   onClick={() => handlePlay(track.id)}
-                                  className="absolute bottom-2 right-2 w-8 h-8 bg-purple-primary rounded-full flex items-center justify-center shadow-lg"
+                                  className="absolute bottom-2 right-2 w-8 h-8 bg-black rounded-full flex items-center justify-center shadow-lg"
+                                  style={{
+                                    boxShadow: `
+                                      0 0 0 1px rgba(236, 72, 153, 0.6),
+                                      inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                                    `,
+                                  }}
                                 >
                                   {currentPlayingTrack === track.id && isPlaying ? (
                                     <Pause className="w-4 h-4 text-white" />
