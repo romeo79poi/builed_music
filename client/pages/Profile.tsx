@@ -633,16 +633,16 @@ export default function Profile() {
                 </div>
               ) : (
                 <>
-                  <div className="flex items-center space-x-2 mb-2">
-                    <h1 className="text-2xl font-bold text-foreground">{profile.displayName}</h1>
+                  <div className="flex items-center space-x-2 mb-1.5">
+                    <h1 className="text-xl font-bold text-foreground">{profile.displayName}</h1>
                     {profile.isArtist && (
-                      <div className="px-2 py-1 bg-primary/10 rounded-full">
+                      <div className="px-1.5 py-0.5 bg-primary/10 rounded-full">
                         <span className="text-xs text-primary font-medium">Artist</span>
                       </div>
                     )}
                   </div>
-                  <p className="text-muted-foreground mb-1">@{profile.username}</p>
-                  <p className="text-foreground leading-relaxed mb-3">{profile.bio}</p>
+                  <p className="text-sm text-muted-foreground mb-1">@{profile.username}</p>
+                  <p className="text-sm text-foreground leading-relaxed mb-2">{profile.bio}</p>
                   
                   {/* Location and Website */}
                   <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-3">
