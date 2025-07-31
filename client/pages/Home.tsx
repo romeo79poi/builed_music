@@ -469,7 +469,7 @@ export default function Home() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 + index * 0.1 }}
                   whileHover={{ scale: 1.05, y: -5 }}
-                  className="flex-shrink-0 w-40 bg-gray-500 rounded-xl p-4 hover:bg-gray-400 transition-all cursor-pointer claude-shadow hover:claude-shadow-hover dark:claude-dark-shadow dark:hover:claude-dark-shadow-hover"
+                  className="flex-shrink-0 w-40 bg-gray-900 rounded-lg p-4 hover:bg-gray-800 transition-all cursor-pointer border-l-4 border-pink-500"
                 >
                   <div className="relative mb-3">
                     <img
