@@ -9,8 +9,8 @@
    * A different format will require also updating the theme in tailwind.config.ts.
   */
   :root {
-    /* YouTube-like Dark Mode */
-    --background: 0 0% 7%; /* Dark background like YouTube */
+    /* Purple Dark Mode */
+    --background: 0 0% 7%; /* Dark background */
     --foreground: 0 0% 95%; /* Light text */
 
     --card: 0 0% 10%; /* Dark cards */
@@ -19,8 +19,8 @@
     --popover: 0 0% 10%;
     --popover-foreground: 0 0% 95%;
 
-    --primary: 0 0% 95%; /* White primary */
-    --primary-foreground: 0 0% 7%;
+    --primary: 270 95% 60%; /* Purple primary for buttons */
+    --primary-foreground: 0 0% 100%;
 
     --secondary: 0 0% 15%; /* Dark secondary */
     --secondary-foreground: 0 0% 95%;
@@ -28,90 +28,90 @@
     --muted: 0 0% 12%; /* Dark muted */
     --muted-foreground: 0 0% 70%; /* Gray text */
 
-    --accent: 0 0% 95%; /* White accent */
-    --accent-foreground: 0 0% 7%;
+    --accent: 270 95% 60%; /* Purple accent */
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
     --border: 0 0% 20%; /* Gray borders */
     --input: 0 0% 12%; /* Dark inputs */
-    --ring: 0 0% 95%;
+    --ring: 270 95% 60%;
 
     --radius: 0.75rem;
 
     --sidebar-background: 0 0% 7%;
     --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 0 0% 95%;
-    --sidebar-primary-foreground: 0 0% 7%;
+    --sidebar-primary: 270 95% 60%;
+    --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 0 0% 15%;
     --sidebar-accent-foreground: 0 0% 95%;
     --sidebar-border: 0 0% 20%;
-    --sidebar-ring: 0 0% 95%;
+    --sidebar-ring: 270 95% 60%;
 
-    /* YouTube-like theme colors */
-    --purple-primary: 0 0% 95%; /* White */
-    --purple-secondary: 0 0% 85%; /* Light gray */
-    --purple-accent: 0 0% 75%; /* Medium gray */
-    --purple-glow: 0 0% 50%; /* Gray glow */
+    /* Purple theme colors */
+    --purple-primary: 270 95% 60%; /* Bright purple */
+    --purple-secondary: 285 85% 65%; /* Light purple */
+    --purple-accent: 255 90% 70%; /* Purple-pink */
+    --purple-glow: 270 95% 80%; /* Light purple glow */
     --purple-dark: 0 0% 10%; /* Dark surface */
     --purple-darker: 0 0% 7%; /* Darker surface */
-    --neon-green: 0 0% 95%; /* White instead of green */
-    --neon-blue: 0 0% 95%; /* White instead of blue */
+    --neon-green: 270 95% 60%; /* Purple instead of green */
+    --neon-blue: 285 85% 65%; /* Light purple instead of blue */
     --dark-surface: 0 0% 10%;
     --darker-surface: 0 0% 7%;
   }
 
   .light {
-    /* High Contrast Black & White Light Mode */
-    --background: 0 0% 100%; /* Pure white background */
-    --foreground: 0 0% 0%; /* Pure black text */
+    /* Light Purple with White Text Mode */
+    --background: 295 70% 97%; /* Very light purple background (#F5EBFA) */
+    --foreground: 0 0% 100%; /* Pure white text */
 
-    --card: 0 0% 100%; /* Pure white cards */
-    --card-foreground: 0 0% 0%;
+    --card: 295 40% 94%; /* Light purple cards (#E7DBEF) */
+    --card-foreground: 0 0% 100%; /* White text on cards */
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 0%;
+    --popover: 295 40% 94%;
+    --popover-foreground: 0 0% 100%;
 
-    --primary: 0 0% 0%; /* Pure black primary */
-    --primary-foreground: 0 0% 100%;
+    --primary: 0 0% 0%; /* Black primary buttons */
+    --primary-foreground: 0 0% 100%; /* White text on black buttons */
 
-    --secondary: 0 0% 95%; /* Very light gray */
-    --secondary-foreground: 0 0% 0%;
+    --secondary: 295 40% 94%; /* Light purple secondary (#E7DBEF) */
+    --secondary-foreground: 0 0% 100%; /* White text */
 
-    --muted: 0 0% 97%; /* Light gray background */
-    --muted-foreground: 0 0% 35%; /* Dark gray for readability */
+    --muted: 295 50% 91%; /* Medium light purple background */
+    --muted-foreground: 0 0% 80%; /* Light gray for subtle text */
 
-    --accent: 0 0% 0%; /* Pure black accent */
-    --accent-foreground: 0 0% 100%;
+    --accent: 283 35% 60%; /* Light purple accent (#A56ABD) */
+    --accent-foreground: 0 0% 100%; /* White text on accent */
 
-    --destructive: 0 100% 40%; /* Dark red for visibility */
+    --destructive: 0 100% 40%; /* Red for errors */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 80%; /* Clear gray borders */
-    --input: 0 0% 97%; /* Very light inputs */
-    --ring: 0 0% 0%; /* Pure black focus ring */
+    --border: 295 30% 85%; /* Light purple borders */
+    --input: 295 50% 96%; /* Very light purple inputs */
+    --ring: 0 0% 100%; /* White focus ring */
 
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 0 0% 0%;
+    --sidebar-background: 295 70% 97%;
+    --sidebar-foreground: 0 0% 100%;
     --sidebar-primary: 0 0% 0%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 95%;
-    --sidebar-accent-foreground: 0 0% 0%;
-    --sidebar-border: 0 0% 80%;
-    --sidebar-ring: 0 0% 0%;
+    --sidebar-accent: 295 40% 94%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 295 30% 85%;
+    --sidebar-ring: 0 0% 100%;
 
-    /* Pure black and white theme colors */
-    --purple-primary: 0 0% 0%; /* Pure black */
-    --purple-secondary: 0 0% 15%; /* Dark gray */
-    --purple-accent: 0 0% 25%; /* Medium gray */
-    --purple-glow: 0 0% 50%; /* Gray */
-    --purple-dark: 0 0% 95%; /* Light gray background */
-    --purple-darker: 0 0% 100%; /* Pure white */
-    --neon-green: 0 0% 0%; /* Pure black */
-    --neon-blue: 0 0% 0%; /* Pure black */
-    --dark-surface: 0 0% 95%; /* Light surface */
-    --darker-surface: 0 0% 100%; /* White surface */
+    /* Light purple theme colors with white text */
+    --purple-primary: 0 0% 100%; /* White instead of black */
+    --purple-secondary: 283 35% 60%; /* Light purple (#A56ABD) */
+    --purple-accent: 283 35% 70%; /* Lighter purple */
+    --purple-glow: 283 35% 60%; /* Light purple glow */
+    --purple-dark: 295 40% 94%; /* Light purple background (#E7DBEF) */
+    --purple-darker: 295 70% 97%; /* Very light purple (#F5EBFA) */
+    --neon-green: 0 0% 100%; /* White instead of black */
+    --neon-blue: 283 35% 60%; /* Light purple instead of blue */
+    --dark-surface: 295 40% 94%; /* Light purple surface */
+    --darker-surface: 295 70% 97%; /* Very light purple surface */
   }
 
   .dark {
@@ -124,7 +124,7 @@
     --popover: 218 11% 15%;
     --popover-foreground: 0 0% 95%;
 
-    --primary: 25 95% 53%; /* Same warm orange accent in dark mode */
+    --primary: 270 95% 60%; /* Purple primary for buttons */
     --primary-foreground: 0 0% 100%;
 
     --secondary: 218 11% 18%; /* Dark blue-gray secondary */
@@ -133,7 +133,7 @@
     --muted: 218 11% 16%; /* Dark muted */
     --muted-foreground: 0 0% 65%; /* Medium gray text */
 
-    --accent: 25 95% 53%; /* Warm orange accent */
+    --accent: 270 95% 60%; /* Purple accent */
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 75% 55%;
@@ -141,25 +141,25 @@
 
     --border: 218 11% 20%; /* Subtle dark borders */
     --input: 218 11% 14%; /* Dark inputs */
-    --ring: 25 95% 53%;
+    --ring: 270 95% 60%;
     --sidebar-background: 218 11% 12%;
     --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 25 95% 53%;
+    --sidebar-primary: 270 95% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 218 11% 18%;
     --sidebar-accent-foreground: 0 0% 85%;
     --sidebar-border: 218 11% 20%;
-    --sidebar-ring: 25 95% 53%;
+    --sidebar-ring: 270 95% 60%;
 
-    /* Claude-like dark mode colors */
-    --purple-primary: 25 95% 53%; /* Orange primary */
-    --purple-secondary: 35 100% 50%; /* Golden yellow */
-    --purple-accent: 15 100% 55%; /* Red-orange */
-    --purple-glow: 25 95% 70%; /* Light orange glow */
+    /* Purple theme colors for dark mode */
+    --purple-primary: 270 95% 60%; /* Bright purple primary */
+    --purple-secondary: 285 85% 65%; /* Light purple secondary */
+    --purple-accent: 255 90% 70%; /* Purple-pink accent */
+    --purple-glow: 270 95% 80%; /* Light purple glow */
     --purple-dark: 218 11% 15%; /* Dark surface */
     --purple-darker: 218 11% 12%; /* Darker surface */
-    --neon-green: 142 76% 36%; /* Professional green */
-    --neon-blue: 210 100% 50%; /* Professional blue */
+    --neon-green: 270 95% 60%; /* Purple instead of green */
+    --neon-blue: 285 85% 65%; /* Light purple instead of blue */
     --dark-surface: 218 11% 15%; /* Dark surface */
     --darker-surface: 218 11% 12%; /* Darker surface */
   }

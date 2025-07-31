@@ -313,7 +313,7 @@ export default function Home() {
             initial="initial"
             animate="animate"
             onClick={() => navigate("/profile")}
-            className="w-10 h-10 bg-gradient-to-r dark:from-neon-green dark:to-purple-secondary light:bg-black rounded-full flex items-center justify-center shadow-lg hover:shadow-lg dark:hover:shadow-neon-green/60 light:hover:shadow-lg transition-all duration-300 relative overflow-hidden"
+            className="w-10 h-10 bg-gradient-to-r dark:from-purple-primary dark:to-purple-secondary light:bg-black rounded-full flex items-center justify-center shadow-lg hover:shadow-lg dark:hover:shadow-purple-primary/60 light:hover:shadow-lg transition-all duration-300 relative overflow-hidden"
           >
             <User className="w-5 h-5 text-white relative z-10" />
             <motion.div
@@ -355,7 +355,7 @@ export default function Home() {
             className="group relative flex items-center justify-center"
           >
             {/* Modern circular container */}
-            <div className="relative w-11 h-11 rounded-full bg-gradient-to-br dark:from-blue-500 dark:via-purple-500 dark:to-pink-500 light:from-blue-600 light:via-purple-600 light:to-pink-600 shadow-lg hover:shadow-xl transition-shadow duration-300 flex items-center justify-center">
+            <div className="relative w-11 h-11 rounded-full bg-gradient-to-br dark:from-purple-primary dark:via-purple-secondary dark:to-purple-accent light:from-blue-600 light:via-purple-600 light:to-pink-600 shadow-lg hover:shadow-xl transition-shadow duration-300 flex items-center justify-center">
               {/* Message Circle icon */}
               <MessageCircle className="w-5 h-5 text-white" />
             </div>
