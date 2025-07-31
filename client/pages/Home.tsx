@@ -331,14 +331,9 @@ export default function Home() {
             whileHover={{ scale: 1.05 }}
             className="flex items-center space-x-2"
           >
-            <motion.div
-              animate={{
-                scale: [1, 1.1, 1],
-                transition: { duration: 2, repeat: Infinity },
-              }}
-            >
-              <MusicCatchLogo className="w-8 h-8" animated />
-            </motion.div>
+            <div>
+              <MusicCatchLogo className="w-8 h-8" animated={false} />
+            </div>
             <motion.span
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
