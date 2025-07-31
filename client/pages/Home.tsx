@@ -331,14 +331,9 @@ export default function Home() {
             whileHover={{ scale: 1.05 }}
             className="flex items-center space-x-2"
           >
-            <motion.div
-              animate={{
-                scale: [1, 1.1, 1],
-                transition: { duration: 2, repeat: Infinity },
-              }}
-            >
-              <MusicCatchLogo className="w-8 h-8" animated />
-            </motion.div>
+            <div>
+              <MusicCatchLogo className="w-12 h-12" animated={false} />
+            </div>
             <motion.span
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
@@ -371,33 +366,6 @@ export default function Home() {
 
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto pb-24 px-4 space-y-6">
-          {/* Search Bar */}
-          <motion.div variants={itemVariants} className="pt-6 mb-6">
-            <div className="relative">
-              <motion.div
-                animate={{
-                  scale: isSearchFocused ? 1.01 : 1,
-                  boxShadow: isSearchFocused
-                    ? "0 2px 8px rgba(0, 0, 0, 0.1)"
-                    : "0 1px 3px rgba(0, 0, 0, 0.05)",
-                }}
-                className="relative"
-              >
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  onFocus={() => setIsSearchFocused(true)}
-                  onBlur={() => setIsSearchFocused(false)}
-                  onClick={() => navigate("/search")}
-                  placeholder="Search songs, artists, albums..."
-                  className="w-full h-14 bg-white/10 dark:bg-white/10 light:bg-gray-100 backdrop-blur-sm rounded-2xl pl-12 pr-4 text-white dark:text-white light:text-gray-900 placeholder-gray-400 dark:placeholder-gray-400 light:placeholder-gray-500 focus:outline-none focus:bg-white/15 dark:focus:bg-white/15 light:focus:bg-white border border-purple-primary/20 dark:border-purple-primary/20 light:border-gray-300 focus:border-black dark:focus:border-purple-primary/50 light:focus:border-black transition-all theme-transition"
-                />
-              </motion.div>
-            </div>
-          </motion.div>
-
           {/* Enhanced Welcome Section */}
           <motion.div variants={itemVariants} className="mb-8">
             <motion.h1

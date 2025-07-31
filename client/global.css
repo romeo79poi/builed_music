@@ -115,22 +115,22 @@
   }
 
   .dark {
-    --background: 218 11% 12%; /* Cool dark blue-gray like Claude dark */
+    --background: 0 0% 3%; /* Pure deep black background */
     --foreground: 0 0% 95%; /* Light text */
 
-    --card: 218 11% 15%; /* Slightly lighter cards */
+    --card: 0 0% 5%; /* Very dark cards */
     --card-foreground: 0 0% 95%;
 
-    --popover: 218 11% 15%;
+    --popover: 0 0% 5%;
     --popover-foreground: 0 0% 95%;
 
     --primary: 270 95% 60%; /* Purple primary for buttons */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 218 11% 18%; /* Dark blue-gray secondary */
+    --secondary: 0 0% 7%; /* Very dark secondary */
     --secondary-foreground: 0 0% 85%;
 
-    --muted: 218 11% 16%; /* Dark muted */
+    --muted: 0 0% 6%; /* Very dark muted */
     --muted-foreground: 0 0% 65%; /* Medium gray text */
 
     --accent: 270 95% 60%; /* Purple accent */
@@ -139,29 +139,29 @@
     --destructive: 0 75% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 218 11% 20%; /* Subtle dark borders */
-    --input: 218 11% 14%; /* Dark inputs */
+    --border: 0 0% 10%; /* Dark borders */
+    --input: 0 0% 4%; /* Very dark inputs */
     --ring: 270 95% 60%;
-    --sidebar-background: 218 11% 12%;
+    --sidebar-background: 0 0% 3%;
     --sidebar-foreground: 0 0% 95%;
     --sidebar-primary: 270 95% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 218 11% 18%;
+    --sidebar-accent: 0 0% 7%;
     --sidebar-accent-foreground: 0 0% 85%;
-    --sidebar-border: 218 11% 20%;
+    --sidebar-border: 0 0% 10%;
     --sidebar-ring: 270 95% 60%;
 
-    /* Purple theme colors for dark mode */
+    /* Purple theme colors for deep dark mode */
     --purple-primary: 270 95% 60%; /* Bright purple primary */
     --purple-secondary: 285 85% 65%; /* Light purple secondary */
     --purple-accent: 255 90% 70%; /* Purple-pink accent */
     --purple-glow: 270 95% 80%; /* Light purple glow */
-    --purple-dark: 218 11% 15%; /* Dark surface */
-    --purple-darker: 218 11% 12%; /* Darker surface */
+    --purple-dark: 0 0% 5%; /* Very dark surface */
+    --purple-darker: 0 0% 3%; /* Deepest dark surface */
     --neon-green: 270 95% 60%; /* Purple instead of green */
     --neon-blue: 285 85% 65%; /* Light purple instead of blue */
-    --dark-surface: 218 11% 15%; /* Dark surface */
-    --darker-surface: 218 11% 12%; /* Darker surface */
+    --dark-surface: 0 0% 5%; /* Very dark surface */
+    --darker-surface: 0 0% 3%; /* Deepest dark surface */
   }
 }
 
