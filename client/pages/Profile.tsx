@@ -875,7 +875,13 @@ export default function Profile() {
                               initial={{ opacity: 0, scale: 0.9 }}
                               animate={{ opacity: 1, scale: 1 }}
                               transition={{ delay: index * 0.1 }}
-                              className="bg-purple-dark/30 rounded-xl p-3 border border-purple-primary/20"
+                              className="bg-black rounded-xl p-3"
+                              style={{
+                                boxShadow: `
+                                  0 0 0 1px rgba(236, 72, 153, 0.6),
+                                  inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                                `,
+                              }}
                             >
                               <div className="relative mb-3">
                                 <img
