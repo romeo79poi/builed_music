@@ -361,7 +361,7 @@ export default function Settings() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={() => setIsEditingProfile(true)}
-                  className="p-3 rounded-full bg-neon-green/20 border border-neon-green/50 text-neon-green"
+                  className="p-3 rounded-full bg-purple-primary/20 border border-purple-primary/50 text-purple-primary"
                 >
                   <Edit3 className="w-5 h-5" />
                 </motion.button>
