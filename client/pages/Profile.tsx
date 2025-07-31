@@ -491,59 +491,25 @@ export default function Profile() {
 
         {/* Main Content */}
         <div className="flex-1 overflow-y-auto pb-20">
-          {/* Compact Cover Image */}
-          <div className="relative h-32">
-            <img
-              src={profile.coverImage}
-              alt="Cover"
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-            
-            {/* Edit Cover Button */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="absolute top-4 right-4 w-10 h-10 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center"
-              disabled={uploading}
-              onClick={() => document.getElementById('cover-upload')?.click()}
-            >
-              <Camera className="w-5 h-5 text-white" />
-            </motion.button>
-            <input
-              id="cover-upload"
-              type="file"
-              accept="image/*"
-              onChange={handleCoverUpload}
-              className="hidden"
-            />
-          </div>
+
 
           {/* Profile Info */}
-          <div className="px-3 -mt-12 relative z-10">
+          <div className="px-3 relative z-10">
             {/* Avatar */}
             <div className="flex items-end justify-between mb-3">
               <div className="relative">
                 <img
                   src={profile.avatar}
                   alt={profile.displayName}
-                  className="w-20 h-20 rounded-full object-cover border-3 border-background shadow-lg"
+                  className="w-20 h-20 rounded-full object-cover border-3 border-background shadow-lg cursor-pointer"
+                  onClick={() => document.getElementById('avatar-upload')?.click()}
                 />
                 {profile.isVerified && (
                   <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center border-2 border-background">
                     <Verified className="w-5 h-5 text-white" />
                   </div>
                 )}
-                {/* Edit Avatar Button */}
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="absolute -top-2 -left-2 w-8 h-8 bg-purple-primary rounded-full flex items-center justify-center shadow-lg"
-                  disabled={uploading}
-                  onClick={() => document.getElementById('avatar-upload')?.click()}
-                >
-                  <Camera className="w-4 h-4 text-white" />
-                </motion.button>
+
                 <input
                   id="avatar-upload"
                   type="file"
@@ -830,18 +796,7 @@ export default function Profile() {
               </div>
             )}
 
-            {/* Upload Button for Artists */}
-            {!isEditing && profile.isArtist && (
-              <motion.button
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-                onClick={() => navigate("/upload")}
-                className="w-full p-4 bg-primary hover:bg-primary/90 rounded-lg text-primary-foreground font-medium mb-6 flex items-center justify-center space-x-2 transition-colors"
-              >
-                <UploadIcon className="w-5 h-5" />
-                <span>Upload New Track</span>
-              </motion.button>
-            )}
+
 
             {/* Tabs */}
             {!isEditing && (
