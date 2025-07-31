@@ -683,7 +683,7 @@ export default function Profile() {
                   <p className="text-xs text-foreground leading-relaxed mb-2">{profile.bio}</p>
                   
                   {/* Location and Website */}
-                  <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-3">
+                  <div className="flex items-center space-x-3 text-xs text-muted-foreground mb-2">
                     {profile.location && (
                       <div className="flex items-center space-x-1">
                         <MapPin className="w-4 h-4" />
@@ -704,7 +704,7 @@ export default function Profile() {
 
                   {/* Social Links */}
                   {Object.keys(profile.socialLinks).length > 0 && (
-                    <div className="flex items-center space-x-3 mb-4">
+                    <div className="flex items-center space-x-2 mb-3">
                       {profile.socialLinks.instagram && (
                         <motion.a
                           whileHover={{ scale: 1.1 }}
