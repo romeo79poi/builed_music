@@ -825,9 +825,15 @@ export default function Profile() {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => setViewMode("grid")}
-                        className={`p-2 rounded-md transition-colors ${
-                          viewMode === "grid" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                        className={`p-2 rounded-md transition-colors bg-black ${
+                          viewMode === "grid" ? "text-purple-primary" : "text-gray-400 hover:text-white"
                         }`}
+                        style={{
+                          boxShadow: `
+                            0 0 0 1px rgba(236, 72, 153, 0.6),
+                            inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                          `,
+                        }}
                       >
                         <Grid3X3 className="w-4 h-4" />
                       </motion.button>
@@ -835,9 +841,15 @@ export default function Profile() {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => setViewMode("list")}
-                        className={`p-2 rounded-lg transition-colors ${
-                          viewMode === "list" ? "bg-purple-primary text-white" : "text-gray-400"
+                        className={`p-2 rounded-lg transition-colors bg-black ${
+                          viewMode === "list" ? "text-purple-primary" : "text-gray-400 hover:text-white"
                         }`}
+                        style={{
+                          boxShadow: `
+                            0 0 0 1px rgba(236, 72, 153, 0.6),
+                            inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                          `,
+                        }}
                       >
                         <ListMusic className="w-4 h-4" />
                       </motion.button>
