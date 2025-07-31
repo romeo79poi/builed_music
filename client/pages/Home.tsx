@@ -290,9 +290,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background text-foreground relative overflow-hidden theme-transition">
-      {/* Clean minimalist background like Google/YouTube */}
-      <div className="fixed inset-0 bg-gradient-to-b from-background to-secondary/20 theme-transition"></div>
-
       {/* Main Container */}
       <motion.div
         initial="hidden"
@@ -303,7 +300,7 @@ export default function Home() {
         {/* Clean Header - Claude/AI Style */}
         <motion.header
           variants={itemVariants}
-          className="flex items-center justify-between px-4 py-3 bg-background/95 backdrop-blur-sm border-b border-border claude-shadow dark:claude-dark-shadow theme-transition"
+          className="flex items-center justify-between px-4 py-3 bg-background/95 backdrop-blur-sm claude-shadow dark:claude-dark-shadow theme-transition"
         >
           {/* Profile Icon with enhanced glow */}
           <motion.button
@@ -367,31 +364,43 @@ export default function Home() {
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto pb-24 px-4 space-y-6">
           {/* Enhanced Welcome Section */}
-          <motion.div variants={itemVariants} className="mb-8">
+          <motion.div
+            variants={itemVariants}
+            className="mb-12 mt-8 text-center"
+          >
             <motion.h1
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="text-2xl sm:text-3xl font-bold mb-2 text-foreground"
+              transition={{
+                delay: 1,
+                duration: 3,
+                type: "spring",
+                damping: 30,
+                stiffness: 50,
+              }}
+              className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 purple-gradient-text dark:purple-gradient-text light:text-foreground"
             >
               {getGreeting()}
             </motion.h1>
             <motion.p
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="text-gray-400 dark:text-gray-400 light:text-gray-600 text-base flex items-center space-x-2"
+              transition={{ delay: 0.5, type: "spring", damping: 15 }}
+              className="text-gray-400 dark:text-gray-400 light:text-gray-600 text-lg flex items-center justify-center space-x-3 max-w-md mx-auto"
             >
-              <Sparkles className="w-4 h-4 text-muted-foreground" />
-              <span>Ready to discover amazing music?</span>
+              <Sparkles className="w-5 h-5 text-purple-primary animate-pulse" />
+              <span className="font-medium">
+                Ready to discover amazing music?
+              </span>
+              <Sparkles className="w-5 h-5 text-purple-primary animate-pulse" />
             </motion.p>
           </motion.div>
 
           {/* Hero Section - Featured Content */}
-          <motion.section variants={itemVariants} className="mb-8">
+          <motion.section variants={itemVariants} className="mb-6">
             <motion.div
               whileHover={{ scale: 1.01 }}
-              className="relative bg-card rounded-2xl p-6 overflow-hidden cursor-pointer claude-shadow hover:claude-shadow-hover dark:claude-dark-shadow dark:hover:claude-dark-shadow-hover border border-border"
+              className="relative bg-gray-900 rounded-lg p-4 overflow-hidden cursor-pointer border-l-4 border-pink-500"
               onClick={() => {
                 toast({
                   title: "Playing Featured Album",
@@ -399,56 +408,44 @@ export default function Home() {
                 });
               }}
             >
-              {/* Background Pattern */}
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-primary/10 to-purple-secondary/10"></div>
-
-              <div className="relative z-10 flex flex-col sm:flex-row items-center">
-                <div className="flex-1 mb-4 sm:mb-0 sm:mr-6">
-                  {featuredContent.isNew && (
-                    <motion.span
-                      animate={{ scale: [1, 1.05, 1] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                      className="inline-block px-3 py-1 rounded-full text-xs font-bold mb-3"
-                      style={{
-                        backgroundColor: "rgba(172, 126, 190, 1)",
-                        color: "white",
-                      }}
-                    >
-                      NEW RELEASE
-                    </motion.span>
-                  )}
-                  <h3 className="text-2xl sm:text-3xl font-bold text-white mb-2">
-                    {featuredContent.title}
-                  </h3>
-                  <p className="text-purple-accent text-lg font-medium mb-3">
-                    {featuredContent.artist}
-                  </p>
-                  <p className="text-gray-300 dark:text-gray-300 light:text-gray-700 text-sm mb-4 leading-relaxed">
-                    {featuredContent.description}
-                  </p>
-                  <div className="flex items-center space-x-4 text-sm text-gray-400 dark:text-gray-400 light:text-gray-600">
-                    <span>{featuredContent.genre}</span>
-                    <span>•</span>
-                    <span>{featuredContent.releaseYear}</span>
-                    <span>•</span>
-                    <span>{featuredContent.totalTracks} tracks</span>
-                  </div>
-                </div>
-
+              <div className="relative z-10 flex flex-row items-center gap-4">
                 <div className="relative">
                   <motion.img
                     whileHover={{ scale: 1.05 }}
                     src={featuredContent.coverImageURL}
                     alt={featuredContent.title}
-                    className="w-32 h-32 sm:w-40 sm:h-40 rounded-2xl object-cover shadow-2xl shadow-purple-primary/30"
+                    className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover shadow-lg shadow-purple-primary/30"
                   />
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
-                    className="absolute bottom-2 right-2 w-12 h-12 bg-primary hover:bg-primary/90 rounded-full flex items-center justify-center shadow-lg hover:shadow-xl transition-all"
+                    className="absolute bottom-1 right-1 w-6 h-6 bg-white text-purple-primary rounded-full flex items-center justify-center shadow-lg transition-all"
                   >
-                    <Play className="w-6 h-6 text-white ml-0.5" />
+                    <Play className="w-3 h-3 ml-0.5" />
                   </motion.button>
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  {featuredContent.isNew && (
+                    <motion.span
+                      animate={{ scale: [1, 1.05, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="inline-block px-2 py-1 rounded-full text-xs font-bold mb-2 bg-gradient-to-r from-purple-primary to-purple-secondary text-white shadow-sm"
+                    >
+                      NEW
+                    </motion.span>
+                  )}
+                  <h3 className="text-lg sm:text-xl font-bold text-white mb-1 leading-tight truncate">
+                    {featuredContent.title}
+                  </h3>
+                  <p className="text-purple-accent text-sm font-medium mb-2 truncate">
+                    {featuredContent.artist}
+                  </p>
+                  <div className="flex items-center space-x-3 text-xs text-gray-300">
+                    <span>{featuredContent.genre}</span>
+                    <span>•</span>
+                    <span>{featuredContent.releaseYear}</span>
+                  </div>
                 </div>
               </div>
             </motion.div>
@@ -480,7 +477,7 @@ export default function Home() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 + index * 0.1 }}
                   whileHover={{ scale: 1.05, y: -5 }}
-                  className="flex-shrink-0 w-40 bg-card rounded-xl p-4 hover:bg-muted/50 transition-all cursor-pointer claude-shadow hover:claude-shadow-hover dark:claude-dark-shadow dark:hover:claude-dark-shadow-hover"
+                  className="flex-shrink-0 w-40 bg-gray-900 rounded-lg p-4 hover:bg-gray-800 transition-all cursor-pointer border-l-4 border-pink-500"
                 >
                   <div className="relative mb-3">
                     <img
@@ -523,7 +520,7 @@ export default function Home() {
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.4 + index * 0.1 }}
                   whileHover={{ scale: 1.02 }}
-                  className={`relative bg-gradient-to-br ${playlist.color} rounded-2xl p-4 h-24 cursor-pointer overflow-hidden`}
+                  className="relative bg-gray-900 rounded-lg p-4 h-24 cursor-pointer overflow-hidden border-l-4 border-pink-500"
                 >
                   <div className="relative z-10">
                     <h3 className="font-bold text-white text-sm mb-1">
@@ -583,7 +580,7 @@ export default function Home() {
                   }}
                   onHoverStart={() => setHoveredAlbum(album.id)}
                   onHoverEnd={() => setHoveredAlbum(null)}
-                  className="flex-shrink-0 w-32 sm:w-36 bg-card rounded-xl p-3 hover:bg-muted/50 transition-all cursor-pointer group claude-shadow hover:claude-shadow-hover dark:claude-dark-shadow dark:hover:claude-dark-shadow-hover theme-transition"
+                  className="flex-shrink-0 w-32 sm:w-36 bg-gray-900 rounded-lg p-3 hover:bg-gray-800 transition-all cursor-pointer group border-l-4 border-pink-500"
                 >
                   <div className="relative mb-3">
                     <motion.img
@@ -663,7 +660,7 @@ export default function Home() {
                     transition: { type: "spring", stiffness: 400, damping: 25 },
                   }}
                   onClick={() => handlePlaySong(song.id)}
-                  className="flex items-center space-x-4 p-3 rounded-lg hover:bg-muted/50 transition-all cursor-pointer group"
+                  className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-800 transition-all cursor-pointer group border-l-4 border-transparent hover:border-pink-500"
                 >
                   <div className="relative">
                     <motion.img
