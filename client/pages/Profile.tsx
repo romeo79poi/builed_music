@@ -362,16 +362,16 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground relative overflow-hidden theme-transition">
-      {/* Clean YouTube/Google style background */}
+    <div className="h-screen bg-background text-foreground relative overflow-hidden theme-transition max-w-sm mx-auto">
+      {/* App background */}
       <div className="fixed inset-0 bg-gradient-to-b from-background to-secondary/30 theme-transition"></div>
 
       <div className="relative z-10 flex flex-col h-screen">
-        {/* Header - Claude/AI Style */}
+        {/* Compact App Header */}
         <motion.header
           initial={{ y: -50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="flex items-center justify-between p-4 bg-background/95 backdrop-blur-sm border-b border-border claude-shadow dark:claude-dark-shadow theme-transition"
+          className="flex items-center justify-between px-3 py-2 bg-background/95 backdrop-blur-sm border-b border-border theme-transition"
         >
           <motion.button
             whileHover={{ scale: 1.05 }}
