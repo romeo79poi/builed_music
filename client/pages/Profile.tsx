@@ -306,7 +306,6 @@ export default function Profile() {
       username: editForm.username,
       bio: editForm.bio,
       location: editForm.location,
-      website: editForm.website,
       socialLinks: {
         instagram: editForm.socialLinks.instagram || undefined,
         twitter: editForm.socialLinks.twitter || undefined,
