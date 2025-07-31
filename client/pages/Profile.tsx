@@ -486,6 +486,22 @@ export default function Profile() {
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
+                    onClick={() => setIsEditing(true)}
+                    className="px-4 py-2 rounded-lg font-medium transition-all bg-black text-white"
+                    style={{
+                      boxShadow: `
+                        0 0 0 1px rgba(236, 72, 153, 0.6),
+                        inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                      `,
+                    }}
+                  >
+                    <Edit3 className="w-4 h-4 mr-2 inline" />
+                    Edit
+                  </motion.button>
+
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={handleFollow}
                     className={`px-6 py-2 rounded-lg font-medium transition-all bg-black text-white`}
                     style={{
