@@ -370,7 +370,7 @@ export default function Home() {
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, type: "spring", damping: 15 }}
+              transition={{ delay: 1, duration: 3, type: "spring", damping: 30, stiffness: 50 }}
               className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 purple-gradient-text dark:purple-gradient-text light:text-foreground"
             >
               {getGreeting()}
