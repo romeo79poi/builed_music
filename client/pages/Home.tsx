@@ -389,10 +389,10 @@ export default function Home() {
           </motion.div>
 
           {/* Hero Section - Featured Content */}
-          <motion.section variants={itemVariants} className="mb-10">
+          <motion.section variants={itemVariants} className="mb-6">
             <motion.div
-              whileHover={{ scale: 1.02 }}
-              className="relative bg-gradient-to-br from-purple-primary/20 via-purple-secondary/15 to-purple-accent/10 rounded-3xl p-8 overflow-hidden cursor-pointer glow-purple-lg border border-purple-primary/30"
+              whileHover={{ scale: 1.01 }}
+              className="relative bg-gradient-to-br from-purple-primary/15 via-purple-secondary/10 to-purple-accent/5 rounded-2xl p-4 overflow-hidden cursor-pointer border border-purple-primary/20"
               onClick={() => {
                 toast({
                   title: "Playing Featured Album",
@@ -401,52 +401,46 @@ export default function Home() {
               }}
             >
               {/* Background Pattern */}
-              <div className="absolute inset-0 bg-gradient-to-r from-purple-primary/20 to-purple-secondary/20"></div>
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(168,85,247,0.15),transparent)]"></div>
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-primary/15 to-purple-secondary/15"></div>
 
-              <div className="relative z-10 flex flex-col lg:flex-row items-center gap-8">
-                <div className="flex-1 text-center lg:text-left">
-                  {featuredContent.isNew && (
-                    <motion.span
-                      animate={{ scale: [1, 1.1, 1], rotate: [0, 2, -2, 0] }}
-                      transition={{ duration: 3, repeat: Infinity }}
-                      className="inline-block px-4 py-2 rounded-full text-sm font-bold mb-4 bg-gradient-to-r from-purple-primary to-purple-secondary text-white shadow-lg"
-                    >
-                      ✨ NEW RELEASE ✨
-                    </motion.span>
-                  )}
-                  <h3 className="text-4xl sm:text-5xl lg:text-6xl font-black text-white mb-4 leading-tight">
-                    {featuredContent.title}
-                  </h3>
-                  <p className="text-purple-accent text-2xl sm:text-3xl font-bold mb-4">
-                    {featuredContent.artist}
-                  </p>
-                  <p className="text-gray-200 dark:text-gray-200 light:text-gray-700 text-base mb-6 leading-relaxed max-w-lg">
-                    {featuredContent.description}
-                  </p>
-                  <div className="flex items-center justify-center lg:justify-start space-x-6 text-sm text-gray-300 dark:text-gray-300 light:text-gray-600">
-                    <span className="font-medium">{featuredContent.genre}</span>
-                    <span>•</span>
-                    <span className="font-medium">{featuredContent.releaseYear}</span>
-                    <span>•</span>
-                    <span className="font-medium">{featuredContent.totalTracks} tracks</span>
-                  </div>
-                </div>
-
+              <div className="relative z-10 flex flex-row items-center gap-4">
                 <div className="relative">
                   <motion.img
-                    whileHover={{ scale: 1.08, rotate: 2 }}
+                    whileHover={{ scale: 1.05 }}
                     src={featuredContent.coverImageURL}
                     alt={featuredContent.title}
-                    className="w-64 h-64 sm:w-80 sm:h-80 lg:w-96 lg:h-96 rounded-3xl object-cover shadow-2xl shadow-purple-primary/50 border-4 border-white/20"
+                    className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover shadow-lg shadow-purple-primary/30"
                   />
                   <motion.button
-                    whileHover={{ scale: 1.15 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="absolute bottom-4 right-4 w-16 h-16 bg-white text-purple-primary hover:bg-purple-primary hover:text-white rounded-full flex items-center justify-center shadow-2xl transition-all duration-300"
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    className="absolute bottom-1 right-1 w-6 h-6 bg-white text-purple-primary rounded-full flex items-center justify-center shadow-lg transition-all"
                   >
-                    <Play className="w-8 h-8 ml-1" />
+                    <Play className="w-3 h-3 ml-0.5" />
                   </motion.button>
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  {featuredContent.isNew && (
+                    <motion.span
+                      animate={{ scale: [1, 1.05, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="inline-block px-2 py-1 rounded-full text-xs font-bold mb-2 bg-gradient-to-r from-purple-primary to-purple-secondary text-white shadow-sm"
+                    >
+                      NEW
+                    </motion.span>
+                  )}
+                  <h3 className="text-lg sm:text-xl font-bold text-white mb-1 leading-tight truncate">
+                    {featuredContent.title}
+                  </h3>
+                  <p className="text-purple-accent text-sm font-medium mb-2 truncate">
+                    {featuredContent.artist}
+                  </p>
+                  <div className="flex items-center space-x-3 text-xs text-gray-300">
+                    <span>{featuredContent.genre}</span>
+                    <span>•</span>
+                    <span>{featuredContent.releaseYear}</span>
+                  </div>
                 </div>
               </div>
             </motion.div>
