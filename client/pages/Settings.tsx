@@ -500,7 +500,9 @@ export default function Settings() {
             className="p-6 space-y-4"
           >
             <h3 className="text-lg font-semibold text-red-400 mb-4">
-              Danger Zone
+              <p>
+                <br />
+              </p>
             </h3>
 
             <motion.button
