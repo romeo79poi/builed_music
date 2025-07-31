@@ -124,7 +124,7 @@
     --popover: 218 11% 15%;
     --popover-foreground: 0 0% 95%;
 
-    --primary: 25 95% 53%; /* Same warm orange accent in dark mode */
+    --primary: 270 95% 60%; /* Purple primary for buttons */
     --primary-foreground: 0 0% 100%;
 
     --secondary: 218 11% 18%; /* Dark blue-gray secondary */
@@ -133,7 +133,7 @@
     --muted: 218 11% 16%; /* Dark muted */
     --muted-foreground: 0 0% 65%; /* Medium gray text */
 
-    --accent: 25 95% 53%; /* Warm orange accent */
+    --accent: 270 95% 60%; /* Purple accent */
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 75% 55%;
@@ -141,25 +141,25 @@
 
     --border: 218 11% 20%; /* Subtle dark borders */
     --input: 218 11% 14%; /* Dark inputs */
-    --ring: 25 95% 53%;
+    --ring: 270 95% 60%;
     --sidebar-background: 218 11% 12%;
     --sidebar-foreground: 0 0% 95%;
-    --sidebar-primary: 25 95% 53%;
+    --sidebar-primary: 270 95% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 218 11% 18%;
     --sidebar-accent-foreground: 0 0% 85%;
     --sidebar-border: 218 11% 20%;
-    --sidebar-ring: 25 95% 53%;
+    --sidebar-ring: 270 95% 60%;
 
-    /* Claude-like dark mode colors */
-    --purple-primary: 25 95% 53%; /* Orange primary */
-    --purple-secondary: 35 100% 50%; /* Golden yellow */
-    --purple-accent: 15 100% 55%; /* Red-orange */
-    --purple-glow: 25 95% 70%; /* Light orange glow */
+    /* Purple theme colors for dark mode */
+    --purple-primary: 270 95% 60%; /* Bright purple primary */
+    --purple-secondary: 285 85% 65%; /* Light purple secondary */
+    --purple-accent: 255 90% 70%; /* Purple-pink accent */
+    --purple-glow: 270 95% 80%; /* Light purple glow */
     --purple-dark: 218 11% 15%; /* Dark surface */
     --purple-darker: 218 11% 12%; /* Darker surface */
-    --neon-green: 142 76% 36%; /* Professional green */
-    --neon-blue: 210 100% 50%; /* Professional blue */
+    --neon-green: 270 95% 60%; /* Purple instead of green */
+    --neon-blue: 285 85% 65%; /* Light purple instead of blue */
     --dark-surface: 218 11% 15%; /* Dark surface */
     --darker-surface: 218 11% 12%; /* Darker surface */
   }
