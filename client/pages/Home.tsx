@@ -371,22 +371,7 @@ export default function Home() {
 
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto pb-24 px-4 space-y-6">
-          {/* Search Bar */}
-          <motion.div variants={itemVariants} className="pt-6 mb-6">
-            <div className="relative">
-              <motion.div
-                animate={{
-                  scale: isSearchFocused ? 1.01 : 1,
-                  boxShadow: isSearchFocused
-                    ? "0 2px 8px rgba(0, 0, 0, 0.1)"
-                    : "0 1px 3px rgba(0, 0, 0, 0.05)",
-                }}
-                className="relative"
-              >
-                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-              </motion.div>
-            </div>
-          </motion.div>
+
 
           {/* Enhanced Welcome Section */}
           <motion.div variants={itemVariants} className="mb-8">
