@@ -519,7 +519,7 @@ export default function Profile() {
             </div>
 
             {/* Name and Bio */}
-            <div className="mb-4">
+            <div className="mb-3">
               {isEditing ? (
                 <div className="space-y-4">
                   {/* Display Name */}
