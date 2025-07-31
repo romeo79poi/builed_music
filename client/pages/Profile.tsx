@@ -737,7 +737,7 @@ export default function Profile() {
 
                   {/* Badges */}
                   {profile.badges.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-4">
+                    <div className="flex flex-wrap gap-1 mb-3">
                       {profile.badges.map((badge, index) => {
                         const badgeInfo = getBadgeInfo(badge);
                         const BadgeIcon = badgeInfo.icon;
@@ -747,11 +747,11 @@ export default function Profile() {
                             initial={{ opacity: 0, scale: 0.8 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: index * 0.1 }}
-                            className={`flex items-center space-x-1 px-2 py-1 bg-muted/50 rounded-full border border-border`}
+                            className={`flex items-center space-x-1 px-1.5 py-0.5 bg-muted/50 rounded-full border border-border`}
                             title={badgeInfo.label}
                           >
-                            <BadgeIcon className={`w-3 h-3 ${badgeInfo.color}`} />
-                            <span className="text-xs text-foreground font-medium">{badgeInfo.label}</span>
+                            <BadgeIcon className={`w-2.5 h-2.5 ${badgeInfo.color}`} />
+                            <span className="text-[10px] text-foreground font-medium">{badgeInfo.label}</span>
                           </motion.div>
                         );
                       })}
