@@ -66,12 +66,7 @@ export default function Settings() {
     region: "United States",
   });
 
-  // Edit states
-  const [isEditingProfile, setIsEditingProfile] = useState(false);
-  const [editForm, setEditForm] = useState({
-    name: userProfile.name,
-    email: userProfile.email,
-  });
+
 
   // Modal states
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -239,18 +234,7 @@ export default function Settings() {
     });
   };
 
-  const handleSaveProfile = () => {
-    setUserProfile((prev) => ({
-      ...prev,
-      name: editForm.name,
-      email: editForm.email,
-    }));
-    setIsEditingProfile(false);
-    toast({
-      title: "Profile Updated",
-      description: "Your profile has been successfully updated",
-    });
-  };
+
 
   const handleLogout = () => {
     // Add logout logic here
