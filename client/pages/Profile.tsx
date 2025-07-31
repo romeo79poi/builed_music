@@ -215,8 +215,9 @@ const samplePlaylists: Playlist[] = [
 export default function Profile() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+
   const [profile, setProfile] = useState<UserProfile>(sampleProfile);
+  const [uploading, setUploading] = useState(false);
   const [tracks] = useState<Track[]>(sampleTracks);
   const [playlists] = useState<Playlist[]>(samplePlaylists);
   const [selectedTab, setSelectedTab] = useState("tracks");
@@ -336,6 +337,59 @@ export default function Profile() {
     setIsEditing(false);
   };
 
+  const handleAvatarUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setUploading(true);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const newAvatar = e.target?.result as string;
+        setProfile(prev => ({ ...prev, avatar: newAvatar }));
+        // Store in localStorage for persistence
+        localStorage.setItem('userAvatar', newAvatar);
+        setUploading(false);
+        toast({
+          title: "Profile Image Updated",
+          description: "Your profile image has been updated successfully",
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCoverUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setUploading(true);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const newCover = e.target?.result as string;
+        setProfile(prev => ({ ...prev, coverImage: newCover }));
+        // Store in localStorage for persistence
+        localStorage.setItem('userCoverImage', newCover);
+        setUploading(false);
+        toast({
+          title: "Cover Image Updated",
+          description: "Your cover image has been updated successfully",
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Load saved images on component mount
+  useEffect(() => {
+    const savedAvatar = localStorage.getItem('userAvatar');
+    const savedCover = localStorage.getItem('userCoverImage');
+    if (savedAvatar || savedCover) {
+      setProfile(prev => ({
+        ...prev,
+        ...(savedAvatar && { avatar: savedAvatar }),
+        ...(savedCover && { coverImage: savedCover })
+      }));
+    }
+  }, []);
+
   const getBadgeInfo = (badge: string) => {
     switch (badge) {
       case "verified":
@@ -451,9 +505,18 @@ export default function Profile() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="absolute top-4 right-4 w-10 h-10 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center"
+              disabled={uploading}
+              onClick={() => document.getElementById('cover-upload')?.click()}
             >
               <Camera className="w-5 h-5 text-white" />
             </motion.button>
+            <input
+              id="cover-upload"
+              type="file"
+              accept="image/*"
+              onChange={handleCoverUpload}
+              className="hidden"
+            />
           </div>
 
           {/* Profile Info */}
@@ -476,9 +539,18 @@ export default function Profile() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   className="absolute -top-2 -left-2 w-8 h-8 bg-purple-primary rounded-full flex items-center justify-center shadow-lg"
+                  disabled={uploading}
+                  onClick={() => document.getElementById('avatar-upload')?.click()}
                 >
                   <Camera className="w-4 h-4 text-white" />
                 </motion.button>
+                <input
+                  id="avatar-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarUpload}
+                  className="hidden"
+                />
               </div>
 
               {/* Action Buttons */}
