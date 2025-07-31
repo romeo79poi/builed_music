@@ -487,11 +487,13 @@ export default function Profile() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={handleFollow}
-                    className={`px-6 py-2 rounded-lg font-medium transition-all ${
-                      isFollowing
-                        ? "bg-muted text-foreground hover:bg-muted/80"
-                        : "bg-primary text-primary-foreground hover:bg-primary/90"
-                    }`}
+                    className={`px-6 py-2 rounded-lg font-medium transition-all bg-black text-white`}
+                    style={{
+                      boxShadow: `
+                        0 0 0 1px rgba(236, 72, 153, 0.6),
+                        inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                      `,
+                    }}
                   >
                     {isFollowing ? (
                       <>
@@ -509,9 +511,15 @@ export default function Profile() {
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg border border-border transition-colors"
+                    className="px-4 py-2 bg-black rounded-lg transition-colors"
+                    style={{
+                      boxShadow: `
+                        0 0 0 1px rgba(236, 72, 153, 0.6),
+                        inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                      `,
+                    }}
                   >
-                    <MessageCircle className="w-4 h-4 text-foreground" />
+                    <MessageCircle className="w-4 h-4 text-white" />
                   </motion.button>
                 </div>
               )}
