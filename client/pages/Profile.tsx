@@ -709,27 +709,27 @@ export default function Profile() {
                         <motion.a
                           whileHover={{ scale: 1.1 }}
                           href={`https://instagram.com/${profile.socialLinks.instagram}`}
-                          className="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center"
+                          className="w-6 h-6 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center"
                         >
-                          <Instagram className="w-4 h-4 text-white" />
+                          <Instagram className="w-3 h-3 text-white" />
                         </motion.a>
                       )}
                       {profile.socialLinks.twitter && (
                         <motion.a
                           whileHover={{ scale: 1.1 }}
                           href={`https://twitter.com/${profile.socialLinks.twitter}`}
-                          className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center"
+                          className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center"
                         >
-                          <Twitter className="w-4 h-4 text-white" />
+                          <Twitter className="w-3 h-3 text-white" />
                         </motion.a>
                       )}
                       {profile.socialLinks.youtube && (
                         <motion.a
                           whileHover={{ scale: 1.1 }}
                           href={`https://youtube.com/${profile.socialLinks.youtube}`}
-                          className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center"
+                          className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center"
                         >
-                          <Youtube className="w-4 h-4 text-white" />
+                          <Youtube className="w-3 h-3 text-white" />
                         </motion.a>
                       )}
                     </div>
