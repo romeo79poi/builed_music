@@ -447,24 +447,24 @@ export default function Home() {
           </motion.section>
 
           {/* New Releases Section */}
-          <motion.section variants={itemVariants} className="mb-6">
-            <div className="flex items-center justify-between mb-3">
+          <motion.section variants={itemVariants} className="mb-8">
+            <div className="flex items-center justify-between mb-4">
               <motion.h2
                 whileHover={{ scale: 1.02 }}
-                className="text-lg font-bold flex items-center space-x-2"
+                className="text-xl font-bold flex items-center space-x-2"
               >
-                <Sparkles className="w-4 h-4 text-foreground" />
+                <Sparkles className="w-5 h-5 text-foreground" />
                 <span>New Releases</span>
               </motion.h2>
               <motion.button
                 whileHover={{ scale: 1.05 }}
-                className="text-gray-400 dark:text-gray-400 light:text-gray-600 hover:text-white dark:hover:text-white light:hover:text-black text-xs font-medium transition-colors"
+                className="text-gray-400 dark:text-gray-400 light:text-gray-600 hover:text-white dark:hover:text-white light:hover:text-black text-sm font-medium transition-colors"
               >
                 See all
               </motion.button>
             </div>
 
-            <div className="flex space-x-3 overflow-x-auto scrollbar-hide pb-3">
+            <div className="flex space-x-4 overflow-x-auto scrollbar-hide pb-4">
               {newReleases.map((release, index) => (
                 <motion.div
                   key={release.id}
@@ -472,19 +472,19 @@ export default function Home() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 + index * 0.1 }}
                   whileHover={{ scale: 1.05, y: -5 }}
-                  className="flex-shrink-0 w-32 bg-card rounded-lg p-3 hover:bg-muted/50 transition-all cursor-pointer claude-shadow hover:claude-shadow-hover dark:claude-dark-shadow dark:hover:claude-dark-shadow-hover"
+                  className="flex-shrink-0 w-40 bg-card rounded-xl p-4 hover:bg-muted/50 transition-all cursor-pointer claude-shadow hover:claude-shadow-hover dark:claude-dark-shadow dark:hover:claude-dark-shadow-hover"
                 >
-                  <div className="relative mb-2">
+                  <div className="relative mb-3">
                     <img
                       src={release.coverImageURL}
                       alt={release.title}
-                      className="w-full aspect-square rounded-md object-cover"
+                      className="w-full aspect-square rounded-lg object-cover"
                     />
-                    <div className="absolute top-1 left-1 bg-neon-green text-black px-1.5 py-0.5 rounded text-xs font-bold">
+                    <div className="absolute top-2 left-2 bg-neon-green text-black px-2 py-1 rounded-md text-xs font-bold">
                       NEW
                     </div>
                   </div>
-                  <h3 className="font-medium text-xs mb-1 truncate">
+                  <h3 className="font-medium text-sm mb-1 truncate">
                     {release.title}
                   </h3>
                   <p className="text-gray-400 text-xs truncate">
