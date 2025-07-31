@@ -115,23 +115,23 @@
   }
 
   .dark {
-    --background: 0 0% 2%; /* Ultra deep black background (#050505) */
-    --foreground: 0 0% 100%; /* Pure white text */
+    --background: 0 0% 0%; /* #000000 - Pure black background */
+    --foreground: 0 0% 98%; /* #FAFAFA - Light text */
 
-    --card: 0 0% 4%; /* Very dark cards (#0a0a0a) */
-    --card-foreground: 0 0% 100%;
+    --card: 0 0% 4%; /* #0A0A0A - Very dark cards */
+    --card-foreground: 0 0% 98%;
 
     --popover: 0 0% 4%;
-    --popover-foreground: 0 0% 100%;
+    --popover-foreground: 0 0% 98%;
 
     --primary: 280 100% 70%; /* Bright purple primary */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 0 0% 8%; /* Ultra dark grey secondary (#141414) */
+    --secondary: 0 0% 9%; /* #171717 - Dark secondary */
     --secondary-foreground: 320 30% 85%; /* Light pink text */
 
-    --muted: 0 0% 6%; /* Ultra dark muted */
-    --muted-foreground: 320 25% 75%; /* Pink-tinted grey text */
+    --muted: 0 0% 15%; /* #262626 - Dark muted */
+    --muted-foreground: 320 25% 75%; /* Pink-tinted gray text */
 
     --accent: 320 100% 75%; /* Bright pink accent */
     --accent-foreground: 0 0% 100%;
@@ -139,29 +139,29 @@
     --destructive: 0 75% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 280 30% 15%; /* Purple-tinted borders */
-    --input: 0 0% 3%; /* Ultra dark inputs */
+    --border: 0 0% 22%; /* #373737 - Dark borders */
+    --input: 0 0% 4%; /* #0A0A0A - Very dark inputs */
     --ring: 280 100% 70%;
-    --sidebar-background: 0 0% 2%;
-    --sidebar-foreground: 0 0% 100%;
+    --sidebar-background: 0 0% 0%;
+    --sidebar-foreground: 0 0% 98%;
     --sidebar-primary: 280 100% 70%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 8%;
+    --sidebar-accent: 0 0% 9%;
     --sidebar-accent-foreground: 320 30% 85%;
-    --sidebar-border: 280 30% 15%;
+    --sidebar-border: 0 0% 22%;
     --sidebar-ring: 280 100% 70%;
 
-    /* Purple-pink-white theme colors with black base */
+    /* Purple-pink theme colors with pure black base */
     --purple-primary: 280 100% 70%; /* Bright purple primary */
     --purple-secondary: 320 90% 75%; /* Light pink secondary */
     --purple-accent: 300 100% 80%; /* Bright purple-pink accent */
     --purple-glow: 290 100% 85%; /* Bright pink-purple glow */
-    --purple-dark: 0 0% 4%; /* Keep black surface (#0a0a0a) */
-    --purple-darker: 0 0% 2%; /* Keep deep black surface (#050505) */
+    --purple-dark: 0 0% 4%; /* #0A0A0A - Very dark surface */
+    --purple-darker: 0 0% 0%; /* #000000 - Pure black surface */
     --neon-green: 280 100% 70%; /* Purple instead of green */
     --neon-blue: 320 90% 75%; /* Pink instead of blue */
-    --dark-surface: 0 0% 4%; /* Keep black surface */
-    --darker-surface: 0 0% 2%; /* Keep deep black surface */
+    --dark-surface: 0 0% 4%; /* Very dark surface */
+    --darker-surface: 0 0% 0%; /* Pure black surface */
   }
 }
 
