@@ -418,91 +418,43 @@ export default function Settings() {
                         </div>
 
                         {item.key === "theme" && item.customComponent ? (
-                          <div className="flex flex-col space-y-2 w-40">
-                            {/* Light Mode */}
-                            <motion.button
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
-                              onClick={() => {
-                                setTheme("light");
-                                toast({
-                                  title: "Theme Changed",
-                                  description: "Switched to light mode",
-                                });
+                          <motion.button
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            onClick={() => {
+                              const newTheme = actualTheme === "dark" ? "light" : "dark";
+                              setTheme(newTheme);
+                              toast({
+                                title: "Theme Changed",
+                                description: `Switched to ${newTheme} mode`,
+                              });
+                            }}
+                            className={`relative w-16 h-8 rounded-full transition-all duration-300 ${
+                              actualTheme === "dark"
+                                ? "bg-gradient-to-r from-purple-primary to-purple-secondary shadow-lg shadow-purple-primary/30"
+                                : "bg-gray-600"
+                            }`}
+                          >
+                            <motion.div
+                              animate={{ x: actualTheme === "dark" ? 32 : 2 }}
+                              transition={{
+                                type: "spring",
+                                stiffness: 300,
+                                damping: 30,
                               }}
-                              className={`flex items-center justify-between p-3 rounded-lg transition-all border ${
-                                theme === "light"
-                                  ? "bg-black border-black text-white dark:bg-purple-primary dark:border-purple-primary"
-                                  : "bg-white/5 dark:bg-white/5 light:bg-gray-50 border-gray-300 dark:border-purple-primary/20 light:border-gray-300 text-gray-400 dark:text-gray-400 light:text-gray-700 hover:text-white dark:hover:text-white light:hover:text-black"
-                              }`}
+                              className={`absolute top-1 w-6 h-6 rounded-full transition-all duration-300 ${
+                                actualTheme === "dark"
+                                  ? "bg-white shadow-lg"
+                                  : "bg-white"
+                              } flex items-center justify-center`}
                             >
-                              <div className="flex items-center space-x-2">
-                                <Sun className="w-4 h-4" />
-                                <span className="text-sm font-medium">
-                                  Light
-                                </span>
-                              </div>
-                              {theme === "light" && (
-                                <Check className="w-4 h-4" />
+                              {actualTheme === "dark" ? (
+                                <Moon className="w-3 h-3 text-purple-primary" />
+                              ) : (
+                                <Sun className="w-3 h-3 text-orange-500" />
                               )}
-                            </motion.button>
-
-                            {/* Dark Mode */}
-                            <motion.button
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
-                              onClick={() => {
-                                setTheme("dark");
-                                toast({
-                                  title: "Theme Changed",
-                                  description: "Switched to dark mode",
-                                });
-                              }}
-                              className={`flex items-center justify-between p-3 rounded-lg transition-all border ${
-                                theme === "dark"
-                                  ? "bg-black border-black text-white dark:bg-purple-primary dark:border-purple-primary"
-                                  : "bg-white/5 dark:bg-white/5 light:bg-gray-50 border-gray-300 dark:border-purple-primary/20 light:border-gray-300 text-gray-400 dark:text-gray-400 light:text-gray-700 hover:text-white dark:hover:text-white light:hover:text-black"
-                              }`}
-                            >
-                              <div className="flex items-center space-x-2">
-                                <Moon className="w-4 h-4" />
-                                <span className="text-sm font-medium">
-                                  Dark
-                                </span>
-                              </div>
-                              {theme === "dark" && (
-                                <Check className="w-4 h-4" />
-                              )}
-                            </motion.button>
-
-                            {/* System Mode */}
-                            <motion.button
-                              whileHover={{ scale: 1.02 }}
-                              whileTap={{ scale: 0.98 }}
-                              onClick={() => {
-                                setTheme("system");
-                                toast({
-                                  title: "Theme Changed",
-                                  description: "Using system preference",
-                                });
-                              }}
-                              className={`flex items-center justify-between p-3 rounded-lg transition-all border ${
-                                theme === "system"
-                                  ? "bg-black border-black text-white dark:bg-purple-primary dark:border-purple-primary"
-                                  : "bg-white/5 dark:bg-white/5 light:bg-gray-50 border-gray-300 dark:border-purple-primary/20 light:border-gray-300 text-gray-400 dark:text-gray-400 light:text-gray-700 hover:text-white dark:hover:text-white light:hover:text-black"
-                              }`}
-                            >
-                              <div className="flex items-center space-x-2">
-                                <SettingsIcon className="w-4 h-4" />
-                                <span className="text-sm font-medium">
-                                  System
-                                </span>
-                              </div>
-                              {theme === "system" && (
-                                <Check className="w-4 h-4" />
-                              )}
-                            </motion.button>
-                          </div>
+                            </motion.div>
+                          </motion.button>
                         ) : item.toggle ? (
                           <motion.button
                             whileHover={{ scale: 1.05 }}
