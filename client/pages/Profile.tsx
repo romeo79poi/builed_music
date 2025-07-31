@@ -778,10 +778,10 @@ export default function Profile() {
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
                   onClick={() => setShowStats(true)}
-                  className="text-center p-3 bg-card rounded-lg border border-border hover:bg-muted/50 transition-colors claude-shadow hover:claude-shadow-hover dark:claude-dark-shadow dark:hover:claude-dark-shadow-hover"
+                  className="text-center p-2 bg-card rounded-lg border border-border hover:bg-muted/50 transition-colors claude-shadow hover:claude-shadow-hover dark:claude-dark-shadow dark:hover:claude-dark-shadow-hover"
                 >
-                  <p className="text-xl font-bold text-foreground">{formatNumber(profile.stats.following)}</p>
-                  <p className="text-sm text-muted-foreground">Following</p>
+                  <p className="text-sm font-bold text-foreground">{formatNumber(profile.stats.following)}</p>
+                  <p className="text-[10px] text-muted-foreground">Following</p>
                 </motion.button>
 
                 <motion.button
