@@ -600,7 +600,7 @@ export default function Settings() {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={handleSaveProfile}
-                      className="flex-1 p-3 bg-neon-green/20 border border-neon-green/50 rounded-xl text-neon-green font-medium"
+                      className="flex-1 p-3 bg-purple-primary/20 border border-purple-primary/50 rounded-xl text-purple-primary font-medium"
                     >
                       Save
                     </motion.button>
