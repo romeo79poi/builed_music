@@ -63,55 +63,55 @@
   }
 
   .light {
-    /* Light Purple with White Text Mode */
-    --background: 295 70% 97%; /* Very light purple background (#F5EBFA) */
-    --foreground: 0 0% 100%; /* Pure white text */
+    /* Clean Light Mode - Based on palette */
+    --background: 0 0% 100%; /* #FFFFFF - Pure white background */
+    --foreground: 0 0% 4%; /* #0A0A0A - Dark text */
 
-    --card: 295 40% 94%; /* Light purple cards (#E7DBEF) */
-    --card-foreground: 0 0% 100%; /* White text on cards */
+    --card: 0 0% 98%; /* #FAFAFA - Light cards */
+    --card-foreground: 0 0% 4%; /* Dark text on cards */
 
-    --popover: 295 40% 94%;
-    --popover-foreground: 0 0% 100%;
+    --popover: 0 0% 98%;
+    --popover-foreground: 0 0% 4%;
 
-    --primary: 0 0% 0%; /* Black primary buttons */
-    --primary-foreground: 0 0% 100%; /* White text on black buttons */
+    --primary: 0 0% 4%; /* #0A0A0A - Dark primary buttons */
+    --primary-foreground: 0 0% 100%; /* White text on dark buttons */
 
-    --secondary: 295 40% 94%; /* Light purple secondary (#E7DBEF) */
-    --secondary-foreground: 0 0% 100%; /* White text */
+    --secondary: 0 0% 96%; /* #F5F5F5 - Light secondary */
+    --secondary-foreground: 0 0% 4%; /* Dark text */
 
-    --muted: 295 50% 91%; /* Medium light purple background */
-    --muted-foreground: 0 0% 80%; /* Light gray for subtle text */
+    --muted: 0 0% 90%; /* #E5E5E5 - Light muted */
+    --muted-foreground: 0 0% 45%; /* #737373 - Medium gray text */
 
-    --accent: 283 35% 60%; /* Light purple accent (#A56ABD) */
+    --accent: 280 100% 70%; /* Purple accent */
     --accent-foreground: 0 0% 100%; /* White text on accent */
 
-    --destructive: 0 100% 40%; /* Red for errors */
+    --destructive: 0 84% 60%; /* Red for errors */
     --destructive-foreground: 0 0% 100%;
 
-    --border: 295 30% 85%; /* Light purple borders */
-    --input: 295 50% 96%; /* Very light purple inputs */
-    --ring: 0 0% 100%; /* White focus ring */
+    --border: 0 0% 83%; /* #D4D4D4 - Light borders */
+    --input: 0 0% 98%; /* #FAFAFA - Light inputs */
+    --ring: 280 100% 70%; /* Purple focus ring */
 
-    --sidebar-background: 295 70% 97%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 0 0% 0%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 0 0% 4%;
+    --sidebar-primary: 0 0% 4%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 295 40% 94%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 295 30% 85%;
-    --sidebar-ring: 0 0% 100%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 4%;
+    --sidebar-border: 0 0% 83%;
+    --sidebar-ring: 280 100% 70%;
 
-    /* Light purple theme colors with white text */
-    --purple-primary: 0 0% 100%; /* White instead of black */
-    --purple-secondary: 283 35% 60%; /* Light purple (#A56ABD) */
-    --purple-accent: 283 35% 70%; /* Lighter purple */
-    --purple-glow: 283 35% 60%; /* Light purple glow */
-    --purple-dark: 295 40% 94%; /* Light purple background (#E7DBEF) */
-    --purple-darker: 295 70% 97%; /* Very light purple (#F5EBFA) */
-    --neon-green: 0 0% 100%; /* White instead of black */
-    --neon-blue: 283 35% 60%; /* Light purple instead of blue */
-    --dark-surface: 295 40% 94%; /* Light purple surface */
-    --darker-surface: 295 70% 97%; /* Very light purple surface */
+    /* Light theme colors */
+    --purple-primary: 280 100% 70%; /* Purple primary */
+    --purple-secondary: 320 90% 75%; /* Light pink-purple */
+    --purple-accent: 300 100% 80%; /* Bright purple-pink */
+    --purple-glow: 290 100% 85%; /* Light purple glow */
+    --purple-dark: 0 0% 98%; /* #FAFAFA - Light surface */
+    --purple-darker: 0 0% 100%; /* #FFFFFF - White surface */
+    --neon-green: 280 100% 70%; /* Purple primary */
+    --neon-blue: 320 90% 75%; /* Pink-purple */
+    --dark-surface: 0 0% 98%; /* Light surface */
+    --darker-surface: 0 0% 100%; /* White surface */
   }
 
   .dark {
