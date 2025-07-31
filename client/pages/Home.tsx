@@ -290,8 +290,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-background text-foreground relative overflow-hidden theme-transition">
-
-
       {/* Main Container */}
       <motion.div
         initial="hidden"
@@ -366,11 +364,20 @@ export default function Home() {
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto pb-24 px-4 space-y-6">
           {/* Enhanced Welcome Section */}
-          <motion.div variants={itemVariants} className="mb-12 mt-8 text-center">
+          <motion.div
+            variants={itemVariants}
+            className="mb-12 mt-8 text-center"
+          >
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 1, duration: 3, type: "spring", damping: 30, stiffness: 50 }}
+              transition={{
+                delay: 1,
+                duration: 3,
+                type: "spring",
+                damping: 30,
+                stiffness: 50,
+              }}
               className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 purple-gradient-text dark:purple-gradient-text light:text-foreground"
             >
               {getGreeting()}
@@ -382,7 +389,9 @@ export default function Home() {
               className="text-gray-400 dark:text-gray-400 light:text-gray-600 text-lg flex items-center justify-center space-x-3 max-w-md mx-auto"
             >
               <Sparkles className="w-5 h-5 text-purple-primary animate-pulse" />
-              <span className="font-medium">Ready to discover amazing music?</span>
+              <span className="font-medium">
+                Ready to discover amazing music?
+              </span>
               <Sparkles className="w-5 h-5 text-purple-primary animate-pulse" />
             </motion.p>
           </motion.div>
@@ -399,7 +408,6 @@ export default function Home() {
                 });
               }}
             >
-
               <div className="relative z-10 flex flex-row items-center gap-4">
                 <div className="relative">
                   <motion.img
