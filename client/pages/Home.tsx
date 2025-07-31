@@ -332,7 +332,7 @@ export default function Home() {
             className="flex items-center space-x-2"
           >
             <div>
-              <MusicCatchLogo className="w-8 h-8" animated={false} />
+              <MusicCatchLogo className="w-12 h-12" animated={false} />
             </div>
             <motion.span
               initial={{ opacity: 0, x: -20 }}
