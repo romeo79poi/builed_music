@@ -461,7 +461,7 @@ export default function Settings() {
                             whileTap={{ scale: 0.95 }}
                             onClick={() => handleToggleSetting(item.key)}
                             className={`relative w-12 h-6 rounded-full transition-all ${
-                              item.value ? "bg-neon-green" : "bg-gray-600"
+                              item.value ? "bg-gradient-to-r from-purple-primary to-purple-secondary shadow-lg shadow-purple-primary/30" : "bg-gray-600"
                             }`}
                           >
                             <motion.div
