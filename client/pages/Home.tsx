@@ -422,7 +422,7 @@ export default function Home() {
                     whileHover={{ scale: 1.05 }}
                     src={featuredContent.coverImageURL}
                     alt={featuredContent.title}
-                    className="w-20 h-20 sm:w-24 sm:h-24 rounded-xl object-cover shadow-lg shadow-purple-primary/30"
+                    className="w-24 h-24 rounded-xl object-cover shadow-lg shadow-purple-primary/30"
                   />
                   <motion.button
                     whileHover={{ scale: 1.1 }}
@@ -498,7 +498,7 @@ export default function Home() {
                     <img
                       src={release.coverImageURL}
                       alt={release.title}
-                      className="w-full aspect-square rounded-lg object-cover"
+                      className="w-24 h-24 rounded-lg object-cover"
                     />
                     <div className="absolute top-2 left-2 bg-neon-green text-black px-2 py-1 rounded-md text-xs font-bold">
                       NEW
@@ -615,7 +615,7 @@ export default function Home() {
                     <motion.img
                       src={album.coverImageURL}
                       alt={album.name}
-                      className="w-full aspect-square rounded-lg object-cover shadow-md"
+                      className="w-24 h-24 rounded-lg object-cover shadow-md"
                       whileHover={{ scale: 1.05 }}
                       transition={{
                         type: "spring",
@@ -710,7 +710,7 @@ export default function Home() {
                     <img
                       src={album.coverImageURL}
                       alt={album.title}
-                      className="w-16 h-16 rounded-lg object-cover"
+                      className="w-24 h-24 rounded-lg object-cover"
                     />
                     <div className="flex-1">
                       <h3 className="font-bold text-white text-lg mb-1">{album.title}</h3>
@@ -794,7 +794,7 @@ export default function Home() {
                     <motion.img
                       src={song.coverImageURL}
                       alt={song.title}
-                      className="w-12 h-12 rounded-md object-cover"
+                      className="w-24 h-24 rounded-lg object-cover"
                       whileHover={{ scale: 1.1 }}
                       transition={{
                         type: "spring",
