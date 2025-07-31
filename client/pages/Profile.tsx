@@ -439,45 +439,6 @@ export default function Profile() {
           <h1 className="text-base font-bold text-foreground">Profile</h1>
 
           <div className="flex items-center space-x-1">
-            {!isEditing ? (
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setIsEditing(true)}
-                className="w-10 h-10 rounded-full bg-purple-primary/20 hover:bg-purple-primary/30 flex items-center justify-center transition-colors"
-              >
-                <Edit3 className="w-5 h-5 text-purple-primary" />
-              </motion.button>
-            ) : (
-              <>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleCancelEdit}
-                  className="w-10 h-10 rounded-full bg-muted hover:bg-muted/80 flex items-center justify-center transition-colors"
-                >
-                  <X className="w-5 h-5 text-foreground" />
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleSaveProfile}
-                  className="w-10 h-10 rounded-full bg-purple-primary hover:bg-purple-primary/90 flex items-center justify-center transition-colors"
-                >
-                  <Save className="w-5 h-5 text-white" />
-                </motion.button>
-              </>
-            )}
-
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleShare}
-              className="w-10 h-10 rounded-full bg-muted hover:bg-muted/80 flex items-center justify-center transition-colors"
-            >
-              <Share2 className="w-5 h-5 text-foreground" />
-            </motion.button>
-
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
