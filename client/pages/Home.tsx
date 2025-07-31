@@ -401,7 +401,14 @@ export default function Home() {
           <motion.section variants={itemVariants} className="mb-6">
             <motion.div
               whileHover={{ scale: 1.01 }}
-              className="relative bg-gray-900 rounded-lg p-4 overflow-hidden cursor-pointer border-l-4 border-pink-500"
+              className="relative bg-black rounded-lg p-4 overflow-hidden cursor-pointer"
+              style={{
+                boxShadow: `
+                  0 0 0 1px rgba(236, 72, 153, 0.6),
+                  inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                `,
+                animation: 'borderGlow 2s ease-in-out infinite'
+              }}
               onClick={() => {
                 toast({
                   title: "Playing Featured Album",
@@ -478,7 +485,14 @@ export default function Home() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 + index * 0.1 }}
                   whileHover={{ scale: 1.05, y: -5 }}
-                  className="flex-shrink-0 w-40 bg-gray-900 rounded-lg p-4 hover:bg-gray-800 transition-all cursor-pointer border-l-4 border-pink-500"
+                  className="flex-shrink-0 w-40 bg-black rounded-lg p-4 hover:bg-gray-900 transition-all cursor-pointer relative overflow-hidden"
+                  style={{
+                    boxShadow: `
+                      0 0 0 1px rgba(236, 72, 153, 0.6),
+                      inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                    `,
+                    animation: 'borderGlow 2s ease-in-out infinite'
+                  }}
                 >
                   <div className="relative mb-3">
                     <img
@@ -521,7 +535,14 @@ export default function Home() {
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.4 + index * 0.1 }}
                   whileHover={{ scale: 1.02 }}
-                  className="relative bg-gray-900 rounded-lg p-4 h-24 cursor-pointer overflow-hidden border-l-4 border-pink-500"
+                  className="relative bg-black rounded-lg p-4 h-24 cursor-pointer overflow-hidden"
+                  style={{
+                    boxShadow: `
+                      0 0 0 1px rgba(236, 72, 153, 0.6),
+                      inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                    `,
+                    animation: 'borderGlow 2s ease-in-out infinite'
+                  }}
                 >
                   <div className="relative z-10">
                     <h3 className="font-bold text-white text-sm mb-1">
