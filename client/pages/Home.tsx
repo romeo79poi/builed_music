@@ -366,8 +366,6 @@ export default function Home() {
 
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto pb-24 px-4 space-y-6">
-
-
           {/* Enhanced Welcome Section */}
           <motion.div variants={itemVariants} className="mb-8">
             <motion.h1
