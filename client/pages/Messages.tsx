@@ -54,6 +54,7 @@ import { useMessaging, useChat } from "@/lib/messaging-service";
 
 const Messages = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const [activeChat, setActiveChat] = useState<string | null>(null);
   const [messageInput, setMessageInput] = useState("");
