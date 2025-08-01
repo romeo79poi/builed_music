@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Eye,
   EyeOff,
-  ArrowLeft,
   Loader2,
   AlertCircle,
   CheckCircle,
@@ -380,7 +379,7 @@ export default function Signup() {
             });
 
             setTimeout(() => {
-              navigate("/profile");
+              navigate("/home");
             }, 2000);
           } else {
             // For email signup, proceed to next step
@@ -518,7 +517,7 @@ export default function Signup() {
 
         // Navigate after a short delay to show success message
         setTimeout(() => {
-          navigate("/profile");
+          navigate("/home");
         }, 1500);
       } else {
         console.error("❌ Google sign-in failed:", result.error);
@@ -775,7 +774,7 @@ export default function Signup() {
           });
 
           setTimeout(() => {
-            navigate("/profile");
+            navigate("/home");
           }, 2000);
         } else {
           toast({
@@ -814,7 +813,7 @@ export default function Signup() {
               console.log("✅ User created with Firebase:", result.user);
 
               setTimeout(() => {
-                navigate("/profile");
+                navigate("/home");
               }, 2000);
             } else {
               setErrorAlert(
@@ -847,7 +846,7 @@ export default function Signup() {
               console.log("✅ User created with backend:", data.user);
 
               setTimeout(() => {
-                navigate("/profile");
+                navigate("/home");
               }, 2000);
             } else {
               // Show error in red alert box
@@ -1053,27 +1052,6 @@ export default function Signup() {
       <div className="absolute inset-0 bg-gradient-to-br from-purple-primary/10 via-purple-secondary/5 to-purple-accent/8"></div>
 
       <div className="relative z-10 w-full max-w-md px-2 sm:px-0">
-        {/* Back Button - Top Left Corner */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
-          className="absolute top-4 left-4 z-20"
-        >
-          <button
-            onClick={() => {
-              if (currentStep === "method") {
-                navigate("/");
-              } else {
-                goBack();
-              }
-            }}
-            className="w-12 h-12 bg-purple-dark/80 hover:bg-purple-dark/90 border border-purple-primary/30 rounded-xl flex items-center justify-center backdrop-blur-sm transition-all duration-200 hover:scale-105 shadow-lg shadow-purple-primary/20"
-          >
-            <ArrowLeft className="w-5 h-5 text-purple-primary" />
-          </button>
-        </motion.div>
-
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}

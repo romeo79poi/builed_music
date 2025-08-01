@@ -14,6 +14,7 @@ import {
   firebaseApp,
   firebaseAuth,
 } from "./context/FirebaseContext";
+import AuthRouter from "./components/AuthRouter";
 import Splash from "./pages/Splash";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -49,7 +50,7 @@ const App = () => {
                 <Sonner />
                 <BrowserRouter>
                   <Routes>
-                    <Route path="/" element={<Home />} />
+                    <Route path="/" element={<AuthRouter />} />
                     <Route path="/splash" element={<Splash />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/signup" element={<Signup />} />

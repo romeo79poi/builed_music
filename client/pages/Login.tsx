@@ -5,7 +5,6 @@ import {
   Eye,
   EyeOff,
   Loader2,
-  ArrowLeft,
   Mail,
   Phone,
   Wifi,
@@ -335,21 +334,6 @@ export default function Login() {
       <div className="absolute inset-0 bg-gradient-to-br from-purple-primary/10 via-purple-secondary/5 to-purple-accent/8"></div>
 
       <div className="relative z-10 w-full max-w-md px-2 sm:px-0">
-        {/* Back Button - Top Left Corner */}
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.5 }}
-          className="absolute top-4 left-4 z-20"
-        >
-          <button
-            onClick={() => navigate("/")}
-            className="w-12 h-12 bg-purple-dark/80 hover:bg-purple-dark/90 border border-purple-primary/30 rounded-xl flex items-center justify-center backdrop-blur-sm transition-all duration-200 hover:scale-105 shadow-lg shadow-purple-primary/20"
-          >
-            <ArrowLeft className="w-5 h-5 text-purple-primary" />
-          </button>
-        </motion.div>
-
         {/* Logo */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
