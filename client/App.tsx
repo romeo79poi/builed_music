@@ -22,6 +22,7 @@ import Search from "./pages/Search";
 import Player from "./pages/Player";
 import Profile from "./pages/Profile";
 import EditProfile from "./pages/EditProfile";
+import EditAccount from "./pages/EditAccount";
 import LikedSongs from "./pages/LikedSongs";
 import Library from "./pages/Library";
 import History from "./pages/History";
@@ -57,6 +58,7 @@ const App = () => {
                     <Route path="/player" element={<Player />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/edit-profile" element={<EditProfile />} />
+                    <Route path="/edit-account" element={<EditAccount />} />
                     <Route path="/liked-songs" element={<LikedSongs />} />
                     <Route path="/library" element={<Library />} />
                     <Route path="/history" element={<History />} />

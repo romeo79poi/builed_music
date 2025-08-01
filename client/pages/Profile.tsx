@@ -221,6 +221,65 @@ const samplePlaylists: Playlist[] = [
   },
 ];
 
+interface RecentlyPlayedTrack {
+  id: string;
+  title: string;
+  artist: string;
+  coverUrl: string;
+  playedAt: string;
+  duration: number;
+  isCurrentlyPlaying?: boolean;
+}
+
+const sampleRecentlyPlayed: RecentlyPlayedTrack[] = [
+  {
+    id: "recent1",
+    title: "Midnight Dreams",
+    artist: "Alex Johnson",
+    coverUrl:
+      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
+    playedAt: "2 minutes ago",
+    duration: 234,
+    isCurrentlyPlaying: true,
+  },
+  {
+    id: "recent2",
+    title: "Blinding Lights",
+    artist: "The Weeknd",
+    coverUrl:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop",
+    playedAt: "15 minutes ago",
+    duration: 200,
+  },
+  {
+    id: "recent3",
+    title: "Watermelon Sugar",
+    artist: "Harry Styles",
+    coverUrl:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop",
+    playedAt: "32 minutes ago",
+    duration: 174,
+  },
+  {
+    id: "recent4",
+    title: "Levitating",
+    artist: "Dua Lipa",
+    coverUrl:
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&h=300&fit=crop",
+    playedAt: "1 hour ago",
+    duration: 203,
+  },
+  {
+    id: "recent5",
+    title: "Good 4 U",
+    artist: "Olivia Rodrigo",
+    coverUrl:
+      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
+    playedAt: "2 hours ago",
+    duration: 178,
+  },
+];
+
 export default function Profile() {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -229,6 +288,8 @@ export default function Profile() {
   const [uploading, setUploading] = useState(false);
   const [tracks] = useState<Track[]>(sampleTracks);
   const [playlists] = useState<Playlist[]>(samplePlaylists);
+  const [recentlyPlayed] =
+    useState<RecentlyPlayedTrack[]>(sampleRecentlyPlayed);
   const [selectedTab, setSelectedTab] = useState("tracks");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [isFollowing, setIsFollowing] = useState(false);
@@ -430,11 +491,12 @@ export default function Profile() {
   const tabs = [
     { id: "tracks", label: "Tracks", count: tracks.length },
     { id: "playlists", label: "Playlists", count: playlists.length },
+    { id: "history", label: "History", count: recentlyPlayed.length },
     { id: "about", label: "About" },
   ];
 
   if (profile.isArtist) {
-    tabs.splice(2, 0, { id: "analytics", label: "Analytics" });
+    tabs.splice(3, 0, { id: "analytics", label: "Analytics" });
   }
 
   return (
@@ -1338,6 +1400,139 @@ export default function Profile() {
                           </p>
                         </motion.button>
                       </div>
+                    </motion.div>
+                  )}
+
+                  {selectedTab === "history" && (
+                    <motion.div
+                      key="history"
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      className="space-y-4"
+                    >
+                      {/* Now Playing */}
+                      {recentlyPlayed.find(
+                        (track) => track.isCurrentlyPlaying,
+                      ) && (
+                        <div className="mb-6">
+                          <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center">
+                            <Music className="w-4 h-4 mr-2 text-neon-green" />
+                            Now Playing
+                          </h3>
+                          {(() => {
+                            const nowPlaying = recentlyPlayed.find(
+                              (track) => track.isCurrentlyPlaying,
+                            );
+                            return nowPlaying ? (
+                              <motion.div
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="relative h-32 rounded-xl overflow-hidden group cursor-pointer"
+                                style={{
+                                  backgroundImage: `linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.4)), url(${nowPlaying.coverUrl})`,
+                                  backgroundSize: "cover",
+                                  backgroundPosition: "center",
+                                }}
+                                onClick={() => handlePlay(nowPlaying.id)}
+                              >
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                                <div className="absolute bottom-3 left-3 right-3">
+                                  <h4 className="text-white font-semibold text-sm mb-1">
+                                    {nowPlaying.title}
+                                  </h4>
+                                  <p className="text-white/80 text-xs">
+                                    {nowPlaying.artist}
+                                  </p>
+                                  <div className="flex items-center justify-between mt-2">
+                                    <span className="text-neon-green text-xs font-medium">
+                                      ● PLAYING
+                                    </span>
+                                    <span className="text-white/60 text-xs">
+                                      {formatDuration(nowPlaying.duration)}
+                                    </span>
+                                  </div>
+                                </div>
+                                <motion.div
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  className="absolute top-3 right-3 w-8 h-8 bg-black/60 rounded-full flex items-center justify-center backdrop-blur-sm"
+                                >
+                                  {isPlaying ? (
+                                    <Pause className="w-4 h-4 text-white" />
+                                  ) : (
+                                    <Play className="w-4 h-4 text-white ml-0.5" />
+                                  )}
+                                </motion.div>
+                              </motion.div>
+                            ) : null;
+                          })()}
+                        </div>
+                      )}
+
+                      {/* Recently Played */}
+                      <div>
+                        <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center">
+                          <Clock className="w-4 h-4 mr-2 text-purple-primary" />
+                          Recently Played
+                        </h3>
+                        <div className="grid grid-cols-2 gap-3">
+                          {recentlyPlayed
+                            .filter((track) => !track.isCurrentlyPlaying)
+                            .map((track, index) => (
+                              <motion.div
+                                key={track.id}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: index * 0.1 }}
+                                className="relative h-24 rounded-lg overflow-hidden group cursor-pointer"
+                                style={{
+                                  backgroundImage: `linear-gradient(135deg, rgba(0,0,0,0.6), rgba(0,0,0,0.3)), url(${track.coverUrl})`,
+                                  backgroundSize: "cover",
+                                  backgroundPosition: "center",
+                                }}
+                                onClick={() => handlePlay(track.id)}
+                              >
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                                <div className="absolute bottom-2 left-2 right-2">
+                                  <h4 className="text-white font-medium text-xs mb-0.5 truncate">
+                                    {track.title}
+                                  </h4>
+                                  <p className="text-white/70 text-[10px] truncate">
+                                    {track.artist}
+                                  </p>
+                                  <p className="text-white/50 text-[9px] mt-0.5">
+                                    {track.playedAt}
+                                  </p>
+                                </div>
+                                <motion.div
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  className="absolute top-2 right-2 w-6 h-6 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm"
+                                >
+                                  <Play className="w-3 h-3 text-white ml-0.5" />
+                                </motion.div>
+                              </motion.div>
+                            ))}
+                        </div>
+                      </div>
+
+                      {/* View All History Button */}
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => navigate("/history")}
+                        className="w-full py-3 mt-4 bg-black rounded-xl text-white font-medium flex items-center justify-center space-x-2"
+                        style={{
+                          boxShadow: `
+                            0 0 0 1px rgba(236, 72, 153, 0.6),
+                            inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                          `,
+                        }}
+                      >
+                        <Clock className="w-4 h-4" />
+                        <span>View Full History</span>
+                      </motion.button>
                     </motion.div>
                   )}
 
