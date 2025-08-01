@@ -1224,7 +1224,7 @@ export default function Signup() {
               <div className="space-y-3">
                 <button
                   onClick={() => handleMethodStep("email")}
-                  className="w-full h-12 sm:h-14 text-white font-semibold rounded-xl flex items-center justify-center hover:scale-105 transition-all duration-200 shadow-lg shadow-purple-primary/30 hover:shadow-purple-secondary/40"
+                  className="w-full h-12 sm:h-14 bg-purple-dark/50 hover:bg-purple-dark/70 rounded-xl flex items-center justify-center text-white font-medium transition-all duration-200 border border-purple-primary/30 hover:border-purple-primary/50 hover:shadow-lg hover:shadow-purple-primary/20"
                 >
                   <Mail className="w-5 h-5 mr-3" />
                   <p>Continue with Email</p>
