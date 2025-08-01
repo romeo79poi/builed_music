@@ -775,7 +775,7 @@ export default function Signup() {
           });
 
           setTimeout(() => {
-            navigate("/profile");
+            navigate("/home");
           }, 2000);
         } else {
           toast({
