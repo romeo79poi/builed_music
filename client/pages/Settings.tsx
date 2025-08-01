@@ -71,15 +71,6 @@ export default function Settings() {
   // Modal states
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [showEditAccountModal, setShowEditAccountModal] = useState(false);
-
-  // Edit account states
-  const [editAccountForm, setEditAccountForm] = useState({
-    email: userProfile.email,
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-  });
 
   const settingsSections = [
     {
