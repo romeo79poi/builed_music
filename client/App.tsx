@@ -58,6 +58,7 @@ const App = () => {
                     <Route path="/player" element={<Player />} />
                     <Route path="/profile" element={<Profile />} />
                     <Route path="/edit-profile" element={<EditProfile />} />
+                    <Route path="/edit-account" element={<EditAccount />} />
                     <Route path="/liked-songs" element={<LikedSongs />} />
                     <Route path="/library" element={<Library />} />
                     <Route path="/history" element={<History />} />
