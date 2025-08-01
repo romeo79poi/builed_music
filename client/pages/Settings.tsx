@@ -263,48 +263,7 @@ export default function Settings() {
     navigate("/login");
   };
 
-  const handleSaveAccountChanges = () => {
-    // Validate passwords match
-    if (editAccountForm.newPassword && editAccountForm.newPassword !== editAccountForm.confirmPassword) {
-      toast({
-        title: "Error",
-        description: "New passwords don't match",
-        variant: "destructive",
-      });
-      return;
-    }
 
-    // Validate current password (in real app, this would be verified against backend)
-    if (editAccountForm.newPassword && !editAccountForm.currentPassword) {
-      toast({
-        title: "Error",
-        description: "Current password is required to change password",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    // Update user profile
-    setUserProfile(prev => ({
-      ...prev,
-      email: editAccountForm.email,
-    }));
-
-    setShowEditAccountModal(false);
-
-    toast({
-      title: "Account Updated",
-      description: "Your account details have been updated successfully",
-    });
-
-    // Reset form
-    setEditAccountForm({
-      email: editAccountForm.email,
-      currentPassword: "",
-      newPassword: "",
-      confirmPassword: "",
-    });
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-darker via-purple-dark to-background dark:from-purple-darker dark:via-purple-dark dark:to-background light:from-gray-50 light:via-white light:to-purple-50 text-white dark:text-white light:text-gray-900 relative overflow-hidden theme-transition">
