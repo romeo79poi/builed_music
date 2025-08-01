@@ -380,7 +380,7 @@ export default function Signup() {
             });
 
             setTimeout(() => {
-              navigate("/profile");
+              navigate("/home");
             }, 2000);
           } else {
             // For email signup, proceed to next step
