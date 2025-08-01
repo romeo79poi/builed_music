@@ -759,15 +759,15 @@ export default function EditAccount() {
                     </div>
                   </div>
                   
-                  <div className="flex items-center justify-between p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl">
+                  <div className="flex items-center justify-between p-4 bg-purple-500/10 border border-purple-500/30 rounded-xl">
                     <div className="flex items-center space-x-3">
-                      <Verified className="w-5 h-5 text-blue-400" />
+                      <Sparkles className="w-5 h-5 text-purple-400" />
                       <div>
                         <h4 className="text-white font-medium">Verified Account</h4>
                         <p className="text-sm text-gray-400">Identity confirmed</p>
                       </div>
                     </div>
-                    <Check className="w-5 h-5 text-blue-400" />
+                    <Check className="w-5 h-5 text-purple-400" />
                   </div>
                 </div>
                 
