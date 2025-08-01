@@ -383,20 +383,19 @@ export default function Home() {
             onClick={() => navigate("/messages")}
             className="group relative flex items-center justify-center"
           >
-            {/* Modern speech bubble shaped container */}
+            {/* Traditional message icon container */}
             <div
-              className="relative w-10 h-8 rounded-2xl bg-black shadow-lg hover:shadow-xl transition-shadow duration-300 flex items-center justify-center"
+              className="relative w-9 h-9 rounded-full bg-black shadow-lg hover:shadow-xl transition-shadow duration-300 flex items-center justify-center"
               style={{
                 boxShadow: `
                   0 0 0 1px rgba(236, 72, 153, 0.6),
                   inset 0 0 0 1px rgba(236, 72, 153, 0.3)
                 `,
-                clipPath: "polygon(0% 0%, 100% 0%, 100% 70%, 85% 70%, 80% 100%, 75% 70%, 0% 70%)"
               }}
             >
-              {/* Speech bubble icon with black background */}
-              <div className="w-6 h-6 bg-black rounded-xl flex items-center justify-center">
-                <MessageSquare className="w-3 h-3 text-white" />
+              {/* Message Circle icon with black background */}
+              <div className="w-5 h-5 bg-black rounded-full flex items-center justify-center">
+                <MessageCircle className="w-3 h-3 text-white" />
               </div>
             </div>
 
