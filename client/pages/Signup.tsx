@@ -2070,6 +2070,96 @@ export default function Signup() {
               </button>
             </motion.div>
           )}
+
+          {/* Profile Image Step */}
+          {currentStep === "profileImage" && (
+            <motion.div
+              key="profileImage"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-4 sm:space-y-6"
+            >
+              <div className="text-center mb-4 sm:mb-6">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <svg className="w-6 h-6 sm:w-8 sm:h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">
+                  {stepTitles.profileImage}
+                </h3>
+                <p className="text-slate-400 text-xs sm:text-sm px-2">
+                  {stepDescriptions.profileImage}
+                </p>
+                <button
+                  onClick={handleProfileImageStep}
+                  className="absolute top-4 right-4 text-purple-primary hover:text-purple-secondary transition-colors text-sm font-medium"
+                >
+                  Skip →
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex justify-center">
+                  <div className="w-24 h-24 sm:w-32 sm:h-32 bg-purple-dark/50 border-2 border-dashed border-purple-primary/40 rounded-full flex items-center justify-center">
+                    {formData.profileImage ? (
+                      <img
+                        src={URL.createObjectURL(formData.profileImage)}
+                        alt="Profile preview"
+                        className="w-full h-full rounded-full object-cover"
+                      />
+                    ) : (
+                      <svg className="w-8 h-8 sm:w-12 sm:h-12 text-purple-primary/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-white text-sm font-medium mb-2">
+                    Upload Profile Picture
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      setFormData((prev) => ({ ...prev, profileImage: file }));
+                    }}
+                    className="w-full h-12 sm:h-14 bg-purple-dark/30 border border-purple-primary/30 rounded-xl px-3 sm:px-4 text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-primary file:text-white hover:file:bg-purple-secondary focus:outline-none focus:border-purple-primary focus:ring-2 focus:ring-purple-primary/20 transition-all duration-200 text-sm sm:text-base backdrop-blur-sm"
+                    disabled={isLoading}
+                  />
+                  {errors.profileImage && (
+                    <p className="text-red-400 text-xs sm:text-sm mt-2 flex items-center">
+                      <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                      {errors.profileImage}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <button
+                onClick={handleProfileImageStep}
+                disabled={isLoading}
+                className="w-full h-12 sm:h-14 bg-gradient-to-r from-purple-primary to-purple-secondary hover:from-purple-secondary hover:to-purple-accent text-white font-bold text-sm sm:text-lg rounded-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none shadow-lg shadow-purple-primary/30 hover:shadow-purple-secondary/40"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mx-auto" />
+                ) : (
+                  "Continue"
+                )}
+              </button>
+
+              <button
+                onClick={goBack}
+                className="w-full text-purple-primary hover:text-purple-secondary transition-colors text-sm mt-4"
+              >
+                ← Back
+              </button>
+            </motion.div>
+          )}
         </AnimatePresence>
 
         {/* Footer - Only show on method step */}
