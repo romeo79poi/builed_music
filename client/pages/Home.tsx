@@ -393,9 +393,9 @@ export default function Home() {
                 `,
               }}
             >
-              {/* Message Circle icon with black background */}
+              {/* Mail icon with black background */}
               <div className="w-5 h-5 bg-black rounded-full flex items-center justify-center">
-                <MessageCircle className="w-3 h-3 text-white" />
+                <Mail className="w-3 h-3 text-white" />
               </div>
             </div>
 
