@@ -872,74 +872,45 @@ export default function Profile() {
             {/* Tabs */}
             {!isEditing && (
               <>
-                <div className="flex space-x-1 mb-4 bg-black rounded-lg p-1" style={{
-                  boxShadow: `
-                    0 0 0 1px rgba(236, 72, 153, 0.6),
-                    inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                  `,
-                }}>
-                  {tabs.map((tab) => (
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="text-lg font-bold text-foreground">
+                    My Tracks
+                  </h2>
+                  <div className="flex items-center space-x-2">
                     <motion.button
-                      key={tab.id}
-                      whileHover={{ scale: 1.01 }}
-                      whileTap={{ scale: 0.99 }}
-                      onClick={() => setSelectedTab(tab.id)}
-                      className={`flex-1 px-3 py-1.5 rounded-md font-medium transition-colors text-xs ${
-                        selectedTab === tab.id
-                          ? "bg-purple-primary text-white"
-                          : "text-gray-400 hover:text-white"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => setViewMode("grid")}
+                      className={`p-2 rounded-md transition-colors bg-black ${
+                        viewMode === "grid" ? "text-purple-primary" : "text-gray-400 hover:text-white"
                       }`}
+                      style={{
+                        boxShadow: `
+                          0 0 0 1px rgba(236, 72, 153, 0.6),
+                          inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                        `,
+                      }}
                     >
-                      {tab.label}
-                      {tab.count !== undefined && (
-                        <span className="ml-1 opacity-60">({tab.count})</span>
-                      )}
+                      <Grid3X3 className="w-4 h-4" />
                     </motion.button>
-                  ))}
-                </div>
-
-                {/* View Mode Toggle for Tracks/Playlists */}
-                {(selectedTab === "tracks" || selectedTab === "playlists") && (
-                  <div className="flex items-center justify-between mb-4">
-                    <h2 className="text-lg font-bold text-foreground">
-                      {selectedTab === "tracks" ? "My Tracks" : "My Playlists"}
-                    </h2>
-                    <div className="flex items-center space-x-2">
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => setViewMode("grid")}
-                        className={`p-2 rounded-md transition-colors bg-black ${
-                          viewMode === "grid" ? "text-purple-primary" : "text-gray-400 hover:text-white"
-                        }`}
-                        style={{
-                          boxShadow: `
-                            0 0 0 1px rgba(236, 72, 153, 0.6),
-                            inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                          `,
-                        }}
-                      >
-                        <Grid3X3 className="w-4 h-4" />
-                      </motion.button>
-                      <motion.button
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                        onClick={() => setViewMode("list")}
-                        className={`p-2 rounded-lg transition-colors bg-black ${
-                          viewMode === "list" ? "text-purple-primary" : "text-gray-400 hover:text-white"
-                        }`}
-                        style={{
-                          boxShadow: `
-                            0 0 0 1px rgba(236, 72, 153, 0.6),
-                            inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                          `,
-                        }}
-                      >
-                        <ListMusic className="w-4 h-4" />
-                      </motion.button>
-                    </div>
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setViewMode("list")}
+                      className={`p-2 rounded-lg transition-colors bg-black ${
+                        viewMode === "list" ? "text-purple-primary" : "text-gray-400 hover:text-white"
+                      }`}
+                      style={{
+                        boxShadow: `
+                          0 0 0 1px rgba(236, 72, 153, 0.6),
+                          inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                        `,
+                      }}
+                    >
+                      <ListMusic className="w-4 h-4" />
+                    </motion.button>
                   </div>
-                )}
+                </div>
 
                 {/* Content Based on Selected Tab */}
                 <AnimatePresence mode="wait">
