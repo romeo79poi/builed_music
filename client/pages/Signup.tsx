@@ -1307,6 +1307,13 @@ export default function Signup() {
                   "Continue"
                 )}
               </button>
+
+              <button
+                onClick={() => setCurrentStep("method")}
+                className="w-full text-purple-primary hover:text-purple-secondary transition-colors text-sm mt-4"
+              >
+                ← Back to other options
+              </button>
             </motion.div>
           )}
 
@@ -1367,6 +1374,13 @@ export default function Signup() {
                 ) : (
                   "Send Code"
                 )}
+              </button>
+
+              <button
+                onClick={() => setCurrentStep("method")}
+                className="w-full text-purple-secondary hover:text-purple-primary transition-colors text-sm mt-4"
+              >
+                ← Back to other options
               </button>
             </motion.div>
           )}
