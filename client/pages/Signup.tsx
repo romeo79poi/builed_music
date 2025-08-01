@@ -1144,14 +1144,7 @@ export default function Signup() {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-4 sm:space-y-6"
             >
-              <div className="text-center mb-4 sm:mb-6">
-                <h3 className="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">
-                  {stepTitles.method}
-                </h3>
-                <p className="text-slate-400 text-xs sm:text-sm px-2">
-                  {stepDescriptions.method}
-                </p>
-              </div>
+              <div className="text-center mb-4 sm:mb-6" />
 
               {/* Divider */}
               <div className="flex items-center my-4">
@@ -1224,10 +1217,10 @@ export default function Signup() {
               <div className="space-y-3">
                 <button
                   onClick={() => handleMethodStep("email")}
-                  className="w-full h-12 sm:h-14 bg-gradient-to-r from-purple-primary to-purple-secondary text-white font-semibold rounded-xl flex items-center justify-center hover:scale-105 transition-all duration-200 shadow-lg shadow-purple-primary/30 hover:shadow-purple-secondary/40"
+                  className="w-full h-12 sm:h-14 bg-purple-dark/50 border border-purple-primary/30 rounded-xl flex items-center justify-center text-white hover:bg-purple-primary/10 hover:border-purple-primary/50 transition-all duration-200 hover:shadow-lg hover:shadow-purple-primary/20"
                 >
-                  <Mail className="w-5 h-5 mr-3" />
-                  Continue with Email (Recommended)
+                  <Mail className="w-5 h-5 mr-3 text-purple-primary" />
+                  Continue with Email
                 </button>
 
                 <button
@@ -1314,6 +1307,13 @@ export default function Signup() {
                   "Continue"
                 )}
               </button>
+
+              <button
+                onClick={() => setCurrentStep("method")}
+                className="w-full text-purple-primary hover:text-purple-secondary transition-colors text-sm mt-4"
+              >
+                ← Back to other options
+              </button>
             </motion.div>
           )}
 
@@ -1374,6 +1374,13 @@ export default function Signup() {
                 ) : (
                   "Send Code"
                 )}
+              </button>
+
+              <button
+                onClick={() => setCurrentStep("method")}
+                className="w-full text-purple-secondary hover:text-purple-primary transition-colors text-sm mt-4"
+              >
+                ← Back to other options
               </button>
             </motion.div>
           )}

@@ -55,13 +55,13 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
         )
         .then(({ initializeApp, getAuth, onAuthStateChanged }) => {
           const firebaseConfig = {
-            apiKey: "AIzaSyBHgFXBalLyzs_Li2ApkmUNVrtkCWyKmzM",
-            authDomain: "music-catch.firebaseapp.com",
-            projectId: "music-catch",
-            storageBucket: "music-catch.firebasestorage.app",
-            messagingSenderId: "75793608464",
-            appId: "1:75793608464:web:ee96c2079f2b3353ab3f95",
-            measurementId: "G-J8D7LKCMPB",
+            apiKey: "AIzaSyAqlECno9m_k7b_vFf1qW6LBnP-1BGhnPA",
+            authDomain: "music-catch-59b79.firebaseapp.com",
+            projectId: "music-catch-59b79",
+            storageBucket: "music-catch-59b79.firebasestorage.app",
+            messagingSenderId: "185813176462",
+            appId: "1:185813176462:web:8269607d16eb315f55b9df",
+            measurementId: "G-PBGMC7JZR3",
           };
 
           const app = initializeApp(firebaseConfig);
@@ -135,7 +135,7 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
   const signUp = async (email: string, password: string) => {
     if (useMockAuth) {
       // Mock successful signup
-      console.log("🔧 Mock signup for:", email);
+      console.log("���� Mock signup for:", email);
       mockUser = {
         uid: "mock-user-456",
         email: email,
