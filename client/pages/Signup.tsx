@@ -4,7 +4,6 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
   Eye,
   EyeOff,
-  ArrowLeft,
   Loader2,
   AlertCircle,
   CheckCircle,
