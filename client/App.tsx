@@ -22,6 +22,7 @@ import Search from "./pages/Search";
 import Player from "./pages/Player";
 import Profile from "./pages/Profile";
 import EditProfile from "./pages/EditProfile";
+import EditAccount from "./pages/EditAccount";
 import LikedSongs from "./pages/LikedSongs";
 import Library from "./pages/Library";
 import History from "./pages/History";
