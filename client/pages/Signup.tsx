@@ -224,6 +224,48 @@ export default function Signup() {
     return isValid;
   };
 
+  const validateDateOfBirth = (): boolean => {
+    if (!formData.dateOfBirth) {
+      setErrors((prev) => ({ ...prev, dateOfBirth: "Date of birth is required" }));
+      return false;
+    }
+
+    const birthDate = new Date(formData.dateOfBirth);
+    const today = new Date();
+    const age = today.getFullYear() - birthDate.getFullYear();
+
+    if (age < 13) {
+      setErrors((prev) => ({ ...prev, dateOfBirth: "You must be at least 13 years old" }));
+      return false;
+    }
+
+    if (age > 120) {
+      setErrors((prev) => ({ ...prev, dateOfBirth: "Please enter a valid date of birth" }));
+      return false;
+    }
+
+    setErrors((prev) => ({ ...prev, dateOfBirth: undefined }));
+    return true;
+  };
+
+  const validateGender = (): boolean => {
+    if (!formData.gender) {
+      setErrors((prev) => ({ ...prev, gender: "Please select your gender" }));
+      return false;
+    }
+    setErrors((prev) => ({ ...prev, gender: undefined }));
+    return true;
+  };
+
+  const validateBio = (): boolean => {
+    if (formData.bio.length > 500) {
+      setErrors((prev) => ({ ...prev, bio: "Bio must be less than 500 characters" }));
+      return false;
+    }
+    setErrors((prev) => ({ ...prev, bio: undefined }));
+    return true;
+  };
+
   // Check availability with backend
   const checkAvailability = async (
     field: "email" | "username" | "phone",
@@ -855,7 +897,7 @@ export default function Signup() {
 
             if (data.success) {
               toast({
-                title: "Account created successfully! 🎉",
+                title: "Account created successfully! ��",
                 description: `Welcome to Music Catch, ${formData.name}!`,
               });
 
