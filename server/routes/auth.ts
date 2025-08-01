@@ -172,16 +172,35 @@ export const sendEmailVerification: RequestHandler = async (req, res) => {
       attempts: 0,
     });
 
-    // In production, send actual email via SendGrid, Nodemailer, etc.
-    console.log(`📧 Email verification code for ${email}: ${verificationCode}`);
+    // Send actual email with beautiful design
+    const emailResult = await sendVerificationEmail(email, verificationCode);
+
+    if (!emailResult.success) {
+      console.error("Failed to send verification email:", emailResult.error);
+      // Still return success for development but log the error
+      if (process.env.NODE_ENV === "production") {
+        return res.status(500).json({
+          success: false,
+          message: "Failed to send verification email. Please try again.",
+        });
+      }
+    }
+
+    console.log(`📧 Verification email sent to: ${email}`);
     console.log(`🕒 Code expires at: ${expiry.toISOString()}`);
+
+    // In development, also show preview URL and debug code
+    if (process.env.NODE_ENV === "development") {
+      console.log(`🔗 Email preview: ${emailResult.previewUrl || 'N/A'}`);
+      console.log(`🔑 Debug code: ${verificationCode}`);
+    }
 
     res.json({
       success: true,
-      message: "Verification code sent successfully",
+      message: "Verification code sent to your email successfully",
       // For development only - remove in production
-      debugCode:
-        process.env.NODE_ENV === "development" ? verificationCode : undefined,
+      debugCode: process.env.NODE_ENV === "development" ? verificationCode : undefined,
+      previewUrl: process.env.NODE_ENV === "development" ? emailResult.previewUrl : undefined,
     });
   } catch (error) {
     console.error("Send email verification error:", error);
