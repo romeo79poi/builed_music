@@ -492,8 +492,7 @@ export default function Profile() {
                       `,
                     }}
                   >
-                    <Edit3 className="w-4 h-4 mr-2 inline" />
-                    Edit
+                    <Edit3 className="w-4 h-4 text-white" />
                   </motion.button>
 
                   <motion.button
