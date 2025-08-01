@@ -380,7 +380,7 @@ export default function Home() {
 
           {/* Static Message Icon */}
           <button
-            onClick={() => navigate("/messages")}
+            onClick={() => navigate("/messages", { state: { from: "home" } })}
             className="group relative flex items-center justify-center"
           >
             {/* Traditional message icon container */}
