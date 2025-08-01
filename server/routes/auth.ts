@@ -369,6 +369,9 @@ export const completeRegistration: RequestHandler = async (req, res) => {
       });
     }
 
+    // Send welcome email
+    await sendWelcomeEmail(email, name);
+
     // Return success response (without password)
     const { password: _, ...userResponse } = newUser;
 
