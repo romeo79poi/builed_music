@@ -77,15 +77,16 @@ export default function Settings() {
       title: "Account",
       icon: User,
       items: [
-
-        {
+        // Only show subscription section if user has premium
+        ...(userProfile.premium ? [{
           key: "subscription",
-          label: "Manage Subscription",
+          label: "Premium Subscription",
           icon: Star,
-          action: () => {},
-          description: userProfile.premium ? "Premium Member" : "Free Account",
-          badge: userProfile.premium ? "PREMIUM" : null,
-        },
+          action: () => navigate("/premium-dashboard"),
+          description: "Manage your premium membership",
+          badge: "PREMIUM",
+          isPremium: true,
+        }] : []),
         {
           key: "privacy",
           label: "Privacy Settings",
