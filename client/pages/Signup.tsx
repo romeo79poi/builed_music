@@ -41,7 +41,11 @@ type SignupStep =
   | "phone-verify"
   | "profile"
   | "verification"
-  | "password";
+  | "password"
+  | "dob"
+  | "profileImage"
+  | "gender"
+  | "bio";
 type SignupMethod = "email" | "phone";
 
 interface FormData {
@@ -52,6 +56,10 @@ interface FormData {
   password: string;
   confirmPassword: string;
   otp: string;
+  dateOfBirth: string;
+  profileImage: File | null;
+  gender: string;
+  bio: string;
 }
 
 interface ValidationErrors {
@@ -62,6 +70,10 @@ interface ValidationErrors {
   password?: string;
   confirmPassword?: string;
   otp?: string;
+  dateOfBirth?: string;
+  profileImage?: string;
+  gender?: string;
+  bio?: string;
 }
 
 export default function Signup() {
@@ -78,6 +90,10 @@ export default function Signup() {
     password: "",
     confirmPassword: "",
     otp: "",
+    dateOfBirth: "",
+    profileImage: null,
+    gender: "",
+    bio: "",
   });
 
   const [errors, setErrors] = useState<ValidationErrors>({});
