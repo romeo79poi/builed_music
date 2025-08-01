@@ -1,0 +1,32 @@
+import { useEffect, useState } from "react";
+import { useFirebase } from "../context/FirebaseContext";
+import Splash from "../pages/Splash";
+import Home from "../pages/Home";
+import Signup from "../pages/Signup";
+
+export default function AuthRouter() {
+  const { user, loading } = useFirebase();
+  const [showSplash, setShowSplash] = useState(true);
+
+  useEffect(() => {
+    // Show splash for at least 3 seconds
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Show splash screen while loading or during initial 3 seconds
+  if (loading || showSplash) {
+    return <Splash />;
+  }
+
+  // If user is authenticated, show Home
+  if (user) {
+    return <Home />;
+  }
+
+  // If user is not authenticated, show Signup
+  return <Signup />;
+}
