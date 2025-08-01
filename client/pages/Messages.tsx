@@ -84,6 +84,16 @@ const Messages = () => {
 
   const reactionEmojis = ["❤️", "😂", "😮", "😢", "😡", "👍"];
 
+  // Handle back navigation based on where user came from
+  const handleBackNavigation = () => {
+    const fromState = location.state?.from;
+    if (fromState === "profile") {
+      navigate("/profile");
+    } else {
+      navigate("/home");
+    }
+  };
+
   const filteredChats = chats.filter((chat) => {
     if (currentView === "requests") return false; // Placeholder for message requests
     if (currentView === "archived") return chat.isArchived;
