@@ -1144,14 +1144,7 @@ export default function Signup() {
               exit={{ opacity: 0, x: -20 }}
               className="space-y-4 sm:space-y-6"
             >
-              <div className="text-center mb-4 sm:mb-6">
-                <h3 className="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">
-                  {stepTitles.method}
-                </h3>
-                <p className="text-slate-400 text-xs sm:text-sm px-2">
-                  {stepDescriptions.method}
-                </p>
-              </div>
+              <div className="text-center mb-4 sm:mb-6" />
 
               {/* Divider */}
               <div className="flex items-center my-4">
