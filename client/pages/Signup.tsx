@@ -1049,6 +1049,14 @@ export default function Signup() {
       setCurrentStep("profile");
     } else if (currentStep === "password") {
       setCurrentStep("verification");
+    } else if (currentStep === "dob") {
+      setCurrentStep("password");
+    } else if (currentStep === "profileImage") {
+      setCurrentStep("dob");
+    } else if (currentStep === "gender") {
+      setCurrentStep("profileImage");
+    } else if (currentStep === "bio") {
+      setCurrentStep("gender");
     }
   };
 
