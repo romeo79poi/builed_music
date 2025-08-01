@@ -38,22 +38,12 @@ export default function Splash() {
             </div>
 
             {/* Background glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-primary/20 via-purple-secondary/10 to-purple-accent/15"></div>
+            <div className="absolute inset-0" style={{ color: 'rgba(11, 4, 4, 1)' }}></div>
 
             {/* Splash content */}
             <div className="relative z-10 flex flex-col items-center">
               {/* Animated logo */}
               <MusicCatchLogo className="mb-8" animated />
-
-              {/* App title */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1, duration: 0.8 }}
-                className="text-center text-white text-6xl font-bold tracking-[3px] leading-[64px] pb-2"
-              >
-                CATCH
-              </motion.div>
 
               {/* Loading animation */}
               <motion.div
