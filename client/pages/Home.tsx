@@ -385,7 +385,7 @@ export default function Home() {
           >
             {/* Modern circular container */}
             <div
-              className="relative w-11 h-11 rounded-full bg-black shadow-lg hover:shadow-xl transition-shadow duration-300 flex items-center justify-center"
+              className="relative w-9 h-9 rounded-full bg-black shadow-lg hover:shadow-xl transition-shadow duration-300 flex items-center justify-center"
               style={{
                 boxShadow: `
                   0 0 0 1px rgba(236, 72, 153, 0.6),
@@ -394,8 +394,8 @@ export default function Home() {
               }}
             >
               {/* Message Circle icon with black background */}
-              <div className="w-7 h-7 bg-black rounded-full flex items-center justify-center">
-                <MessageCircle className="w-4 h-4 text-white" />
+              <div className="w-5 h-5 bg-black rounded-full flex items-center justify-center">
+                <MessageCircle className="w-3 h-3 text-white" />
               </div>
             </div>
 
