@@ -6,7 +6,7 @@ import {
   User,
   Play,
   Pause,
-  Mail,
+  MessageSquare,
   Heart,
   MoreHorizontal,
   ChevronLeft,
