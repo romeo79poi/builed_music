@@ -209,24 +209,8 @@ export default function EditAccount() {
                   <img
                     src={accountData.profileImage}
                     alt={accountData.fullName}
-                    className="w-20 h-20 rounded-full object-cover border-2 border-neon-green/50 cursor-pointer"
-                    onClick={() => document.getElementById('profile-upload')?.click()}
+                    className="w-20 h-20 rounded-full object-cover border-2 border-neon-green/50"
                   />
-                  <input
-                    id="profile-upload"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="hidden"
-                  />
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={() => document.getElementById('profile-upload')?.click()}
-                    className="absolute -bottom-1 -right-1 w-7 h-7 bg-purple-primary rounded-full flex items-center justify-center border-2 border-background"
-                  >
-                    <Camera className="w-3 h-3 text-white" />
-                  </motion.button>
                   {accountData.isVerified && (
                     <div className="absolute -top-1 -right-1 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center border-2 border-background">
                       <Verified className="w-3 h-3 text-white" />
