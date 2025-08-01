@@ -664,12 +664,37 @@ export default function Signup() {
       }
 
       if (useFirebaseAuth) {
-        // For email signup with Firebase, go to verification step
-        setCurrentStep("verification");
-        toast({
-          title: "Email saved!",
-          description: "Please proceed to verification.",
+        // For email signup, send verification code via backend
+        const response = await fetch("/api/auth/send-email-verification", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: formData.email }),
         });
+
+        const data = await response.json();
+
+        if (data.success) {
+          setCurrentStep("verification");
+          toast({
+            title: "Verification code sent!",
+            description: "Please check your email for the 6-digit verification code.",
+          });
+
+          // For development, show code in console
+          if (data.debugCode) {
+            console.log(`📧 Email verification code: ${data.debugCode}`);
+          }
+
+          setResendTimer(60);
+        } else {
+          toast({
+            title: "Failed to send verification code",
+            description: data.message || "Please try again",
+            variant: "destructive",
+          });
+        }
       } else {
         // Use backend email verification
         const response = await fetch("/api/auth/send-email-verification", {
