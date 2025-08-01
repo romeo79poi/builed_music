@@ -365,9 +365,13 @@ export default function Settings() {
                     <motion.div
                       key={item.key}
                       whileHover={{
-                        backgroundColor: "rgba(158, 64, 252, 0.1)",
+                        backgroundColor: item.isPremium ? "rgba(251, 191, 36, 0.1)" : "rgba(158, 64, 252, 0.1)",
                       }}
-                      className="p-4 transition-all"
+                      className={`p-4 transition-all ${
+                        item.isPremium
+                          ? "bg-gradient-to-r from-yellow-500/10 via-orange-500/10 to-yellow-500/10 border-l-4 border-yellow-400"
+                          : ""
+                      }`}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
