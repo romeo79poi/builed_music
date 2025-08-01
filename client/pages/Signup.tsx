@@ -530,7 +530,7 @@ export default function Signup() {
           description: message,
         });
 
-        console.log("✅ Google authentication successful:", {
+        console.log("�� Google authentication successful:", {
           uid: result.user.uid,
           email: result.user.email,
           displayName: result.user.displayName,
@@ -1832,7 +1832,13 @@ export default function Signup() {
 
               <div>
                 {/* Masked Input Display */}
-                <div className="flex justify-center space-x-2 sm:space-x-3 mb-4">
+                <div
+                  className="flex justify-center space-x-2 sm:space-x-3 mb-4 relative cursor-text"
+                  onClick={() => {
+                    const input = document.querySelector('#verification-input') as HTMLInputElement;
+                    if (input) input.focus();
+                  }}
+                >
                   {[0, 1, 2, 3, 4, 5].map((index) => (
                     <div
                       key={index}
@@ -1845,6 +1851,22 @@ export default function Signup() {
                       {formData.otp[index] ? "●" : ""}
                     </div>
                   ))}
+
+                  {/* Hidden input field that captures typing */}
+                  <input
+                    id="verification-input"
+                    type="text"
+                    value={formData.otp}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, "").slice(0, 6);
+                      setFormData((prev) => ({ ...prev, otp: value }));
+                    }}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-text"
+                    disabled={isLoading}
+                    maxLength={6}
+                    autoFocus
+                    placeholder=""
+                  />
                 </div>
                 {errors.otp && (
                   <p className="text-red-400 text-xs sm:text-sm mt-2 flex items-center">
