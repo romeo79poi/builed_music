@@ -383,9 +383,9 @@ export default function Home() {
             onClick={() => navigate("/messages")}
             className="group relative flex items-center justify-center"
           >
-            {/* Modern circular container */}
+            {/* Modern envelope-shaped container */}
             <div
-              className="relative w-9 h-9 rounded-full bg-black shadow-lg hover:shadow-xl transition-shadow duration-300 flex items-center justify-center"
+              className="relative w-10 h-7 rounded-md bg-black shadow-lg hover:shadow-xl transition-shadow duration-300 flex items-center justify-center"
               style={{
                 boxShadow: `
                   0 0 0 1px rgba(236, 72, 153, 0.6),
@@ -394,7 +394,7 @@ export default function Home() {
               }}
             >
               {/* Mail icon with black background */}
-              <div className="w-5 h-5 bg-black rounded-full flex items-center justify-center">
+              <div className="w-8 h-5 bg-black rounded-md flex items-center justify-center">
                 <Mail className="w-3 h-3 text-white" />
               </div>
             </div>
