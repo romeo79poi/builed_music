@@ -66,8 +66,6 @@ export default function Settings() {
     region: "United States",
   });
 
-
-
   // Modal states
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -85,15 +83,19 @@ export default function Settings() {
           description: "Edit detailed account information",
         },
         // Only show subscription section if user has premium
-        ...(userProfile.premium ? [{
-          key: "subscription",
-          label: "Premium Subscription",
-          icon: Star,
-          action: () => navigate("/premium-dashboard"),
-          description: "Manage your premium membership",
-          badge: "PREMIUM",
-          isPremium: true,
-        }] : []),
+        ...(userProfile.premium
+          ? [
+              {
+                key: "subscription",
+                label: "Premium Subscription",
+                icon: Star,
+                action: () => navigate("/premium-dashboard"),
+                description: "Manage your premium membership",
+                badge: "PREMIUM",
+                isPremium: true,
+              },
+            ]
+          : []),
         {
           key: "privacy",
           label: "Privacy Settings",
@@ -242,8 +244,6 @@ export default function Settings() {
     });
   };
 
-
-
   const handleLogout = () => {
     // Add logout logic here
     toast({
@@ -262,8 +262,6 @@ export default function Settings() {
     });
     navigate("/login");
   };
-
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-darker via-purple-dark to-background dark:from-purple-darker dark:via-purple-dark dark:to-background light:from-gray-50 light:via-white light:to-purple-50 text-white dark:text-white light:text-gray-900 relative overflow-hidden theme-transition">
@@ -344,8 +342,6 @@ export default function Settings() {
                     Member since {userProfile.joinDate}
                   </p>
                 </div>
-
-
               </div>
             </div>
           </motion.section>
@@ -374,7 +370,9 @@ export default function Settings() {
                     <motion.div
                       key={item.key}
                       whileHover={{
-                        backgroundColor: item.isPremium ? "rgba(251, 191, 36, 0.1)" : "rgba(158, 64, 252, 0.1)",
+                        backgroundColor: item.isPremium
+                          ? "rgba(251, 191, 36, 0.1)"
+                          : "rgba(158, 64, 252, 0.1)",
                       }}
                       className={`p-4 transition-all ${
                         item.isPremium
@@ -393,9 +391,17 @@ export default function Settings() {
                               {item.badge && (
                                 <motion.span
                                   animate={{
-                                    boxShadow: ["0 0 0 0 rgba(251, 191, 36, 0.4)", "0 0 0 6px rgba(251, 191, 36, 0)", "0 0 0 0 rgba(251, 191, 36, 0.4)"]
+                                    boxShadow: [
+                                      "0 0 0 0 rgba(251, 191, 36, 0.4)",
+                                      "0 0 0 6px rgba(251, 191, 36, 0)",
+                                      "0 0 0 0 rgba(251, 191, 36, 0.4)",
+                                    ],
                                   }}
-                                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                                  transition={{
+                                    duration: 2,
+                                    repeat: Infinity,
+                                    ease: "easeInOut",
+                                  }}
                                   className="px-3 py-1 text-xs font-bold bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-400 text-black rounded-full shadow-lg flex items-center space-x-1"
                                 >
                                   <Star className="w-3 h-3 fill-current" />
@@ -414,7 +420,8 @@ export default function Settings() {
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
                             onClick={() => {
-                              const newTheme = actualTheme === "dark" ? "light" : "dark";
+                              const newTheme =
+                                actualTheme === "dark" ? "light" : "dark";
                               setTheme(newTheme);
                               toast({
                                 title: "Theme Changed",
@@ -453,7 +460,9 @@ export default function Settings() {
                             whileTap={{ scale: 0.95 }}
                             onClick={() => handleToggleSetting(item.key)}
                             className={`relative w-12 h-6 rounded-full transition-all ${
-                              item.value ? "bg-gradient-to-r from-purple-primary to-purple-secondary shadow-lg shadow-purple-primary/30" : "bg-gray-600"
+                              item.value
+                                ? "bg-gradient-to-r from-purple-primary to-purple-secondary shadow-lg shadow-purple-primary/30"
+                                : "bg-gray-600"
                             }`}
                           >
                             <motion.div
@@ -506,12 +515,8 @@ export default function Settings() {
               <LogOut className="w-5 h-5" />
               <span>Log Out</span>
             </motion.button>
-
-
           </motion.section>
         </main>
-
-
 
         {/* Logout Confirmation Modal */}
         <AnimatePresence>

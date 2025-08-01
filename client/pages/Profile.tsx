@@ -236,7 +236,8 @@ const sampleRecentlyPlayed: RecentlyPlayedTrack[] = [
     id: "recent1",
     title: "Midnight Dreams",
     artist: "Alex Johnson",
-    coverUrl: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
+    coverUrl:
+      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
     playedAt: "2 minutes ago",
     duration: 234,
     isCurrentlyPlaying: true,
@@ -245,7 +246,8 @@ const sampleRecentlyPlayed: RecentlyPlayedTrack[] = [
     id: "recent2",
     title: "Blinding Lights",
     artist: "The Weeknd",
-    coverUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop",
+    coverUrl:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop",
     playedAt: "15 minutes ago",
     duration: 200,
   },
@@ -253,7 +255,8 @@ const sampleRecentlyPlayed: RecentlyPlayedTrack[] = [
     id: "recent3",
     title: "Watermelon Sugar",
     artist: "Harry Styles",
-    coverUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop",
+    coverUrl:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop",
     playedAt: "32 minutes ago",
     duration: 174,
   },
@@ -261,7 +264,8 @@ const sampleRecentlyPlayed: RecentlyPlayedTrack[] = [
     id: "recent4",
     title: "Levitating",
     artist: "Dua Lipa",
-    coverUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&h=300&fit=crop",
+    coverUrl:
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&h=300&fit=crop",
     playedAt: "1 hour ago",
     duration: 203,
   },
@@ -269,7 +273,8 @@ const sampleRecentlyPlayed: RecentlyPlayedTrack[] = [
     id: "recent5",
     title: "Good 4 U",
     artist: "Olivia Rodrigo",
-    coverUrl: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
+    coverUrl:
+      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
     playedAt: "2 hours ago",
     duration: 178,
   },
@@ -283,7 +288,8 @@ export default function Profile() {
   const [uploading, setUploading] = useState(false);
   const [tracks] = useState<Track[]>(sampleTracks);
   const [playlists] = useState<Playlist[]>(samplePlaylists);
-  const [recentlyPlayed] = useState<RecentlyPlayedTrack[]>(sampleRecentlyPlayed);
+  const [recentlyPlayed] =
+    useState<RecentlyPlayedTrack[]>(sampleRecentlyPlayed);
   const [selectedTab, setSelectedTab] = useState("tracks");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [isFollowing, setIsFollowing] = useState(false);
@@ -1406,14 +1412,18 @@ export default function Profile() {
                       className="space-y-4"
                     >
                       {/* Now Playing */}
-                      {recentlyPlayed.find(track => track.isCurrentlyPlaying) && (
+                      {recentlyPlayed.find(
+                        (track) => track.isCurrentlyPlaying,
+                      ) && (
                         <div className="mb-6">
                           <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center">
                             <Music className="w-4 h-4 mr-2 text-neon-green" />
                             Now Playing
                           </h3>
                           {(() => {
-                            const nowPlaying = recentlyPlayed.find(track => track.isCurrentlyPlaying);
+                            const nowPlaying = recentlyPlayed.find(
+                              (track) => track.isCurrentlyPlaying,
+                            );
                             return nowPlaying ? (
                               <motion.div
                                 initial={{ opacity: 0, scale: 0.95 }}
@@ -1421,18 +1431,26 @@ export default function Profile() {
                                 className="relative h-32 rounded-xl overflow-hidden group cursor-pointer"
                                 style={{
                                   backgroundImage: `linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.4)), url(${nowPlaying.coverUrl})`,
-                                  backgroundSize: 'cover',
-                                  backgroundPosition: 'center',
+                                  backgroundSize: "cover",
+                                  backgroundPosition: "center",
                                 }}
                                 onClick={() => handlePlay(nowPlaying.id)}
                               >
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
                                 <div className="absolute bottom-3 left-3 right-3">
-                                  <h4 className="text-white font-semibold text-sm mb-1">{nowPlaying.title}</h4>
-                                  <p className="text-white/80 text-xs">{nowPlaying.artist}</p>
+                                  <h4 className="text-white font-semibold text-sm mb-1">
+                                    {nowPlaying.title}
+                                  </h4>
+                                  <p className="text-white/80 text-xs">
+                                    {nowPlaying.artist}
+                                  </p>
                                   <div className="flex items-center justify-between mt-2">
-                                    <span className="text-neon-green text-xs font-medium">● PLAYING</span>
-                                    <span className="text-white/60 text-xs">{formatDuration(nowPlaying.duration)}</span>
+                                    <span className="text-neon-green text-xs font-medium">
+                                      ● PLAYING
+                                    </span>
+                                    <span className="text-white/60 text-xs">
+                                      {formatDuration(nowPlaying.duration)}
+                                    </span>
                                   </div>
                                 </div>
                                 <motion.div
@@ -1459,35 +1477,43 @@ export default function Profile() {
                           Recently Played
                         </h3>
                         <div className="grid grid-cols-2 gap-3">
-                          {recentlyPlayed.filter(track => !track.isCurrentlyPlaying).map((track, index) => (
-                            <motion.div
-                              key={track.id}
-                              initial={{ opacity: 0, y: 20 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ delay: index * 0.1 }}
-                              className="relative h-24 rounded-lg overflow-hidden group cursor-pointer"
-                              style={{
-                                backgroundImage: `linear-gradient(135deg, rgba(0,0,0,0.6), rgba(0,0,0,0.3)), url(${track.coverUrl})`,
-                                backgroundSize: 'cover',
-                                backgroundPosition: 'center',
-                              }}
-                              onClick={() => handlePlay(track.id)}
-                            >
-                              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                              <div className="absolute bottom-2 left-2 right-2">
-                                <h4 className="text-white font-medium text-xs mb-0.5 truncate">{track.title}</h4>
-                                <p className="text-white/70 text-[10px] truncate">{track.artist}</p>
-                                <p className="text-white/50 text-[9px] mt-0.5">{track.playedAt}</p>
-                              </div>
+                          {recentlyPlayed
+                            .filter((track) => !track.isCurrentlyPlaying)
+                            .map((track, index) => (
                               <motion.div
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                className="absolute top-2 right-2 w-6 h-6 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm"
+                                key={track.id}
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: index * 0.1 }}
+                                className="relative h-24 rounded-lg overflow-hidden group cursor-pointer"
+                                style={{
+                                  backgroundImage: `linear-gradient(135deg, rgba(0,0,0,0.6), rgba(0,0,0,0.3)), url(${track.coverUrl})`,
+                                  backgroundSize: "cover",
+                                  backgroundPosition: "center",
+                                }}
+                                onClick={() => handlePlay(track.id)}
                               >
-                                <Play className="w-3 h-3 text-white ml-0.5" />
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                                <div className="absolute bottom-2 left-2 right-2">
+                                  <h4 className="text-white font-medium text-xs mb-0.5 truncate">
+                                    {track.title}
+                                  </h4>
+                                  <p className="text-white/70 text-[10px] truncate">
+                                    {track.artist}
+                                  </p>
+                                  <p className="text-white/50 text-[9px] mt-0.5">
+                                    {track.playedAt}
+                                  </p>
+                                </div>
+                                <motion.div
+                                  whileHover={{ scale: 1.1 }}
+                                  whileTap={{ scale: 0.9 }}
+                                  className="absolute top-2 right-2 w-6 h-6 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm"
+                                >
+                                  <Play className="w-3 h-3 text-white ml-0.5" />
+                                </motion.div>
                               </motion.div>
-                            </motion.div>
-                          ))}
+                            ))}
                         </div>
                       </div>
 
