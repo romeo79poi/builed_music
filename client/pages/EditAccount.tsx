@@ -23,6 +23,8 @@ import {
   Info,
   Verified,
   Crown,
+  Award,
+  Sparkles,
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
