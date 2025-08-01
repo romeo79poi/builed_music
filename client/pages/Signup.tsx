@@ -814,7 +814,7 @@ export default function Signup() {
               console.log("✅ User created with Firebase:", result.user);
 
               setTimeout(() => {
-                navigate("/profile");
+                navigate("/home");
               }, 2000);
             } else {
               setErrorAlert(
