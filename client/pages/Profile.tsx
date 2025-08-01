@@ -524,6 +524,7 @@ export default function Profile() {
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
+                    onClick={() => navigate("/messages")}
                     className="px-4 py-2 bg-black rounded-lg transition-colors"
                     style={{
                       boxShadow: `
