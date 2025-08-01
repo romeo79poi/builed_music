@@ -45,7 +45,8 @@ export const registerUser: RequestHandler = async (req, res) => {
     }
 
     // Check if user already exists
-    const { data: existingUserByEmail } = await serverSupabase.getUserByEmail(email);
+    const { data: existingUserByEmail } =
+      await serverSupabase.getUserByEmail(email);
     if (existingUserByEmail) {
       return res.status(400).json({
         success: false,
@@ -53,7 +54,8 @@ export const registerUser: RequestHandler = async (req, res) => {
       });
     }
 
-    const { data: existingUserByUsername } = await serverSupabase.getUserByUsername(username);
+    const { data: existingUserByUsername } =
+      await serverSupabase.getUserByUsername(username);
     if (existingUserByUsername) {
       return res.status(400).json({
         success: false,
@@ -112,15 +114,20 @@ export const checkAvailability: RequestHandler = async (req, res) => {
   try {
     const { email, username } = req.query;
 
-    const result: { emailAvailable?: boolean; usernameAvailable?: boolean } = {};
+    const result: { emailAvailable?: boolean; usernameAvailable?: boolean } =
+      {};
 
     if (email) {
-      const { available } = await serverSupabase.checkEmailAvailability(email.toString());
+      const { available } = await serverSupabase.checkEmailAvailability(
+        email.toString(),
+      );
       result.emailAvailable = available;
     }
 
     if (username) {
-      const { available } = await serverSupabase.checkUsernameAvailability(username.toString());
+      const { available } = await serverSupabase.checkUsernameAvailability(
+        username.toString(),
+      );
       result.usernameAvailable = available;
     }
 
@@ -191,7 +198,7 @@ export const sendEmailVerification: RequestHandler = async (req, res) => {
 
     // In development, also show preview URL and debug code
     if (process.env.NODE_ENV === "development") {
-      console.log(`🔗 Email preview: ${emailResult.previewUrl || 'N/A'}`);
+      console.log(`🔗 Email preview: ${emailResult.previewUrl || "N/A"}`);
       console.log(`🔑 Debug code: ${verificationCode}`);
     }
 
@@ -199,8 +206,12 @@ export const sendEmailVerification: RequestHandler = async (req, res) => {
       success: true,
       message: "Verification code sent to your email successfully",
       // For development only - remove in production
-      debugCode: process.env.NODE_ENV === "development" ? verificationCode : undefined,
-      previewUrl: process.env.NODE_ENV === "development" ? emailResult.previewUrl : undefined,
+      debugCode:
+        process.env.NODE_ENV === "development" ? verificationCode : undefined,
+      previewUrl:
+        process.env.NODE_ENV === "development"
+          ? emailResult.previewUrl
+          : undefined,
     });
   } catch (error) {
     console.error("Send email verification error:", error);
@@ -332,7 +343,8 @@ export const completeRegistration: RequestHandler = async (req, res) => {
     }
 
     // Check if user already exists
-    const { data: existingUserByEmail } = await serverSupabase.getUserByEmail(email);
+    const { data: existingUserByEmail } =
+      await serverSupabase.getUserByEmail(email);
     if (existingUserByEmail) {
       return res.status(400).json({
         success: false,
@@ -340,7 +352,8 @@ export const completeRegistration: RequestHandler = async (req, res) => {
       });
     }
 
-    const { data: existingUserByUsername } = await serverSupabase.getUserByUsername(username);
+    const { data: existingUserByUsername } =
+      await serverSupabase.getUserByUsername(username);
     if (existingUserByUsername) {
       return res.status(400).json({
         success: false,
@@ -462,9 +475,9 @@ export const loginUser: RequestHandler = async (req, res) => {
 export const getUsers: RequestHandler = async (req, res) => {
   try {
     const { data: users, error } = await serverSupabase.supabase
-      .from('users')
-      .select('id, email, username, name, created_at, is_verified')
-      .order('created_at', { ascending: false });
+      .from("users")
+      .select("id, email, username, name, created_at, is_verified")
+      .order("created_at", { ascending: false });
 
     if (error) {
       console.error("Supabase error:", error);

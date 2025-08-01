@@ -1,16 +1,16 @@
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
 
 // Create email transporter
 const createTransporter = () => {
   // Use Gmail SMTP for real email delivery
   // Configure your Gmail credentials via environment variables or use these demo settings
 
-  const emailUser = process.env.EMAIL_USER || 'musiccatch.verify@gmail.com';
-  const emailPass = process.env.EMAIL_PASS || 'xypt zqmr wrgt jwbs'; // App-specific password
+  const emailUser = process.env.EMAIL_USER || "musiccatch.verify@gmail.com";
+  const emailPass = process.env.EMAIL_PASS || "xypt zqmr wrgt jwbs"; // App-specific password
 
   return nodemailer.createTransporter({
-    service: 'gmail',
-    host: 'smtp.gmail.com',
+    service: "gmail",
+    host: "smtp.gmail.com",
     port: 587,
     secure: false,
     auth: {
@@ -18,13 +18,16 @@ const createTransporter = () => {
       pass: emailPass,
     },
     tls: {
-      rejectUnauthorized: false
-    }
+      rejectUnauthorized: false,
+    },
   });
 };
 
 // Beautiful HTML email template
-const createVerificationEmailHTML = (verificationCode: string, email: string) => {
+const createVerificationEmailHTML = (
+  verificationCode: string,
+  email: string,
+) => {
   return `
 <!DOCTYPE html>
 <html lang="en">
@@ -281,14 +284,17 @@ const createVerificationEmailHTML = (verificationCode: string, email: string) =>
 };
 
 // Send verification email
-export const sendVerificationEmail = async (email: string, verificationCode: string) => {
+export const sendVerificationEmail = async (
+  email: string,
+  verificationCode: string,
+) => {
   try {
     const transporter = createTransporter();
-    
+
     const mailOptions = {
       from: '"Music Catch" <noreply@musiccatch.com>',
       to: email,
-      subject: '🎵 Verify your Music Catch account',
+      subject: "🎵 Verify your Music Catch account",
       html: createVerificationEmailHTML(verificationCode, email),
       // Text fallback for email clients that don't support HTML
       text: `
@@ -306,27 +312,32 @@ Best regards,
 The Music Catch Team
       `.trim(),
     };
-    
+
     // Send email
     const info = await transporter.sendMail(mailOptions);
-    
-    console.log('✅ Verification email sent successfully:', {
+
+    console.log("✅ Verification email sent successfully:", {
       messageId: info.messageId,
       to: email,
-      preview: process.env.NODE_ENV !== 'production' ? nodemailer.getTestMessageUrl(info) : undefined,
+      preview:
+        process.env.NODE_ENV !== "production"
+          ? nodemailer.getTestMessageUrl(info)
+          : undefined,
     });
-    
+
     return {
       success: true,
       messageId: info.messageId,
-      previewUrl: process.env.NODE_ENV !== 'production' ? nodemailer.getTestMessageUrl(info) : undefined,
+      previewUrl:
+        process.env.NODE_ENV !== "production"
+          ? nodemailer.getTestMessageUrl(info)
+          : undefined,
     };
-    
   } catch (error) {
-    console.error('❌ Failed to send verification email:', error);
+    console.error("❌ Failed to send verification email:", error);
     return {
       success: false,
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: error instanceof Error ? error.message : "Unknown error",
     };
   }
 };
@@ -335,11 +346,11 @@ The Music Catch Team
 export const sendWelcomeEmail = async (email: string, name: string) => {
   try {
     const transporter = createTransporter();
-    
+
     const mailOptions = {
       from: '"Music Catch Team" <hello@musiccatch.com>',
       to: email,
-      subject: '🎉 Welcome to Music Catch!',
+      subject: "🎉 Welcome to Music Catch!",
       html: `
 <!DOCTYPE html>
 <html>
@@ -388,18 +399,20 @@ Thanks for joining us!
 The Music Catch Team
       `.trim(),
     };
-    
+
     const info = await transporter.sendMail(mailOptions);
-    
-    console.log('✅ Welcome email sent successfully:', {
+
+    console.log("✅ Welcome email sent successfully:", {
       messageId: info.messageId,
       to: email,
     });
-    
+
     return { success: true, messageId: info.messageId };
-    
   } catch (error) {
-    console.error('❌ Failed to send welcome email:', error);
-    return { success: false, error: error instanceof Error ? error.message : 'Unknown error' };
+    console.error("❌ Failed to send welcome email:", error);
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+    };
   }
 };

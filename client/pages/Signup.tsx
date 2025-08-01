@@ -226,7 +226,10 @@ export default function Signup() {
 
   const validateDateOfBirth = (): boolean => {
     if (!formData.dateOfBirth) {
-      setErrors((prev) => ({ ...prev, dateOfBirth: "Date of birth is required" }));
+      setErrors((prev) => ({
+        ...prev,
+        dateOfBirth: "Date of birth is required",
+      }));
       return false;
     }
 
@@ -235,12 +238,18 @@ export default function Signup() {
     const age = today.getFullYear() - birthDate.getFullYear();
 
     if (age < 13) {
-      setErrors((prev) => ({ ...prev, dateOfBirth: "You must be at least 13 years old" }));
+      setErrors((prev) => ({
+        ...prev,
+        dateOfBirth: "You must be at least 13 years old",
+      }));
       return false;
     }
 
     if (age > 120) {
-      setErrors((prev) => ({ ...prev, dateOfBirth: "Please enter a valid date of birth" }));
+      setErrors((prev) => ({
+        ...prev,
+        dateOfBirth: "Please enter a valid date of birth",
+      }));
       return false;
     }
 
@@ -259,7 +268,10 @@ export default function Signup() {
 
   const validateBio = (): boolean => {
     if (formData.bio.length > 500) {
-      setErrors((prev) => ({ ...prev, bio: "Bio must be less than 500 characters" }));
+      setErrors((prev) => ({
+        ...prev,
+        bio: "Bio must be less than 500 characters",
+      }));
       return false;
     }
     setErrors((prev) => ({ ...prev, bio: undefined }));
@@ -690,7 +702,8 @@ export default function Signup() {
             console.log(`🔗 Email preview: ${data.previewUrl}`);
             toast({
               title: "📧 Development Mode",
-              description: "Check console for email preview link and debug code",
+              description:
+                "Check console for email preview link and debug code",
             });
           }
 
@@ -1842,7 +1855,9 @@ export default function Signup() {
                 <div
                   className="flex justify-center space-x-2 sm:space-x-3 mb-4 relative cursor-text"
                   onClick={() => {
-                    const input = document.querySelector('#verification-input') as HTMLInputElement;
+                    const input = document.querySelector(
+                      "#verification-input",
+                    ) as HTMLInputElement;
                     if (input) input.focus();
                   }}
                 >
@@ -1851,8 +1866,12 @@ export default function Signup() {
                       key={index}
                       className="w-10 h-12 sm:w-12 sm:h-14 bg-purple-dark/30 border border-purple-primary/30 rounded-xl flex items-center justify-center text-white text-lg sm:text-xl font-bold tracking-wider transition-all duration-200"
                       style={{
-                        borderColor: formData.otp[index] ? 'hsl(var(--purple-primary))' : undefined,
-                        backgroundColor: formData.otp[index] ? 'hsl(var(--purple-primary) / 0.1)' : undefined
+                        borderColor: formData.otp[index]
+                          ? "hsl(var(--purple-primary))"
+                          : undefined,
+                        backgroundColor: formData.otp[index]
+                          ? "hsl(var(--purple-primary) / 0.1)"
+                          : undefined,
                       }}
                     >
                       {formData.otp[index] ? "●" : ""}
@@ -1865,7 +1884,9 @@ export default function Signup() {
                     type="text"
                     value={formData.otp}
                     onChange={(e) => {
-                      const value = e.target.value.replace(/\D/g, "").slice(0, 6);
+                      const value = e.target.value
+                        .replace(/\D/g, "")
+                        .slice(0, 6);
                       setFormData((prev) => ({ ...prev, otp: value }));
                     }}
                     className="absolute inset-0 w-full h-full opacity-0 cursor-text"
@@ -2081,8 +2102,18 @@ export default function Signup() {
             >
               <div className="text-center mb-4 sm:mb-6">
                 <div className="w-12 h-12 sm:w-16 sm:h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                  <svg className="w-6 h-6 sm:w-8 sm:h-8 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  <svg
+                    className="w-6 h-6 sm:w-8 sm:h-8 text-blue-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
                   </svg>
                 </div>
                 <h3 className="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">
@@ -2101,11 +2132,14 @@ export default function Signup() {
                   type="date"
                   value={formData.dateOfBirth}
                   onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, dateOfBirth: e.target.value }))
+                    setFormData((prev) => ({
+                      ...prev,
+                      dateOfBirth: e.target.value,
+                    }))
                   }
                   className="w-full h-12 sm:h-14 bg-purple-dark/30 border border-purple-primary/30 rounded-xl px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:border-purple-primary focus:ring-2 focus:ring-purple-primary/20 transition-all duration-200 text-sm sm:text-base backdrop-blur-sm"
                   disabled={isLoading}
-                  max={new Date().toISOString().split('T')[0]}
+                  max={new Date().toISOString().split("T")[0]}
                 />
                 {errors.dateOfBirth && (
                   <p className="text-red-400 text-xs sm:text-sm mt-2 flex items-center">
@@ -2147,8 +2181,18 @@ export default function Signup() {
             >
               <div className="text-center mb-4 sm:mb-6">
                 <div className="w-12 h-12 sm:w-16 sm:h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                  <svg className="w-6 h-6 sm:w-8 sm:h-8 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  <svg
+                    className="w-6 h-6 sm:w-8 sm:h-8 text-green-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
                   </svg>
                 </div>
                 <h3 className="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">
@@ -2175,8 +2219,18 @@ export default function Signup() {
                         className="w-full h-full rounded-full object-cover"
                       />
                     ) : (
-                      <svg className="w-8 h-8 sm:w-12 sm:h-12 text-purple-primary/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      <svg
+                        className="w-8 h-8 sm:w-12 sm:h-12 text-purple-primary/60"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                        />
                       </svg>
                     )}
                   </div>
@@ -2237,8 +2291,18 @@ export default function Signup() {
             >
               <div className="text-center mb-4 sm:mb-6">
                 <div className="w-12 h-12 sm:w-16 sm:h-16 bg-pink-500/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                  <svg className="w-6 h-6 sm:w-8 sm:h-8 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  <svg
+                    className="w-6 h-6 sm:w-8 sm:h-8 text-pink-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    />
                   </svg>
                 </div>
                 <h3 className="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">
@@ -2250,19 +2314,23 @@ export default function Signup() {
               </div>
 
               <div className="space-y-3">
-                {["Male", "Female", "Non-binary", "Prefer not to say"].map((option) => (
-                  <button
-                    key={option}
-                    onClick={() => setFormData((prev) => ({ ...prev, gender: option }))}
-                    className={`w-full h-12 sm:h-14 rounded-xl border-2 transition-all duration-200 flex items-center justify-center text-sm sm:text-base font-medium ${
-                      formData.gender === option
-                        ? "bg-purple-primary/20 border-purple-primary text-purple-primary"
-                        : "bg-purple-dark/30 border-purple-primary/30 text-white hover:border-purple-primary/50 hover:bg-purple-primary/10"
-                    }`}
-                  >
-                    {option}
-                  </button>
-                ))}
+                {["Male", "Female", "Non-binary", "Prefer not to say"].map(
+                  (option) => (
+                    <button
+                      key={option}
+                      onClick={() =>
+                        setFormData((prev) => ({ ...prev, gender: option }))
+                      }
+                      className={`w-full h-12 sm:h-14 rounded-xl border-2 transition-all duration-200 flex items-center justify-center text-sm sm:text-base font-medium ${
+                        formData.gender === option
+                          ? "bg-purple-primary/20 border-purple-primary text-purple-primary"
+                          : "bg-purple-dark/30 border-purple-primary/30 text-white hover:border-purple-primary/50 hover:bg-purple-primary/10"
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  ),
+                )}
                 {errors.gender && (
                   <p className="text-red-400 text-xs sm:text-sm mt-2 flex items-center">
                     <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
@@ -2303,8 +2371,18 @@ export default function Signup() {
             >
               <div className="text-center mb-4 sm:mb-6">
                 <div className="w-12 h-12 sm:w-16 sm:h-16 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                  <svg className="w-6 h-6 sm:w-8 sm:h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  <svg
+                    className="w-6 h-6 sm:w-8 sm:h-8 text-orange-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                    />
                   </svg>
                 </div>
                 <h3 className="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">
