@@ -5,7 +5,6 @@ import {
   Eye,
   EyeOff,
   Loader2,
-  ArrowLeft,
   Mail,
   Phone,
   Wifi,
