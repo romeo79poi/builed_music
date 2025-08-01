@@ -1230,7 +1230,7 @@ export default function Signup() {
       {/* Background glow effect */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-primary/10 via-purple-secondary/5 to-purple-accent/8"></div>
 
-      <div className="relative z-10 w-full max-w-md px-2 sm:px-0">
+      <div className="relative z-10 w-full max-w-md px-2 sm:px-0 my-auto min-h-0">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
