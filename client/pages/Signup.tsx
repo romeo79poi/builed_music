@@ -41,7 +41,11 @@ type SignupStep =
   | "phone-verify"
   | "profile"
   | "verification"
-  | "password";
+  | "password"
+  | "dob"
+  | "profileImage"
+  | "gender"
+  | "bio";
 type SignupMethod = "email" | "phone";
 
 interface FormData {
@@ -52,6 +56,10 @@ interface FormData {
   password: string;
   confirmPassword: string;
   otp: string;
+  dateOfBirth: string;
+  profileImage: File | null;
+  gender: string;
+  bio: string;
 }
 
 interface ValidationErrors {
@@ -62,6 +70,10 @@ interface ValidationErrors {
   password?: string;
   confirmPassword?: string;
   otp?: string;
+  dateOfBirth?: string;
+  profileImage?: string;
+  gender?: string;
+  bio?: string;
 }
 
 export default function Signup() {
@@ -78,6 +90,10 @@ export default function Signup() {
     password: "",
     confirmPassword: "",
     otp: "",
+    dateOfBirth: "",
+    profileImage: null,
+    gender: "",
+    bio: "",
   });
 
   const [errors, setErrors] = useState<ValidationErrors>({});
@@ -206,6 +222,60 @@ export default function Signup() {
 
     setErrors(newErrors);
     return isValid;
+  };
+
+  const validateDateOfBirth = (): boolean => {
+    if (!formData.dateOfBirth) {
+      setErrors((prev) => ({
+        ...prev,
+        dateOfBirth: "Date of birth is required",
+      }));
+      return false;
+    }
+
+    const birthDate = new Date(formData.dateOfBirth);
+    const today = new Date();
+    const age = today.getFullYear() - birthDate.getFullYear();
+
+    if (age < 13) {
+      setErrors((prev) => ({
+        ...prev,
+        dateOfBirth: "You must be at least 13 years old",
+      }));
+      return false;
+    }
+
+    if (age > 120) {
+      setErrors((prev) => ({
+        ...prev,
+        dateOfBirth: "Please enter a valid date of birth",
+      }));
+      return false;
+    }
+
+    setErrors((prev) => ({ ...prev, dateOfBirth: undefined }));
+    return true;
+  };
+
+  const validateGender = (): boolean => {
+    if (!formData.gender) {
+      setErrors((prev) => ({ ...prev, gender: "Please select your gender" }));
+      return false;
+    }
+    setErrors((prev) => ({ ...prev, gender: undefined }));
+    return true;
+  };
+
+  const validateBio = (): boolean => {
+    if (formData.bio.length > 500) {
+      setErrors((prev) => ({
+        ...prev,
+        bio: "Bio must be less than 500 characters",
+      }));
+      return false;
+    }
+    setErrors((prev) => ({ ...prev, bio: undefined }));
+    return true;
   };
 
   // Check availability with backend
@@ -606,13 +676,45 @@ export default function Signup() {
       }
 
       if (useFirebaseAuth) {
-        // Skip email verification step for now and go directly to profile
-        // Firebase email verification will be sent after account creation
-        setCurrentStep("profile");
-        toast({
-          title: "Email verified!",
-          description: "You can now create your profile.",
+        // For email signup, send verification code via backend
+        const response = await fetch("/api/auth/send-email-verification", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email: formData.email }),
         });
+
+        const data = await response.json();
+
+        if (data.success) {
+          setCurrentStep("verification");
+          toast({
+            title: "✉️ Verification email sent!",
+            description: `Check your email at ${formData.email} for a beautiful verification code.`,
+          });
+
+          // For development, show code in console and preview URL
+          if (data.debugCode) {
+            console.log(`📧 Email verification code: ${data.debugCode}`);
+          }
+          if (data.previewUrl) {
+            console.log(`🔗 Email preview: ${data.previewUrl}`);
+            toast({
+              title: "📧 Development Mode",
+              description:
+                "Check console for email preview link and debug code",
+            });
+          }
+
+          setResendTimer(60);
+        } else {
+          toast({
+            title: "Failed to send verification code",
+            description: data.message || "Please try again",
+            variant: "destructive",
+          });
+        }
       } else {
         // Use backend email verification
         const response = await fetch("/api/auth/send-email-verification", {
@@ -748,6 +850,12 @@ export default function Signup() {
   const handlePasswordStep = async () => {
     if (!validatePassword()) return;
 
+    if (signupMethod === "email") {
+      // For email signup, proceed to DOB step
+      setCurrentStep("dob");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -839,7 +947,7 @@ export default function Signup() {
 
             if (data.success) {
               toast({
-                title: "Account created successfully! 🎉",
+                title: "Account created successfully! ��",
                 description: `Welcome to Music Catch, ${formData.name}!`,
               });
 
@@ -868,6 +976,106 @@ export default function Signup() {
     }
   };
 
+  const handleDOBStep = () => {
+    if (!validateDateOfBirth()) return;
+    setCurrentStep("profileImage");
+  };
+
+  const handleProfileImageStep = () => {
+    setCurrentStep("gender");
+  };
+
+  const handleGenderStep = () => {
+    if (!validateGender()) return;
+    setCurrentStep("bio");
+  };
+
+  const handleBioStep = async () => {
+    if (!validateBio()) return;
+
+    setIsLoading(true);
+
+    try {
+      // Clear any previous errors
+      setErrorAlert(null);
+
+      if (useFirebaseAuth) {
+        // Use Firebase email signup with verification
+        const result = await signUpWithEmailAndPasswordWithVerification(
+          formData.email,
+          formData.password,
+          formData.name,
+          formData.username,
+          formData.phone,
+        );
+
+        if (result.success) {
+          // Store user for email verification
+          if (result.user) {
+            setVerificationUser(result.user);
+            setEmailVerificationSent(true);
+          }
+
+          toast({
+            title: "Account created successfully! 🎉",
+            description: `Welcome to Music Catch, ${formData.name}! Please check your email for verification.`,
+          });
+
+          console.log("✅ User created with Firebase:", result.user);
+
+          setTimeout(() => {
+            navigate("/home");
+          }, 2000);
+        } else {
+          setErrorAlert(
+            result.error || "Registration failed. Please try again.",
+          );
+        }
+      } else {
+        // Use backend API for email registration
+        const response = await fetch("/api/auth/complete-registration", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: formData.email,
+            username: formData.username,
+            name: formData.name,
+            password: formData.password,
+            dateOfBirth: formData.dateOfBirth,
+            gender: formData.gender,
+            bio: formData.bio,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          toast({
+            title: "Account created successfully! 🎉",
+            description: `Welcome to Music Catch, ${formData.name}!`,
+          });
+
+          console.log("✅ User created with backend:", data.user);
+
+          setTimeout(() => {
+            navigate("/home");
+          }, 2000);
+        } else {
+          setErrorAlert(
+            data.message || "Registration failed. Please try again.",
+          );
+        }
+      }
+    } catch (error) {
+      console.error("Registration error:", error);
+      setErrorAlert("Network error. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const goBack = () => {
     if (currentStep === "email") {
       setCurrentStep("method");
@@ -885,6 +1093,14 @@ export default function Signup() {
       setCurrentStep("profile");
     } else if (currentStep === "password") {
       setCurrentStep("verification");
+    } else if (currentStep === "dob") {
+      setCurrentStep("password");
+    } else if (currentStep === "profileImage") {
+      setCurrentStep("dob");
+    } else if (currentStep === "gender") {
+      setCurrentStep("profileImage");
+    } else if (currentStep === "bio") {
+      setCurrentStep("gender");
     }
   };
 
@@ -1034,6 +1250,10 @@ export default function Signup() {
     profile: "Tell us about yourself",
     verification: "Verify your email",
     password: "Create your password",
+    dob: "When were you born?",
+    profileImage: "Add your profile picture",
+    gender: "What's your gender?",
+    bio: "Tell us more about yourself",
   };
 
   const stepDescriptions = {
@@ -1044,22 +1264,26 @@ export default function Signup() {
     profile: "Help others find you on Music Catch",
     verification: "Check your email and click the verification link",
     password: "Choose a secure password for your account",
+    dob: "We need your date of birth to verify your age",
+    profileImage: "Upload a photo to personalize your profile (optional)",
+    gender: "Help us personalize your experience",
+    bio: "Share something interesting about yourself (optional)",
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-darker via-background to-purple-dark flex flex-col items-center justify-center p-3 sm:p-6 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-purple-darker via-background to-purple-dark flex flex-col items-center py-4 sm:py-8 px-3 sm:px-6 relative overflow-auto">
       {/* Background glow effect */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-primary/10 via-purple-secondary/5 to-purple-accent/8"></div>
 
-      <div className="relative z-10 w-full max-w-md px-2 sm:px-0">
+      <div className="relative z-10 w-full max-w-md px-2 sm:px-0 flex-1 flex flex-col justify-center min-h-0">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center mb-6 sm:mb-8"
+          className="text-center mb-4 sm:mb-6"
         >
-          <div className="flex justify-center mb-3 sm:mb-4">
+          <div className="flex justify-center mb-1 sm:mb-2">
             <MusicCatchLogo
               animated={true}
               signupMode={true}
@@ -1286,7 +1510,13 @@ export default function Signup() {
                         `/api/auth/check-availability?${field}=${encodeURIComponent(value)}`,
                       );
                       const data = await response.json();
-                      return data.available === true;
+
+                      if (field === "email") {
+                        return data.emailAvailable === true;
+                      } else if (field === "username") {
+                        return data.usernameAvailable === true;
+                      }
+                      return false;
                     } catch {
                       return false;
                     }
@@ -1558,7 +1788,13 @@ export default function Signup() {
                         `/api/auth/check-availability?${field}=${encodeURIComponent(value)}`,
                       );
                       const data = await response.json();
-                      return data.available === true;
+
+                      if (field === "email") {
+                        return data.emailAvailable === true;
+                      } else if (field === "username") {
+                        return data.usernameAvailable === true;
+                      }
+                      return false;
                     } catch {
                       return false;
                     }
@@ -1609,27 +1845,57 @@ export default function Signup() {
                 <p className="text-white mb-2 text-sm sm:text-base">
                   Verification code sent to:
                 </p>
-                <p className="text-neon-green font-medium text-sm sm:text-base break-all">
+                <p className="text-purple-primary font-medium text-sm sm:text-base break-all">
                   {formData.email}
                 </p>
               </div>
 
               <div>
-                <label className="block text-white text-sm font-medium mb-2">
-                  Verification code
-                </label>
-                <input
-                  type="text"
-                  value={formData.otp}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, "").slice(0, 6);
-                    setFormData((prev) => ({ ...prev, otp: value }));
+                {/* Masked Input Display */}
+                <div
+                  className="flex justify-center space-x-2 sm:space-x-3 mb-4 relative cursor-text"
+                  onClick={() => {
+                    const input = document.querySelector(
+                      "#verification-input",
+                    ) as HTMLInputElement;
+                    if (input) input.focus();
                   }}
-                  placeholder="123456"
-                  className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors text-sm sm:text-base text-center tracking-wider"
-                  disabled={isLoading}
-                  maxLength={6}
-                />
+                >
+                  {[0, 1, 2, 3, 4, 5].map((index) => (
+                    <div
+                      key={index}
+                      className="w-10 h-12 sm:w-12 sm:h-14 bg-purple-dark/30 border border-purple-primary/30 rounded-xl flex items-center justify-center text-white text-lg sm:text-xl font-bold tracking-wider transition-all duration-200"
+                      style={{
+                        borderColor: formData.otp[index]
+                          ? "hsl(var(--purple-primary))"
+                          : undefined,
+                        backgroundColor: formData.otp[index]
+                          ? "hsl(var(--purple-primary) / 0.1)"
+                          : undefined,
+                      }}
+                    >
+                      {formData.otp[index] ? "●" : ""}
+                    </div>
+                  ))}
+
+                  {/* Hidden input field that captures typing */}
+                  <input
+                    id="verification-input"
+                    type="text"
+                    value={formData.otp}
+                    onChange={(e) => {
+                      const value = e.target.value
+                        .replace(/\D/g, "")
+                        .slice(0, 6);
+                      setFormData((prev) => ({ ...prev, otp: value }));
+                    }}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-text"
+                    disabled={isLoading}
+                    maxLength={6}
+                    autoFocus
+                    placeholder=""
+                  />
+                </div>
                 {errors.otp && (
                   <p className="text-red-400 text-xs sm:text-sm mt-2 flex items-center">
                     <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
@@ -1674,9 +1940,9 @@ export default function Signup() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="space-y-4 sm:space-y-6"
+              className="space-y-3 sm:space-y-4"
             >
-              <div className="text-center mb-4 sm:mb-6">
+              <div className="text-center mb-3 sm:mb-4">
                 <div className="w-12 h-12 sm:w-16 sm:h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                   <Lock className="w-6 h-6 sm:w-8 sm:h-8 text-purple-500" />
                 </div>
@@ -1819,8 +2085,361 @@ export default function Signup() {
                 {isLoading ? (
                   <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mx-auto" />
                 ) : (
+                  "Continue"
+                )}
+              </button>
+            </motion.div>
+          )}
+
+          {/* Date of Birth Step */}
+          {currentStep === "dob" && (
+            <motion.div
+              key="dob"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-4 sm:space-y-6"
+            >
+              <div className="text-center mb-4 sm:mb-6">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <svg
+                    className="w-6 h-6 sm:w-8 sm:h-8 text-blue-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">
+                  {stepTitles.dob}
+                </h3>
+                <p className="text-slate-400 text-xs sm:text-sm px-2">
+                  {stepDescriptions.dob}
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-white text-sm font-medium mb-2">
+                  Date of Birth
+                </label>
+                <input
+                  type="date"
+                  value={formData.dateOfBirth}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      dateOfBirth: e.target.value,
+                    }))
+                  }
+                  className="w-full h-12 sm:h-14 bg-purple-dark/30 border border-purple-primary/30 rounded-xl px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:border-purple-primary focus:ring-2 focus:ring-purple-primary/20 transition-all duration-200 text-sm sm:text-base backdrop-blur-sm"
+                  disabled={isLoading}
+                  max={new Date().toISOString().split("T")[0]}
+                />
+                {errors.dateOfBirth && (
+                  <p className="text-red-400 text-xs sm:text-sm mt-2 flex items-center">
+                    <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                    {errors.dateOfBirth}
+                  </p>
+                )}
+              </div>
+
+              <button
+                onClick={handleDOBStep}
+                disabled={isLoading || !formData.dateOfBirth}
+                className="w-full h-12 sm:h-14 bg-gradient-to-r from-purple-primary to-purple-secondary hover:from-purple-secondary hover:to-purple-accent text-white font-bold text-sm sm:text-lg rounded-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none shadow-lg shadow-purple-primary/30 hover:shadow-purple-secondary/40"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mx-auto" />
+                ) : (
+                  "Continue"
+                )}
+              </button>
+
+              <button
+                onClick={goBack}
+                className="w-full text-purple-primary hover:text-purple-secondary transition-colors text-sm mt-4"
+              >
+                ← Back
+              </button>
+            </motion.div>
+          )}
+
+          {/* Profile Image Step */}
+          {currentStep === "profileImage" && (
+            <motion.div
+              key="profileImage"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-4 sm:space-y-6"
+            >
+              <div className="text-center mb-4 sm:mb-6">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <svg
+                    className="w-6 h-6 sm:w-8 sm:h-8 text-green-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">
+                  {stepTitles.profileImage}
+                </h3>
+                <p className="text-slate-400 text-xs sm:text-sm px-2">
+                  {stepDescriptions.profileImage}
+                </p>
+                <button
+                  onClick={handleProfileImageStep}
+                  className="absolute top-4 right-4 text-purple-primary hover:text-purple-secondary transition-colors text-sm font-medium"
+                >
+                  Skip →
+                </button>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex justify-center">
+                  <div className="w-24 h-24 sm:w-32 sm:h-32 bg-purple-dark/50 border-2 border-dashed border-purple-primary/40 rounded-full flex items-center justify-center">
+                    {formData.profileImage ? (
+                      <img
+                        src={URL.createObjectURL(formData.profileImage)}
+                        alt="Profile preview"
+                        className="w-full h-full rounded-full object-cover"
+                      />
+                    ) : (
+                      <svg
+                        className="w-8 h-8 sm:w-12 sm:h-12 text-purple-primary/60"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                        />
+                      </svg>
+                    )}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-white text-sm font-medium mb-2">
+                    Upload Profile Picture
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] || null;
+                      setFormData((prev) => ({ ...prev, profileImage: file }));
+                    }}
+                    className="w-full h-12 sm:h-14 bg-purple-dark/30 border border-purple-primary/30 rounded-xl px-3 sm:px-4 text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-primary file:text-white hover:file:bg-purple-secondary focus:outline-none focus:border-purple-primary focus:ring-2 focus:ring-purple-primary/20 transition-all duration-200 text-sm sm:text-base backdrop-blur-sm"
+                    disabled={isLoading}
+                  />
+                  {errors.profileImage && (
+                    <p className="text-red-400 text-xs sm:text-sm mt-2 flex items-center">
+                      <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                      {errors.profileImage}
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              <button
+                onClick={handleProfileImageStep}
+                disabled={isLoading}
+                className="w-full h-12 sm:h-14 bg-gradient-to-r from-purple-primary to-purple-secondary hover:from-purple-secondary hover:to-purple-accent text-white font-bold text-sm sm:text-lg rounded-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none shadow-lg shadow-purple-primary/30 hover:shadow-purple-secondary/40"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mx-auto" />
+                ) : (
+                  "Continue"
+                )}
+              </button>
+
+              <button
+                onClick={goBack}
+                className="w-full text-purple-primary hover:text-purple-secondary transition-colors text-sm mt-4"
+              >
+                ← Back
+              </button>
+            </motion.div>
+          )}
+
+          {/* Gender Step */}
+          {currentStep === "gender" && (
+            <motion.div
+              key="gender"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-4 sm:space-y-6"
+            >
+              <div className="text-center mb-4 sm:mb-6">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-pink-500/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <svg
+                    className="w-6 h-6 sm:w-8 sm:h-8 text-pink-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">
+                  {stepTitles.gender}
+                </h3>
+                <p className="text-slate-400 text-xs sm:text-sm px-2">
+                  {stepDescriptions.gender}
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                {["Male", "Female", "Non-binary", "Prefer not to say"].map(
+                  (option) => (
+                    <button
+                      key={option}
+                      onClick={() =>
+                        setFormData((prev) => ({ ...prev, gender: option }))
+                      }
+                      className={`w-full h-12 sm:h-14 rounded-xl border-2 transition-all duration-200 flex items-center justify-center text-sm sm:text-base font-medium ${
+                        formData.gender === option
+                          ? "bg-purple-primary/20 border-purple-primary text-purple-primary"
+                          : "bg-purple-dark/30 border-purple-primary/30 text-white hover:border-purple-primary/50 hover:bg-purple-primary/10"
+                      }`}
+                    >
+                      {option}
+                    </button>
+                  ),
+                )}
+                {errors.gender && (
+                  <p className="text-red-400 text-xs sm:text-sm mt-2 flex items-center">
+                    <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                    {errors.gender}
+                  </p>
+                )}
+              </div>
+
+              <button
+                onClick={handleGenderStep}
+                disabled={isLoading || !formData.gender}
+                className="w-full h-12 sm:h-14 bg-gradient-to-r from-purple-primary to-purple-secondary hover:from-purple-secondary hover:to-purple-accent text-white font-bold text-sm sm:text-lg rounded-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none shadow-lg shadow-purple-primary/30 hover:shadow-purple-secondary/40"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mx-auto" />
+                ) : (
+                  "Continue"
+                )}
+              </button>
+
+              <button
+                onClick={goBack}
+                className="w-full text-purple-primary hover:text-purple-secondary transition-colors text-sm mt-4"
+              >
+                ← Back
+              </button>
+            </motion.div>
+          )}
+
+          {/* Bio Step */}
+          {currentStep === "bio" && (
+            <motion.div
+              key="bio"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-4 sm:space-y-6"
+            >
+              <div className="text-center mb-4 sm:mb-6">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <svg
+                    className="w-6 h-6 sm:w-8 sm:h-8 text-orange-500"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                    />
+                  </svg>
+                </div>
+                <h3 className="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">
+                  {stepTitles.bio}
+                </h3>
+                <p className="text-slate-400 text-xs sm:text-sm px-2">
+                  {stepDescriptions.bio}
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-white text-sm font-medium mb-2">
+                  Bio (Optional)
+                </label>
+                <textarea
+                  value={formData.bio}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, bio: e.target.value }))
+                  }
+                  placeholder="Tell us about your musical interests, favorite artists, or anything you'd like to share..."
+                  rows={4}
+                  className="w-full bg-purple-dark/30 border border-purple-primary/30 rounded-xl px-3 sm:px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:border-purple-primary focus:ring-2 focus:ring-purple-primary/20 transition-all duration-200 text-sm sm:text-base backdrop-blur-sm resize-none"
+                  disabled={isLoading}
+                  maxLength={500}
+                />
+                <div className="flex justify-between items-center mt-2">
+                  <div>
+                    {errors.bio && (
+                      <p className="text-red-400 text-xs sm:text-sm flex items-center">
+                        <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                        {errors.bio}
+                      </p>
+                    )}
+                  </div>
+                  <p className="text-slate-400 text-xs">
+                    {formData.bio.length}/500
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={handleBioStep}
+                disabled={isLoading}
+                className="w-full h-12 sm:h-14 bg-gradient-to-r from-purple-primary to-purple-secondary hover:from-purple-secondary hover:to-purple-accent text-white font-bold text-sm sm:text-lg rounded-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none shadow-lg shadow-purple-primary/30 hover:shadow-purple-secondary/40"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mx-auto" />
+                ) : (
                   "Create Account"
                 )}
+              </button>
+
+              <button
+                onClick={goBack}
+                className="w-full text-purple-primary hover:text-purple-secondary transition-colors text-sm mt-4"
+              >
+                ← Back
               </button>
             </motion.div>
           )}

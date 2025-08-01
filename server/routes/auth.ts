@@ -1,6 +1,7 @@
 import { RequestHandler } from "express";
 import { serverSupabase } from "../lib/supabase";
 import bcrypt from "bcrypt";
+import { sendVerificationEmail, sendWelcomeEmail } from "../lib/email";
 
 // In-memory storage for email verification codes
 const emailVerificationCodes: Map<
@@ -44,7 +45,8 @@ export const registerUser: RequestHandler = async (req, res) => {
     }
 
     // Check if user already exists
-    const { data: existingUserByEmail } = await serverSupabase.getUserByEmail(email);
+    const { data: existingUserByEmail } =
+      await serverSupabase.getUserByEmail(email);
     if (existingUserByEmail) {
       return res.status(400).json({
         success: false,
@@ -52,7 +54,8 @@ export const registerUser: RequestHandler = async (req, res) => {
       });
     }
 
-    const { data: existingUserByUsername } = await serverSupabase.getUserByUsername(username);
+    const { data: existingUserByUsername } =
+      await serverSupabase.getUserByUsername(username);
     if (existingUserByUsername) {
       return res.status(400).json({
         success: false,
@@ -111,15 +114,20 @@ export const checkAvailability: RequestHandler = async (req, res) => {
   try {
     const { email, username } = req.query;
 
-    const result: { emailAvailable?: boolean; usernameAvailable?: boolean } = {};
+    const result: { emailAvailable?: boolean; usernameAvailable?: boolean } =
+      {};
 
     if (email) {
-      const { available } = await serverSupabase.checkEmailAvailability(email.toString());
+      const { available } = await serverSupabase.checkEmailAvailability(
+        email.toString(),
+      );
       result.emailAvailable = available;
     }
 
     if (username) {
-      const { available } = await serverSupabase.checkUsernameAvailability(username.toString());
+      const { available } = await serverSupabase.checkUsernameAvailability(
+        username.toString(),
+      );
       result.usernameAvailable = available;
     }
 
@@ -171,16 +179,39 @@ export const sendEmailVerification: RequestHandler = async (req, res) => {
       attempts: 0,
     });
 
-    // In production, send actual email via SendGrid, Nodemailer, etc.
-    console.log(`📧 Email verification code for ${email}: ${verificationCode}`);
+    // Send actual email with beautiful design
+    const emailResult = await sendVerificationEmail(email, verificationCode);
+
+    if (!emailResult.success) {
+      console.error("Failed to send verification email:", emailResult.error);
+      // Still return success for development but log the error
+      if (process.env.NODE_ENV === "production") {
+        return res.status(500).json({
+          success: false,
+          message: "Failed to send verification email. Please try again.",
+        });
+      }
+    }
+
+    console.log(`📧 Verification email sent to: ${email}`);
     console.log(`🕒 Code expires at: ${expiry.toISOString()}`);
+
+    // In development, also show preview URL and debug code
+    if (process.env.NODE_ENV === "development") {
+      console.log(`🔗 Email preview: ${emailResult.previewUrl || "N/A"}`);
+      console.log(`🔑 Debug code: ${verificationCode}`);
+    }
 
     res.json({
       success: true,
-      message: "Verification code sent successfully",
+      message: "Verification code sent to your email successfully",
       // For development only - remove in production
       debugCode:
         process.env.NODE_ENV === "development" ? verificationCode : undefined,
+      previewUrl:
+        process.env.NODE_ENV === "development"
+          ? emailResult.previewUrl
+          : undefined,
     });
   } catch (error) {
     console.error("Send email verification error:", error);
@@ -312,7 +343,8 @@ export const completeRegistration: RequestHandler = async (req, res) => {
     }
 
     // Check if user already exists
-    const { data: existingUserByEmail } = await serverSupabase.getUserByEmail(email);
+    const { data: existingUserByEmail } =
+      await serverSupabase.getUserByEmail(email);
     if (existingUserByEmail) {
       return res.status(400).json({
         success: false,
@@ -320,7 +352,8 @@ export const completeRegistration: RequestHandler = async (req, res) => {
       });
     }
 
-    const { data: existingUserByUsername } = await serverSupabase.getUserByUsername(username);
+    const { data: existingUserByUsername } =
+      await serverSupabase.getUserByUsername(username);
     if (existingUserByUsername) {
       return res.status(400).json({
         success: false,
@@ -348,6 +381,9 @@ export const completeRegistration: RequestHandler = async (req, res) => {
         message: "Failed to create user account",
       });
     }
+
+    // Send welcome email
+    await sendWelcomeEmail(email, name);
 
     // Return success response (without password)
     const { password: _, ...userResponse } = newUser;
@@ -439,9 +475,9 @@ export const loginUser: RequestHandler = async (req, res) => {
 export const getUsers: RequestHandler = async (req, res) => {
   try {
     const { data: users, error } = await serverSupabase.supabase
-      .from('users')
-      .select('id, email, username, name, created_at, is_verified')
-      .order('created_at', { ascending: false });
+      .from("users")
+      .select("id, email, username, name, created_at, is_verified")
+      .order("created_at", { ascending: false });
 
     if (error) {
       console.error("Supabase error:", error);
