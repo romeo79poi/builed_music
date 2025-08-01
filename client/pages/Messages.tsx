@@ -610,7 +610,7 @@ const Messages = () => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => navigate("/home")}
+              onClick={handleBackNavigation}
               className="hover:bg-accent"
             >
               <ArrowLeft className="h-5 w-5" />
