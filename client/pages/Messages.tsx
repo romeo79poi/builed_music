@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   ArrowLeft,
   Search,
@@ -54,6 +54,7 @@ import { useMessaging, useChat } from "@/lib/messaging-service";
 
 const Messages = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const [activeChat, setActiveChat] = useState<string | null>(null);
   const [messageInput, setMessageInput] = useState("");
@@ -82,6 +83,16 @@ const Messages = () => {
   } = useChat(activeChat || "");
 
   const reactionEmojis = ["❤️", "😂", "😮", "😢", "😡", "👍"];
+
+  // Handle back navigation based on where user came from
+  const handleBackNavigation = () => {
+    const fromState = location.state?.from;
+    if (fromState === "profile") {
+      navigate("/profile");
+    } else {
+      navigate("/home");
+    }
+  };
 
   const filteredChats = chats.filter((chat) => {
     if (currentView === "requests") return false; // Placeholder for message requests
@@ -599,7 +610,7 @@ const Messages = () => {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => navigate("/home")}
+              onClick={handleBackNavigation}
               className="hover:bg-accent"
             >
               <ArrowLeft className="h-5 w-5" />
