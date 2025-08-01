@@ -1465,7 +1465,13 @@ export default function Signup() {
                         `/api/auth/check-availability?${field}=${encodeURIComponent(value)}`,
                       );
                       const data = await response.json();
-                      return data.available === true;
+
+                      if (field === "email") {
+                        return data.emailAvailable === true;
+                      } else if (field === "username") {
+                        return data.usernameAvailable === true;
+                      }
+                      return false;
                     } catch {
                       return false;
                     }
@@ -1737,7 +1743,13 @@ export default function Signup() {
                         `/api/auth/check-availability?${field}=${encodeURIComponent(value)}`,
                       );
                       const data = await response.json();
-                      return data.available === true;
+
+                      if (field === "email") {
+                        return data.emailAvailable === true;
+                      } else if (field === "username") {
+                        return data.usernameAvailable === true;
+                      }
+                      return false;
                     } catch {
                       return false;
                     }
