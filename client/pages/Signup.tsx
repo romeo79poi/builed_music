@@ -1853,9 +1853,9 @@ export default function Signup() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="space-y-4 sm:space-y-6"
+              className="space-y-3 sm:space-y-4"
             >
-              <div className="text-center mb-4 sm:mb-6">
+              <div className="text-center mb-3 sm:mb-4">
                 <div className="w-12 h-12 sm:w-16 sm:h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
                   <Lock className="w-6 h-6 sm:w-8 sm:h-8 text-purple-500" />
                 </div>
