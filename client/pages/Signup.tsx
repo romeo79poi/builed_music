@@ -1825,15 +1825,33 @@ export default function Signup() {
                 <p className="text-white mb-2 text-sm sm:text-base">
                   Verification code sent to:
                 </p>
-                <p className="text-neon-green font-medium text-sm sm:text-base break-all">
+                <p className="text-purple-primary font-medium text-sm sm:text-base break-all">
                   {formData.email}
                 </p>
               </div>
 
               <div>
-                <label className="block text-white text-sm font-medium mb-2">
+                <label className="block text-white text-sm font-medium mb-3">
                   Verification code
                 </label>
+
+                {/* Masked Input Display */}
+                <div className="flex justify-center space-x-2 sm:space-x-3 mb-4">
+                  {[0, 1, 2, 3, 4, 5].map((index) => (
+                    <div
+                      key={index}
+                      className="w-10 h-12 sm:w-12 sm:h-14 bg-purple-dark/30 border border-purple-primary/30 rounded-xl flex items-center justify-center text-white text-lg sm:text-xl font-bold tracking-wider transition-all duration-200"
+                      style={{
+                        borderColor: formData.otp[index] ? 'hsl(var(--purple-primary))' : undefined,
+                        backgroundColor: formData.otp[index] ? 'hsl(var(--purple-primary) / 0.1)' : undefined
+                      }}
+                    >
+                      {formData.otp[index] ? "●" : ""}
+                    </div>
+                  ))}
+                </div>
+
+                {/* Hidden actual input */}
                 <input
                   type="text"
                   value={formData.otp}
@@ -1841,10 +1859,15 @@ export default function Signup() {
                     const value = e.target.value.replace(/\D/g, "").slice(0, 6);
                     setFormData((prev) => ({ ...prev, otp: value }));
                   }}
-                  placeholder="123456"
-                  className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors text-sm sm:text-base text-center tracking-wider"
+                  className="w-full h-12 sm:h-14 bg-purple-dark/30 border border-purple-primary/30 rounded-xl px-3 sm:px-4 text-transparent caret-transparent focus:outline-none focus:border-purple-primary focus:ring-2 focus:ring-purple-primary/20 transition-all duration-200 text-center tracking-wider"
                   disabled={isLoading}
                   maxLength={6}
+                  autoFocus
+                  placeholder=""
+                  style={{
+                    caretColor: 'transparent',
+                    color: 'transparent'
+                  }}
                 />
                 {errors.otp && (
                   <p className="text-red-400 text-xs sm:text-sm mt-2 flex items-center">
