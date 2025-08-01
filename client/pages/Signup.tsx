@@ -1206,6 +1206,10 @@ export default function Signup() {
     profile: "Tell us about yourself",
     verification: "Verify your email",
     password: "Create your password",
+    dob: "When were you born?",
+    profileImage: "Add your profile picture",
+    gender: "What's your gender?",
+    bio: "Tell us more about yourself",
   };
 
   const stepDescriptions = {
@@ -1216,6 +1220,10 @@ export default function Signup() {
     profile: "Help others find you on Music Catch",
     verification: "Check your email and click the verification link",
     password: "Choose a secure password for your account",
+    dob: "We need your date of birth to verify your age",
+    profileImage: "Upload a photo to personalize your profile (optional)",
+    gender: "Help us personalize your experience",
+    bio: "Share something interesting about yourself (optional)",
   };
 
   return (
