@@ -215,8 +215,9 @@ const samplePlaylists: Playlist[] = [
 export default function Profile() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+
   const [profile, setProfile] = useState<UserProfile>(sampleProfile);
+  const [uploading, setUploading] = useState(false);
   const [tracks] = useState<Track[]>(sampleTracks);
   const [playlists] = useState<Playlist[]>(samplePlaylists);
   const [selectedTab, setSelectedTab] = useState("tracks");
@@ -233,7 +234,6 @@ export default function Profile() {
     username: profile.username,
     bio: profile.bio,
     location: profile.location,
-    website: profile.website,
     socialLinks: {
       instagram: profile.socialLinks.instagram || "",
       twitter: profile.socialLinks.twitter || "",
@@ -306,7 +306,6 @@ export default function Profile() {
       username: editForm.username,
       bio: editForm.bio,
       location: editForm.location,
-      website: editForm.website,
       socialLinks: {
         instagram: editForm.socialLinks.instagram || undefined,
         twitter: editForm.socialLinks.twitter || undefined,
@@ -326,7 +325,6 @@ export default function Profile() {
       username: profile.username,
       bio: profile.bio,
       location: profile.location,
-      website: profile.website,
       socialLinks: {
         instagram: profile.socialLinks.instagram || "",
         twitter: profile.socialLinks.twitter || "",
@@ -335,6 +333,59 @@ export default function Profile() {
     });
     setIsEditing(false);
   };
+
+  const handleAvatarUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setUploading(true);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const newAvatar = e.target?.result as string;
+        setProfile(prev => ({ ...prev, avatar: newAvatar }));
+        // Store in localStorage for persistence
+        localStorage.setItem('userAvatar', newAvatar);
+        setUploading(false);
+        toast({
+          title: "Profile Image Updated",
+          description: "Your profile image has been updated successfully",
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleCoverUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setUploading(true);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const newCover = e.target?.result as string;
+        setProfile(prev => ({ ...prev, coverImage: newCover }));
+        // Store in localStorage for persistence
+        localStorage.setItem('userCoverImage', newCover);
+        setUploading(false);
+        toast({
+          title: "Cover Image Updated",
+          description: "Your cover image has been updated successfully",
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // Load saved images on component mount
+  useEffect(() => {
+    const savedAvatar = localStorage.getItem('userAvatar');
+    const savedCover = localStorage.getItem('userCoverImage');
+    if (savedAvatar || savedCover) {
+      setProfile(prev => ({
+        ...prev,
+        ...(savedAvatar && { avatar: savedAvatar }),
+        ...(savedCover && { coverImage: savedCover })
+      }));
+    }
+  }, []);
 
   const getBadgeInfo = (badge: string) => {
     switch (badge) {
@@ -385,45 +436,6 @@ export default function Profile() {
           <h1 className="text-base font-bold text-foreground">Profile</h1>
 
           <div className="flex items-center space-x-1">
-            {!isEditing ? (
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setIsEditing(true)}
-                className="w-10 h-10 rounded-full bg-purple-primary/20 hover:bg-purple-primary/30 flex items-center justify-center transition-colors"
-              >
-                <Edit3 className="w-5 h-5 text-purple-primary" />
-              </motion.button>
-            ) : (
-              <>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleCancelEdit}
-                  className="w-10 h-10 rounded-full bg-muted hover:bg-muted/80 flex items-center justify-center transition-colors"
-                >
-                  <X className="w-5 h-5 text-foreground" />
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleSaveProfile}
-                  className="w-10 h-10 rounded-full bg-purple-primary hover:bg-purple-primary/90 flex items-center justify-center transition-colors"
-                >
-                  <Save className="w-5 h-5 text-white" />
-                </motion.button>
-              </>
-            )}
-
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleShare}
-              className="w-10 h-10 rounded-full bg-muted hover:bg-muted/80 flex items-center justify-center transition-colors"
-            >
-              <Share2 className="w-5 h-5 text-foreground" />
-            </motion.button>
-
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -437,48 +449,32 @@ export default function Profile() {
 
         {/* Main Content */}
         <div className="flex-1 overflow-y-auto pb-20">
-          {/* Compact Cover Image */}
-          <div className="relative h-32">
-            <img
-              src={profile.coverImage}
-              alt="Cover"
-              className="w-full h-full object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-            
-            {/* Edit Cover Button */}
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="absolute top-4 right-4 w-10 h-10 bg-black/50 backdrop-blur-sm rounded-full flex items-center justify-center"
-            >
-              <Camera className="w-5 h-5 text-white" />
-            </motion.button>
-          </div>
+
 
           {/* Profile Info */}
-          <div className="px-3 -mt-12 relative z-10">
+          <div className="px-3 relative z-10 mt-4">
             {/* Avatar */}
-            <div className="flex items-end justify-between mb-3">
+            <div className="flex items-end justify-between mb-2">
               <div className="relative">
                 <img
                   src={profile.avatar}
                   alt={profile.displayName}
-                  className="w-20 h-20 rounded-full object-cover border-3 border-background shadow-lg"
+                  className="w-16 h-16 rounded-full object-cover border-2 border-background shadow-md cursor-pointer"
+                  onClick={() => document.getElementById('avatar-upload')?.click()}
                 />
                 {profile.isVerified && (
-                  <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center border-2 border-background">
-                    <Verified className="w-5 h-5 text-white" />
+                  <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center border-2 border-background">
+                    <Verified className="w-3 h-3 text-white" />
                   </div>
                 )}
-                {/* Edit Avatar Button */}
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="absolute -top-2 -left-2 w-8 h-8 bg-purple-primary rounded-full flex items-center justify-center shadow-lg"
-                >
-                  <Camera className="w-4 h-4 text-white" />
-                </motion.button>
+
+                <input
+                  id="avatar-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={handleAvatarUpload}
+                  className="hidden"
+                />
               </div>
 
               {/* Action Buttons */}
@@ -487,12 +483,30 @@ export default function Profile() {
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
+                    onClick={() => setIsEditing(true)}
+                    className="px-4 py-2 rounded-lg font-medium transition-all bg-black text-white"
+                    style={{
+                      boxShadow: `
+                        0 0 0 1px rgba(236, 72, 153, 0.6),
+                        inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                      `,
+                    }}
+                  >
+                    <Edit3 className="w-4 h-4 mr-2 inline" />
+                    Edit
+                  </motion.button>
+
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
                     onClick={handleFollow}
-                    className={`px-6 py-2 rounded-lg font-medium transition-all ${
-                      isFollowing
-                        ? "bg-muted text-foreground hover:bg-muted/80"
-                        : "bg-primary text-primary-foreground hover:bg-primary/90"
-                    }`}
+                    className={`px-6 py-2 rounded-lg font-medium transition-all bg-black text-white`}
+                    style={{
+                      boxShadow: `
+                        0 0 0 1px rgba(236, 72, 153, 0.6),
+                        inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                      `,
+                    }}
                   >
                     {isFollowing ? (
                       <>
@@ -510,16 +524,22 @@ export default function Profile() {
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg border border-border transition-colors"
+                    className="px-4 py-2 bg-black rounded-lg transition-colors"
+                    style={{
+                      boxShadow: `
+                        0 0 0 1px rgba(236, 72, 153, 0.6),
+                        inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                      `,
+                    }}
                   >
-                    <MessageCircle className="w-4 h-4 text-foreground" />
+                    <MessageCircle className="w-4 h-4 text-white" />
                   </motion.button>
                 </div>
               )}
             </div>
 
             {/* Name and Bio */}
-            <div className="mb-3">
+            <div className="mb-2">
               {isEditing ? (
                 <div className="space-y-4">
                   {/* Display Name */}
@@ -578,18 +598,40 @@ export default function Profile() {
                     />
                   </div>
 
-                  {/* Website */}
+                  {/* Profile Image Upload */}
                   <div>
                     <label className="block text-sm font-medium text-muted-foreground mb-2">
-                      Website
+                      Profile Image
                     </label>
-                    <input
-                      type="text"
-                      value={editForm.website}
-                      onChange={(e) => setEditForm({ ...editForm, website: e.target.value })}
-                      className="w-full p-3 bg-card border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:border-purple-primary/50"
-                      placeholder="yourwebsite.com"
-                    />
+                    <div className="flex items-center space-x-4">
+                      <div className="relative">
+                        <img
+                          src={profile.avatar}
+                          alt="Profile Preview"
+                          className="w-16 h-16 rounded-full object-cover border-2 border-border"
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => document.getElementById('avatar-upload')?.click()}
+                          className="px-4 py-2 bg-black rounded-lg font-medium transition-all text-white flex items-center space-x-2"
+                          style={{
+                            boxShadow: `
+                              0 0 0 1px rgba(236, 72, 153, 0.6),
+                              inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                            `,
+                          }}
+                        >
+                          <Camera className="w-4 h-4" />
+                          <span>Change Photo</span>
+                        </motion.button>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          JPG, PNG up to 5MB
+                        </p>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Social Links */}
@@ -598,54 +640,103 @@ export default function Profile() {
                       Social Links
                     </label>
                     <div className="space-y-2">
-                      <input
-                        type="text"
-                        value={editForm.socialLinks.instagram}
-                        onChange={(e) => setEditForm({ 
-                          ...editForm, 
-                          socialLinks: { ...editForm.socialLinks, instagram: e.target.value }
-                        })}
-                        className="w-full p-3 bg-card border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:border-purple-primary/50"
-                        placeholder="Instagram username"
-                      />
-                      <input
-                        type="text"
-                        value={editForm.socialLinks.twitter}
-                        onChange={(e) => setEditForm({ 
-                          ...editForm, 
-                          socialLinks: { ...editForm.socialLinks, twitter: e.target.value }
-                        })}
-                        className="w-full p-3 bg-card border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:border-purple-primary/50"
-                        placeholder="Twitter username"
-                      />
-                      <input
-                        type="text"
-                        value={editForm.socialLinks.youtube}
-                        onChange={(e) => setEditForm({ 
-                          ...editForm, 
-                          socialLinks: { ...editForm.socialLinks, youtube: e.target.value }
-                        })}
-                        className="w-full p-3 bg-card border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:border-purple-primary/50"
-                        placeholder="YouTube channel"
-                      />
+                      {/* Instagram */}
+                      <div className="relative">
+                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                          <Instagram className="w-4 h-4 text-pink-500" />
+                        </div>
+                        <input
+                          type="text"
+                          value={editForm.socialLinks.instagram}
+                          onChange={(e) => setEditForm({
+                            ...editForm,
+                            socialLinks: { ...editForm.socialLinks, instagram: e.target.value }
+                          })}
+                          className="w-full p-3 pl-10 bg-card border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:border-purple-primary/50"
+                          placeholder="Instagram username"
+                        />
+                      </div>
+
+                      {/* Twitter */}
+                      <div className="relative">
+                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                          <Twitter className="w-4 h-4 text-blue-400" />
+                        </div>
+                        <input
+                          type="text"
+                          value={editForm.socialLinks.twitter}
+                          onChange={(e) => setEditForm({
+                            ...editForm,
+                            socialLinks: { ...editForm.socialLinks, twitter: e.target.value }
+                          })}
+                          className="w-full p-3 pl-10 bg-card border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:border-purple-primary/50"
+                          placeholder="Twitter username"
+                        />
+                      </div>
+
+                      {/* YouTube */}
+                      <div className="relative">
+                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
+                          <Youtube className="w-4 h-4 text-red-500" />
+                        </div>
+                        <input
+                          type="text"
+                          value={editForm.socialLinks.youtube}
+                          onChange={(e) => setEditForm({
+                            ...editForm,
+                            socialLinks: { ...editForm.socialLinks, youtube: e.target.value }
+                          })}
+                          className="w-full p-3 pl-10 bg-card border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:border-purple-primary/50"
+                          placeholder="YouTube channel"
+                        />
+                      </div>
                     </div>
+                  </div>
+
+                  {/* Edit Mode Action Buttons */}
+                  <div className="flex items-center space-x-2 mt-4">
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleCancelEdit}
+                      className="px-4 py-2 rounded-lg font-medium transition-all bg-black text-white"
+                      style={{
+                        boxShadow: `
+                          0 0 0 1px rgba(236, 72, 153, 0.6),
+                          inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                        `,
+                      }}
+                    >
+                      <X className="w-4 h-4 mr-2 inline" />
+                      Cancel
+                    </motion.button>
+
+                    <motion.button
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleSaveProfile}
+                      className="px-4 py-2 rounded-lg font-medium transition-all bg-purple-primary text-white"
+                    >
+                      <Save className="w-4 h-4 mr-2 inline" />
+                      Save
+                    </motion.button>
                   </div>
                 </div>
               ) : (
                 <>
-                  <div className="flex items-center space-x-2 mb-1.5">
-                    <h1 className="text-xl font-bold text-foreground">{profile.displayName}</h1>
+                  <div className="flex items-center space-x-2 mb-1">
+                    <h1 className="text-lg font-bold text-foreground">{profile.displayName}</h1>
                     {profile.isArtist && (
-                      <div className="px-1.5 py-0.5 bg-primary/10 rounded-full">
-                        <span className="text-xs text-primary font-medium">Artist</span>
+                      <div className="px-1 py-0.5 bg-primary/10 rounded-full">
+                        <span className="text-[10px] text-primary font-medium">Artist</span>
                       </div>
                     )}
                   </div>
-                  <p className="text-sm text-muted-foreground mb-1">@{profile.username}</p>
-                  <p className="text-sm text-foreground leading-relaxed mb-2">{profile.bio}</p>
+                  <p className="text-xs text-muted-foreground mb-1">@{profile.username}</p>
+                  <p className="text-xs text-foreground leading-relaxed mb-2">{profile.bio}</p>
                   
                   {/* Location and Website */}
-                  <div className="flex items-center space-x-4 text-sm text-muted-foreground mb-3">
+                  <div className="flex items-center space-x-3 text-xs text-muted-foreground mb-2">
                     {profile.location && (
                       <div className="flex items-center space-x-1">
                         <MapPin className="w-4 h-4" />
@@ -666,32 +757,32 @@ export default function Profile() {
 
                   {/* Social Links */}
                   {Object.keys(profile.socialLinks).length > 0 && (
-                    <div className="flex items-center space-x-3 mb-4">
+                    <div className="flex items-center space-x-2 mb-3">
                       {profile.socialLinks.instagram && (
                         <motion.a
                           whileHover={{ scale: 1.1 }}
                           href={`https://instagram.com/${profile.socialLinks.instagram}`}
-                          className="w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center"
+                          className="w-6 h-6 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center"
                         >
-                          <Instagram className="w-4 h-4 text-white" />
+                          <Instagram className="w-3 h-3 text-white" />
                         </motion.a>
                       )}
                       {profile.socialLinks.twitter && (
                         <motion.a
                           whileHover={{ scale: 1.1 }}
                           href={`https://twitter.com/${profile.socialLinks.twitter}`}
-                          className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center"
+                          className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center"
                         >
-                          <Twitter className="w-4 h-4 text-white" />
+                          <Twitter className="w-3 h-3 text-white" />
                         </motion.a>
                       )}
                       {profile.socialLinks.youtube && (
                         <motion.a
                           whileHover={{ scale: 1.1 }}
                           href={`https://youtube.com/${profile.socialLinks.youtube}`}
-                          className="w-8 h-8 bg-red-500 rounded-full flex items-center justify-center"
+                          className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center"
                         >
-                          <Youtube className="w-4 h-4 text-white" />
+                          <Youtube className="w-3 h-3 text-white" />
                         </motion.a>
                       )}
                     </div>
@@ -699,7 +790,7 @@ export default function Profile() {
 
                   {/* Badges */}
                   {profile.badges.length > 0 && (
-                    <div className="flex flex-wrap gap-2 mb-4">
+                    <div className="flex flex-wrap gap-1 mb-3">
                       {profile.badges.map((badge, index) => {
                         const badgeInfo = getBadgeInfo(badge);
                         const BadgeIcon = badgeInfo.icon;
@@ -709,11 +800,11 @@ export default function Profile() {
                             initial={{ opacity: 0, scale: 0.8 }}
                             animate={{ opacity: 1, scale: 1 }}
                             transition={{ delay: index * 0.1 }}
-                            className={`flex items-center space-x-1 px-2 py-1 bg-muted/50 rounded-full border border-border`}
+                            className={`flex items-center space-x-1 px-1.5 py-0.5 bg-muted/50 rounded-full border border-border`}
                             title={badgeInfo.label}
                           >
-                            <BadgeIcon className={`w-3 h-3 ${badgeInfo.color}`} />
-                            <span className="text-xs text-foreground font-medium">{badgeInfo.label}</span>
+                            <BadgeIcon className={`w-2.5 h-2.5 ${badgeInfo.color}`} />
+                            <span className="text-[10px] text-foreground font-medium">{badgeInfo.label}</span>
                           </motion.div>
                         );
                       })}
@@ -725,66 +816,78 @@ export default function Profile() {
 
             {/* Stats */}
             {!isEditing && (
-              <div className="grid grid-cols-3 gap-2 mb-4">
+              <div className="grid grid-cols-3 gap-1.5 mb-3">
                 <motion.button
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
                   onClick={() => setShowStats(true)}
-                  className="text-center p-2.5 bg-card rounded-lg border border-border hover:bg-muted/50 transition-colors"
+                  className="text-center p-2 bg-black rounded-lg hover:bg-gray-900 transition-colors"
+                  style={{
+                    boxShadow: `
+                      0 0 0 1px rgba(236, 72, 153, 0.6),
+                      inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                    `,
+                  }}
                 >
-                  <p className="text-lg font-bold text-foreground">{formatNumber(profile.stats.followers)}</p>
-                  <p className="text-xs text-muted-foreground">Followers</p>
+                  <p className="text-sm font-bold text-white">{formatNumber(profile.stats.followers)}</p>
+                  <p className="text-[10px] text-gray-400">Followers</p>
                 </motion.button>
 
                 <motion.button
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
                   onClick={() => setShowStats(true)}
-                  className="text-center p-3 bg-card rounded-lg border border-border hover:bg-muted/50 transition-colors claude-shadow hover:claude-shadow-hover dark:claude-dark-shadow dark:hover:claude-dark-shadow-hover"
+                  className="text-center p-2 bg-black rounded-lg hover:bg-gray-900 transition-colors"
+                  style={{
+                    boxShadow: `
+                      0 0 0 1px rgba(236, 72, 153, 0.6),
+                      inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                    `,
+                  }}
                 >
-                  <p className="text-xl font-bold text-foreground">{formatNumber(profile.stats.following)}</p>
-                  <p className="text-sm text-muted-foreground">Following</p>
+                  <p className="text-sm font-bold text-white">{formatNumber(profile.stats.following)}</p>
+                  <p className="text-[10px] text-gray-400">Following</p>
                 </motion.button>
 
                 <motion.button
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
                   onClick={() => setShowStats(true)}
-                  className="text-center p-3 bg-card rounded-lg border border-border hover:bg-muted/50 transition-colors claude-shadow hover:claude-shadow-hover dark:claude-dark-shadow dark:hover:claude-dark-shadow-hover"
+                  className="text-center p-2 bg-black rounded-lg hover:bg-gray-900 transition-colors"
+                  style={{
+                    boxShadow: `
+                      0 0 0 1px rgba(236, 72, 153, 0.6),
+                      inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                    `,
+                  }}
                 >
-                  <p className="text-xl font-bold text-foreground">{formatNumber(profile.stats.totalPlays)}</p>
-                  <p className="text-sm text-muted-foreground">Total Plays</p>
+                  <p className="text-sm font-bold text-white">{formatNumber(profile.stats.totalPlays)}</p>
+                  <p className="text-[10px] text-gray-400">Total Plays</p>
                 </motion.button>
               </div>
             )}
 
-            {/* Upload Button for Artists */}
-            {!isEditing && profile.isArtist && (
-              <motion.button
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
-                onClick={() => navigate("/upload")}
-                className="w-full p-4 bg-primary hover:bg-primary/90 rounded-lg text-primary-foreground font-medium mb-6 flex items-center justify-center space-x-2 transition-colors"
-              >
-                <UploadIcon className="w-5 h-5" />
-                <span>Upload New Track</span>
-              </motion.button>
-            )}
+
 
             {/* Tabs */}
             {!isEditing && (
               <>
-                <div className="flex space-x-1 mb-6 bg-muted/30 rounded-lg p-1">
+                <div className="flex space-x-1 mb-4 bg-black rounded-lg p-1" style={{
+                  boxShadow: `
+                    0 0 0 1px rgba(236, 72, 153, 0.6),
+                    inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                  `,
+                }}>
                   {tabs.map((tab) => (
                     <motion.button
                       key={tab.id}
                       whileHover={{ scale: 1.01 }}
                       whileTap={{ scale: 0.99 }}
                       onClick={() => setSelectedTab(tab.id)}
-                      className={`flex-1 px-4 py-2 rounded-md font-medium transition-colors text-sm ${
+                      className={`flex-1 px-3 py-1.5 rounded-md font-medium transition-colors text-xs ${
                         selectedTab === tab.id
-                          ? "bg-primary text-primary-foreground"
-                          : "text-muted-foreground hover:text-foreground"
+                          ? "bg-purple-primary text-white"
+                          : "text-gray-400 hover:text-white"
                       }`}
                     >
                       {tab.label}
@@ -806,9 +909,15 @@ export default function Profile() {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => setViewMode("grid")}
-                        className={`p-2 rounded-md transition-colors ${
-                          viewMode === "grid" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                        className={`p-2 rounded-md transition-colors bg-black ${
+                          viewMode === "grid" ? "text-purple-primary" : "text-gray-400 hover:text-white"
                         }`}
+                        style={{
+                          boxShadow: `
+                            0 0 0 1px rgba(236, 72, 153, 0.6),
+                            inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                          `,
+                        }}
                       >
                         <Grid3X3 className="w-4 h-4" />
                       </motion.button>
@@ -816,9 +925,15 @@ export default function Profile() {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => setViewMode("list")}
-                        className={`p-2 rounded-lg transition-colors ${
-                          viewMode === "list" ? "bg-purple-primary text-white" : "text-gray-400"
+                        className={`p-2 rounded-lg transition-colors bg-black ${
+                          viewMode === "list" ? "text-purple-primary" : "text-gray-400 hover:text-white"
                         }`}
+                        style={{
+                          boxShadow: `
+                            0 0 0 1px rgba(236, 72, 153, 0.6),
+                            inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                          `,
+                        }}
                       >
                         <ListMusic className="w-4 h-4" />
                       </motion.button>
@@ -844,7 +959,13 @@ export default function Profile() {
                               initial={{ opacity: 0, scale: 0.9 }}
                               animate={{ opacity: 1, scale: 1 }}
                               transition={{ delay: index * 0.1 }}
-                              className="bg-purple-dark/30 rounded-xl p-3 border border-purple-primary/20"
+                              className="bg-black rounded-xl p-3"
+                              style={{
+                                boxShadow: `
+                                  0 0 0 1px rgba(236, 72, 153, 0.6),
+                                  inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                                `,
+                              }}
                             >
                               <div className="relative mb-3">
                                 <img
@@ -856,7 +977,13 @@ export default function Profile() {
                                   whileHover={{ scale: 1.1 }}
                                   whileTap={{ scale: 0.9 }}
                                   onClick={() => handlePlay(track.id)}
-                                  className="absolute bottom-2 right-2 w-8 h-8 bg-purple-primary rounded-full flex items-center justify-center shadow-lg"
+                                  className="absolute bottom-2 right-2 w-8 h-8 bg-black rounded-full flex items-center justify-center shadow-lg"
+                                  style={{
+                                    boxShadow: `
+                                      0 0 0 1px rgba(236, 72, 153, 0.6),
+                                      inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                                    `,
+                                  }}
                                 >
                                   {currentPlayingTrack === track.id && isPlaying ? (
                                     <Pause className="w-4 h-4 text-white" />
@@ -886,7 +1013,13 @@ export default function Profile() {
                               initial={{ opacity: 0, x: -20 }}
                               animate={{ opacity: 1, x: 0 }}
                               transition={{ delay: index * 0.05 }}
-                              className="flex items-center space-x-3 p-3 bg-purple-dark/30 rounded-xl border border-purple-primary/20 hover:bg-purple-primary/10 transition-colors cursor-pointer"
+                              className="flex items-center space-x-3 p-3 bg-black rounded-xl hover:bg-gray-900 transition-colors cursor-pointer"
+                              style={{
+                                boxShadow: `
+                                  0 0 0 1px rgba(236, 72, 153, 0.6),
+                                  inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                                `,
+                              }}
                               onClick={() => handlePlay(track.id)}
                             >
                               <div className="relative">
@@ -917,7 +1050,7 @@ export default function Profile() {
                               <motion.button
                                 whileHover={{ scale: 1.1 }}
                                 whileTap={{ scale: 0.9 }}
-                                className="p-2 rounded-full hover:bg-purple-primary/20 transition-colors"
+                                className="p-2 rounded-full hover:bg-gray-700 transition-colors"
                               >
                                 <MoreHorizontal className="w-4 h-4 text-gray-400" />
                               </motion.button>
@@ -944,7 +1077,13 @@ export default function Profile() {
                               initial={{ opacity: 0, scale: 0.9 }}
                               animate={{ opacity: 1, scale: 1 }}
                               transition={{ delay: index * 0.1 }}
-                              className="bg-purple-dark/30 rounded-xl p-3 border border-purple-primary/20"
+                              className="bg-black rounded-xl p-3"
+                              style={{
+                                boxShadow: `
+                                  0 0 0 1px rgba(236, 72, 153, 0.6),
+                                  inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                                `,
+                              }}
                             >
                               <div className="relative mb-3">
                                 <img
@@ -974,7 +1113,13 @@ export default function Profile() {
                               initial={{ opacity: 0, x: -20 }}
                               animate={{ opacity: 1, x: 0 }}
                               transition={{ delay: index * 0.05 }}
-                              className="flex items-center space-x-3 p-3 bg-purple-dark/30 rounded-xl border border-purple-primary/20 hover:bg-purple-primary/10 transition-colors cursor-pointer"
+                              className="flex items-center space-x-3 p-3 bg-black rounded-xl hover:bg-gray-900 transition-colors cursor-pointer"
+                              style={{
+                                boxShadow: `
+                                  0 0 0 1px rgba(236, 72, 153, 0.6),
+                                  inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                                `,
+                              }}
                             >
                               <img
                                 src={playlist.coverUrl}
@@ -993,7 +1138,7 @@ export default function Profile() {
                               <motion.button
                                 whileHover={{ scale: 1.1 }}
                                 whileTap={{ scale: 0.9 }}
-                                className="p-2 rounded-full hover:bg-purple-primary/20 transition-colors"
+                                className="p-2 rounded-full hover:bg-gray-700 transition-colors"
                               >
                                 <MoreHorizontal className="w-4 h-4 text-gray-400" />
                               </motion.button>

@@ -253,11 +253,31 @@ export default function Home() {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [userAvatar, setUserAvatar] = useState<string | null>(null);
 
   // Update time for greeting
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 60000);
     return () => clearInterval(timer);
+  }, []);
+
+  // Load user avatar from localStorage
+  useEffect(() => {
+    const savedAvatar = localStorage.getItem('userAvatar');
+    if (savedAvatar) {
+      setUserAvatar(savedAvatar);
+    }
+  }, []);
+
+  // Listen for avatar updates
+  useEffect(() => {
+    const handleStorageChange = () => {
+      const savedAvatar = localStorage.getItem('userAvatar');
+      setUserAvatar(savedAvatar);
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
   // Get appropriate greeting
@@ -311,9 +331,25 @@ export default function Home() {
             initial="initial"
             animate="animate"
             onClick={() => navigate("/profile")}
-            className="w-10 h-10 bg-gradient-to-r dark:from-purple-primary dark:to-purple-secondary light:bg-black rounded-full flex items-center justify-center shadow-lg hover:shadow-lg dark:hover:shadow-purple-primary/60 light:hover:shadow-lg transition-all duration-300 relative overflow-hidden"
+            className="w-10 h-10 bg-black rounded-full flex items-center justify-center shadow-lg hover:shadow-lg transition-all duration-300 relative overflow-hidden"
+            style={{
+              boxShadow: `
+                0 0 0 1px rgba(236, 72, 153, 0.6),
+                inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+              `,
+            }}
           >
-            <User className="w-5 h-5 text-white relative z-10" />
+            <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center relative z-10 overflow-hidden">
+              {userAvatar ? (
+                <img
+                  src={userAvatar}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <User className="w-4 h-4 text-white" />
+              )}
+            </div>
             <motion.div
               animate={{
                 rotate: 360,
@@ -348,9 +384,19 @@ export default function Home() {
             className="group relative flex items-center justify-center"
           >
             {/* Modern circular container */}
-            <div className="relative w-11 h-11 rounded-full bg-gradient-to-br dark:from-purple-primary dark:via-purple-secondary dark:to-purple-accent light:from-blue-600 light:via-purple-600 light:to-pink-600 shadow-lg hover:shadow-xl transition-shadow duration-300 flex items-center justify-center">
-              {/* Message Circle icon */}
-              <MessageCircle className="w-5 h-5 text-white" />
+            <div
+              className="relative w-11 h-11 rounded-full bg-black shadow-lg hover:shadow-xl transition-shadow duration-300 flex items-center justify-center"
+              style={{
+                boxShadow: `
+                  0 0 0 1px rgba(236, 72, 153, 0.6),
+                  inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                `,
+              }}
+            >
+              {/* Message Circle icon with black background */}
+              <div className="w-7 h-7 bg-black rounded-full flex items-center justify-center">
+                <MessageCircle className="w-4 h-4 text-white" />
+              </div>
             </div>
 
             {/* Notification Badge */}
@@ -574,16 +620,32 @@ export default function Home() {
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
-                  className="p-2 bg-purple-primary/20 hover:bg-purple-primary/40 rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-purple-primary/30"
+                  className="p-2 bg-black rounded-full transition-all duration-300 hover:shadow-lg relative"
+                  style={{
+                    boxShadow: `
+                      0 0 0 1px rgba(236, 72, 153, 0.6),
+                      inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                    `,
+                  }}
                 >
-                  <ChevronLeft className="w-4 h-4" />
+                  <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center">
+                    <ChevronLeft className="w-3 h-3 text-white" />
+                  </div>
                 </motion.button>
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.95 }}
-                  className="p-2 bg-purple-primary/20 hover:bg-purple-primary/40 rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-purple-primary/30"
+                  className="p-2 bg-black rounded-full transition-all duration-300 hover:shadow-lg relative"
+                  style={{
+                    boxShadow: `
+                      0 0 0 1px rgba(236, 72, 153, 0.6),
+                      inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                    `,
+                  }}
                 >
-                  <ChevronRight className="w-4 h-4" />
+                  <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center">
+                    <ChevronRight className="w-3 h-3 text-white" />
+                  </div>
                 </motion.button>
               </div>
             </div>
@@ -736,9 +798,17 @@ export default function Home() {
                           <motion.button
                             whileHover={{ scale: 1.2 }}
                             whileTap={{ scale: 0.9 }}
-                            className="w-8 h-8 bg-purple-primary hover:bg-purple-secondary rounded-full flex items-center justify-center transition-all"
+                            className="w-8 h-8 bg-black rounded-full flex items-center justify-center transition-all relative"
+                            style={{
+                              boxShadow: `
+                                0 0 0 1px rgba(236, 72, 153, 0.6),
+                                inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                              `,
+                            }}
                           >
-                            <Play className="w-3 h-3 text-white ml-0.5" />
+                            <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center">
+                              <Play className="w-2 h-2 text-white ml-0.5" />
+                            </div>
                           </motion.button>
                         </div>
                       </motion.div>
@@ -833,17 +903,21 @@ export default function Home() {
                       onClick={(e) => handleLikeSong(song.id, e)}
                       whileHover={{ scale: 1.2 }}
                       whileTap={{ scale: 0.9 }}
-                      className={`p-2 rounded-full transition-all ${
-                        likedSongs.has(song.id)
-                          ? "text-neon-green bg-neon-green/20"
-                          : "text-gray-400 hover:text-neon-green hover:bg-neon-green/10"
-                      }`}
+                      className="p-2 bg-black rounded-full transition-all relative"
+                      style={{
+                        boxShadow: `
+                          0 0 0 1px rgba(236, 72, 153, 0.6),
+                          inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                        `,
+                      }}
                     >
-                      <Heart
-                        className={`w-4 h-4 transition-all ${
-                          likedSongs.has(song.id) ? "fill-current" : ""
-                        }`}
-                      />
+                      <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center">
+                        <Heart
+                          className={`w-3 h-3 transition-all ${
+                            likedSongs.has(song.id) ? "fill-current text-neon-green" : "text-white"
+                          }`}
+                        />
+                      </div>
                     </motion.button>
 
                     <span className="text-gray-400 dark:text-gray-400 light:text-gray-600 text-sm min-w-[40px]">
@@ -853,9 +927,17 @@ export default function Home() {
                     <motion.button
                       whileHover={{ scale: 1.2 }}
                       whileTap={{ scale: 0.9 }}
-                      className="p-2 hover:bg-white/10 rounded-full transition-all"
+                      className="p-2 bg-black rounded-full transition-all relative"
+                      style={{
+                        boxShadow: `
+                          0 0 0 1px rgba(236, 72, 153, 0.6),
+                          inset 0 0 0 1px rgba(236, 72, 153, 0.3)
+                        `,
+                      }}
                     >
-                      <MoreHorizontal className="w-4 h-4 text-gray-400" />
+                      <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center">
+                        <MoreHorizontal className="w-3 h-3 text-white" />
+                      </div>
                     </motion.button>
                   </motion.div>
                 </motion.div>
