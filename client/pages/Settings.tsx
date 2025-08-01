@@ -90,8 +90,8 @@ export default function Settings() {
           key: "editAccount",
           label: "Edit Account",
           icon: Edit3,
-          action: () => setShowEditAccountModal(true),
-          description: "Change email and password",
+          action: () => navigate("/edit-account"),
+          description: "Edit detailed account information",
         },
         // Only show subscription section if user has premium
         ...(userProfile.premium ? [{
