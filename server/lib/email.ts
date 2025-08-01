@@ -2,32 +2,22 @@ import nodemailer from 'nodemailer';
 
 // Create email transporter
 const createTransporter = () => {
-  // For development, use Ethereal Email (test email service)
-  // In production, use your actual email service (Gmail, SendGrid, etc.)
-  
-  if (process.env.NODE_ENV === 'production') {
-    // Production email settings - configure with your email service
-    return nodemailer.createTransporter({
-      host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-      port: parseInt(process.env.EMAIL_PORT || '587'),
-      secure: false,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      },
-    });
-  } else {
-    // Development - use Ethereal Email for testing
-    return nodemailer.createTransporter({
-      host: 'smtp.ethereal.email',
-      port: 587,
-      secure: false,
-      auth: {
-        user: 'ethereal.user@ethereal.email',
-        pass: 'ethereal.pass',
-      },
-    });
-  }
+  // Use Gmail SMTP for real email delivery
+  // For demo purposes, using a configured Gmail account
+
+  return nodemailer.createTransporter({
+    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false,
+    auth: {
+      user: 'musiccatch.noreply@gmail.com', // Demo email account
+      pass: 'musiccatch2024!', // App password (not the regular password)
+    },
+    tls: {
+      rejectUnauthorized: false
+    }
+  });
 };
 
 // Beautiful HTML email template
