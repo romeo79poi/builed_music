@@ -664,12 +664,11 @@ export default function Signup() {
       }
 
       if (useFirebaseAuth) {
-        // Skip email verification step for now and go directly to profile
-        // Firebase email verification will be sent after account creation
-        setCurrentStep("profile");
+        // For email signup with Firebase, go to verification step
+        setCurrentStep("verification");
         toast({
-          title: "Email verified!",
-          description: "You can now create your profile.",
+          title: "Email saved!",
+          description: "Please proceed to verification.",
         });
       } else {
         // Use backend email verification
