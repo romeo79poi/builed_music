@@ -2226,6 +2226,80 @@ export default function Signup() {
               </button>
             </motion.div>
           )}
+
+          {/* Bio Step */}
+          {currentStep === "bio" && (
+            <motion.div
+              key="bio"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-4 sm:space-y-6"
+            >
+              <div className="text-center mb-4 sm:mb-6">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-orange-500/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <svg className="w-6 h-6 sm:w-8 sm:h-8 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                </div>
+                <h3 className="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">
+                  {stepTitles.bio}
+                </h3>
+                <p className="text-slate-400 text-xs sm:text-sm px-2">
+                  {stepDescriptions.bio}
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-white text-sm font-medium mb-2">
+                  Bio (Optional)
+                </label>
+                <textarea
+                  value={formData.bio}
+                  onChange={(e) =>
+                    setFormData((prev) => ({ ...prev, bio: e.target.value }))
+                  }
+                  placeholder="Tell us about your musical interests, favorite artists, or anything you'd like to share..."
+                  rows={4}
+                  className="w-full bg-purple-dark/30 border border-purple-primary/30 rounded-xl px-3 sm:px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:border-purple-primary focus:ring-2 focus:ring-purple-primary/20 transition-all duration-200 text-sm sm:text-base backdrop-blur-sm resize-none"
+                  disabled={isLoading}
+                  maxLength={500}
+                />
+                <div className="flex justify-between items-center mt-2">
+                  <div>
+                    {errors.bio && (
+                      <p className="text-red-400 text-xs sm:text-sm flex items-center">
+                        <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                        {errors.bio}
+                      </p>
+                    )}
+                  </div>
+                  <p className="text-slate-400 text-xs">
+                    {formData.bio.length}/500
+                  </p>
+                </div>
+              </div>
+
+              <button
+                onClick={handleBioStep}
+                disabled={isLoading}
+                className="w-full h-12 sm:h-14 bg-gradient-to-r from-purple-primary to-purple-secondary hover:from-purple-secondary hover:to-purple-accent text-white font-bold text-sm sm:text-lg rounded-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none shadow-lg shadow-purple-primary/30 hover:shadow-purple-secondary/40"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mx-auto" />
+                ) : (
+                  "Create Account"
+                )}
+              </button>
+
+              <button
+                onClick={goBack}
+                className="w-full text-purple-primary hover:text-purple-secondary transition-colors text-sm mt-4"
+              >
+                ← Back
+              </button>
+            </motion.div>
+          )}
         </AnimatePresence>
 
         {/* Footer - Only show on method step */}
