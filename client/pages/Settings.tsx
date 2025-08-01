@@ -382,9 +382,16 @@ export default function Settings() {
                                 {item.label}
                               </h4>
                               {item.badge && (
-                                <span className="px-2 py-1 text-xs font-bold bg-gradient-to-r from-yellow-400 to-orange-500 text-white rounded-full">
-                                  {item.badge}
-                                </span>
+                                <motion.span
+                                  animate={{
+                                    boxShadow: ["0 0 0 0 rgba(251, 191, 36, 0.4)", "0 0 0 6px rgba(251, 191, 36, 0)", "0 0 0 0 rgba(251, 191, 36, 0.4)"]
+                                  }}
+                                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                                  className="px-3 py-1 text-xs font-bold bg-gradient-to-r from-yellow-400 via-orange-500 to-yellow-400 text-black rounded-full shadow-lg flex items-center space-x-1"
+                                >
+                                  <Star className="w-3 h-3 fill-current" />
+                                  <span>{item.badge}</span>
+                                </motion.span>
                               )}
                             </div>
                             <p className="text-sm text-gray-400 dark:text-gray-400 light:text-gray-600">
