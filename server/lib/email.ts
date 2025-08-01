@@ -3,7 +3,10 @@ import nodemailer from 'nodemailer';
 // Create email transporter
 const createTransporter = () => {
   // Use Gmail SMTP for real email delivery
-  // For demo purposes, using a configured Gmail account
+  // Configure your Gmail credentials via environment variables or use these demo settings
+
+  const emailUser = process.env.EMAIL_USER || 'musiccatch.verify@gmail.com';
+  const emailPass = process.env.EMAIL_PASS || 'xypt zqmr wrgt jwbs'; // App-specific password
 
   return nodemailer.createTransporter({
     service: 'gmail',
@@ -11,8 +14,8 @@ const createTransporter = () => {
     port: 587,
     secure: false,
     auth: {
-      user: 'musiccatch.noreply@gmail.com', // Demo email account
-      pass: 'musiccatch2024!', // App password (not the regular password)
+      user: emailUser,
+      pass: emailPass,
     },
     tls: {
       rejectUnauthorized: false
@@ -252,7 +255,7 @@ const createVerificationEmailHTML = (verificationCode: string, email: string) =>
             </div>
             
             <div class="security-note">
-                <h4>🔒 Security Notice</h4>
+                <h4>��� Security Notice</h4>
                 <p>This code was sent to <strong>${email}</strong>. If you didn't request this verification, please ignore this email. Never share this code with anyone.</p>
             </div>
         </div>
