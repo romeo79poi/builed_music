@@ -14,6 +14,7 @@ import {
   firebaseApp,
   firebaseAuth,
 } from "./context/FirebaseContext";
+import AuthRouter from "./components/AuthRouter";
 import Splash from "./pages/Splash";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
