@@ -1,6 +1,7 @@
 import { RequestHandler } from "express";
 import { serverSupabase } from "../lib/supabase";
 import bcrypt from "bcrypt";
+import { sendVerificationEmail, sendWelcomeEmail } from "../lib/email";
 
 // In-memory storage for email verification codes
 const emailVerificationCodes: Map<
