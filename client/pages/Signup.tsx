@@ -806,6 +806,12 @@ export default function Signup() {
   const handlePasswordStep = async () => {
     if (!validatePassword()) return;
 
+    if (signupMethod === "email") {
+      // For email signup, proceed to DOB step
+      setCurrentStep("dob");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
