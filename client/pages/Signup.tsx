@@ -1057,9 +1057,9 @@ export default function Signup() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
-          className="text-center mb-6 sm:mb-8"
+          className="text-center mb-4 sm:mb-6"
         >
-          <div className="flex justify-center mb-3 sm:mb-4">
+          <div className="flex justify-center mb-1 sm:mb-2">
             <MusicCatchLogo
               animated={true}
               signupMode={true}
