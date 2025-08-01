@@ -518,7 +518,7 @@ export default function Signup() {
 
         // Navigate after a short delay to show success message
         setTimeout(() => {
-          navigate("/profile");
+          navigate("/home");
         }, 1500);
       } else {
         console.error("❌ Google sign-in failed:", result.error);
