@@ -214,8 +214,8 @@ export default function EditAccount() {
                     className="w-20 h-20 rounded-full object-cover border-2 border-neon-green/50"
                   />
                   {accountData.isVerified && (
-                    <div className="absolute -top-1 -right-1 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center border-2 border-background">
-                      <Verified className="w-3 h-3 text-white" />
+                    <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center border-2 border-background">
+                      <Award className="w-3 h-3 text-white" />
                     </div>
                   )}
                 </div>
