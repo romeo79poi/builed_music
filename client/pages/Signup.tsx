@@ -2160,6 +2160,72 @@ export default function Signup() {
               </button>
             </motion.div>
           )}
+
+          {/* Gender Step */}
+          {currentStep === "gender" && (
+            <motion.div
+              key="gender"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-4 sm:space-y-6"
+            >
+              <div className="text-center mb-4 sm:mb-6">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-pink-500/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <svg className="w-6 h-6 sm:w-8 sm:h-8 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
+                </div>
+                <h3 className="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">
+                  {stepTitles.gender}
+                </h3>
+                <p className="text-slate-400 text-xs sm:text-sm px-2">
+                  {stepDescriptions.gender}
+                </p>
+              </div>
+
+              <div className="space-y-3">
+                {["Male", "Female", "Non-binary", "Prefer not to say"].map((option) => (
+                  <button
+                    key={option}
+                    onClick={() => setFormData((prev) => ({ ...prev, gender: option }))}
+                    className={`w-full h-12 sm:h-14 rounded-xl border-2 transition-all duration-200 flex items-center justify-center text-sm sm:text-base font-medium ${
+                      formData.gender === option
+                        ? "bg-purple-primary/20 border-purple-primary text-purple-primary"
+                        : "bg-purple-dark/30 border-purple-primary/30 text-white hover:border-purple-primary/50 hover:bg-purple-primary/10"
+                    }`}
+                  >
+                    {option}
+                  </button>
+                ))}
+                {errors.gender && (
+                  <p className="text-red-400 text-xs sm:text-sm mt-2 flex items-center">
+                    <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                    {errors.gender}
+                  </p>
+                )}
+              </div>
+
+              <button
+                onClick={handleGenderStep}
+                disabled={isLoading || !formData.gender}
+                className="w-full h-12 sm:h-14 bg-gradient-to-r from-purple-primary to-purple-secondary hover:from-purple-secondary hover:to-purple-accent text-white font-bold text-sm sm:text-lg rounded-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none shadow-lg shadow-purple-primary/30 hover:shadow-purple-secondary/40"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mx-auto" />
+                ) : (
+                  "Continue"
+                )}
+              </button>
+
+              <button
+                onClick={goBack}
+                className="w-full text-purple-primary hover:text-purple-secondary transition-colors text-sm mt-4"
+              >
+                ← Back
+              </button>
+            </motion.div>
+          )}
         </AnimatePresence>
 
         {/* Footer - Only show on method step */}
