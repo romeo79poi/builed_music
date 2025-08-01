@@ -847,7 +847,7 @@ export default function Signup() {
               console.log("✅ User created with backend:", data.user);
 
               setTimeout(() => {
-                navigate("/profile");
+                navigate("/home");
               }, 2000);
             } else {
               // Show error in red alert box
