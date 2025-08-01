@@ -3,39 +3,18 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { Button } from "../components/ui/button";
-import { useFirebase } from "../context/FirebaseContext";
 
 export default function Splash() {
   const navigate = useNavigate();
-  const { user, loading } = useFirebase();
   const [showButtons, setShowButtons] = useState(false);
-  const [splashComplete, setSplashComplete] = useState(false);
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setSplashComplete(true);
-      if (!loading) {
-        if (user) {
-          navigate("/home");
-        } else {
-          setShowButtons(true);
-        }
-      }
+      setShowButtons(true);
     }, 3000); // Show buttons after 3 seconds
 
     return () => clearTimeout(timer);
-  }, [loading, user, navigate]);
-
-  // Handle auth state changes after splash is complete
-  useEffect(() => {
-    if (splashComplete && !loading) {
-      if (user) {
-        navigate("/home");
-      } else if (!showButtons) {
-        setShowButtons(true);
-      }
-    }
-  }, [splashComplete, loading, user, navigate, showButtons]);
+  }, []);
 
   return (
     <div className="min-h-screen relative overflow-hidden">
