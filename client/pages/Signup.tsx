@@ -932,6 +932,106 @@ export default function Signup() {
     }
   };
 
+  const handleDOBStep = () => {
+    if (!validateDateOfBirth()) return;
+    setCurrentStep("profileImage");
+  };
+
+  const handleProfileImageStep = () => {
+    setCurrentStep("gender");
+  };
+
+  const handleGenderStep = () => {
+    if (!validateGender()) return;
+    setCurrentStep("bio");
+  };
+
+  const handleBioStep = async () => {
+    if (!validateBio()) return;
+
+    setIsLoading(true);
+
+    try {
+      // Clear any previous errors
+      setErrorAlert(null);
+
+      if (useFirebaseAuth) {
+        // Use Firebase email signup with verification
+        const result = await signUpWithEmailAndPasswordWithVerification(
+          formData.email,
+          formData.password,
+          formData.name,
+          formData.username,
+          formData.phone,
+        );
+
+        if (result.success) {
+          // Store user for email verification
+          if (result.user) {
+            setVerificationUser(result.user);
+            setEmailVerificationSent(true);
+          }
+
+          toast({
+            title: "Account created successfully! 🎉",
+            description: `Welcome to Music Catch, ${formData.name}! Please check your email for verification.`,
+          });
+
+          console.log("✅ User created with Firebase:", result.user);
+
+          setTimeout(() => {
+            navigate("/home");
+          }, 2000);
+        } else {
+          setErrorAlert(
+            result.error || "Registration failed. Please try again.",
+          );
+        }
+      } else {
+        // Use backend API for email registration
+        const response = await fetch("/api/auth/complete-registration", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: formData.email,
+            username: formData.username,
+            name: formData.name,
+            password: formData.password,
+            dateOfBirth: formData.dateOfBirth,
+            gender: formData.gender,
+            bio: formData.bio,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          toast({
+            title: "Account created successfully! 🎉",
+            description: `Welcome to Music Catch, ${formData.name}!`,
+          });
+
+          console.log("✅ User created with backend:", data.user);
+
+          setTimeout(() => {
+            navigate("/home");
+          }, 2000);
+        } else {
+          setErrorAlert(
+            data.message || "Registration failed. Please try again.",
+          );
+        }
+      }
+    } catch (error) {
+      console.error("Registration error:", error);
+      setErrorAlert("Network error. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const goBack = () => {
     if (currentStep === "email") {
       setCurrentStep("method");
