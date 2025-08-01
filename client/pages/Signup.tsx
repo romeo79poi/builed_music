@@ -530,7 +530,7 @@ export default function Signup() {
           description: message,
         });
 
-        console.log("�� Google authentication successful:", {
+        console.log("✅ Google authentication successful:", {
           uid: result.user.uid,
           email: result.user.email,
           displayName: result.user.displayName,
@@ -678,13 +678,20 @@ export default function Signup() {
         if (data.success) {
           setCurrentStep("verification");
           toast({
-            title: "Verification code sent!",
-            description: "Please check your email for the 6-digit verification code.",
+            title: "✉️ Verification email sent!",
+            description: `Check your email at ${formData.email} for a beautiful verification code.`,
           });
 
-          // For development, show code in console
+          // For development, show code in console and preview URL
           if (data.debugCode) {
             console.log(`📧 Email verification code: ${data.debugCode}`);
+          }
+          if (data.previewUrl) {
+            console.log(`🔗 Email preview: ${data.previewUrl}`);
+            toast({
+              title: "📧 Development Mode",
+              description: "Check console for email preview link and debug code",
+            });
           }
 
           setResendTimer(60);
