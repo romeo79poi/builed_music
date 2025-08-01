@@ -263,7 +263,7 @@ export default function Home() {
 
   // Load user avatar from localStorage
   useEffect(() => {
-    const savedAvatar = localStorage.getItem('userAvatar');
+    const savedAvatar = localStorage.getItem("userAvatar");
     if (savedAvatar) {
       setUserAvatar(savedAvatar);
     }
@@ -272,12 +272,12 @@ export default function Home() {
   // Listen for avatar updates
   useEffect(() => {
     const handleStorageChange = () => {
-      const savedAvatar = localStorage.getItem('userAvatar');
+      const savedAvatar = localStorage.getItem("userAvatar");
       setUserAvatar(savedAvatar);
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
   // Get appropriate greeting
@@ -453,7 +453,6 @@ export default function Home() {
                   0 0 0 1px rgba(236, 72, 153, 0.6),
                   inset 0 0 0 1px rgba(236, 72, 153, 0.3)
                 `,
-
               }}
               onClick={() => {
                 toast({
@@ -537,7 +536,6 @@ export default function Home() {
                       0 0 0 1px rgba(236, 72, 153, 0.6),
                       inset 0 0 0 1px rgba(236, 72, 153, 0.3)
                     `,
-    
                   }}
                 >
                   <div className="relative mb-3">
@@ -587,7 +585,6 @@ export default function Home() {
                       0 0 0 1px rgba(236, 72, 153, 0.6),
                       inset 0 0 0 1px rgba(236, 72, 153, 0.3)
                     `,
-    
                   }}
                 >
                   <div className="relative z-10">
@@ -670,7 +667,6 @@ export default function Home() {
                       0 0 0 1px rgba(236, 72, 153, 0.6),
                       inset 0 0 0 1px rgba(236, 72, 153, 0.3)
                     `,
-    
                   }}
                 >
                   <div className="relative mb-3">
@@ -743,16 +739,28 @@ export default function Home() {
                   id: "album1",
                   title: "After Hours",
                   artist: "The Weeknd",
-                  tracks: ["Blinding Lights", "Heartless", "In Your Eyes", "Save Your Tears"],
-                  coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop"
+                  tracks: [
+                    "Blinding Lights",
+                    "Heartless",
+                    "In Your Eyes",
+                    "Save Your Tears",
+                  ],
+                  coverImageURL:
+                    "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
                 },
                 {
                   id: "album2",
                   title: "Fine Line",
                   artist: "Harry Styles",
-                  tracks: ["Watermelon Sugar", "Adore You", "Golden", "Falling"],
-                  coverImageURL: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop"
-                }
+                  tracks: [
+                    "Watermelon Sugar",
+                    "Adore You",
+                    "Golden",
+                    "Falling",
+                  ],
+                  coverImageURL:
+                    "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop",
+                },
               ].map((album, index) => (
                 <motion.div
                   key={album.id}
@@ -765,7 +773,6 @@ export default function Home() {
                       0 0 0 1px rgba(236, 72, 153, 0.6),
                       inset 0 0 0 1px rgba(236, 72, 153, 0.3)
                     `,
-    
                   }}
                 >
                   <div className="flex items-start space-x-4 mb-4">
@@ -775,8 +782,12 @@ export default function Home() {
                       className="w-24 h-24 rounded-lg object-cover"
                     />
                     <div className="flex-1">
-                      <h3 className="font-bold text-white text-lg mb-1">{album.title}</h3>
-                      <p className="text-purple-accent text-sm">{album.artist}</p>
+                      <h3 className="font-bold text-white text-lg mb-1">
+                        {album.title}
+                      </h3>
+                      <p className="text-purple-accent text-sm">
+                        {album.artist}
+                      </p>
                     </div>
                   </div>
 
@@ -786,13 +797,21 @@ export default function Home() {
                         key={track}
                         initial={{ opacity: 0, x: -20 }}
                         animate={{ opacity: 1, x: 0 }}
-                        transition={{ delay: 0.8 + index * 0.2 + trackIndex * 0.1 }}
-                        whileHover={{ backgroundColor: "rgba(158, 64, 252, 0.15)" }}
+                        transition={{
+                          delay: 0.8 + index * 0.2 + trackIndex * 0.1,
+                        }}
+                        whileHover={{
+                          backgroundColor: "rgba(158, 64, 252, 0.15)",
+                        }}
                         className="flex items-center justify-between p-2 rounded cursor-pointer hover:bg-purple-primary/10 transition-all group"
                       >
                         <div className="flex items-center space-x-3">
-                          <span className="text-gray-400 text-sm w-6">{trackIndex + 1}</span>
-                          <span className="text-white group-hover:text-purple-accent transition-colors">{track}</span>
+                          <span className="text-gray-400 text-sm w-6">
+                            {trackIndex + 1}
+                          </span>
+                          <span className="text-white group-hover:text-purple-accent transition-colors">
+                            {track}
+                          </span>
                         </div>
                         <div className="flex items-center space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <motion.button
@@ -857,7 +876,6 @@ export default function Home() {
                       0 0 0 1px rgba(236, 72, 153, 0.6),
                       inset 0 0 0 1px rgba(236, 72, 153, 0.3)
                     `,
-    
                   }}
                 >
                   <div className="relative">
@@ -914,7 +932,9 @@ export default function Home() {
                       <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center">
                         <Heart
                           className={`w-3 h-3 transition-all ${
-                            likedSongs.has(song.id) ? "fill-current text-neon-green" : "text-white"
+                            likedSongs.has(song.id)
+                              ? "fill-current text-neon-green"
+                              : "text-white"
                           }`}
                         />
                       </div>

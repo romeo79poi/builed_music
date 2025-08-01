@@ -105,8 +105,10 @@ const sampleProfile: UserProfile = {
   username: "alexmusic",
   displayName: "Alex Johnson",
   bio: "Music producer & artist 🎵 | Creating beats that move souls | Collabs welcome 💫 | Stream my latest tracks below ⬇️",
-  avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop",
-  coverImage: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=300&fit=crop",
+  avatar:
+    "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop",
+  coverImage:
+    "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=300&fit=crop",
   location: "Los Angeles, CA",
   website: "alexmusic.com",
   isVerified: true,
@@ -132,7 +134,8 @@ const sampleTracks: Track[] = [
   {
     id: "1",
     title: "Midnight Dreams",
-    coverUrl: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
+    coverUrl:
+      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
     duration: 234,
     plays: 2340000,
     likes: 45600,
@@ -144,7 +147,8 @@ const sampleTracks: Track[] = [
   {
     id: "2",
     title: "Summer Vibes",
-    coverUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
+    coverUrl:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
     duration: 198,
     plays: 1890000,
     likes: 38200,
@@ -156,7 +160,8 @@ const sampleTracks: Track[] = [
   {
     id: "3",
     title: "Neon Nights",
-    coverUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
+    coverUrl:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
     duration: 267,
     plays: 1560000,
     likes: 32100,
@@ -168,7 +173,8 @@ const sampleTracks: Track[] = [
   {
     id: "4",
     title: "Acoustic Soul",
-    coverUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop",
+    coverUrl:
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop",
     duration: 287,
     plays: 890000,
     likes: 18700,
@@ -184,7 +190,8 @@ const samplePlaylists: Playlist[] = [
     id: "1",
     name: "Best of Alex",
     description: "My top tracks handpicked for you",
-    coverUrl: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
+    coverUrl:
+      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
     trackCount: 25,
     isPublic: true,
     createdDate: new Date("2024-01-01"),
@@ -194,7 +201,8 @@ const samplePlaylists: Playlist[] = [
     id: "2",
     name: "Chill Sessions",
     description: "Perfect for relaxing and studying",
-    coverUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
+    coverUrl:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
     trackCount: 18,
     isPublic: true,
     createdDate: new Date("2023-12-15"),
@@ -204,7 +212,8 @@ const samplePlaylists: Playlist[] = [
     id: "3",
     name: "Work in Progress",
     description: "Upcoming releases and demos",
-    coverUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
+    coverUrl:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
     trackCount: 8,
     isPublic: false,
     createdDate: new Date("2024-01-20"),
@@ -223,10 +232,12 @@ export default function Profile() {
   const [selectedTab, setSelectedTab] = useState("tracks");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [isFollowing, setIsFollowing] = useState(false);
-  const [currentPlayingTrack, setCurrentPlayingTrack] = useState<string | null>(null);
+  const [currentPlayingTrack, setCurrentPlayingTrack] = useState<string | null>(
+    null,
+  );
   const [isPlaying, setIsPlaying] = useState(false);
   const [showStats, setShowStats] = useState(false);
-  
+
   // Edit states
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
@@ -240,12 +251,12 @@ export default function Profile() {
       youtube: profile.socialLinks.youtube || "",
     },
   });
-  
+
   const formatNumber = (num: number) => {
     if (num >= 1000000) {
-      return (num / 1000000).toFixed(1) + 'M';
+      return (num / 1000000).toFixed(1) + "M";
     } else if (num >= 1000) {
-      return (num / 1000).toFixed(1) + 'K';
+      return (num / 1000).toFixed(1) + "K";
     }
     return num.toString();
   };
@@ -253,14 +264,14 @@ export default function Profile() {
   const formatDuration = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
 
   const formatDate = (date: Date) => {
-    return date.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'short', 
-      day: 'numeric' 
+    return date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
@@ -277,7 +288,7 @@ export default function Profile() {
     setIsFollowing(!isFollowing);
     toast({
       title: isFollowing ? "Unfollowed" : "Following",
-      description: isFollowing 
+      description: isFollowing
         ? `You unfollowed ${profile.displayName}`
         : `You're now following ${profile.displayName}`,
     });
@@ -291,7 +302,9 @@ export default function Profile() {
         url: `https://catchmusic.app/profile/${profile.username}`,
       });
     } else {
-      navigator.clipboard.writeText(`https://catchmusic.app/profile/${profile.username}`);
+      navigator.clipboard.writeText(
+        `https://catchmusic.app/profile/${profile.username}`,
+      );
       toast({
         title: "Profile link copied!",
         description: "Share this link with your friends",
@@ -341,9 +354,9 @@ export default function Profile() {
       const reader = new FileReader();
       reader.onload = (e) => {
         const newAvatar = e.target?.result as string;
-        setProfile(prev => ({ ...prev, avatar: newAvatar }));
+        setProfile((prev) => ({ ...prev, avatar: newAvatar }));
         // Store in localStorage for persistence
-        localStorage.setItem('userAvatar', newAvatar);
+        localStorage.setItem("userAvatar", newAvatar);
         setUploading(false);
         toast({
           title: "Profile Image Updated",
@@ -361,9 +374,9 @@ export default function Profile() {
       const reader = new FileReader();
       reader.onload = (e) => {
         const newCover = e.target?.result as string;
-        setProfile(prev => ({ ...prev, coverImage: newCover }));
+        setProfile((prev) => ({ ...prev, coverImage: newCover }));
         // Store in localStorage for persistence
-        localStorage.setItem('userCoverImage', newCover);
+        localStorage.setItem("userCoverImage", newCover);
         setUploading(false);
         toast({
           title: "Cover Image Updated",
@@ -376,13 +389,13 @@ export default function Profile() {
 
   // Load saved images on component mount
   useEffect(() => {
-    const savedAvatar = localStorage.getItem('userAvatar');
-    const savedCover = localStorage.getItem('userCoverImage');
+    const savedAvatar = localStorage.getItem("userAvatar");
+    const savedCover = localStorage.getItem("userCoverImage");
     if (savedAvatar || savedCover) {
-      setProfile(prev => ({
+      setProfile((prev) => ({
         ...prev,
         ...(savedAvatar && { avatar: savedAvatar }),
-        ...(savedCover && { coverImage: savedCover })
+        ...(savedCover && { coverImage: savedCover }),
       }));
     }
   }, []);
@@ -390,13 +403,25 @@ export default function Profile() {
   const getBadgeInfo = (badge: string) => {
     switch (badge) {
       case "verified":
-        return { icon: Verified, color: "text-blue-400", label: "Verified Artist" };
+        return {
+          icon: Verified,
+          color: "text-blue-400",
+          label: "Verified Artist",
+        };
       case "top_artist":
         return { icon: Crown, color: "text-yellow-400", label: "Top Artist" };
       case "trending":
-        return { icon: TrendingUp, color: "text-purple-400", label: "Trending" };
+        return {
+          icon: TrendingUp,
+          color: "text-purple-400",
+          label: "Trending",
+        };
       case "collaboration_king":
-        return { icon: Users, color: "text-green-400", label: "Collaboration Pro" };
+        return {
+          icon: Users,
+          color: "text-green-400",
+          label: "Collaboration Pro",
+        };
       default:
         return { icon: Award, color: "text-gray-400", label: badge };
     }
@@ -449,8 +474,6 @@ export default function Profile() {
 
         {/* Main Content */}
         <div className="flex-1 overflow-y-auto pb-20">
-
-
           {/* Profile Info */}
           <div className="px-3 relative z-10 mt-4">
             {/* Avatar */}
@@ -460,7 +483,9 @@ export default function Profile() {
                   src={profile.avatar}
                   alt={profile.displayName}
                   className="w-16 h-16 rounded-full object-cover border-2 border-background shadow-md cursor-pointer"
-                  onClick={() => document.getElementById('avatar-upload')?.click()}
+                  onClick={() =>
+                    document.getElementById("avatar-upload")?.click()
+                  }
                 />
                 {profile.isVerified && (
                   <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center border-2 border-background">
@@ -523,7 +548,9 @@ export default function Profile() {
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => navigate("/messages", { state: { from: "profile" } })}
+                    onClick={() =>
+                      navigate("/messages", { state: { from: "profile" } })
+                    }
                     className="px-4 py-2 bg-black rounded-lg font-medium transition-all"
                     style={{
                       boxShadow: `
@@ -550,7 +577,12 @@ export default function Profile() {
                     <input
                       type="text"
                       value={editForm.displayName}
-                      onChange={(e) => setEditForm({ ...editForm, displayName: e.target.value })}
+                      onChange={(e) =>
+                        setEditForm({
+                          ...editForm,
+                          displayName: e.target.value,
+                        })
+                      }
                       className="w-full p-3 bg-card border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:border-purple-primary/50"
                       placeholder="Your display name"
                     />
@@ -564,7 +596,9 @@ export default function Profile() {
                     <input
                       type="text"
                       value={editForm.username}
-                      onChange={(e) => setEditForm({ ...editForm, username: e.target.value })}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, username: e.target.value })
+                      }
                       className="w-full p-3 bg-card border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:border-purple-primary/50"
                       placeholder="@username"
                     />
@@ -578,7 +612,9 @@ export default function Profile() {
                     <textarea
                       rows={3}
                       value={editForm.bio}
-                      onChange={(e) => setEditForm({ ...editForm, bio: e.target.value })}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, bio: e.target.value })
+                      }
                       className="w-full p-3 bg-card border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:border-purple-primary/50"
                       placeholder="Tell us about yourself..."
                     />
@@ -592,7 +628,9 @@ export default function Profile() {
                     <input
                       type="text"
                       value={editForm.location}
-                      onChange={(e) => setEditForm({ ...editForm, location: e.target.value })}
+                      onChange={(e) =>
+                        setEditForm({ ...editForm, location: e.target.value })
+                      }
                       className="w-full p-3 bg-card border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:border-purple-primary/50"
                       placeholder="Your location"
                     />
@@ -615,7 +653,9 @@ export default function Profile() {
                         <motion.button
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
-                          onClick={() => document.getElementById('avatar-upload')?.click()}
+                          onClick={() =>
+                            document.getElementById("avatar-upload")?.click()
+                          }
                           className="px-4 py-2 bg-black rounded-lg font-medium transition-all text-white flex items-center space-x-2"
                           style={{
                             boxShadow: `
@@ -648,10 +688,15 @@ export default function Profile() {
                         <input
                           type="text"
                           value={editForm.socialLinks.instagram}
-                          onChange={(e) => setEditForm({
-                            ...editForm,
-                            socialLinks: { ...editForm.socialLinks, instagram: e.target.value }
-                          })}
+                          onChange={(e) =>
+                            setEditForm({
+                              ...editForm,
+                              socialLinks: {
+                                ...editForm.socialLinks,
+                                instagram: e.target.value,
+                              },
+                            })
+                          }
                           className="w-full p-3 pl-10 bg-card border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:border-purple-primary/50"
                           placeholder="Instagram username"
                         />
@@ -665,10 +710,15 @@ export default function Profile() {
                         <input
                           type="text"
                           value={editForm.socialLinks.twitter}
-                          onChange={(e) => setEditForm({
-                            ...editForm,
-                            socialLinks: { ...editForm.socialLinks, twitter: e.target.value }
-                          })}
+                          onChange={(e) =>
+                            setEditForm({
+                              ...editForm,
+                              socialLinks: {
+                                ...editForm.socialLinks,
+                                twitter: e.target.value,
+                              },
+                            })
+                          }
                           className="w-full p-3 pl-10 bg-card border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:border-purple-primary/50"
                           placeholder="Twitter username"
                         />
@@ -682,10 +732,15 @@ export default function Profile() {
                         <input
                           type="text"
                           value={editForm.socialLinks.youtube}
-                          onChange={(e) => setEditForm({
-                            ...editForm,
-                            socialLinks: { ...editForm.socialLinks, youtube: e.target.value }
-                          })}
+                          onChange={(e) =>
+                            setEditForm({
+                              ...editForm,
+                              socialLinks: {
+                                ...editForm.socialLinks,
+                                youtube: e.target.value,
+                              },
+                            })
+                          }
                           className="w-full p-3 pl-10 bg-card border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:border-purple-primary/50"
                           placeholder="YouTube channel"
                         />
@@ -725,16 +780,24 @@ export default function Profile() {
               ) : (
                 <>
                   <div className="flex items-center space-x-2 mb-1">
-                    <h1 className="text-lg font-bold text-foreground">{profile.displayName}</h1>
+                    <h1 className="text-lg font-bold text-foreground">
+                      {profile.displayName}
+                    </h1>
                     {profile.isArtist && (
                       <div className="px-1 py-0.5 bg-primary/10 rounded-full">
-                        <span className="text-[10px] text-primary font-medium">Artist</span>
+                        <span className="text-[10px] text-primary font-medium">
+                          Artist
+                        </span>
                       </div>
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground mb-1">@{profile.username}</p>
-                  <p className="text-xs text-foreground leading-relaxed mb-2">{profile.bio}</p>
-                  
+                  <p className="text-xs text-muted-foreground mb-1">
+                    @{profile.username}
+                  </p>
+                  <p className="text-xs text-foreground leading-relaxed mb-2">
+                    {profile.bio}
+                  </p>
+
                   {/* Location and Website */}
                   <div className="flex items-center space-x-3 text-xs text-muted-foreground mb-2">
                     {profile.location && (
@@ -803,8 +866,12 @@ export default function Profile() {
                             className={`flex items-center space-x-1 px-1.5 py-0.5 bg-muted/50 rounded-full border border-border`}
                             title={badgeInfo.label}
                           >
-                            <BadgeIcon className={`w-2.5 h-2.5 ${badgeInfo.color}`} />
-                            <span className="text-[10px] text-foreground font-medium">{badgeInfo.label}</span>
+                            <BadgeIcon
+                              className={`w-2.5 h-2.5 ${badgeInfo.color}`}
+                            />
+                            <span className="text-[10px] text-foreground font-medium">
+                              {badgeInfo.label}
+                            </span>
                           </motion.div>
                         );
                       })}
@@ -829,7 +896,9 @@ export default function Profile() {
                     `,
                   }}
                 >
-                  <p className="text-sm font-bold text-white">{formatNumber(profile.stats.followers)}</p>
+                  <p className="text-sm font-bold text-white">
+                    {formatNumber(profile.stats.followers)}
+                  </p>
                   <p className="text-[10px] text-gray-400">Followers</p>
                 </motion.button>
 
@@ -845,7 +914,9 @@ export default function Profile() {
                     `,
                   }}
                 >
-                  <p className="text-sm font-bold text-white">{formatNumber(profile.stats.following)}</p>
+                  <p className="text-sm font-bold text-white">
+                    {formatNumber(profile.stats.following)}
+                  </p>
                   <p className="text-[10px] text-gray-400">Following</p>
                 </motion.button>
 
@@ -861,13 +932,13 @@ export default function Profile() {
                     `,
                   }}
                 >
-                  <p className="text-sm font-bold text-white">{formatNumber(profile.stats.totalPlays)}</p>
+                  <p className="text-sm font-bold text-white">
+                    {formatNumber(profile.stats.totalPlays)}
+                  </p>
                   <p className="text-[10px] text-gray-400">Total Plays</p>
                 </motion.button>
               </div>
             )}
-
-
 
             {/* Tabs */}
             {!isEditing && (
@@ -882,7 +953,9 @@ export default function Profile() {
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setViewMode("grid")}
                       className={`p-2 rounded-md transition-colors bg-black ${
-                        viewMode === "grid" ? "text-purple-primary" : "text-gray-400 hover:text-white"
+                        viewMode === "grid"
+                          ? "text-purple-primary"
+                          : "text-gray-400 hover:text-white"
                       }`}
                       style={{
                         boxShadow: `
@@ -898,7 +971,9 @@ export default function Profile() {
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setViewMode("list")}
                       className={`p-2 rounded-lg transition-colors bg-black ${
-                        viewMode === "list" ? "text-purple-primary" : "text-gray-400 hover:text-white"
+                        viewMode === "list"
+                          ? "text-purple-primary"
+                          : "text-gray-400 hover:text-white"
                       }`}
                       style={{
                         boxShadow: `
@@ -956,7 +1031,8 @@ export default function Profile() {
                                     `,
                                   }}
                                 >
-                                  {currentPlayingTrack === track.id && isPlaying ? (
+                                  {currentPlayingTrack === track.id &&
+                                  isPlaying ? (
                                     <Pause className="w-4 h-4 text-white" />
                                   ) : (
                                     <Play className="w-4 h-4 text-white ml-0.5" />
@@ -964,11 +1040,15 @@ export default function Profile() {
                                 </motion.button>
                                 {track.genre && (
                                   <div className="absolute top-2 left-2 px-2 py-1 bg-black/60 rounded-md">
-                                    <span className="text-xs text-white font-medium">{track.genre}</span>
+                                    <span className="text-xs text-white font-medium">
+                                      {track.genre}
+                                    </span>
                                   </div>
                                 )}
                               </div>
-                              <h3 className="font-medium text-white mb-1 truncate">{track.title}</h3>
+                              <h3 className="font-medium text-white mb-1 truncate">
+                                {track.title}
+                              </h3>
                               <div className="flex items-center justify-between text-xs text-gray-400">
                                 <span>{formatNumber(track.plays)} plays</span>
                                 <span>{formatDuration(track.duration)}</span>
@@ -1000,7 +1080,8 @@ export default function Profile() {
                                   className="w-12 h-12 rounded-lg object-cover"
                                 />
                                 <div className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                                  {currentPlayingTrack === track.id && isPlaying ? (
+                                  {currentPlayingTrack === track.id &&
+                                  isPlaying ? (
                                     <Pause className="w-4 h-4 text-white" />
                                   ) : (
                                     <Play className="w-4 h-4 text-white ml-0.5" />
@@ -1008,7 +1089,9 @@ export default function Profile() {
                                 </div>
                               </div>
                               <div className="flex-1">
-                                <h3 className="font-medium text-white mb-1">{track.title}</h3>
+                                <h3 className="font-medium text-white mb-1">
+                                  {track.title}
+                                </h3>
                                 <div className="flex items-center space-x-4 text-xs text-gray-400">
                                   <span>{formatNumber(track.plays)} plays</span>
                                   <span>{formatNumber(track.likes)} likes</span>
@@ -1016,7 +1099,9 @@ export default function Profile() {
                                 </div>
                               </div>
                               <div className="text-right">
-                                <p className="text-sm text-gray-400">{formatDuration(track.duration)}</p>
+                                <p className="text-sm text-gray-400">
+                                  {formatDuration(track.duration)}
+                                </p>
                               </div>
                               <motion.button
                                 whileHover={{ scale: 1.1 }}
@@ -1064,14 +1149,20 @@ export default function Profile() {
                                 />
                                 {!playlist.isPublic && (
                                   <div className="absolute top-2 left-2 px-2 py-1 bg-black/60 rounded-md">
-                                    <span className="text-xs text-white font-medium">Private</span>
+                                    <span className="text-xs text-white font-medium">
+                                      Private
+                                    </span>
                                   </div>
                                 )}
                               </div>
-                              <h3 className="font-medium text-white mb-1 truncate">{playlist.name}</h3>
+                              <h3 className="font-medium text-white mb-1 truncate">
+                                {playlist.name}
+                              </h3>
                               <div className="flex items-center justify-between text-xs text-gray-400">
                                 <span>{playlist.trackCount} tracks</span>
-                                <span>{formatNumber(playlist.plays)} plays</span>
+                                <span>
+                                  {formatNumber(playlist.plays)} plays
+                                </span>
                               </div>
                             </motion.div>
                           ))}
@@ -1098,12 +1189,20 @@ export default function Profile() {
                                 className="w-12 h-12 rounded-lg object-cover"
                               />
                               <div className="flex-1">
-                                <h3 className="font-medium text-white mb-1">{playlist.name}</h3>
-                                <p className="text-sm text-gray-400 mb-1 line-clamp-1">{playlist.description}</p>
+                                <h3 className="font-medium text-white mb-1">
+                                  {playlist.name}
+                                </h3>
+                                <p className="text-sm text-gray-400 mb-1 line-clamp-1">
+                                  {playlist.description}
+                                </p>
                                 <div className="flex items-center space-x-4 text-xs text-gray-400">
                                   <span>{playlist.trackCount} tracks</span>
-                                  <span>{formatNumber(playlist.plays)} plays</span>
-                                  <span>{playlist.isPublic ? "Public" : "Private"}</span>
+                                  <span>
+                                    {formatNumber(playlist.plays)} plays
+                                  </span>
+                                  <span>
+                                    {playlist.isPublic ? "Public" : "Private"}
+                                  </span>
                                 </div>
                               </div>
                               <motion.button
@@ -1132,20 +1231,32 @@ export default function Profile() {
                       <div className="grid grid-cols-2 gap-4">
                         <div className="bg-purple-dark/30 rounded-xl p-4 border border-purple-primary/20">
                           <div className="flex items-center justify-between mb-2">
-                            <h3 className="text-sm font-medium text-gray-400">Monthly Listeners</h3>
+                            <h3 className="text-sm font-medium text-gray-400">
+                              Monthly Listeners
+                            </h3>
                             <Headphones className="w-4 h-4 text-purple-primary" />
                           </div>
-                          <p className="text-2xl font-bold text-white">{formatNumber(profile.stats.monthlyListeners)}</p>
-                          <p className="text-xs text-green-400">+12.5% from last month</p>
+                          <p className="text-2xl font-bold text-white">
+                            {formatNumber(profile.stats.monthlyListeners)}
+                          </p>
+                          <p className="text-xs text-green-400">
+                            +12.5% from last month
+                          </p>
                         </div>
 
                         <div className="bg-purple-dark/30 rounded-xl p-4 border border-purple-primary/20">
                           <div className="flex items-center justify-between mb-2">
-                            <h3 className="text-sm font-medium text-gray-400">Total Streams</h3>
+                            <h3 className="text-sm font-medium text-gray-400">
+                              Total Streams
+                            </h3>
                             <Play className="w-4 h-4 text-green-400" />
                           </div>
-                          <p className="text-2xl font-bold text-white">{formatNumber(profile.stats.totalPlays)}</p>
-                          <p className="text-xs text-green-400">+8.3% this month</p>
+                          <p className="text-2xl font-bold text-white">
+                            {formatNumber(profile.stats.totalPlays)}
+                          </p>
+                          <p className="text-xs text-green-400">
+                            +8.3% this month
+                          </p>
                         </div>
                       </div>
 
@@ -1157,12 +1268,19 @@ export default function Profile() {
                         </h3>
                         <div className="space-y-3">
                           {tracks.slice(0, 3).map((track, index) => (
-                            <div key={track.id} className="flex items-center space-x-3 p-2 rounded-lg bg-purple-primary/5">
-                              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                                index === 0 ? 'bg-yellow-500 text-black' :
-                                index === 1 ? 'bg-gray-400 text-black' :
-                                'bg-amber-600 text-white'
-                              }`}>
+                            <div
+                              key={track.id}
+                              className="flex items-center space-x-3 p-2 rounded-lg bg-purple-primary/5"
+                            >
+                              <div
+                                className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
+                                  index === 0
+                                    ? "bg-yellow-500 text-black"
+                                    : index === 1
+                                      ? "bg-gray-400 text-black"
+                                      : "bg-amber-600 text-white"
+                                }`}
+                              >
                                 {index + 1}
                               </div>
                               <img
@@ -1171,11 +1289,17 @@ export default function Profile() {
                                 className="w-8 h-8 rounded object-cover"
                               />
                               <div className="flex-1">
-                                <h4 className="font-medium text-white text-sm">{track.title}</h4>
-                                <p className="text-xs text-gray-400">{formatNumber(track.plays)} plays</p>
+                                <h4 className="font-medium text-white text-sm">
+                                  {track.title}
+                                </h4>
+                                <p className="text-xs text-gray-400">
+                                  {formatNumber(track.plays)} plays
+                                </p>
                               </div>
                               <div className="text-right">
-                                <p className="text-xs text-gray-400">{formatNumber(track.likes)} likes</p>
+                                <p className="text-xs text-gray-400">
+                                  {formatNumber(track.likes)} likes
+                                </p>
                               </div>
                             </div>
                           ))}
@@ -1191,8 +1315,12 @@ export default function Profile() {
                           className="p-4 bg-gradient-to-r from-green-500/20 to-blue-500/20 rounded-xl border border-green-500/30 text-left"
                         >
                           <DollarSign className="w-6 h-6 text-green-400 mb-2" />
-                          <h3 className="font-medium text-white">View Earnings</h3>
-                          <p className="text-xs text-gray-400">Check your revenue</p>
+                          <h3 className="font-medium text-white">
+                            View Earnings
+                          </h3>
+                          <p className="text-xs text-gray-400">
+                            Check your revenue
+                          </p>
                         </motion.button>
 
                         <motion.button
@@ -1202,8 +1330,12 @@ export default function Profile() {
                           className="p-4 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-xl border border-purple-500/30 text-left"
                         >
                           <Star className="w-6 h-6 text-purple-400 mb-2" />
-                          <h3 className="font-medium text-white">Fan Activity</h3>
-                          <p className="text-xs text-gray-400">See fan interactions</p>
+                          <h3 className="font-medium text-white">
+                            Fan Activity
+                          </h3>
+                          <p className="text-xs text-gray-400">
+                            See fan interactions
+                          </p>
                         </motion.button>
                       </div>
                     </motion.div>
@@ -1219,14 +1351,20 @@ export default function Profile() {
                     >
                       {/* Detailed Stats */}
                       <div className="bg-purple-dark/30 rounded-xl p-4 border border-purple-primary/20">
-                        <h3 className="text-lg font-bold text-white mb-4">Profile Statistics</h3>
+                        <h3 className="text-lg font-bold text-white mb-4">
+                          Profile Statistics
+                        </h3>
                         <div className="grid grid-cols-2 gap-4">
                           <div className="text-center">
-                            <p className="text-2xl font-bold text-purple-accent">{formatNumber(profile.stats.totalTracks)}</p>
+                            <p className="text-2xl font-bold text-purple-accent">
+                              {formatNumber(profile.stats.totalTracks)}
+                            </p>
                             <p className="text-sm text-gray-400">Tracks</p>
                           </div>
                           <div className="text-center">
-                            <p className="text-2xl font-bold text-purple-accent">{formatNumber(profile.stats.totalPlaylists)}</p>
+                            <p className="text-2xl font-bold text-purple-accent">
+                              {formatNumber(profile.stats.totalPlaylists)}
+                            </p>
                             <p className="text-sm text-gray-400">Playlists</p>
                           </div>
                         </div>
@@ -1234,18 +1372,27 @@ export default function Profile() {
 
                       {/* Bio Section */}
                       <div className="bg-purple-dark/30 rounded-xl p-4 border border-purple-primary/20">
-                        <h3 className="text-lg font-bold text-white mb-4">About</h3>
-                        <p className="text-gray-300 leading-relaxed">{profile.bio}</p>
+                        <h3 className="text-lg font-bold text-white mb-4">
+                          About
+                        </h3>
+                        <p className="text-gray-300 leading-relaxed">
+                          {profile.bio}
+                        </p>
                       </div>
 
                       {/* Contact Info */}
                       <div className="bg-purple-dark/30 rounded-xl p-4 border border-purple-primary/20">
-                        <h3 className="text-lg font-bold text-white mb-4">Contact & Links</h3>
+                        <h3 className="text-lg font-bold text-white mb-4">
+                          Contact & Links
+                        </h3>
                         <div className="space-y-3">
                           {profile.website && (
                             <div className="flex items-center space-x-3">
                               <Globe className="w-5 h-5 text-gray-400" />
-                              <a href={`https://${profile.website}`} className="text-purple-accent hover:underline">
+                              <a
+                                href={`https://${profile.website}`}
+                                className="text-purple-accent hover:underline"
+                              >
                                 {profile.website}
                               </a>
                             </div>
@@ -1253,7 +1400,9 @@ export default function Profile() {
                           {profile.location && (
                             <div className="flex items-center space-x-3">
                               <MapPin className="w-5 h-5 text-gray-400" />
-                              <span className="text-white">{profile.location}</span>
+                              <span className="text-white">
+                                {profile.location}
+                              </span>
                             </div>
                           )}
                         </div>
@@ -1283,25 +1432,35 @@ export default function Profile() {
                 onClick={(e) => e.stopPropagation()}
                 className="bg-purple-dark rounded-2xl p-6 w-full max-w-md border border-purple-primary/30"
               >
-                <h2 className="text-xl font-bold text-white mb-6 text-center">Profile Statistics</h2>
-                
+                <h2 className="text-xl font-bold text-white mb-6 text-center">
+                  Profile Statistics
+                </h2>
+
                 <div className="space-y-4">
                   <div className="flex justify-between items-center p-3 bg-purple-primary/10 rounded-xl">
                     <span className="text-white">Followers</span>
-                    <span className="font-bold text-purple-accent">{formatNumber(profile.stats.followers)}</span>
+                    <span className="font-bold text-purple-accent">
+                      {formatNumber(profile.stats.followers)}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-purple-primary/10 rounded-xl">
                     <span className="text-white">Following</span>
-                    <span className="font-bold text-purple-accent">{formatNumber(profile.stats.following)}</span>
+                    <span className="font-bold text-purple-accent">
+                      {formatNumber(profile.stats.following)}
+                    </span>
                   </div>
                   <div className="flex justify-between items-center p-3 bg-purple-primary/10 rounded-xl">
                     <span className="text-white">Total Plays</span>
-                    <span className="font-bold text-purple-accent">{formatNumber(profile.stats.totalPlays)}</span>
+                    <span className="font-bold text-purple-accent">
+                      {formatNumber(profile.stats.totalPlays)}
+                    </span>
                   </div>
                   {profile.isArtist && (
                     <div className="flex justify-between items-center p-3 bg-purple-primary/10 rounded-xl">
                       <span className="text-white">Monthly Listeners</span>
-                      <span className="font-bold text-purple-accent">{formatNumber(profile.stats.monthlyListeners)}</span>
+                      <span className="font-bold text-purple-accent">
+                        {formatNumber(profile.stats.monthlyListeners)}
+                      </span>
                     </div>
                   )}
                 </div>
