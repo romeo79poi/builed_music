@@ -649,6 +649,158 @@ export default function Signup() {
     }
   };
 
+  // Facebook signup handler
+  const handleFacebookSignup = async () => {
+    setIsLoading(true);
+    setErrorAlert(null); // Clear any existing errors
+    console.log("🚀 Starting Facebook sign-up process...");
+
+    // Add timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      setIsLoading(false);
+      setErrorAlert(
+        "Facebook sign-in is taking too long. Please try again or use email signup.",
+      );
+      console.log("⏰ Facebook sign-in timeout");
+    }, 30000); // 30 second timeout
+
+    try {
+      // Try Firebase first, then fallback to backend simulation
+      const result = await signInWithFacebook();
+
+      // Clear timeout if we got a response
+      clearTimeout(timeoutId);
+
+      console.log("📋 Facebook sign-in result:", {
+        success: result.success,
+        hasUser: !!result.user,
+        isNewUser: result.isNewUser,
+        error: result.error,
+      });
+
+      if (result.success && result.user) {
+        // Validate user data
+        if (!result.user.email) {
+          throw new Error("Facebook account must have a valid email address");
+        }
+
+        const displayName =
+          result.user.displayName || result.user.email?.split("@")[0] || "User";
+        const message = result.isNewUser
+          ? `Welcome to Music Catch, ${displayName}!`
+          : `Welcome back, ${displayName}!`;
+
+        toast({
+          title: "Facebook sign-in successful! 🎉",
+          description: message,
+        });
+
+        console.log("✅ Facebook authentication successful:", {
+          uid: result.user.uid,
+          email: result.user.email,
+          displayName: result.user.displayName,
+          isNewUser: result.isNewUser,
+          emailVerified: result.user.emailVerified,
+        });
+
+        // If this is a new user and we're in development mode, also register with backend
+        if (
+          (result.isNewUser && result.user.email?.includes("demo")) ||
+          result.user.email?.includes("dev")
+        ) {
+          try {
+            const backendResponse = await fetch("/api/auth/register", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                email: result.user.email,
+                username: result.user.email.split("@")[0] + "_facebook",
+                name: displayName,
+                password: "facebook_auth_" + Date.now(), // Dummy password for Facebook users
+                provider: "facebook",
+              }),
+            });
+
+            const backendData = await backendResponse.json();
+            if (backendData.success) {
+              console.log(
+                "✅ Facebook user also registered in backend:",
+                backendData.user,
+              );
+            }
+          } catch (backendError) {
+            console.warn(
+              "Backend registration failed for Facebook user, continuing:",
+              backendError,
+            );
+          }
+        }
+
+        // Navigate after a short delay to show success message
+        setTimeout(() => {
+          navigate("/home");
+        }, 1500);
+      } else {
+        console.error("❌ Facebook sign-in failed:", result.error);
+
+        // Set error alert for domain authorization issues
+        if (
+          result.error?.includes("domain") ||
+          result.error?.includes("unauthorized")
+        ) {
+          setErrorAlert(
+            "Facebook sign-in is not available on this domain. Please use email signup instead.",
+          );
+        } else {
+          setErrorAlert(
+            result.error || "Facebook sign-in failed. Please try email signup.",
+          );
+        }
+
+        toast({
+          title: "Facebook sign-in failed",
+          description:
+            result.error || "Unable to sign in with Facebook. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      console.error("💥 Facebook signup error:", error);
+
+      let errorMessage = "An unexpected error occurred";
+      if (error.message?.includes("email")) {
+        errorMessage = "Facebook account must have a valid email address";
+      } else if (error.message?.includes("network")) {
+        errorMessage = "Network error. Please check your connection.";
+      } else if (error.message?.includes("popup")) {
+        errorMessage =
+          "Sign-in popup was blocked. Please allow popups and try again.";
+      } else if (
+        error.message?.includes("domain") ||
+        error.message?.includes("unauthorized")
+      ) {
+        errorMessage =
+          "Facebook sign-in not available on this domain. Use email signup.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      setErrorAlert(errorMessage);
+
+      toast({
+        title: "Facebook sign-in error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      clearTimeout(timeoutId); // Clear timeout in case it's still running
+      setIsLoading(false);
+      console.log("🏁 Facebook sign-up process completed");
+    }
+  };
+
   // Step handlers
   const handleMethodStep = (method: SignupMethod) => {
     setSignupMethod(method);
