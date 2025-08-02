@@ -1063,36 +1063,36 @@ export default function Profile() {
                                   alt={track.title}
                                   className="w-12 h-12 rounded-lg object-cover"
                                 />
-                                <div className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                <div className="absolute inset-0 bg-background/40 rounded-lg flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                                   {currentPlayingTrack === track.id &&
                                   isPlaying ? (
-                                    <Pause className="w-4 h-4 text-white" />
+                                    <Pause className="w-4 h-4 text-foreground" />
                                   ) : (
-                                    <Play className="w-4 h-4 text-white ml-0.5" />
+                                    <Play className="w-4 h-4 text-foreground ml-0.5" />
                                   )}
                                 </div>
                               </div>
                               <div className="flex-1">
-                                <h3 className="font-medium text-white mb-1">
+                                <h3 className="font-medium text-foreground mb-1">
                                   {track.title}
                                 </h3>
-                                <div className="flex items-center space-x-4 text-xs text-gray-400">
+                                <div className="flex items-center space-x-4 text-xs text-muted-foreground">
                                   <span>{formatNumber(track.plays)} plays</span>
                                   <span>{formatNumber(track.likes)} likes</span>
                                   <span>{formatDate(track.uploadDate)}</span>
                                 </div>
                               </div>
                               <div className="text-right">
-                                <p className="text-sm text-gray-400">
+                                <p className="text-sm text-muted-foreground">
                                   {formatDuration(track.duration)}
                                 </p>
                               </div>
                               <motion.button
                                 whileHover={{ scale: 1.1 }}
                                 whileTap={{ scale: 0.9 }}
-                                className="p-2 rounded-full hover:bg-gray-700 transition-colors"
+                                className="p-2 rounded-full hover:bg-muted/80 transition-colors"
                               >
-                                <MoreHorizontal className="w-4 h-4 text-gray-400" />
+                                <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
                               </motion.button>
                             </motion.div>
                           ))}
