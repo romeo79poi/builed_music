@@ -29,6 +29,92 @@ export interface UserData {
   bio?: string;
 }
 
+// Upload profile image to Firebase Storage
+export const uploadProfileImage = async (
+  imageFile: File
+): Promise<{ success: boolean; imageURL?: string; error?: string }> => {
+  try {
+    if (!isFirebaseConfigured || !auth || !storage) {
+      console.warn("🔧 Development mode: Simulating profile image upload");
+      // Return a placeholder image URL for development
+      return {
+        success: true,
+        imageURL: "https://via.placeholder.com/150x150/4285F4/ffffff?text=DEV"
+      };
+    }
+
+    const currentUser = auth.currentUser;
+    if (!currentUser) {
+      return {
+        success: false,
+        error: "No authenticated user found"
+      };
+    }
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(imageFile.type)) {
+      return {
+        success: false,
+        error: "Only JPEG, PNG, and WebP images are allowed"
+      };
+    }
+
+    // Validate file size (5MB max)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (imageFile.size > maxSize) {
+      return {
+        success: false,
+        error: "Image size must be less than 5MB"
+      };
+    }
+
+    // Create unique filename with timestamp
+    const timestamp = Date.now();
+    const fileExtension = imageFile.name.split('.').pop();
+    const fileName = `${currentUser.uid}_${timestamp}.${fileExtension}`;
+
+    // Create storage reference
+    const profilePicRef = ref(storage, `profilePics/${fileName}`);
+
+    // Upload file
+    console.log("📤 Uploading profile image...");
+    const uploadResult = await uploadBytes(profilePicRef, imageFile);
+
+    // Get download URL
+    const imageURL = await getDownloadURL(uploadResult.ref);
+    console.log("✅ Profile image uploaded successfully:", imageURL);
+
+    // Update user document in Firestore
+    if (db) {
+      const userRef = doc(db, "users", currentUser.uid);
+      await updateDoc(userRef, {
+        profileImageURL: imageURL,
+        updatedAt: serverTimestamp()
+      });
+      console.log("✅ User profile updated with image URL");
+    }
+
+    return { success: true, imageURL };
+
+  } catch (error: any) {
+    console.error("Profile image upload error:", error);
+
+    let errorMessage = "Failed to upload profile image";
+    if (error.code === 'storage/unauthorized') {
+      errorMessage = "You don't have permission to upload images";
+    } else if (error.code === 'storage/canceled') {
+      errorMessage = "Upload was cancelled";
+    } else if (error.code === 'storage/quota-exceeded') {
+      errorMessage = "Storage quota exceeded";
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+
+    return { success: false, error: errorMessage };
+  }
+};
+
 // Save user data to Firestore
 export const saveUserData = async (
   user: User,
