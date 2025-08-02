@@ -17,25 +17,7 @@ const emailVerificationCodes: Map<
   }
 > = new Map();
 
-// Initialize with demo user for consistency with profile data
-initializeDemoUser();
-
-function initializeDemoUser() {
-  const demoUser = {
-    id: "user1",
-    email: "bio.spectra@musiccatch.com",
-    username: "biospectra",
-    name: "Bio Spectra",
-    password: "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewqB5t8lIYfBW4AO", // hashed "password123"
-    is_verified: true,
-    email_verified: true,
-    created_at: "2023-01-15T00:00:00.000Z",
-    updated_at: "2023-01-15T00:00:00.000Z"
-  };
-  users.set("bio.spectra@musiccatch.com", demoUser);
-  users.set("biospectra", demoUser);
-  users.set("user1", demoUser);
-}
+// No demo user initialization - users start with empty database
 
 // Mock Supabase functions for in-memory operations
 const mockSupabase = {
