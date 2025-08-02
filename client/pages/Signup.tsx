@@ -26,11 +26,14 @@ import {
 import {
   signUpWithEmailAndPassword,
   signInWithGoogle,
+  signInWithFacebook,
   signUpWithEmailAndPasswordWithVerification,
   initializeRecaptcha,
   sendPhoneOTP,
   verifyPhoneOTP,
   sendFirebaseEmailVerification,
+  saveUserData,
+  uploadProfileImage,
 } from "../lib/auth";
 import { auth, db } from "../lib/firebase";
 
@@ -58,6 +61,7 @@ interface FormData {
   otp: string;
   dateOfBirth: string;
   profileImage: File | null;
+  profileImageURL: string;
   gender: string;
   bio: string;
 }
@@ -92,6 +96,7 @@ export default function Signup() {
     otp: "",
     dateOfBirth: "",
     profileImage: null,
+    profileImageURL: "",
     gender: "",
     bio: "",
   });
@@ -648,6 +653,158 @@ export default function Signup() {
     }
   };
 
+  // Facebook signup handler
+  const handleFacebookSignup = async () => {
+    setIsLoading(true);
+    setErrorAlert(null); // Clear any existing errors
+    console.log("🚀 Starting Facebook sign-up process...");
+
+    // Add timeout to prevent infinite loading
+    const timeoutId = setTimeout(() => {
+      setIsLoading(false);
+      setErrorAlert(
+        "Facebook sign-in is taking too long. Please try again or use email signup.",
+      );
+      console.log("⏰ Facebook sign-in timeout");
+    }, 30000); // 30 second timeout
+
+    try {
+      // Try Firebase first, then fallback to backend simulation
+      const result = await signInWithFacebook();
+
+      // Clear timeout if we got a response
+      clearTimeout(timeoutId);
+
+      console.log("📋 Facebook sign-in result:", {
+        success: result.success,
+        hasUser: !!result.user,
+        isNewUser: result.isNewUser,
+        error: result.error,
+      });
+
+      if (result.success && result.user) {
+        // Validate user data
+        if (!result.user.email) {
+          throw new Error("Facebook account must have a valid email address");
+        }
+
+        const displayName =
+          result.user.displayName || result.user.email?.split("@")[0] || "User";
+        const message = result.isNewUser
+          ? `Welcome to Music Catch, ${displayName}!`
+          : `Welcome back, ${displayName}!`;
+
+        toast({
+          title: "Facebook sign-in successful! 🎉",
+          description: message,
+        });
+
+        console.log("✅ Facebook authentication successful:", {
+          uid: result.user.uid,
+          email: result.user.email,
+          displayName: result.user.displayName,
+          isNewUser: result.isNewUser,
+          emailVerified: result.user.emailVerified,
+        });
+
+        // If this is a new user and we're in development mode, also register with backend
+        if (
+          (result.isNewUser && result.user.email?.includes("demo")) ||
+          result.user.email?.includes("dev")
+        ) {
+          try {
+            const backendResponse = await fetch("/api/auth/register", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                email: result.user.email,
+                username: result.user.email.split("@")[0] + "_facebook",
+                name: displayName,
+                password: "facebook_auth_" + Date.now(), // Dummy password for Facebook users
+                provider: "facebook",
+              }),
+            });
+
+            const backendData = await backendResponse.json();
+            if (backendData.success) {
+              console.log(
+                "✅ Facebook user also registered in backend:",
+                backendData.user,
+              );
+            }
+          } catch (backendError) {
+            console.warn(
+              "Backend registration failed for Facebook user, continuing:",
+              backendError,
+            );
+          }
+        }
+
+        // Navigate after a short delay to show success message
+        setTimeout(() => {
+          navigate("/home");
+        }, 1500);
+      } else {
+        console.error("❌ Facebook sign-in failed:", result.error);
+
+        // Set error alert for domain authorization issues
+        if (
+          result.error?.includes("domain") ||
+          result.error?.includes("unauthorized")
+        ) {
+          setErrorAlert(
+            "Facebook sign-in is not available on this domain. Please use email signup instead.",
+          );
+        } else {
+          setErrorAlert(
+            result.error || "Facebook sign-in failed. Please try email signup.",
+          );
+        }
+
+        toast({
+          title: "Facebook sign-in failed",
+          description:
+            result.error || "Unable to sign in with Facebook. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      console.error("💥 Facebook signup error:", error);
+
+      let errorMessage = "An unexpected error occurred";
+      if (error.message?.includes("email")) {
+        errorMessage = "Facebook account must have a valid email address";
+      } else if (error.message?.includes("network")) {
+        errorMessage = "Network error. Please check your connection.";
+      } else if (error.message?.includes("popup")) {
+        errorMessage =
+          "Sign-in popup was blocked. Please allow popups and try again.";
+      } else if (
+        error.message?.includes("domain") ||
+        error.message?.includes("unauthorized")
+      ) {
+        errorMessage =
+          "Facebook sign-in not available on this domain. Use email signup.";
+      } else if (error.message) {
+        errorMessage = error.message;
+      }
+
+      setErrorAlert(errorMessage);
+
+      toast({
+        title: "Facebook sign-in error",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      clearTimeout(timeoutId); // Clear timeout in case it's still running
+      setIsLoading(false);
+      console.log("🏁 Facebook sign-up process completed");
+    }
+  };
+
   // Step handlers
   const handleMethodStep = (method: SignupMethod) => {
     setSignupMethod(method);
@@ -691,7 +848,7 @@ export default function Signup() {
           setCurrentStep("verification");
           toast({
             title: "✉️ Verification email sent!",
-            description: `Check your email at ${formData.email} for a beautiful verification code.`,
+            description: `Check your email at ${formData.email} for a verification code.`,
           });
 
           // For development, show code in console and preview URL
@@ -981,7 +1138,60 @@ export default function Signup() {
     setCurrentStep("profileImage");
   };
 
-  const handleProfileImageStep = () => {
+  const handleProfileImageStep = async () => {
+    // If user selected an image, upload it first
+    if (formData.profileImage) {
+      setIsLoading(true);
+      try {
+        const uploadResult = await uploadProfileImage(formData.profileImage);
+
+        if (uploadResult.success) {
+          // Update form data with the uploaded image URL
+          setFormData((prev) => ({
+            ...prev,
+            profileImageURL: uploadResult.imageURL || ""
+          }));
+
+          toast({
+            title: "Profile image uploaded! ✅",
+            description: "Your profile picture has been saved successfully.",
+          });
+        } else {
+          setErrors((prev) => ({
+            ...prev,
+            profileImage: uploadResult.error || "Failed to upload image"
+          }));
+
+          toast({
+            title: "Upload failed",
+            description: uploadResult.error || "Failed to upload profile image",
+            variant: "destructive",
+          });
+
+          setIsLoading(false);
+          return; // Don't proceed to next step if upload failed
+        }
+      } catch (error) {
+        console.error("Profile image upload error:", error);
+        setErrors((prev) => ({
+          ...prev,
+          profileImage: "Failed to upload image"
+        }));
+
+        toast({
+          title: "Upload error",
+          description: "An error occurred while uploading your profile image",
+          variant: "destructive",
+        });
+
+        setIsLoading(false);
+        return;
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    // Proceed to next step
     setCurrentStep("gender");
   };
 
@@ -1342,18 +1552,23 @@ export default function Signup() {
             </button>
 
             <button
-              onClick={() => {
-                toast({
-                  title: "Coming soon",
-                  description: "Facebook signup will be available soon!",
-                });
-              }}
-              className="w-full h-12 sm:h-14 bg-purple-dark/50 hover:bg-purple-dark/70 rounded-xl flex items-center justify-center text-white font-medium transition-all duration-200 border border-purple-secondary/30 hover:border-purple-secondary/50 hover:shadow-lg hover:shadow-purple-secondary/20"
+              onClick={handleFacebookSignup}
+              disabled={isLoading}
+              className="w-full h-12 sm:h-14 bg-purple-dark/50 hover:bg-purple-dark/70 rounded-xl flex items-center justify-center text-white font-medium transition-all duration-200 border border-purple-secondary/30 hover:border-purple-secondary/50 disabled:opacity-50 hover:shadow-lg hover:shadow-purple-secondary/20"
             >
-              <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="#1877F2">
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-              </svg>
-              Continue with Facebook
+              {isLoading ? (
+                <div className="flex items-center space-x-2">
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  <span>Connecting to Facebook...</span>
+                </div>
+              ) : (
+                <>
+                  <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="#1877F2">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                  </svg>
+                  Continue with Facebook
+                </>
+              )}
             </button>
           </motion.div>
         )}
