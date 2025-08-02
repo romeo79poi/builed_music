@@ -1007,13 +1007,7 @@ export default function Profile() {
                               initial={{ opacity: 0, scale: 0.9 }}
                               animate={{ opacity: 1, scale: 1 }}
                               transition={{ delay: index * 0.1 }}
-                              className="bg-black rounded-xl p-3"
-                              style={{
-                                boxShadow: `
-                                  0 0 0 1px rgba(236, 72, 153, 0.6),
-                                  inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                                `,
-                              }}
+                              className="bg-card rounded-xl p-3 border border-border"
                             >
                               <div className="relative mb-3">
                                 <img
@@ -1025,24 +1019,18 @@ export default function Profile() {
                                   whileHover={{ scale: 1.1 }}
                                   whileTap={{ scale: 0.9 }}
                                   onClick={() => handlePlay(track.id)}
-                                  className="absolute bottom-2 right-2 w-8 h-8 bg-black rounded-full flex items-center justify-center shadow-lg"
-                                  style={{
-                                    boxShadow: `
-                                      0 0 0 1px rgba(236, 72, 153, 0.6),
-                                      inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                                    `,
-                                  }}
+                                  className="absolute bottom-2 right-2 w-8 h-8 bg-card rounded-full flex items-center justify-center shadow-lg border border-border"
                                 >
                                   {currentPlayingTrack === track.id &&
                                   isPlaying ? (
-                                    <Pause className="w-4 h-4 text-white" />
+                                    <Pause className="w-4 h-4 text-foreground" />
                                   ) : (
-                                    <Play className="w-4 h-4 text-white ml-0.5" />
+                                    <Play className="w-4 h-4 text-foreground ml-0.5" />
                                   )}
                                 </motion.button>
                                 {track.genre && (
-                                  <div className="absolute top-2 left-2 px-2 py-1 bg-black/60 rounded-md">
-                                    <span className="text-xs text-white font-medium">
+                                  <div className="absolute top-2 left-2 px-2 py-1 bg-card/60 rounded-md">
+                                    <span className="text-xs text-foreground font-medium">
                                       {track.genre}
                                     </span>
                                   </div>
