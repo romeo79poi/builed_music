@@ -19,6 +19,74 @@ let followers: Map<string, Set<string>> = new Map();
 // Initialize with mock data
 initializeMockData();
 
+// Function to get or create profile from user data
+function getOrCreateProfile(userId: string): UserProfile | null {
+  let profile = profiles.get(userId);
+  if (!profile && userId !== "user1") {
+    // Create a basic profile for new users
+    profile = {
+      id: userId,
+      username: `user_${userId}`,
+      displayName: `User ${userId}`,
+      bio: "Music lover 🎵",
+      profilePicture: "",
+      email: `user${userId}@example.com`,
+      joinDate: new Date().toISOString().split('T')[0],
+      isVerified: false,
+      followers: 0,
+      following: 0,
+      likedSongs: [],
+      recentlyPlayed: [],
+      playlists: [],
+      musicPreferences: {
+        favoriteGenres: ["Pop"],
+        favoriteArtists: [],
+        mood: "Chill",
+        language: ["English"],
+        autoPlay: true,
+        crossfade: false,
+        soundQuality: "high",
+      },
+      socialLinks: {},
+      subscription: {
+        plan: "free",
+        status: "active",
+        startDate: new Date().toISOString().split('T')[0],
+        features: ["Basic listening"],
+        autoRenew: false,
+      },
+      settings: {
+        theme: "dark",
+        language: "en",
+        notifications: {
+          email: true,
+          push: true,
+          newFollowers: true,
+          newMusic: true,
+          recommendations: true,
+          socialActivity: false,
+        },
+        privacy: {
+          profileVisibility: "public",
+          showRecentlyPlayed: true,
+          showLikedSongs: true,
+          showPlaylists: true,
+          allowFollowers: true,
+        },
+        playback: {
+          volume: 80,
+          shuffle: false,
+          repeat: "off",
+          gaplessPlayback: true,
+          normalization: true,
+        },
+      },
+    };
+    profiles.set(userId, profile);
+  }
+  return profile;
+}
+
 function initializeMockData() {
   const mockProfile: UserProfile = {
     id: "user1",
@@ -189,7 +257,7 @@ function initializeMockData() {
 export const getProfile: RequestHandler = (req, res) => {
   try {
     const userId = req.params.userId || "user1"; // Default to user1 for demo
-    const profile = profiles.get(userId);
+    const profile = getOrCreateProfile(userId);
 
     if (!profile) {
       const error: ApiError = {
@@ -222,7 +290,7 @@ export const updateProfile: RequestHandler = (req, res) => {
     const userId = req.params.userId || "user1";
     const updates: ProfileUpdateRequest = req.body;
 
-    const profile = profiles.get(userId);
+    const profile = getOrCreateProfile(userId);
     if (!profile) {
       const error: ApiError = {
         success: false,
@@ -273,7 +341,7 @@ export const getLikedSongs: RequestHandler = (req, res) => {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
 
-    const profile = profiles.get(userId);
+    const profile = getOrCreateProfile(userId);
     if (!profile) {
       const error: ApiError = {
         success: false,
@@ -318,7 +386,7 @@ export const toggleLikedSong: RequestHandler = (req, res) => {
     const userId = req.params.userId || "user1";
     const songId = req.params.songId;
 
-    const profile = profiles.get(userId);
+    const profile = getOrCreateProfile(userId);
     if (!profile) {
       const error: ApiError = {
         success: false,
@@ -363,7 +431,7 @@ export const getRecentlyPlayed: RequestHandler = (req, res) => {
     const userId = req.params.userId || "user1";
     const limit = parseInt(req.query.limit as string) || 10;
 
-    const profile = profiles.get(userId);
+    const profile = getOrCreateProfile(userId);
     if (!profile) {
       const error: ApiError = {
         success: false,
@@ -479,7 +547,7 @@ export const addToRecentlyPlayed: RequestHandler = (req, res) => {
     const userId = req.params.userId || "user1";
     const songId = req.body.songId;
 
-    const profile = profiles.get(userId);
+    const profile = getOrCreateProfile(userId);
     if (!profile) {
       const error: ApiError = {
         success: false,
@@ -523,7 +591,7 @@ export const getUserStats: RequestHandler = (req, res) => {
   try {
     const userId = req.params.userId || "user1";
 
-    const profile = profiles.get(userId);
+    const profile = getOrCreateProfile(userId);
     if (!profile) {
       const error: ApiError = {
         success: false,
