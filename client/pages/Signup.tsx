@@ -33,6 +33,7 @@ import {
   verifyPhoneOTP,
   sendFirebaseEmailVerification,
   saveUserData,
+  uploadProfileImage,
 } from "../lib/auth";
 import { auth, db } from "../lib/firebase";
 
