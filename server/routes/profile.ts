@@ -31,7 +31,7 @@ function getOrCreateProfile(userId: string): UserProfile | null {
       bio: "Music lover 🎵",
       profilePicture: "",
       email: `user${userId}@example.com`,
-      joinDate: new Date().toISOString().split('T')[0],
+      joinDate: new Date().toISOString().split("T")[0],
       isVerified: false,
       followers: 0,
       following: 0,
@@ -51,7 +51,7 @@ function getOrCreateProfile(userId: string): UserProfile | null {
       subscription: {
         plan: "free",
         status: "active",
-        startDate: new Date().toISOString().split('T')[0],
+        startDate: new Date().toISOString().split("T")[0],
         features: ["Basic listening"],
         autoRenew: false,
       },
