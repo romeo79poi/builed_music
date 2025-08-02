@@ -1432,13 +1432,7 @@ export default function Profile() {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => navigate("/history")}
-                        className="w-full py-3 mt-4 bg-black rounded-xl text-white font-medium flex items-center justify-center space-x-2"
-                        style={{
-                          boxShadow: `
-                            0 0 0 1px rgba(236, 72, 153, 0.6),
-                            inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                          `,
-                        }}
+                        className="w-full py-3 mt-4 bg-card rounded-xl text-foreground font-medium flex items-center justify-center space-x-2 border border-border"
                       >
                         <Clock className="w-4 h-4" />
                         <span>View Full History</span>
