@@ -32,6 +32,7 @@ import {
   sendPhoneOTP,
   verifyPhoneOTP,
   sendFirebaseEmailVerification,
+  saveUserData,
 } from "../lib/auth";
 import { auth, db } from "../lib/firebase";
 
