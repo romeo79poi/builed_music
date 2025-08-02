@@ -966,17 +966,11 @@ export default function Profile() {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setViewMode("grid")}
-                      className={`p-2 rounded-md transition-colors bg-black ${
+                      className={`p-2 rounded-md transition-colors bg-card border border-border ${
                         viewMode === "grid"
-                          ? "text-purple-primary"
-                          : "text-gray-400 hover:text-white"
+                          ? "text-primary"
+                          : "text-muted-foreground hover:text-foreground"
                       }`}
-                      style={{
-                        boxShadow: `
-                          0 0 0 1px rgba(236, 72, 153, 0.6),
-                          inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                        `,
-                      }}
                     >
                       <Grid3X3 className="w-4 h-4" />
                     </motion.button>
@@ -984,17 +978,11 @@ export default function Profile() {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setViewMode("list")}
-                      className={`p-2 rounded-lg transition-colors bg-black ${
+                      className={`p-2 rounded-lg transition-colors bg-card border border-border ${
                         viewMode === "list"
-                          ? "text-purple-primary"
-                          : "text-gray-400 hover:text-white"
+                          ? "text-primary"
+                          : "text-muted-foreground hover:text-foreground"
                       }`}
-                      style={{
-                        boxShadow: `
-                          0 0 0 1px rgba(236, 72, 153, 0.6),
-                          inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                        `,
-                      }}
                     >
                       <ListMusic className="w-4 h-4" />
                     </motion.button>
