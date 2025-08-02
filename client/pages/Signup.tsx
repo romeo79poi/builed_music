@@ -1381,15 +1381,20 @@ export default function Signup() {
       const data = await response.json();
 
       if (data.success) {
-        toast({
-          title: "Verification code resent!",
-          description:
-            "Please check your email for the new 6-digit verification code.",
-        });
-
-        // For development, show code in console
+        // For development, show code in toast
         if (data.debugCode) {
+          toast({
+            title: "Verification code resent!",
+            description: `Code: ${data.debugCode} (Development Mode)`,
+            duration: 8000,
+          });
           console.log(`📧 Resent email verification code: ${data.debugCode}`);
+        } else {
+          toast({
+            title: "Verification code resent!",
+            description:
+              "Please check your email for the new 6-digit verification code.",
+          });
         }
 
         setResendTimer(60);
