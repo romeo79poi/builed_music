@@ -700,13 +700,7 @@ export default function Profile() {
                           onClick={() =>
                             document.getElementById("avatar-upload")?.click()
                           }
-                          className="px-4 py-2 bg-black rounded-lg font-medium transition-all text-white flex items-center space-x-2"
-                          style={{
-                            boxShadow: `
-                              0 0 0 1px rgba(236, 72, 153, 0.6),
-                              inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                            `,
-                          }}
+                          className="px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg font-medium transition-all text-foreground flex items-center space-x-2 border border-border"
                         >
                           <Camera className="w-4 h-4" />
                           <span>Change Photo</span>
