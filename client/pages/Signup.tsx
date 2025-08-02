@@ -96,6 +96,7 @@ export default function Signup() {
     otp: "",
     dateOfBirth: "",
     profileImage: null,
+    profileImageURL: "",
     gender: "",
     bio: "",
   });
