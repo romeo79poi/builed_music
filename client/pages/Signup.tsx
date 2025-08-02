@@ -126,11 +126,26 @@ export default function Signup() {
       setErrors((prev) => ({ ...prev, email: "Email is required" }));
       return false;
     }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setErrors((prev) => ({ ...prev, email: "Invalid email format" }));
+
+    // Check for @ symbol
+    if (!email.includes("@")) {
+      setErrors((prev) => ({ ...prev, email: "Email must contain @" }));
       return false;
     }
+
+    // Check for .com
+    if (!email.includes(".com")) {
+      setErrors((prev) => ({ ...prev, email: "Email must contain .com" }));
+      return false;
+    }
+
+    // Full email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.com$/;
+    if (!emailRegex.test(email)) {
+      setErrors((prev) => ({ ...prev, email: "Invalid email format (must end with .com)" }));
+      return false;
+    }
+
     setErrors((prev) => ({ ...prev, email: undefined }));
     return true;
   };
@@ -179,9 +194,9 @@ export default function Signup() {
     } else if (formData.username.length < 3) {
       newErrors.username = "Username must be at least 3 characters";
       isValid = false;
-    } else if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) {
+    } else if (!/^[a-z0-9_]+$/.test(formData.username)) {
       newErrors.username =
-        "Username can only contain letters, numbers, and underscores";
+        "Username can only contain lowercase letters, numbers, and underscores";
       isValid = false;
     }
 
