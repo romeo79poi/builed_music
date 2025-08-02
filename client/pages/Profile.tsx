@@ -571,28 +571,16 @@ export default function Profile() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setIsEditing(true)}
-                    className="px-4 py-2 rounded-lg font-medium transition-all bg-black text-white"
-                    style={{
-                      boxShadow: `
-                        0 0 0 1px rgba(236, 72, 153, 0.6),
-                        inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                      `,
-                    }}
+                    className="px-4 py-2 rounded-lg font-medium transition-all bg-muted hover:bg-muted/80 text-foreground border border-border"
                   >
-                    <Edit3 className="w-4 h-4 text-white" />
+                    <Edit3 className="w-4 h-4" />
                   </motion.button>
 
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={handleFollow}
-                    className={`px-6 py-2 rounded-lg font-medium transition-all bg-black text-white`}
-                    style={{
-                      boxShadow: `
-                        0 0 0 1px rgba(236, 72, 153, 0.6),
-                        inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                      `,
-                    }}
+                    className={`px-6 py-2 rounded-lg font-medium transition-all bg-primary hover:bg-primary/90 text-primary-foreground`}
                   >
                     {isFollowing ? (
                       <>
@@ -613,15 +601,9 @@ export default function Profile() {
                     onClick={() =>
                       navigate("/messages", { state: { from: "profile" } })
                     }
-                    className="px-4 py-2 bg-black rounded-lg font-medium transition-all"
-                    style={{
-                      boxShadow: `
-                        0 0 0 1px rgba(236, 72, 153, 0.6),
-                        inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                      `,
-                    }}
+                    className="px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg font-medium transition-all border border-border text-foreground"
                   >
-                    <MessageCircle className="w-4 h-4 text-white" />
+                    <MessageCircle className="w-4 h-4" />
                   </motion.button>
                 </div>
               )}
