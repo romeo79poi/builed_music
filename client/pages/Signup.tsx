@@ -886,15 +886,21 @@ export default function Signup() {
 
         if (data.success) {
           setCurrentStep("verification");
-          toast({
-            title: "Verification code sent!",
-            description:
-              "Please check your email for the 6-digit verification code.",
-          });
 
-          // For development, show code in console
+          // For development, show code in toast
           if (data.debugCode) {
+            toast({
+              title: "Verification code sent!",
+              description: `Code: ${data.debugCode} (Development Mode)`,
+              duration: 8000,
+            });
             console.log(`📧 Email verification code: ${data.debugCode}`);
+          } else {
+            toast({
+              title: "Verification code sent!",
+              description:
+                "Please check your email for the 6-digit verification code.",
+            });
           }
 
           setResendTimer(60);
@@ -1227,7 +1233,7 @@ export default function Signup() {
           }
 
           toast({
-            title: "Account created successfully! 🎉",
+            title: "Account created successfully! ����",
             description: `Welcome to Music Catch, ${formData.name}! Please check your email for verification.`,
           });
 
