@@ -977,6 +977,8 @@ export default function Signup() {
 
       try {
         // Verify email code with backend
+        console.log(`🔍 Verifying email: ${formData.email} with code: ${formData.otp}`);
+
         const response = await fetch("/api/auth/verify-email", {
           method: "POST",
           headers: {
@@ -989,6 +991,7 @@ export default function Signup() {
         });
 
         const data = await response.json();
+        console.log(`📝 Verification response:`, data);
 
         if (data.success) {
           toast({
