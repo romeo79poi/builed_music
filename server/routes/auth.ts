@@ -247,6 +247,9 @@ export const verifyEmailCode: RequestHandler = async (req, res) => {
   try {
     const { email, code } = req.body;
 
+    console.log(`🔍 Verification attempt - Email: ${email}, Code: ${code}`);
+    console.log(`📦 Stored codes:`, Array.from(emailVerificationCodes.keys()));
+
     if (!email || !code) {
       return res.status(400).json({
         success: false,
@@ -255,6 +258,7 @@ export const verifyEmailCode: RequestHandler = async (req, res) => {
     }
 
     const storedVerification = emailVerificationCodes.get(email);
+    console.log(`📝 Stored verification for ${email}:`, storedVerification);
 
     if (!storedVerification) {
       return res.status(400).json({
