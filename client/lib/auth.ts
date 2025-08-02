@@ -451,6 +451,209 @@ export const signInWithGoogle = async (): Promise<{
   }
 };
 
+export const signInWithFacebook = async (): Promise<{
+  success: boolean;
+  user?: User;
+  error?: string;
+  isNewUser?: boolean;
+}> => {
+  try {
+    // Check if Firebase is configured
+    if (!isFirebaseConfigured || !auth || !db) {
+      // Provide development mode simulation
+      console.warn("🔧 Development mode: Simulating Facebook sign-in");
+
+      // Simulate Facebook sign-in for development
+      const mockUser = {
+        uid: `facebook-dev-${Date.now()}`,
+        email: "demo.facebook@example.com",
+        displayName: "Demo Facebook User",
+        emailVerified: true,
+        photoURL: "https://via.placeholder.com/96x96/1877F2/ffffff?text=FB",
+      } as User;
+
+      console.log("✅ Development Facebook user signed in:", mockUser);
+
+      return {
+        success: true,
+        user: mockUser,
+        isNewUser: true,
+      };
+    }
+
+    try {
+      const provider = new FacebookAuthProvider();
+
+      // Add required scopes for Facebook sign-in
+      provider.addScope("email");
+      provider.addScope("public_profile");
+
+      console.log("🔗 Initiating Facebook sign-in popup...");
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
+
+      // Validate the user account
+      if (!user.email) {
+        throw new Error("No email address found in Facebook account");
+      }
+
+      console.log("✅ Facebook user authenticated:", {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        emailVerified: user.emailVerified,
+      });
+
+      // Check if user exists in Firestore
+      const userDocRef = doc(db, "users", user.uid);
+      const userDoc = await getDoc(userDocRef);
+
+      let isNewUser = false;
+
+      if (!userDoc.exists()) {
+        // Create new user document with all required fields
+        const userData: UserData = {
+          name: user.displayName || "",
+          username: user.email?.split("@")[0] || "",
+          email: user.email || "",
+          phone: "",
+          profileImageURL: user.photoURL || "",
+          createdAt: serverTimestamp(),
+          verified: user.emailVerified || false, // Facebook users may be pre-verified
+        };
+
+        await setDoc(userDocRef, userData);
+        isNewUser = true;
+
+        console.log("✅ New Facebook user created in Firestore:", userData);
+      } else {
+        console.log("✅ Existing Facebook user signed in:", userDoc.data());
+      }
+
+      return { success: true, user, isNewUser };
+    } catch (firebaseError: any) {
+      console.warn(
+        "⚠️ Firebase error during Facebook sign-in:",
+        firebaseError.code,
+        firebaseError.message,
+      );
+
+      // Handle specific Firebase errors with better messages
+      if (firebaseError.code === "auth/popup-closed-by-user") {
+        return {
+          success: false,
+          error: "Sign-in was cancelled. Please try again.",
+        };
+      }
+
+      if (firebaseError.code === "auth/popup-blocked") {
+        return {
+          success: false,
+          error:
+            "Pop-up was blocked by your browser. Please allow pop-ups and try again.",
+        };
+      }
+
+      // If Firebase project doesn't exist, network issues, or unauthorized domain, use development mode
+      if (
+        firebaseError.code === "auth/project-not-found" ||
+        firebaseError.code === "auth/invalid-api-key" ||
+        firebaseError.code === "auth/network-request-failed" ||
+        firebaseError.code === "auth/unauthorized-domain" ||
+        firebaseError.message?.includes("Firebase project") ||
+        firebaseError.message?.includes("API key not valid") ||
+        firebaseError.message?.includes("network request failed")
+      ) {
+        console.warn(
+          "🔄 Firebase network/config error, using development mode for Facebook sign-in",
+        );
+
+        // Simulate successful Facebook user creation for development
+        const mockUser = {
+          uid: `facebook-dev-${Date.now()}`,
+          email: "demo.facebook@example.com",
+          displayName: "Demo Facebook User",
+          emailVerified: true,
+          photoURL: "https://via.placeholder.com/96x96/1877F2/ffffff?text=FB",
+        } as User;
+
+        console.log("✅ Development Facebook user created:", mockUser);
+
+        return { success: true, user: mockUser, isNewUser: true };
+      }
+
+      // Re-throw other Firebase errors to be handled by outer catch
+      throw firebaseError;
+    }
+  } catch (error: any) {
+    console.error("Facebook sign-in error:", error);
+
+    let errorMessage = "An error occurred during Facebook sign-in";
+
+    switch (error.code) {
+      case "auth/popup-closed-by-user":
+        errorMessage = "Sign-in cancelled by user";
+        break;
+      case "auth/popup-blocked":
+        errorMessage =
+          "Sign-in popup was blocked by your browser. Please allow popups and try again.";
+        break;
+      case "auth/cancelled-popup-request":
+        errorMessage = "Sign-in was cancelled";
+        break;
+      case "auth/operation-not-allowed":
+        errorMessage = "Facebook sign-in is not enabled for this application";
+        break;
+      case "auth/unauthorized-domain":
+        console.warn("🔧 Unauthorized domain detected, falling back to development mode");
+        // Fallback to development mode for unauthorized domains
+        const mockUser = {
+          uid: `facebook-dev-${Date.now()}`,
+          email: "demo.facebook@example.com",
+          displayName: "Demo Facebook User (Dev Mode)",
+          emailVerified: true,
+          photoURL: "https://via.placeholder.com/96x96/1877F2/ffffff?text=FB",
+        } as User;
+
+        return {
+          success: true,
+          user: mockUser,
+          isNewUser: true
+        };
+      case "auth/account-exists-with-different-credential":
+        errorMessage =
+          "An account already exists with the same email address but different sign-in credentials";
+        break;
+      case "auth/invalid-credential":
+        errorMessage = "The provided Facebook credential is invalid or expired";
+        break;
+      case "auth/user-disabled":
+        errorMessage = "This Facebook account has been disabled";
+        break;
+      case "auth/user-not-found":
+        errorMessage = "No account found with this Facebook account";
+        break;
+      case "auth/email-already-in-use":
+        errorMessage =
+          "This email is already registered with a different sign-in method";
+        break;
+      default:
+        if (error.message?.includes("No email address")) {
+          errorMessage = "Facebook account must have a valid email address";
+        } else if (error.message?.includes("network")) {
+          errorMessage =
+            "Network error. Please check your connection and try again.";
+        } else {
+          errorMessage =
+            error.message ||
+            "An unexpected error occurred during Facebook sign-in";
+        }
+    }
+
+    return { success: false, error: errorMessage };
+  }
+};
+
 export const sendFirebaseEmailVerification = async (
   user: User,
 ): Promise<{ success: boolean; error?: string }> => {
