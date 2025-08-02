@@ -1117,13 +1117,7 @@ export default function Profile() {
                               initial={{ opacity: 0, scale: 0.9 }}
                               animate={{ opacity: 1, scale: 1 }}
                               transition={{ delay: index * 0.1 }}
-                              className="bg-black rounded-xl p-3"
-                              style={{
-                                boxShadow: `
-                                  0 0 0 1px rgba(236, 72, 153, 0.6),
-                                  inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                                `,
-                              }}
+                              className="bg-card rounded-xl p-3 border border-border"
                             >
                               <div className="relative mb-3">
                                 <img
@@ -1132,14 +1126,14 @@ export default function Profile() {
                                   className="w-full aspect-square rounded-lg object-cover"
                                 />
                                 {!playlist.isPublic && (
-                                  <div className="absolute top-2 left-2 px-2 py-1 bg-black/60 rounded-md">
-                                    <span className="text-xs text-white font-medium">
+                                  <div className="absolute top-2 left-2 px-2 py-1 bg-card/60 rounded-md">
+                                    <span className="text-xs text-foreground font-medium">
                                       Private
                                     </span>
                                   </div>
                                 )}
                               </div>
-                              <h3 className="font-medium text-white mb-1 truncate">
+                              <h3 className="font-medium text-foreground mb-1 truncate">
                                 {playlist.name}
                               </h3>
                               <div className="flex items-center justify-between text-xs text-gray-400">
