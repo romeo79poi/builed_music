@@ -841,7 +841,6 @@ export default function Profile() {
                     {profile.website && (
                       <div className="flex items-center space-x-1">
                         <Link2 className="w-4 h-4" />
-                        <span>{profile.website}</span>
                       </div>
                     )}
                     <div className="flex items-center space-x-1">
