@@ -23,6 +23,9 @@ export interface UserData {
   profileImageURL: string;
   createdAt: any;
   verified: boolean;
+  dob?: string;
+  gender?: string;
+  bio?: string;
 }
 
 export const signUpWithEmailAndPassword = async (
