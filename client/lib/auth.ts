@@ -28,6 +28,50 @@ export interface UserData {
   bio?: string;
 }
 
+// Save user data to Firestore
+export const saveUserData = async (
+  user: User,
+  additionalData?: {
+    username?: string;
+    dob?: string;
+    gender?: string;
+    bio?: string;
+    profileImage?: string;
+  }
+): Promise<{ success: boolean; error?: string }> => {
+  try {
+    if (!isFirebaseConfigured || !auth || !db) {
+      console.warn("🔧 Development mode: Simulating user data save");
+      return { success: true };
+    }
+
+    const userId = user.uid;
+    const userData: UserData = {
+      email: user.email || "",
+      name: user.displayName || additionalData?.username || "User Name",
+      username: additionalData?.username || user.email?.split("@")[0] || "defaultUsername",
+      dob: additionalData?.dob || "",
+      gender: additionalData?.gender || "",
+      bio: additionalData?.bio || "",
+      phone: user.phoneNumber || "",
+      profileImageURL: additionalData?.profileImage || user.photoURL || "",
+      createdAt: serverTimestamp(),
+      verified: user.emailVerified || false,
+    };
+
+    await setDoc(doc(db, "users", userId), userData);
+    console.log("✅ User data saved to Firestore:", userData);
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Save user data error:", error);
+    return {
+      success: false,
+      error: error.message || "Failed to save user data"
+    };
+  }
+};
+
 export const signUpWithEmailAndPassword = async (
   email: string,
   password: string,
