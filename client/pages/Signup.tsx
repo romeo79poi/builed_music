@@ -61,6 +61,7 @@ interface FormData {
   otp: string;
   dateOfBirth: string;
   profileImage: File | null;
+  profileImageURL: string;
   gender: string;
   bio: string;
 }
