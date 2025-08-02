@@ -848,7 +848,7 @@ export default function Signup() {
           setCurrentStep("verification");
           toast({
             title: "✉️ Verification email sent!",
-            description: `Check your email at ${formData.email} for a beautiful verification code.`,
+            description: `Check your email at ${formData.email} for a verification code.`,
           });
 
           // For development, show code in console and preview URL
