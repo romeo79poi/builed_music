@@ -1136,7 +1136,60 @@ export default function Signup() {
     setCurrentStep("profileImage");
   };
 
-  const handleProfileImageStep = () => {
+  const handleProfileImageStep = async () => {
+    // If user selected an image, upload it first
+    if (formData.profileImage) {
+      setIsLoading(true);
+      try {
+        const uploadResult = await uploadProfileImage(formData.profileImage);
+
+        if (uploadResult.success) {
+          // Update form data with the uploaded image URL
+          setFormData((prev) => ({
+            ...prev,
+            profileImageURL: uploadResult.imageURL || ""
+          }));
+
+          toast({
+            title: "Profile image uploaded! ✅",
+            description: "Your profile picture has been saved successfully.",
+          });
+        } else {
+          setErrors((prev) => ({
+            ...prev,
+            profileImage: uploadResult.error || "Failed to upload image"
+          }));
+
+          toast({
+            title: "Upload failed",
+            description: uploadResult.error || "Failed to upload profile image",
+            variant: "destructive",
+          });
+
+          setIsLoading(false);
+          return; // Don't proceed to next step if upload failed
+        }
+      } catch (error) {
+        console.error("Profile image upload error:", error);
+        setErrors((prev) => ({
+          ...prev,
+          profileImage: "Failed to upload image"
+        }));
+
+        toast({
+          title: "Upload error",
+          description: "An error occurred while uploading your profile image",
+          variant: "destructive",
+        });
+
+        setIsLoading(false);
+        return;
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    // Proceed to next step
     setCurrentStep("gender");
   };
 
