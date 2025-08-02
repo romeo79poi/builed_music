@@ -1161,13 +1161,13 @@ export default function Profile() {
                                 className="w-12 h-12 rounded-lg object-cover"
                               />
                               <div className="flex-1">
-                                <h3 className="font-medium text-white mb-1">
+                                <h3 className="font-medium text-foreground mb-1">
                                   {playlist.name}
                                 </h3>
-                                <p className="text-sm text-gray-400 mb-1 line-clamp-1">
+                                <p className="text-sm text-muted-foreground mb-1 line-clamp-1">
                                   {playlist.description}
                                 </p>
-                                <div className="flex items-center space-x-4 text-xs text-gray-400">
+                                <div className="flex items-center space-x-4 text-xs text-muted-foreground">
                                   <span>{playlist.trackCount} tracks</span>
                                   <span>
                                     {formatNumber(playlist.plays)} plays
@@ -1180,9 +1180,9 @@ export default function Profile() {
                               <motion.button
                                 whileHover={{ scale: 1.1 }}
                                 whileTap={{ scale: 0.9 }}
-                                className="p-2 rounded-full hover:bg-gray-700 transition-colors"
+                                className="p-2 rounded-full hover:bg-muted/80 transition-colors"
                               >
-                                <MoreHorizontal className="w-4 h-4 text-gray-400" />
+                                <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
                               </motion.button>
                             </motion.div>
                           ))}
