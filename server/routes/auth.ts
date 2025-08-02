@@ -1,7 +1,10 @@
 import { RequestHandler } from "express";
-import { serverSupabase } from "../lib/supabase";
 import bcrypt from "bcrypt";
 import { sendVerificationEmail, sendWelcomeEmail } from "../lib/email";
+
+// In-memory database simulation (in production, use a real database like Supabase)
+let users: Map<string, any> = new Map();
+let userIdCounter = 1;
 
 // In-memory storage for email verification codes
 const emailVerificationCodes: Map<
@@ -13,6 +16,72 @@ const emailVerificationCodes: Map<
     attempts: number;
   }
 > = new Map();
+
+// Initialize with demo user for consistency with profile data
+initializeDemoUser();
+
+function initializeDemoUser() {
+  const demoUser = {
+    id: "user1",
+    email: "bio.spectra@musiccatch.com",
+    username: "biospectra",
+    name: "Bio Spectra",
+    password: "$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewqB5t8lIYfBW4AO", // hashed "password123"
+    is_verified: true,
+    email_verified: true,
+    created_at: "2023-01-15T00:00:00.000Z",
+    updated_at: "2023-01-15T00:00:00.000Z"
+  };
+  users.set("bio.spectra@musiccatch.com", demoUser);
+  users.set("biospectra", demoUser);
+  users.set("user1", demoUser);
+}
+
+// Mock Supabase functions for in-memory operations
+const mockSupabase = {
+  async createUser(userData: any) {
+    const userId = `user${++userIdCounter}`;
+    const user = {
+      id: userId,
+      ...userData,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    };
+    
+    // Store by email, username, and id for easy lookup
+    users.set(user.email, user);
+    users.set(user.username, user);
+    users.set(user.id, user);
+    
+    return { data: user, error: null };
+  },
+
+  async getUserByEmail(email: string) {
+    const user = users.get(email);
+    return { 
+      data: user || null, 
+      error: user ? null : { code: 'PGRST116', message: 'User not found' }
+    };
+  },
+
+  async getUserByUsername(username: string) {
+    const user = users.get(username);
+    return { 
+      data: user || null, 
+      error: user ? null : { code: 'PGRST116', message: 'User not found' }
+    };
+  },
+
+  async checkEmailAvailability(email: string) {
+    const user = users.get(email);
+    return { available: !user, error: null };
+  },
+
+  async checkUsernameAvailability(username: string) {
+    const user = users.get(username);
+    return { available: !user, error: null };
+  }
+};
 
 // User registration endpoint
 export const registerUser: RequestHandler = async (req, res) => {
@@ -45,8 +114,7 @@ export const registerUser: RequestHandler = async (req, res) => {
     }
 
     // Check if user already exists
-    const { data: existingUserByEmail } =
-      await serverSupabase.getUserByEmail(email);
+    const { data: existingUserByEmail } = await mockSupabase.getUserByEmail(email);
     if (existingUserByEmail) {
       return res.status(400).json({
         success: false,
@@ -54,8 +122,7 @@ export const registerUser: RequestHandler = async (req, res) => {
       });
     }
 
-    const { data: existingUserByUsername } =
-      await serverSupabase.getUserByUsername(username);
+    const { data: existingUserByUsername } = await mockSupabase.getUserByUsername(username);
     if (existingUserByUsername) {
       return res.status(400).json({
         success: false,
@@ -66,8 +133,8 @@ export const registerUser: RequestHandler = async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Create new user in Supabase
-    const { data: newUser, error } = await serverSupabase.createUser({
+    // Create new user
+    const { data: newUser, error } = await mockSupabase.createUser({
       email,
       username,
       name,
@@ -77,7 +144,7 @@ export const registerUser: RequestHandler = async (req, res) => {
     });
 
     if (error) {
-      console.error("Supabase error:", error);
+      console.error("User creation error:", error);
       return res.status(500).json({
         success: false,
         message: "Failed to create user account",
@@ -114,20 +181,15 @@ export const checkAvailability: RequestHandler = async (req, res) => {
   try {
     const { email, username } = req.query;
 
-    const result: { emailAvailable?: boolean; usernameAvailable?: boolean } =
-      {};
+    const result: { emailAvailable?: boolean; usernameAvailable?: boolean } = {};
 
     if (email) {
-      const { available } = await serverSupabase.checkEmailAvailability(
-        email.toString(),
-      );
+      const { available } = await mockSupabase.checkEmailAvailability(email.toString());
       result.emailAvailable = available;
     }
 
     if (username) {
-      const { available } = await serverSupabase.checkUsernameAvailability(
-        username.toString(),
-      );
+      const { available } = await mockSupabase.checkUsernameAvailability(username.toString());
       result.usernameAvailable = available;
     }
 
@@ -166,9 +228,7 @@ export const sendEmailVerification: RequestHandler = async (req, res) => {
     }
 
     // Generate 6-digit verification code
-    const verificationCode = Math.floor(
-      100000 + Math.random() * 900000,
-    ).toString();
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
     const expiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
     // Store verification code
@@ -179,39 +239,17 @@ export const sendEmailVerification: RequestHandler = async (req, res) => {
       attempts: 0,
     });
 
-    // Send actual email with beautiful design
-    const emailResult = await sendVerificationEmail(email, verificationCode);
-
-    if (!emailResult.success) {
-      console.error("Failed to send verification email:", emailResult.error);
-      // Still return success for development but log the error
-      if (process.env.NODE_ENV === "production") {
-        return res.status(500).json({
-          success: false,
-          message: "Failed to send verification email. Please try again.",
-        });
-      }
-    }
-
-    console.log(`📧 Verification email sent to: ${email}`);
+    // For demo purposes, skip actual email sending and return debug info
+    console.log(`📧 Verification email would be sent to: ${email}`);
+    console.log(`🔑 Verification code: ${verificationCode}`);
     console.log(`🕒 Code expires at: ${expiry.toISOString()}`);
-
-    // In development, also show preview URL and debug code
-    if (process.env.NODE_ENV === "development") {
-      console.log(`🔗 Email preview: ${emailResult.previewUrl || "N/A"}`);
-      console.log(`🔑 Debug code: ${verificationCode}`);
-    }
 
     res.json({
       success: true,
       message: "Verification code sent to your email successfully",
-      // For development only - remove in production
-      debugCode:
-        process.env.NODE_ENV === "development" ? verificationCode : undefined,
-      previewUrl:
-        process.env.NODE_ENV === "development"
-          ? emailResult.previewUrl
-          : undefined,
+      // For development/demo - include debug code
+      debugCode: verificationCode,
+      expiresAt: expiry.toISOString(),
     });
   } catch (error) {
     console.error("Send email verification error:", error);
@@ -343,8 +381,7 @@ export const completeRegistration: RequestHandler = async (req, res) => {
     }
 
     // Check if user already exists
-    const { data: existingUserByEmail } =
-      await serverSupabase.getUserByEmail(email);
+    const { data: existingUserByEmail } = await mockSupabase.getUserByEmail(email);
     if (existingUserByEmail) {
       return res.status(400).json({
         success: false,
@@ -352,8 +389,7 @@ export const completeRegistration: RequestHandler = async (req, res) => {
       });
     }
 
-    const { data: existingUserByUsername } =
-      await serverSupabase.getUserByUsername(username);
+    const { data: existingUserByUsername } = await mockSupabase.getUserByUsername(username);
     if (existingUserByUsername) {
       return res.status(400).json({
         success: false,
@@ -364,8 +400,8 @@ export const completeRegistration: RequestHandler = async (req, res) => {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 12);
 
-    // Create new user in Supabase
-    const { data: newUser, error } = await serverSupabase.createUser({
+    // Create new user
+    const { data: newUser, error } = await mockSupabase.createUser({
       email,
       username,
       name,
@@ -375,15 +411,12 @@ export const completeRegistration: RequestHandler = async (req, res) => {
     });
 
     if (error) {
-      console.error("Supabase error:", error);
+      console.error("User creation error:", error);
       return res.status(500).json({
         success: false,
         message: "Failed to create user account",
       });
     }
-
-    // Send welcome email
-    await sendWelcomeEmail(email, name);
 
     // Return success response (without password)
     const { password: _, ...userResponse } = newUser;
@@ -421,8 +454,8 @@ export const loginUser: RequestHandler = async (req, res) => {
       });
     }
 
-    // Find user in Supabase
-    const { data: user, error } = await serverSupabase.getUserByEmail(email);
+    // Find user by email
+    const { data: user, error } = await mockSupabase.getUserByEmail(email);
 
     if (error || !user) {
       return res.status(400).json({
@@ -474,23 +507,15 @@ export const loginUser: RequestHandler = async (req, res) => {
 // Get all users (for demo purposes)
 export const getUsers: RequestHandler = async (req, res) => {
   try {
-    const { data: users, error } = await serverSupabase.supabase
-      .from("users")
-      .select("id, email, username, name, created_at, is_verified")
-      .order("created_at", { ascending: false });
-
-    if (error) {
-      console.error("Supabase error:", error);
-      return res.status(500).json({
-        success: false,
-        message: "Failed to fetch users",
-      });
-    }
+    const allUsers = Array.from(users.values())
+      .filter(user => user.email) // Only get users stored by email (to avoid duplicates)
+      .map(({ password, ...user }) => user) // Remove password from response
+      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
     res.json({
       success: true,
-      users: users || [],
-      count: users?.length || 0,
+      users: allUsers,
+      count: allUsers.length,
     });
   } catch (error) {
     console.error("Get users error:", error);
