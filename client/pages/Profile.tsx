@@ -1036,10 +1036,10 @@ export default function Profile() {
                                   </div>
                                 )}
                               </div>
-                              <h3 className="font-medium text-white mb-1 truncate">
+                              <h3 className="font-medium text-foreground mb-1 truncate">
                                 {track.title}
                               </h3>
-                              <div className="flex items-center justify-between text-xs text-gray-400">
+                              <div className="flex items-center justify-between text-xs text-muted-foreground">
                                 <span>{formatNumber(track.plays)} plays</span>
                                 <span>{formatDuration(track.duration)}</span>
                               </div>
@@ -1054,13 +1054,7 @@ export default function Profile() {
                               initial={{ opacity: 0, x: -20 }}
                               animate={{ opacity: 1, x: 0 }}
                               transition={{ delay: index * 0.05 }}
-                              className="flex items-center space-x-3 p-3 bg-black rounded-xl hover:bg-gray-900 transition-colors cursor-pointer"
-                              style={{
-                                boxShadow: `
-                                  0 0 0 1px rgba(236, 72, 153, 0.6),
-                                  inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                                `,
-                              }}
+                              className="flex items-center space-x-3 p-3 bg-card rounded-xl hover:bg-card/80 transition-colors cursor-pointer border border-border"
                               onClick={() => handlePlay(track.id)}
                             >
                               <div className="relative">
