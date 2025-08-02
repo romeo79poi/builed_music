@@ -950,54 +950,36 @@ export default function Profile() {
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
                   onClick={() => setShowStats(true)}
-                  className="text-center p-2 bg-black rounded-lg hover:bg-gray-900 transition-colors"
-                  style={{
-                    boxShadow: `
-                      0 0 0 1px rgba(236, 72, 153, 0.6),
-                      inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                    `,
-                  }}
+                  className="text-center p-2 bg-card hover:bg-card/80 rounded-lg transition-colors border border-border"
                 >
-                  <p className="text-sm font-bold text-white">
+                  <p className="text-sm font-bold text-foreground">
                     {formatNumber(profile.stats.followers)}
                   </p>
-                  <p className="text-[10px] text-gray-400">Followers</p>
+                  <p className="text-[10px] text-muted-foreground">Followers</p>
                 </motion.button>
 
                 <motion.button
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
                   onClick={() => setShowStats(true)}
-                  className="text-center p-2 bg-black rounded-lg hover:bg-gray-900 transition-colors"
-                  style={{
-                    boxShadow: `
-                      0 0 0 1px rgba(236, 72, 153, 0.6),
-                      inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                    `,
-                  }}
+                  className="text-center p-2 bg-card hover:bg-card/80 rounded-lg transition-colors border border-border"
                 >
-                  <p className="text-sm font-bold text-white">
+                  <p className="text-sm font-bold text-foreground">
                     {formatNumber(profile.stats.following)}
                   </p>
-                  <p className="text-[10px] text-gray-400">Following</p>
+                  <p className="text-[10px] text-muted-foreground">Following</p>
                 </motion.button>
 
                 <motion.button
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
                   onClick={() => setShowStats(true)}
-                  className="text-center p-2 bg-black rounded-lg hover:bg-gray-900 transition-colors"
-                  style={{
-                    boxShadow: `
-                      0 0 0 1px rgba(236, 72, 153, 0.6),
-                      inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                    `,
-                  }}
+                  className="text-center p-2 bg-card hover:bg-card/80 rounded-lg transition-colors border border-border"
                 >
-                  <p className="text-sm font-bold text-white">
+                  <p className="text-sm font-bold text-foreground">
                     {formatNumber(profile.stats.totalPlays)}
                   </p>
-                  <p className="text-[10px] text-gray-400">Total Plays</p>
+                  <p className="text-[10px] text-muted-foreground">Total Plays</p>
                 </motion.button>
               </div>
             )}
