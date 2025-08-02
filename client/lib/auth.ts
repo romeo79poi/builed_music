@@ -11,8 +11,9 @@ import {
   ConfirmationResult,
   User,
 } from "firebase/auth";
-import { doc, setDoc, getDoc, serverTimestamp } from "firebase/firestore";
-import { auth, db, isFirebaseConfigured } from "./firebase";
+import { doc, setDoc, getDoc, serverTimestamp, updateDoc } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { auth, db, storage, isFirebaseConfigured } from "./firebase";
 import { apiPost } from "./api-utils";
 
 export interface UserData {
