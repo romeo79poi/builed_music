@@ -26,6 +26,7 @@ import {
 import {
   signUpWithEmailAndPassword,
   signInWithGoogle,
+  signInWithFacebook,
   signUpWithEmailAndPasswordWithVerification,
   initializeRecaptcha,
   sendPhoneOTP,
