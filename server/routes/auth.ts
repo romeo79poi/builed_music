@@ -221,16 +221,28 @@ export const sendEmailVerification: RequestHandler = async (req, res) => {
       attempts: 0,
     });
 
-    // For demo purposes, skip actual email sending and return debug info
-    console.log(`📧 Verification email would be sent to: ${email}`);
+    // Send actual email with verification code
+    console.log(`📧 Sending verification email to: ${email}`);
     console.log(`🔑 Verification code: ${verificationCode}`);
     console.log(`🕒 Code expires at: ${expiry.toISOString()}`);
+
+    const emailResult = await sendVerificationEmail(email, verificationCode);
+
+    if (!emailResult.success) {
+      console.error("Failed to send verification email:", emailResult.error);
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send verification email. Please try again.",
+      });
+    }
+
+    console.log(`✅ Verification email sent successfully to: ${email}`);
 
     res.json({
       success: true,
       message: "Verification code sent to your email successfully",
       // For development/demo - include debug code
-      debugCode: verificationCode,
+      debugCode: process.env.NODE_ENV === "development" ? verificationCode : undefined,
       expiresAt: expiry.toISOString(),
     });
   } catch (error) {
