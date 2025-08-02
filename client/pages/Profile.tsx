@@ -571,28 +571,16 @@ export default function Profile() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={() => setIsEditing(true)}
-                    className="px-4 py-2 rounded-lg font-medium transition-all bg-black text-white"
-                    style={{
-                      boxShadow: `
-                        0 0 0 1px rgba(236, 72, 153, 0.6),
-                        inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                      `,
-                    }}
+                    className="px-4 py-2 rounded-lg font-medium transition-all bg-muted hover:bg-muted/80 text-foreground border border-border"
                   >
-                    <Edit3 className="w-4 h-4 text-white" />
+                    <Edit3 className="w-4 h-4" />
                   </motion.button>
 
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={handleFollow}
-                    className={`px-6 py-2 rounded-lg font-medium transition-all bg-black text-white`}
-                    style={{
-                      boxShadow: `
-                        0 0 0 1px rgba(236, 72, 153, 0.6),
-                        inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                      `,
-                    }}
+                    className={`px-6 py-2 rounded-lg font-medium transition-all bg-primary hover:bg-primary/90 text-primary-foreground`}
                   >
                     {isFollowing ? (
                       <>
@@ -613,15 +601,9 @@ export default function Profile() {
                     onClick={() =>
                       navigate("/messages", { state: { from: "profile" } })
                     }
-                    className="px-4 py-2 bg-black rounded-lg font-medium transition-all"
-                    style={{
-                      boxShadow: `
-                        0 0 0 1px rgba(236, 72, 153, 0.6),
-                        inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                      `,
-                    }}
+                    className="px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg font-medium transition-all border border-border text-foreground"
                   >
-                    <MessageCircle className="w-4 h-4 text-white" />
+                    <MessageCircle className="w-4 h-4" />
                   </motion.button>
                 </div>
               )}
@@ -718,13 +700,7 @@ export default function Profile() {
                           onClick={() =>
                             document.getElementById("avatar-upload")?.click()
                           }
-                          className="px-4 py-2 bg-black rounded-lg font-medium transition-all text-white flex items-center space-x-2"
-                          style={{
-                            boxShadow: `
-                              0 0 0 1px rgba(236, 72, 153, 0.6),
-                              inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                            `,
-                          }}
+                          className="px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg font-medium transition-all text-foreground flex items-center space-x-2 border border-border"
                         >
                           <Camera className="w-4 h-4" />
                           <span>Change Photo</span>
@@ -816,13 +792,7 @@ export default function Profile() {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={handleCancelEdit}
-                      className="px-4 py-2 rounded-lg font-medium transition-all bg-black text-white"
-                      style={{
-                        boxShadow: `
-                          0 0 0 1px rgba(236, 72, 153, 0.6),
-                          inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                        `,
-                      }}
+                      className="px-4 py-2 rounded-lg font-medium transition-all bg-muted hover:bg-muted/80 text-foreground border border-border"
                     >
                       <X className="w-4 h-4 mr-2 inline" />
                       Cancel
@@ -871,7 +841,6 @@ export default function Profile() {
                     {profile.website && (
                       <div className="flex items-center space-x-1">
                         <Link2 className="w-4 h-4" />
-                        <span>{profile.website}</span>
                       </div>
                     )}
                     <div className="flex items-center space-x-1">
@@ -950,54 +919,36 @@ export default function Profile() {
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
                   onClick={() => setShowStats(true)}
-                  className="text-center p-2 bg-black rounded-lg hover:bg-gray-900 transition-colors"
-                  style={{
-                    boxShadow: `
-                      0 0 0 1px rgba(236, 72, 153, 0.6),
-                      inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                    `,
-                  }}
+                  className="text-center p-2 bg-card hover:bg-card/80 rounded-lg transition-colors border border-border"
                 >
-                  <p className="text-sm font-bold text-white">
+                  <p className="text-sm font-bold text-foreground">
                     {formatNumber(profile.stats.followers)}
                   </p>
-                  <p className="text-[10px] text-gray-400">Followers</p>
+                  <p className="text-[10px] text-muted-foreground">Followers</p>
                 </motion.button>
 
                 <motion.button
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
                   onClick={() => setShowStats(true)}
-                  className="text-center p-2 bg-black rounded-lg hover:bg-gray-900 transition-colors"
-                  style={{
-                    boxShadow: `
-                      0 0 0 1px rgba(236, 72, 153, 0.6),
-                      inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                    `,
-                  }}
+                  className="text-center p-2 bg-card hover:bg-card/80 rounded-lg transition-colors border border-border"
                 >
-                  <p className="text-sm font-bold text-white">
+                  <p className="text-sm font-bold text-foreground">
                     {formatNumber(profile.stats.following)}
                   </p>
-                  <p className="text-[10px] text-gray-400">Following</p>
+                  <p className="text-[10px] text-muted-foreground">Following</p>
                 </motion.button>
 
                 <motion.button
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
                   onClick={() => setShowStats(true)}
-                  className="text-center p-2 bg-black rounded-lg hover:bg-gray-900 transition-colors"
-                  style={{
-                    boxShadow: `
-                      0 0 0 1px rgba(236, 72, 153, 0.6),
-                      inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                    `,
-                  }}
+                  className="text-center p-2 bg-card hover:bg-card/80 rounded-lg transition-colors border border-border"
                 >
-                  <p className="text-sm font-bold text-white">
+                  <p className="text-sm font-bold text-foreground">
                     {formatNumber(profile.stats.totalPlays)}
                   </p>
-                  <p className="text-[10px] text-gray-400">Total Plays</p>
+                  <p className="text-[10px] text-muted-foreground">Total Plays</p>
                 </motion.button>
               </div>
             )}
@@ -1014,17 +965,11 @@ export default function Profile() {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => setViewMode("grid")}
-                      className={`p-2 rounded-md transition-colors bg-black ${
+                      className={`p-2 rounded-md transition-colors bg-card border border-border ${
                         viewMode === "grid"
-                          ? "text-purple-primary"
-                          : "text-gray-400 hover:text-white"
+                          ? "text-primary"
+                          : "text-muted-foreground hover:text-foreground"
                       }`}
-                      style={{
-                        boxShadow: `
-                          0 0 0 1px rgba(236, 72, 153, 0.6),
-                          inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                        `,
-                      }}
                     >
                       <Grid3X3 className="w-4 h-4" />
                     </motion.button>
@@ -1032,17 +977,11 @@ export default function Profile() {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => setViewMode("list")}
-                      className={`p-2 rounded-lg transition-colors bg-black ${
+                      className={`p-2 rounded-lg transition-colors bg-card border border-border ${
                         viewMode === "list"
-                          ? "text-purple-primary"
-                          : "text-gray-400 hover:text-white"
+                          ? "text-primary"
+                          : "text-muted-foreground hover:text-foreground"
                       }`}
-                      style={{
-                        boxShadow: `
-                          0 0 0 1px rgba(236, 72, 153, 0.6),
-                          inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                        `,
-                      }}
                     >
                       <ListMusic className="w-4 h-4" />
                     </motion.button>
@@ -1067,13 +1006,7 @@ export default function Profile() {
                               initial={{ opacity: 0, scale: 0.9 }}
                               animate={{ opacity: 1, scale: 1 }}
                               transition={{ delay: index * 0.1 }}
-                              className="bg-black rounded-xl p-3"
-                              style={{
-                                boxShadow: `
-                                  0 0 0 1px rgba(236, 72, 153, 0.6),
-                                  inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                                `,
-                              }}
+                              className="bg-card rounded-xl p-3 border border-border"
                             >
                               <div className="relative mb-3">
                                 <img
@@ -1085,33 +1018,27 @@ export default function Profile() {
                                   whileHover={{ scale: 1.1 }}
                                   whileTap={{ scale: 0.9 }}
                                   onClick={() => handlePlay(track.id)}
-                                  className="absolute bottom-2 right-2 w-8 h-8 bg-black rounded-full flex items-center justify-center shadow-lg"
-                                  style={{
-                                    boxShadow: `
-                                      0 0 0 1px rgba(236, 72, 153, 0.6),
-                                      inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                                    `,
-                                  }}
+                                  className="absolute bottom-2 right-2 w-8 h-8 bg-card rounded-full flex items-center justify-center shadow-lg border border-border"
                                 >
                                   {currentPlayingTrack === track.id &&
                                   isPlaying ? (
-                                    <Pause className="w-4 h-4 text-white" />
+                                    <Pause className="w-4 h-4 text-foreground" />
                                   ) : (
-                                    <Play className="w-4 h-4 text-white ml-0.5" />
+                                    <Play className="w-4 h-4 text-foreground ml-0.5" />
                                   )}
                                 </motion.button>
                                 {track.genre && (
-                                  <div className="absolute top-2 left-2 px-2 py-1 bg-black/60 rounded-md">
-                                    <span className="text-xs text-white font-medium">
+                                  <div className="absolute top-2 left-2 px-2 py-1 bg-card/60 rounded-md">
+                                    <span className="text-xs text-foreground font-medium">
                                       {track.genre}
                                     </span>
                                   </div>
                                 )}
                               </div>
-                              <h3 className="font-medium text-white mb-1 truncate">
+                              <h3 className="font-medium text-foreground mb-1 truncate">
                                 {track.title}
                               </h3>
-                              <div className="flex items-center justify-between text-xs text-gray-400">
+                              <div className="flex items-center justify-between text-xs text-muted-foreground">
                                 <span>{formatNumber(track.plays)} plays</span>
                                 <span>{formatDuration(track.duration)}</span>
                               </div>
@@ -1126,13 +1053,7 @@ export default function Profile() {
                               initial={{ opacity: 0, x: -20 }}
                               animate={{ opacity: 1, x: 0 }}
                               transition={{ delay: index * 0.05 }}
-                              className="flex items-center space-x-3 p-3 bg-black rounded-xl hover:bg-gray-900 transition-colors cursor-pointer"
-                              style={{
-                                boxShadow: `
-                                  0 0 0 1px rgba(236, 72, 153, 0.6),
-                                  inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                                `,
-                              }}
+                              className="flex items-center space-x-3 p-3 bg-card rounded-xl hover:bg-card/80 transition-colors cursor-pointer border border-border"
                               onClick={() => handlePlay(track.id)}
                             >
                               <div className="relative">
@@ -1141,36 +1062,36 @@ export default function Profile() {
                                   alt={track.title}
                                   className="w-12 h-12 rounded-lg object-cover"
                                 />
-                                <div className="absolute inset-0 bg-black/40 rounded-lg flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                                <div className="absolute inset-0 bg-background/40 rounded-lg flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                                   {currentPlayingTrack === track.id &&
                                   isPlaying ? (
-                                    <Pause className="w-4 h-4 text-white" />
+                                    <Pause className="w-4 h-4 text-foreground" />
                                   ) : (
-                                    <Play className="w-4 h-4 text-white ml-0.5" />
+                                    <Play className="w-4 h-4 text-foreground ml-0.5" />
                                   )}
                                 </div>
                               </div>
                               <div className="flex-1">
-                                <h3 className="font-medium text-white mb-1">
+                                <h3 className="font-medium text-foreground mb-1">
                                   {track.title}
                                 </h3>
-                                <div className="flex items-center space-x-4 text-xs text-gray-400">
+                                <div className="flex items-center space-x-4 text-xs text-muted-foreground">
                                   <span>{formatNumber(track.plays)} plays</span>
                                   <span>{formatNumber(track.likes)} likes</span>
                                   <span>{formatDate(track.uploadDate)}</span>
                                 </div>
                               </div>
                               <div className="text-right">
-                                <p className="text-sm text-gray-400">
+                                <p className="text-sm text-muted-foreground">
                                   {formatDuration(track.duration)}
                                 </p>
                               </div>
                               <motion.button
                                 whileHover={{ scale: 1.1 }}
                                 whileTap={{ scale: 0.9 }}
-                                className="p-2 rounded-full hover:bg-gray-700 transition-colors"
+                                className="p-2 rounded-full hover:bg-muted/80 transition-colors"
                               >
-                                <MoreHorizontal className="w-4 h-4 text-gray-400" />
+                                <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
                               </motion.button>
                             </motion.div>
                           ))}
@@ -1195,13 +1116,7 @@ export default function Profile() {
                               initial={{ opacity: 0, scale: 0.9 }}
                               animate={{ opacity: 1, scale: 1 }}
                               transition={{ delay: index * 0.1 }}
-                              className="bg-black rounded-xl p-3"
-                              style={{
-                                boxShadow: `
-                                  0 0 0 1px rgba(236, 72, 153, 0.6),
-                                  inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                                `,
-                              }}
+                              className="bg-card rounded-xl p-3 border border-border"
                             >
                               <div className="relative mb-3">
                                 <img
@@ -1210,17 +1125,17 @@ export default function Profile() {
                                   className="w-full aspect-square rounded-lg object-cover"
                                 />
                                 {!playlist.isPublic && (
-                                  <div className="absolute top-2 left-2 px-2 py-1 bg-black/60 rounded-md">
-                                    <span className="text-xs text-white font-medium">
+                                  <div className="absolute top-2 left-2 px-2 py-1 bg-card/60 rounded-md">
+                                    <span className="text-xs text-foreground font-medium">
                                       Private
                                     </span>
                                   </div>
                                 )}
                               </div>
-                              <h3 className="font-medium text-white mb-1 truncate">
+                              <h3 className="font-medium text-foreground mb-1 truncate">
                                 {playlist.name}
                               </h3>
-                              <div className="flex items-center justify-between text-xs text-gray-400">
+                              <div className="flex items-center justify-between text-xs text-muted-foreground">
                                 <span>{playlist.trackCount} tracks</span>
                                 <span>
                                   {formatNumber(playlist.plays)} plays
@@ -1237,13 +1152,7 @@ export default function Profile() {
                               initial={{ opacity: 0, x: -20 }}
                               animate={{ opacity: 1, x: 0 }}
                               transition={{ delay: index * 0.05 }}
-                              className="flex items-center space-x-3 p-3 bg-black rounded-xl hover:bg-gray-900 transition-colors cursor-pointer"
-                              style={{
-                                boxShadow: `
-                                  0 0 0 1px rgba(236, 72, 153, 0.6),
-                                  inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                                `,
-                              }}
+                              className="flex items-center space-x-3 p-3 bg-card rounded-xl hover:bg-card/80 transition-colors cursor-pointer border border-border"
                             >
                               <img
                                 src={playlist.coverUrl}
@@ -1251,13 +1160,13 @@ export default function Profile() {
                                 className="w-12 h-12 rounded-lg object-cover"
                               />
                               <div className="flex-1">
-                                <h3 className="font-medium text-white mb-1">
+                                <h3 className="font-medium text-foreground mb-1">
                                   {playlist.name}
                                 </h3>
-                                <p className="text-sm text-gray-400 mb-1 line-clamp-1">
+                                <p className="text-sm text-muted-foreground mb-1 line-clamp-1">
                                   {playlist.description}
                                 </p>
-                                <div className="flex items-center space-x-4 text-xs text-gray-400">
+                                <div className="flex items-center space-x-4 text-xs text-muted-foreground">
                                   <span>{playlist.trackCount} tracks</span>
                                   <span>
                                     {formatNumber(playlist.plays)} plays
@@ -1270,9 +1179,9 @@ export default function Profile() {
                               <motion.button
                                 whileHover={{ scale: 1.1 }}
                                 whileTap={{ scale: 0.9 }}
-                                className="p-2 rounded-full hover:bg-gray-700 transition-colors"
+                                className="p-2 rounded-full hover:bg-muted/80 transition-colors"
                               >
-                                <MoreHorizontal className="w-4 h-4 text-gray-400" />
+                                <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
                               </motion.button>
                             </motion.div>
                           ))}
@@ -1522,13 +1431,7 @@ export default function Profile() {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => navigate("/history")}
-                        className="w-full py-3 mt-4 bg-black rounded-xl text-white font-medium flex items-center justify-center space-x-2"
-                        style={{
-                          boxShadow: `
-                            0 0 0 1px rgba(236, 72, 153, 0.6),
-                            inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                          `,
-                        }}
+                        className="w-full py-3 mt-4 bg-card rounded-xl text-foreground font-medium flex items-center justify-center space-x-2 border border-border"
                       >
                         <Clock className="w-4 h-4" />
                         <span>View Full History</span>

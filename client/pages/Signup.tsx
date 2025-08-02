@@ -126,11 +126,29 @@ export default function Signup() {
       setErrors((prev) => ({ ...prev, email: "Email is required" }));
       return false;
     }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setErrors((prev) => ({ ...prev, email: "Invalid email format" }));
+
+    // Check for @ symbol
+    if (!email.includes("@")) {
+      setErrors((prev) => ({ ...prev, email: "Email must contain @" }));
       return false;
     }
+
+    // Check for .com
+    if (!email.includes(".com")) {
+      setErrors((prev) => ({ ...prev, email: "Email must contain .com" }));
+      return false;
+    }
+
+    // Full email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.com$/;
+    if (!emailRegex.test(email)) {
+      setErrors((prev) => ({
+        ...prev,
+        email: "Invalid email format (must end with .com)",
+      }));
+      return false;
+    }
+
     setErrors((prev) => ({ ...prev, email: undefined }));
     return true;
   };
@@ -179,9 +197,9 @@ export default function Signup() {
     } else if (formData.username.length < 3) {
       newErrors.username = "Username must be at least 3 characters";
       isValid = false;
-    } else if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) {
+    } else if (!/^[a-z0-9_]+$/.test(formData.username)) {
       newErrors.username =
-        "Username can only contain letters, numbers, and underscores";
+        "Username can only contain lowercase letters, numbers, and underscores";
       isValid = false;
     }
 
@@ -766,7 +784,8 @@ export default function Signup() {
         toast({
           title: "Facebook sign-in failed",
           description:
-            result.error || "Unable to sign in with Facebook. Please try again.",
+            result.error ||
+            "Unable to sign in with Facebook. Please try again.",
           variant: "destructive",
         });
       }
@@ -886,15 +905,21 @@ export default function Signup() {
 
         if (data.success) {
           setCurrentStep("verification");
-          toast({
-            title: "Verification code sent!",
-            description:
-              "Please check your email for the 6-digit verification code.",
-          });
 
-          // For development, show code in console
+          // For development, show code in toast
           if (data.debugCode) {
+            toast({
+              title: "Verification code sent!",
+              description: `Code: ${data.debugCode} (Development Mode)`,
+              duration: 8000,
+            });
             console.log(`📧 Email verification code: ${data.debugCode}`);
+          } else {
+            toast({
+              title: "Verification code sent!",
+              description:
+                "Please check your email for the 6-digit verification code.",
+            });
           }
 
           setResendTimer(60);
@@ -956,6 +981,10 @@ export default function Signup() {
 
       try {
         // Verify email code with backend
+        console.log(
+          `🔍 Verifying email: ${formData.email} with code: ${formData.otp}`,
+        );
+
         const response = await fetch("/api/auth/verify-email", {
           method: "POST",
           headers: {
@@ -968,6 +997,7 @@ export default function Signup() {
         });
 
         const data = await response.json();
+        console.log(`📝 Verification response:`, data);
 
         if (data.success) {
           toast({
@@ -1149,7 +1179,7 @@ export default function Signup() {
           // Update form data with the uploaded image URL
           setFormData((prev) => ({
             ...prev,
-            profileImageURL: uploadResult.imageURL || ""
+            profileImageURL: uploadResult.imageURL || "",
           }));
 
           toast({
@@ -1159,7 +1189,7 @@ export default function Signup() {
         } else {
           setErrors((prev) => ({
             ...prev,
-            profileImage: uploadResult.error || "Failed to upload image"
+            profileImage: uploadResult.error || "Failed to upload image",
           }));
 
           toast({
@@ -1175,7 +1205,7 @@ export default function Signup() {
         console.error("Profile image upload error:", error);
         setErrors((prev) => ({
           ...prev,
-          profileImage: "Failed to upload image"
+          profileImage: "Failed to upload image",
         }));
 
         toast({
@@ -1227,7 +1257,7 @@ export default function Signup() {
           }
 
           toast({
-            title: "Account created successfully! 🎉",
+            title: "Account created successfully! ����",
             description: `Welcome to Music Catch, ${formData.name}! Please check your email for verification.`,
           });
 
@@ -1375,15 +1405,20 @@ export default function Signup() {
       const data = await response.json();
 
       if (data.success) {
-        toast({
-          title: "Verification code resent!",
-          description:
-            "Please check your email for the new 6-digit verification code.",
-        });
-
-        // For development, show code in console
+        // For development, show code in toast
         if (data.debugCode) {
+          toast({
+            title: "Verification code resent!",
+            description: `Code: ${data.debugCode} (Development Mode)`,
+            duration: 8000,
+          });
           console.log(`📧 Resent email verification code: ${data.debugCode}`);
+        } else {
+          toast({
+            title: "Verification code resent!",
+            description:
+              "Please check your email for the new 6-digit verification code.",
+          });
         }
 
         setResendTimer(60);
@@ -1563,7 +1598,11 @@ export default function Signup() {
                 </div>
               ) : (
                 <>
-                  <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="#1877F2">
+                  <svg
+                    className="w-5 h-5 mr-3"
+                    viewBox="0 0 24 24"
+                    fill="#1877F2"
+                  >
                     <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                   </svg>
                   Continue with Facebook
