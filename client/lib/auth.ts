@@ -1161,6 +1161,55 @@ export const fetchUserData = async (userId: string): Promise<{
   }
 };
 
+// Update user profile in Firestore
+export const updateUserProfile = async (
+  userId: string,
+  newBio: string,
+  newProfileImage: string
+): Promise<{
+  success: boolean;
+  error?: string;
+}> => {
+  try {
+    if (!isFirebaseConfigured || !auth || !db) {
+      console.warn("🔧 Development mode: Simulating profile update");
+      console.log('User profile updated');
+      // Update localStorage in development mode
+      const currentUser = localStorage.getItem('currentUser');
+      if (currentUser) {
+        const userData = JSON.parse(currentUser);
+        userData.bio = newBio;
+        userData.profile_image = newProfileImage;
+        localStorage.setItem('currentUser', JSON.stringify(userData));
+        localStorage.setItem('userAvatar', newProfileImage);
+      }
+      return { success: true };
+    }
+
+    const userRef = doc(db, "users", userId);
+    await updateDoc(userRef, {
+      bio: newBio,
+      profile_image: newProfileImage
+    });
+
+    console.log('User profile updated');
+
+    // Update the UI accordingly - fetch fresh data and update
+    const updatedUserResult = await fetchUserData(userId);
+    if (updatedUserResult.success && updatedUserResult.userData) {
+      updateProfileUI(updatedUserResult.userData);
+    }
+
+    return { success: true };
+  } catch (error: any) {
+    console.error("Update user profile error:", error);
+    return {
+      success: false,
+      error: error.message || "Failed to update user profile"
+    };
+  }
+};
+
 // Helper function to update profile UI with fetched data
 export const updateProfileUI = (userData: any) => {
   console.log('Updating profile UI with:', userData);
