@@ -393,8 +393,27 @@ export default function Profile() {
       }
     } catch (error) {
       console.error("❌ Error fetching profile:", error);
-      // Fallback to sample data
-      setProfile(sampleProfile);
+      // Fallback to saved user data or sample data
+      const savedUserData = localStorage.getItem("currentUser");
+      if (savedUserData) {
+        try {
+          const userData = JSON.parse(savedUserData);
+          const fallbackProfile: UserProfile = {
+            ...sampleProfile,
+            displayName: userData.name || sampleProfile.displayName,
+            username: userData.username || sampleProfile.username,
+            email: userData.email || sampleProfile.email,
+            bio: userData.bio || sampleProfile.bio,
+            avatar: userData.profileImageURL || sampleProfile.avatar,
+          };
+          setProfile(fallbackProfile);
+        } catch (parseError) {
+          console.error("Error parsing saved user data:", parseError);
+          setProfile(sampleProfile);
+        }
+      } else {
+        setProfile(sampleProfile);
+      }
       setEditForm({
         displayName: sampleProfile.displayName,
         username: sampleProfile.username,
