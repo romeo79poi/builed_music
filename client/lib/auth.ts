@@ -531,10 +531,14 @@ export const signInWithGoogle = async (): Promise<{
           verified: user.emailVerified || false, // Google users may be pre-verified
         };
 
-        await setDoc(userDocRef, userData);
+        try {
+          await setDoc(userDocRef, userData);
+          console.log("✅ New Google user created in Firestore:", userData);
+        } catch (firestoreError: any) {
+          console.warn("⚠️ Firestore write failed for Google user, continuing:", firestoreError.code);
+          // Continue even if Firestore write fails - user is still authenticated
+        }
         isNewUser = true;
-
-        console.log("✅ New Google user created in Firestore:", userData);
       } else {
         console.log("✅ Existing Google user signed in:", userDoc.data());
       }
