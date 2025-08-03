@@ -1284,6 +1284,48 @@ export const updateProfileUI = (userData: any) => {
   }
 };
 
+// Test Firebase connectivity and permissions
+export const testFirebaseConnection = async (): Promise<{
+  success: boolean;
+  error?: string;
+  details?: string;
+}> => {
+  try {
+    if (!isFirebaseConfigured || !auth || !db) {
+      return {
+        success: false,
+        error: "Firebase is not configured",
+        details: "Missing Firebase configuration or services"
+      };
+    }
+
+    // Test Firestore connection with a simple read
+    const testDocRef = doc(db, "test", "connection");
+    try {
+      await getDoc(testDocRef);
+      return {
+        success: true,
+        details: "Firebase connection and permissions are working"
+      };
+    } catch (firestoreError: any) {
+      if (firestoreError.code === 'permission-denied') {
+        return {
+          success: false,
+          error: "Firestore permissions denied",
+          details: "Firebase is configured but Firestore rules are blocking access"
+        };
+      }
+      throw firestoreError;
+    }
+  } catch (error: any) {
+    return {
+      success: false,
+      error: error.message || "Firebase connection test failed",
+      details: `Error code: ${error.code || 'unknown'}`
+    };
+  }
+};
+
 export const logout = async (): Promise<{
   success: boolean;
   error?: string;
