@@ -329,12 +329,12 @@ export default function Profile() {
           isArtist: sampleProfile.isArtist, // Use sample for now
           joinedDate: new Date(data.profile.joinDate),
           stats: {
-            followers: data.profile.followers,
-            following: data.profile.following,
-            totalPlays: sampleProfile.stats.totalPlays, // Use sample for now
+            followers: data.profile.followers || 0,
+            following: data.profile.following || 0,
+            totalPlays: sampleProfile.stats.totalPlays || 0, // Use sample for now
             totalTracks: data.profile.playlists?.length || 0,
             totalPlaylists: data.profile.playlists?.length || 0,
-            monthlyListeners: sampleProfile.stats.monthlyListeners, // Use sample for now
+            monthlyListeners: sampleProfile.stats.monthlyListeners || 0, // Use sample for now
           },
           badges: sampleProfile.badges, // Use sample for now
         };
