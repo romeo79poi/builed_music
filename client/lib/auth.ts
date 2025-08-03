@@ -29,7 +29,76 @@ export interface UserData {
   bio?: string;
 }
 
-// Upload profile image to Firebase Storage
+// Upload profile image to Firebase Storage (for signup - no auth required)
+export const uploadProfileImageForSignup = async (
+  imageFile: File
+): Promise<{ success: boolean; imageURL?: string; error?: string }> => {
+  try {
+    if (!isFirebaseConfigured || !auth || !storage) {
+      console.warn("🔧 Development mode: Simulating profile image upload");
+      // Create a temporary URL for the uploaded image in development
+      const imageURL = URL.createObjectURL(imageFile);
+      return {
+        success: true,
+        imageURL: imageURL
+      };
+    }
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(imageFile.type)) {
+      return {
+        success: false,
+        error: "Only JPEG, PNG, and WebP images are allowed"
+      };
+    }
+
+    // Validate file size (5MB max)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (imageFile.size > maxSize) {
+      return {
+        success: false,
+        error: "Image size must be less than 5MB"
+      };
+    }
+
+    // Create unique filename with timestamp for temp upload
+    const timestamp = Date.now();
+    const fileExtension = imageFile.name.split('.').pop();
+    const fileName = `temp_signup_${timestamp}.${fileExtension}`;
+
+    // Create storage reference for temporary signup images
+    const profilePicRef = ref(storage, `temp-signup-pics/${fileName}`);
+
+    // Upload file
+    console.log("📤 Uploading profile image for signup...");
+    const uploadResult = await uploadBytes(profilePicRef, imageFile);
+
+    // Get download URL
+    const imageURL = await getDownloadURL(uploadResult.ref);
+    console.log("✅ Profile image uploaded successfully for signup:", imageURL);
+
+    return { success: true, imageURL };
+
+  } catch (error: any) {
+    console.error("Profile image upload error:", error);
+
+    let errorMessage = "Failed to upload profile image";
+    if (error.code === 'storage/unauthorized') {
+      errorMessage = "Upload permission denied";
+    } else if (error.code === 'storage/canceled') {
+      errorMessage = "Upload was cancelled";
+    } else if (error.code === 'storage/quota-exceeded') {
+      errorMessage = "Storage quota exceeded";
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+
+    return { success: false, error: errorMessage };
+  }
+};
+
+// Upload profile image to Firebase Storage (for authenticated users)
 export const uploadProfileImage = async (
   imageFile: File
 ): Promise<{ success: boolean; imageURL?: string; error?: string }> => {
