@@ -54,7 +54,9 @@ export const AvailabilityChecker: React.FC<AvailabilityCheckerProps> = ({
         }
       } catch (error) {
         setStatus("error");
-        setMessage("Unable to check availability");
+        // Show the specific error message if it's a validation error
+        const errorMessage = error instanceof Error ? error.message : "Unable to check availability";
+        setMessage(errorMessage);
         console.error(`❌ Error checking ${field} availability for "${value}":`, error);
       }
     }, debounceMs);
