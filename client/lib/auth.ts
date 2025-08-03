@@ -1113,6 +1113,65 @@ export const verifyPhoneOTP = async (
   }
 };
 
+// Fetch user data from Firestore
+export const fetchUserData = async (userId: string): Promise<{
+  success: boolean;
+  userData?: any;
+  error?: string;
+}> => {
+  try {
+    if (!isFirebaseConfigured || !auth || !db) {
+      console.warn("🔧 Development mode: Simulating user data fetch");
+      // Return mock user data for development
+      const mockUserData = {
+        email: "demo.user@example.com",
+        name: "Demo User",
+        username: "demouser",
+        profile_image: "https://via.placeholder.com/150x150/4285F4/ffffff?text=DU",
+        bio: "This is a demo user profile",
+        dob: "1990-01-01",
+        gender: "Other",
+        created_at: new Date().toISOString(),
+        verified: true
+      };
+      console.log('Mock user data fetched:', mockUserData);
+      return { success: true, userData: mockUserData };
+    }
+
+    const userRef = doc(db, "users", userId);
+    const userDoc = await getDoc(userRef);
+
+    if (userDoc.exists()) {
+      const userData = userDoc.data();
+      console.log('User data fetched:', userData);
+      return { success: true, userData };
+    } else {
+      console.log('No user data found');
+      return {
+        success: false,
+        error: 'No user data found'
+      };
+    }
+  } catch (error: any) {
+    console.error("Fetch user data error:", error);
+    return {
+      success: false,
+      error: error.message || "Failed to fetch user data"
+    };
+  }
+};
+
+// Helper function to update profile UI with fetched data
+export const updateProfileUI = (userData: any) => {
+  console.log('Updating profile UI with:', userData);
+  // This function can be customized based on your UI needs
+  // For now, we'll just store it in localStorage for access across the app
+  if (userData) {
+    localStorage.setItem('currentUser', JSON.stringify(userData));
+    localStorage.setItem('userAvatar', userData.profile_image || '');
+  }
+};
+
 export const logout = async (): Promise<{
   success: boolean;
   error?: string;
