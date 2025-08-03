@@ -1250,7 +1250,7 @@ export default function Signup() {
     if (formData.profileImage) {
       setIsLoading(true);
       try {
-        const uploadResult = await uploadProfileImage(formData.profileImage);
+        const uploadResult = await uploadProfileImageForSignup(formData.profileImage);
 
         if (uploadResult.success) {
           // Update form data with the uploaded image URL
