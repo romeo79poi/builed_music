@@ -51,90 +51,10 @@ export const PasswordStrengthIndicator: React.FC<
       transition={{ duration: 0.3 }}
       className={cn("space-y-3", className)}
     >
-      {/* Strength Bar */}
       <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <span className="text-sm text-gray-400">Password Strength</span>
-          <span className={cn("text-sm font-medium", strengthInfo.color)}>
-            {strengthInfo.label}
-          </span>
-        </div>
-
-        <div className="relative">
-          <div className="h-2 bg-white/10 rounded-full overflow-hidden">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${strength}%` }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-              className={cn(
-                "h-full bg-gradient-to-r transition-all duration-500",
-                getStrengthColor(strength),
-              )}
-            />
-          </div>
-
-
+        <div className="relative mt-2">
         </div>
       </div>
-
-      {/* Password Requirements */}
-      <div className="space-y-2">
-        <span className="text-sm text-gray-400">Requirements:</span>
-        <div className="grid grid-cols-1 gap-1">
-          {passwordRules.map((rule) => {
-            const passed = rule.test(password);
-            return (
-              <motion.div
-                key={rule.id}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 }}
-                className="flex items-center space-x-2"
-              >
-                <div
-                  className={cn(
-                    "flex items-center justify-center w-4 h-4 rounded-full transition-all duration-300",
-                    passed
-                      ? "bg-neon-green text-black"
-                      : "bg-white/10 text-gray-400",
-                  )}
-                >
-                  {passed ? (
-                    <Check className="w-2.5 h-2.5" />
-                  ) : (
-                    <X className="w-2.5 h-2.5" />
-                  )}
-                </div>
-                <span
-                  className={cn(
-                    "text-xs transition-colors duration-300",
-                    passed ? "text-neon-green" : "text-gray-400",
-                  )}
-                >
-                  {rule.label}
-                </span>
-              </motion.div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Security Tips */}
-      {strength >= 100 && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.3 }}
-          className="p-3 bg-neon-green/10 border border-neon-green/20 rounded-lg"
-        >
-          <div className="flex items-center space-x-2">
-            <Check className="w-4 h-4 text-neon-green" />
-            <span className="text-sm text-neon-green font-medium">
-              Excellent! Your password is strong and secure.
-            </span>
-          </div>
-        </motion.div>
-      )}
     </motion.div>
   );
 };
