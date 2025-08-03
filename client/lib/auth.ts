@@ -1076,8 +1076,13 @@ export const verifyPhoneOTP = async (
           verified: true, // Phone users are verified through OTP
         };
 
-        await setDoc(userDocRef, userData);
-        console.log("✅ New phone user created in Firestore");
+        try {
+          await setDoc(userDocRef, userData);
+          console.log("✅ New phone user created in Firestore");
+        } catch (firestoreError: any) {
+          console.warn("⚠️ Firestore write failed for phone user, continuing:", firestoreError.code);
+          // Continue even if Firestore write fails - user is still authenticated
+        }
       }
     }
 
