@@ -329,11 +329,25 @@ export default function Home() {
     loadUserData();
   }, [firebaseUser, authLoading]);
 
-  // Fallback: Load user avatar from localStorage if no Firebase user
+  // Fallback: Load user data from localStorage if no Firebase user
   useEffect(() => {
     if (!firebaseUser && !authLoading) {
+      const savedUserData = localStorage.getItem("currentUser");
       const savedAvatar = localStorage.getItem("userAvatar");
-      if (savedAvatar) {
+
+      if (savedUserData) {
+        try {
+          const parsedUserData = JSON.parse(savedUserData);
+          console.log("📱 Loaded user data from localStorage:", parsedUserData);
+          setUserData(parsedUserData);
+          setUserAvatar(parsedUserData.profileImageURL || savedAvatar || null);
+        } catch (error) {
+          console.error("Error parsing localStorage user data:", error);
+          if (savedAvatar) {
+            setUserAvatar(savedAvatar);
+          }
+        }
+      } else if (savedAvatar) {
         setUserAvatar(savedAvatar);
       }
     }
