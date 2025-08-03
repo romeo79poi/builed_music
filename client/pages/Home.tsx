@@ -342,10 +342,15 @@ export default function Home() {
   // Get appropriate greeting
   const getGreeting = () => {
     const hour = currentTime.getHours();
-    if (hour >= 0 && hour < 6) return "Good Midnight";
-    if (hour < 12) return "Good Morning";
-    if (hour < 17) return "Good Afternoon";
-    return "Good Evening";
+    const userName = userData?.name || userData?.username || firebaseUser?.displayName || firebaseUser?.email?.split("@")[0] || "User";
+
+    let timeGreeting = "";
+    if (hour >= 0 && hour < 6) timeGreeting = "Good Midnight";
+    else if (hour < 12) timeGreeting = "Good Morning";
+    else if (hour < 17) timeGreeting = "Good Afternoon";
+    else timeGreeting = "Good Evening";
+
+    return `${timeGreeting}, ${userName}`;
   };
 
   const handlePlaySong = (songId: string) => {
