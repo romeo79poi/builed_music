@@ -483,6 +483,8 @@ export default function Profile() {
   };
 
   const handleFollow = () => {
+    if (!profile) return;
+
     setIsFollowing(!isFollowing);
     toast({
       title: isFollowing ? "Unfollowed" : "Following",
