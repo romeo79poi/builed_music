@@ -918,20 +918,30 @@ export default function Signup() {
         if (data.success) {
           setCurrentStep("verification");
 
-          // For development, show code in toast
-          if (data.debugCode) {
+          // Show different messages based on whether email was actually sent
+          if (data.emailSent === false) {
+            toast({
+              title: "⚠️ Verification code ready",
+              description: `Email service unavailable. Code: ${data.debugCode}`,
+              duration: 10000,
+              variant: "destructive",
+            });
+          } else if (data.debugCode) {
             toast({
               title: "Verification code sent!",
               description: `Code: ${data.debugCode} (Development Mode)`,
               duration: 8000,
             });
-            console.log(`📧 Email verification code: ${data.debugCode}`);
           } else {
             toast({
               title: "Verification code sent!",
               description:
                 "Please check your email for the 6-digit verification code.",
             });
+          }
+
+          if (data.debugCode) {
+            console.log(`📧 Email verification code: ${data.debugCode}`);
           }
 
           setResendTimer(60);
