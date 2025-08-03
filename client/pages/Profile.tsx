@@ -617,12 +617,12 @@ export default function Profile() {
 
   const handleCoverUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
+    if (file && profile) {
       setUploading(true);
       const reader = new FileReader();
       reader.onload = (e) => {
         const newCover = e.target?.result as string;
-        setProfile((prev) => ({ ...prev, coverImage: newCover }));
+        setProfile((prev) => prev ? { ...prev, coverImage: newCover } : null);
         // Store in localStorage for persistence
         localStorage.setItem("userCoverImage", newCover);
         setUploading(false);
