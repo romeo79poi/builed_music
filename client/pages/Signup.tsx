@@ -1596,7 +1596,7 @@ export default function Signup() {
   };
 
   const stepDescriptions = {
-    method: "Sign up with email or phone",
+    method: "Sign up with email, phone, or social media",
     email: "We'll send you a verification email",
     phone: "We'll send you a verification code",
     "phone-verify": "Enter the 6-digit code we sent to your phone",
