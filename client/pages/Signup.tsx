@@ -337,24 +337,32 @@ export default function Signup() {
         data = await response.json();
 
         if (data.success) {
+          const isAvailable = field === "email" ? data.emailAvailable : data.usernameAvailable;
+
           setAvailability((prev) => ({
             ...prev,
-            [field]:
-              field === "email" ? data.emailAvailable : data.usernameAvailable,
+            [field]: isAvailable,
           }));
 
-          if (field === "email" && !data.emailAvailable) {
+          if (isAvailable) {
+            // Clear any existing errors if the field is available
             setErrors((prev) => ({
               ...prev,
-              email: "Email is already registered",
+              [field]: "",
             }));
-          }
-
-          if (field === "username" && !data.usernameAvailable) {
-            setErrors((prev) => ({
-              ...prev,
-              username: "Username is already taken",
-            }));
+          } else {
+            // Show unavailable error
+            if (field === "email") {
+              setErrors((prev) => ({
+                ...prev,
+                email: "Email is already registered",
+              }));
+            } else if (field === "username") {
+              setErrors((prev) => ({
+                ...prev,
+                username: "Username is already taken",
+              }));
+            }
           }
         } else {
           // Handle validation errors from backend
