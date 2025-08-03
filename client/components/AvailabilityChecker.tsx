@@ -26,7 +26,9 @@ export const AvailabilityChecker: React.FC<AvailabilityCheckerProps> = ({
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    console.log(`🔄 AvailabilityChecker useEffect - field: ${field}, value: "${value}", minLength: ${minLength}`);
+    console.log(
+      `🔄 AvailabilityChecker useEffect - field: ${field}, value: "${value}", minLength: ${minLength}`,
+    );
 
     if (!value || value.length < minLength) {
       console.log(`⏸️ Skipping check - value too short or empty`);
@@ -59,9 +61,15 @@ export const AvailabilityChecker: React.FC<AvailabilityCheckerProps> = ({
       } catch (error) {
         setStatus("error");
         // Show the specific error message if it's a validation error
-        const errorMessage = error instanceof Error ? error.message : "Unable to check availability";
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "Unable to check availability";
         setMessage(errorMessage);
-        console.error(`❌ Error checking ${field} availability for "${value}":`, error);
+        console.error(
+          `❌ Error checking ${field} availability for "${value}":`,
+          error,
+        );
       }
     }, debounceMs);
 

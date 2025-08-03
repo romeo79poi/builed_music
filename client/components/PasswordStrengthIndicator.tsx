@@ -52,8 +52,7 @@ export const PasswordStrengthIndicator: React.FC<
       className={cn("space-y-3", className)}
     >
       <div className="space-y-2">
-        <div className="relative mt-2">
-        </div>
+        <div className="relative mt-2"></div>
       </div>
     </motion.div>
   );

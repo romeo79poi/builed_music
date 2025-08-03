@@ -337,7 +337,8 @@ export default function Signup() {
         data = await response.json();
 
         if (data.success) {
-          const isAvailable = field === "email" ? data.emailAvailable : data.usernameAvailable;
+          const isAvailable =
+            field === "email" ? data.emailAvailable : data.usernameAvailable;
 
           setAvailability((prev) => ({
             ...prev,
@@ -1856,12 +1857,17 @@ export default function Signup() {
                       console.log(`📊 Response data:`, data);
 
                       if (!response.ok) {
-                        console.error(`❌ HTTP error! status: ${response.status}`, data);
+                        console.error(
+                          `❌ HTTP error! status: ${response.status}`,
+                          data,
+                        );
                         // If it's a validation error, throw a specific error with the message
                         if (response.status === 400 && data.message) {
                           throw new Error(data.message);
                         }
-                        throw new Error(`HTTP error! status: ${response.status}`);
+                        throw new Error(
+                          `HTTP error! status: ${response.status}`,
+                        );
                       }
 
                       if (field === "email") {
@@ -1871,7 +1877,10 @@ export default function Signup() {
                       }
                       return false;
                     } catch (error) {
-                      console.error(`❌ Email availability check failed:`, error);
+                      console.error(
+                        `❌ Email availability check failed:`,
+                        error,
+                      );
                       return false;
                     }
                   }}
@@ -2131,8 +2140,6 @@ export default function Signup() {
                     {errors.username}
                   </p>
                 )}
-
-
               </div>
 
               <button

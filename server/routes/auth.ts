@@ -66,8 +66,8 @@ const mockSupabase = {
         available: false,
         error: {
           code: "INVALID_USERNAME",
-          message: "Username must be at least 3 characters long"
-        }
+          message: "Username must be at least 3 characters long",
+        },
       };
     }
 
@@ -76,8 +76,8 @@ const mockSupabase = {
         available: false,
         error: {
           code: "INVALID_USERNAME",
-          message: "Username must be 20 characters or less"
-        }
+          message: "Username must be 20 characters or less",
+        },
       };
     }
 
@@ -86,20 +86,33 @@ const mockSupabase = {
         available: false,
         error: {
           code: "INVALID_USERNAME",
-          message: "Username can only contain letters, numbers, and underscores"
-        }
+          message:
+            "Username can only contain letters, numbers, and underscores",
+        },
       };
     }
 
     // Check if reserved username
-    const reservedUsernames = ['admin', 'root', 'api', 'www', 'mail', 'ftp', 'localhost', 'test', 'demo', 'support', 'help'];
+    const reservedUsernames = [
+      "admin",
+      "root",
+      "api",
+      "www",
+      "mail",
+      "ftp",
+      "localhost",
+      "test",
+      "demo",
+      "support",
+      "help",
+    ];
     if (reservedUsernames.includes(username.toLowerCase())) {
       return {
         available: false,
         error: {
           code: "RESERVED_USERNAME",
-          message: "This username is reserved"
-        }
+          message: "This username is reserved",
+        },
       };
     }
 
@@ -207,7 +220,9 @@ export const registerUser: RequestHandler = async (req, res) => {
 export const checkAvailability: RequestHandler = async (req, res) => {
   try {
     const { email, username } = req.query;
-    console.log(`🔍 Availability check request - email: ${email}, username: ${username}`);
+    console.log(
+      `🔍 Availability check request - email: ${email}, username: ${username}`,
+    );
 
     if (!email && !username) {
       console.warn("⚠️ No email or username provided in availability check");
@@ -313,7 +328,10 @@ export const sendEmailVerification: RequestHandler = async (req, res) => {
     const emailResult = await sendVerificationEmail(email, verificationCode);
 
     if (!emailResult.success) {
-      console.warn("Email service unavailable, continuing with in-memory verification:", emailResult.error);
+      console.warn(
+        "Email service unavailable, continuing with in-memory verification:",
+        emailResult.error,
+      );
       // Don't fail the request, just log the issue
       // In development, we'll still provide the debug code
     } else {
