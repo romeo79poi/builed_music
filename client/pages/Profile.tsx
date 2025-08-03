@@ -575,11 +575,13 @@ export default function Profile() {
   };
 
   const handleCancelEdit = () => {
+    if (!profile) return;
+
     setEditForm({
       displayName: profile.displayName,
       username: profile.username,
       bio: profile.bio,
-      location: profile.location,
+      location: profile.location || "",
       socialLinks: {
         instagram: profile.socialLinks.instagram || "",
         twitter: profile.socialLinks.twitter || "",
