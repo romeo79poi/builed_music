@@ -432,13 +432,13 @@ export default function Profile() {
 
       if (data.success) {
         // Transform backend recently played to match our interface
-        const transformedRecentlyPlayed = data.songs.map((song: any, index: number) => ({
-          id: song.id,
-          title: song.title,
-          artist: song.artist,
-          coverUrl: song.coverImage,
+        const transformedRecentlyPlayed = (data.songs || []).map((song: any, index: number) => ({
+          id: song.id || `recent-${index}`,
+          title: song.title || "Unknown Song",
+          artist: song.artist || "Unknown Artist",
+          coverUrl: song.coverImage || "",
           playedAt: song.playedAt || `${index * 15 + 5} minutes ago`,
-          duration: song.duration,
+          duration: song.duration || 0,
           isCurrentlyPlaying: index === 0, // Mark first as currently playing
         }));
         setRecentlyPlayed(transformedRecentlyPlayed);
