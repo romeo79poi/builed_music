@@ -277,12 +277,13 @@ export default function Profile() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const [profile, setProfile] = useState<UserProfile>(sampleProfile);
+  // State management
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
-  const [tracks] = useState<Track[]>(sampleTracks);
-  const [playlists] = useState<Playlist[]>(samplePlaylists);
-  const [recentlyPlayed] =
-    useState<RecentlyPlayedTrack[]>(sampleRecentlyPlayed);
+  const [tracks, setTracks] = useState<Track[]>([]);
+  const [playlists, setPlaylists] = useState<Playlist[]>([]);
+  const [recentlyPlayed, setRecentlyPlayed] = useState<RecentlyPlayedTrack[]>([]);
   const [selectedTab, setSelectedTab] = useState("tracks");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [isFollowing, setIsFollowing] = useState(false);
