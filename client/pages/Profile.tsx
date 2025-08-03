@@ -450,7 +450,12 @@ export default function Profile() {
     fetchRecentlyPlayed();
   }, []);
 
-  const formatNumber = (num: number) => {
+  const formatNumber = (num: number | undefined | null) => {
+    // Handle undefined, null, or NaN values
+    if (num == null || isNaN(num)) {
+      return "0";
+    }
+
     if (num >= 1000000) {
       return (num / 1000000).toFixed(1) + "M";
     } else if (num >= 1000) {
