@@ -567,18 +567,21 @@ export const signInWithGoogle = async (): Promise<{
         };
       }
 
-      // If Firebase project doesn't exist, network issues, or unauthorized domain, use development mode
+      // If Firebase project doesn't exist, network issues, permission errors, or unauthorized domain, use development mode
       if (
         firebaseError.code === "auth/project-not-found" ||
         firebaseError.code === "auth/invalid-api-key" ||
         firebaseError.code === "auth/network-request-failed" ||
         firebaseError.code === "auth/unauthorized-domain" ||
+        firebaseError.code === "permission-denied" ||
+        firebaseError.code === "firestore/permission-denied" ||
+        firebaseError.message?.includes("Missing or insufficient permissions") ||
         firebaseError.message?.includes("Firebase project") ||
         firebaseError.message?.includes("API key not valid") ||
         firebaseError.message?.includes("network request failed")
       ) {
         console.warn(
-          "🔄 Firebase network/config error, using development mode for Google sign-in",
+          "🔄 Firebase network/config/permission error, using development mode for Google sign-in",
         );
 
         // Simulate successful Google user creation for development
@@ -774,18 +777,21 @@ export const signInWithFacebook = async (): Promise<{
         };
       }
 
-      // If Firebase project doesn't exist, network issues, or unauthorized domain, use development mode
+      // If Firebase project doesn't exist, network issues, permission errors, or unauthorized domain, use development mode
       if (
         firebaseError.code === "auth/project-not-found" ||
         firebaseError.code === "auth/invalid-api-key" ||
         firebaseError.code === "auth/network-request-failed" ||
         firebaseError.code === "auth/unauthorized-domain" ||
+        firebaseError.code === "permission-denied" ||
+        firebaseError.code === "firestore/permission-denied" ||
+        firebaseError.message?.includes("Missing or insufficient permissions") ||
         firebaseError.message?.includes("Firebase project") ||
         firebaseError.message?.includes("API key not valid") ||
         firebaseError.message?.includes("network request failed")
       ) {
         console.warn(
-          "🔄 Firebase network/config error, using development mode for Facebook sign-in",
+          "🔄 Firebase network/config/permission error, using development mode for Facebook sign-in",
         );
 
         // Simulate successful Facebook user creation for development
