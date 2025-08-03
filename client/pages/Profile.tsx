@@ -44,9 +44,11 @@ import {
   Save,
   X,
   Check,
+  Loader2,
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
+import { UserProfile as BackendUserProfile, Song } from "@shared/api";
 
 interface UserProfile {
   id: string;
