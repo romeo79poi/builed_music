@@ -2132,44 +2132,7 @@ export default function Signup() {
                   </p>
                 )}
 
-                {/* Username Availability Checker */}
-                <AvailabilityChecker
-                  value={formData.username}
-                  field="username"
-                  onCheck={async (field, value) => {
-                    try {
-                      const url = `/api/auth/check-availability?${field}=${encodeURIComponent(value)}`;
-                      console.log(`🌐 Making availability request to: ${url}`);
 
-                      const response = await fetch(url);
-                      console.log(`📡 Response status: ${response.status}`);
-
-                      const data = await response.json();
-                      console.log(`📊 Response data:`, data);
-
-                      if (!response.ok) {
-                        console.error(`❌ HTTP error! status: ${response.status}`, data);
-                        // If it's a validation error, throw a specific error with the message
-                        if (response.status === 400 && data.message) {
-                          throw new Error(data.message);
-                        }
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                      }
-
-                      if (field === "email") {
-                        return data.emailAvailable === true;
-                      } else if (field === "username") {
-                        return data.usernameAvailable === true;
-                      }
-                      return false;
-                    } catch (error) {
-                      console.error(`❌ Username availability check failed:`, error);
-                      return false;
-                    }
-                  }}
-                  className="mt-2"
-                  minLength={3}
-                />
               </div>
 
               <button
