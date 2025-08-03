@@ -495,6 +495,8 @@ export default function Profile() {
   };
 
   const handleShare = () => {
+    if (!profile) return;
+
     if (navigator.share) {
       navigator.share({
         title: `${profile.displayName} on Catch Music`,
