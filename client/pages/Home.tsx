@@ -19,6 +19,9 @@ import {
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
+import { useFirebase } from "../context/FirebaseContext";
+import { auth, db } from "../lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 // Featured Artist/Album of the Day
 const featuredContent = {
