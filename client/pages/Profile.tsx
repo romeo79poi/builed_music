@@ -309,33 +309,44 @@ export default function Profile() {
     },
   });
 
-  // Fetch profile data from backend
+  // Fetch profile data using the auth library function
   const fetchProfile = async () => {
     try {
       setLoading(true);
 
-      // Get current user ID (you might store this in localStorage or context)
+      // Get current user ID from localStorage or context
       const userId = localStorage.getItem('currentUserId') || 'user1';
 
-      const response = await fetch(`/api/profile/${userId}`);
-      const data = await response.json();
+      // Use the fetchUserData function from auth library
+      const result = await fetchUserData(userId);
 
-      if (data.success) {
-        // Transform backend data to match our local interface
+      if (result.success && result.userData) {
+        // Transform fetched data to match our profile interface
+        const userData = result.userData;
         const transformedProfile: UserProfile = {
-          ...data.profile,
-          avatar: data.profile.profilePicture || sampleProfile.avatar,
+          id: userId,
+          displayName: userData.name || sampleProfile.displayName,
+          username: userData.username || sampleProfile.username,
+          email: userData.email || sampleProfile.email,
+          bio: userData.bio || sampleProfile.bio,
+          avatar: userData.profile_image || sampleProfile.avatar,
           coverImage: sampleProfile.coverImage, // Use sample for now
           location: sampleProfile.location, // Use sample for now
           website: sampleProfile.website, // Use sample for now
+          isVerified: userData.verified || false,
           isArtist: sampleProfile.isArtist, // Use sample for now
-          joinedDate: new Date(data.profile.joinDate),
+          joinedDate: userData.created_at ? new Date(userData.created_at) : new Date(),
+          socialLinks: {
+            instagram: userData.socialLinks?.instagram || sampleProfile.socialLinks?.instagram,
+            twitter: userData.socialLinks?.twitter || sampleProfile.socialLinks?.twitter,
+            youtube: userData.socialLinks?.youtube || sampleProfile.socialLinks?.youtube,
+          },
           stats: {
-            followers: data.profile.followers || 0,
-            following: data.profile.following || 0,
+            followers: userData.followers || 0,
+            following: userData.following || 0,
             totalPlays: sampleProfile.stats.totalPlays || 0, // Use sample for now
-            totalTracks: data.profile.playlists?.length || 0,
-            totalPlaylists: data.profile.playlists?.length || 0,
+            totalTracks: userData.totalTracks || 0,
+            totalPlaylists: userData.totalPlaylists || 0,
             monthlyListeners: sampleProfile.stats.monthlyListeners || 0, // Use sample for now
           },
           badges: sampleProfile.badges, // Use sample for now
@@ -343,22 +354,22 @@ export default function Profile() {
 
         setProfile(transformedProfile);
 
-        // Update edit form
+        // Update edit form with fetched data
         setEditForm({
           displayName: transformedProfile.displayName,
           username: transformedProfile.username,
           bio: transformedProfile.bio,
           location: transformedProfile.location || "",
           socialLinks: {
-            instagram: transformedProfile.socialLinks.instagram || "",
-            twitter: transformedProfile.socialLinks.twitter || "",
-            youtube: transformedProfile.socialLinks.youtube || "",
+            instagram: transformedProfile.socialLinks?.instagram || "",
+            twitter: transformedProfile.socialLinks?.twitter || "",
+            youtube: transformedProfile.socialLinks?.youtube || "",
           },
         });
 
-        console.log("✅ Profile data loaded:", transformedProfile);
+        console.log("✅ Profile data loaded using fetchUserData:", transformedProfile);
       } else {
-        // Fallback to saved user data or sample data if backend fails
+        // Fallback to saved user data or sample data
         const savedUserData = localStorage.getItem("currentUser");
         if (savedUserData) {
           try {
@@ -369,7 +380,7 @@ export default function Profile() {
               username: userData.username || sampleProfile.username,
               email: userData.email || sampleProfile.email,
               bio: userData.bio || sampleProfile.bio,
-              avatar: userData.profileImageURL || sampleProfile.avatar,
+              avatar: userData.profile_image || userData.profileImageURL || sampleProfile.avatar,
             };
             setProfile(fallbackProfile);
           } catch (error) {
@@ -385,45 +396,26 @@ export default function Profile() {
           bio: sampleProfile.bio,
           location: sampleProfile.location,
           socialLinks: {
-            instagram: sampleProfile.socialLinks.instagram || "",
-            twitter: sampleProfile.socialLinks.twitter || "",
-            youtube: sampleProfile.socialLinks.youtube || "",
+            instagram: sampleProfile.socialLinks?.instagram || "",
+            twitter: sampleProfile.socialLinks?.twitter || "",
+            youtube: sampleProfile.socialLinks?.youtube || "",
           },
         });
-        console.warn("⚠️ Using sample profile data");
+        console.warn("⚠️ Using fallback profile data");
       }
     } catch (error) {
       console.error("❌ Error fetching profile:", error);
-      // Fallback to saved user data or sample data
-      const savedUserData = localStorage.getItem("currentUser");
-      if (savedUserData) {
-        try {
-          const userData = JSON.parse(savedUserData);
-          const fallbackProfile: UserProfile = {
-            ...sampleProfile,
-            displayName: userData.name || sampleProfile.displayName,
-            username: userData.username || sampleProfile.username,
-            email: userData.email || sampleProfile.email,
-            bio: userData.bio || sampleProfile.bio,
-            avatar: userData.profileImageURL || sampleProfile.avatar,
-          };
-          setProfile(fallbackProfile);
-        } catch (parseError) {
-          console.error("Error parsing saved user data:", parseError);
-          setProfile(sampleProfile);
-        }
-      } else {
-        setProfile(sampleProfile);
-      }
+      // Fallback to sample data
+      setProfile(sampleProfile);
       setEditForm({
         displayName: sampleProfile.displayName,
         username: sampleProfile.username,
         bio: sampleProfile.bio,
         location: sampleProfile.location,
         socialLinks: {
-          instagram: sampleProfile.socialLinks.instagram || "",
-          twitter: sampleProfile.socialLinks.twitter || "",
-          youtube: sampleProfile.socialLinks.youtube || "",
+          instagram: sampleProfile.socialLinks?.instagram || "",
+          twitter: sampleProfile.socialLinks?.twitter || "",
+          youtube: sampleProfile.socialLinks?.youtube || "",
         },
       });
 
