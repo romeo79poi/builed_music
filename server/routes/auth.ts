@@ -60,6 +60,62 @@ const mockSupabase = {
   },
 
   async checkUsernameAvailability(username: string) {
+    // Username validation
+    if (!username || username.length < 3) {
+      return {
+        available: false,
+        error: {
+          code: "INVALID_USERNAME",
+          message: "Username must be at least 3 characters long",
+        },
+      };
+    }
+
+    if (username.length > 20) {
+      return {
+        available: false,
+        error: {
+          code: "INVALID_USERNAME",
+          message: "Username must be 20 characters or less",
+        },
+      };
+    }
+
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      return {
+        available: false,
+        error: {
+          code: "INVALID_USERNAME",
+          message:
+            "Username can only contain letters, numbers, and underscores",
+        },
+      };
+    }
+
+    // Check if reserved username
+    const reservedUsernames = [
+      "admin",
+      "root",
+      "api",
+      "www",
+      "mail",
+      "ftp",
+      "localhost",
+      "test",
+      "demo",
+      "support",
+      "help",
+    ];
+    if (reservedUsernames.includes(username.toLowerCase())) {
+      return {
+        available: false,
+        error: {
+          code: "RESERVED_USERNAME",
+          message: "This username is reserved",
+        },
+      };
+    }
+
     const user = users.get(username);
     return { available: !user, error: null };
   },
@@ -164,33 +220,66 @@ export const registerUser: RequestHandler = async (req, res) => {
 export const checkAvailability: RequestHandler = async (req, res) => {
   try {
     const { email, username } = req.query;
+    console.log(
+      `🔍 Availability check request - email: ${email}, username: ${username}`,
+    );
+
+    if (!email && !username) {
+      console.warn("⚠️ No email or username provided in availability check");
+      return res.status(400).json({
+        success: false,
+        message: "Email or username parameter is required",
+      });
+    }
 
     const result: { emailAvailable?: boolean; usernameAvailable?: boolean } =
       {};
 
     if (email) {
-      const { available } = await mockSupabase.checkEmailAvailability(
+      console.log(`📧 Checking email availability: ${email}`);
+      const { available, error } = await mockSupabase.checkEmailAvailability(
         email.toString(),
       );
+
+      if (error) {
+        console.error(`❌ Error checking email availability:`, error);
+        throw error;
+      }
+
       result.emailAvailable = available;
+      console.log(`✅ Email ${email} availability: ${available}`);
     }
 
     if (username) {
-      const { available } = await mockSupabase.checkUsernameAvailability(
+      console.log(`👤 Checking username availability: ${username}`);
+      const { available, error } = await mockSupabase.checkUsernameAvailability(
         username.toString(),
       );
+
+      if (error) {
+        console.error(`❌ Username validation error:`, error);
+        return res.status(400).json({
+          success: false,
+          message: error.message,
+          code: error.code,
+        });
+      }
+
       result.usernameAvailable = available;
+      console.log(`✅ Username ${username} availability: ${available}`);
     }
 
+    console.log(`📊 Final availability result:`, result);
     res.json({
       success: true,
       ...result,
     });
   } catch (error) {
-    console.error("Availability check error:", error);
+    console.error("❌ Availability check error:", error);
     res.status(500).json({
       success: false,
       message: "Internal server error",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };
@@ -235,25 +324,32 @@ export const sendEmailVerification: RequestHandler = async (req, res) => {
     console.log(`🔑 Verification code: ${verificationCode}`);
     console.log(`🕒 Code expires at: ${expiry.toISOString()}`);
 
+    // Try to send email, but don't fail if email service is unavailable
     const emailResult = await sendVerificationEmail(email, verificationCode);
 
     if (!emailResult.success) {
-      console.error("Failed to send verification email:", emailResult.error);
-      return res.status(500).json({
-        success: false,
-        message: "Failed to send verification email. Please try again.",
-      });
+      console.warn(
+        "Email service unavailable, continuing with in-memory verification:",
+        emailResult.error,
+      );
+      // Don't fail the request, just log the issue
+      // In development, we'll still provide the debug code
+    } else {
+      console.log(`✅ Verification email sent successfully to: ${email}`);
     }
-
-    console.log(`✅ Verification email sent successfully to: ${email}`);
 
     res.json({
       success: true,
-      message: "Verification code sent to your email successfully",
-      // For development/demo - include debug code
+      message: emailResult.success
+        ? "Verification code sent to your email successfully"
+        : "Verification code generated (email service unavailable - check console for debug code)",
+      // For development/demo - always include debug code when email fails or in dev mode
       debugCode:
-        process.env.NODE_ENV === "development" ? verificationCode : undefined,
+        process.env.NODE_ENV === "development" || !emailResult.success
+          ? verificationCode
+          : undefined,
       expiresAt: expiry.toISOString(),
+      emailSent: emailResult.success,
     });
   } catch (error) {
     console.error("Send email verification error:", error);
@@ -507,31 +603,6 @@ export const loginUser: RequestHandler = async (req, res) => {
     console.log(`✅ User logged in successfully: ${email}`);
   } catch (error) {
     console.error("Login error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
-  }
-};
-
-// Get all users (for demo purposes)
-export const getUsers: RequestHandler = async (req, res) => {
-  try {
-    const allUsers = Array.from(users.values())
-      .filter((user) => user.email) // Only get users stored by email (to avoid duplicates)
-      .map(({ password, ...user }) => user) // Remove password from response
-      .sort(
-        (a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-      );
-
-    res.json({
-      success: true,
-      users: allUsers,
-      count: allUsers.length,
-    });
-  } catch (error) {
-    console.error("Get users error:", error);
     res.status(500).json({
       success: false,
       message: "Internal server error",

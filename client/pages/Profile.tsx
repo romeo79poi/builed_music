@@ -44,27 +44,20 @@ import {
   Save,
   X,
   Check,
+  Loader2,
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
+import { UserProfile as BackendUserProfile, Song } from "@shared/api";
 
-interface UserProfile {
-  id: string;
-  username: string;
-  displayName: string;
-  bio: string;
+// Use backend types
+type UserProfile = BackendUserProfile & {
   avatar: string;
   coverImage: string;
   location: string;
   website: string;
-  isVerified: boolean;
   isArtist: boolean;
   joinedDate: Date;
-  socialLinks: {
-    instagram?: string;
-    twitter?: string;
-    youtube?: string;
-  };
   stats: {
     followers: number;
     following: number;
@@ -74,7 +67,7 @@ interface UserProfile {
     monthlyListeners: number;
   };
   badges: string[];
-}
+};
 
 interface Track {
   id: string;
@@ -284,12 +277,13 @@ export default function Profile() {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const [profile, setProfile] = useState<UserProfile>(sampleProfile);
+  // State management
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
-  const [tracks] = useState<Track[]>(sampleTracks);
-  const [playlists] = useState<Playlist[]>(samplePlaylists);
-  const [recentlyPlayed] =
-    useState<RecentlyPlayedTrack[]>(sampleRecentlyPlayed);
+  const [tracks, setTracks] = useState<Track[]>([]);
+  const [playlists, setPlaylists] = useState<Playlist[]>([]);
+  const [recentlyPlayed, setRecentlyPlayed] = useState<RecentlyPlayedTrack[]>([]);
   const [selectedTab, setSelectedTab] = useState("tracks");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [isFollowing, setIsFollowing] = useState(false);
@@ -302,18 +296,174 @@ export default function Profile() {
   // Edit states
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
-    displayName: profile.displayName,
-    username: profile.username,
-    bio: profile.bio,
-    location: profile.location,
+    displayName: "",
+    username: "",
+    bio: "",
+    location: "",
     socialLinks: {
-      instagram: profile.socialLinks.instagram || "",
-      twitter: profile.socialLinks.twitter || "",
-      youtube: profile.socialLinks.youtube || "",
+      instagram: "",
+      twitter: "",
+      youtube: "",
     },
   });
 
-  const formatNumber = (num: number) => {
+  // Fetch profile data from backend
+  const fetchProfile = async () => {
+    try {
+      setLoading(true);
+
+      // Get current user ID (you might store this in localStorage or context)
+      const userId = localStorage.getItem('currentUserId') || 'user1';
+
+      const response = await fetch(`/api/profile/${userId}`);
+      const data = await response.json();
+
+      if (data.success) {
+        // Transform backend data to match our local interface
+        const transformedProfile: UserProfile = {
+          ...data.profile,
+          avatar: data.profile.profilePicture || sampleProfile.avatar,
+          coverImage: sampleProfile.coverImage, // Use sample for now
+          location: sampleProfile.location, // Use sample for now
+          website: sampleProfile.website, // Use sample for now
+          isArtist: sampleProfile.isArtist, // Use sample for now
+          joinedDate: new Date(data.profile.joinDate),
+          stats: {
+            followers: data.profile.followers || 0,
+            following: data.profile.following || 0,
+            totalPlays: sampleProfile.stats.totalPlays || 0, // Use sample for now
+            totalTracks: data.profile.playlists?.length || 0,
+            totalPlaylists: data.profile.playlists?.length || 0,
+            monthlyListeners: sampleProfile.stats.monthlyListeners || 0, // Use sample for now
+          },
+          badges: sampleProfile.badges, // Use sample for now
+        };
+
+        setProfile(transformedProfile);
+
+        // Update edit form
+        setEditForm({
+          displayName: transformedProfile.displayName,
+          username: transformedProfile.username,
+          bio: transformedProfile.bio,
+          location: transformedProfile.location || "",
+          socialLinks: {
+            instagram: transformedProfile.socialLinks.instagram || "",
+            twitter: transformedProfile.socialLinks.twitter || "",
+            youtube: transformedProfile.socialLinks.youtube || "",
+          },
+        });
+
+        console.log("✅ Profile data loaded:", transformedProfile);
+      } else {
+        // Fallback to sample data if backend fails
+        setProfile(sampleProfile);
+        setEditForm({
+          displayName: sampleProfile.displayName,
+          username: sampleProfile.username,
+          bio: sampleProfile.bio,
+          location: sampleProfile.location,
+          socialLinks: {
+            instagram: sampleProfile.socialLinks.instagram || "",
+            twitter: sampleProfile.socialLinks.twitter || "",
+            youtube: sampleProfile.socialLinks.youtube || "",
+          },
+        });
+        console.warn("⚠️ Using sample profile data");
+      }
+    } catch (error) {
+      console.error("❌ Error fetching profile:", error);
+      // Fallback to sample data
+      setProfile(sampleProfile);
+      setEditForm({
+        displayName: sampleProfile.displayName,
+        username: sampleProfile.username,
+        bio: sampleProfile.bio,
+        location: sampleProfile.location,
+        socialLinks: {
+          instagram: sampleProfile.socialLinks.instagram || "",
+          twitter: sampleProfile.socialLinks.twitter || "",
+          youtube: sampleProfile.socialLinks.youtube || "",
+        },
+      });
+
+      toast({
+        title: "Error loading profile",
+        description: "Using demo data. Check your connection.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch liked songs
+  const fetchLikedSongs = async () => {
+    try {
+      const userId = localStorage.getItem('currentUserId') || 'user1';
+      const response = await fetch(`/api/profile/${userId}/liked-songs`);
+      const data = await response.json();
+
+      if (data.success) {
+        // Ensure all songs have required properties with defaults
+        const safeSongs = (data.songs || []).map((song: any) => ({
+          ...song,
+          plays: song.plays || 0,
+          likes: song.likes || 0,
+          comments: song.comments || 0,
+          duration: song.duration || 0,
+        }));
+        setTracks(safeSongs.length > 0 ? safeSongs : sampleTracks);
+      } else {
+        setTracks(sampleTracks);
+      }
+    } catch (error) {
+      console.error("Error fetching liked songs:", error);
+      setTracks(sampleTracks);
+    }
+  };
+
+  // Fetch recently played
+  const fetchRecentlyPlayed = async () => {
+    try {
+      const userId = localStorage.getItem('currentUserId') || 'user1';
+      const response = await fetch(`/api/profile/${userId}/recently-played`);
+      const data = await response.json();
+
+      if (data.success) {
+        // Transform backend recently played to match our interface
+        const transformedRecentlyPlayed = (data.songs || []).map((song: any, index: number) => ({
+          id: song.id || `recent-${index}`,
+          title: song.title || "Unknown Song",
+          artist: song.artist || "Unknown Artist",
+          coverUrl: song.coverImage || "",
+          playedAt: song.playedAt || `${index * 15 + 5} minutes ago`,
+          duration: song.duration || 0,
+          isCurrentlyPlaying: index === 0, // Mark first as currently playing
+        }));
+        setRecentlyPlayed(transformedRecentlyPlayed);
+      } else {
+        setRecentlyPlayed(sampleRecentlyPlayed);
+      }
+    } catch (error) {
+      console.error("Error fetching recently played:", error);
+      setRecentlyPlayed(sampleRecentlyPlayed);
+    }
+  };
+
+  // Load data on component mount
+  useEffect(() => {
+    fetchProfile();
+    fetchLikedSongs();
+    fetchRecentlyPlayed();
+  }, []);
+
+  const formatNumber = (num: number | undefined | null) => {
+    // Handle undefined, null, or NaN values
+    if (num == null || isNaN(num)) {
+      return "0";
+    }
+
     if (num >= 1000000) {
       return (num / 1000000).toFixed(1) + "M";
     } else if (num >= 1000) {
@@ -346,6 +496,8 @@ export default function Profile() {
   };
 
   const handleFollow = () => {
+    if (!profile) return;
+
     setIsFollowing(!isFollowing);
     toast({
       title: isFollowing ? "Unfollowed" : "Following",
@@ -356,6 +508,8 @@ export default function Profile() {
   };
 
   const handleShare = () => {
+    if (!profile) return;
+
     if (navigator.share) {
       navigator.share({
         title: `${profile.displayName} on Catch Music`,
@@ -373,32 +527,78 @@ export default function Profile() {
     }
   };
 
-  const handleSaveProfile = () => {
-    setProfile({
-      ...profile,
-      displayName: editForm.displayName,
-      username: editForm.username,
-      bio: editForm.bio,
-      location: editForm.location,
-      socialLinks: {
-        instagram: editForm.socialLinks.instagram || undefined,
-        twitter: editForm.socialLinks.twitter || undefined,
-        youtube: editForm.socialLinks.youtube || undefined,
-      },
-    });
-    setIsEditing(false);
-    toast({
-      title: "Profile Updated",
-      description: "Your profile has been successfully updated",
-    });
+  const handleSaveProfile = async () => {
+    if (!profile) return;
+
+    try {
+      setUploading(true);
+      const userId = localStorage.getItem('currentUserId') || 'user1';
+
+      const response = await fetch(`/api/profile/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          displayName: editForm.displayName,
+          bio: editForm.bio,
+          socialLinks: {
+            instagram: editForm.socialLinks.instagram || undefined,
+            twitter: editForm.socialLinks.twitter || undefined,
+            youtube: editForm.socialLinks.youtube || undefined,
+          },
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Update local state with saved data
+        setProfile({
+          ...profile,
+          displayName: editForm.displayName,
+          username: editForm.username,
+          bio: editForm.bio,
+          location: editForm.location,
+          socialLinks: {
+            instagram: editForm.socialLinks.instagram || undefined,
+            twitter: editForm.socialLinks.twitter || undefined,
+            youtube: editForm.socialLinks.youtube || undefined,
+          },
+        });
+
+        setIsEditing(false);
+        toast({
+          title: "Profile Updated",
+          description: "Your profile has been successfully updated",
+        });
+      } else {
+        toast({
+          title: "Update Failed",
+          description: data.message || "Failed to update profile",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast({
+        title: "Network Error",
+        description: "Please check your connection and try again",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleCancelEdit = () => {
+    if (!profile) return;
+
     setEditForm({
       displayName: profile.displayName,
       username: profile.username,
       bio: profile.bio,
-      location: profile.location,
+      location: profile.location || "",
       socialLinks: {
         instagram: profile.socialLinks.instagram || "",
         twitter: profile.socialLinks.twitter || "",
@@ -410,12 +610,12 @@ export default function Profile() {
 
   const handleAvatarUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
+    if (file && profile) {
       setUploading(true);
       const reader = new FileReader();
       reader.onload = (e) => {
         const newAvatar = e.target?.result as string;
-        setProfile((prev) => ({ ...prev, avatar: newAvatar }));
+        setProfile((prev) => prev ? { ...prev, avatar: newAvatar } : null);
         // Store in localStorage for persistence
         localStorage.setItem("userAvatar", newAvatar);
         setUploading(false);
@@ -430,12 +630,12 @@ export default function Profile() {
 
   const handleCoverUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
+    if (file && profile) {
       setUploading(true);
       const reader = new FileReader();
       reader.onload = (e) => {
         const newCover = e.target?.result as string;
-        setProfile((prev) => ({ ...prev, coverImage: newCover }));
+        setProfile((prev) => prev ? { ...prev, coverImage: newCover } : null);
         // Store in localStorage for persistence
         localStorage.setItem("userCoverImage", newCover);
         setUploading(false);
@@ -488,6 +688,43 @@ export default function Profile() {
     }
   };
 
+  // Show loading state
+  if (loading || !profile) {
+    return (
+      <div className="h-screen bg-background text-foreground relative overflow-hidden theme-transition max-w-sm mx-auto">
+        <div className="fixed inset-0 bg-gradient-to-b from-background to-secondary/30 theme-transition"></div>
+        <div className="relative z-10 flex flex-col h-screen">
+          {/* Header */}
+          <motion.header
+            initial={{ y: -50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            className="flex items-center justify-between px-3 py-2 bg-background/95 backdrop-blur-sm border-b border-border theme-transition"
+          >
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate("/home")}
+              className="w-8 h-8 rounded-full bg-muted hover:bg-muted/80 flex items-center justify-center transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4 text-foreground" />
+            </motion.button>
+            <h1 className="text-base font-bold text-foreground">Profile</h1>
+            <div className="w-8 h-8"></div>
+          </motion.header>
+
+          {/* Loading Content */}
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center">
+              <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
+              <p className="text-muted-foreground">Loading profile...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Build tabs array with null checking
   const tabs = [
     { id: "tracks", label: "Tracks", count: tracks.length },
     { id: "playlists", label: "Playlists", count: playlists.length },
@@ -495,7 +732,7 @@ export default function Profile() {
     { id: "about", label: "About" },
   ];
 
-  if (profile.isArtist) {
+  if (profile?.isArtist) {
     tabs.splice(3, 0, { id: "analytics", label: "Analytics" });
   }
 
@@ -802,10 +1039,15 @@ export default function Profile() {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={handleSaveProfile}
-                      className="px-4 py-2 rounded-lg font-medium transition-all bg-purple-primary text-white"
+                      disabled={uploading}
+                      className="px-4 py-2 rounded-lg font-medium transition-all bg-purple-primary text-white disabled:opacity-50"
                     >
-                      <Save className="w-4 h-4 mr-2 inline" />
-                      Save
+                      {uploading ? (
+                        <Loader2 className="w-4 h-4 mr-2 inline animate-spin" />
+                      ) : (
+                        <Save className="w-4 h-4 mr-2 inline" />
+                      )}
+                      {uploading ? "Saving..." : "Save"}
                     </motion.button>
                   </div>
                 </div>

@@ -337,22 +337,61 @@ export default function Signup() {
         data = await response.json();
 
         if (data.success) {
+          const isAvailable =
+            field === "email" ? data.emailAvailable : data.usernameAvailable;
+
           setAvailability((prev) => ({
             ...prev,
-            [field]:
-              field === "email" ? data.emailAvailable : data.usernameAvailable,
+            [field]: isAvailable,
           }));
 
-          if (field === "email" && !data.emailAvailable) {
+          if (isAvailable) {
+            // Clear any existing errors if the field is available
             setErrors((prev) => ({
               ...prev,
-              email: "Email is already registered",
+              [field]: "",
             }));
+          } else {
+            // Show unavailable error
+            if (field === "email") {
+              setErrors((prev) => ({
+                ...prev,
+                email: "Email is already registered",
+              }));
+            } else if (field === "username") {
+              setErrors((prev) => ({
+                ...prev,
+                username: "Username is already taken",
+              }));
+            }
           }
+        } else {
+          // Handle validation errors from backend
+          console.error(`❌ ${field} validation error:`, data.message);
+          setErrors((prev) => ({
+            ...prev,
+            [field]: data.message || `Invalid ${field}`,
+          }));
+
+          // Set availability to false for validation errors
+          setAvailability((prev) => ({
+            ...prev,
+            [field]: false,
+          }));
         }
       }
     } catch (error) {
       console.error("Availability check failed:", error);
+      setErrors((prev) => ({
+        ...prev,
+        [field]: `Unable to verify ${field}`,
+      }));
+
+      // Set availability to false for network errors
+      setAvailability((prev) => ({
+        ...prev,
+        [field]: false,
+      }));
     }
   };
 
@@ -573,11 +612,8 @@ export default function Signup() {
           emailVerified: result.user.emailVerified,
         });
 
-        // If this is a new user and we're in development mode, also register with backend
-        if (
-          (result.isNewUser && result.user.email?.includes("demo")) ||
-          result.user.email?.includes("dev")
-        ) {
+        // Register new Google users with backend
+        if (result.isNewUser) {
           try {
             const backendResponse = await fetch("/api/auth/register", {
               method: "POST",
@@ -725,11 +761,8 @@ export default function Signup() {
           emailVerified: result.user.emailVerified,
         });
 
-        // If this is a new user and we're in development mode, also register with backend
-        if (
-          (result.isNewUser && result.user.email?.includes("demo")) ||
-          result.user.email?.includes("dev")
-        ) {
+        // Register new Facebook users with backend
+        if (result.isNewUser) {
           try {
             const backendResponse = await fetch("/api/auth/register", {
               method: "POST",
@@ -861,26 +894,40 @@ export default function Signup() {
           body: JSON.stringify({ email: formData.email }),
         });
 
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
 
         if (data.success) {
           setCurrentStep("verification");
-          toast({
-            title: "✉️ Verification email sent!",
-            description: `Check your email at ${formData.email} for a verification code.`,
-          });
+
+          // Show different messages based on whether email was actually sent
+          if (data.emailSent === false) {
+            toast({
+              title: "⚠️ Verification code ready",
+              description: `Email service unavailable. Check console for your verification code.`,
+              variant: "destructive",
+            });
+          } else {
+            toast({
+              title: "✉️ Verification email sent!",
+              description: `Check your email at ${formData.email} for a verification code.`,
+            });
+          }
 
           // For development, show code in console and preview URL
           if (data.debugCode) {
             console.log(`📧 Email verification code: ${data.debugCode}`);
+            toast({
+              title: "📧 Development Mode",
+              description: `Verification code: ${data.debugCode} (check console)`,
+              duration: 10000,
+            });
           }
           if (data.previewUrl) {
             console.log(`🔗 Email preview: ${data.previewUrl}`);
-            toast({
-              title: "📧 Development Mode",
-              description:
-                "Check console for email preview link and debug code",
-            });
           }
 
           setResendTimer(60);
@@ -901,25 +948,39 @@ export default function Signup() {
           body: JSON.stringify({ email: formData.email }),
         });
 
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
 
         if (data.success) {
           setCurrentStep("verification");
 
-          // For development, show code in toast
-          if (data.debugCode) {
+          // Show different messages based on whether email was actually sent
+          if (data.emailSent === false) {
+            toast({
+              title: "⚠️ Verification code ready",
+              description: `Email service unavailable. Code: ${data.debugCode}`,
+              duration: 10000,
+              variant: "destructive",
+            });
+          } else if (data.debugCode) {
             toast({
               title: "Verification code sent!",
               description: `Code: ${data.debugCode} (Development Mode)`,
               duration: 8000,
             });
-            console.log(`📧 Email verification code: ${data.debugCode}`);
           } else {
             toast({
               title: "Verification code sent!",
               description:
                 "Please check your email for the 6-digit verification code.",
             });
+          }
+
+          if (data.debugCode) {
+            console.log(`📧 Email verification code: ${data.debugCode}`);
           }
 
           setResendTimer(60);
@@ -996,6 +1057,10 @@ export default function Signup() {
           }),
         });
 
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
         console.log(`📝 Verification response:`, data);
 
@@ -1064,7 +1129,7 @@ export default function Signup() {
 
         if (data.success) {
           toast({
-            title: "Account created successfully! 🎉",
+            title: "Account created successfully! ����",
             description: `Welcome to Music Catch, ${data.user.name}!`,
           });
 
@@ -1129,6 +1194,10 @@ export default function Signup() {
                 password: formData.password,
               }),
             });
+
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
 
             const data = await response.json();
 
@@ -1289,6 +1358,10 @@ export default function Signup() {
           }),
         });
 
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
         const data = await response.json();
 
         if (data.success) {
@@ -1402,23 +1475,37 @@ export default function Signup() {
         body: JSON.stringify({ email: formData.email }),
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const data = await response.json();
 
       if (data.success) {
-        // For development, show code in toast
-        if (data.debugCode) {
+        // Show different messages based on whether email was actually sent
+        if (data.emailSent === false) {
+          toast({
+            title: "⚠️ New verification code ready",
+            description: `Email service unavailable. Code: ${data.debugCode}`,
+            duration: 10000,
+            variant: "destructive",
+          });
+        } else if (data.debugCode) {
           toast({
             title: "Verification code resent!",
             description: `Code: ${data.debugCode} (Development Mode)`,
             duration: 8000,
           });
-          console.log(`📧 Resent email verification code: ${data.debugCode}`);
         } else {
           toast({
             title: "Verification code resent!",
             description:
               "Please check your email for the new 6-digit verification code.",
           });
+        }
+
+        if (data.debugCode) {
+          console.log(`📧 Resent email verification code: ${data.debugCode}`);
         }
 
         setResendTimer(60);
@@ -1760,10 +1847,28 @@ export default function Signup() {
                   field="email"
                   onCheck={async (field, value) => {
                     try {
-                      const response = await fetch(
-                        `/api/auth/check-availability?${field}=${encodeURIComponent(value)}`,
-                      );
+                      const url = `/api/auth/check-availability?${field}=${encodeURIComponent(value)}`;
+                      console.log(`🌐 Making availability request to: ${url}`);
+
+                      const response = await fetch(url);
+                      console.log(`📡 Response status: ${response.status}`);
+
                       const data = await response.json();
+                      console.log(`📊 Response data:`, data);
+
+                      if (!response.ok) {
+                        console.error(
+                          `❌ HTTP error! status: ${response.status}`,
+                          data,
+                        );
+                        // If it's a validation error, throw a specific error with the message
+                        if (response.status === 400 && data.message) {
+                          throw new Error(data.message);
+                        }
+                        throw new Error(
+                          `HTTP error! status: ${response.status}`,
+                        );
+                      }
 
                       if (field === "email") {
                         return data.emailAvailable === true;
@@ -1771,7 +1876,11 @@ export default function Signup() {
                         return data.usernameAvailable === true;
                       }
                       return false;
-                    } catch {
+                    } catch (error) {
+                      console.error(
+                        `❌ Email availability check failed:`,
+                        error,
+                      );
                       return false;
                     }
                   }}
@@ -2031,31 +2140,6 @@ export default function Signup() {
                     {errors.username}
                   </p>
                 )}
-
-                {/* Username Availability Checker */}
-                <AvailabilityChecker
-                  value={formData.username}
-                  field="username"
-                  onCheck={async (field, value) => {
-                    try {
-                      const response = await fetch(
-                        `/api/auth/check-availability?${field}=${encodeURIComponent(value)}`,
-                      );
-                      const data = await response.json();
-
-                      if (field === "email") {
-                        return data.emailAvailable === true;
-                      } else if (field === "username") {
-                        return data.usernameAvailable === true;
-                      }
-                      return false;
-                    } catch {
-                      return false;
-                    }
-                  }}
-                  className="mt-2"
-                  minLength={3}
-                />
               </div>
 
               <button
@@ -2095,13 +2179,8 @@ export default function Signup() {
                 </p>
               </div>
 
-              <div className="text-center">
-                <p className="text-white mb-2 text-sm sm:text-base">
-                  Verification code sent to:
-                </p>
-                <p className="text-purple-primary font-medium text-sm sm:text-base break-all">
-                  {formData.email}
-                </p>
+              <div className="text-center text-purple-primary text-sm break-all mt-4">
+                {formData.email}
               </div>
 
               <div>

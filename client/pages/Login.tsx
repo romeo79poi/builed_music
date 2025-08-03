@@ -21,6 +21,7 @@ import {
 } from "../lib/auth";
 import { supabaseOperations } from "../lib/supabase";
 import { useToast } from "../hooks/use-toast";
+import { serverTimestamp } from "../lib/firebase";
 import ConnectivityChecker, {
   getNetworkErrorMessage,
 } from "../lib/connectivity";
@@ -144,6 +145,44 @@ export default function Login() {
         throw new Error("Unable to connect to the server");
       }
 
+      // Try backend login first
+      let backendResult;
+      try {
+        const response = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            password,
+          }),
+        });
+
+        backendResult = await response.json();
+
+        if (backendResult.success) {
+          // Store token if provided
+          if (backendResult.token) {
+            localStorage.setItem("token", backendResult.token);
+          }
+
+          toast({
+            title: "Welcome back!",
+            description: `Successfully logged in as ${backendResult.user.name}`,
+          });
+
+          console.log("✅ Backend login successful:", backendResult.user);
+
+          // Redirect to homepage
+          navigate("/home");
+          return;
+        }
+      } catch (backendError) {
+        console.warn("Backend login failed, trying Firebase:", backendError);
+      }
+
+      // Fallback to Firebase authentication if backend fails
       const result = await loginWithEmailAndPassword(email, password);
 
       if (result.success && result.user) {
@@ -190,7 +229,8 @@ export default function Login() {
         // Redirect to homepage
         navigate("/home");
       } else {
-        const errorMessage =
+        // Use backend error if available, otherwise Firebase error
+        const errorMessage = backendResult?.message ||
           getNetworkErrorMessage(result) ||
           result.error ||
           "Please check your credentials";
