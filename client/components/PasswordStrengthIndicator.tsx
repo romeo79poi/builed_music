@@ -73,16 +73,7 @@ export const PasswordStrengthIndicator: React.FC<
             />
           </div>
 
-          {/* Strength markers */}
-          <div className="absolute inset-0 flex justify-between px-1">
-            {[25, 50, 75].map((marker) => (
-              <div
-                key={marker}
-                className="w-px h-full bg-black/20"
-                style={{ marginLeft: `${marker}%` }}
-              />
-            ))}
-          </div>
+
         </div>
       </div>
 
