@@ -20,31 +20,7 @@ const passwordRules: PasswordRule[] = [
     id: "length",
     label: "At least 8 characters",
     test: (password) => password.length >= 8,
-    weight: 25,
-  },
-  {
-    id: "uppercase",
-    label: "One uppercase letter",
-    test: (password) => /[A-Z]/.test(password),
-    weight: 25,
-  },
-  {
-    id: "lowercase",
-    label: "One lowercase letter",
-    test: (password) => /[a-z]/.test(password),
-    weight: 20,
-  },
-  {
-    id: "number",
-    label: "One number",
-    test: (password) => /\d/.test(password),
-    weight: 20,
-  },
-  {
-    id: "special",
-    label: "One special character",
-    test: (password) => /[!@#$%^&*(),.?\":{}|<>]/.test(password),
-    weight: 10,
+    weight: 100,
   },
 ];
 
