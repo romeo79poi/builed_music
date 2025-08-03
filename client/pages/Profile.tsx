@@ -680,6 +680,42 @@ export default function Profile() {
     tabs.splice(3, 0, { id: "analytics", label: "Analytics" });
   }
 
+  // Show loading state
+  if (loading || !profile) {
+    return (
+      <div className="h-screen bg-background text-foreground relative overflow-hidden theme-transition max-w-sm mx-auto">
+        <div className="fixed inset-0 bg-gradient-to-b from-background to-secondary/30 theme-transition"></div>
+        <div className="relative z-10 flex flex-col h-screen">
+          {/* Header */}
+          <motion.header
+            initial={{ y: -50, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            className="flex items-center justify-between px-3 py-2 bg-background/95 backdrop-blur-sm border-b border-border theme-transition"
+          >
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate("/home")}
+              className="w-8 h-8 rounded-full bg-muted hover:bg-muted/80 flex items-center justify-center transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4 text-foreground" />
+            </motion.button>
+            <h1 className="text-base font-bold text-foreground">Profile</h1>
+            <div className="w-8 h-8"></div>
+          </motion.header>
+
+          {/* Loading Content */}
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center">
+              <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
+              <p className="text-muted-foreground">Loading profile...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="h-screen bg-background text-foreground relative overflow-hidden theme-transition max-w-sm mx-auto">
       {/* App background */}
