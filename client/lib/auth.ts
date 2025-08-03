@@ -201,8 +201,9 @@ export const saveUserData = async (
       return { success: true };
     }
 
+    const currentTimestamp = new Date().toISOString();
     const userId = user.uid;
-    const userData: UserData = {
+    const userData = {
       email: user.email || "",
       name: user.displayName || additionalData?.username || "User Name",
       username: additionalData?.username || user.email?.split("@")[0] || "defaultUsername",
@@ -210,8 +211,8 @@ export const saveUserData = async (
       gender: additionalData?.gender || "",
       bio: additionalData?.bio || "",
       phone: user.phoneNumber || "",
-      profileImageURL: additionalData?.profileImage || user.photoURL || "",
-      createdAt: serverTimestamp(),
+      profile_image: additionalData?.profileImage || user.photoURL || "",
+      created_at: currentTimestamp, // Save the timestamp of account creation
       verified: user.emailVerified || false,
     };
 
