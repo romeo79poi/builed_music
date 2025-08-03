@@ -513,28 +513,3 @@ export const loginUser: RequestHandler = async (req, res) => {
     });
   }
 };
-
-// Get all users (for demo purposes)
-export const getUsers: RequestHandler = async (req, res) => {
-  try {
-    const allUsers = Array.from(users.values())
-      .filter((user) => user.email) // Only get users stored by email (to avoid duplicates)
-      .map(({ password, ...user }) => user) // Remove password from response
-      .sort(
-        (a, b) =>
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-      );
-
-    res.json({
-      success: true,
-      users: allUsers,
-      count: allUsers.length,
-    });
-  } catch (error) {
-    console.error("Get users error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
-  }
-};
