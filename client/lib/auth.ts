@@ -29,7 +29,76 @@ export interface UserData {
   bio?: string;
 }
 
-// Upload profile image to Firebase Storage
+// Upload profile image to Firebase Storage (for signup - no auth required)
+export const uploadProfileImageForSignup = async (
+  imageFile: File
+): Promise<{ success: boolean; imageURL?: string; error?: string }> => {
+  try {
+    if (!isFirebaseConfigured || !auth || !storage) {
+      console.warn("🔧 Development mode: Simulating profile image upload");
+      // Create a temporary URL for the uploaded image in development
+      const imageURL = URL.createObjectURL(imageFile);
+      return {
+        success: true,
+        imageURL: imageURL
+      };
+    }
+
+    // Validate file type
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(imageFile.type)) {
+      return {
+        success: false,
+        error: "Only JPEG, PNG, and WebP images are allowed"
+      };
+    }
+
+    // Validate file size (5MB max)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    if (imageFile.size > maxSize) {
+      return {
+        success: false,
+        error: "Image size must be less than 5MB"
+      };
+    }
+
+    // Create unique filename with timestamp for temp upload
+    const timestamp = Date.now();
+    const fileExtension = imageFile.name.split('.').pop();
+    const fileName = `temp_signup_${timestamp}.${fileExtension}`;
+
+    // Create storage reference for temporary signup images
+    const profilePicRef = ref(storage, `temp-signup-pics/${fileName}`);
+
+    // Upload file
+    console.log("📤 Uploading profile image for signup...");
+    const uploadResult = await uploadBytes(profilePicRef, imageFile);
+
+    // Get download URL
+    const imageURL = await getDownloadURL(uploadResult.ref);
+    console.log("✅ Profile image uploaded successfully for signup:", imageURL);
+
+    return { success: true, imageURL };
+
+  } catch (error: any) {
+    console.error("Profile image upload error:", error);
+
+    let errorMessage = "Failed to upload profile image";
+    if (error.code === 'storage/unauthorized') {
+      errorMessage = "Upload permission denied";
+    } else if (error.code === 'storage/canceled') {
+      errorMessage = "Upload was cancelled";
+    } else if (error.code === 'storage/quota-exceeded') {
+      errorMessage = "Storage quota exceeded";
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+
+    return { success: false, error: errorMessage };
+  }
+};
+
+// Upload profile image to Firebase Storage (for authenticated users)
 export const uploadProfileImage = async (
   imageFile: File
 ): Promise<{ success: boolean; imageURL?: string; error?: string }> => {
@@ -198,7 +267,13 @@ export const signUpWithEmailAndPassword = async (
         verified: false, // New users start unverified
       };
 
-      await setDoc(doc(db, "users", user.uid), userDocData);
+      try {
+        await setDoc(doc(db, "users", user.uid), userDocData);
+        console.log("✅ User data saved to Firestore successfully");
+      } catch (firestoreError: any) {
+        console.warn("⚠️ Firestore write failed, continuing without saving user data:", firestoreError.code);
+        // Continue even if Firestore write fails - user account is still created in Auth
+      }
 
       return { success: true, user };
     } catch (firebaseError: any) {
@@ -207,6 +282,9 @@ export const signUpWithEmailAndPassword = async (
         firebaseError.code === "auth/project-not-found" ||
         firebaseError.code === "auth/invalid-api-key" ||
         firebaseError.code === "auth/network-request-failed" ||
+        firebaseError.code === "permission-denied" ||
+        firebaseError.code === "firestore/permission-denied" ||
+        firebaseError.message?.includes("Missing or insufficient permissions") ||
         firebaseError.message?.includes("Firebase project") ||
         firebaseError.message?.includes("API key not valid") ||
         firebaseError.message?.includes("network request failed")
@@ -453,10 +531,14 @@ export const signInWithGoogle = async (): Promise<{
           verified: user.emailVerified || false, // Google users may be pre-verified
         };
 
-        await setDoc(userDocRef, userData);
+        try {
+          await setDoc(userDocRef, userData);
+          console.log("✅ New Google user created in Firestore:", userData);
+        } catch (firestoreError: any) {
+          console.warn("⚠️ Firestore write failed for Google user, continuing:", firestoreError.code);
+          // Continue even if Firestore write fails - user is still authenticated
+        }
         isNewUser = true;
-
-        console.log("✅ New Google user created in Firestore:", userData);
       } else {
         console.log("✅ Existing Google user signed in:", userDoc.data());
       }
@@ -485,18 +567,21 @@ export const signInWithGoogle = async (): Promise<{
         };
       }
 
-      // If Firebase project doesn't exist, network issues, or unauthorized domain, use development mode
+      // If Firebase project doesn't exist, network issues, permission errors, or unauthorized domain, use development mode
       if (
         firebaseError.code === "auth/project-not-found" ||
         firebaseError.code === "auth/invalid-api-key" ||
         firebaseError.code === "auth/network-request-failed" ||
         firebaseError.code === "auth/unauthorized-domain" ||
+        firebaseError.code === "permission-denied" ||
+        firebaseError.code === "firestore/permission-denied" ||
+        firebaseError.message?.includes("Missing or insufficient permissions") ||
         firebaseError.message?.includes("Firebase project") ||
         firebaseError.message?.includes("API key not valid") ||
         firebaseError.message?.includes("network request failed")
       ) {
         console.warn(
-          "🔄 Firebase network/config error, using development mode for Google sign-in",
+          "🔄 Firebase network/config/permission error, using development mode for Google sign-in",
         );
 
         // Simulate successful Google user creation for development
@@ -656,10 +741,14 @@ export const signInWithFacebook = async (): Promise<{
           verified: user.emailVerified || false, // Facebook users may be pre-verified
         };
 
-        await setDoc(userDocRef, userData);
+        try {
+          await setDoc(userDocRef, userData);
+          console.log("✅ New Facebook user created in Firestore:", userData);
+        } catch (firestoreError: any) {
+          console.warn("⚠️ Firestore write failed for Facebook user, continuing:", firestoreError.code);
+          // Continue even if Firestore write fails - user is still authenticated
+        }
         isNewUser = true;
-
-        console.log("✅ New Facebook user created in Firestore:", userData);
       } else {
         console.log("✅ Existing Facebook user signed in:", userDoc.data());
       }
@@ -688,18 +777,21 @@ export const signInWithFacebook = async (): Promise<{
         };
       }
 
-      // If Firebase project doesn't exist, network issues, or unauthorized domain, use development mode
+      // If Firebase project doesn't exist, network issues, permission errors, or unauthorized domain, use development mode
       if (
         firebaseError.code === "auth/project-not-found" ||
         firebaseError.code === "auth/invalid-api-key" ||
         firebaseError.code === "auth/network-request-failed" ||
         firebaseError.code === "auth/unauthorized-domain" ||
+        firebaseError.code === "permission-denied" ||
+        firebaseError.code === "firestore/permission-denied" ||
+        firebaseError.message?.includes("Missing or insufficient permissions") ||
         firebaseError.message?.includes("Firebase project") ||
         firebaseError.message?.includes("API key not valid") ||
         firebaseError.message?.includes("network request failed")
       ) {
         console.warn(
-          "🔄 Firebase network/config error, using development mode for Facebook sign-in",
+          "🔄 Firebase network/config/permission error, using development mode for Facebook sign-in",
         );
 
         // Simulate successful Facebook user creation for development
@@ -990,8 +1082,13 @@ export const verifyPhoneOTP = async (
           verified: true, // Phone users are verified through OTP
         };
 
-        await setDoc(userDocRef, userData);
-        console.log("✅ New phone user created in Firestore");
+        try {
+          await setDoc(userDocRef, userData);
+          console.log("✅ New phone user created in Firestore");
+        } catch (firestoreError: any) {
+          console.warn("⚠️ Firestore write failed for phone user, continuing:", firestoreError.code);
+          // Continue even if Firestore write fails - user is still authenticated
+        }
       }
     }
 

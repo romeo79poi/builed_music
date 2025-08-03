@@ -97,6 +97,7 @@ const sampleProfile: UserProfile = {
   id: "user1",
   username: "alexmusic",
   displayName: "Alex Johnson",
+  email: "alex@alexmusic.com",
   bio: "Music producer & artist 🎵 | Creating beats that move souls | Collabs welcome 💫 | Stream my latest tracks below ⬇️",
   avatar:
     "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop",
@@ -356,8 +357,27 @@ export default function Profile() {
 
         console.log("✅ Profile data loaded:", transformedProfile);
       } else {
-        // Fallback to sample data if backend fails
-        setProfile(sampleProfile);
+        // Fallback to saved user data or sample data if backend fails
+        const savedUserData = localStorage.getItem("currentUser");
+        if (savedUserData) {
+          try {
+            const userData = JSON.parse(savedUserData);
+            const fallbackProfile: UserProfile = {
+              ...sampleProfile,
+              displayName: userData.name || sampleProfile.displayName,
+              username: userData.username || sampleProfile.username,
+              email: userData.email || sampleProfile.email,
+              bio: userData.bio || sampleProfile.bio,
+              avatar: userData.profileImageURL || sampleProfile.avatar,
+            };
+            setProfile(fallbackProfile);
+          } catch (error) {
+            console.error("Error parsing saved user data:", error);
+            setProfile(sampleProfile);
+          }
+        } else {
+          setProfile(sampleProfile);
+        }
         setEditForm({
           displayName: sampleProfile.displayName,
           username: sampleProfile.username,
@@ -373,8 +393,27 @@ export default function Profile() {
       }
     } catch (error) {
       console.error("❌ Error fetching profile:", error);
-      // Fallback to sample data
-      setProfile(sampleProfile);
+      // Fallback to saved user data or sample data
+      const savedUserData = localStorage.getItem("currentUser");
+      if (savedUserData) {
+        try {
+          const userData = JSON.parse(savedUserData);
+          const fallbackProfile: UserProfile = {
+            ...sampleProfile,
+            displayName: userData.name || sampleProfile.displayName,
+            username: userData.username || sampleProfile.username,
+            email: userData.email || sampleProfile.email,
+            bio: userData.bio || sampleProfile.bio,
+            avatar: userData.profileImageURL || sampleProfile.avatar,
+          };
+          setProfile(fallbackProfile);
+        } catch (parseError) {
+          console.error("Error parsing saved user data:", parseError);
+          setProfile(sampleProfile);
+        }
+      } else {
+        setProfile(sampleProfile);
+      }
       setEditForm({
         displayName: sampleProfile.displayName,
         username: sampleProfile.username,
@@ -1068,6 +1107,9 @@ export default function Profile() {
                   <p className="text-xs text-muted-foreground mb-1">
                     @{profile.username}
                   </p>
+                  <p className="text-xs text-muted-foreground mb-1">
+                    {profile.email}
+                  </p>
                   <p className="text-xs text-foreground leading-relaxed mb-2">
                     {profile.bio}
                   </p>
@@ -1198,38 +1240,6 @@ export default function Profile() {
             {/* Tabs */}
             {!isEditing && (
               <>
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg font-bold text-foreground">
-                    My Tracks
-                  </h2>
-                  <div className="flex items-center space-x-2">
-                    <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => setViewMode("grid")}
-                      className={`p-2 rounded-md transition-colors bg-card border border-border ${
-                        viewMode === "grid"
-                          ? "text-primary"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      <Grid3X3 className="w-4 h-4" />
-                    </motion.button>
-                    <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => setViewMode("list")}
-                      className={`p-2 rounded-lg transition-colors bg-card border border-border ${
-                        viewMode === "list"
-                          ? "text-primary"
-                          : "text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      <ListMusic className="w-4 h-4" />
-                    </motion.button>
-                  </div>
-                </div>
-
                 {/* Content Based on Selected Tab */}
                 <AnimatePresence mode="wait">
                   {selectedTab === "tracks" && (
@@ -1240,105 +1250,8 @@ export default function Profile() {
                       exit={{ opacity: 0, y: -20 }}
                       className="space-y-4"
                     >
-                      {viewMode === "grid" ? (
-                        <div className="grid grid-cols-2 gap-4">
-                          {tracks.map((track, index) => (
-                            <motion.div
-                              key={track.id}
-                              initial={{ opacity: 0, scale: 0.9 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              transition={{ delay: index * 0.1 }}
-                              className="bg-card rounded-xl p-3 border border-border"
-                            >
-                              <div className="relative mb-3">
-                                <img
-                                  src={track.coverUrl}
-                                  alt={track.title}
-                                  className="w-full aspect-square rounded-lg object-cover"
-                                />
-                                <motion.button
-                                  whileHover={{ scale: 1.1 }}
-                                  whileTap={{ scale: 0.9 }}
-                                  onClick={() => handlePlay(track.id)}
-                                  className="absolute bottom-2 right-2 w-8 h-8 bg-card rounded-full flex items-center justify-center shadow-lg border border-border"
-                                >
-                                  {currentPlayingTrack === track.id &&
-                                  isPlaying ? (
-                                    <Pause className="w-4 h-4 text-foreground" />
-                                  ) : (
-                                    <Play className="w-4 h-4 text-foreground ml-0.5" />
-                                  )}
-                                </motion.button>
-                                {track.genre && (
-                                  <div className="absolute top-2 left-2 px-2 py-1 bg-card/60 rounded-md">
-                                    <span className="text-xs text-foreground font-medium">
-                                      {track.genre}
-                                    </span>
-                                  </div>
-                                )}
-                              </div>
-                              <h3 className="font-medium text-foreground mb-1 truncate">
-                                {track.title}
-                              </h3>
-                              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                                <span>{formatNumber(track.plays)} plays</span>
-                                <span>{formatDuration(track.duration)}</span>
-                              </div>
-                            </motion.div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="space-y-2">
-                          {tracks.map((track, index) => (
-                            <motion.div
-                              key={track.id}
-                              initial={{ opacity: 0, x: -20 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: index * 0.05 }}
-                              className="flex items-center space-x-3 p-3 bg-card rounded-xl hover:bg-card/80 transition-colors cursor-pointer border border-border"
-                              onClick={() => handlePlay(track.id)}
-                            >
-                              <div className="relative">
-                                <img
-                                  src={track.coverUrl}
-                                  alt={track.title}
-                                  className="w-12 h-12 rounded-lg object-cover"
-                                />
-                                <div className="absolute inset-0 bg-background/40 rounded-lg flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                                  {currentPlayingTrack === track.id &&
-                                  isPlaying ? (
-                                    <Pause className="w-4 h-4 text-foreground" />
-                                  ) : (
-                                    <Play className="w-4 h-4 text-foreground ml-0.5" />
-                                  )}
-                                </div>
-                              </div>
-                              <div className="flex-1">
-                                <h3 className="font-medium text-foreground mb-1">
-                                  {track.title}
-                                </h3>
-                                <div className="flex items-center space-x-4 text-xs text-muted-foreground">
-                                  <span>{formatNumber(track.plays)} plays</span>
-                                  <span>{formatNumber(track.likes)} likes</span>
-                                  <span>{formatDate(track.uploadDate)}</span>
-                                </div>
-                              </div>
-                              <div className="text-right">
-                                <p className="text-sm text-muted-foreground">
-                                  {formatDuration(track.duration)}
-                                </p>
-                              </div>
-                              <motion.button
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                className="p-2 rounded-full hover:bg-muted/80 transition-colors"
-                              >
-                                <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
-                              </motion.button>
-                            </motion.div>
-                          ))}
-                        </div>
-                      )}
+                      <div className="grid grid-cols-2 gap-4">
+                      </div>
                     </motion.div>
                   )}
 

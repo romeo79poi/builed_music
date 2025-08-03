@@ -34,6 +34,7 @@ import {
   sendFirebaseEmailVerification,
   saveUserData,
   uploadProfileImage,
+  uploadProfileImageForSignup,
 } from "../lib/auth";
 import { auth, db } from "../lib/firebase";
 
@@ -259,16 +260,26 @@ export default function Signup() {
     const birthDate = new Date(formData.dateOfBirth);
     const today = new Date();
     const age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
 
-    if (age < 13) {
+    // More precise age calculation
+    let actualAge = age;
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
+      actualAge--;
+    }
+
+    if (actualAge < 18) {
       setErrors((prev) => ({
         ...prev,
-        dateOfBirth: "You must be at least 13 years old",
+        dateOfBirth: "You must be at least 18 years old to register",
       }));
       return false;
     }
 
-    if (age > 120) {
+    if (actualAge > 120) {
       setErrors((prev) => ({
         ...prev,
         dateOfBirth: "Please enter a valid date of birth",
@@ -644,6 +655,26 @@ export default function Signup() {
           }
         }
 
+        // Save Google user data to localStorage for immediate access
+        const googleUserData = {
+          uid: result.user.uid,
+          email: result.user.email || "",
+          name: displayName,
+          username: result.user.email?.split("@")[0] || "user",
+          profileImageURL: result.user.photoURL || "",
+          dateOfBirth: "",
+          gender: "",
+          bio: "",
+        };
+
+        localStorage.setItem("currentUser", JSON.stringify(googleUserData));
+        localStorage.setItem("userAvatar", result.user.photoURL || "");
+
+        console.log(
+          "💾 Saved Google user data to localStorage:",
+          googleUserData,
+        );
+
         // Navigate after a short delay to show success message
         setTimeout(() => {
           navigate("/home");
@@ -792,6 +823,26 @@ export default function Signup() {
             );
           }
         }
+
+        // Save Facebook user data to localStorage for immediate access
+        const facebookUserData = {
+          uid: result.user.uid,
+          email: result.user.email || "",
+          name: displayName,
+          username: result.user.email?.split("@")[0] || "user",
+          profileImageURL: result.user.photoURL || "",
+          dateOfBirth: "",
+          gender: "",
+          bio: "",
+        };
+
+        localStorage.setItem("currentUser", JSON.stringify(facebookUserData));
+        localStorage.setItem("userAvatar", result.user.photoURL || "");
+
+        console.log(
+          "💾 Saved Facebook user data to localStorage:",
+          facebookUserData,
+        );
 
         // Navigate after a short delay to show success message
         setTimeout(() => {
@@ -1163,6 +1214,33 @@ export default function Signup() {
               if (result.user) {
                 setVerificationUser(result.user);
                 setEmailVerificationSent(true);
+
+                // Save user data to localStorage for immediate access
+                const completeUserData = {
+                  uid: result.user.uid,
+                  email: formData.email,
+                  name: formData.name,
+                  username: formData.username,
+                  profileImageURL:
+                    formData.profileImageURL || result.user.photoURL || "",
+                  dateOfBirth: formData.dateOfBirth,
+                  gender: formData.gender,
+                  bio: formData.bio,
+                };
+
+                localStorage.setItem(
+                  "currentUser",
+                  JSON.stringify(completeUserData),
+                );
+                localStorage.setItem(
+                  "userAvatar",
+                  formData.profileImageURL || result.user.photoURL || "",
+                );
+
+                console.log(
+                  "💾 Saved Firebase user data to localStorage:",
+                  completeUserData,
+                );
               }
 
               toast({
@@ -1238,60 +1316,40 @@ export default function Signup() {
   };
 
   const handleProfileImageStep = async () => {
-    // If user selected an image, upload it first
-    if (formData.profileImage) {
-      setIsLoading(true);
-      try {
-        const uploadResult = await uploadProfileImage(formData.profileImage);
+    setIsLoading(true);
 
-        if (uploadResult.success) {
-          // Update form data with the uploaded image URL
-          setFormData((prev) => ({
-            ...prev,
-            profileImageURL: uploadResult.imageURL || "",
-          }));
+    try {
+      // If user selected an image, store it for later use (skip upload during signup)
+      if (formData.profileImage) {
+        // Create a temporary URL for preview
+        const imageURL = URL.createObjectURL(formData.profileImage);
 
-          toast({
-            title: "Profile image uploaded! ✅",
-            description: "Your profile picture has been saved successfully.",
-          });
-        } else {
-          setErrors((prev) => ({
-            ...prev,
-            profileImage: uploadResult.error || "Failed to upload image",
-          }));
-
-          toast({
-            title: "Upload failed",
-            description: uploadResult.error || "Failed to upload profile image",
-            variant: "destructive",
-          });
-
-          setIsLoading(false);
-          return; // Don't proceed to next step if upload failed
-        }
-      } catch (error) {
-        console.error("Profile image upload error:", error);
-        setErrors((prev) => ({
+        // Update form data with the image URL for preview
+        setFormData((prev) => ({
           ...prev,
-          profileImage: "Failed to upload image",
+          profileImageURL: imageURL,
         }));
 
         toast({
-          title: "Upload error",
-          description: "An error occurred while uploading your profile image",
-          variant: "destructive",
+          title: "Profile image selected! ✅",
+          description:
+            "Your profile picture will be uploaded after account creation.",
         });
-
-        setIsLoading(false);
-        return;
-      } finally {
-        setIsLoading(false);
       }
-    }
 
-    // Proceed to next step
-    setCurrentStep("gender");
+      // Always proceed to next step (profile image is optional)
+      setCurrentStep("gender");
+    } catch (error) {
+      console.error("Profile image step error:", error);
+
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleGenderStep = () => {
@@ -1365,6 +1423,23 @@ export default function Signup() {
         const data = await response.json();
 
         if (data.success) {
+          // Save user data to localStorage for immediate access
+          const completeUserData = {
+            uid: data.user?.id || `user-${Date.now()}`,
+            email: formData.email,
+            name: formData.name,
+            username: formData.username,
+            profileImageURL: formData.profileImageURL || "",
+            dateOfBirth: formData.dateOfBirth,
+            gender: formData.gender,
+            bio: formData.bio,
+          };
+
+          localStorage.setItem("currentUser", JSON.stringify(completeUserData));
+          localStorage.setItem("userAvatar", formData.profileImageURL || "");
+
+          console.log("💾 Saved user data to localStorage:", completeUserData);
+
           toast({
             title: "Account created successfully! 🎉",
             description: `Welcome to Music Catch, ${formData.name}!`,
@@ -1505,7 +1580,7 @@ export default function Signup() {
         }
 
         if (data.debugCode) {
-          console.log(`📧 Resent email verification code: ${data.debugCode}`);
+          console.log(`�� Resent email verification code: ${data.debugCode}`);
         }
 
         setResendTimer(60);
@@ -1596,8 +1671,8 @@ export default function Signup() {
     profile: "Help others find you on Music Catch",
     verification: "Check your email and click the verification link",
     password: "Choose a secure password for your account",
-    dob: "We need your date of birth to verify your age",
-    profileImage: "Upload a photo to personalize your profile (optional)",
+    dob: "You must be 18 or older to register",
+    profileImage: "Click the circle to upload your profile picture (optional)",
     gender: "Help us personalize your experience",
     bio: "Share something interesting about yourself (optional)",
   };
@@ -1840,53 +1915,6 @@ export default function Signup() {
                     {errors.email}
                   </p>
                 )}
-
-                {/* Email Availability Checker */}
-                <AvailabilityChecker
-                  value={formData.email}
-                  field="email"
-                  onCheck={async (field, value) => {
-                    try {
-                      const url = `/api/auth/check-availability?${field}=${encodeURIComponent(value)}`;
-                      console.log(`🌐 Making availability request to: ${url}`);
-
-                      const response = await fetch(url);
-                      console.log(`📡 Response status: ${response.status}`);
-
-                      const data = await response.json();
-                      console.log(`📊 Response data:`, data);
-
-                      if (!response.ok) {
-                        console.error(
-                          `❌ HTTP error! status: ${response.status}`,
-                          data,
-                        );
-                        // If it's a validation error, throw a specific error with the message
-                        if (response.status === 400 && data.message) {
-                          throw new Error(data.message);
-                        }
-                        throw new Error(
-                          `HTTP error! status: ${response.status}`,
-                        );
-                      }
-
-                      if (field === "email") {
-                        return data.emailAvailable === true;
-                      } else if (field === "username") {
-                        return data.usernameAvailable === true;
-                      }
-                      return false;
-                    } catch (error) {
-                      console.error(
-                        `❌ Email availability check failed:`,
-                        error,
-                      );
-                      return false;
-                    }
-                  }}
-                  className="mt-2"
-                  minLength={5}
-                />
               </div>
 
               <button
@@ -2453,7 +2481,7 @@ export default function Signup() {
                   {stepTitles.dob}
                 </h3>
                 <p className="text-slate-400 text-xs sm:text-sm px-2">
-                  {stepDescriptions.dob}
+                  You must be 18 or older to register
                 </p>
               </div>
 
@@ -2544,47 +2572,75 @@ export default function Signup() {
 
               <div className="space-y-4">
                 <div className="flex justify-center">
-                  <div className="w-24 h-24 sm:w-32 sm:h-32 bg-purple-dark/50 border-2 border-dashed border-purple-primary/40 rounded-full flex items-center justify-center">
+                  <div
+                    className="w-24 h-24 sm:w-32 sm:h-32 bg-purple-dark/50 border-2 border-dashed border-purple-primary/40 rounded-full flex items-center justify-center cursor-pointer hover:border-purple-primary/60 hover:bg-purple-primary/10 transition-all duration-200 group"
+                    onClick={() => {
+                      const input = document.getElementById(
+                        "profile-image-input",
+                      ) as HTMLInputElement;
+                      if (input) input.click();
+                    }}
+                  >
                     {formData.profileImage ? (
-                      <img
-                        src={URL.createObjectURL(formData.profileImage)}
-                        alt="Profile preview"
-                        className="w-full h-full rounded-full object-cover"
-                      />
-                    ) : (
-                      <svg
-                        className="w-8 h-8 sm:w-12 sm:h-12 text-purple-primary/60"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                      <div className="relative w-full h-full">
+                        <img
+                          src={URL.createObjectURL(formData.profileImage)}
+                          alt="Profile preview"
+                          className="w-full h-full rounded-full object-cover"
                         />
-                      </svg>
+                        <div className="absolute inset-0 bg-black/40 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center justify-center">
+                          <svg
+                            className="w-6 h-6 text-white"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="text-center">
+                        <svg
+                          className="w-8 h-8 sm:w-12 sm:h-12 text-purple-primary/60 group-hover:text-purple-primary transition-colors duration-200 mx-auto mb-1"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                          />
+                        </svg>
+                        <p className="text-xs text-purple-primary/60 group-hover:text-purple-primary transition-colors duration-200">
+                          Click to upload
+                        </p>
+                      </div>
                     )}
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-white text-sm font-medium mb-2">
-                    Upload Profile Picture
-                  </label>
                   <input
+                    id="profile-image-input"
                     type="file"
                     accept="image/*"
                     onChange={(e) => {
                       const file = e.target.files?.[0] || null;
                       setFormData((prev) => ({ ...prev, profileImage: file }));
                     }}
-                    className="w-full h-12 sm:h-14 bg-purple-dark/30 border border-purple-primary/30 rounded-xl px-3 sm:px-4 text-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-purple-primary file:text-white hover:file:bg-purple-secondary focus:outline-none focus:border-purple-primary focus:ring-2 focus:ring-purple-primary/20 transition-all duration-200 text-sm sm:text-base backdrop-blur-sm"
+                    className="hidden"
                     disabled={isLoading}
                   />
                   {errors.profileImage && (
-                    <p className="text-red-400 text-xs sm:text-sm mt-2 flex items-center">
+                    <p className="text-red-400 text-xs sm:text-sm mt-2 flex items-center justify-center">
                       <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                       {errors.profileImage}
                     </p>

@@ -19,6 +19,9 @@ import {
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
+import { useFirebase } from "../context/FirebaseContext";
+import { auth, db } from "../lib/firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 // Featured Artist/Album of the Day
 const featuredContent = {
@@ -246,6 +249,8 @@ const glowVariants = {
 export default function Home() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user: firebaseUser, loading: authLoading } = useFirebase();
+
   const [currentSong, setCurrentSong] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [likedSongs, setLikedSongs] = useState<Set<string>>(new Set());
@@ -254,6 +259,8 @@ export default function Home() {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [userAvatar, setUserAvatar] = useState<string | null>(null);
+  const [userData, setUserData] = useState<any>(null);
+  const [userDataLoading, setUserDataLoading] = useState(false);
 
   // Update time for greeting
   useEffect(() => {
@@ -261,32 +268,103 @@ export default function Home() {
     return () => clearInterval(timer);
   }, []);
 
-  // Load user avatar from localStorage
+  // Load user data when Firebase user is available
   useEffect(() => {
-    const savedAvatar = localStorage.getItem("userAvatar");
-    if (savedAvatar) {
-      setUserAvatar(savedAvatar);
-    }
-  }, []);
+    const loadUserData = async () => {
+      if (firebaseUser && !authLoading) {
+        setUserDataLoading(true);
+        try {
+          // Try to load from Firestore first
+          if (db) {
+            const userDocRef = doc(db, "users", firebaseUser.uid);
+            const userDoc = await getDoc(userDocRef);
 
-  // Listen for avatar updates
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const savedAvatar = localStorage.getItem("userAvatar");
-      setUserAvatar(savedAvatar);
+            if (userDoc.exists()) {
+              const firestoreData = userDoc.data();
+              console.log("✅ Loaded user data from Firestore:", firestoreData);
+              setUserData(firestoreData);
+              setUserAvatar(firestoreData.profileImageURL || firebaseUser.photoURL || null);
+            } else {
+              console.log("📝 No Firestore data, using Firebase user data");
+              // Use Firebase Auth data as fallback
+              setUserData({
+                name: firebaseUser.displayName || "User",
+                username: firebaseUser.email?.split("@")[0] || "user",
+                email: firebaseUser.email || "",
+                profileImageURL: firebaseUser.photoURL || "",
+              });
+              setUserAvatar(firebaseUser.photoURL || null);
+            }
+          } else {
+            // No Firestore, use Firebase Auth data
+            console.log("🔧 No Firestore available, using Firebase Auth data");
+            setUserData({
+              name: firebaseUser.displayName || "User",
+              username: firebaseUser.email?.split("@")[0] || "user",
+              email: firebaseUser.email || "",
+              profileImageURL: firebaseUser.photoURL || "",
+            });
+            setUserAvatar(firebaseUser.photoURL || null);
+          }
+        } catch (error) {
+          console.error("❌ Error loading user data:", error);
+          // Use Firebase Auth data as ultimate fallback
+          setUserData({
+            name: firebaseUser.displayName || "User",
+            username: firebaseUser.email?.split("@")[0] || "user",
+            email: firebaseUser.email || "",
+            profileImageURL: firebaseUser.photoURL || "",
+          });
+          setUserAvatar(firebaseUser.photoURL || null);
+        } finally {
+          setUserDataLoading(false);
+        }
+      } else if (!firebaseUser && !authLoading) {
+        // User is not authenticated, clear data
+        setUserData(null);
+        setUserAvatar(null);
+      }
     };
 
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
-  }, []);
+    loadUserData();
+  }, [firebaseUser, authLoading]);
+
+  // Fallback: Load user data from localStorage if no Firebase user
+  useEffect(() => {
+    if (!firebaseUser && !authLoading) {
+      const savedUserData = localStorage.getItem("currentUser");
+      const savedAvatar = localStorage.getItem("userAvatar");
+
+      if (savedUserData) {
+        try {
+          const parsedUserData = JSON.parse(savedUserData);
+          console.log("📱 Loaded user data from localStorage:", parsedUserData);
+          setUserData(parsedUserData);
+          setUserAvatar(parsedUserData.profileImageURL || savedAvatar || null);
+        } catch (error) {
+          console.error("Error parsing localStorage user data:", error);
+          if (savedAvatar) {
+            setUserAvatar(savedAvatar);
+          }
+        }
+      } else if (savedAvatar) {
+        setUserAvatar(savedAvatar);
+      }
+    }
+  }, [firebaseUser, authLoading]);
 
   // Get appropriate greeting
   const getGreeting = () => {
     const hour = currentTime.getHours();
-    if (hour >= 0 && hour < 6) return "Good Midnight";
-    if (hour < 12) return "Good Morning";
-    if (hour < 17) return "Good Afternoon";
-    return "Good Evening";
+    const userName = userData?.name || userData?.username || firebaseUser?.displayName || firebaseUser?.email?.split("@")[0] || "User";
+
+    let timeGreeting = "";
+    if (hour >= 0 && hour < 6) timeGreeting = "Good Midnight";
+    else if (hour < 12) timeGreeting = "Good Morning";
+    else if (hour < 17) timeGreeting = "Good Afternoon";
+    else timeGreeting = "Good Evening";
+
+    return `${timeGreeting}, ${userName}`;
   };
 
   const handlePlaySong = (songId: string) => {
