@@ -34,6 +34,7 @@ import {
   sendFirebaseEmailVerification,
   saveUserData,
   uploadProfileImage,
+  uploadProfileImageForSignup,
 } from "../lib/auth";
 import { auth, db } from "../lib/firebase";
 
