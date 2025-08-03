@@ -863,22 +863,32 @@ export default function Signup() {
 
         if (data.success) {
           setCurrentStep("verification");
-          toast({
-            title: "✉️ Verification email sent!",
-            description: `Check your email at ${formData.email} for a verification code.`,
-          });
+
+          // Show different messages based on whether email was actually sent
+          if (data.emailSent === false) {
+            toast({
+              title: "⚠️ Verification code ready",
+              description: `Email service unavailable. Check console for your verification code.`,
+              variant: "destructive",
+            });
+          } else {
+            toast({
+              title: "✉️ Verification email sent!",
+              description: `Check your email at ${formData.email} for a verification code.`,
+            });
+          }
 
           // For development, show code in console and preview URL
           if (data.debugCode) {
             console.log(`📧 Email verification code: ${data.debugCode}`);
+            toast({
+              title: "📧 Development Mode",
+              description: `Verification code: ${data.debugCode} (check console)`,
+              duration: 10000,
+            });
           }
           if (data.previewUrl) {
             console.log(`🔗 Email preview: ${data.previewUrl}`);
-            toast({
-              title: "📧 Development Mode",
-              description:
-                "Check console for email preview link and debug code",
-            });
           }
 
           setResendTimer(60);
