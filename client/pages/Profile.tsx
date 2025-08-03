@@ -510,24 +510,68 @@ export default function Profile() {
     }
   };
 
-  const handleSaveProfile = () => {
-    setProfile({
-      ...profile,
-      displayName: editForm.displayName,
-      username: editForm.username,
-      bio: editForm.bio,
-      location: editForm.location,
-      socialLinks: {
-        instagram: editForm.socialLinks.instagram || undefined,
-        twitter: editForm.socialLinks.twitter || undefined,
-        youtube: editForm.socialLinks.youtube || undefined,
-      },
-    });
-    setIsEditing(false);
-    toast({
-      title: "Profile Updated",
-      description: "Your profile has been successfully updated",
-    });
+  const handleSaveProfile = async () => {
+    if (!profile) return;
+
+    try {
+      setUploading(true);
+      const userId = localStorage.getItem('currentUserId') || 'user1';
+
+      const response = await fetch(`/api/profile/${userId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          displayName: editForm.displayName,
+          bio: editForm.bio,
+          socialLinks: {
+            instagram: editForm.socialLinks.instagram || undefined,
+            twitter: editForm.socialLinks.twitter || undefined,
+            youtube: editForm.socialLinks.youtube || undefined,
+          },
+        }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Update local state with saved data
+        setProfile({
+          ...profile,
+          displayName: editForm.displayName,
+          username: editForm.username,
+          bio: editForm.bio,
+          location: editForm.location,
+          socialLinks: {
+            instagram: editForm.socialLinks.instagram || undefined,
+            twitter: editForm.socialLinks.twitter || undefined,
+            youtube: editForm.socialLinks.youtube || undefined,
+          },
+        });
+
+        setIsEditing(false);
+        toast({
+          title: "Profile Updated",
+          description: "Your profile has been successfully updated",
+        });
+      } else {
+        toast({
+          title: "Update Failed",
+          description: data.message || "Failed to update profile",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast({
+        title: "Network Error",
+        description: "Please check your connection and try again",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleCancelEdit = () => {
