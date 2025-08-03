@@ -268,24 +268,76 @@ export default function Home() {
     return () => clearInterval(timer);
   }, []);
 
-  // Load user avatar from localStorage
+  // Load user data when Firebase user is available
   useEffect(() => {
-    const savedAvatar = localStorage.getItem("userAvatar");
-    if (savedAvatar) {
-      setUserAvatar(savedAvatar);
-    }
-  }, []);
+    const loadUserData = async () => {
+      if (firebaseUser && !authLoading) {
+        setUserDataLoading(true);
+        try {
+          // Try to load from Firestore first
+          if (db) {
+            const userDocRef = doc(db, "users", firebaseUser.uid);
+            const userDoc = await getDoc(userDocRef);
 
-  // Listen for avatar updates
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const savedAvatar = localStorage.getItem("userAvatar");
-      setUserAvatar(savedAvatar);
+            if (userDoc.exists()) {
+              const firestoreData = userDoc.data();
+              console.log("✅ Loaded user data from Firestore:", firestoreData);
+              setUserData(firestoreData);
+              setUserAvatar(firestoreData.profileImageURL || firebaseUser.photoURL || null);
+            } else {
+              console.log("📝 No Firestore data, using Firebase user data");
+              // Use Firebase Auth data as fallback
+              setUserData({
+                name: firebaseUser.displayName || "User",
+                username: firebaseUser.email?.split("@")[0] || "user",
+                email: firebaseUser.email || "",
+                profileImageURL: firebaseUser.photoURL || "",
+              });
+              setUserAvatar(firebaseUser.photoURL || null);
+            }
+          } else {
+            // No Firestore, use Firebase Auth data
+            console.log("🔧 No Firestore available, using Firebase Auth data");
+            setUserData({
+              name: firebaseUser.displayName || "User",
+              username: firebaseUser.email?.split("@")[0] || "user",
+              email: firebaseUser.email || "",
+              profileImageURL: firebaseUser.photoURL || "",
+            });
+            setUserAvatar(firebaseUser.photoURL || null);
+          }
+        } catch (error) {
+          console.error("❌ Error loading user data:", error);
+          // Use Firebase Auth data as ultimate fallback
+          setUserData({
+            name: firebaseUser.displayName || "User",
+            username: firebaseUser.email?.split("@")[0] || "user",
+            email: firebaseUser.email || "",
+            profileImageURL: firebaseUser.photoURL || "",
+          });
+          setUserAvatar(firebaseUser.photoURL || null);
+        } finally {
+          setUserDataLoading(false);
+        }
+      } else if (!firebaseUser && !authLoading) {
+        // User is not authenticated, clear data
+        setUserData(null);
+        setUserAvatar(null);
+      }
     };
 
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
-  }, []);
+    loadUserData();
+  }, [firebaseUser, authLoading]);
+
+  // Fallback: Load user avatar from localStorage if no Firebase user
+  useEffect(() => {
+    if (!firebaseUser && !authLoading) {
+      const savedAvatar = localStorage.getItem("userAvatar");
+      if (savedAvatar) {
+        setUserAvatar(savedAvatar);
+      }
+    }
+  }, [firebaseUser, authLoading]);
 
   // Get appropriate greeting
   const getGreeting = () => {
