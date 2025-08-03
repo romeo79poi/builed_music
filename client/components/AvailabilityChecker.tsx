@@ -26,12 +26,16 @@ export const AvailabilityChecker: React.FC<AvailabilityCheckerProps> = ({
   const [message, setMessage] = useState("");
 
   useEffect(() => {
+    console.log(`🔄 AvailabilityChecker useEffect - field: ${field}, value: "${value}", minLength: ${minLength}`);
+
     if (!value || value.length < minLength) {
+      console.log(`⏸️ Skipping check - value too short or empty`);
       setStatus("idle");
       setMessage("");
       return;
     }
 
+    console.log(`⏳ Starting availability check for ${field}: "${value}"`);
     setStatus("checking");
     setMessage("");
 
