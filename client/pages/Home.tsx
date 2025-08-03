@@ -249,6 +249,8 @@ const glowVariants = {
 export default function Home() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user: firebaseUser, loading: authLoading } = useFirebase();
+
   const [currentSong, setCurrentSong] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [likedSongs, setLikedSongs] = useState<Set<string>>(new Set());
@@ -257,6 +259,8 @@ export default function Home() {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [userAvatar, setUserAvatar] = useState<string | null>(null);
+  const [userData, setUserData] = useState<any>(null);
+  const [userDataLoading, setUserDataLoading] = useState(false);
 
   // Update time for greeting
   useEffect(() => {
