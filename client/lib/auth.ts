@@ -1141,6 +1141,9 @@ export const fetchUserData = async (userId: string): Promise<{
   userData?: any;
   error?: string;
 }> => {
+  console.log("🔍 fetchUserData called for userId:", userId);
+  console.log("🔍 Firebase config status:", { isFirebaseConfigured, hasAuth: !!auth, hasDb: !!db });
+
   try {
     if (!isFirebaseConfigured || !auth || !db) {
       console.warn("🔧 Development mode: Simulating user data fetch");
@@ -1160,6 +1163,7 @@ export const fetchUserData = async (userId: string): Promise<{
       return { success: true, userData: mockUserData };
     }
 
+    console.log("🔍 Attempting to fetch from Firestore...");
     const userRef = doc(db, "users", userId);
     const userDoc = await getDoc(userRef);
 
