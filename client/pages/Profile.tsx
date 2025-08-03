@@ -50,23 +50,14 @@ import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
 import { UserProfile as BackendUserProfile, Song } from "@shared/api";
 
-interface UserProfile {
-  id: string;
-  username: string;
-  displayName: string;
-  bio: string;
+// Use backend types
+type UserProfile = BackendUserProfile & {
   avatar: string;
   coverImage: string;
   location: string;
   website: string;
-  isVerified: boolean;
   isArtist: boolean;
   joinedDate: Date;
-  socialLinks: {
-    instagram?: string;
-    twitter?: string;
-    youtube?: string;
-  };
   stats: {
     followers: number;
     following: number;
@@ -76,7 +67,7 @@ interface UserProfile {
     monthlyListeners: number;
   };
   badges: string[];
-}
+};
 
 interface Track {
   id: string;
