@@ -37,7 +37,9 @@ export const AvailabilityChecker: React.FC<AvailabilityCheckerProps> = ({
 
     const timeoutId = setTimeout(async () => {
       try {
+        console.log(`🔍 Checking ${field} availability for: "${value}"`);
         const isAvailable = await onCheck(field, value);
+        console.log(`✅ ${field} availability result:`, isAvailable);
 
         if (isAvailable) {
           setStatus("available");
@@ -53,7 +55,7 @@ export const AvailabilityChecker: React.FC<AvailabilityCheckerProps> = ({
       } catch (error) {
         setStatus("error");
         setMessage("Unable to check availability");
-        console.error(`Error checking ${field} availability:`, error);
+        console.error(`❌ Error checking ${field} availability for "${value}":`, error);
       }
     }, debounceMs);
 
