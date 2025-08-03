@@ -267,7 +267,13 @@ export const signUpWithEmailAndPassword = async (
         verified: false, // New users start unverified
       };
 
-      await setDoc(doc(db, "users", user.uid), userDocData);
+      try {
+        await setDoc(doc(db, "users", user.uid), userDocData);
+        console.log("✅ User data saved to Firestore successfully");
+      } catch (firestoreError: any) {
+        console.warn("⚠️ Firestore write failed, continuing without saving user data:", firestoreError.code);
+        // Continue even if Firestore write fails - user account is still created in Auth
+      }
 
       return { success: true, user };
     } catch (firebaseError: any) {
@@ -276,6 +282,9 @@ export const signUpWithEmailAndPassword = async (
         firebaseError.code === "auth/project-not-found" ||
         firebaseError.code === "auth/invalid-api-key" ||
         firebaseError.code === "auth/network-request-failed" ||
+        firebaseError.code === "permission-denied" ||
+        firebaseError.code === "firestore/permission-denied" ||
+        firebaseError.message?.includes("Missing or insufficient permissions") ||
         firebaseError.message?.includes("Firebase project") ||
         firebaseError.message?.includes("API key not valid") ||
         firebaseError.message?.includes("network request failed")
