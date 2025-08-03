@@ -652,6 +652,23 @@ export default function Signup() {
           }
         }
 
+        // Save Google user data to localStorage for immediate access
+        const googleUserData = {
+          uid: result.user.uid,
+          email: result.user.email || "",
+          name: displayName,
+          username: result.user.email?.split("@")[0] || "user",
+          profileImageURL: result.user.photoURL || "",
+          dateOfBirth: "",
+          gender: "",
+          bio: "",
+        };
+
+        localStorage.setItem("currentUser", JSON.stringify(googleUserData));
+        localStorage.setItem("userAvatar", result.user.photoURL || "");
+
+        console.log("💾 Saved Google user data to localStorage:", googleUserData);
+
         // Navigate after a short delay to show success message
         setTimeout(() => {
           navigate("/home");
@@ -800,6 +817,23 @@ export default function Signup() {
             );
           }
         }
+
+        // Save Facebook user data to localStorage for immediate access
+        const facebookUserData = {
+          uid: result.user.uid,
+          email: result.user.email || "",
+          name: displayName,
+          username: result.user.email?.split("@")[0] || "user",
+          profileImageURL: result.user.photoURL || "",
+          dateOfBirth: "",
+          gender: "",
+          bio: "",
+        };
+
+        localStorage.setItem("currentUser", JSON.stringify(facebookUserData));
+        localStorage.setItem("userAvatar", result.user.photoURL || "");
+
+        console.log("💾 Saved Facebook user data to localStorage:", facebookUserData);
 
         // Navigate after a short delay to show success message
         setTimeout(() => {
@@ -1527,7 +1561,7 @@ export default function Signup() {
         }
 
         if (data.debugCode) {
-          console.log(`📧 Resent email verification code: ${data.debugCode}`);
+          console.log(`�� Resent email verification code: ${data.debugCode}`);
         }
 
         setResendTimer(60);
