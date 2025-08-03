@@ -1718,6 +1718,14 @@ export default function Signup() {
             >
               <div className="text-center mb-4 sm:mb-6" />
 
+              {/* Divider */}
+              <div className="flex items-center my-4">
+                <div className="flex-1 h-px bg-slate-600"></div>
+                <span className="px-3 text-slate-400 text-xs sm:text-sm">
+                  or
+                </span>
+                <div className="flex-1 h-px bg-slate-600"></div>
+              </div>
 
 
               {/* Loading State Reset */}
