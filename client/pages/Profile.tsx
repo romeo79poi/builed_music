@@ -1068,6 +1068,9 @@ export default function Profile() {
                   <p className="text-xs text-muted-foreground mb-1">
                     @{profile.username}
                   </p>
+                  <p className="text-xs text-muted-foreground mb-1">
+                    {profile.email}
+                  </p>
                   <p className="text-xs text-foreground leading-relaxed mb-2">
                     {profile.bio}
                   </p>
