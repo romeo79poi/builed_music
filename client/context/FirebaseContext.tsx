@@ -108,7 +108,7 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
           projectId: "music-catch-59b79",
           storageBucket: "music-catch-59b79.firebasestorage.app",
           messagingSenderId: "185813176462",
-          appId: "1:185813176462:web:8269607d16eb315f55b9df"
+          appId: "1:185813176462:web:8269607d16eb315f55b9df",
         };
 
         const app = initializeApp(firebaseConfig);
@@ -156,7 +156,7 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
           projectId: "music-catch-59b79",
           storageBucket: "music-catch-59b79.firebasestorage.app",
           messagingSenderId: "185813176462",
-          appId: "1:185813176462:web:8269607d16eb315f55b9df"
+          appId: "1:185813176462:web:8269607d16eb315f55b9df",
         };
 
         const app = initializeApp(firebaseConfig);
@@ -197,7 +197,7 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
           projectId: "music-catch-59b79",
           storageBucket: "music-catch-59b79.firebasestorage.app",
           messagingSenderId: "185813176462",
-          appId: "1:185813176462:web:8269607d16eb315f55b9df"
+          appId: "1:185813176462:web:8269607d16eb315f55b9df",
         };
 
         const app = initializeApp(firebaseConfig);

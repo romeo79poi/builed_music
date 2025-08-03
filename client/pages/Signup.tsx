@@ -264,7 +264,10 @@ export default function Signup() {
 
     // More precise age calculation
     let actualAge = age;
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && today.getDate() < birthDate.getDate())
+    ) {
       actualAge--;
     }
 
@@ -667,7 +670,10 @@ export default function Signup() {
         localStorage.setItem("currentUser", JSON.stringify(googleUserData));
         localStorage.setItem("userAvatar", result.user.photoURL || "");
 
-        console.log("💾 Saved Google user data to localStorage:", googleUserData);
+        console.log(
+          "💾 Saved Google user data to localStorage:",
+          googleUserData,
+        );
 
         // Navigate after a short delay to show success message
         setTimeout(() => {
@@ -833,7 +839,10 @@ export default function Signup() {
         localStorage.setItem("currentUser", JSON.stringify(facebookUserData));
         localStorage.setItem("userAvatar", result.user.photoURL || "");
 
-        console.log("💾 Saved Facebook user data to localStorage:", facebookUserData);
+        console.log(
+          "💾 Saved Facebook user data to localStorage:",
+          facebookUserData,
+        );
 
         // Navigate after a short delay to show success message
         setTimeout(() => {
@@ -1201,39 +1210,49 @@ export default function Signup() {
             );
 
             if (result.success) {
-          // Store user for email verification
-          if (result.user) {
-            setVerificationUser(result.user);
-            setEmailVerificationSent(true);
+              // Store user for email verification
+              if (result.user) {
+                setVerificationUser(result.user);
+                setEmailVerificationSent(true);
 
-            // Save user data to localStorage for immediate access
-            const completeUserData = {
-              uid: result.user.uid,
-              email: formData.email,
-              name: formData.name,
-              username: formData.username,
-              profileImageURL: formData.profileImageURL || result.user.photoURL || "",
-              dateOfBirth: formData.dateOfBirth,
-              gender: formData.gender,
-              bio: formData.bio,
-            };
+                // Save user data to localStorage for immediate access
+                const completeUserData = {
+                  uid: result.user.uid,
+                  email: formData.email,
+                  name: formData.name,
+                  username: formData.username,
+                  profileImageURL:
+                    formData.profileImageURL || result.user.photoURL || "",
+                  dateOfBirth: formData.dateOfBirth,
+                  gender: formData.gender,
+                  bio: formData.bio,
+                };
 
-            localStorage.setItem("currentUser", JSON.stringify(completeUserData));
-            localStorage.setItem("userAvatar", formData.profileImageURL || result.user.photoURL || "");
+                localStorage.setItem(
+                  "currentUser",
+                  JSON.stringify(completeUserData),
+                );
+                localStorage.setItem(
+                  "userAvatar",
+                  formData.profileImageURL || result.user.photoURL || "",
+                );
 
-            console.log("💾 Saved Firebase user data to localStorage:", completeUserData);
-          }
+                console.log(
+                  "💾 Saved Firebase user data to localStorage:",
+                  completeUserData,
+                );
+              }
 
-          toast({
-            title: "Account created successfully! 🎉",
-            description: `Welcome to Music Catch, ${formData.name}! Please check your email for verification.`,
-          });
+              toast({
+                title: "Account created successfully! 🎉",
+                description: `Welcome to Music Catch, ${formData.name}! Please check your email for verification.`,
+              });
 
-          console.log("✅ User created with Firebase:", result.user);
+              console.log("✅ User created with Firebase:", result.user);
 
-          setTimeout(() => {
-            navigate("/home");
-          }, 2000);
+              setTimeout(() => {
+                navigate("/home");
+              }, 2000);
             } else {
               setErrorAlert(
                 result.error || "Registration failed. Please try again.",
@@ -1313,13 +1332,13 @@ export default function Signup() {
 
         toast({
           title: "Profile image selected! ✅",
-          description: "Your profile picture will be uploaded after account creation.",
+          description:
+            "Your profile picture will be uploaded after account creation.",
         });
       }
 
       // Always proceed to next step (profile image is optional)
       setCurrentStep("gender");
-
     } catch (error) {
       console.error("Profile image step error:", error);
 
@@ -1776,7 +1795,6 @@ export default function Signup() {
                 <div className="flex-1 h-px bg-slate-600"></div>
               </div>
 
-
               {/* Loading State Reset */}
               {isLoading && (
                 <div className="bg-yellow-500/10 border border-yellow-500 rounded-lg p-4 mb-4">
@@ -1897,8 +1915,6 @@ export default function Signup() {
                     {errors.email}
                   </p>
                 )}
-
-
               </div>
 
               <button
@@ -2559,7 +2575,9 @@ export default function Signup() {
                   <div
                     className="w-24 h-24 sm:w-32 sm:h-32 bg-purple-dark/50 border-2 border-dashed border-purple-primary/40 rounded-full flex items-center justify-center cursor-pointer hover:border-purple-primary/60 hover:bg-purple-primary/10 transition-all duration-200 group"
                     onClick={() => {
-                      const input = document.getElementById('profile-image-input') as HTMLInputElement;
+                      const input = document.getElementById(
+                        "profile-image-input",
+                      ) as HTMLInputElement;
                       if (input) input.click();
                     }}
                   >
@@ -2601,7 +2619,9 @@ export default function Signup() {
                             d="M12 6v6m0 0v6m0-6h6m-6 0H6"
                           />
                         </svg>
-                        <p className="text-xs text-purple-primary/60 group-hover:text-purple-primary transition-colors duration-200">Click to upload</p>
+                        <p className="text-xs text-purple-primary/60 group-hover:text-purple-primary transition-colors duration-200">
+                          Click to upload
+                        </p>
                       </div>
                     )}
                   </div>
