@@ -60,6 +60,49 @@ const mockSupabase = {
   },
 
   async checkUsernameAvailability(username: string) {
+    // Username validation
+    if (!username || username.length < 3) {
+      return {
+        available: false,
+        error: {
+          code: "INVALID_USERNAME",
+          message: "Username must be at least 3 characters long"
+        }
+      };
+    }
+
+    if (username.length > 20) {
+      return {
+        available: false,
+        error: {
+          code: "INVALID_USERNAME",
+          message: "Username must be 20 characters or less"
+        }
+      };
+    }
+
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+      return {
+        available: false,
+        error: {
+          code: "INVALID_USERNAME",
+          message: "Username can only contain letters, numbers, and underscores"
+        }
+      };
+    }
+
+    // Check if reserved username
+    const reservedUsernames = ['admin', 'root', 'api', 'www', 'mail', 'ftp', 'localhost', 'test', 'demo', 'support', 'help'];
+    if (reservedUsernames.includes(username.toLowerCase())) {
+      return {
+        available: false,
+        error: {
+          code: "RESERVED_USERNAME",
+          message: "This username is reserved"
+        }
+      };
+    }
+
     const user = users.get(username);
     return { available: !user, error: null };
   },
