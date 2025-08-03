@@ -120,7 +120,7 @@ export const PasswordStrengthIndicator: React.FC<
       </div>
 
       {/* Security Tips */}
-      {strength >= 90 && (
+      {strength >= 100 && (
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
