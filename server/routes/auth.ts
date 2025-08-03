@@ -242,8 +242,12 @@ export const checkAvailability: RequestHandler = async (req, res) => {
       );
 
       if (error) {
-        console.error(`❌ Error checking username availability:`, error);
-        throw error;
+        console.error(`❌ Username validation error:`, error);
+        return res.status(400).json({
+          success: false,
+          message: error.message,
+          code: error.code,
+        });
       }
 
       result.usernameAvailable = available;
