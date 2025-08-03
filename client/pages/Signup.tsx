@@ -573,11 +573,8 @@ export default function Signup() {
           emailVerified: result.user.emailVerified,
         });
 
-        // If this is a new user and we're in development mode, also register with backend
-        if (
-          (result.isNewUser && result.user.email?.includes("demo")) ||
-          result.user.email?.includes("dev")
-        ) {
+        // Register new Google users with backend
+        if (result.isNewUser) {
           try {
             const backendResponse = await fetch("/api/auth/register", {
               method: "POST",
@@ -1101,7 +1098,7 @@ export default function Signup() {
               }
 
               toast({
-                title: "Account created successfully! 🎉",
+                title: "Account created successfully! ���",
                 description: `Welcome to Music Catch, ${formData.name}! Please check your email for verification.`,
               });
 
