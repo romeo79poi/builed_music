@@ -564,27 +564,12 @@ export default function Profile() {
 
     try {
       setUploading(true);
-      const userId = localStorage.getItem('currentUserId') || 'user1';
+      const userId = localStorage.getItem('currentUserId') || profile.id;
 
-      const response = await fetch(`/api/profile/${userId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          displayName: editForm.displayName,
-          bio: editForm.bio,
-          socialLinks: {
-            instagram: editForm.socialLinks.instagram || undefined,
-            twitter: editForm.socialLinks.twitter || undefined,
-            youtube: editForm.socialLinks.youtube || undefined,
-          },
-        }),
-      });
+      // Use the updateUserProfile function from auth library
+      const result = await updateUserProfile(userId, editForm.bio, profile.avatar);
 
-      const data = await response.json();
-
-      if (data.success) {
+      if (result.success) {
         // Update local state with saved data
         setProfile({
           ...profile,
@@ -602,12 +587,14 @@ export default function Profile() {
         setIsEditing(false);
         toast({
           title: "Profile Updated",
-          description: "Your profile has been successfully updated",
+          description: "Your profile has been successfully updated using auth library",
         });
+
+        console.log("✅ Profile updated using updateUserProfile function");
       } else {
         toast({
           title: "Update Failed",
-          description: data.message || "Failed to update profile",
+          description: result.error || "Failed to update profile",
           variant: "destructive",
         });
       }
