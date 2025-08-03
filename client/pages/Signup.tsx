@@ -1167,22 +1167,39 @@ export default function Signup() {
             );
 
             if (result.success) {
-              // Store user for email verification
-              if (result.user) {
-                setVerificationUser(result.user);
-                setEmailVerificationSent(true);
-              }
+          // Store user for email verification
+          if (result.user) {
+            setVerificationUser(result.user);
+            setEmailVerificationSent(true);
 
-              toast({
-                title: "Account created successfully! 🎉",
-                description: `Welcome to Music Catch, ${formData.name}! Please check your email for verification.`,
-              });
+            // Save user data to localStorage for immediate access
+            const completeUserData = {
+              uid: result.user.uid,
+              email: formData.email,
+              name: formData.name,
+              username: formData.username,
+              profileImageURL: formData.profileImageURL || result.user.photoURL || "",
+              dateOfBirth: formData.dateOfBirth,
+              gender: formData.gender,
+              bio: formData.bio,
+            };
 
-              console.log("✅ User created with Firebase:", result.user);
+            localStorage.setItem("currentUser", JSON.stringify(completeUserData));
+            localStorage.setItem("userAvatar", formData.profileImageURL || result.user.photoURL || "");
 
-              setTimeout(() => {
-                navigate("/home");
-              }, 2000);
+            console.log("💾 Saved Firebase user data to localStorage:", completeUserData);
+          }
+
+          toast({
+            title: "Account created successfully! 🎉",
+            description: `Welcome to Music Catch, ${formData.name}! Please check your email for verification.`,
+          });
+
+          console.log("✅ User created with Firebase:", result.user);
+
+          setTimeout(() => {
+            navigate("/home");
+          }, 2000);
             } else {
               setErrorAlert(
                 result.error || "Registration failed. Please try again.",
