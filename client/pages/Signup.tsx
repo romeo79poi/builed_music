@@ -1814,13 +1814,17 @@ export default function Signup() {
                       const response = await fetch(url);
                       console.log(`📡 Response status: ${response.status}`);
 
-                      if (!response.ok) {
-                        console.error(`❌ HTTP error! status: ${response.status}`);
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                      }
-
                       const data = await response.json();
                       console.log(`📊 Response data:`, data);
+
+                      if (!response.ok) {
+                        console.error(`❌ HTTP error! status: ${response.status}`, data);
+                        // If it's a validation error, throw a specific error with the message
+                        if (response.status === 400 && data.message) {
+                          throw new Error(data.message);
+                        }
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                      }
 
                       if (field === "email") {
                         return data.emailAvailable === true;
@@ -2102,13 +2106,17 @@ export default function Signup() {
                       const response = await fetch(url);
                       console.log(`📡 Response status: ${response.status}`);
 
-                      if (!response.ok) {
-                        console.error(`❌ HTTP error! status: ${response.status}`);
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                      }
-
                       const data = await response.json();
                       console.log(`📊 Response data:`, data);
+
+                      if (!response.ok) {
+                        console.error(`❌ HTTP error! status: ${response.status}`, data);
+                        // If it's a validation error, throw a specific error with the message
+                        if (response.status === 400 && data.message) {
+                          throw new Error(data.message);
+                        }
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                      }
 
                       if (field === "email") {
                         return data.emailAvailable === true;
