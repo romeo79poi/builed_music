@@ -164,33 +164,60 @@ export const registerUser: RequestHandler = async (req, res) => {
 export const checkAvailability: RequestHandler = async (req, res) => {
   try {
     const { email, username } = req.query;
+    console.log(`🔍 Availability check request - email: ${email}, username: ${username}`);
+
+    if (!email && !username) {
+      console.warn("⚠️ No email or username provided in availability check");
+      return res.status(400).json({
+        success: false,
+        message: "Email or username parameter is required",
+      });
+    }
 
     const result: { emailAvailable?: boolean; usernameAvailable?: boolean } =
       {};
 
     if (email) {
-      const { available } = await mockSupabase.checkEmailAvailability(
+      console.log(`📧 Checking email availability: ${email}`);
+      const { available, error } = await mockSupabase.checkEmailAvailability(
         email.toString(),
       );
+
+      if (error) {
+        console.error(`❌ Error checking email availability:`, error);
+        throw error;
+      }
+
       result.emailAvailable = available;
+      console.log(`✅ Email ${email} availability: ${available}`);
     }
 
     if (username) {
-      const { available } = await mockSupabase.checkUsernameAvailability(
+      console.log(`👤 Checking username availability: ${username}`);
+      const { available, error } = await mockSupabase.checkUsernameAvailability(
         username.toString(),
       );
+
+      if (error) {
+        console.error(`❌ Error checking username availability:`, error);
+        throw error;
+      }
+
       result.usernameAvailable = available;
+      console.log(`✅ Username ${username} availability: ${available}`);
     }
 
+    console.log(`📊 Final availability result:`, result);
     res.json({
       success: true,
       ...result,
     });
   } catch (error) {
-    console.error("Availability check error:", error);
+    console.error("❌ Availability check error:", error);
     res.status(500).json({
       success: false,
       message: "Internal server error",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 };
