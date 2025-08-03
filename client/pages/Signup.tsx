@@ -349,10 +349,40 @@ export default function Signup() {
               email: "Email is already registered",
             }));
           }
+
+          if (field === "username" && !data.usernameAvailable) {
+            setErrors((prev) => ({
+              ...prev,
+              username: "Username is already taken",
+            }));
+          }
+        } else {
+          // Handle validation errors from backend
+          console.error(`❌ ${field} validation error:`, data.message);
+          setErrors((prev) => ({
+            ...prev,
+            [field]: data.message || `Invalid ${field}`,
+          }));
+
+          // Set availability to false for validation errors
+          setAvailability((prev) => ({
+            ...prev,
+            [field]: false,
+          }));
         }
       }
     } catch (error) {
       console.error("Availability check failed:", error);
+      setErrors((prev) => ({
+        ...prev,
+        [field]: `Unable to verify ${field}`,
+      }));
+
+      // Set availability to false for network errors
+      setAvailability((prev) => ({
+        ...prev,
+        [field]: false,
+      }));
     }
   };
 
