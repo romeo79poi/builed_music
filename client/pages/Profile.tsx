@@ -405,7 +405,15 @@ export default function Profile() {
       const data = await response.json();
 
       if (data.success) {
-        setTracks(data.songs || sampleTracks);
+        // Ensure all songs have required properties with defaults
+        const safeSongs = (data.songs || []).map((song: any) => ({
+          ...song,
+          plays: song.plays || 0,
+          likes: song.likes || 0,
+          comments: song.comments || 0,
+          duration: song.duration || 0,
+        }));
+        setTracks(safeSongs.length > 0 ? safeSongs : sampleTracks);
       } else {
         setTracks(sampleTracks);
       }
