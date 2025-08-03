@@ -1246,60 +1246,40 @@ export default function Signup() {
   };
 
   const handleProfileImageStep = async () => {
-    // If user selected an image, upload it first
-    if (formData.profileImage) {
-      setIsLoading(true);
-      try {
-        const uploadResult = await uploadProfileImageForSignup(formData.profileImage);
+    setIsLoading(true);
 
-        if (uploadResult.success) {
-          // Update form data with the uploaded image URL
-          setFormData((prev) => ({
-            ...prev,
-            profileImageURL: uploadResult.imageURL || "",
-          }));
+    try {
+      // If user selected an image, store it for later use (skip upload during signup)
+      if (formData.profileImage) {
+        // Create a temporary URL for preview
+        const imageURL = URL.createObjectURL(formData.profileImage);
 
-          toast({
-            title: "Profile image uploaded! ✅",
-            description: "Your profile picture has been saved successfully.",
-          });
-        } else {
-          setErrors((prev) => ({
-            ...prev,
-            profileImage: uploadResult.error || "Failed to upload image",
-          }));
-
-          toast({
-            title: "Upload failed",
-            description: uploadResult.error || "Failed to upload profile image",
-            variant: "destructive",
-          });
-
-          setIsLoading(false);
-          return; // Don't proceed to next step if upload failed
-        }
-      } catch (error) {
-        console.error("Profile image upload error:", error);
-        setErrors((prev) => ({
+        // Update form data with the image URL for preview
+        setFormData((prev) => ({
           ...prev,
-          profileImage: "Failed to upload image",
+          profileImageURL: imageURL,
         }));
 
         toast({
-          title: "Upload error",
-          description: "An error occurred while uploading your profile image",
-          variant: "destructive",
+          title: "Profile image selected! ✅",
+          description: "Your profile picture will be uploaded after account creation.",
         });
-
-        setIsLoading(false);
-        return;
-      } finally {
-        setIsLoading(false);
       }
-    }
 
-    // Proceed to next step
-    setCurrentStep("gender");
+      // Always proceed to next step (profile image is optional)
+      setCurrentStep("gender");
+
+    } catch (error) {
+      console.error("Profile image step error:", error);
+
+      toast({
+        title: "Error",
+        description: "Something went wrong. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleGenderStep = () => {
