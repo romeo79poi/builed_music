@@ -1128,7 +1128,7 @@ export default function Signup() {
 
         if (data.success) {
           toast({
-            title: "Account created successfully! 🎉",
+            title: "Account created successfully! ����",
             description: `Welcome to Music Catch, ${data.user.name}!`,
           });
 
@@ -2209,13 +2209,8 @@ export default function Signup() {
                 </p>
               </div>
 
-              <div className="text-center">
-                <p className="text-white mb-2 text-sm sm:text-base">
-                  Verification code sent to:
-                </p>
-                <p className="text-purple-primary font-medium text-sm sm:text-base break-all">
-                  {formData.email}
-                </p>
+              <div className="text-center text-purple-primary text-sm break-all mt-4">
+                {formData.email}
               </div>
 
               <div>
