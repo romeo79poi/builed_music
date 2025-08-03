@@ -33,16 +33,12 @@ export const PasswordStrengthIndicator: React.FC<
   const strength = passedRules.reduce((total, rule) => total + rule.weight, 0);
 
   const getStrengthColor = (strength: number) => {
-    if (strength < 40) return "from-red-500 to-red-600";
-    if (strength < 70) return "from-yellow-500 to-orange-500";
-    if (strength < 90) return "from-blue-500 to-blue-600";
+    if (strength < 100) return "from-red-500 to-red-600";
     return "from-neon-green to-neon-blue";
   };
 
   const getStrengthLabel = (strength: number) => {
-    if (strength < 40) return { label: "Weak", color: "text-red-400" };
-    if (strength < 70) return { label: "Fair", color: "text-yellow-400" };
-    if (strength < 90) return { label: "Good", color: "text-blue-400" };
+    if (strength < 100) return { label: "Too Short", color: "text-red-400" };
     return { label: "Strong", color: "text-neon-green" };
   };
 
