@@ -97,6 +97,7 @@ const sampleProfile: UserProfile = {
   id: "user1",
   username: "alexmusic",
   displayName: "Alex Johnson",
+  email: "alex@alexmusic.com",
   bio: "Music producer & artist 🎵 | Creating beats that move souls | Collabs welcome 💫 | Stream my latest tracks below ⬇️",
   avatar:
     "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop",
