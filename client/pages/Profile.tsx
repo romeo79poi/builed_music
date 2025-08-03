@@ -296,16 +296,159 @@ export default function Profile() {
   // Edit states
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
-    displayName: profile.displayName,
-    username: profile.username,
-    bio: profile.bio,
-    location: profile.location,
+    displayName: "",
+    username: "",
+    bio: "",
+    location: "",
     socialLinks: {
-      instagram: profile.socialLinks.instagram || "",
-      twitter: profile.socialLinks.twitter || "",
-      youtube: profile.socialLinks.youtube || "",
+      instagram: "",
+      twitter: "",
+      youtube: "",
     },
   });
+
+  // Fetch profile data from backend
+  const fetchProfile = async () => {
+    try {
+      setLoading(true);
+
+      // Get current user ID (you might store this in localStorage or context)
+      const userId = localStorage.getItem('currentUserId') || 'user1';
+
+      const response = await fetch(`/api/profile/${userId}`);
+      const data = await response.json();
+
+      if (data.success) {
+        // Transform backend data to match our local interface
+        const transformedProfile: UserProfile = {
+          ...data.profile,
+          avatar: data.profile.profilePicture || sampleProfile.avatar,
+          coverImage: sampleProfile.coverImage, // Use sample for now
+          location: sampleProfile.location, // Use sample for now
+          website: sampleProfile.website, // Use sample for now
+          isArtist: sampleProfile.isArtist, // Use sample for now
+          joinedDate: new Date(data.profile.joinDate),
+          stats: {
+            followers: data.profile.followers,
+            following: data.profile.following,
+            totalPlays: sampleProfile.stats.totalPlays, // Use sample for now
+            totalTracks: data.profile.playlists?.length || 0,
+            totalPlaylists: data.profile.playlists?.length || 0,
+            monthlyListeners: sampleProfile.stats.monthlyListeners, // Use sample for now
+          },
+          badges: sampleProfile.badges, // Use sample for now
+        };
+
+        setProfile(transformedProfile);
+
+        // Update edit form
+        setEditForm({
+          displayName: transformedProfile.displayName,
+          username: transformedProfile.username,
+          bio: transformedProfile.bio,
+          location: transformedProfile.location || "",
+          socialLinks: {
+            instagram: transformedProfile.socialLinks.instagram || "",
+            twitter: transformedProfile.socialLinks.twitter || "",
+            youtube: transformedProfile.socialLinks.youtube || "",
+          },
+        });
+
+        console.log("✅ Profile data loaded:", transformedProfile);
+      } else {
+        // Fallback to sample data if backend fails
+        setProfile(sampleProfile);
+        setEditForm({
+          displayName: sampleProfile.displayName,
+          username: sampleProfile.username,
+          bio: sampleProfile.bio,
+          location: sampleProfile.location,
+          socialLinks: {
+            instagram: sampleProfile.socialLinks.instagram || "",
+            twitter: sampleProfile.socialLinks.twitter || "",
+            youtube: sampleProfile.socialLinks.youtube || "",
+          },
+        });
+        console.warn("⚠️ Using sample profile data");
+      }
+    } catch (error) {
+      console.error("❌ Error fetching profile:", error);
+      // Fallback to sample data
+      setProfile(sampleProfile);
+      setEditForm({
+        displayName: sampleProfile.displayName,
+        username: sampleProfile.username,
+        bio: sampleProfile.bio,
+        location: sampleProfile.location,
+        socialLinks: {
+          instagram: sampleProfile.socialLinks.instagram || "",
+          twitter: sampleProfile.socialLinks.twitter || "",
+          youtube: sampleProfile.socialLinks.youtube || "",
+        },
+      });
+
+      toast({
+        title: "Error loading profile",
+        description: "Using demo data. Check your connection.",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fetch liked songs
+  const fetchLikedSongs = async () => {
+    try {
+      const userId = localStorage.getItem('currentUserId') || 'user1';
+      const response = await fetch(`/api/profile/${userId}/liked-songs`);
+      const data = await response.json();
+
+      if (data.success) {
+        setTracks(data.songs || sampleTracks);
+      } else {
+        setTracks(sampleTracks);
+      }
+    } catch (error) {
+      console.error("Error fetching liked songs:", error);
+      setTracks(sampleTracks);
+    }
+  };
+
+  // Fetch recently played
+  const fetchRecentlyPlayed = async () => {
+    try {
+      const userId = localStorage.getItem('currentUserId') || 'user1';
+      const response = await fetch(`/api/profile/${userId}/recently-played`);
+      const data = await response.json();
+
+      if (data.success) {
+        // Transform backend recently played to match our interface
+        const transformedRecentlyPlayed = data.songs.map((song: any, index: number) => ({
+          id: song.id,
+          title: song.title,
+          artist: song.artist,
+          coverUrl: song.coverImage,
+          playedAt: song.playedAt || `${index * 15 + 5} minutes ago`,
+          duration: song.duration,
+          isCurrentlyPlaying: index === 0, // Mark first as currently playing
+        }));
+        setRecentlyPlayed(transformedRecentlyPlayed);
+      } else {
+        setRecentlyPlayed(sampleRecentlyPlayed);
+      }
+    } catch (error) {
+      console.error("Error fetching recently played:", error);
+      setRecentlyPlayed(sampleRecentlyPlayed);
+    }
+  };
+
+  // Load data on component mount
+  useEffect(() => {
+    fetchProfile();
+    fetchLikedSongs();
+    fetchRecentlyPlayed();
+  }, []);
 
   const formatNumber = (num: number) => {
     if (num >= 1000000) {
