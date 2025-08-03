@@ -1353,6 +1353,23 @@ export default function Signup() {
         const data = await response.json();
 
         if (data.success) {
+          // Save user data to localStorage for immediate access
+          const completeUserData = {
+            uid: data.user?.id || `user-${Date.now()}`,
+            email: formData.email,
+            name: formData.name,
+            username: formData.username,
+            profileImageURL: formData.profileImageURL || "",
+            dateOfBirth: formData.dateOfBirth,
+            gender: formData.gender,
+            bio: formData.bio,
+          };
+
+          localStorage.setItem("currentUser", JSON.stringify(completeUserData));
+          localStorage.setItem("userAvatar", formData.profileImageURL || "");
+
+          console.log("💾 Saved user data to localStorage:", completeUserData);
+
           toast({
             title: "Account created successfully! 🎉",
             description: `Welcome to Music Catch, ${formData.name}!`,
