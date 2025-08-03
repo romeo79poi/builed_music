@@ -597,12 +597,12 @@ export default function Profile() {
 
   const handleAvatarUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
+    if (file && profile) {
       setUploading(true);
       const reader = new FileReader();
       reader.onload = (e) => {
         const newAvatar = e.target?.result as string;
-        setProfile((prev) => ({ ...prev, avatar: newAvatar }));
+        setProfile((prev) => prev ? { ...prev, avatar: newAvatar } : null);
         // Store in localStorage for persistence
         localStorage.setItem("userAvatar", newAvatar);
         setUploading(false);
