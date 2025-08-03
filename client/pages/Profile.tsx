@@ -317,8 +317,18 @@ export default function Profile() {
       // Get current user ID from localStorage or context
       const userId = localStorage.getItem('currentUserId') || 'user1';
 
-      // Use the fetchUserData function from auth library
-      const result = await fetchUserData(userId);
+      // Use the fetchUserData function from auth library with additional error handling
+      let result;
+      try {
+        result = await fetchUserData(userId);
+      } catch (fetchError) {
+        console.error("❌ Unexpected error in fetchUserData:", fetchError);
+        // Force fallback if fetchUserData throws an unexpected error
+        result = {
+          success: false,
+          error: "Unexpected fetch error"
+        };
+      }
 
       if (result.success && result.userData) {
         // Transform fetched data to match our profile interface
