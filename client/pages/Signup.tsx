@@ -1596,15 +1596,15 @@ export default function Signup() {
   };
 
   const stepDescriptions = {
-    method: "Sign up with email, phone, or social media",
+    method: "Sign up with email or phone",
     email: "We'll send you a verification email",
     phone: "We'll send you a verification code",
     "phone-verify": "Enter the 6-digit code we sent to your phone",
     profile: "Help others find you on Music Catch",
     verification: "Check your email and click the verification link",
     password: "Choose a secure password for your account",
-    dob: "We need your date of birth to verify your age",
-    profileImage: "Upload a photo to personalize your profile (optional)",
+    dob: "You must be 18 or older to register",
+    profileImage: "Click the circle to upload your profile picture (optional)",
     gender: "Help us personalize your experience",
     bio: "Share something interesting about yourself (optional)",
   };
