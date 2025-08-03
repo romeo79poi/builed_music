@@ -235,25 +235,29 @@ export const sendEmailVerification: RequestHandler = async (req, res) => {
     console.log(`🔑 Verification code: ${verificationCode}`);
     console.log(`🕒 Code expires at: ${expiry.toISOString()}`);
 
+    // Try to send email, but don't fail if email service is unavailable
     const emailResult = await sendVerificationEmail(email, verificationCode);
 
     if (!emailResult.success) {
-      console.error("Failed to send verification email:", emailResult.error);
-      return res.status(500).json({
-        success: false,
-        message: "Failed to send verification email. Please try again.",
-      });
+      console.warn("Email service unavailable, continuing with in-memory verification:", emailResult.error);
+      // Don't fail the request, just log the issue
+      // In development, we'll still provide the debug code
+    } else {
+      console.log(`✅ Verification email sent successfully to: ${email}`);
     }
-
-    console.log(`✅ Verification email sent successfully to: ${email}`);
 
     res.json({
       success: true,
-      message: "Verification code sent to your email successfully",
-      // For development/demo - include debug code
+      message: emailResult.success
+        ? "Verification code sent to your email successfully"
+        : "Verification code generated (email service unavailable - check console for debug code)",
+      // For development/demo - always include debug code when email fails or in dev mode
       debugCode:
-        process.env.NODE_ENV === "development" ? verificationCode : undefined,
+        process.env.NODE_ENV === "development" || !emailResult.success
+          ? verificationCode
+          : undefined,
       expiresAt: expiry.toISOString(),
+      emailSent: emailResult.success,
     });
   } catch (error) {
     console.error("Send email verification error:", error);
