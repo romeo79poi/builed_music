@@ -1019,10 +1019,15 @@ export default function Profile() {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       onClick={handleSaveProfile}
-                      className="px-4 py-2 rounded-lg font-medium transition-all bg-purple-primary text-white"
+                      disabled={uploading}
+                      className="px-4 py-2 rounded-lg font-medium transition-all bg-purple-primary text-white disabled:opacity-50"
                     >
-                      <Save className="w-4 h-4 mr-2 inline" />
-                      Save
+                      {uploading ? (
+                        <Loader2 className="w-4 h-4 mr-2 inline animate-spin" />
+                      ) : (
+                        <Save className="w-4 h-4 mr-2 inline" />
+                      )}
+                      {uploading ? "Saving..." : "Save"}
                     </motion.button>
                   </div>
                 </div>
