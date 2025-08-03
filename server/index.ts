@@ -50,7 +50,6 @@ import {
 import {
   registerUser,
   checkAvailability,
-  getUsers,
   sendEmailVerification,
   verifyEmailCode,
   completeRegistration,
