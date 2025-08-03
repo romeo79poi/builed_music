@@ -669,17 +669,6 @@ export default function Profile() {
     }
   };
 
-  const tabs = [
-    { id: "tracks", label: "Tracks", count: tracks.length },
-    { id: "playlists", label: "Playlists", count: playlists.length },
-    { id: "history", label: "History", count: recentlyPlayed.length },
-    { id: "about", label: "About" },
-  ];
-
-  if (profile.isArtist) {
-    tabs.splice(3, 0, { id: "analytics", label: "Analytics" });
-  }
-
   // Show loading state
   if (loading || !profile) {
     return (
