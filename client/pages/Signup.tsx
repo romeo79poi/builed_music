@@ -1808,10 +1808,19 @@ export default function Signup() {
                   field="email"
                   onCheck={async (field, value) => {
                     try {
-                      const response = await fetch(
-                        `/api/auth/check-availability?${field}=${encodeURIComponent(value)}`,
-                      );
+                      const url = `/api/auth/check-availability?${field}=${encodeURIComponent(value)}`;
+                      console.log(`🌐 Making availability request to: ${url}`);
+
+                      const response = await fetch(url);
+                      console.log(`📡 Response status: ${response.status}`);
+
+                      if (!response.ok) {
+                        console.error(`❌ HTTP error! status: ${response.status}`);
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                      }
+
                       const data = await response.json();
+                      console.log(`📊 Response data:`, data);
 
                       if (field === "email") {
                         return data.emailAvailable === true;
@@ -1819,7 +1828,8 @@ export default function Signup() {
                         return data.usernameAvailable === true;
                       }
                       return false;
-                    } catch {
+                    } catch (error) {
+                      console.error(`❌ Email availability check failed:`, error);
                       return false;
                     }
                   }}
@@ -2086,10 +2096,19 @@ export default function Signup() {
                   field="username"
                   onCheck={async (field, value) => {
                     try {
-                      const response = await fetch(
-                        `/api/auth/check-availability?${field}=${encodeURIComponent(value)}`,
-                      );
+                      const url = `/api/auth/check-availability?${field}=${encodeURIComponent(value)}`;
+                      console.log(`🌐 Making availability request to: ${url}`);
+
+                      const response = await fetch(url);
+                      console.log(`📡 Response status: ${response.status}`);
+
+                      if (!response.ok) {
+                        console.error(`❌ HTTP error! status: ${response.status}`);
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                      }
+
                       const data = await response.json();
+                      console.log(`📊 Response data:`, data);
 
                       if (field === "email") {
                         return data.emailAvailable === true;
@@ -2097,7 +2116,8 @@ export default function Signup() {
                         return data.usernameAvailable === true;
                       }
                       return false;
-                    } catch {
+                    } catch (error) {
+                      console.error(`❌ Username availability check failed:`, error);
                       return false;
                     }
                   }}
