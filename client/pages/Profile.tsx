@@ -705,6 +705,18 @@ export default function Profile() {
     );
   }
 
+  // Build tabs array with null checking
+  const tabs = [
+    { id: "tracks", label: "Tracks", count: tracks.length },
+    { id: "playlists", label: "Playlists", count: playlists.length },
+    { id: "history", label: "History", count: recentlyPlayed.length },
+    { id: "about", label: "About" },
+  ];
+
+  if (profile?.isArtist) {
+    tabs.splice(3, 0, { id: "analytics", label: "Analytics" });
+  }
+
   return (
     <div className="h-screen bg-background text-foreground relative overflow-hidden theme-transition max-w-sm mx-auto">
       {/* App background */}
