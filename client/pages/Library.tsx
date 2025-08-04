@@ -369,7 +369,7 @@ export default function Library() {
                     {song.title}
                   </h3>
                   <p className="text-gray-400 text-xs truncate">
-                    {song.artist} {song.genre && `• ${song.genre}`}
+                    {song.artist_name} {song.genre && `• ${song.genre}`}
                   </p>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -419,7 +419,7 @@ export default function Library() {
                     {song.title}
                   </h3>
                   <p className="text-gray-400 text-xs truncate">
-                    {song.artist}
+                    {song.artist_name}
                   </p>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -497,7 +497,7 @@ export default function Library() {
                     {song.title}
                   </h3>
                   <p className="text-gray-400 text-xs truncate">
-                    {song.artist} {song.genre && `• ${song.genre}`}
+                    {song.artist_name} {song.genre && `• ${song.genre}`}
                   </p>
                 </div>
                 <div className="flex items-center space-x-2">
