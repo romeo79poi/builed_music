@@ -9,22 +9,22 @@ connectDB();
 export const getUserProfile: RequestHandler = async (req, res) => {
   try {
     await connectDB();
-    
+
     const userId = req.params.userId || req.user?.userId;
-    
+
     if (!userId) {
       return res.status(400).json({
         success: false,
-        message: "User ID is required"
+        message: "User ID is required",
       });
     }
 
-    const user = await User.findById(userId).select('-password');
-    
+    const user = await User.findById(userId).select("-password");
+
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "User not found"
+        message: "User not found",
       });
     }
 
@@ -46,14 +46,14 @@ export const getUserProfile: RequestHandler = async (req, res) => {
         joinDate: user.created_at,
         lastLogin: user.last_login,
         provider: user.provider,
-        phone: user.phone
-      }
+        phone: user.phone,
+      },
     });
   } catch (error) {
     console.error("Error getting user profile:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to get user profile"
+      message: "Failed to get user profile",
     });
   }
 };
@@ -62,29 +62,29 @@ export const getUserProfile: RequestHandler = async (req, res) => {
 export const updateUserProfile: RequestHandler = async (req, res) => {
   try {
     await connectDB();
-    
+
     const userId = req.params.userId || req.user?.userId;
-    
+
     if (!userId) {
       return res.status(400).json({
         success: false,
-        message: "User ID is required"
+        message: "User ID is required",
       });
     }
 
     const updates = req.body;
-    
+
     // Filter allowed updates
     const allowedFields = [
-      'name', 
-      'display_name', 
-      'bio', 
-      'profile_image_url',
-      'username' // Allow username updates but handle uniqueness
+      "name",
+      "display_name",
+      "bio",
+      "profile_image_url",
+      "username", // Allow username updates but handle uniqueness
     ];
-    
+
     const filteredUpdates: any = {};
-    Object.keys(updates).forEach(key => {
+    Object.keys(updates).forEach((key) => {
       if (allowedFields.includes(key)) {
         filteredUpdates[key] = updates[key];
       }
@@ -92,29 +92,28 @@ export const updateUserProfile: RequestHandler = async (req, res) => {
 
     // If username is being updated, check uniqueness
     if (filteredUpdates.username) {
-      const existingUser = await User.findOne({ 
+      const existingUser = await User.findOne({
         username: filteredUpdates.username,
-        _id: { $ne: userId }
+        _id: { $ne: userId },
       });
-      
+
       if (existingUser) {
         return res.status(400).json({
           success: false,
-          message: "Username already taken"
+          message: "Username already taken",
         });
       }
     }
 
-    const updatedUser = await User.findByIdAndUpdate(
-      userId,
-      filteredUpdates,
-      { new: true, select: '-password' }
-    );
+    const updatedUser = await User.findByIdAndUpdate(userId, filteredUpdates, {
+      new: true,
+      select: "-password",
+    });
 
     if (!updatedUser) {
       return res.status(404).json({
         success: false,
-        message: "User not found"
+        message: "User not found",
       });
     }
 
@@ -136,15 +135,15 @@ export const updateUserProfile: RequestHandler = async (req, res) => {
         joinDate: updatedUser.created_at,
         lastLogin: updatedUser.last_login,
         provider: updatedUser.provider,
-        phone: updatedUser.phone
+        phone: updatedUser.phone,
       },
-      message: "Profile updated successfully"
+      message: "Profile updated successfully",
     });
   } catch (error) {
     console.error("Error updating user profile:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to update user profile"
+      message: "Failed to update user profile",
     });
   }
 };
@@ -153,22 +152,22 @@ export const updateUserProfile: RequestHandler = async (req, res) => {
 export const getUserStats: RequestHandler = async (req, res) => {
   try {
     await connectDB();
-    
+
     const userId = req.params.userId || req.user?.userId;
-    
+
     if (!userId) {
       return res.status(400).json({
         success: false,
-        message: "User ID is required"
+        message: "User ID is required",
       });
     }
 
     const user = await User.findById(userId);
-    
+
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "User not found"
+        message: "User not found",
       });
     }
 
@@ -181,18 +180,18 @@ export const getUserStats: RequestHandler = async (req, res) => {
       favoriteGenre: "Pop", // Would come from actual listening data
       topArtist: "Various Artists",
       monthlyMinutes: Math.floor(Math.random() * 2000),
-      streakDays: Math.floor(Math.random() * 30)
+      streakDays: Math.floor(Math.random() * 30),
     };
 
     res.json({
       success: true,
-      data: stats
+      data: stats,
     });
   } catch (error) {
     console.error("Error getting user stats:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to get user stats"
+      message: "Failed to get user stats",
     });
   }
 };
@@ -201,28 +200,28 @@ export const getUserStats: RequestHandler = async (req, res) => {
 export const searchUsers: RequestHandler = async (req, res) => {
   try {
     await connectDB();
-    
+
     const query = req.query.q as string;
     const limit = parseInt(req.query.limit as string) || 20;
-    
+
     if (!query) {
       return res.status(400).json({
         success: false,
-        message: "Search query is required"
+        message: "Search query is required",
       });
     }
 
     const users = await User.find({
       $or: [
-        { username: { $regex: query, $options: 'i' } },
-        { name: { $regex: query, $options: 'i' } },
-        { display_name: { $regex: query, $options: 'i' } }
-      ]
+        { username: { $regex: query, $options: "i" } },
+        { name: { $regex: query, $options: "i" } },
+        { display_name: { $regex: query, $options: "i" } },
+      ],
     })
-    .select('-password -email')
-    .limit(limit);
+      .select("-password -email")
+      .limit(limit);
 
-    const searchResults = users.map(user => ({
+    const searchResults = users.map((user) => ({
       id: user._id.toString(),
       username: user.username,
       name: user.name,
@@ -230,18 +229,18 @@ export const searchUsers: RequestHandler = async (req, res) => {
       profilePicture: user.profile_image_url || "",
       isVerified: user.is_verified,
       isArtist: user.is_artist,
-      followerCount: user.follower_count
+      followerCount: user.follower_count,
     }));
 
     res.json({
       success: true,
-      data: searchResults
+      data: searchResults,
     });
   } catch (error) {
     console.error("Error searching users:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to search users"
+      message: "Failed to search users",
     });
   }
 };
@@ -250,51 +249,51 @@ export const searchUsers: RequestHandler = async (req, res) => {
 export const toggleFollow: RequestHandler = async (req, res) => {
   try {
     await connectDB();
-    
+
     const userId = req.user?.userId;
     const targetUserId = req.params.targetUserId;
-    
+
     if (!userId) {
       return res.status(401).json({
         success: false,
-        message: "Authentication required"
+        message: "Authentication required",
       });
     }
 
     if (userId === targetUserId) {
       return res.status(400).json({
         success: false,
-        message: "Cannot follow yourself"
+        message: "Cannot follow yourself",
       });
     }
 
     const [user, targetUser] = await Promise.all([
       User.findById(userId),
-      User.findById(targetUserId)
+      User.findById(targetUserId),
     ]);
 
     if (!user || !targetUser) {
       return res.status(404).json({
         success: false,
-        message: "User not found"
+        message: "User not found",
       });
     }
 
     // For simplicity, we'll just update counters
     // In a real app, you'd have a separate Follow collection
     const isFollowing = false; // Would check actual follow relationship
-    
+
     if (isFollowing) {
       // Unfollow
       await Promise.all([
         User.findByIdAndUpdate(userId, { $inc: { following_count: -1 } }),
-        User.findByIdAndUpdate(targetUserId, { $inc: { follower_count: -1 } })
+        User.findByIdAndUpdate(targetUserId, { $inc: { follower_count: -1 } }),
       ]);
     } else {
       // Follow
       await Promise.all([
         User.findByIdAndUpdate(userId, { $inc: { following_count: 1 } }),
-        User.findByIdAndUpdate(targetUserId, { $inc: { follower_count: 1 } })
+        User.findByIdAndUpdate(targetUserId, { $inc: { follower_count: 1 } }),
       ]);
     }
 
@@ -302,15 +301,17 @@ export const toggleFollow: RequestHandler = async (req, res) => {
       success: true,
       data: {
         isFollowing: !isFollowing,
-        followerCount: targetUser.follower_count + (isFollowing ? -1 : 1)
+        followerCount: targetUser.follower_count + (isFollowing ? -1 : 1),
       },
-      message: isFollowing ? "Unfollowed successfully" : "Followed successfully"
+      message: isFollowing
+        ? "Unfollowed successfully"
+        : "Followed successfully",
     });
   } catch (error) {
     console.error("Error toggling follow:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to update follow status"
+      message: "Failed to update follow status",
     });
   }
 };

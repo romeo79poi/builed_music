@@ -6,57 +6,72 @@ import { connectDB, isMongoConnected } from "../lib/mongodb";
 import User from "../models/User";
 
 // JWT Configuration
-const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key_change_in_production';
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
-const REFRESH_EXPIRES_IN = process.env.REFRESH_EXPIRES_IN || '30d';
+const JWT_SECRET =
+  process.env.JWT_SECRET || "your_jwt_secret_key_change_in_production";
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "7d";
+const REFRESH_EXPIRES_IN = process.env.REFRESH_EXPIRES_IN || "30d";
 
 // In-memory storage for verification codes and tokens
-const emailVerificationCodes = new Map<string, {
-  code: string;
-  email: string;
-  expiry: Date;
-  attempts: number;
-}>();
+const emailVerificationCodes = new Map<
+  string,
+  {
+    code: string;
+    email: string;
+    expiry: Date;
+    attempts: number;
+  }
+>();
 
-const phoneVerificationCodes = new Map<string, {
-  code: string;
-  phone: string;
-  expiry: Date;
-  attempts: number;
-}>();
+const phoneVerificationCodes = new Map<
+  string,
+  {
+    code: string;
+    phone: string;
+    expiry: Date;
+    attempts: number;
+  }
+>();
 
 const refreshTokens = new Set<string>();
-const resetPasswordTokens = new Map<string, {
-  email: string;
-  token: string;
-  expiry: Date;
-}>();
+const resetPasswordTokens = new Map<
+  string,
+  {
+    email: string;
+    token: string;
+    expiry: Date;
+  }
+>();
 
 // Helper Functions
-const generateToken = (userId: string, type: 'access' | 'refresh' = 'access'): string => {
-  const expiresIn = type === 'access' ? JWT_EXPIRES_IN : REFRESH_EXPIRES_IN;
+const generateToken = (
+  userId: string,
+  type: "access" | "refresh" = "access",
+): string => {
+  const expiresIn = type === "access" ? JWT_EXPIRES_IN : REFRESH_EXPIRES_IN;
   return jwt.sign(
-    { 
-      userId, 
+    {
+      userId,
       type,
-      iat: Math.floor(Date.now() / 1000) 
+      iat: Math.floor(Date.now() / 1000),
     },
     JWT_SECRET,
-    { 
+    {
       expiresIn,
-      issuer: 'music-catch-api',
-      audience: 'music-catch-app'
-    }
+      issuer: "music-catch-api",
+      audience: "music-catch-app",
+    },
   );
 };
 
-const verifyToken = (token: string): { userId: string; type: string } | null => {
+const verifyToken = (
+  token: string,
+): { userId: string; type: string } | null => {
   try {
     const decoded = jwt.verify(token, JWT_SECRET, {
-      issuer: 'music-catch-api',
-      audience: 'music-catch-app'
+      issuer: "music-catch-api",
+      audience: "music-catch-app",
     }) as any;
-    return { userId: decoded.userId, type: decoded.type || 'access' };
+    return { userId: decoded.userId, type: decoded.type || "access" };
   } catch (error) {
     return null;
   }
@@ -70,7 +85,10 @@ const hashPassword = async (password: string): Promise<string> => {
   return bcrypt.hash(password, 12);
 };
 
-const validatePassword = async (password: string, hashedPassword: string): Promise<boolean> => {
+const validatePassword = async (
+  password: string,
+  hashedPassword: string,
+): Promise<boolean> => {
   return bcrypt.compare(password, hashedPassword);
 };
 
@@ -81,35 +99,54 @@ const validateEmail = (email: string): boolean => {
 
 const validatePhone = (phone: string): boolean => {
   const phoneRegex = /^\+?[\d\s\-\(\)]+$/;
-  return phoneRegex.test(phone) && phone.replace(/\D/g, '').length >= 10;
+  return phoneRegex.test(phone) && phone.replace(/\D/g, "").length >= 10;
 };
 
-const validateUsername = (username: string): { isValid: boolean; error?: string } => {
+const validateUsername = (
+  username: string,
+): { isValid: boolean; error?: string } => {
   if (!username) {
-    return { isValid: false, error: 'Username is required' };
+    return { isValid: false, error: "Username is required" };
   }
-  
+
   if (username.length < 3) {
-    return { isValid: false, error: 'Username must be at least 3 characters long' };
+    return {
+      isValid: false,
+      error: "Username must be at least 3 characters long",
+    };
   }
-  
+
   if (username.length > 20) {
-    return { isValid: false, error: 'Username must be 20 characters or less' };
+    return { isValid: false, error: "Username must be 20 characters or less" };
   }
-  
+
   if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-    return { isValid: false, error: 'Username can only contain letters, numbers, and underscores' };
+    return {
+      isValid: false,
+      error: "Username can only contain letters, numbers, and underscores",
+    };
   }
-  
+
   const reservedUsernames = [
-    'admin', 'root', 'api', 'www', 'mail', 'ftp', 'localhost',
-    'test', 'demo', 'support', 'help', 'null', 'undefined'
+    "admin",
+    "root",
+    "api",
+    "www",
+    "mail",
+    "ftp",
+    "localhost",
+    "test",
+    "demo",
+    "support",
+    "help",
+    "null",
+    "undefined",
   ];
-  
+
   if (reservedUsernames.includes(username.toLowerCase())) {
-    return { isValid: false, error: 'This username is reserved' };
+    return { isValid: false, error: "This username is reserved" };
   }
-  
+
   return { isValid: true };
 };
 
@@ -119,20 +156,29 @@ connectDB();
 // 1. REGISTER USER WITH EMAIL
 export const registerWithEmail: RequestHandler = async (req, res) => {
   try {
-    const { email, username, name, password, dateOfBirth, gender, bio, profileImageURL } = req.body;
+    const {
+      email,
+      username,
+      name,
+      password,
+      dateOfBirth,
+      gender,
+      bio,
+      profileImageURL,
+    } = req.body;
 
     // Validation
     if (!email || !username || !name || !password) {
       return res.status(400).json({
         success: false,
-        message: "Email, username, name, and password are required"
+        message: "Email, username, name, and password are required",
       });
     }
 
     if (!validateEmail(email)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid email format"
+        message: "Invalid email format",
       });
     }
 
@@ -140,34 +186,34 @@ export const registerWithEmail: RequestHandler = async (req, res) => {
     if (!usernameValidation.isValid) {
       return res.status(400).json({
         success: false,
-        message: usernameValidation.error
+        message: usernameValidation.error,
       });
     }
 
     if (password.length < 8) {
       return res.status(400).json({
         success: false,
-        message: "Password must be at least 8 characters long"
+        message: "Password must be at least 8 characters long",
       });
     }
 
     if (!isMongoConnected()) {
       return res.status(503).json({
         success: false,
-        message: "Database connection unavailable"
+        message: "Database connection unavailable",
       });
     }
 
     // Check if user already exists
     const existingUser = await User.findOne({
-      $or: [{ email }, { username }]
+      $or: [{ email }, { username }],
     });
 
     if (existingUser) {
-      const field = existingUser.email === email ? 'Email' : 'Username';
+      const field = existingUser.email === email ? "Email" : "Username";
       return res.status(400).json({
         success: false,
-        message: `${field} already exists`
+        message: `${field} already exists`,
       });
     }
 
@@ -181,18 +227,18 @@ export const registerWithEmail: RequestHandler = async (req, res) => {
       name,
       password: hashedPassword,
       display_name: name,
-      bio: bio || '',
+      bio: bio || "",
       dob: dateOfBirth ? new Date(dateOfBirth) : undefined,
-      profile_image_url: profileImageURL || '',
+      profile_image_url: profileImageURL || "",
       is_verified: false,
-      email_verified: false
+      email_verified: false,
     });
 
     await newUser.save();
 
     // Generate tokens
-    const accessToken = generateToken(newUser._id.toString(), 'access');
-    const refreshToken = generateToken(newUser._id.toString(), 'refresh');
+    const accessToken = generateToken(newUser._id.toString(), "access");
+    const refreshToken = generateToken(newUser._id.toString(), "refresh");
     refreshTokens.add(refreshToken);
 
     res.status(201).json({
@@ -200,16 +246,15 @@ export const registerWithEmail: RequestHandler = async (req, res) => {
       message: "User registered successfully",
       user: newUser.toJSON(),
       accessToken,
-      refreshToken
+      refreshToken,
     });
 
     console.log("✅ New user registered:", newUser.email);
-
   } catch (error) {
     console.error("Registration error:", error);
     res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
@@ -217,19 +262,20 @@ export const registerWithEmail: RequestHandler = async (req, res) => {
 // 2. REGISTER USER WITH PHONE
 export const registerWithPhone: RequestHandler = async (req, res) => {
   try {
-    const { phone, username, name, password, dateOfBirth, gender, bio } = req.body;
+    const { phone, username, name, password, dateOfBirth, gender, bio } =
+      req.body;
 
     if (!phone || !username || !name || !password) {
       return res.status(400).json({
         success: false,
-        message: "Phone, username, name, and password are required"
+        message: "Phone, username, name, and password are required",
       });
     }
 
     if (!validatePhone(phone)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid phone number format"
+        message: "Invalid phone number format",
       });
     }
 
@@ -237,48 +283,48 @@ export const registerWithPhone: RequestHandler = async (req, res) => {
     if (!usernameValidation.isValid) {
       return res.status(400).json({
         success: false,
-        message: usernameValidation.error
+        message: usernameValidation.error,
       });
     }
 
     if (!isMongoConnected()) {
       return res.status(503).json({
         success: false,
-        message: "Database connection unavailable"
+        message: "Database connection unavailable",
       });
     }
 
     // Check if user already exists
     const existingUser = await User.findOne({
-      $or: [{ username }]
+      $or: [{ username }],
     });
 
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: "Username already exists"
+        message: "Username already exists",
       });
     }
 
     const hashedPassword = await hashPassword(password);
 
     const newUser = new User({
-      email: `${phone.replace(/\D/g, '')}@phone.musiccatch.com`, // Temporary email
+      email: `${phone.replace(/\D/g, "")}@phone.musiccatch.com`, // Temporary email
       username,
       name,
       password: hashedPassword,
       display_name: name,
-      bio: bio || '',
+      bio: bio || "",
       dob: dateOfBirth ? new Date(dateOfBirth) : undefined,
       is_verified: true, // Phone users are auto-verified after OTP
       email_verified: false,
-      provider: 'phone'
+      provider: "phone",
     });
 
     await newUser.save();
 
-    const accessToken = generateToken(newUser._id.toString(), 'access');
-    const refreshToken = generateToken(newUser._id.toString(), 'refresh');
+    const accessToken = generateToken(newUser._id.toString(), "access");
+    const refreshToken = generateToken(newUser._id.toString(), "refresh");
     refreshTokens.add(refreshToken);
 
     res.status(201).json({
@@ -286,14 +332,13 @@ export const registerWithPhone: RequestHandler = async (req, res) => {
       message: "User registered successfully with phone",
       user: newUser.toJSON(),
       accessToken,
-      refreshToken
+      refreshToken,
     });
-
   } catch (error) {
     console.error("Phone registration error:", error);
     res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
@@ -306,14 +351,14 @@ export const loginWithEmail: RequestHandler = async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: "Email and password are required"
+        message: "Email and password are required",
       });
     }
 
     if (!isMongoConnected()) {
       return res.status(503).json({
         success: false,
-        message: "Database connection unavailable"
+        message: "Database connection unavailable",
       });
     }
 
@@ -321,7 +366,7 @@ export const loginWithEmail: RequestHandler = async (req, res) => {
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: "Invalid email or password"
+        message: "Invalid email or password",
       });
     }
 
@@ -329,7 +374,7 @@ export const loginWithEmail: RequestHandler = async (req, res) => {
     if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
-        message: "Invalid email or password"
+        message: "Invalid email or password",
       });
     }
 
@@ -338,14 +383,14 @@ export const loginWithEmail: RequestHandler = async (req, res) => {
     await user.save();
 
     // Generate tokens (longer expiry if rememberMe is true)
-    const accessExpiry = rememberMe ? '30d' : JWT_EXPIRES_IN;
+    const accessExpiry = rememberMe ? "30d" : JWT_EXPIRES_IN;
     const accessToken = jwt.sign(
-      { userId: user._id.toString(), type: 'access' },
+      { userId: user._id.toString(), type: "access" },
       JWT_SECRET,
-      { expiresIn: accessExpiry }
+      { expiresIn: accessExpiry },
     );
-    
-    const refreshToken = generateToken(user._id.toString(), 'refresh');
+
+    const refreshToken = generateToken(user._id.toString(), "refresh");
     refreshTokens.add(refreshToken);
 
     res.json({
@@ -354,16 +399,15 @@ export const loginWithEmail: RequestHandler = async (req, res) => {
       user: user.toJSON(),
       accessToken,
       refreshToken,
-      rememberMe: !!rememberMe
+      rememberMe: !!rememberMe,
     });
 
     console.log(`✅ User logged in: ${email}`);
-
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
@@ -376,14 +420,14 @@ export const loginWithUsername: RequestHandler = async (req, res) => {
     if (!username || !password) {
       return res.status(400).json({
         success: false,
-        message: "Username and password are required"
+        message: "Username and password are required",
       });
     }
 
     if (!isMongoConnected()) {
       return res.status(503).json({
         success: false,
-        message: "Database connection unavailable"
+        message: "Database connection unavailable",
       });
     }
 
@@ -391,7 +435,7 @@ export const loginWithUsername: RequestHandler = async (req, res) => {
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: "Invalid username or password"
+        message: "Invalid username or password",
       });
     }
 
@@ -399,21 +443,21 @@ export const loginWithUsername: RequestHandler = async (req, res) => {
     if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
-        message: "Invalid username or password"
+        message: "Invalid username or password",
       });
     }
 
     user.last_login = new Date();
     await user.save();
 
-    const accessExpiry = rememberMe ? '30d' : JWT_EXPIRES_IN;
+    const accessExpiry = rememberMe ? "30d" : JWT_EXPIRES_IN;
     const accessToken = jwt.sign(
-      { userId: user._id.toString(), type: 'access' },
+      { userId: user._id.toString(), type: "access" },
       JWT_SECRET,
-      { expiresIn: accessExpiry }
+      { expiresIn: accessExpiry },
     );
-    
-    const refreshToken = generateToken(user._id.toString(), 'refresh');
+
+    const refreshToken = generateToken(user._id.toString(), "refresh");
     refreshTokens.add(refreshToken);
 
     res.json({
@@ -422,14 +466,13 @@ export const loginWithUsername: RequestHandler = async (req, res) => {
       user: user.toJSON(),
       accessToken,
       refreshToken,
-      rememberMe: !!rememberMe
+      rememberMe: !!rememberMe,
     });
-
   } catch (error) {
     console.error("Username login error:", error);
     res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
@@ -442,7 +485,7 @@ export const sendEmailVerification: RequestHandler = async (req, res) => {
     if (!email || !validateEmail(email)) {
       return res.status(400).json({
         success: false,
-        message: "Valid email is required"
+        message: "Valid email is required",
       });
     }
 
@@ -453,26 +496,28 @@ export const sendEmailVerification: RequestHandler = async (req, res) => {
       code,
       email,
       expiry,
-      attempts: 0
+      attempts: 0,
     });
 
     const emailResult = await sendVerificationEmail(email, code);
 
     res.json({
       success: true,
-      message: emailResult.success 
+      message: emailResult.success
         ? "Verification code sent to your email"
         : "Verification code generated (email service unavailable)",
       emailSent: emailResult.success,
-      debugCode: process.env.NODE_ENV === 'development' || !emailResult.success ? code : undefined,
-      expiresAt: expiry.toISOString()
+      debugCode:
+        process.env.NODE_ENV === "development" || !emailResult.success
+          ? code
+          : undefined,
+      expiresAt: expiry.toISOString(),
     });
-
   } catch (error) {
     console.error("Send email verification error:", error);
     res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
@@ -485,7 +530,7 @@ export const verifyEmailCode: RequestHandler = async (req, res) => {
     if (!email || !code) {
       return res.status(400).json({
         success: false,
-        message: "Email and verification code are required"
+        message: "Email and verification code are required",
       });
     }
 
@@ -493,7 +538,7 @@ export const verifyEmailCode: RequestHandler = async (req, res) => {
     if (!storedVerification) {
       return res.status(400).json({
         success: false,
-        message: "No verification code found for this email"
+        message: "No verification code found for this email",
       });
     }
 
@@ -501,7 +546,7 @@ export const verifyEmailCode: RequestHandler = async (req, res) => {
       emailVerificationCodes.delete(email);
       return res.status(400).json({
         success: false,
-        message: "Verification code has expired"
+        message: "Verification code has expired",
       });
     }
 
@@ -509,7 +554,7 @@ export const verifyEmailCode: RequestHandler = async (req, res) => {
       emailVerificationCodes.delete(email);
       return res.status(400).json({
         success: false,
-        message: "Too many verification attempts"
+        message: "Too many verification attempts",
       });
     }
 
@@ -518,7 +563,7 @@ export const verifyEmailCode: RequestHandler = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Invalid verification code",
-        attemptsRemaining: 5 - storedVerification.attempts
+        attemptsRemaining: 5 - storedVerification.attempts,
       });
     }
 
@@ -528,20 +573,19 @@ export const verifyEmailCode: RequestHandler = async (req, res) => {
     if (isMongoConnected()) {
       await User.findOneAndUpdate(
         { email },
-        { email_verified: true, is_verified: true }
+        { email_verified: true, is_verified: true },
       );
     }
 
     res.json({
       success: true,
-      message: "Email verified successfully"
+      message: "Email verified successfully",
     });
-
   } catch (error) {
     console.error("Verify email error:", error);
     res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
@@ -554,7 +598,7 @@ export const sendPhoneOTP: RequestHandler = async (req, res) => {
     if (!phone || !validatePhone(phone)) {
       return res.status(400).json({
         success: false,
-        message: "Valid phone number is required"
+        message: "Valid phone number is required",
       });
     }
 
@@ -565,7 +609,7 @@ export const sendPhoneOTP: RequestHandler = async (req, res) => {
       code,
       phone,
       expiry,
-      attempts: 0
+      attempts: 0,
     });
 
     // In production, integrate with SMS service (Twilio, AWS SNS, etc.)
@@ -574,15 +618,14 @@ export const sendPhoneOTP: RequestHandler = async (req, res) => {
     res.json({
       success: true,
       message: "OTP sent to your phone number",
-      debugOtp: process.env.NODE_ENV === 'development' ? code : undefined,
-      expiresAt: expiry.toISOString()
+      debugOtp: process.env.NODE_ENV === "development" ? code : undefined,
+      expiresAt: expiry.toISOString(),
     });
-
   } catch (error) {
     console.error("Send phone OTP error:", error);
     res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
@@ -595,7 +638,7 @@ export const verifyPhoneOTP: RequestHandler = async (req, res) => {
     if (!phone || !otp) {
       return res.status(400).json({
         success: false,
-        message: "Phone number and OTP are required"
+        message: "Phone number and OTP are required",
       });
     }
 
@@ -603,7 +646,7 @@ export const verifyPhoneOTP: RequestHandler = async (req, res) => {
     if (!storedOTP) {
       return res.status(400).json({
         success: false,
-        message: "No OTP found for this phone number"
+        message: "No OTP found for this phone number",
       });
     }
 
@@ -611,7 +654,7 @@ export const verifyPhoneOTP: RequestHandler = async (req, res) => {
       phoneVerificationCodes.delete(phone);
       return res.status(400).json({
         success: false,
-        message: "OTP has expired"
+        message: "OTP has expired",
       });
     }
 
@@ -619,7 +662,7 @@ export const verifyPhoneOTP: RequestHandler = async (req, res) => {
       phoneVerificationCodes.delete(phone);
       return res.status(400).json({
         success: false,
-        message: "Too many OTP attempts"
+        message: "Too many OTP attempts",
       });
     }
 
@@ -628,7 +671,7 @@ export const verifyPhoneOTP: RequestHandler = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Invalid OTP",
-        attemptsRemaining: 3 - storedOTP.attempts
+        attemptsRemaining: 3 - storedOTP.attempts,
       });
     }
 
@@ -636,14 +679,13 @@ export const verifyPhoneOTP: RequestHandler = async (req, res) => {
 
     res.json({
       success: true,
-      message: "Phone number verified successfully"
+      message: "Phone number verified successfully",
     });
-
   } catch (error) {
     console.error("Verify phone OTP error:", error);
     res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
@@ -656,14 +698,14 @@ export const checkAvailability: RequestHandler = async (req, res) => {
     if (!email && !username && !phone) {
       return res.status(400).json({
         success: false,
-        message: "Email, username, or phone parameter is required"
+        message: "Email, username, or phone parameter is required",
       });
     }
 
     if (!isMongoConnected()) {
       return res.status(503).json({
         success: false,
-        message: "Database connection unavailable"
+        message: "Database connection unavailable",
       });
     }
 
@@ -673,7 +715,7 @@ export const checkAvailability: RequestHandler = async (req, res) => {
       if (!validateEmail(email.toString())) {
         return res.status(400).json({
           success: false,
-          message: "Invalid email format"
+          message: "Invalid email format",
         });
       }
       const existingUser = await User.findOne({ email: email.toString() });
@@ -685,10 +727,12 @@ export const checkAvailability: RequestHandler = async (req, res) => {
       if (!usernameValidation.isValid) {
         return res.status(400).json({
           success: false,
-          message: usernameValidation.error
+          message: usernameValidation.error,
         });
       }
-      const existingUser = await User.findOne({ username: username.toString() });
+      const existingUser = await User.findOne({
+        username: username.toString(),
+      });
       result.usernameAvailable = !existingUser;
     }
 
@@ -696,7 +740,7 @@ export const checkAvailability: RequestHandler = async (req, res) => {
       if (!validatePhone(phone.toString())) {
         return res.status(400).json({
           success: false,
-          message: "Invalid phone number format"
+          message: "Invalid phone number format",
         });
       }
       // Check if phone is already used (you might store phone separately)
@@ -705,14 +749,13 @@ export const checkAvailability: RequestHandler = async (req, res) => {
 
     res.json({
       success: true,
-      ...result
+      ...result,
     });
-
   } catch (error) {
     console.error("Availability check error:", error);
     res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
@@ -725,30 +768,30 @@ export const refreshAccessToken: RequestHandler = async (req, res) => {
     if (!refreshToken) {
       return res.status(401).json({
         success: false,
-        message: "Refresh token required"
+        message: "Refresh token required",
       });
     }
 
     if (!refreshTokens.has(refreshToken)) {
       return res.status(403).json({
         success: false,
-        message: "Invalid refresh token"
+        message: "Invalid refresh token",
       });
     }
 
     const decoded = verifyToken(refreshToken);
-    if (!decoded || decoded.type !== 'refresh') {
+    if (!decoded || decoded.type !== "refresh") {
       refreshTokens.delete(refreshToken);
       return res.status(403).json({
         success: false,
-        message: "Invalid refresh token"
+        message: "Invalid refresh token",
       });
     }
 
     if (!isMongoConnected()) {
       return res.status(503).json({
         success: false,
-        message: "Database connection unavailable"
+        message: "Database connection unavailable",
       });
     }
 
@@ -757,13 +800,13 @@ export const refreshAccessToken: RequestHandler = async (req, res) => {
       refreshTokens.delete(refreshToken);
       return res.status(403).json({
         success: false,
-        message: "User not found"
+        message: "User not found",
       });
     }
 
     // Generate new tokens
-    const newAccessToken = generateToken(user._id.toString(), 'access');
-    const newRefreshToken = generateToken(user._id.toString(), 'refresh');
+    const newAccessToken = generateToken(user._id.toString(), "access");
+    const newRefreshToken = generateToken(user._id.toString(), "refresh");
 
     // Remove old refresh token and add new one
     refreshTokens.delete(refreshToken);
@@ -772,14 +815,13 @@ export const refreshAccessToken: RequestHandler = async (req, res) => {
     res.json({
       success: true,
       accessToken: newAccessToken,
-      refreshToken: newRefreshToken
+      refreshToken: newRefreshToken,
     });
-
   } catch (error) {
     console.error("Refresh token error:", error);
     res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
@@ -795,14 +837,13 @@ export const logout: RequestHandler = async (req, res) => {
 
     res.json({
       success: true,
-      message: "Logged out successfully"
+      message: "Logged out successfully",
     });
-
   } catch (error) {
     console.error("Logout error:", error);
     res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
@@ -815,14 +856,14 @@ export const forgotPassword: RequestHandler = async (req, res) => {
     if (!email || !validateEmail(email)) {
       return res.status(400).json({
         success: false,
-        message: "Valid email is required"
+        message: "Valid email is required",
       });
     }
 
     if (!isMongoConnected()) {
       return res.status(503).json({
         success: false,
-        message: "Database connection unavailable"
+        message: "Database connection unavailable",
       });
     }
 
@@ -831,21 +872,22 @@ export const forgotPassword: RequestHandler = async (req, res) => {
       // Don't reveal whether email exists or not
       return res.json({
         success: true,
-        message: "If your email is registered, you will receive a password reset link"
+        message:
+          "If your email is registered, you will receive a password reset link",
       });
     }
 
     const resetToken = jwt.sign(
-      { userId: user._id.toString(), type: 'reset' },
+      { userId: user._id.toString(), type: "reset" },
       JWT_SECRET,
-      { expiresIn: '1h' }
+      { expiresIn: "1h" },
     );
 
     const expiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
     resetPasswordTokens.set(resetToken, {
       email,
       token: resetToken,
-      expiry
+      expiry,
     });
 
     // In production, send email with reset link
@@ -853,15 +895,16 @@ export const forgotPassword: RequestHandler = async (req, res) => {
 
     res.json({
       success: true,
-      message: "If your email is registered, you will receive a password reset link",
-      resetToken: process.env.NODE_ENV === 'development' ? resetToken : undefined
+      message:
+        "If your email is registered, you will receive a password reset link",
+      resetToken:
+        process.env.NODE_ENV === "development" ? resetToken : undefined,
     });
-
   } catch (error) {
     console.error("Forgot password error:", error);
     res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
@@ -874,14 +917,14 @@ export const resetPassword: RequestHandler = async (req, res) => {
     if (!token || !newPassword) {
       return res.status(400).json({
         success: false,
-        message: "Reset token and new password are required"
+        message: "Reset token and new password are required",
       });
     }
 
     if (newPassword.length < 8) {
       return res.status(400).json({
         success: false,
-        message: "Password must be at least 8 characters long"
+        message: "Password must be at least 8 characters long",
       });
     }
 
@@ -890,23 +933,23 @@ export const resetPassword: RequestHandler = async (req, res) => {
       resetPasswordTokens.delete(token);
       return res.status(400).json({
         success: false,
-        message: "Invalid or expired reset token"
+        message: "Invalid or expired reset token",
       });
     }
 
     const decoded = verifyToken(token);
-    if (!decoded || decoded.type !== 'reset') {
+    if (!decoded || decoded.type !== "reset") {
       resetPasswordTokens.delete(token);
       return res.status(400).json({
         success: false,
-        message: "Invalid reset token"
+        message: "Invalid reset token",
       });
     }
 
     if (!isMongoConnected()) {
       return res.status(503).json({
         success: false,
-        message: "Database connection unavailable"
+        message: "Database connection unavailable",
       });
     }
 
@@ -915,7 +958,7 @@ export const resetPassword: RequestHandler = async (req, res) => {
       resetPasswordTokens.delete(token);
       return res.status(400).json({
         success: false,
-        message: "User not found"
+        message: "User not found",
       });
     }
 
@@ -927,14 +970,13 @@ export const resetPassword: RequestHandler = async (req, res) => {
 
     res.json({
       success: true,
-      message: "Password reset successfully"
+      message: "Password reset successfully",
     });
-
   } catch (error) {
     console.error("Reset password error:", error);
     res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
@@ -948,21 +990,21 @@ export const changePassword: RequestHandler = async (req, res) => {
     if (!currentPassword || !newPassword) {
       return res.status(400).json({
         success: false,
-        message: "Current password and new password are required"
+        message: "Current password and new password are required",
       });
     }
 
     if (newPassword.length < 8) {
       return res.status(400).json({
         success: false,
-        message: "New password must be at least 8 characters long"
+        message: "New password must be at least 8 characters long",
       });
     }
 
     if (!isMongoConnected()) {
       return res.status(503).json({
         success: false,
-        message: "Database connection unavailable"
+        message: "Database connection unavailable",
       });
     }
 
@@ -970,15 +1012,18 @@ export const changePassword: RequestHandler = async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "User not found"
+        message: "User not found",
       });
     }
 
-    const isCurrentPasswordValid = await validatePassword(currentPassword, user.password);
+    const isCurrentPasswordValid = await validatePassword(
+      currentPassword,
+      user.password,
+    );
     if (!isCurrentPasswordValid) {
       return res.status(400).json({
         success: false,
-        message: "Current password is incorrect"
+        message: "Current password is incorrect",
       });
     }
 
@@ -988,14 +1033,13 @@ export const changePassword: RequestHandler = async (req, res) => {
 
     res.json({
       success: true,
-      message: "Password changed successfully"
+      message: "Password changed successfully",
     });
-
   } catch (error) {
     console.error("Change password error:", error);
     res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
@@ -1008,7 +1052,7 @@ export const getUserProfile: RequestHandler = async (req, res) => {
     if (!isMongoConnected()) {
       return res.status(503).json({
         success: false,
-        message: "Database connection unavailable"
+        message: "Database connection unavailable",
       });
     }
 
@@ -1016,20 +1060,19 @@ export const getUserProfile: RequestHandler = async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "User not found"
+        message: "User not found",
       });
     }
 
     res.json({
       success: true,
-      user: user.toJSON()
+      user: user.toJSON(),
     });
-
   } catch (error) {
     console.error("Get profile error:", error);
     res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };

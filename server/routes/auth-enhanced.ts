@@ -1,57 +1,66 @@
 import { RequestHandler } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { 
+import {
   sendVerificationEmailWithLink,
   sendPasswordResetEmail,
   sendWelcomeEmail,
   generateEmailVerificationToken,
   verifyEmailVerificationToken,
   generatePasswordResetToken,
-  verifyPasswordResetToken
+  verifyPasswordResetToken,
 } from "../lib/email-jwt";
 import { connectDB, isMongoConnected } from "../lib/mongodb";
 import User from "../models/User";
 
 // JWT Configuration
-const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key_change_in_production';
-const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
-const REFRESH_EXPIRES_IN = process.env.REFRESH_EXPIRES_IN || '30d';
+const JWT_SECRET =
+  process.env.JWT_SECRET || "your_jwt_secret_key_change_in_production";
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "7d";
+const REFRESH_EXPIRES_IN = process.env.REFRESH_EXPIRES_IN || "30d";
 
 // In-memory storage for refresh tokens and verification codes
 const refreshTokens = new Set<string>();
-const emailVerificationCodes = new Map<string, {
-  code: string;
-  email: string;
-  expiry: Date;
-  attempts: number;
-}>();
+const emailVerificationCodes = new Map<
+  string,
+  {
+    code: string;
+    email: string;
+    expiry: Date;
+    attempts: number;
+  }
+>();
 
 // Helper Functions
-const generateToken = (userId: string, type: 'access' | 'refresh' = 'access'): string => {
-  const expiresIn = type === 'access' ? JWT_EXPIRES_IN : REFRESH_EXPIRES_IN;
+const generateToken = (
+  userId: string,
+  type: "access" | "refresh" = "access",
+): string => {
+  const expiresIn = type === "access" ? JWT_EXPIRES_IN : REFRESH_EXPIRES_IN;
   return jwt.sign(
-    { 
-      userId, 
+    {
+      userId,
       type,
-      iat: Math.floor(Date.now() / 1000) 
+      iat: Math.floor(Date.now() / 1000),
     },
     JWT_SECRET,
-    { 
+    {
       expiresIn,
-      issuer: 'music-catch-api',
-      audience: 'music-catch-app'
-    }
+      issuer: "music-catch-api",
+      audience: "music-catch-app",
+    },
   );
 };
 
-const verifyToken = (token: string): { userId: string; type: string } | null => {
+const verifyToken = (
+  token: string,
+): { userId: string; type: string } | null => {
   try {
     const decoded = jwt.verify(token, JWT_SECRET, {
-      issuer: 'music-catch-api',
-      audience: 'music-catch-app'
+      issuer: "music-catch-api",
+      audience: "music-catch-app",
     }) as any;
-    return { userId: decoded.userId, type: decoded.type || 'access' };
+    return { userId: decoded.userId, type: decoded.type || "access" };
   } catch (error) {
     return null;
   }
@@ -65,7 +74,10 @@ const hashPassword = async (password: string): Promise<string> => {
   return bcrypt.hash(password, 12);
 };
 
-const validatePassword = async (password: string, hashedPassword: string): Promise<boolean> => {
+const validatePassword = async (
+  password: string,
+  hashedPassword: string,
+): Promise<boolean> => {
   return bcrypt.compare(password, hashedPassword);
 };
 
@@ -77,14 +89,17 @@ connectDB();
 // ==========================================
 
 // Send verification email with JWT token link
-export const sendEmailVerificationWithJWT: RequestHandler = async (req, res) => {
+export const sendEmailVerificationWithJWT: RequestHandler = async (
+  req,
+  res,
+) => {
   try {
     const { email, name } = req.body;
 
     if (!email) {
       return res.status(400).json({
         success: false,
-        message: "Email is required"
+        message: "Email is required",
       });
     }
 
@@ -93,7 +108,7 @@ export const sendEmailVerificationWithJWT: RequestHandler = async (req, res) => 
     if (!emailRegex.test(email)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid email format"
+        message: "Invalid email format",
       });
     }
 
@@ -106,7 +121,7 @@ export const sendEmailVerificationWithJWT: RequestHandler = async (req, res) => 
       code: verificationCode,
       email,
       expiry,
-      attempts: 0
+      attempts: 0,
     });
 
     // Check if user exists to get their info
@@ -118,10 +133,10 @@ export const sendEmailVerificationWithJWT: RequestHandler = async (req, res) => 
 
     // Send email with both JWT link and backup code
     const emailResult = await sendVerificationEmailWithLink(
-      email, 
-      verificationCode, 
-      name, 
-      userId
+      email,
+      verificationCode,
+      name,
+      userId,
     );
 
     if (emailResult.success) {
@@ -131,9 +146,10 @@ export const sendEmailVerificationWithJWT: RequestHandler = async (req, res) => 
         verificationToken: emailResult.verificationToken,
         verificationLink: emailResult.verificationLink, // Only in development
         emailSent: true,
-        debugCode: process.env.NODE_ENV === 'development' ? verificationCode : undefined,
+        debugCode:
+          process.env.NODE_ENV === "development" ? verificationCode : undefined,
         expiresAt: expiry.toISOString(),
-        methods: ['link', 'code'] // Available verification methods
+        methods: ["link", "code"], // Available verification methods
       });
     } else {
       res.json({
@@ -142,15 +158,14 @@ export const sendEmailVerificationWithJWT: RequestHandler = async (req, res) => 
         emailSent: false,
         debugCode: verificationCode,
         expiresAt: expiry.toISOString(),
-        methods: ['code'] // Only code method available
+        methods: ["code"], // Only code method available
       });
     }
-
   } catch (error) {
     console.error("Send email verification error:", error);
     res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
@@ -163,7 +178,7 @@ export const verifyEmailWithJWT: RequestHandler = async (req, res) => {
     if (!token) {
       return res.status(400).json({
         success: false,
-        message: "Verification token is required"
+        message: "Verification token is required",
       });
     }
 
@@ -172,7 +187,7 @@ export const verifyEmailWithJWT: RequestHandler = async (req, res) => {
     if (!decoded) {
       return res.status(400).json({
         success: false,
-        message: "Invalid or expired verification token"
+        message: "Invalid or expired verification token",
       });
     }
 
@@ -191,7 +206,7 @@ export const verifyEmailWithJWT: RequestHandler = async (req, res) => {
           success: true,
           message: "Email verified successfully with secure token",
           user: user.toJSON(),
-          verified_with: 'jwt_token'
+          verified_with: "jwt_token",
         });
         return;
       }
@@ -202,14 +217,13 @@ export const verifyEmailWithJWT: RequestHandler = async (req, res) => {
       success: true,
       message: "Email verified successfully",
       email: decoded.email,
-      verified_with: 'jwt_token'
+      verified_with: "jwt_token",
     });
-
   } catch (error) {
     console.error("Verify email with JWT error:", error);
     res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
@@ -222,7 +236,7 @@ export const verifyEmailWithCode: RequestHandler = async (req, res) => {
     if (!email || !code) {
       return res.status(400).json({
         success: false,
-        message: "Email and verification code are required"
+        message: "Email and verification code are required",
       });
     }
 
@@ -230,7 +244,7 @@ export const verifyEmailWithCode: RequestHandler = async (req, res) => {
     if (!storedVerification) {
       return res.status(400).json({
         success: false,
-        message: "No verification code found for this email"
+        message: "No verification code found for this email",
       });
     }
 
@@ -239,7 +253,7 @@ export const verifyEmailWithCode: RequestHandler = async (req, res) => {
       emailVerificationCodes.delete(email);
       return res.status(400).json({
         success: false,
-        message: "Verification code has expired"
+        message: "Verification code has expired",
       });
     }
 
@@ -248,7 +262,7 @@ export const verifyEmailWithCode: RequestHandler = async (req, res) => {
       emailVerificationCodes.delete(email);
       return res.status(400).json({
         success: false,
-        message: "Too many verification attempts"
+        message: "Too many verification attempts",
       });
     }
 
@@ -258,7 +272,7 @@ export const verifyEmailWithCode: RequestHandler = async (req, res) => {
       return res.status(400).json({
         success: false,
         message: "Invalid verification code",
-        attemptsRemaining: 5 - storedVerification.attempts
+        attemptsRemaining: 5 - storedVerification.attempts,
       });
     }
 
@@ -280,7 +294,7 @@ export const verifyEmailWithCode: RequestHandler = async (req, res) => {
           success: true,
           message: "Email verified successfully with code",
           user: user.toJSON(),
-          verified_with: 'verification_code'
+          verified_with: "verification_code",
         });
         return;
       }
@@ -290,14 +304,13 @@ export const verifyEmailWithCode: RequestHandler = async (req, res) => {
       success: true,
       message: "Email verified successfully",
       email,
-      verified_with: 'verification_code'
+      verified_with: "verification_code",
     });
-
   } catch (error) {
     console.error("Verify email code error:", error);
     res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
@@ -314,7 +327,7 @@ export const sendPasswordResetWithJWT: RequestHandler = async (req, res) => {
     if (!email) {
       return res.status(400).json({
         success: false,
-        message: "Email is required"
+        message: "Email is required",
       });
     }
 
@@ -322,14 +335,14 @@ export const sendPasswordResetWithJWT: RequestHandler = async (req, res) => {
     if (!emailRegex.test(email)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid email format"
+        message: "Invalid email format",
       });
     }
 
     if (!isMongoConnected()) {
       return res.status(503).json({
         success: false,
-        message: "Database connection unavailable"
+        message: "Database connection unavailable",
       });
     }
 
@@ -338,32 +351,40 @@ export const sendPasswordResetWithJWT: RequestHandler = async (req, res) => {
       // Don't reveal whether email exists or not
       return res.json({
         success: true,
-        message: "If your email is registered, you will receive a password reset link"
+        message:
+          "If your email is registered, you will receive a password reset link",
       });
     }
 
     // Send password reset email with JWT token
-    const emailResult = await sendPasswordResetEmail(email, user._id.toString(), user.name);
+    const emailResult = await sendPasswordResetEmail(
+      email,
+      user._id.toString(),
+      user.name,
+    );
 
     if (emailResult.success) {
       res.json({
         success: true,
         message: "Password reset link sent to your email",
-        resetToken: process.env.NODE_ENV === 'development' ? emailResult.resetToken : undefined,
-        resetLink: emailResult.resetLink // Only in development
+        resetToken:
+          process.env.NODE_ENV === "development"
+            ? emailResult.resetToken
+            : undefined,
+        resetLink: emailResult.resetLink, // Only in development
       });
     } else {
       res.json({
         success: true,
-        message: "If your email is registered, you will receive a password reset link"
+        message:
+          "If your email is registered, you will receive a password reset link",
       });
     }
-
   } catch (error) {
     console.error("Send password reset error:", error);
     res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
@@ -376,14 +397,14 @@ export const resetPasswordWithJWT: RequestHandler = async (req, res) => {
     if (!token || !newPassword) {
       return res.status(400).json({
         success: false,
-        message: "Reset token and new password are required"
+        message: "Reset token and new password are required",
       });
     }
 
     if (newPassword.length < 8) {
       return res.status(400).json({
         success: false,
-        message: "Password must be at least 8 characters long"
+        message: "Password must be at least 8 characters long",
       });
     }
 
@@ -392,14 +413,14 @@ export const resetPasswordWithJWT: RequestHandler = async (req, res) => {
     if (!decoded) {
       return res.status(400).json({
         success: false,
-        message: "Invalid or expired reset token"
+        message: "Invalid or expired reset token",
       });
     }
 
     if (!isMongoConnected()) {
       return res.status(503).json({
         success: false,
-        message: "Database connection unavailable"
+        message: "Database connection unavailable",
       });
     }
 
@@ -407,7 +428,7 @@ export const resetPasswordWithJWT: RequestHandler = async (req, res) => {
     if (!user) {
       return res.status(400).json({
         success: false,
-        message: "User not found"
+        message: "User not found",
       });
     }
 
@@ -418,14 +439,13 @@ export const resetPasswordWithJWT: RequestHandler = async (req, res) => {
 
     res.json({
       success: true,
-      message: "Password reset successfully with secure token"
+      message: "Password reset successfully with secure token",
     });
-
   } catch (error) {
     console.error("Reset password with JWT error:", error);
     res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
@@ -435,15 +455,27 @@ export const resetPasswordWithJWT: RequestHandler = async (req, res) => {
 // ==========================================
 
 // Register user with automatic email verification
-export const registerWithEmailVerification: RequestHandler = async (req, res) => {
+export const registerWithEmailVerification: RequestHandler = async (
+  req,
+  res,
+) => {
   try {
-    const { email, username, name, password, dateOfBirth, gender, bio, profileImageURL } = req.body;
+    const {
+      email,
+      username,
+      name,
+      password,
+      dateOfBirth,
+      gender,
+      bio,
+      profileImageURL,
+    } = req.body;
 
     // Validation
     if (!email || !username || !name || !password) {
       return res.status(400).json({
         success: false,
-        message: "Email, username, name, and password are required"
+        message: "Email, username, name, and password are required",
       });
     }
 
@@ -451,34 +483,34 @@ export const registerWithEmailVerification: RequestHandler = async (req, res) =>
     if (!emailRegex.test(email)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid email format"
+        message: "Invalid email format",
       });
     }
 
     if (password.length < 8) {
       return res.status(400).json({
         success: false,
-        message: "Password must be at least 8 characters long"
+        message: "Password must be at least 8 characters long",
       });
     }
 
     if (!isMongoConnected()) {
       return res.status(503).json({
         success: false,
-        message: "Database connection unavailable"
+        message: "Database connection unavailable",
       });
     }
 
     // Check if user already exists
     const existingUser = await User.findOne({
-      $or: [{ email }, { username }]
+      $or: [{ email }, { username }],
     });
 
     if (existingUser) {
-      const field = existingUser.email === email ? 'Email' : 'Username';
+      const field = existingUser.email === email ? "Email" : "Username";
       return res.status(400).json({
         success: false,
-        message: `${field} already exists`
+        message: `${field} already exists`,
       });
     }
 
@@ -492,11 +524,11 @@ export const registerWithEmailVerification: RequestHandler = async (req, res) =>
       name,
       password: hashedPassword,
       display_name: name,
-      bio: bio || '',
+      bio: bio || "",
       dob: dateOfBirth ? new Date(dateOfBirth) : undefined,
-      profile_image_url: profileImageURL || '',
+      profile_image_url: profileImageURL || "",
       is_verified: false,
-      email_verified: false
+      email_verified: false,
     });
 
     await newUser.save();
@@ -509,24 +541,25 @@ export const registerWithEmailVerification: RequestHandler = async (req, res) =>
       code: verificationCode,
       email,
       expiry,
-      attempts: 0
+      attempts: 0,
     });
 
     const emailResult = await sendVerificationEmailWithLink(
-      email, 
-      verificationCode, 
-      name, 
-      newUser._id.toString()
+      email,
+      verificationCode,
+      name,
+      newUser._id.toString(),
     );
 
     // Generate tokens for immediate login (user can access app but some features locked until verified)
-    const accessToken = generateToken(newUser._id.toString(), 'access');
-    const refreshToken = generateToken(newUser._id.toString(), 'refresh');
+    const accessToken = generateToken(newUser._id.toString(), "access");
+    const refreshToken = generateToken(newUser._id.toString(), "refresh");
     refreshTokens.add(refreshToken);
 
     res.status(201).json({
       success: true,
-      message: "User registered successfully. Please check your email to verify your account.",
+      message:
+        "User registered successfully. Please check your email to verify your account.",
       user: newUser.toJSON(),
       accessToken,
       refreshToken,
@@ -534,19 +567,22 @@ export const registerWithEmailVerification: RequestHandler = async (req, res) =>
         sent: emailResult.success,
         verificationToken: emailResult.verificationToken,
         verificationLink: emailResult.verificationLink, // Only in development
-        debugCode: process.env.NODE_ENV === 'development' ? verificationCode : undefined,
+        debugCode:
+          process.env.NODE_ENV === "development" ? verificationCode : undefined,
         expiresAt: expiry.toISOString(),
-        methods: emailResult.success ? ['link', 'code'] : ['code']
-      }
+        methods: emailResult.success ? ["link", "code"] : ["code"],
+      },
     });
 
-    console.log("✅ New user registered with email verification:", newUser.email);
-
+    console.log(
+      "✅ New user registered with email verification:",
+      newUser.email,
+    );
   } catch (error) {
     console.error("Registration with email verification error:", error);
     res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
@@ -563,14 +599,14 @@ export const loginWithEnhancedFeatures: RequestHandler = async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({
         success: false,
-        message: "Email and password are required"
+        message: "Email and password are required",
       });
     }
 
     if (!isMongoConnected()) {
       return res.status(503).json({
         success: false,
-        message: "Database connection unavailable"
+        message: "Database connection unavailable",
       });
     }
 
@@ -578,7 +614,7 @@ export const loginWithEnhancedFeatures: RequestHandler = async (req, res) => {
     if (!user) {
       return res.status(401).json({
         success: false,
-        message: "Invalid email or password"
+        message: "Invalid email or password",
       });
     }
 
@@ -586,7 +622,7 @@ export const loginWithEnhancedFeatures: RequestHandler = async (req, res) => {
     if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
-        message: "Invalid email or password"
+        message: "Invalid email or password",
       });
     }
 
@@ -595,14 +631,14 @@ export const loginWithEnhancedFeatures: RequestHandler = async (req, res) => {
     await user.save();
 
     // Generate tokens
-    const accessExpiry = rememberMe ? '30d' : JWT_EXPIRES_IN;
+    const accessExpiry = rememberMe ? "30d" : JWT_EXPIRES_IN;
     const accessToken = jwt.sign(
-      { userId: user._id.toString(), type: 'access' },
+      { userId: user._id.toString(), type: "access" },
       JWT_SECRET,
-      { expiresIn: accessExpiry }
+      { expiresIn: accessExpiry },
     );
-    
-    const refreshToken = generateToken(user._id.toString(), 'refresh');
+
+    const refreshToken = generateToken(user._id.toString(), "refresh");
     refreshTokens.add(refreshToken);
 
     const response: any = {
@@ -614,28 +650,29 @@ export const loginWithEnhancedFeatures: RequestHandler = async (req, res) => {
       rememberMe: !!rememberMe,
       verification_status: {
         email_verified: user.email_verified,
-        account_verified: user.is_verified
-      }
+        account_verified: user.is_verified,
+      },
     };
 
     // If email not verified, provide verification options
     if (!user.email_verified) {
       response.verification_options = {
         can_resend_email: true,
-        resend_endpoint: '/api/v4/auth/verification/email/resend'
+        resend_endpoint: "/api/v4/auth/verification/email/resend",
       };
       response.message += " (Email verification pending)";
     }
 
     res.json(response);
 
-    console.log(`✅ User logged in: ${email} (verified: ${user.email_verified})`);
-
+    console.log(
+      `✅ User logged in: ${email} (verified: ${user.email_verified})`,
+    );
   } catch (error) {
     console.error("Enhanced login error:", error);
     res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
@@ -652,14 +689,14 @@ export const resendVerificationEmail: RequestHandler = async (req, res) => {
     if (!email) {
       return res.status(400).json({
         success: false,
-        message: "Email is required"
+        message: "Email is required",
       });
     }
 
     if (!isMongoConnected()) {
       return res.status(503).json({
         success: false,
-        message: "Database connection unavailable"
+        message: "Database connection unavailable",
       });
     }
 
@@ -667,14 +704,14 @@ export const resendVerificationEmail: RequestHandler = async (req, res) => {
     if (!user) {
       return res.status(404).json({
         success: false,
-        message: "User not found"
+        message: "User not found",
       });
     }
 
     if (user.email_verified) {
       return res.json({
         success: true,
-        message: "Email is already verified"
+        message: "Email is already verified",
       });
     }
 
@@ -686,14 +723,14 @@ export const resendVerificationEmail: RequestHandler = async (req, res) => {
       code: verificationCode,
       email,
       expiry,
-      attempts: 0
+      attempts: 0,
     });
 
     const emailResult = await sendVerificationEmailWithLink(
-      email, 
-      verificationCode, 
-      user.name, 
-      user._id.toString()
+      email,
+      verificationCode,
+      user.name,
+      user._id.toString(),
     );
 
     res.json({
@@ -702,15 +739,15 @@ export const resendVerificationEmail: RequestHandler = async (req, res) => {
       emailSent: emailResult.success,
       verificationToken: emailResult.verificationToken,
       verificationLink: emailResult.verificationLink, // Only in development
-      debugCode: process.env.NODE_ENV === 'development' ? verificationCode : undefined,
-      expiresAt: expiry.toISOString()
+      debugCode:
+        process.env.NODE_ENV === "development" ? verificationCode : undefined,
+      expiresAt: expiry.toISOString(),
     });
-
   } catch (error) {
     console.error("Resend verification email error:", error);
     res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };

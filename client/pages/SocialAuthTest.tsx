@@ -21,20 +21,24 @@ export default function SocialAuthTest() {
         body: JSON.stringify({
           email: "test@gmail.com",
           name: "Test User",
-          picture: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
+          picture:
+            "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
           googleId: "google_test_123",
           isNewUser: true,
         }),
       });
 
       const result = await response.json();
-      
-      setTestResults(prev => [...prev, {
-        type: "Google Backend Test",
-        success: result.success,
-        data: result,
-        timestamp: new Date().toLocaleTimeString()
-      }]);
+
+      setTestResults((prev) => [
+        ...prev,
+        {
+          type: "Google Backend Test",
+          success: result.success,
+          data: result,
+          timestamp: new Date().toLocaleTimeString(),
+        },
+      ]);
 
       if (result.success) {
         toast({
@@ -50,13 +54,16 @@ export default function SocialAuthTest() {
       }
     } catch (error) {
       console.error("Google backend test error:", error);
-      setTestResults(prev => [...prev, {
-        type: "Google Backend Test",
-        success: false,
-        error: error.message,
-        timestamp: new Date().toLocaleTimeString()
-      }]);
-      
+      setTestResults((prev) => [
+        ...prev,
+        {
+          type: "Google Backend Test",
+          success: false,
+          error: error.message,
+          timestamp: new Date().toLocaleTimeString(),
+        },
+      ]);
+
       toast({
         title: "❌ Google Backend Test Error",
         description: "Network or server error",
@@ -78,20 +85,24 @@ export default function SocialAuthTest() {
         body: JSON.stringify({
           email: "test@facebook.com",
           name: "Facebook Test User",
-          picture: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
+          picture:
+            "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&h=150&fit=crop&crop=face",
           facebookId: "facebook_test_456",
           isNewUser: true,
         }),
       });
 
       const result = await response.json();
-      
-      setTestResults(prev => [...prev, {
-        type: "Facebook Backend Test",
-        success: result.success,
-        data: result,
-        timestamp: new Date().toLocaleTimeString()
-      }]);
+
+      setTestResults((prev) => [
+        ...prev,
+        {
+          type: "Facebook Backend Test",
+          success: result.success,
+          data: result,
+          timestamp: new Date().toLocaleTimeString(),
+        },
+      ]);
 
       if (result.success) {
         toast({
@@ -107,13 +118,16 @@ export default function SocialAuthTest() {
       }
     } catch (error) {
       console.error("Facebook backend test error:", error);
-      setTestResults(prev => [...prev, {
-        type: "Facebook Backend Test",
-        success: false,
-        error: error.message,
-        timestamp: new Date().toLocaleTimeString()
-      }]);
-      
+      setTestResults((prev) => [
+        ...prev,
+        {
+          type: "Facebook Backend Test",
+          success: false,
+          error: error.message,
+          timestamp: new Date().toLocaleTimeString(),
+        },
+      ]);
+
       toast({
         title: "❌ Facebook Backend Test Error",
         description: "Network or server error",
@@ -136,19 +150,23 @@ export default function SocialAuthTest() {
           provider: "google",
           email: "unified@test.com",
           name: "Unified Test User",
-          picture: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
+          picture:
+            "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
           socialId: "unified_test_789",
         }),
       });
 
       const result = await response.json();
-      
-      setTestResults(prev => [...prev, {
-        type: "Unified Social Auth Test",
-        success: result.success,
-        data: result,
-        timestamp: new Date().toLocaleTimeString()
-      }]);
+
+      setTestResults((prev) => [
+        ...prev,
+        {
+          type: "Unified Social Auth Test",
+          success: result.success,
+          data: result,
+          timestamp: new Date().toLocaleTimeString(),
+        },
+      ]);
 
       if (result.success) {
         toast({
@@ -164,13 +182,16 @@ export default function SocialAuthTest() {
       }
     } catch (error) {
       console.error("Unified social auth test error:", error);
-      setTestResults(prev => [...prev, {
-        type: "Unified Social Auth Test",
-        success: false,
-        error: error.message,
-        timestamp: new Date().toLocaleTimeString()
-      }]);
-      
+      setTestResults((prev) => [
+        ...prev,
+        {
+          type: "Unified Social Auth Test",
+          success: false,
+          error: error.message,
+          timestamp: new Date().toLocaleTimeString(),
+        },
+      ]);
+
       toast({
         title: "❌ Unified Social Auth Test Error",
         description: "Network or server error",
@@ -209,14 +230,16 @@ export default function SocialAuthTest() {
             className="space-y-4"
           >
             <h2 className="text-2xl font-bold mb-4">Backend API Tests</h2>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <button
                 onClick={testGoogleBackend}
                 disabled={isLoading}
                 className="p-4 bg-blue-600 hover:bg-blue-700 rounded-lg font-medium transition-colors disabled:opacity-50 flex items-center justify-center space-x-2"
               >
-                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
+                {isLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : null}
                 <span>Test Google Backend</span>
               </button>
 
@@ -225,7 +248,9 @@ export default function SocialAuthTest() {
                 disabled={isLoading}
                 className="p-4 bg-blue-800 hover:bg-blue-900 rounded-lg font-medium transition-colors disabled:opacity-50 flex items-center justify-center space-x-2"
               >
-                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
+                {isLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : null}
                 <span>Test Facebook Backend</span>
               </button>
 
@@ -234,7 +259,9 @@ export default function SocialAuthTest() {
                 disabled={isLoading}
                 className="p-4 bg-purple-600 hover:bg-purple-700 rounded-lg font-medium transition-colors disabled:opacity-50 flex items-center justify-center space-x-2"
               >
-                {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : null}
+                {isLoading ? (
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                ) : null}
                 <span>Test Unified Social Auth</span>
               </button>
 
@@ -260,27 +287,47 @@ export default function SocialAuthTest() {
                   <div
                     key={index}
                     className={`p-4 rounded-lg ${
-                      result.success ? "bg-green-900/30 border border-green-500/30" : "bg-red-900/30 border border-red-500/30"
+                      result.success
+                        ? "bg-green-900/30 border border-green-500/30"
+                        : "bg-red-900/30 border border-red-500/30"
                     }`}
                   >
                     <div className="flex items-center justify-between mb-2">
                       <h4 className="font-medium">{result.type}</h4>
-                      <span className={`text-sm ${result.success ? "text-green-400" : "text-red-400"}`}>
-                        {result.success ? "✅ PASS" : "❌ FAIL"} - {result.timestamp}
+                      <span
+                        className={`text-sm ${result.success ? "text-green-400" : "text-red-400"}`}
+                      >
+                        {result.success ? "✅ PASS" : "❌ FAIL"} -{" "}
+                        {result.timestamp}
                       </span>
                     </div>
-                    
+
                     {result.success && result.data && (
                       <div className="text-sm text-gray-300">
-                        <p><strong>User:</strong> {result.data.user?.name} ({result.data.user?.email})</p>
-                        <p><strong>Message:</strong> {result.data.message}</p>
-                        <p><strong>Token:</strong> {result.data.accessToken ? "✅ Generated" : "❌ Missing"}</p>
+                        <p>
+                          <strong>User:</strong> {result.data.user?.name} (
+                          {result.data.user?.email})
+                        </p>
+                        <p>
+                          <strong>Message:</strong> {result.data.message}
+                        </p>
+                        <p>
+                          <strong>Token:</strong>{" "}
+                          {result.data.accessToken
+                            ? "✅ Generated"
+                            : "❌ Missing"}
+                        </p>
                       </div>
                     )}
-                    
+
                     {!result.success && (
                       <div className="text-sm text-red-300">
-                        <p><strong>Error:</strong> {result.error || result.data?.message || "Unknown error"}</p>
+                        <p>
+                          <strong>Error:</strong>{" "}
+                          {result.error ||
+                            result.data?.message ||
+                            "Unknown error"}
+                        </p>
                       </div>
                     )}
                   </div>

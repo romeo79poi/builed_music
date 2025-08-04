@@ -45,7 +45,7 @@ interface AvailabilityResponse {
 }
 
 class CompleteAuth {
-  private baseURL = '/api/v3/auth';
+  private baseURL = "/api/v3/auth";
   private accessToken: string | null = null;
   private refreshToken: string | null = null;
   private refreshPromise: Promise<boolean> | null = null;
@@ -59,32 +59,32 @@ class CompleteAuth {
   // ==========================================
 
   private loadTokensFromStorage() {
-    this.accessToken = localStorage.getItem('accessToken');
-    this.refreshToken = localStorage.getItem('refreshToken');
+    this.accessToken = localStorage.getItem("accessToken");
+    this.refreshToken = localStorage.getItem("refreshToken");
   }
 
   private saveTokens(accessToken: string, refreshToken: string) {
     this.accessToken = accessToken;
     this.refreshToken = refreshToken;
-    localStorage.setItem('accessToken', accessToken);
-    localStorage.setItem('refreshToken', refreshToken);
+    localStorage.setItem("accessToken", accessToken);
+    localStorage.setItem("refreshToken", refreshToken);
   }
 
   private clearTokens() {
     this.accessToken = null;
     this.refreshToken = null;
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('currentUser');
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("currentUser");
   }
 
   private getAuthHeaders(): Record<string, string> {
     const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
     };
 
     if (this.accessToken) {
-      headers['Authorization'] = `Bearer ${this.accessToken}`;
+      headers["Authorization"] = `Bearer ${this.accessToken}`;
     }
 
     return headers;
@@ -95,15 +95,17 @@ class CompleteAuth {
   // ==========================================
 
   private async apiRequest<T = any>(
-    endpoint: string, 
+    endpoint: string,
     options: RequestInit = {},
-    requireAuth = false
+    requireAuth = false,
   ): Promise<T> {
     const url = `${this.baseURL}${endpoint}`;
-    
+
     const config: RequestInit = {
-      headers: requireAuth ? this.getAuthHeaders() : { 'Content-Type': 'application/json' },
-      ...options
+      headers: requireAuth
+        ? this.getAuthHeaders()
+        : { "Content-Type": "application/json" },
+      ...options,
     };
 
     let response = await fetch(url, config);
@@ -142,15 +144,15 @@ class CompleteAuth {
     profileImageURL?: string;
   }): Promise<AuthResponse> {
     try {
-      const data = await this.apiRequest<AuthResponse>('/register/email', {
-        method: 'POST',
-        body: JSON.stringify(userData)
+      const data = await this.apiRequest<AuthResponse>("/register/email", {
+        method: "POST",
+        body: JSON.stringify(userData),
       });
 
       if (data.success && data.accessToken && data.refreshToken) {
         this.saveTokens(data.accessToken, data.refreshToken);
         if (data.user) {
-          localStorage.setItem('currentUser', JSON.stringify(data.user));
+          localStorage.setItem("currentUser", JSON.stringify(data.user));
         }
       }
 
@@ -158,7 +160,7 @@ class CompleteAuth {
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || 'Registration failed'
+        message: error.message || "Registration failed",
       };
     }
   }
@@ -173,15 +175,15 @@ class CompleteAuth {
     bio?: string;
   }): Promise<AuthResponse> {
     try {
-      const data = await this.apiRequest<AuthResponse>('/register/phone', {
-        method: 'POST',
-        body: JSON.stringify(userData)
+      const data = await this.apiRequest<AuthResponse>("/register/phone", {
+        method: "POST",
+        body: JSON.stringify(userData),
       });
 
       if (data.success && data.accessToken && data.refreshToken) {
         this.saveTokens(data.accessToken, data.refreshToken);
         if (data.user) {
-          localStorage.setItem('currentUser', JSON.stringify(data.user));
+          localStorage.setItem("currentUser", JSON.stringify(data.user));
         }
       }
 
@@ -189,7 +191,7 @@ class CompleteAuth {
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || 'Phone registration failed'
+        message: error.message || "Phone registration failed",
       };
     }
   }
@@ -198,17 +200,21 @@ class CompleteAuth {
   // LOGIN
   // ==========================================
 
-  async loginWithEmail(email: string, password: string, rememberMe = false): Promise<AuthResponse> {
+  async loginWithEmail(
+    email: string,
+    password: string,
+    rememberMe = false,
+  ): Promise<AuthResponse> {
     try {
-      const data = await this.apiRequest<AuthResponse>('/login/email', {
-        method: 'POST',
-        body: JSON.stringify({ email, password, rememberMe })
+      const data = await this.apiRequest<AuthResponse>("/login/email", {
+        method: "POST",
+        body: JSON.stringify({ email, password, rememberMe }),
       });
 
       if (data.success && data.accessToken && data.refreshToken) {
         this.saveTokens(data.accessToken, data.refreshToken);
         if (data.user) {
-          localStorage.setItem('currentUser', JSON.stringify(data.user));
+          localStorage.setItem("currentUser", JSON.stringify(data.user));
         }
       }
 
@@ -216,22 +222,26 @@ class CompleteAuth {
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || 'Login failed'
+        message: error.message || "Login failed",
       };
     }
   }
 
-  async loginWithUsername(username: string, password: string, rememberMe = false): Promise<AuthResponse> {
+  async loginWithUsername(
+    username: string,
+    password: string,
+    rememberMe = false,
+  ): Promise<AuthResponse> {
     try {
-      const data = await this.apiRequest<AuthResponse>('/login/username', {
-        method: 'POST',
-        body: JSON.stringify({ username, password, rememberMe })
+      const data = await this.apiRequest<AuthResponse>("/login/username", {
+        method: "POST",
+        body: JSON.stringify({ username, password, rememberMe }),
       });
 
       if (data.success && data.accessToken && data.refreshToken) {
         this.saveTokens(data.accessToken, data.refreshToken);
         if (data.user) {
-          localStorage.setItem('currentUser', JSON.stringify(data.user));
+          localStorage.setItem("currentUser", JSON.stringify(data.user));
         }
       }
 
@@ -239,7 +249,7 @@ class CompleteAuth {
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || 'Login failed'
+        message: error.message || "Login failed",
       };
     }
   }
@@ -250,56 +260,74 @@ class CompleteAuth {
 
   async sendEmailVerification(email: string): Promise<VerificationResponse> {
     try {
-      return await this.apiRequest<VerificationResponse>('/verification/email/send', {
-        method: 'POST',
-        body: JSON.stringify({ email })
-      });
+      return await this.apiRequest<VerificationResponse>(
+        "/verification/email/send",
+        {
+          method: "POST",
+          body: JSON.stringify({ email }),
+        },
+      );
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || 'Failed to send verification email'
+        message: error.message || "Failed to send verification email",
       };
     }
   }
 
-  async verifyEmailCode(email: string, code: string): Promise<VerificationResponse> {
+  async verifyEmailCode(
+    email: string,
+    code: string,
+  ): Promise<VerificationResponse> {
     try {
-      return await this.apiRequest<VerificationResponse>('/verification/email/verify', {
-        method: 'POST',
-        body: JSON.stringify({ email, code })
-      });
+      return await this.apiRequest<VerificationResponse>(
+        "/verification/email/verify",
+        {
+          method: "POST",
+          body: JSON.stringify({ email, code }),
+        },
+      );
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || 'Email verification failed'
+        message: error.message || "Email verification failed",
       };
     }
   }
 
   async sendPhoneOTP(phone: string): Promise<VerificationResponse> {
     try {
-      return await this.apiRequest<VerificationResponse>('/verification/phone/send', {
-        method: 'POST',
-        body: JSON.stringify({ phone })
-      });
+      return await this.apiRequest<VerificationResponse>(
+        "/verification/phone/send",
+        {
+          method: "POST",
+          body: JSON.stringify({ phone }),
+        },
+      );
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || 'Failed to send OTP'
+        message: error.message || "Failed to send OTP",
       };
     }
   }
 
-  async verifyPhoneOTP(phone: string, otp: string): Promise<VerificationResponse> {
+  async verifyPhoneOTP(
+    phone: string,
+    otp: string,
+  ): Promise<VerificationResponse> {
     try {
-      return await this.apiRequest<VerificationResponse>('/verification/phone/verify', {
-        method: 'POST',
-        body: JSON.stringify({ phone, otp })
-      });
+      return await this.apiRequest<VerificationResponse>(
+        "/verification/phone/verify",
+        {
+          method: "POST",
+          body: JSON.stringify({ phone, otp }),
+        },
+      );
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || 'OTP verification failed'
+        message: error.message || "OTP verification failed",
       };
     }
   }
@@ -315,15 +343,17 @@ class CompleteAuth {
   }): Promise<AvailabilityResponse> {
     try {
       const queryParams = new URLSearchParams();
-      if (params.email) queryParams.append('email', params.email);
-      if (params.username) queryParams.append('username', params.username);
-      if (params.phone) queryParams.append('phone', params.phone);
+      if (params.email) queryParams.append("email", params.email);
+      if (params.username) queryParams.append("username", params.username);
+      if (params.phone) queryParams.append("phone", params.phone);
 
-      return await this.apiRequest<AvailabilityResponse>(`/check-availability?${queryParams}`);
+      return await this.apiRequest<AvailabilityResponse>(
+        `/check-availability?${queryParams}`,
+      );
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || 'Availability check failed'
+        message: error.message || "Availability check failed",
       };
     }
   }
@@ -332,44 +362,56 @@ class CompleteAuth {
   // PASSWORD MANAGEMENT
   // ==========================================
 
-  async forgotPassword(email: string): Promise<{ success: boolean; message: string; resetToken?: string }> {
+  async forgotPassword(
+    email: string,
+  ): Promise<{ success: boolean; message: string; resetToken?: string }> {
     try {
-      return await this.apiRequest('/password/forgot', {
-        method: 'POST',
-        body: JSON.stringify({ email })
+      return await this.apiRequest("/password/forgot", {
+        method: "POST",
+        body: JSON.stringify({ email }),
       });
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || 'Password reset request failed'
+        message: error.message || "Password reset request failed",
       };
     }
   }
 
-  async resetPassword(token: string, newPassword: string): Promise<{ success: boolean; message: string }> {
+  async resetPassword(
+    token: string,
+    newPassword: string,
+  ): Promise<{ success: boolean; message: string }> {
     try {
-      return await this.apiRequest('/password/reset', {
-        method: 'POST',
-        body: JSON.stringify({ token, newPassword })
+      return await this.apiRequest("/password/reset", {
+        method: "POST",
+        body: JSON.stringify({ token, newPassword }),
       });
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || 'Password reset failed'
+        message: error.message || "Password reset failed",
       };
     }
   }
 
-  async changePassword(currentPassword: string, newPassword: string): Promise<{ success: boolean; message: string }> {
+  async changePassword(
+    currentPassword: string,
+    newPassword: string,
+  ): Promise<{ success: boolean; message: string }> {
     try {
-      return await this.apiRequest('/password/change', {
-        method: 'POST',
-        body: JSON.stringify({ currentPassword, newPassword })
-      }, true);
+      return await this.apiRequest(
+        "/password/change",
+        {
+          method: "POST",
+          body: JSON.stringify({ currentPassword, newPassword }),
+        },
+        true,
+      );
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || 'Password change failed'
+        message: error.message || "Password change failed",
       };
     }
   }
@@ -378,13 +420,17 @@ class CompleteAuth {
   // PROFILE MANAGEMENT
   // ==========================================
 
-  async getProfile(): Promise<{ success: boolean; user?: AuthUser; message?: string }> {
+  async getProfile(): Promise<{
+    success: boolean;
+    user?: AuthUser;
+    message?: string;
+  }> {
     try {
-      return await this.apiRequest('/profile', {}, true);
+      return await this.apiRequest("/profile", {}, true);
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || 'Failed to get profile'
+        message: error.message || "Failed to get profile",
       };
     }
   }
@@ -405,9 +451,13 @@ class CompleteAuth {
 
     this.refreshPromise = (async (): Promise<boolean> => {
       try {
-        const data = await this.apiRequest<{ success: boolean; accessToken: string; refreshToken: string }>('/token/refresh', {
-          method: 'POST',
-          body: JSON.stringify({ refreshToken: this.refreshToken })
+        const data = await this.apiRequest<{
+          success: boolean;
+          accessToken: string;
+          refreshToken: string;
+        }>("/token/refresh", {
+          method: "POST",
+          body: JSON.stringify({ refreshToken: this.refreshToken }),
         });
 
         if (data.success && data.accessToken && data.refreshToken) {
@@ -418,7 +468,7 @@ class CompleteAuth {
           return false;
         }
       } catch (error) {
-        console.error('Token refresh failed:', error);
+        console.error("Token refresh failed:", error);
         this.clearTokens();
         return false;
       } finally {
@@ -435,9 +485,9 @@ class CompleteAuth {
 
   async logout(): Promise<{ success: boolean; message: string }> {
     try {
-      const result = await this.apiRequest('/logout', {
-        method: 'POST',
-        body: JSON.stringify({ refreshToken: this.refreshToken })
+      const result = await this.apiRequest("/logout", {
+        method: "POST",
+        body: JSON.stringify({ refreshToken: this.refreshToken }),
       });
 
       this.clearTokens();
@@ -446,7 +496,7 @@ class CompleteAuth {
       this.clearTokens();
       return {
         success: true, // Still clear tokens even if logout request fails
-        message: 'Logged out successfully'
+        message: "Logged out successfully",
       };
     }
   }
@@ -461,7 +511,7 @@ class CompleteAuth {
 
   getCurrentUser(): AuthUser | null {
     try {
-      const userStr = localStorage.getItem('currentUser');
+      const userStr = localStorage.getItem("currentUser");
       return userStr ? JSON.parse(userStr) : null;
     } catch {
       return null;
@@ -487,7 +537,7 @@ class CompleteAuth {
         await this.refreshAccessToken();
       }
     } catch (error) {
-      console.error('Session maintenance failed:', error);
+      console.error("Session maintenance failed:", error);
     }
   }
 }
@@ -497,4 +547,9 @@ export const authComplete = new CompleteAuth();
 export default authComplete;
 
 // Export types for use in components
-export type { AuthUser, AuthResponse, VerificationResponse, AvailabilityResponse };
+export type {
+  AuthUser,
+  AuthResponse,
+  VerificationResponse,
+  AvailabilityResponse,
+};

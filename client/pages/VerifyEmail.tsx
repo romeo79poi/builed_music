@@ -1,22 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { 
-  CheckCircle, 
-  AlertCircle, 
-  Loader2, 
-  Mail, 
+import React, { useState, useEffect } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import {
+  CheckCircle,
+  AlertCircle,
+  Loader2,
+  Mail,
   Shield,
   RefreshCw,
   Copy,
-  ExternalLink
-} from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+  ExternalLink,
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const VerifyEmail: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -26,14 +32,14 @@ const VerifyEmail: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [verifying, setVerifying] = useState(false);
   const [verified, setVerified] = useState(false);
-  const [error, setError] = useState<string>('');
-  
-  const [manualCode, setManualCode] = useState('');
-  const [email, setEmail] = useState('');
+  const [error, setError] = useState<string>("");
+
+  const [manualCode, setManualCode] = useState("");
+  const [email, setEmail] = useState("");
   const [showManualVerification, setShowManualVerification] = useState(false);
 
   // Get token from URL
-  const tokenFromUrl = searchParams.get('token');
+  const tokenFromUrl = searchParams.get("token");
 
   // Auto-verify if token is present in URL
   useEffect(() => {
@@ -45,16 +51,19 @@ const VerifyEmail: React.FC = () => {
   // Verify email using JWT token from link
   const verifyWithToken = async (token: string) => {
     setVerifying(true);
-    setError('');
+    setError("");
 
     try {
-      const response = await fetch('/api/v4/auth/verification/email/verify-token', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        "/api/v4/auth/verification/email/verify-token",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ token }),
         },
-        body: JSON.stringify({ token }),
-      });
+      );
 
       const data = await response.json();
 
@@ -62,24 +71,27 @@ const VerifyEmail: React.FC = () => {
         setVerified(true);
         toast({
           title: "✅ Email Verified!",
-          description: data.message || "Your email has been successfully verified.",
+          description:
+            data.message || "Your email has been successfully verified.",
         });
 
         // Redirect to home after 3 seconds
         setTimeout(() => {
-          navigate('/home');
+          navigate("/home");
         }, 3000);
       } else {
-        setError(data.message || 'Token verification failed');
+        setError(data.message || "Token verification failed");
         setShowManualVerification(true);
         toast({
           title: "Token Verification Failed",
-          description: data.message || "The verification link may have expired. Try manual verification.",
+          description:
+            data.message ||
+            "The verification link may have expired. Try manual verification.",
           variant: "destructive",
         });
       }
     } catch (error) {
-      setError('Network error occurred');
+      setError("Network error occurred");
       setShowManualVerification(true);
       toast({
         title: "Network Error",
@@ -94,24 +106,27 @@ const VerifyEmail: React.FC = () => {
   // Verify email using manual code
   const verifyWithCode = async () => {
     if (!email || !manualCode) {
-      setError('Email and verification code are required');
+      setError("Email and verification code are required");
       return;
     }
 
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
-      const response = await fetch('/api/v4/auth/verification/email/verify-code', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        "/api/v4/auth/verification/email/verify-code",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: email.trim(),
+            code: manualCode.trim(),
+          }),
         },
-        body: JSON.stringify({ 
-          email: email.trim(), 
-          code: manualCode.trim() 
-        }),
-      });
+      );
 
       const data = await response.json();
 
@@ -119,15 +134,16 @@ const VerifyEmail: React.FC = () => {
         setVerified(true);
         toast({
           title: "✅ Email Verified!",
-          description: data.message || "Your email has been successfully verified.",
+          description:
+            data.message || "Your email has been successfully verified.",
         });
 
         // Redirect to home after 3 seconds
         setTimeout(() => {
-          navigate('/home');
+          navigate("/home");
         }, 3000);
       } else {
-        setError(data.message || 'Code verification failed');
+        setError(data.message || "Code verification failed");
         toast({
           title: "Verification Failed",
           description: data.message || "Invalid verification code.",
@@ -135,7 +151,7 @@ const VerifyEmail: React.FC = () => {
         });
       }
     } catch (error) {
-      setError('Network error occurred');
+      setError("Network error occurred");
       toast({
         title: "Network Error",
         description: "Failed to verify code. Please try again.",
@@ -149,18 +165,18 @@ const VerifyEmail: React.FC = () => {
   // Resend verification email
   const resendVerificationEmail = async () => {
     if (!email) {
-      setError('Please enter your email address');
+      setError("Please enter your email address");
       return;
     }
 
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
-      const response = await fetch('/api/v4/auth/verification/email/resend', {
-        method: 'POST',
+      const response = await fetch("/api/v4/auth/verification/email/resend", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ email: email.trim() }),
       });
@@ -173,7 +189,7 @@ const VerifyEmail: React.FC = () => {
           description: "Check your email for a new verification link.",
         });
       } else {
-        setError(data.message || 'Failed to resend verification email');
+        setError(data.message || "Failed to resend verification email");
         toast({
           title: "Resend Failed",
           description: data.message || "Failed to resend verification email.",
@@ -181,7 +197,7 @@ const VerifyEmail: React.FC = () => {
         });
       }
     } catch (error) {
-      setError('Network error occurred');
+      setError("Network error occurred");
       toast({
         title: "Network Error",
         description: "Failed to resend verification email.",
@@ -210,9 +226,12 @@ const VerifyEmail: React.FC = () => {
             <div className="mx-auto mb-4 w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
               <CheckCircle className="w-8 h-8 text-green-600" />
             </div>
-            <CardTitle className="text-2xl font-bold text-green-600">Email Verified!</CardTitle>
+            <CardTitle className="text-2xl font-bold text-green-600">
+              Email Verified!
+            </CardTitle>
             <CardDescription>
-              Your email has been successfully verified. You'll be redirected to the home page shortly.
+              Your email has been successfully verified. You'll be redirected to
+              the home page shortly.
             </CardDescription>
           </CardHeader>
           <CardContent className="text-center">
@@ -221,15 +240,12 @@ const VerifyEmail: React.FC = () => {
                 <CheckCircle className="w-4 h-4 mr-1" />
                 Verification Complete
               </Badge>
-              
+
               <p className="text-sm text-muted-foreground">
                 Redirecting in 3 seconds...
               </p>
-              
-              <Button 
-                onClick={() => navigate('/home')}
-                className="w-full"
-              >
+
+              <Button onClick={() => navigate("/home")} className="w-full">
                 Continue to Home
               </Button>
             </div>
@@ -248,7 +264,9 @@ const VerifyEmail: React.FC = () => {
             <div className="mx-auto mb-4 w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
               <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
             </div>
-            <CardTitle className="text-2xl font-bold">Verifying Email...</CardTitle>
+            <CardTitle className="text-2xl font-bold">
+              Verifying Email...
+            </CardTitle>
             <CardDescription>
               Please wait while we verify your email address.
             </CardDescription>
@@ -274,12 +292,13 @@ const VerifyEmail: React.FC = () => {
             <div className="mx-auto mb-4 w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center">
               <Mail className="w-8 h-8 text-purple-600" />
             </div>
-            <CardTitle className="text-2xl font-bold">Verify Your Email</CardTitle>
+            <CardTitle className="text-2xl font-bold">
+              Verify Your Email
+            </CardTitle>
             <CardDescription>
-              {tokenFromUrl 
-                ? "We're verifying your email address..." 
-                : "Enter your verification details to confirm your email address"
-              }
+              {tokenFromUrl
+                ? "We're verifying your email address..."
+                : "Enter your verification details to confirm your email address"}
             </CardDescription>
           </CardHeader>
         </Card>
@@ -312,11 +331,12 @@ const VerifyEmail: React.FC = () => {
                   <Copy className="h-4 w-4" />
                 </Button>
               </div>
-              
+
               <p className="text-sm text-muted-foreground">
-                This secure link contains an encrypted token to verify your email instantly.
+                This secure link contains an encrypted token to verify your
+                email instantly.
               </p>
-              
+
               <Button
                 onClick={() => verifyWithToken(tokenFromUrl)}
                 disabled={verifying}
@@ -359,7 +379,7 @@ const VerifyEmail: React.FC = () => {
                   disabled={loading}
                 />
               </div>
-              
+
               <div>
                 <Label htmlFor="code">Verification Code</Label>
                 <Input
@@ -371,7 +391,7 @@ const VerifyEmail: React.FC = () => {
                   disabled={loading}
                 />
               </div>
-              
+
               <Button
                 onClick={verifyWithCode}
                 disabled={loading || !email || !manualCode}
@@ -383,7 +403,7 @@ const VerifyEmail: React.FC = () => {
                     Verifying...
                   </>
                 ) : (
-                  'Verify Email'
+                  "Verify Email"
                 )}
               </Button>
             </CardContent>
@@ -407,7 +427,7 @@ const VerifyEmail: React.FC = () => {
                 disabled={loading}
               />
             </div>
-            
+
             <Button
               variant="outline"
               onClick={resendVerificationEmail}
@@ -426,11 +446,11 @@ const VerifyEmail: React.FC = () => {
                 </>
               )}
             </Button>
-            
+
             <div className="text-center text-sm text-muted-foreground">
               <p>Didn't receive an email? Check your spam folder.</p>
               <p className="mt-1">
-                Need support?{' '}
+                Need support?{" "}
                 <a href="#" className="text-purple-400 hover:underline">
                   Contact us
                 </a>
@@ -447,11 +467,17 @@ const VerifyEmail: React.FC = () => {
           <CardContent className="text-sm text-muted-foreground space-y-2">
             <div className="flex items-start gap-2">
               <ExternalLink className="h-4 w-4 mt-0.5 text-green-500" />
-              <span><strong>Secure Link:</strong> Click the link in your email for instant verification</span>
+              <span>
+                <strong>Secure Link:</strong> Click the link in your email for
+                instant verification
+              </span>
             </div>
             <div className="flex items-start gap-2">
               <Mail className="h-4 w-4 mt-0.5 text-blue-500" />
-              <span><strong>Manual Code:</strong> Enter the 6-digit code from your email</span>
+              <span>
+                <strong>Manual Code:</strong> Enter the 6-digit code from your
+                email
+              </span>
             </div>
           </CardContent>
         </Card>

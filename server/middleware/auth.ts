@@ -3,7 +3,8 @@ import jwt from "jsonwebtoken";
 import User from "../models/User";
 import { isMongoConnected } from "../lib/mongodb";
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key_change_in_production';
+const JWT_SECRET =
+  process.env.JWT_SECRET || "your_jwt_secret_key_change_in_production";
 
 // Extend Request interface to include user data
 declare global {
@@ -19,29 +20,29 @@ declare global {
 export const authenticateJWT: RequestHandler = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
-    const token = authHeader?.startsWith('Bearer ') 
-      ? authHeader.substring(7) 
+    const token = authHeader?.startsWith("Bearer ")
+      ? authHeader.substring(7)
       : authHeader;
 
     if (!token) {
       return res.status(401).json({
         success: false,
         message: "Access token required",
-        code: "TOKEN_MISSING"
+        code: "TOKEN_MISSING",
       });
     }
 
     // Verify JWT token
     const decoded = jwt.verify(token, JWT_SECRET, {
-      issuer: 'music-catch-api',
-      audience: 'music-catch-app'
+      issuer: "music-catch-api",
+      audience: "music-catch-app",
     }) as any;
 
     if (!decoded.userId) {
       return res.status(403).json({
         success: false,
         message: "Invalid token format",
-        code: "TOKEN_INVALID"
+        code: "TOKEN_INVALID",
       });
     }
 
@@ -50,7 +51,7 @@ export const authenticateJWT: RequestHandler = async (req, res, next) => {
       return res.status(503).json({
         success: false,
         message: "Database connection unavailable",
-        code: "DB_UNAVAILABLE"
+        code: "DB_UNAVAILABLE",
       });
     }
 
@@ -60,7 +61,7 @@ export const authenticateJWT: RequestHandler = async (req, res, next) => {
       return res.status(403).json({
         success: false,
         message: "User not found",
-        code: "USER_NOT_FOUND"
+        code: "USER_NOT_FOUND",
       });
     }
 
@@ -69,7 +70,7 @@ export const authenticateJWT: RequestHandler = async (req, res, next) => {
       return res.status(403).json({
         success: false,
         message: "Account not verified",
-        code: "ACCOUNT_NOT_VERIFIED"
+        code: "ACCOUNT_NOT_VERIFIED",
       });
     }
 
@@ -78,39 +79,38 @@ export const authenticateJWT: RequestHandler = async (req, res, next) => {
     req.user = user;
 
     next();
-
   } catch (error: any) {
     console.error("JWT authentication error:", error);
 
     // Handle specific JWT errors
-    if (error.name === 'TokenExpiredError') {
+    if (error.name === "TokenExpiredError") {
       return res.status(401).json({
         success: false,
         message: "Token has expired",
-        code: "TOKEN_EXPIRED"
+        code: "TOKEN_EXPIRED",
       });
     }
 
-    if (error.name === 'JsonWebTokenError') {
+    if (error.name === "JsonWebTokenError") {
       return res.status(403).json({
         success: false,
         message: "Invalid token",
-        code: "TOKEN_INVALID"
+        code: "TOKEN_INVALID",
       });
     }
 
-    if (error.name === 'NotBeforeError') {
+    if (error.name === "NotBeforeError") {
       return res.status(403).json({
         success: false,
         message: "Token not active yet",
-        code: "TOKEN_NOT_ACTIVE"
+        code: "TOKEN_NOT_ACTIVE",
       });
     }
 
     return res.status(500).json({
       success: false,
       message: "Authentication failed",
-      code: "AUTH_ERROR"
+      code: "AUTH_ERROR",
     });
   }
 };
@@ -119,8 +119,8 @@ export const authenticateJWT: RequestHandler = async (req, res, next) => {
 export const optionalAuth: RequestHandler = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
-    const token = authHeader?.startsWith('Bearer ') 
-      ? authHeader.substring(7) 
+    const token = authHeader?.startsWith("Bearer ")
+      ? authHeader.substring(7)
       : authHeader;
 
     if (!token) {
@@ -128,8 +128,8 @@ export const optionalAuth: RequestHandler = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, JWT_SECRET, {
-      issuer: 'music-catch-api',
-      audience: 'music-catch-app'
+      issuer: "music-catch-api",
+      audience: "music-catch-app",
     }) as any;
 
     if (decoded.userId && isMongoConnected()) {
@@ -141,7 +141,6 @@ export const optionalAuth: RequestHandler = async (req, res, next) => {
     }
 
     next();
-
   } catch (error) {
     // Continue without authentication on error
     next();
@@ -165,17 +164,16 @@ export const authenticateAdmin: RequestHandler = async (req, res, next) => {
       return res.status(403).json({
         success: false,
         message: "Admin access required",
-        code: "ADMIN_REQUIRED"
+        code: "ADMIN_REQUIRED",
       });
     }
 
     next();
-
   } catch (error) {
     return res.status(403).json({
       success: false,
       message: "Admin authentication failed",
-      code: "ADMIN_AUTH_FAILED"
+      code: "ADMIN_AUTH_FAILED",
     });
   }
 };
@@ -183,23 +181,26 @@ export const authenticateAdmin: RequestHandler = async (req, res, next) => {
 // Rate limiting middleware for auth endpoints
 const authAttempts = new Map<string, { count: number; lastAttempt: Date }>();
 
-export const rateLimit = (maxAttempts: number = 5, windowMs: number = 15 * 60 * 1000): RequestHandler => {
+export const rateLimit = (
+  maxAttempts: number = 5,
+  windowMs: number = 15 * 60 * 1000,
+): RequestHandler => {
   return (req, res, next) => {
-    const identifier = req.ip || req.socket.remoteAddress || 'unknown';
+    const identifier = req.ip || req.socket.remoteAddress || "unknown";
     const now = new Date();
-    
+
     const attempts = authAttempts.get(identifier);
-    
+
     if (attempts) {
       const timeDiff = now.getTime() - attempts.lastAttempt.getTime();
-      
+
       if (timeDiff < windowMs) {
         if (attempts.count >= maxAttempts) {
           return res.status(429).json({
             success: false,
             message: "Too many attempts. Please try again later.",
             code: "RATE_LIMITED",
-            retryAfter: Math.ceil((windowMs - timeDiff) / 1000)
+            retryAfter: Math.ceil((windowMs - timeDiff) / 1000),
           });
         }
         attempts.count += 1;
@@ -265,7 +266,7 @@ export const validateRegistrationInput: RequestHandler = (req, res, next) => {
     return res.status(400).json({
       success: false,
       message: "Validation failed",
-      errors
+      errors,
     });
   }
 
@@ -278,21 +279,21 @@ export const validateLoginInput: RequestHandler = (req, res, next) => {
   if (!password) {
     return res.status(400).json({
       success: false,
-      message: "Password is required"
+      message: "Password is required",
     });
   }
 
   if (!email && !username) {
     return res.status(400).json({
       success: false,
-      message: "Email or username is required"
+      message: "Email or username is required",
     });
   }
 
   if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return res.status(400).json({
       success: false,
-      message: "Invalid email format"
+      message: "Invalid email format",
     });
   }
 
@@ -301,16 +302,19 @@ export const validateLoginInput: RequestHandler = (req, res, next) => {
 
 // Security headers middleware
 export const securityHeaders: RequestHandler = (req, res, next) => {
-  res.setHeader('X-Content-Type-Options', 'nosniff');
-  res.setHeader('X-Frame-Options', 'DENY');
-  res.setHeader('X-XSS-Protection', '1; mode=block');
-  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-  
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("X-XSS-Protection", "1; mode=block");
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+
   // Don't cache auth responses
-  if (req.path.includes('/auth')) {
-    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, private');
-    res.setHeader('Pragma', 'no-cache');
-    res.setHeader('Expires', '0');
+  if (req.path.includes("/auth")) {
+    res.setHeader(
+      "Cache-Control",
+      "no-store, no-cache, must-revalidate, private",
+    );
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
   }
 
   next();

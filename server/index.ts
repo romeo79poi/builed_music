@@ -243,7 +243,10 @@ export function createServer() {
   app.post("/api/v2/auth/login", loginUserMongoDB);
   app.get("/api/v2/auth/check-availability", checkAvailabilityMongoDB);
   app.post("/api/v2/auth/complete-registration", completeRegistrationMongoDB);
-  app.post("/api/v2/auth/send-email-verification", sendEmailVerificationMongoDB);
+  app.post(
+    "/api/v2/auth/send-email-verification",
+    sendEmailVerificationMongoDB,
+  );
   app.post("/api/v2/auth/verify-email", verifyEmailCodeMongoDB);
   app.post("/api/v2/auth/refresh-token", refreshToken);
 
@@ -256,7 +259,11 @@ export function createServer() {
   app.put("/api/v2/profile/:userId", updateUserProfile);
   app.get("/api/v2/profile/:userId/stats", getMongoUserStats);
   app.get("/api/v2/users/search", searchMongoUsers);
-  app.post("/api/v2/profile/:targetUserId/follow", authenticateJWT, toggleMongoFollow);
+  app.post(
+    "/api/v2/profile/:targetUserId/follow",
+    authenticateJWT,
+    toggleMongoFollow,
+  );
 
   // ===============================================
   // COMPLETE AUTH SYSTEM (v3) - PRODUCTION READY

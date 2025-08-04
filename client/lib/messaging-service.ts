@@ -93,7 +93,7 @@ class MessagingService {
     try {
       const response = await fetch(`${this.baseUrl}/chats/${this.userId}`);
       const data = await response.json();
-      return data.success ? (data.data || []) : [];
+      return data.success ? data.data || [] : [];
     } catch (error) {
       console.error("Failed to get chats:", error);
       return [];
@@ -104,7 +104,7 @@ class MessagingService {
     try {
       const response = await fetch(`${this.baseUrl}/${chatId}`);
       const data = await response.json();
-      return data.success ? (data.data || []) : [];
+      return data.success ? data.data || [] : [];
     } catch (error) {
       console.error("Failed to get messages:", error);
       return [];
@@ -234,7 +234,7 @@ class MessagingService {
       });
 
       const data = await response.json();
-      return data.success ? (data.data || null) : null;
+      return data.success ? data.data || null : null;
     } catch (error) {
       console.error("Failed to create chat:", error);
       return null;

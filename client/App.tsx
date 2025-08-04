@@ -71,8 +71,14 @@ const App = () => {
                     <Route path="/rewards" element={<Rewards />} />
                     <Route path="/reels" element={<Reels />} />
                     <Route path="/messages" element={<Messages />} />
-                    <Route path="/mongo-auth-demo" element={<MongoAuthDemo />} />
-                    <Route path="/complete-auth-demo" element={<CompleteAuthDemo />} />
+                    <Route
+                      path="/mongo-auth-demo"
+                      element={<MongoAuthDemo />}
+                    />
+                    <Route
+                      path="/complete-auth-demo"
+                      element={<CompleteAuthDemo />}
+                    />
                     <Route path="/verify-email" element={<VerifyEmail />} />
                     <Route path="/reset-password" element={<ResetPassword />} />
                     <Route path="/jwt-email-demo" element={<JWTEmailDemo />} />

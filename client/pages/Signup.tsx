@@ -120,7 +120,9 @@ export default function Signup() {
   const [verificationUser, setVerificationUser] = useState<any>(null);
   const [emailVerificationSent, setEmailVerificationSent] = useState(false);
   const [phoneVerificationSent, setPhoneVerificationSent] = useState(false);
-  const [debugVerificationCode, setDebugVerificationCode] = useState<string | null>(null);
+  const [debugVerificationCode, setDebugVerificationCode] = useState<
+    string | null
+  >(null);
 
   // Validation functions
   const validateEmail = (email: string): boolean => {
@@ -1255,17 +1257,26 @@ export default function Signup() {
 
               // Fetch and store user profile data
               try {
-                const profileResponse = await fetch(`/api/v1/users/${data.user.id}`, {
-                  headers: {
-                    'user-id': data.user.id
-                  }
-                });
+                const profileResponse = await fetch(
+                  `/api/v1/users/${data.user.id}`,
+                  {
+                    headers: {
+                      "user-id": data.user.id,
+                    },
+                  },
+                );
 
                 if (profileResponse.ok) {
                   const profileData = await profileResponse.json();
-                  localStorage.setItem("currentUser", JSON.stringify(profileData.data));
+                  localStorage.setItem(
+                    "currentUser",
+                    JSON.stringify(profileData.data),
+                  );
                 } else {
-                  localStorage.setItem("currentUser", JSON.stringify(data.user));
+                  localStorage.setItem(
+                    "currentUser",
+                    JSON.stringify(data.user),
+                  );
                 }
               } catch (error) {
                 console.warn("Failed to fetch profile data:", error);
@@ -2186,8 +2197,11 @@ export default function Signup() {
                     </p>
                     <button
                       onClick={() => {
-                        setFormData(prev => ({ ...prev, otp: debugVerificationCode || "" }));
-                        setErrors(prev => ({ ...prev, otp: undefined }));
+                        setFormData((prev) => ({
+                          ...prev,
+                          otp: debugVerificationCode || "",
+                        }));
+                        setErrors((prev) => ({ ...prev, otp: undefined }));
                       }}
                       className="mt-2 px-3 py-1 bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/50 rounded text-orange-300 text-xs transition-colors"
                     >

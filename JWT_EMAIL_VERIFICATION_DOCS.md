@@ -5,8 +5,9 @@
 Aapka complete **Nodemailer + JWT email verification system** ready hai! Yeh system modern, secure, aur production-ready hai with the following features:
 
 ### ✅ **Key Features**
+
 - **Nodemailer Integration**: Real email delivery with Gmail SMTP
-- **JWT Token Links**: Secure, encrypted verification links 
+- **JWT Token Links**: Secure, encrypted verification links
 - **Backup Code System**: 6-digit codes as fallback
 - **Beautiful HTML Emails**: Professional email templates
 - **Password Reset Links**: JWT-based password reset
@@ -16,6 +17,7 @@ Aapka complete **Nodemailer + JWT email verification system** ready hai! Yeh sys
 ## 🚀 **Quick Access**
 
 ### **Demo Pages**
+
 1. **JWT Email Demo**: http://localhost:8080/jwt-email-demo
 2. **Email Verification Page**: http://localhost:8080/verify-email?token=YOUR_TOKEN
 3. **Password Reset Page**: http://localhost:8080/reset-password?token=YOUR_TOKEN
@@ -47,11 +49,12 @@ client/
 ### **1. Email Service with JWT (`server/lib/email-jwt.ts`)**
 
 #### Key Functions:
+
 ```typescript
 // Generate JWT token for email verification
 generateEmailVerificationToken(email: string, userId?: string): string
 
-// Verify JWT token for email verification  
+// Verify JWT token for email verification
 verifyEmailVerificationToken(token: string): { email: string; userId?: string } | null
 
 // Send verification email with both JWT link and backup code
@@ -65,6 +68,7 @@ sendPasswordResetEmail(email: string, userId: string, name?: string)
 ```
 
 #### Email Templates:
+
 - **Beautiful HTML emails** with gradient designs
 - **Responsive design** for mobile and desktop
 - **Multiple verification methods** in one email
@@ -73,32 +77,35 @@ sendPasswordResetEmail(email: string, userId: string, name?: string)
 ### **2. Enhanced Auth Routes (`server/routes/auth-enhanced.ts`)**
 
 #### Key Endpoints:
+
 ```typescript
 // Email verification with JWT
-sendEmailVerificationWithJWT()    // Send email with JWT link + code
-verifyEmailWithJWT()              // Verify using JWT token
-verifyEmailWithCode()             // Verify using backup code
+sendEmailVerificationWithJWT(); // Send email with JWT link + code
+verifyEmailWithJWT(); // Verify using JWT token
+verifyEmailWithCode(); // Verify using backup code
 
-// Password reset with JWT  
-sendPasswordResetWithJWT()        // Send reset email with JWT link
-resetPasswordWithJWT()            // Reset password using JWT token
+// Password reset with JWT
+sendPasswordResetWithJWT(); // Send reset email with JWT link
+resetPasswordWithJWT(); // Reset password using JWT token
 
 // Enhanced registration
-registerWithEmailVerification()   // Register + auto send verification
-loginWithEnhancedFeatures()      // Login with verification status
+registerWithEmailVerification(); // Register + auto send verification
+loginWithEnhancedFeatures(); // Login with verification status
 ```
 
 ### **3. API Routes (`server/routes/auth-v4.ts`)**
 
 #### Verification Routes:
+
 ```bash
 POST /api/v4/auth/verification/email/send
-POST /api/v4/auth/verification/email/verify-token  
+POST /api/v4/auth/verification/email/verify-token
 POST /api/v4/auth/verification/email/verify-code
 POST /api/v4/auth/verification/email/resend
 ```
 
 #### Password Reset Routes:
+
 ```bash
 POST /api/v4/auth/password/forgot
 POST /api/v4/auth/password/validate-reset-token
@@ -106,6 +113,7 @@ POST /api/v4/auth/password/reset-with-token
 ```
 
 #### Registration & Login:
+
 ```bash
 POST /api/v4/auth/register/email-verification
 POST /api/v4/auth/login/enhanced
@@ -116,8 +124,9 @@ POST /api/v4/auth/login/enhanced
 ### **1. JWT Email Demo Page (`client/pages/JWTEmailDemo.tsx`)**
 
 Complete testing interface with:
+
 - **Email verification testing**
-- **Password reset testing** 
+- **Password reset testing**
 - **Registration with verification**
 - **Real-time API responses**
 - **Copy/paste functionality**
@@ -127,7 +136,7 @@ Complete testing interface with:
 
 - **Auto-verification** when token in URL
 - **Manual verification** with backup code
-- **Resend verification** functionality  
+- **Resend verification** functionality
 - **Beautiful UI** with status indicators
 - **Error handling** and user guidance
 
@@ -142,6 +151,7 @@ Complete testing interface with:
 ## 📧 **Email Templates**
 
 ### **Verification Email Features:**
+
 - **Two methods in one email**:
   1. **Click verification link** (JWT-based, instant)
   2. **Enter 6-digit code** (backup method)
@@ -151,6 +161,7 @@ Complete testing interface with:
 - **Professional branding**
 
 ### **Password Reset Email Features:**
+
 - **Secure JWT link** for instant reset
 - **Manual token** copy-paste option
 - **Clear security warnings**
@@ -160,6 +171,7 @@ Complete testing interface with:
 ## 🔒 **Security Features**
 
 ### **JWT Token Security:**
+
 - **1-hour expiry** for verification tokens
 - **1-hour expiry** for password reset tokens
 - **Encrypted payload** with user info
@@ -167,12 +179,14 @@ Complete testing interface with:
 - **One-time use** enforcement
 
 ### **Rate Limiting:**
+
 - **3 attempts per 5 minutes** for sending emails
 - **5-10 attempts per 10 minutes** for verification
 - **IP-based limiting** for protection
 - **Progressive timeouts** for security
 
 ### **Input Validation:**
+
 - **Email format validation**
 - **Password strength requirements**
 - **Token format verification**
@@ -181,15 +195,16 @@ Complete testing interface with:
 ## 🌟 **Usage Examples**
 
 ### **1. Send Verification Email**
+
 ```typescript
 // API Call
-const response = await fetch('/api/v4/auth/verification/email/send', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ 
-    email: 'user@example.com', 
-    name: 'John Doe' 
-  })
+const response = await fetch("/api/v4/auth/verification/email/send", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+    email: "user@example.com",
+    name: "John Doe",
+  }),
 });
 
 const data = await response.json();
@@ -197,43 +212,46 @@ const data = await response.json();
 ```
 
 ### **2. Verify with JWT Token**
+
 ```typescript
 // From email link click or manual token entry
-const response = await fetch('/api/v4/auth/verification/email/verify-token', {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({ token: 'jwt_token_here' })
+const response = await fetch("/api/v4/auth/verification/email/verify-token", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ token: "jwt_token_here" }),
 });
 ```
 
 ### **3. Password Reset Flow**
+
 ```typescript
 // Step 1: Request reset
-await fetch('/api/v4/auth/password/forgot', {
-  method: 'POST',
-  body: JSON.stringify({ email: 'user@example.com' })
+await fetch("/api/v4/auth/password/forgot", {
+  method: "POST",
+  body: JSON.stringify({ email: "user@example.com" }),
 });
 
 // Step 2: Reset with token
-await fetch('/api/v4/auth/password/reset-with-token', {
-  method: 'POST', 
-  body: JSON.stringify({ 
-    token: 'jwt_reset_token',
-    newPassword: 'newPassword123'
-  })
+await fetch("/api/v4/auth/password/reset-with-token", {
+  method: "POST",
+  body: JSON.stringify({
+    token: "jwt_reset_token",
+    newPassword: "newPassword123",
+  }),
 });
 ```
 
 ### **4. Registration with Auto-Verification**
+
 ```typescript
-const response = await fetch('/api/v4/auth/register/email-verification', {
-  method: 'POST',
+const response = await fetch("/api/v4/auth/register/email-verification", {
+  method: "POST",
   body: JSON.stringify({
-    email: 'user@example.com',
-    username: 'johndoe',
-    name: 'John Doe',
-    password: 'securePassword123'
-  })
+    email: "user@example.com",
+    username: "johndoe",
+    name: "John Doe",
+    password: "securePassword123",
+  }),
 });
 // User registered + verification email sent automatically
 ```
@@ -241,6 +259,7 @@ const response = await fetch('/api/v4/auth/register/email-verification', {
 ## 📱 **Email Configuration**
 
 ### **Gmail Setup (Current)**
+
 ```javascript
 // Environment Variables Needed:
 EMAIL_USER=musiccatch.verify@gmail.com
@@ -249,6 +268,7 @@ FRONTEND_URL=http://localhost:8080
 ```
 
 ### **Production Email Services**
+
 ```javascript
 // For production, replace with:
 EMAIL_SERVICE=sendgrid    // or ses, mailgun, etc.
@@ -259,28 +279,35 @@ EMAIL_FROM=noreply@yourdomain.com
 ## 🎨 **Customization**
 
 ### **1. Email Templates**
+
 Modify `createVerificationEmailWithLinkHTML()` in `email-jwt.ts`:
+
 - Change colors and branding
 - Update company information
 - Add custom styling
 - Modify email content
 
-### **2. JWT Configuration**  
+### **2. JWT Configuration**
+
 Adjust token settings in `email-jwt.ts`:
+
 ```typescript
-const EMAIL_JWT_EXPIRES_IN = '2h';  // Longer expiry
-const RESET_JWT_EXPIRES_IN = '30m'; // Shorter expiry
+const EMAIL_JWT_EXPIRES_IN = "2h"; // Longer expiry
+const RESET_JWT_EXPIRES_IN = "30m"; // Shorter expiry
 ```
 
 ### **3. Rate Limiting**
+
 Modify limits in `auth-v4.ts`:
+
 ```typescript
-rateLimit(5, 5 * 60 * 1000)  // 5 attempts per 5 minutes
+rateLimit(5, 5 * 60 * 1000); // 5 attempts per 5 minutes
 ```
 
 ## 🚀 **Production Deployment**
 
 ### **Environment Variables:**
+
 ```bash
 # Required for production
 NODE_ENV=production
@@ -297,6 +324,7 @@ EMAIL_API_KEY=your_sendgrid_api_key
 ```
 
 ### **Email Service Setup:**
+
 1. **Gmail**: Enable 2FA + App-specific password
 2. **SendGrid**: Get API key + verified sender
 3. **AWS SES**: Configure IAM + verified domain
@@ -305,6 +333,7 @@ EMAIL_API_KEY=your_sendgrid_api_key
 ## 📊 **Testing**
 
 ### **Manual Testing:**
+
 1. Visit: http://localhost:8080/jwt-email-demo
 2. Enter your email in "Send Verification Email"
 3. Check console for debug links (development mode)
@@ -312,13 +341,14 @@ EMAIL_API_KEY=your_sendgrid_api_key
 5. Test password reset flow
 
 ### **API Testing:**
+
 ```bash
 # Send verification
 curl -X POST http://localhost:8080/api/v4/auth/verification/email/send \
   -H "Content-Type: application/json" \
   -d '{"email":"test@example.com","name":"Test User"}'
 
-# Verify with token  
+# Verify with token
 curl -X POST http://localhost:8080/api/v4/auth/verification/email/verify-token \
   -H "Content-Type: application/json" \
   -d '{"token":"jwt_token_here"}'
@@ -327,12 +357,14 @@ curl -X POST http://localhost:8080/api/v4/auth/verification/email/verify-token \
 ## 🔍 **Debugging**
 
 ### **Development Features:**
+
 - **Debug codes** shown in API responses
 - **Verification links** logged to console
 - **Email preview URLs** for testing
 - **Detailed error messages**
 
 ### **Common Issues:**
+
 1. **Email not sending**: Check Gmail app password
 2. **JWT invalid**: Check token expiry and format
 3. **Database errors**: Verify MongoDB connection
@@ -341,6 +373,7 @@ curl -X POST http://localhost:8080/api/v4/auth/verification/email/verify-token \
 ## 📈 **Advanced Features**
 
 ### **Future Enhancements:**
+
 - **Email templates** with multiple themes
 - **SMS verification** integration
 - **Social login** with email verification

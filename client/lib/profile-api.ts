@@ -31,21 +31,23 @@ export interface UserStats {
 }
 
 // Fetch user profile from MongoDB backend
-export const fetchUserProfileFromMongoDB = async (userId?: string): Promise<{
+export const fetchUserProfileFromMongoDB = async (
+  userId?: string,
+): Promise<{
   success: boolean;
   userData?: UserProfileData;
   error?: string;
 }> => {
   try {
-    const token = localStorage.getItem('token');
-    const url = userId ? `/api/v2/profile/${userId}` : '/api/v2/profile';
-    
+    const token = localStorage.getItem("token");
+    const url = userId ? `/api/v2/profile/${userId}` : "/api/v2/profile";
+
     const response = await fetch(url, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
-        ...(token && { 'Authorization': `Bearer ${token}` })
-      }
+        "Content-Type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
     });
 
     const data = await response.json();
@@ -53,19 +55,19 @@ export const fetchUserProfileFromMongoDB = async (userId?: string): Promise<{
     if (data.success && data.data) {
       return {
         success: true,
-        userData: data.data
+        userData: data.data,
       };
     } else {
       return {
         success: false,
-        error: data.message || 'Failed to fetch profile'
+        error: data.message || "Failed to fetch profile",
       };
     }
   } catch (error: any) {
-    console.error('Error fetching user profile:', error);
+    console.error("Error fetching user profile:", error);
     return {
       success: false,
-      error: error.message || 'Failed to fetch profile'
+      error: error.message || "Failed to fetch profile",
     };
   }
 };
@@ -73,23 +75,23 @@ export const fetchUserProfileFromMongoDB = async (userId?: string): Promise<{
 // Update user profile in MongoDB backend
 export const updateUserProfileInMongoDB = async (
   updates: Partial<UserProfileData>,
-  userId?: string
+  userId?: string,
 ): Promise<{
   success: boolean;
   userData?: UserProfileData;
   error?: string;
 }> => {
   try {
-    const token = localStorage.getItem('token');
-    const url = userId ? `/api/v2/profile/${userId}` : '/api/v2/profile';
-    
+    const token = localStorage.getItem("token");
+    const url = userId ? `/api/v2/profile/${userId}` : "/api/v2/profile";
+
     const response = await fetch(url, {
-      method: 'PUT',
+      method: "PUT",
       headers: {
-        'Content-Type': 'application/json',
-        ...(token && { 'Authorization': `Bearer ${token}` })
+        "Content-Type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
       },
-      body: JSON.stringify(updates)
+      body: JSON.stringify(updates),
     });
 
     const data = await response.json();
@@ -97,39 +99,43 @@ export const updateUserProfileInMongoDB = async (
     if (data.success && data.data) {
       return {
         success: true,
-        userData: data.data
+        userData: data.data,
       };
     } else {
       return {
         success: false,
-        error: data.message || 'Failed to update profile'
+        error: data.message || "Failed to update profile",
       };
     }
   } catch (error: any) {
-    console.error('Error updating user profile:', error);
+    console.error("Error updating user profile:", error);
     return {
       success: false,
-      error: error.message || 'Failed to update profile'
+      error: error.message || "Failed to update profile",
     };
   }
 };
 
 // Fetch user statistics from MongoDB backend
-export const fetchUserStatsFromMongoDB = async (userId?: string): Promise<{
+export const fetchUserStatsFromMongoDB = async (
+  userId?: string,
+): Promise<{
   success: boolean;
   stats?: UserStats;
   error?: string;
 }> => {
   try {
-    const token = localStorage.getItem('token');
-    const url = userId ? `/api/v2/profile/${userId}/stats` : '/api/v2/profile/stats';
-    
+    const token = localStorage.getItem("token");
+    const url = userId
+      ? `/api/v2/profile/${userId}/stats`
+      : "/api/v2/profile/stats";
+
     const response = await fetch(url, {
-      method: 'GET',
+      method: "GET",
       headers: {
-        'Content-Type': 'application/json',
-        ...(token && { 'Authorization': `Bearer ${token}` })
-      }
+        "Content-Type": "application/json",
+        ...(token && { Authorization: `Bearer ${token}` }),
+      },
     });
 
     const data = await response.json();
@@ -137,82 +143,89 @@ export const fetchUserStatsFromMongoDB = async (userId?: string): Promise<{
     if (data.success && data.data) {
       return {
         success: true,
-        stats: data.data
+        stats: data.data,
       };
     } else {
       return {
         success: false,
-        error: data.message || 'Failed to fetch stats'
+        error: data.message || "Failed to fetch stats",
       };
     }
   } catch (error: any) {
-    console.error('Error fetching user stats:', error);
+    console.error("Error fetching user stats:", error);
     return {
       success: false,
-      error: error.message || 'Failed to fetch stats'
+      error: error.message || "Failed to fetch stats",
     };
   }
 };
 
 // Search users in MongoDB backend
-export const searchUsersInMongoDB = async (query: string): Promise<{
+export const searchUsersInMongoDB = async (
+  query: string,
+): Promise<{
   success: boolean;
   users?: UserProfileData[];
   error?: string;
 }> => {
   try {
-    const response = await fetch(`/api/v2/users/search?q=${encodeURIComponent(query)}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json'
-      }
-    });
+    const response = await fetch(
+      `/api/v2/users/search?q=${encodeURIComponent(query)}`,
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      },
+    );
 
     const data = await response.json();
 
     if (data.success && data.data) {
       return {
         success: true,
-        users: data.data
+        users: data.data,
       };
     } else {
       return {
         success: false,
-        error: data.message || 'Failed to search users'
+        error: data.message || "Failed to search users",
       };
     }
   } catch (error: any) {
-    console.error('Error searching users:', error);
+    console.error("Error searching users:", error);
     return {
       success: false,
-      error: error.message || 'Failed to search users'
+      error: error.message || "Failed to search users",
     };
   }
 };
 
 // Follow/unfollow user in MongoDB backend
-export const toggleFollowInMongoDB = async (targetUserId: string): Promise<{
+export const toggleFollowInMongoDB = async (
+  targetUserId: string,
+): Promise<{
   success: boolean;
   isFollowing?: boolean;
   followerCount?: number;
   error?: string;
 }> => {
   try {
-    const token = localStorage.getItem('token');
-    
+    const token = localStorage.getItem("token");
+
     if (!token) {
       return {
         success: false,
-        error: 'Authentication required'
+        error: "Authentication required",
       };
     }
-    
+
     const response = await fetch(`/api/v2/profile/${targetUserId}/follow`, {
-      method: 'POST',
+      method: "POST",
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`
-      }
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
     });
 
     const data = await response.json();
@@ -221,19 +234,19 @@ export const toggleFollowInMongoDB = async (targetUserId: string): Promise<{
       return {
         success: true,
         isFollowing: data.data.isFollowing,
-        followerCount: data.data.followerCount
+        followerCount: data.data.followerCount,
       };
     } else {
       return {
         success: false,
-        error: data.message || 'Failed to update follow status'
+        error: data.message || "Failed to update follow status",
       };
     }
   } catch (error: any) {
-    console.error('Error toggling follow:', error);
+    console.error("Error toggling follow:", error);
     return {
       success: false,
-      error: error.message || 'Failed to update follow status'
+      error: error.message || "Failed to update follow status",
     };
   }
 };

@@ -37,8 +37,6 @@ export default function Login() {
   );
   const [backendError, setBackendError] = useState<string | null>(null);
 
-
-
   const handleLogin = async () => {
     if (!email || !password) {
       toast({
@@ -132,7 +130,10 @@ export default function Login() {
             },
             body: JSON.stringify({
               email: result.user.email,
-              name: result.user.displayName || result.user.email?.split("@")[0] || "User",
+              name:
+                result.user.displayName ||
+                result.user.email?.split("@")[0] ||
+                "User",
               picture: result.user.photoURL || "",
               googleId: result.user.uid,
               isNewUser: result.isNewUser || false,
@@ -151,30 +152,45 @@ export default function Login() {
             }
 
             // Store user data and redirect
-            localStorage.setItem("currentUser", JSON.stringify(backendResult.user));
+            localStorage.setItem(
+              "currentUser",
+              JSON.stringify(backendResult.user),
+            );
 
             toast({
               title: "Welcome!",
               description: `Successfully logged in with Google as ${backendResult.user.name}`,
             });
 
-            console.log("✅ Google user authenticated with backend:", backendResult.user);
+            console.log(
+              "✅ Google user authenticated with backend:",
+              backendResult.user,
+            );
             navigate("/"); // Let AuthRouter handle the redirect
             return;
           } else {
-            setBackendError(backendResult.message || "Failed to authenticate with backend");
+            setBackendError(
+              backendResult.message || "Failed to authenticate with backend",
+            );
             toast({
               title: "Google login failed",
-              description: backendResult.message || "Failed to authenticate with backend",
+              description:
+                backendResult.message || "Failed to authenticate with backend",
               variant: "destructive",
             });
           }
         } catch (backendError) {
-          console.warn("Backend authentication failed for Google user:", backendError);
-          setBackendError("Failed to authenticate with backend. Please try email signup.");
+          console.warn(
+            "Backend authentication failed for Google user:",
+            backendError,
+          );
+          setBackendError(
+            "Failed to authenticate with backend. Please try email signup.",
+          );
           toast({
             title: "Google login failed",
-            description: "Failed to authenticate with backend. Please try email signup.",
+            description:
+              "Failed to authenticate with backend. Please try email signup.",
             variant: "destructive",
           });
         }
@@ -318,7 +334,10 @@ export default function Login() {
                         },
                         body: JSON.stringify({
                           email: result.user.email,
-                          name: result.user.displayName || result.user.email?.split("@")[0] || "User",
+                          name:
+                            result.user.displayName ||
+                            result.user.email?.split("@")[0] ||
+                            "User",
                           picture: result.user.photoURL || "",
                           facebookId: result.user.uid,
                           isNewUser: result.isNewUser || false,
@@ -330,44 +349,69 @@ export default function Login() {
                       if (backendResult.success) {
                         // Store tokens
                         if (backendResult.accessToken) {
-                          localStorage.setItem("token", backendResult.accessToken);
+                          localStorage.setItem(
+                            "token",
+                            backendResult.accessToken,
+                          );
                         }
                         if (backendResult.refreshToken) {
-                          localStorage.setItem("refreshToken", backendResult.refreshToken);
+                          localStorage.setItem(
+                            "refreshToken",
+                            backendResult.refreshToken,
+                          );
                         }
 
                         // Store user data and redirect
-                        localStorage.setItem("currentUser", JSON.stringify(backendResult.user));
+                        localStorage.setItem(
+                          "currentUser",
+                          JSON.stringify(backendResult.user),
+                        );
 
                         toast({
                           title: "Welcome!",
                           description: `Successfully logged in with Facebook as ${backendResult.user.name}`,
                         });
 
-                        console.log("✅ Facebook user authenticated with backend:", backendResult.user);
+                        console.log(
+                          "✅ Facebook user authenticated with backend:",
+                          backendResult.user,
+                        );
                         navigate("/"); // Let AuthRouter handle the redirect
                         return;
                       } else {
-                        setBackendError(backendResult.message || "Failed to authenticate with backend");
+                        setBackendError(
+                          backendResult.message ||
+                            "Failed to authenticate with backend",
+                        );
                         toast({
                           title: "Facebook login failed",
-                          description: backendResult.message || "Failed to authenticate with backend",
+                          description:
+                            backendResult.message ||
+                            "Failed to authenticate with backend",
                           variant: "destructive",
                         });
                       }
                     } catch (backendError) {
-                      console.warn("Backend authentication failed for Facebook user:", backendError);
-                      setBackendError("Failed to authenticate with backend. Please try email signup.");
+                      console.warn(
+                        "Backend authentication failed for Facebook user:",
+                        backendError,
+                      );
+                      setBackendError(
+                        "Failed to authenticate with backend. Please try email signup.",
+                      );
                       toast({
                         title: "Facebook login failed",
-                        description: "Failed to authenticate with backend. Please try email signup.",
+                        description:
+                          "Failed to authenticate with backend. Please try email signup.",
                         variant: "destructive",
                       });
                     }
                   } else {
                     toast({
                       title: "Facebook login failed",
-                      description: result.error || "Unable to sign in with Facebook. Please try again.",
+                      description:
+                        result.error ||
+                        "Unable to sign in with Facebook. Please try again.",
                       variant: "destructive",
                     });
                   }
@@ -538,9 +582,7 @@ export default function Login() {
                 <h4 className="text-red-500 font-medium text-sm">
                   Authentication Error
                 </h4>
-                <p className="text-red-200 text-sm mt-1">
-                  {backendError}
-                </p>
+                <p className="text-red-200 text-sm mt-1">{backendError}</p>
                 <button
                   onClick={() => setBackendError(null)}
                   className="mt-3 text-red-400 hover:text-red-300 text-sm font-medium"
@@ -573,8 +615,6 @@ export default function Login() {
           <p className="text-xs text-slate-500 mt-2">
             ✅ Backend authentication active
           </p>
-
-
         </motion.div>
       </div>
     </div>

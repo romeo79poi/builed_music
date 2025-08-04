@@ -1,9 +1,10 @@
 import nodemailer from "nodemailer";
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret_key_change_in_production';
-const EMAIL_JWT_EXPIRES_IN = process.env.EMAIL_JWT_EXPIRES_IN || '1h';
-const FRONTEND_URL = process.env.FRONTEND_URL || 'http://localhost:8080';
+const JWT_SECRET =
+  process.env.JWT_SECRET || "your_jwt_secret_key_change_in_production";
+const EMAIL_JWT_EXPIRES_IN = process.env.EMAIL_JWT_EXPIRES_IN || "1h";
+const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:8080";
 
 // Create email transporter
 const createTransporter = () => {
@@ -26,39 +27,44 @@ const createTransporter = () => {
 };
 
 // Generate JWT token for email verification
-export const generateEmailVerificationToken = (email: string, userId?: string): string => {
+export const generateEmailVerificationToken = (
+  email: string,
+  userId?: string,
+): string => {
   const payload = {
     email,
     userId,
-    type: 'email_verification',
-    iat: Math.floor(Date.now() / 1000)
+    type: "email_verification",
+    iat: Math.floor(Date.now() / 1000),
   };
 
   return jwt.sign(payload, JWT_SECRET, {
     expiresIn: EMAIL_JWT_EXPIRES_IN,
-    issuer: 'music-catch-api',
-    audience: 'music-catch-app'
+    issuer: "music-catch-api",
+    audience: "music-catch-app",
   });
 };
 
 // Verify JWT token for email verification
-export const verifyEmailVerificationToken = (token: string): { email: string; userId?: string } | null => {
+export const verifyEmailVerificationToken = (
+  token: string,
+): { email: string; userId?: string } | null => {
   try {
     const decoded = jwt.verify(token, JWT_SECRET, {
-      issuer: 'music-catch-api',
-      audience: 'music-catch-app'
+      issuer: "music-catch-api",
+      audience: "music-catch-app",
     }) as any;
 
-    if (decoded.type !== 'email_verification') {
+    if (decoded.type !== "email_verification") {
       return null;
     }
 
     return {
       email: decoded.email,
-      userId: decoded.userId
+      userId: decoded.userId,
     };
   } catch (error) {
-    console.error('Email verification token error:', error);
+    console.error("Email verification token error:", error);
     return null;
   }
 };
@@ -68,7 +74,7 @@ const createVerificationEmailWithLinkHTML = (
   verificationLink: string,
   verificationCode: string,
   email: string,
-  name?: string
+  name?: string,
 ) => {
   return `
 <!DOCTYPE html>
@@ -359,7 +365,7 @@ const createVerificationEmailWithLinkHTML = (
         
         <div class="content">
             <p class="welcome-text">
-                Hi ${name || 'there'}! 👋<br>
+                Hi ${name || "there"}! 👋<br>
                 Welcome to <strong>Music Catch</strong>! We're excited to have you join our community.
             </p>
             
@@ -434,26 +440,32 @@ export const sendVerificationEmailWithLink = async (
   email: string,
   verificationCode: string,
   name?: string,
-  userId?: string
+  userId?: string,
 ) => {
   try {
     const transporter = createTransporter();
 
     // Generate JWT token for email verification
     const verificationToken = generateEmailVerificationToken(email, userId);
-    
+
     // Create verification link
     const verificationLink = `${FRONTEND_URL}/verify-email?token=${verificationToken}`;
 
     const mailOptions = {
       from: '"Music Catch" <noreply@musiccatch.com>',
       to: email,
-      subject: "🎵 Verify your Music Catch account - Click to verify instantly!",
-      html: createVerificationEmailWithLinkHTML(verificationLink, verificationCode, email, name),
+      subject:
+        "🎵 Verify your Music Catch account - Click to verify instantly!",
+      html: createVerificationEmailWithLinkHTML(
+        verificationLink,
+        verificationCode,
+        email,
+        name,
+      ),
       text: `
 Welcome to Music Catch!
 
-Hi ${name || 'there'},
+Hi ${name || "there"},
 
 Thank you for creating an account with Music Catch! To complete your registration, please verify your email address.
 
@@ -478,20 +490,24 @@ The Music Catch Team
     console.log("✅ Verification email with JWT link sent successfully:", {
       messageId: info.messageId,
       to: email,
-      verificationLink: process.env.NODE_ENV === 'development' ? verificationLink : '[hidden]',
-      preview: process.env.NODE_ENV !== "production" 
-        ? nodemailer.getTestMessageUrl(info) 
-        : undefined,
+      verificationLink:
+        process.env.NODE_ENV === "development" ? verificationLink : "[hidden]",
+      preview:
+        process.env.NODE_ENV !== "production"
+          ? nodemailer.getTestMessageUrl(info)
+          : undefined,
     });
 
     return {
       success: true,
       messageId: info.messageId,
       verificationToken,
-      verificationLink: process.env.NODE_ENV === 'development' ? verificationLink : undefined,
-      previewUrl: process.env.NODE_ENV !== "production" 
-        ? nodemailer.getTestMessageUrl(info) 
-        : undefined,
+      verificationLink:
+        process.env.NODE_ENV === "development" ? verificationLink : undefined,
+      previewUrl:
+        process.env.NODE_ENV !== "production"
+          ? nodemailer.getTestMessageUrl(info)
+          : undefined,
     };
   } catch (error) {
     console.error("❌ Failed to send verification email with link:", error);
@@ -507,7 +523,7 @@ const createPasswordResetEmailHTML = (
   resetLink: string,
   resetToken: string,
   email: string,
-  name?: string
+  name?: string,
 ) => {
   return `
 <!DOCTYPE html>
@@ -621,7 +637,7 @@ const createPasswordResetEmailHTML = (
         </div>
         
         <div class="content">
-            <p>Hi ${name || 'there'},</p>
+            <p>Hi ${name || "there"},</p>
             <p>You requested to reset your password for your Music Catch account. Click the button below to create a new password:</p>
             
             <div class="reset-section">
@@ -648,39 +664,44 @@ const createPasswordResetEmailHTML = (
 };
 
 // Generate JWT token for password reset
-export const generatePasswordResetToken = (email: string, userId: string): string => {
+export const generatePasswordResetToken = (
+  email: string,
+  userId: string,
+): string => {
   const payload = {
     email,
     userId,
-    type: 'password_reset',
-    iat: Math.floor(Date.now() / 1000)
+    type: "password_reset",
+    iat: Math.floor(Date.now() / 1000),
   };
 
   return jwt.sign(payload, JWT_SECRET, {
-    expiresIn: '1h',
-    issuer: 'music-catch-api',
-    audience: 'music-catch-app'
+    expiresIn: "1h",
+    issuer: "music-catch-api",
+    audience: "music-catch-app",
   });
 };
 
 // Verify JWT token for password reset
-export const verifyPasswordResetToken = (token: string): { email: string; userId: string } | null => {
+export const verifyPasswordResetToken = (
+  token: string,
+): { email: string; userId: string } | null => {
   try {
     const decoded = jwt.verify(token, JWT_SECRET, {
-      issuer: 'music-catch-api',
-      audience: 'music-catch-app'
+      issuer: "music-catch-api",
+      audience: "music-catch-app",
     }) as any;
 
-    if (decoded.type !== 'password_reset') {
+    if (decoded.type !== "password_reset") {
       return null;
     }
 
     return {
       email: decoded.email,
-      userId: decoded.userId
+      userId: decoded.userId,
     };
   } catch (error) {
-    console.error('Password reset token error:', error);
+    console.error("Password reset token error:", error);
     return null;
   }
 };
@@ -689,14 +710,14 @@ export const verifyPasswordResetToken = (token: string): { email: string; userId
 export const sendPasswordResetEmail = async (
   email: string,
   userId: string,
-  name?: string
+  name?: string,
 ) => {
   try {
     const transporter = createTransporter();
 
     // Generate JWT token for password reset
     const resetToken = generatePasswordResetToken(email, userId);
-    
+
     // Create reset link
     const resetLink = `${FRONTEND_URL}/reset-password?token=${resetToken}`;
 
@@ -708,7 +729,7 @@ export const sendPasswordResetEmail = async (
       text: `
 Password Reset Request
 
-Hi ${name || 'there'},
+Hi ${name || "there"},
 
 You requested to reset your password for your Music Catch account.
 
@@ -729,14 +750,15 @@ The Music Catch Security Team
     console.log("✅ Password reset email sent successfully:", {
       messageId: info.messageId,
       to: email,
-      resetLink: process.env.NODE_ENV === 'development' ? resetLink : '[hidden]',
+      resetLink:
+        process.env.NODE_ENV === "development" ? resetLink : "[hidden]",
     });
 
     return {
       success: true,
       messageId: info.messageId,
       resetToken,
-      resetLink: process.env.NODE_ENV === 'development' ? resetLink : undefined,
+      resetLink: process.env.NODE_ENV === "development" ? resetLink : undefined,
     };
   } catch (error) {
     console.error("❌ Failed to send password reset email:", error);
