@@ -468,10 +468,7 @@ export default function Signup() {
             description: `We sent a 6-digit code to ${formatPhoneDisplay(formData.phone)}`,
           });
 
-          // For development, show OTP in console
-          if (result.debugOtp) {
-            console.log(`📱 OTP for ${formData.phone}: ${result.debugOtp}`);
-          }
+
         } else {
           toast({
             title: "Failed to send code",
@@ -973,21 +970,12 @@ export default function Signup() {
         setCurrentStep("verification");
 
         if (data.emailSent === false) {
-          // Email service is unavailable, but verification can still proceed with debug code
           toast({
-            title: "📧 Email service temporarily unavailable",
-            description: data.debugCode
-              ? `Debug mode: Use code ${data.debugCode} (development only)`
-              : "Please check console for verification code or try again later",
-            duration: 12000,
-            variant: "default", // Changed from destructive to default (less alarming)
+            title: "Failed to send email",
+            description: "Please try again or contact support if the issue persists.",
+            variant: "destructive",
           });
-
-          // Log debug information
-          if (data.debugCode) {
-            console.log(`🔍 DEBUG EMAIL VERIFICATION CODE: ${data.debugCode}`);
-            console.log("📝 Email service is unavailable, but you can still proceed with verification");
-          }
+          return; // Don't proceed if email failed to send
         } else {
           toast({
             title: "Verification code sent!",
@@ -1547,17 +1535,11 @@ export default function Signup() {
       if (data.success) {
         if (data.emailSent === false) {
           toast({
-            title: "📧 Email service temporarily unavailable",
-            description: data.debugCode
-              ? `Debug mode: Use code ${data.debugCode} (development only)`
-              : "Please check console for verification code or try again later",
-            duration: 12000,
-            variant: "default",
+            title: "Failed to resend email",
+            description: "Please try again or contact support if the issue persists.",
+            variant: "destructive",
           });
-
-          if (data.debugCode) {
-            console.log(`🔍 DEBUG EMAIL VERIFICATION CODE (RESEND): ${data.debugCode}`);
-          }
+          return;
         } else {
           toast({
             title: "Verification code resent!",
