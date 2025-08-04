@@ -286,7 +286,9 @@ export default function Profile() {
   const [uploading, setUploading] = useState(false);
   const [tracks, setTracks] = useState<Track[]>([]);
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
-  const [recentlyPlayed, setRecentlyPlayed] = useState<RecentlyPlayedTrack[]>([]);
+  const [recentlyPlayed, setRecentlyPlayed] = useState<RecentlyPlayedTrack[]>(
+    [],
+  );
   const [selectedTab, setSelectedTab] = useState("tracks");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [isFollowing, setIsFollowing] = useState(false);
@@ -332,10 +334,10 @@ export default function Profile() {
       // Fetch complete profile data from backend
       const response = await fetch(`/api/v1/users/${userId}`, {
         headers: {
-          'user-id': userId,
-          'Authorization': token ? `Bearer ${token}` : '',
-          'Content-Type': 'application/json'
-        }
+          "user-id": userId,
+          Authorization: token ? `Bearer ${token}` : "",
+          "Content-Type": "application/json",
+        },
       });
 
       if (!response.ok) {
@@ -360,7 +362,9 @@ export default function Profile() {
           website: backendData.website || "",
           isVerified: backendData.is_verified || false,
           isArtist: backendData.is_artist || false,
-          joinedDate: backendData.created_at ? new Date(backendData.created_at) : new Date(),
+          joinedDate: backendData.created_at
+            ? new Date(backendData.created_at)
+            : new Date(),
           socialLinks: {
             instagram: backendData.social_links?.instagram || "",
             twitter: backendData.social_links?.twitter || "",
@@ -392,7 +396,10 @@ export default function Profile() {
           },
         });
 
-        console.log("✅ Profile data loaded from backend API:", transformedProfile);
+        console.log(
+          "✅ Profile data loaded from backend API:",
+          transformedProfile,
+        );
       } else {
         throw new Error(result.message || "Failed to load profile data");
       }
@@ -416,7 +423,7 @@ export default function Profile() {
   // Fetch liked songs
   const fetchLikedSongs = async () => {
     try {
-      const userId = localStorage.getItem('currentUserId') || 'user1';
+      const userId = localStorage.getItem("currentUserId") || "user1";
       const response = await fetch(`/api/profile/${userId}/liked-songs`);
       const data = await response.json();
 
@@ -442,21 +449,23 @@ export default function Profile() {
   // Fetch recently played
   const fetchRecentlyPlayed = async () => {
     try {
-      const userId = localStorage.getItem('currentUserId') || 'user1';
+      const userId = localStorage.getItem("currentUserId") || "user1";
       const response = await fetch(`/api/profile/${userId}/recently-played`);
       const data = await response.json();
 
       if (data.success) {
         // Transform backend recently played to match our interface
-        const transformedRecentlyPlayed = (data.songs || []).map((song: any, index: number) => ({
-          id: song.id || `recent-${index}`,
-          title: song.title || "Unknown Song",
-          artist: song.artist || "Unknown Artist",
-          coverUrl: song.coverImage || "",
-          playedAt: song.playedAt || `${index * 15 + 5} minutes ago`,
-          duration: song.duration || 0,
-          isCurrentlyPlaying: index === 0, // Mark first as currently playing
-        }));
+        const transformedRecentlyPlayed = (data.songs || []).map(
+          (song: any, index: number) => ({
+            id: song.id || `recent-${index}`,
+            title: song.title || "Unknown Song",
+            artist: song.artist || "Unknown Artist",
+            coverUrl: song.coverImage || "",
+            playedAt: song.playedAt || `${index * 15 + 5} minutes ago`,
+            duration: song.duration || 0,
+            isCurrentlyPlaying: index === 0, // Mark first as currently playing
+          }),
+        );
         setRecentlyPlayed(transformedRecentlyPlayed);
       } else {
         setRecentlyPlayed(sampleRecentlyPlayed);
@@ -550,10 +559,14 @@ export default function Profile() {
 
     try {
       setUploading(true);
-      const userId = localStorage.getItem('currentUserId') || profile.id;
+      const userId = localStorage.getItem("currentUserId") || profile.id;
 
       // Use the updateUserProfile function from auth library
-      const result = await updateUserProfile(userId, editForm.bio, profile.avatar);
+      const result = await updateUserProfile(
+        userId,
+        editForm.bio,
+        profile.avatar,
+      );
 
       if (result.success) {
         // Update local state with saved data
@@ -573,7 +586,8 @@ export default function Profile() {
         setIsEditing(false);
         toast({
           title: "Profile Updated",
-          description: "Your profile has been successfully updated using auth library",
+          description:
+            "Your profile has been successfully updated using auth library",
         });
 
         console.log("✅ Profile updated using updateUserProfile function");
@@ -620,7 +634,7 @@ export default function Profile() {
       const reader = new FileReader();
       reader.onload = (e) => {
         const newAvatar = e.target?.result as string;
-        setProfile((prev) => prev ? { ...prev, avatar: newAvatar } : null);
+        setProfile((prev) => (prev ? { ...prev, avatar: newAvatar } : null));
         // Store in localStorage for persistence
         localStorage.setItem("userAvatar", newAvatar);
         setUploading(false);
@@ -640,7 +654,7 @@ export default function Profile() {
       const reader = new FileReader();
       reader.onload = (e) => {
         const newCover = e.target?.result as string;
-        setProfile((prev) => prev ? { ...prev, coverImage: newCover } : null);
+        setProfile((prev) => (prev ? { ...prev, coverImage: newCover } : null));
         // Store in localStorage for persistence
         localStorage.setItem("userCoverImage", newCover);
         setUploading(false);
@@ -1198,7 +1212,9 @@ export default function Profile() {
                   <p className="text-sm font-bold text-foreground">
                     {formatNumber(profile.stats.totalPlays)}
                   </p>
-                  <p className="text-[10px] text-muted-foreground">Total Plays</p>
+                  <p className="text-[10px] text-muted-foreground">
+                    Total Plays
+                  </p>
                 </motion.button>
               </div>
             )}
@@ -1216,8 +1232,7 @@ export default function Profile() {
                       exit={{ opacity: 0, y: -20 }}
                       className="space-y-4"
                     >
-                      <div className="grid grid-cols-2 gap-4">
-                      </div>
+                      <div className="grid grid-cols-2 gap-4"></div>
                     </motion.div>
                   )}
 

@@ -11,7 +11,13 @@ import {
   ConfirmationResult,
   User,
 } from "firebase/auth";
-import { doc, setDoc, getDoc, serverTimestamp, updateDoc } from "firebase/firestore";
+import {
+  doc,
+  setDoc,
+  getDoc,
+  serverTimestamp,
+  updateDoc,
+} from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { auth, db, storage, isFirebaseConfigured } from "./firebase";
 import { apiPost } from "./api-utils";
@@ -31,22 +37,22 @@ export interface UserData {
 
 // Upload profile image to Firebase Storage (for signup - no auth required)
 export const uploadProfileImageForSignup = async (
-  imageFile: File
+  imageFile: File,
 ): Promise<{ success: boolean; imageURL?: string; error?: string }> => {
   try {
     if (!isFirebaseConfigured || !auth || !storage) {
       return {
         success: false,
-        error: "Image upload service is not configured"
+        error: "Image upload service is not configured",
       };
     }
 
     // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
     if (!allowedTypes.includes(imageFile.type)) {
       return {
         success: false,
-        error: "Only JPEG, PNG, and WebP images are allowed"
+        error: "Only JPEG, PNG, and WebP images are allowed",
       };
     }
 
@@ -55,13 +61,13 @@ export const uploadProfileImageForSignup = async (
     if (imageFile.size > maxSize) {
       return {
         success: false,
-        error: "Image size must be less than 5MB"
+        error: "Image size must be less than 5MB",
       };
     }
 
     // Create unique filename with timestamp for temp upload
     const timestamp = Date.now();
-    const fileExtension = imageFile.name.split('.').pop();
+    const fileExtension = imageFile.name.split(".").pop();
     const fileName = `temp_signup_${timestamp}.${fileExtension}`;
 
     // Create storage reference for temporary signup images
@@ -76,16 +82,15 @@ export const uploadProfileImageForSignup = async (
     console.log("✅ Profile image uploaded successfully for signup:", imageURL);
 
     return { success: true, imageURL };
-
   } catch (error: any) {
     console.error("Profile image upload error:", error);
 
     let errorMessage = "Failed to upload profile image";
-    if (error.code === 'storage/unauthorized') {
+    if (error.code === "storage/unauthorized") {
       errorMessage = "Upload permission denied";
-    } else if (error.code === 'storage/canceled') {
+    } else if (error.code === "storage/canceled") {
       errorMessage = "Upload was cancelled";
-    } else if (error.code === 'storage/quota-exceeded') {
+    } else if (error.code === "storage/quota-exceeded") {
       errorMessage = "Storage quota exceeded";
     } else if (error.message) {
       errorMessage = error.message;
@@ -97,7 +102,7 @@ export const uploadProfileImageForSignup = async (
 
 // Upload profile image to Firebase Storage (for authenticated users)
 export const uploadProfileImage = async (
-  imageFile: File
+  imageFile: File,
 ): Promise<{ success: boolean; imageURL?: string; error?: string }> => {
   try {
     if (!isFirebaseConfigured || !auth || !storage) {
@@ -105,7 +110,7 @@ export const uploadProfileImage = async (
       // Return a placeholder image URL for development
       return {
         success: true,
-        imageURL: "https://via.placeholder.com/150x150/4285F4/ffffff?text=DEV"
+        imageURL: "https://via.placeholder.com/150x150/4285F4/ffffff?text=DEV",
       };
     }
 
@@ -113,16 +118,16 @@ export const uploadProfileImage = async (
     if (!currentUser) {
       return {
         success: false,
-        error: "No authenticated user found"
+        error: "No authenticated user found",
       };
     }
 
     // Validate file type
-    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
     if (!allowedTypes.includes(imageFile.type)) {
       return {
         success: false,
-        error: "Only JPEG, PNG, and WebP images are allowed"
+        error: "Only JPEG, PNG, and WebP images are allowed",
       };
     }
 
@@ -131,13 +136,13 @@ export const uploadProfileImage = async (
     if (imageFile.size > maxSize) {
       return {
         success: false,
-        error: "Image size must be less than 5MB"
+        error: "Image size must be less than 5MB",
       };
     }
 
     // Create unique filename with timestamp
     const timestamp = Date.now();
-    const fileExtension = imageFile.name.split('.').pop();
+    const fileExtension = imageFile.name.split(".").pop();
     const fileName = `${currentUser.uid}_${timestamp}.${fileExtension}`;
 
     // Create storage reference
@@ -156,22 +161,21 @@ export const uploadProfileImage = async (
       const userRef = doc(db, "users", currentUser.uid);
       await updateDoc(userRef, {
         profileImageURL: imageURL,
-        updatedAt: serverTimestamp()
+        updatedAt: serverTimestamp(),
       });
       console.log("✅ User profile updated with image URL");
     }
 
     return { success: true, imageURL };
-
   } catch (error: any) {
     console.error("Profile image upload error:", error);
 
     let errorMessage = "Failed to upload profile image";
-    if (error.code === 'storage/unauthorized') {
+    if (error.code === "storage/unauthorized") {
       errorMessage = "You don't have permission to upload images";
-    } else if (error.code === 'storage/canceled') {
+    } else if (error.code === "storage/canceled") {
       errorMessage = "Upload was cancelled";
-    } else if (error.code === 'storage/quota-exceeded') {
+    } else if (error.code === "storage/quota-exceeded") {
       errorMessage = "Storage quota exceeded";
     } else if (error.message) {
       errorMessage = error.message;
@@ -190,7 +194,7 @@ export const saveUserData = async (
     gender?: string;
     bio?: string;
     profileImage?: string;
-  }
+  },
 ): Promise<{ success: boolean; error?: string }> => {
   try {
     if (!isFirebaseConfigured || !auth || !db) {
@@ -203,7 +207,10 @@ export const saveUserData = async (
     const userData = {
       email: user.email || "",
       name: user.displayName || additionalData?.username || "User Name",
-      username: additionalData?.username || user.email?.split("@")[0] || "defaultUsername",
+      username:
+        additionalData?.username ||
+        user.email?.split("@")[0] ||
+        "defaultUsername",
       dob: additionalData?.dob || "",
       gender: additionalData?.gender || "",
       bio: additionalData?.bio || "",
@@ -221,7 +228,7 @@ export const saveUserData = async (
     console.error("Save user data error:", error);
     return {
       success: false,
-      error: error.message || "Failed to save user data"
+      error: error.message || "Failed to save user data",
     };
   }
 };
@@ -269,7 +276,10 @@ export const signUpWithEmailAndPassword = async (
         await setDoc(doc(db, "users", user.uid), userDocData);
         console.log("✅ User data saved to Firestore successfully");
       } catch (firestoreError: any) {
-        console.warn("⚠��� Firestore write failed, continuing without saving user data:", firestoreError.code);
+        console.warn(
+          "⚠��� Firestore write failed, continuing without saving user data:",
+          firestoreError.code,
+        );
         // Continue even if Firestore write fails - user account is still created in Auth
       }
 
@@ -282,7 +292,9 @@ export const signUpWithEmailAndPassword = async (
         firebaseError.code === "auth/network-request-failed" ||
         firebaseError.code === "permission-denied" ||
         firebaseError.code === "firestore/permission-denied" ||
-        firebaseError.message?.includes("Missing or insufficient permissions") ||
+        firebaseError.message?.includes(
+          "Missing or insufficient permissions",
+        ) ||
         firebaseError.message?.includes("Firebase project") ||
         firebaseError.message?.includes("API key not valid") ||
         firebaseError.message?.includes("network request failed")
@@ -458,10 +470,10 @@ export const signInWithGoogle = async (): Promise<{
   try {
     // Try backend Google authentication first
     try {
-      const response = await fetch('/api/auth/google/signin', {
-        method: 'POST',
+      const response = await fetch("/api/auth/google/signin", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
@@ -482,7 +494,10 @@ export const signInWithGoogle = async (): Promise<{
             localStorage.setItem("userAvatar", data.user.profile_image || "");
           }
 
-          console.log("✅ Google backend authentication successful:", data.user);
+          console.log(
+            "✅ Google backend authentication successful:",
+            data.user,
+          );
 
           return {
             success: true,
@@ -498,14 +513,17 @@ export const signInWithGoogle = async (): Promise<{
         }
       }
     } catch (backendError) {
-      console.warn("Backend Google auth not available, trying Firebase fallback");
+      console.warn(
+        "Backend Google auth not available, trying Firebase fallback",
+      );
     }
 
     // Check if Firebase is configured
     if (!isFirebaseConfigured || !auth || !db) {
       return {
         success: false,
-        error: "Social login is temporarily unavailable. Please use email signup instead.",
+        error:
+          "Social login is temporarily unavailable. Please use email signup instead.",
       };
     }
 
@@ -563,7 +581,10 @@ export const signInWithGoogle = async (): Promise<{
           await setDoc(userDocRef, userData);
           console.log("✅ New Google user created in Firestore:", userData);
         } catch (firestoreError: any) {
-          console.warn("⚠️ Firestore write failed for Google user, continuing:", firestoreError.code);
+          console.warn(
+            "⚠️ Firestore write failed for Google user, continuing:",
+            firestoreError.code,
+          );
           // Continue even if Firestore write fails - user is still authenticated
         }
         isNewUser = true;
@@ -603,7 +624,9 @@ export const signInWithGoogle = async (): Promise<{
         firebaseError.code === "auth/unauthorized-domain" ||
         firebaseError.code === "permission-denied" ||
         firebaseError.code === "firestore/permission-denied" ||
-        firebaseError.message?.includes("Missing or insufficient permissions") ||
+        firebaseError.message?.includes(
+          "Missing or insufficient permissions",
+        ) ||
         firebaseError.message?.includes("Firebase project") ||
         firebaseError.message?.includes("API key not valid") ||
         firebaseError.message?.includes("network request failed")
@@ -642,7 +665,8 @@ export const signInWithGoogle = async (): Promise<{
         errorMessage = "Google sign-in is not enabled for this application";
         break;
       case "auth/unauthorized-domain":
-        errorMessage = "Google authentication is not configured for this domain";
+        errorMessage =
+          "Google authentication is not configured for this domain";
         break;
       case "auth/account-exists-with-different-credential":
         errorMessage =
@@ -687,10 +711,10 @@ export const signInWithFacebook = async (): Promise<{
   try {
     // Try backend Facebook authentication first
     try {
-      const response = await fetch('/api/auth/facebook/signin', {
-        method: 'POST',
+      const response = await fetch("/api/auth/facebook/signin", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
 
@@ -711,7 +735,10 @@ export const signInWithFacebook = async (): Promise<{
             localStorage.setItem("userAvatar", data.user.profile_image || "");
           }
 
-          console.log("✅ Facebook backend authentication successful:", data.user);
+          console.log(
+            "✅ Facebook backend authentication successful:",
+            data.user,
+          );
 
           return {
             success: true,
@@ -727,14 +754,17 @@ export const signInWithFacebook = async (): Promise<{
         }
       }
     } catch (backendError) {
-      console.warn("Backend Facebook auth not available, trying Firebase fallback");
+      console.warn(
+        "Backend Facebook auth not available, trying Firebase fallback",
+      );
     }
 
     // Check if Firebase is configured
     if (!isFirebaseConfigured || !auth || !db) {
       return {
         success: false,
-        error: "Social login is temporarily unavailable. Please use email signup instead.",
+        error:
+          "Social login is temporarily unavailable. Please use email signup instead.",
       };
     }
 
@@ -783,7 +813,10 @@ export const signInWithFacebook = async (): Promise<{
           await setDoc(userDocRef, userData);
           console.log("✅ New Facebook user created in Firestore:", userData);
         } catch (firestoreError: any) {
-          console.warn("⚠️ Firestore write failed for Facebook user, continuing:", firestoreError.code);
+          console.warn(
+            "⚠️ Firestore write failed for Facebook user, continuing:",
+            firestoreError.code,
+          );
           // Continue even if Firestore write fails - user is still authenticated
         }
         isNewUser = true;
@@ -823,7 +856,9 @@ export const signInWithFacebook = async (): Promise<{
         firebaseError.code === "auth/unauthorized-domain" ||
         firebaseError.code === "permission-denied" ||
         firebaseError.code === "firestore/permission-denied" ||
-        firebaseError.message?.includes("Missing or insufficient permissions") ||
+        firebaseError.message?.includes(
+          "Missing or insufficient permissions",
+        ) ||
         firebaseError.message?.includes("Firebase project") ||
         firebaseError.message?.includes("API key not valid") ||
         firebaseError.message?.includes("network request failed")
@@ -862,7 +897,8 @@ export const signInWithFacebook = async (): Promise<{
         errorMessage = "Facebook sign-in is not enabled for this application";
         break;
       case "auth/unauthorized-domain":
-        errorMessage = "Facebook authentication is not configured for this domain";
+        errorMessage =
+          "Facebook authentication is not configured for this domain";
         break;
       case "auth/account-exists-with-different-credential":
         errorMessage =
@@ -911,20 +947,24 @@ export const sendFirebaseEmailVerification = async (
     }
 
     // Validate that user is a proper Firebase User object
-    if (!user || typeof user !== 'object' || !user.uid) {
-      console.error("Invalid user object provided to sendFirebaseEmailVerification");
+    if (!user || typeof user !== "object" || !user.uid) {
+      console.error(
+        "Invalid user object provided to sendFirebaseEmailVerification",
+      );
       return {
         success: false,
-        error: "Invalid user object - missing required properties"
+        error: "Invalid user object - missing required properties",
       };
     }
 
     // Check if user has the required methods (indicating it's a Firebase User)
-    if (typeof user.getIdToken !== 'function') {
-      console.warn("User object is not a Firebase User, using fallback verification");
+    if (typeof user.getIdToken !== "function") {
+      console.warn(
+        "User object is not a Firebase User, using fallback verification",
+      );
       return {
         success: true, // Return success for mock users
-        error: "Mock user - email verification simulated"
+        error: "Mock user - email verification simulated",
       };
     }
 
@@ -948,7 +988,10 @@ export const sendFirebaseEmailVerification = async (
         break;
       case "auth/network-request-failed":
         console.warn("Firebase network error, using development mode");
-        return { success: true, error: "Development mode - network error bypassed" };
+        return {
+          success: true,
+          error: "Development mode - network error bypassed",
+        };
       default:
         errorMessage = error.message || errorMessage;
     }
@@ -1126,7 +1169,10 @@ export const verifyPhoneOTP = async (
           await setDoc(userDocRef, userData);
           console.log("✅ New phone user created in Firestore");
         } catch (firestoreError: any) {
-          console.warn("⚠️ Firestore write failed for phone user, continuing:", firestoreError.code);
+          console.warn(
+            "⚠️ Firestore write failed for phone user, continuing:",
+            firestoreError.code,
+          );
           // Continue even if Firestore write fails - user is still authenticated
         }
       }
@@ -1153,13 +1199,19 @@ export const verifyPhoneOTP = async (
 };
 
 // Fetch user data from Firestore
-export const fetchUserData = async (userId: string): Promise<{
+export const fetchUserData = async (
+  userId: string,
+): Promise<{
   success: boolean;
   userData?: any;
   error?: string;
 }> => {
   console.log("🔍 fetchUserData called for userId:", userId);
-  console.log("🔍 Firebase config status:", { isFirebaseConfigured, hasAuth: !!auth, hasDb: !!db });
+  console.log("🔍 Firebase config status:", {
+    isFirebaseConfigured,
+    hasAuth: !!auth,
+    hasDb: !!db,
+  });
 
   try {
     if (!isFirebaseConfigured || !auth || !db) {
@@ -1169,14 +1221,15 @@ export const fetchUserData = async (userId: string): Promise<{
         email: "demo.user@example.com",
         name: "Demo User",
         username: "demouser",
-        profile_image: "https://via.placeholder.com/150x150/4285F4/ffffff?text=DU",
+        profile_image:
+          "https://via.placeholder.com/150x150/4285F4/ffffff?text=DU",
         bio: "This is a demo user profile",
         dob: "1990-01-01",
         gender: "Other",
         created_at: new Date().toISOString(),
-        verified: true
+        verified: true,
       };
-      console.log('Mock user data fetched:', mockUserData);
+      console.log("Mock user data fetched:", mockUserData);
       return { success: true, userData: mockUserData };
     }
 
@@ -1192,10 +1245,10 @@ export const fetchUserData = async (userId: string): Promise<{
 
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        console.log('✅ User data fetched:', userData);
+        console.log("✅ User data fetched:", userData);
         return { success: true, userData };
       } else {
-        console.log('⚠️ No user data found in Firestore');
+        console.log("⚠️ No user data found in Firestore");
         return { success: false, error: "User data not found" };
       }
     } catch (firestoreError: any) {
@@ -1211,14 +1264,14 @@ export const fetchUserData = async (userId: string): Promise<{
 
     // Handle Firebase permission errors with comprehensive error code checking
     const isPermissionError =
-      error.code === 'permission-denied' ||
-      error.code === 'firestore/permission-denied' ||
-      error.code === 'unauthenticated' ||
-      error.code === 'failed-precondition' ||
-      error.message?.includes('Missing or insufficient permissions') ||
-      error.message?.includes('Permission denied') ||
-      error.message?.includes('PERMISSION_DENIED') ||
-      error.toString().includes('permission');
+      error.code === "permission-denied" ||
+      error.code === "firestore/permission-denied" ||
+      error.code === "unauthenticated" ||
+      error.code === "failed-precondition" ||
+      error.message?.includes("Missing or insufficient permissions") ||
+      error.message?.includes("Permission denied") ||
+      error.message?.includes("PERMISSION_DENIED") ||
+      error.toString().includes("permission");
 
     if (isPermissionError) {
       console.warn("🔧 Firebase permissions denied");
@@ -1229,7 +1282,7 @@ export const fetchUserData = async (userId: string): Promise<{
     }
 
     // For any other Firebase error, return proper error
-    if (error.name === 'FirebaseError') {
+    if (error.name === "FirebaseError") {
       console.warn("🔧 Firebase error detected");
       return {
         success: false,
@@ -1239,7 +1292,7 @@ export const fetchUserData = async (userId: string): Promise<{
 
     return {
       success: false,
-      error: error.message || "Failed to fetch user data"
+      error: error.message || "Failed to fetch user data",
     };
   }
 };
@@ -1248,7 +1301,7 @@ export const fetchUserData = async (userId: string): Promise<{
 export const updateUserProfile = async (
   userId: string,
   newBio: string,
-  newProfileImage: string
+  newProfileImage: string,
 ): Promise<{
   success: boolean;
   error?: string;
@@ -1256,15 +1309,15 @@ export const updateUserProfile = async (
   try {
     if (!isFirebaseConfigured || !auth || !db) {
       console.warn("🔧 Development mode: Simulating profile update");
-      console.log('User profile updated');
+      console.log("User profile updated");
       // Update localStorage in development mode
-      const currentUser = localStorage.getItem('currentUser');
+      const currentUser = localStorage.getItem("currentUser");
       if (currentUser) {
         const userData = JSON.parse(currentUser);
         userData.bio = newBio;
         userData.profile_image = newProfileImage;
-        localStorage.setItem('currentUser', JSON.stringify(userData));
-        localStorage.setItem('userAvatar', newProfileImage);
+        localStorage.setItem("currentUser", JSON.stringify(userData));
+        localStorage.setItem("userAvatar", newProfileImage);
       }
       return { success: true };
     }
@@ -1272,10 +1325,10 @@ export const updateUserProfile = async (
     const userRef = doc(db, "users", userId);
     await updateDoc(userRef, {
       bio: newBio,
-      profile_image: newProfileImage
+      profile_image: newProfileImage,
     });
 
-    console.log('User profile updated');
+    console.log("User profile updated");
 
     // Update the UI accordingly - fetch fresh data and update
     const updatedUserResult = await fetchUserData(userId);
@@ -1288,38 +1341,42 @@ export const updateUserProfile = async (
     console.error("Update user profile error:", error);
 
     // Handle specific Firebase permission errors
-    if (error.code === 'permission-denied' ||
-        error.code === 'firestore/permission-denied' ||
-        error.message?.includes('Missing or insufficient permissions')) {
-      console.warn("🔧 Firebase permissions denied, using development mode for profile update");
+    if (
+      error.code === "permission-denied" ||
+      error.code === "firestore/permission-denied" ||
+      error.message?.includes("Missing or insufficient permissions")
+    ) {
+      console.warn(
+        "🔧 Firebase permissions denied, using development mode for profile update",
+      );
       // Update localStorage as fallback when permissions are denied
-      const currentUser = localStorage.getItem('currentUser');
+      const currentUser = localStorage.getItem("currentUser");
       if (currentUser) {
         const userData = JSON.parse(currentUser);
         userData.bio = newBio;
         userData.profile_image = newProfileImage;
-        localStorage.setItem('currentUser', JSON.stringify(userData));
-        localStorage.setItem('userAvatar', newProfileImage);
-        console.log('Profile updated in localStorage due to permissions');
+        localStorage.setItem("currentUser", JSON.stringify(userData));
+        localStorage.setItem("userAvatar", newProfileImage);
+        console.log("Profile updated in localStorage due to permissions");
       }
       return { success: true }; // Return success for development mode
     }
 
     return {
       success: false,
-      error: error.message || "Failed to update user profile"
+      error: error.message || "Failed to update user profile",
     };
   }
 };
 
 // Helper function to update profile UI with fetched data
 export const updateProfileUI = (userData: any) => {
-  console.log('Updating profile UI with:', userData);
+  console.log("Updating profile UI with:", userData);
   // This function can be customized based on your UI needs
   // For now, we'll just store it in localStorage for access across the app
   if (userData) {
-    localStorage.setItem('currentUser', JSON.stringify(userData));
-    localStorage.setItem('userAvatar', userData.profile_image || '');
+    localStorage.setItem("currentUser", JSON.stringify(userData));
+    localStorage.setItem("userAvatar", userData.profile_image || "");
   }
 };
 
@@ -1334,7 +1391,7 @@ export const testFirebaseConnection = async (): Promise<{
       return {
         success: false,
         error: "Firebase is not configured",
-        details: "Missing Firebase configuration or services"
+        details: "Missing Firebase configuration or services",
       };
     }
 
@@ -1344,14 +1401,15 @@ export const testFirebaseConnection = async (): Promise<{
       await getDoc(testDocRef);
       return {
         success: true,
-        details: "Firebase connection and permissions are working"
+        details: "Firebase connection and permissions are working",
       };
     } catch (firestoreError: any) {
-      if (firestoreError.code === 'permission-denied') {
+      if (firestoreError.code === "permission-denied") {
         return {
           success: false,
           error: "Firestore permissions denied",
-          details: "Firebase is configured but Firestore rules are blocking access"
+          details:
+            "Firebase is configured but Firestore rules are blocking access",
         };
       }
       throw firestoreError;
@@ -1360,7 +1418,7 @@ export const testFirebaseConnection = async (): Promise<{
     return {
       success: false,
       error: error.message || "Firebase connection test failed",
-      details: `Error code: ${error.code || 'unknown'}`
+      details: `Error code: ${error.code || "unknown"}`,
     };
   }
 };

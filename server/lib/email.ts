@@ -12,8 +12,8 @@ const createTransporter = () => {
       pass: "4tQ9t3MRyXBe3W4zVw",
     },
     tls: {
-      rejectUnauthorized: false
-    }
+      rejectUnauthorized: false,
+    },
   });
 };
 
@@ -297,7 +297,9 @@ export const sendVerificationEmail = async (
       console.log("✅ SMTP connection verified successfully");
     } catch (verifyError) {
       console.error("❌ SMTP connection verification failed:", verifyError);
-      throw new Error(`SMTP connection failed: ${verifyError instanceof Error ? verifyError.message : "Unknown error"}`);
+      throw new Error(
+        `SMTP connection failed: ${verifyError instanceof Error ? verifyError.message : "Unknown error"}`,
+      );
     }
 
     const mailOptions = {
@@ -331,32 +333,44 @@ The Music Catch Team
       to: email,
       accepted: info.accepted,
       rejected: info.rejected,
-      preview: process.env.NODE_ENV !== "production" ? nodemailer.getTestMessageUrl(info) : undefined,
+      preview:
+        process.env.NODE_ENV !== "production"
+          ? nodemailer.getTestMessageUrl(info)
+          : undefined,
     });
 
     return {
       success: true,
       messageId: info.messageId,
-      previewUrl: process.env.NODE_ENV !== "production" ? nodemailer.getTestMessageUrl(info) : undefined,
+      previewUrl:
+        process.env.NODE_ENV !== "production"
+          ? nodemailer.getTestMessageUrl(info)
+          : undefined,
     };
   } catch (error) {
     console.error("❌ Failed to send verification email:", error);
-    
+
     // Provide more specific error messages
     let errorMessage = "Unknown error";
     if (error instanceof Error) {
       errorMessage = error.message;
-      
+
       // Check for common email service errors
-      if (errorMessage.includes("Authentication failed") || errorMessage.includes("Invalid login")) {
-        errorMessage = "Email service authentication failed - check email credentials";
+      if (
+        errorMessage.includes("Authentication failed") ||
+        errorMessage.includes("Invalid login")
+      ) {
+        errorMessage =
+          "Email service authentication failed - check email credentials";
       } else if (errorMessage.includes("SMTP connection failed")) {
-        errorMessage = "Cannot connect to email service - check network and credentials";
+        errorMessage =
+          "Cannot connect to email service - check network and credentials";
       } else if (errorMessage.includes("timeout")) {
-        errorMessage = "Email service timeout - service may be temporarily unavailable";
+        errorMessage =
+          "Email service timeout - service may be temporarily unavailable";
       }
     }
-    
+
     return {
       success: false,
       error: errorMessage,

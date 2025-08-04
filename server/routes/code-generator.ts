@@ -4,7 +4,7 @@ interface GenerationRequest {
   prompt: string;
   language: string;
   framework?: string;
-  complexity: 'simple' | 'intermediate' | 'advanced';
+  complexity: "simple" | "intermediate" | "advanced";
   variables?: { [key: string]: string };
 }
 
@@ -27,7 +27,7 @@ import './styles.css';
  * ${prompt}
  * Generated React component with state management
  */
-const ${prompt.replace(/\s+/g, '')}Component = ({ 
+const ${prompt.replace(/\s+/g, "")}Component = ({ 
   title = "${prompt}",
   onAction,
   ...props 
@@ -38,9 +38,9 @@ const ${prompt.replace(/\s+/g, '')}Component = ({
   const [error, setError] = useState(null);
 
   // Variables from user input
-  ${Object.entries(variables).map(([key, value]) => 
-    `const ${key} = "${value}";`
-  ).join('\n  ')}
+  ${Object.entries(variables)
+    .map(([key, value]) => `const ${key} = "${value}";`)
+    .join("\n  ")}
 
   useEffect(() => {
     // Initialize component
@@ -122,7 +122,7 @@ const ${prompt.replace(/\s+/g, '')}Component = ({
   );
 };
 
-export default ${prompt.replace(/\s+/g, '')}Component;`,
+export default ${prompt.replace(/\s+/g, "")}Component;`,
       styles: `.component-container {
   max-width: 600px;
   margin: 0 auto;
@@ -234,9 +234,9 @@ export default ${prompt.replace(/\s+/g, '')}Component;`,
   border-radius: 4px;
   cursor: pointer;
 }
-`
+`,
     }),
-    
+
     node: (prompt: string, variables: any = {}) => ({
       code: `const express = require('express');
 const cors = require('cors');
@@ -252,9 +252,9 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Variables from user input
-${Object.entries(variables).map(([key, value]) => 
-  `const ${key} = "${value}";`
-).join('\n')}
+${Object.entries(variables)
+  .map(([key, value]) => `const ${key} = "${value}";`)
+  .join("\n")}
 
 // Middleware
 app.use(helmet());
@@ -362,9 +362,9 @@ app.listen(PORT, () => {
   console.log(\`🌍 Environment: \${process.env.NODE_ENV || 'development'}\`);
 });
 
-module.exports = app;`
+module.exports = app;`,
     }),
-    
+
     vanilla: (prompt: string, variables: any = {}) => ({
       code: `/**
  * ${prompt}
@@ -372,11 +372,11 @@ module.exports = app;`
  */
 
 // Variables from user input
-${Object.entries(variables).map(([key, value]) => 
-  `const ${key} = "${value}";`
-).join('\n')}
+${Object.entries(variables)
+  .map(([key, value]) => `const ${key} = "${value}";`)
+  .join("\n")}
 
-class ${prompt.replace(/\s+/g, '')}Manager {
+class ${prompt.replace(/\s+/g, "")}Manager {
   constructor(options = {}) {
     this.options = { ...this.defaultOptions, ...options };
     this.state = {
@@ -528,7 +528,7 @@ class ${prompt.replace(/\s+/g, '')}Manager {
 }
 
 // Usage example
-const manager = new ${prompt.replace(/\s+/g, '')}Manager({
+const manager = new ${prompt.replace(/\s+/g, "")}Manager({
   debug: true,
   autoInit: true
 });
@@ -540,13 +540,13 @@ manager.onStateChange = (state) => {
 
 // Export for different environments
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = ${prompt.replace(/\s+/g, '')}Manager;
+  module.exports = ${prompt.replace(/\s+/g, "")}Manager;
 } else if (typeof window !== 'undefined') {
-  window.${prompt.replace(/\s+/g, '')}Manager = ${prompt.replace(/\s+/g, '')}Manager;
-}`
-    })
+  window.${prompt.replace(/\s+/g, "")}Manager = ${prompt.replace(/\s+/g, "")}Manager;
+}`,
+    }),
   },
-  
+
   python: {
     default: (prompt: string, variables: any = {}) => ({
       code: `#!/usr/bin/env python3
@@ -563,9 +563,9 @@ from datetime import datetime
 from typing import Dict, Any, Optional, List
 
 # Variables from user input
-${Object.entries(variables).map(([key, value]) => 
-  `${key.toUpperCase()} = "${value}"`
-).join('\n')}
+${Object.entries(variables)
+  .map(([key, value]) => `${key.toUpperCase()} = "${value}"`)
+  .join("\n")}
 
 # Configure logging
 logging.basicConfig(
@@ -575,7 +575,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
-class ${prompt.replace(/\s+/g, '')}Manager:
+class ${prompt.replace(/\s+/g, "")}Manager:
     """
     ${prompt}
     Main manager class for handling operations
@@ -761,7 +761,7 @@ async def main():
     logger.info("Starting ${prompt} application")
     
     # Create manager instance
-    manager = ${prompt.replace(/\s+/g, '')}Manager({
+    manager = ${prompt.replace(/\s+/g, "")}Manager({
         'debug': True,
         'auto_start': False
     })
@@ -792,10 +792,10 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())`
-    })
+    asyncio.run(main())`,
+    }),
   },
-  
+
   typescript: {
     react: (prompt: string, variables: any = {}) => ({
       code: `import React, { useState, useEffect, useCallback, useMemo } from 'react';
@@ -807,7 +807,7 @@ import { ReactNode } from 'react';
  */
 
 // Types and interfaces
-interface ${prompt.replace(/\s+/g, '')}Props {
+interface ${prompt.replace(/\s+/g, "")}Props {
   title?: string;
   className?: string;
   onAction?: (data: ActionData) => Promise<void> | void;
@@ -832,12 +832,12 @@ interface ActionData {
 }
 
 // Variables from user input
-${Object.entries(variables).map(([key, value]) => 
-  `const ${key}: string = "${value}";`
-).join('\n')}
+${Object.entries(variables)
+  .map(([key, value]) => `const ${key}: string = "${value}";`)
+  .join("\n")}
 
 // Custom hooks
-const use${prompt.replace(/\s+/g, '')}Manager = (autoStart: boolean = false) => {
+const use${prompt.replace(/\s+/g, "")}Manager = (autoStart: boolean = false) => {
   const [state, setState] = useState<ComponentState>({
     isActive: false,
     loading: false,
@@ -908,7 +908,7 @@ const use${prompt.replace(/\s+/g, '')}Manager = (autoStart: boolean = false) => 
 };
 
 // Main component
-const ${prompt.replace(/\s+/g, '')}Component: React.FC<${prompt.replace(/\s+/g, '')}Props> = ({
+const ${prompt.replace(/\s+/g, "")}Component: React.FC<${prompt.replace(/\s+/g, "")}Props> = ({
   title = "${prompt}",
   className = "",
   onAction,
@@ -917,7 +917,7 @@ const ${prompt.replace(/\s+/g, '')}Component: React.FC<${prompt.replace(/\s+/g, 
   autoStart = false,
   debug = false,
 }) => {
-  const { state, actions } = use${prompt.replace(/\s+/g, '')}Manager(autoStart);
+  const { state, actions } = use${prompt.replace(/\s+/g, "")}Manager(autoStart);
 
   // Memoized values
   const statusText = useMemo(() => {
@@ -1039,7 +1039,7 @@ const ${prompt.replace(/\s+/g, '')}Component: React.FC<${prompt.replace(/\s+/g, 
           <div className="debug-section mt-6 p-4 bg-yellow-50 rounded border border-yellow-200">
             <h4 className="font-semibold text-yellow-800 mb-2">Debug Info</h4>
             <pre className="text-xs text-yellow-700">
-              {JSON.stringify({ state, variables: { ${Object.keys(variables).join(', ')} } }, null, 2)}
+              {JSON.stringify({ state, variables: { ${Object.keys(variables).join(", ")} } }, null, 2)}
             </pre>
           </div>
         )}
@@ -1049,28 +1049,34 @@ const ${prompt.replace(/\s+/g, '')}Component: React.FC<${prompt.replace(/\s+/g, 
 };
 
 // Export types for external use
-export type { ${prompt.replace(/\s+/g, '')}Props, ComponentState, ActionData };
+export type { ${prompt.replace(/\s+/g, "")}Props, ComponentState, ActionData };
 
-export default ${prompt.replace(/\s+/g, '')}Component;`
-    })
-  }
+export default ${prompt.replace(/\s+/g, "")}Component;`,
+    }),
+  },
 };
 
 export const generateCode: RequestHandler = async (req, res) => {
   try {
-    const { prompt, language, framework, complexity, variables = {} }: GenerationRequest = req.body;
+    const {
+      prompt,
+      language,
+      framework,
+      complexity,
+      variables = {},
+    }: GenerationRequest = req.body;
 
     if (!prompt?.trim()) {
       return res.status(400).json({
         success: false,
-        error: "Prompt is required"
+        error: "Prompt is required",
       });
     }
 
     if (!language) {
       return res.status(400).json({
         success: false,
-        error: "Language is required"
+        error: "Language is required",
       });
     }
 
@@ -1079,61 +1085,68 @@ export const generateCode: RequestHandler = async (req, res) => {
     if (!langTemplates) {
       return res.status(400).json({
         success: false,
-        error: `Language "${language}" is not supported`
+        error: `Language "${language}" is not supported`,
       });
     }
 
     // Generate code based on framework or default
-    const templateKey = framework && (langTemplates as any)[framework] ? framework : 'default';
-    const template = (langTemplates as any)[templateKey] || (langTemplates as any)['default'];
-    
+    const templateKey =
+      framework && (langTemplates as any)[framework] ? framework : "default";
+    const template =
+      (langTemplates as any)[templateKey] || (langTemplates as any)["default"];
+
     if (!template) {
       return res.status(400).json({
         success: false,
-        error: `Template not found for ${language}${framework ? ` with ${framework}` : ''}`
+        error: `Template not found for ${language}${framework ? ` with ${framework}` : ""}`,
       });
     }
 
     // Generate the code
     const result = template(prompt, variables);
-    
+
     // Prepare response
     const response: GenerationResponse = {
       success: true,
       code: result.code || result,
-      explanation: `Generated ${language}${framework ? ` ${framework}` : ''} code for: "${prompt}". ` +
-        `This implementation includes proper error handling, type safety${language === 'typescript' ? ' with full TypeScript support' : ''}, ` +
+      explanation:
+        `Generated ${language}${framework ? ` ${framework}` : ""} code for: "${prompt}". ` +
+        `This implementation includes proper error handling, type safety${language === "typescript" ? " with full TypeScript support" : ""}, ` +
         `and follows best practices for ${complexity} complexity level.`,
-      files: []
+      files: [],
     };
 
     // Add files
-    const fileExtension = language === 'javascript' ? 'js' : 
-                         language === 'typescript' ? 'ts' : 
-                         language === 'python' ? 'py' : 'txt';
+    const fileExtension =
+      language === "javascript"
+        ? "js"
+        : language === "typescript"
+          ? "ts"
+          : language === "python"
+            ? "py"
+            : "txt";
 
     response.files = [
       {
-        name: `${prompt.replace(/\s+/g, '_').toLowerCase()}.${fileExtension}`,
-        content: response.code
-      }
+        name: `${prompt.replace(/\s+/g, "_").toLowerCase()}.${fileExtension}`,
+        content: response.code,
+      },
     ];
 
     // Add additional files for specific frameworks
-    if (framework === 'react' && result.styles) {
+    if (framework === "react" && result.styles) {
       response.files.push({
-        name: 'styles.css',
-        content: result.styles
+        name: "styles.css",
+        content: result.styles,
       });
     }
 
     res.json(response);
-
   } catch (error: any) {
-    console.error('Code generation error:', error);
+    console.error("Code generation error:", error);
     res.status(500).json({
       success: false,
-      error: error.message || 'Internal server error'
+      error: error.message || "Internal server error",
     });
   }
 };

@@ -1,21 +1,33 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { 
-  Code, 
-  Play, 
-  Copy, 
-  Download, 
+import {
+  Code,
+  Play,
+  Copy,
+  Download,
   Settings,
   Loader2,
   CheckCircle,
   AlertCircle,
-  Zap
+  Zap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 
@@ -23,7 +35,7 @@ interface GenerationRequest {
   prompt: string;
   language: string;
   framework?: string;
-  complexity: 'simple' | 'intermediate' | 'advanced';
+  complexity: "simple" | "intermediate" | "advanced";
   variables?: { [key: string]: string };
 }
 
@@ -41,26 +53,30 @@ export default function CodeGenerator() {
   const [prompt, setPrompt] = useState("");
   const [language, setLanguage] = useState("javascript");
   const [framework, setFramework] = useState("");
-  const [complexity, setComplexity] = useState<'simple' | 'intermediate' | 'advanced'>('simple');
+  const [complexity, setComplexity] = useState<
+    "simple" | "intermediate" | "advanced"
+  >("simple");
   const [variables, setVariables] = useState<{ [key: string]: string }>({});
   const [generatedCode, setGeneratedCode] = useState("");
   const [explanation, setExplanation] = useState("");
-  const [generatedFiles, setGeneratedFiles] = useState<{ name: string; content: string }[]>([]);
+  const [generatedFiles, setGeneratedFiles] = useState<
+    { name: string; content: string }[]
+  >([]);
 
   // Add a new variable
   const addVariable = () => {
     const key = `variable_${Object.keys(variables).length + 1}`;
-    setVariables(prev => ({ ...prev, [key]: "" }));
+    setVariables((prev) => ({ ...prev, [key]: "" }));
   };
 
   // Update variable
   const updateVariable = (key: string, value: string) => {
-    setVariables(prev => ({ ...prev, [key]: value }));
+    setVariables((prev) => ({ ...prev, [key]: value }));
   };
 
   // Remove variable
   const removeVariable = (key: string) => {
-    setVariables(prev => {
+    setVariables((prev) => {
       const newVars = { ...prev };
       delete newVars[key];
       return newVars;
@@ -79,7 +95,7 @@ export default function CodeGenerator() {
     }
 
     setIsGenerating(true);
-    
+
     try {
       const request: GenerationRequest = {
         prompt: prompt.trim(),
@@ -90,10 +106,10 @@ export default function CodeGenerator() {
       };
 
       // Call backend API
-      const response = await fetch('/api/code-generator/generate', {
-        method: 'POST',
+      const response = await fetch("/api/code-generator/generate", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(request),
       });
@@ -108,7 +124,7 @@ export default function CodeGenerator() {
         setGeneratedCode(result.code);
         setExplanation(result.explanation);
         setGeneratedFiles(result.files || []);
-        
+
         toast({
           title: "Code generated successfully! 🎉",
           description: "Your code has been generated and is ready to use.",
@@ -117,17 +133,18 @@ export default function CodeGenerator() {
         throw new Error(result.error || "Generation failed");
       }
     } catch (error: any) {
-      console.error('Code generation error:', error);
-      
+      console.error("Code generation error:", error);
+
       // Mock response for demo when backend is not available
       const mockResponse = generateMockCode(prompt, language, framework);
       setGeneratedCode(mockResponse.code);
       setExplanation(mockResponse.explanation);
       setGeneratedFiles(mockResponse.files);
-      
+
       toast({
         title: "Demo mode",
-        description: "Generated mock code for demonstration. Backend not connected.",
+        description:
+          "Generated mock code for demonstration. Backend not connected.",
         variant: "default",
       });
     } finally {
@@ -136,12 +153,16 @@ export default function CodeGenerator() {
   };
 
   // Mock code generator for demo
-  const generateMockCode = (prompt: string, lang: string, fw?: string): GenerationResponse => {
+  const generateMockCode = (
+    prompt: string,
+    lang: string,
+    fw?: string,
+  ): GenerationResponse => {
     const templates = {
       javascript: {
         react: `import React, { useState } from 'react';
 
-function ${prompt.replace(/\s+/g, '')}Component() {
+function ${prompt.replace(/\s+/g, "")}Component() {
   const [state, setState] = useState('');
 
   const handleAction = () => {
@@ -159,7 +180,7 @@ function ${prompt.replace(/\s+/g, '')}Component() {
   );
 }
 
-export default ${prompt.replace(/\s+/g, '')}Component;`,
+export default ${prompt.replace(/\s+/g, "")}Component;`,
         node: `const express = require('express');
 const app = express();
 
@@ -173,7 +194,7 @@ app.listen(PORT, () => {
   console.log(\`Server running on port \${PORT}\`);
 });`,
         vanilla: `// ${prompt}
-function ${prompt.replace(/\s+/g, '').toLowerCase()}() {
+function ${prompt.replace(/\s+/g, "").toLowerCase()}() {
   console.log('${prompt}');
   
   // Your implementation here
@@ -187,11 +208,11 @@ function performAction() {
 }
 
 // Usage
-${prompt.replace(/\s+/g, '').toLowerCase()}();`
+${prompt.replace(/\s+/g, "").toLowerCase()}();`,
       },
       python: {
         default: `# ${prompt}
-def ${prompt.replace(/\s+/g, '_').toLowerCase()}():
+def ${prompt.replace(/\s+/g, "_").toLowerCase()}():
     """
     ${prompt}
     """
@@ -206,7 +227,7 @@ def perform_action():
     return True
 
 if __name__ == "__main__":
-    ${prompt.replace(/\s+/g, '_').toLowerCase()}()`
+    ${prompt.replace(/\s+/g, "_").toLowerCase()}()`,
       },
       typescript: {
         react: `import React, { useState } from 'react';
@@ -215,7 +236,7 @@ interface Props {
   title?: string;
 }
 
-const ${prompt.replace(/\s+/g, '')}Component: React.FC<Props> = ({ title = "${prompt}" }) => {
+const ${prompt.replace(/\s+/g, "")}Component: React.FC<Props> = ({ title = "${prompt}" }) => {
   const [state, setState] = useState<string>('');
 
   const handleAction = (): void => {
@@ -233,23 +254,26 @@ const ${prompt.replace(/\s+/g, '')}Component: React.FC<Props> = ({ title = "${pr
   );
 };
 
-export default ${prompt.replace(/\s+/g, '')}Component;`
-      }
+export default ${prompt.replace(/\s+/g, "")}Component;`,
+      },
     };
 
     const codeTemplate = templates[lang as keyof typeof templates];
-    const code = (codeTemplate as any)?.[fw || 'default'] || codeTemplate || `// ${prompt}\nconsole.log("Generated code for: ${prompt}");`;
+    const code =
+      (codeTemplate as any)?.[fw || "default"] ||
+      codeTemplate ||
+      `// ${prompt}\nconsole.log("Generated code for: ${prompt}");`;
 
     return {
       success: true,
       code,
-      explanation: `This code implements "${prompt}" using ${lang}${fw ? ` with ${fw}` : ''}. The generated code includes basic structure and functionality to get you started.`,
+      explanation: `This code implements "${prompt}" using ${lang}${fw ? ` with ${fw}` : ""}. The generated code includes basic structure and functionality to get you started.`,
       files: [
         {
-          name: `${prompt.replace(/\s+/g, '_').toLowerCase()}.${lang === 'javascript' ? 'js' : lang === 'typescript' ? 'ts' : 'py'}`,
-          content: code
-        }
-      ]
+          name: `${prompt.replace(/\s+/g, "_").toLowerCase()}.${lang === "javascript" ? "js" : lang === "typescript" ? "ts" : "py"}`,
+          content: code,
+        },
+      ],
     };
   };
 
@@ -272,16 +296,16 @@ export default ${prompt.replace(/\s+/g, '')}Component;`
 
   // Download code as file
   const downloadCode = (filename: string, content: string) => {
-    const blob = new Blob([content], { type: 'text/plain' });
+    const blob = new Blob([content], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
+    const a = document.createElement("a");
     a.href = url;
     a.download = filename;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    
+
     toast({
       title: "File downloaded! 📁",
       description: `${filename} has been downloaded.`,
@@ -304,7 +328,8 @@ export default ${prompt.replace(/\s+/g, '')}Component;`
             <h1 className="text-3xl font-bold text-white">Code Generator</h1>
           </div>
           <p className="text-slate-400 max-w-2xl mx-auto">
-            Generate high-quality code using AI. Describe what you want to build, and get production-ready code instantly.
+            Generate high-quality code using AI. Describe what you want to
+            build, and get production-ready code instantly.
           </p>
         </motion.div>
 
@@ -390,13 +415,17 @@ export default ${prompt.replace(/\s+/g, '')}Component;`
                     Complexity Level
                   </label>
                   <div className="flex space-x-2">
-                    {['simple', 'intermediate', 'advanced'].map((level) => (
+                    {["simple", "intermediate", "advanced"].map((level) => (
                       <Button
                         key={level}
                         variant={complexity === level ? "default" : "outline"}
                         size="sm"
                         onClick={() => setComplexity(level as any)}
-                        className={complexity === level ? "bg-purple-primary" : "border-purple-primary/30 text-white"}
+                        className={
+                          complexity === level
+                            ? "bg-purple-primary"
+                            : "border-purple-primary/30 text-white"
+                        }
                       >
                         {level.charAt(0).toUpperCase() + level.slice(1)}
                       </Button>
@@ -502,7 +531,12 @@ export default ${prompt.replace(/\s+/g, '')}Component;`
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => downloadCode(`generated_code.${language}`, generatedCode)}
+                        onClick={() =>
+                          downloadCode(
+                            `generated_code.${language}`,
+                            generatedCode,
+                          )
+                        }
                         className="border-purple-primary/30 text-purple-primary"
                       >
                         <Download className="w-4 h-4" />
@@ -540,9 +574,15 @@ export default ${prompt.replace(/\s+/g, '')}Component;`
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {generatedFiles.map((file, index) => (
-                    <div key={index} className="border border-purple-primary/20 rounded-lg p-3">
+                    <div
+                      key={index}
+                      className="border border-purple-primary/20 rounded-lg p-3"
+                    >
                       <div className="flex items-center justify-between mb-2">
-                        <Badge variant="outline" className="border-purple-primary/30 text-purple-primary">
+                        <Badge
+                          variant="outline"
+                          className="border-purple-primary/30 text-purple-primary"
+                        >
                           {file.name}
                         </Badge>
                         <div className="flex space-x-2">
@@ -557,7 +597,9 @@ export default ${prompt.replace(/\s+/g, '')}Component;`
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => downloadCode(file.name, file.content)}
+                            onClick={() =>
+                              downloadCode(file.name, file.content)
+                            }
                             className="border-purple-primary/30 text-purple-primary"
                           >
                             <Download className="w-3 h-3" />
@@ -582,7 +624,8 @@ export default ${prompt.replace(/\s+/g, '')}Component;`
                     Ready to Generate
                   </h3>
                   <p className="text-slate-400 text-sm">
-                    Fill in the details on the left and click "Generate Code" to get started.
+                    Fill in the details on the left and click "Generate Code" to
+                    get started.
                   </p>
                 </CardContent>
               </Card>

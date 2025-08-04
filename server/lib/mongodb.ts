@@ -7,9 +7,14 @@ let isConnected = false;
 export async function connectDB() {
   // Skip MongoDB connection in development if no URI provided
   if (!MONGODB_URI) {
-    console.log("⚠️  No MongoDB URI provided - running in development mode without database");
+    console.log(
+      "⚠️  No MongoDB URI provided - running in development mode without database",
+    );
     console.log("✅ Backend server ready (no database connection)");
-    return { success: true, message: "Development mode - no database connection" };
+    return {
+      success: true,
+      message: "Development mode - no database connection",
+    };
   }
 
   if (isConnected) {
@@ -19,7 +24,7 @@ export async function connectDB() {
 
   try {
     console.log("🔌 Connecting to MongoDB...");
-    
+
     const connection = await mongoose.connect(MONGODB_URI, {
       serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
       socketTimeoutMS: 10000, // Close sockets after 10s of inactivity
@@ -27,14 +32,14 @@ export async function connectDB() {
 
     isConnected = true;
     console.log("✅ Connected to MongoDB successfully");
-    
+
     // Handle connection events
-    mongoose.connection.on('disconnected', () => {
+    mongoose.connection.on("disconnected", () => {
       isConnected = false;
       console.log("⚠️ MongoDB disconnected");
     });
 
-    mongoose.connection.on('error', (err) => {
+    mongoose.connection.on("error", (err) => {
       console.log("❌ MongoDB connection error:", err.message);
     });
 
@@ -42,7 +47,7 @@ export async function connectDB() {
   } catch (error: any) {
     console.log("❌ Error connecting to MongoDB:", error.message);
     console.log("⚠️ Continuing without MongoDB in development mode...");
-    
+
     // Don't throw error in development - allow app to continue
     return { success: false, error: error.message };
   }

@@ -79,8 +79,8 @@ export default function Settings() {
 
   const loadUserData = async () => {
     try {
-      const userData = localStorage.getItem('currentUser');
-      const token = localStorage.getItem('token');
+      const userData = localStorage.getItem("currentUser");
+      const token = localStorage.getItem("token");
 
       if (userData) {
         const user = JSON.parse(userData);
@@ -88,7 +88,9 @@ export default function Settings() {
           name: user.name || user.displayName || "Unknown User",
           email: user.email || "No email",
           profileImage: user.profileImageURL || user.profile_image || "",
-          joinDate: user.created_at ? new Date(user.created_at).toLocaleDateString() : "Unknown",
+          joinDate: user.created_at
+            ? new Date(user.created_at).toLocaleDateString()
+            : "Unknown",
           premium: user.premium || false,
         });
       }
@@ -96,10 +98,10 @@ export default function Settings() {
       // Try to fetch updated profile from backend
       if (token) {
         try {
-          const response = await fetch('/api/v2/profile', {
+          const response = await fetch("/api/v2/profile", {
             headers: {
-              'Authorization': `Bearer ${token}`
-            }
+              Authorization: `Bearer ${token}`,
+            },
           });
 
           if (response.ok) {
@@ -109,18 +111,23 @@ export default function Settings() {
                 name: profileData.user.name || "Unknown User",
                 email: profileData.user.email || "No email",
                 profileImage: profileData.user.profile_image || "",
-                joinDate: profileData.user.created_at ? new Date(profileData.user.created_at).toLocaleDateString() : "Unknown",
+                joinDate: profileData.user.created_at
+                  ? new Date(profileData.user.created_at).toLocaleDateString()
+                  : "Unknown",
                 premium: profileData.user.premium || false,
               });
-              console.log('✅ Loaded user profile from backend:', profileData.user);
+              console.log(
+                "✅ Loaded user profile from backend:",
+                profileData.user,
+              );
             }
           }
         } catch (error) {
-          console.error('Error loading profile from backend:', error);
+          console.error("Error loading profile from backend:", error);
         }
       }
     } catch (error) {
-      console.error('Error loading user data:', error);
+      console.error("Error loading user data:", error);
     } finally {
       setLoading(false);
     }
@@ -128,13 +135,13 @@ export default function Settings() {
 
   const loadUserSettings = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) return;
 
       const userSettings = await settingsApi.getUserSettings();
       if (userSettings) {
         setSettings({
-          darkTheme: userSettings.theme === 'dark',
+          darkTheme: userSettings.theme === "dark",
           notifications: userSettings.notifications?.email || true,
           autoDownload: userSettings.playback?.autoDownload || true,
           highQuality: userSettings.playback?.highQuality || true,
@@ -147,10 +154,10 @@ export default function Settings() {
           language: userSettings.language || "English",
           region: userSettings.region || "United States",
         });
-        console.log('✅ Loaded user settings from backend:', userSettings);
+        console.log("✅ Loaded user settings from backend:", userSettings);
       }
     } catch (error) {
-      console.error('Error loading settings from backend:', error);
+      console.error("Error loading settings from backend:", error);
       // Keep default settings on error
     }
   };
@@ -327,24 +334,33 @@ export default function Settings() {
     }));
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (token) {
         // Update settings on backend
         let updateData: any = {};
 
         // Map settings to backend format
-        if (key === 'notifications') {
+        if (key === "notifications") {
           updateData = { notifications: { email: newValue } };
-        } else if (['autoDownload', 'highQuality', 'offlineMode', 'autoPlay', 'crossfade', 'normalization'].includes(key)) {
+        } else if (
+          [
+            "autoDownload",
+            "highQuality",
+            "offlineMode",
+            "autoPlay",
+            "crossfade",
+            "normalization",
+          ].includes(key)
+        ) {
           updateData = { playback: { [key]: newValue } };
-        } else if (['publicProfile', 'showActivity'].includes(key)) {
+        } else if (["publicProfile", "showActivity"].includes(key)) {
           updateData = { privacy: { [key]: newValue } };
         } else {
           updateData = { [key]: newValue };
         }
 
         await settingsApi.updateUserSettings(updateData);
-        console.log('✅ Updated setting on backend:', key, newValue);
+        console.log("✅ Updated setting on backend:", key, newValue);
       }
 
       toast({
@@ -352,7 +368,7 @@ export default function Settings() {
         description: `${key} has been ${newValue ? "enabled" : "disabled"}`,
       });
     } catch (error) {
-      console.error('Error updating setting on backend:', error);
+      console.error("Error updating setting on backend:", error);
       // Revert local state on error
       setSettings((prev) => ({
         ...prev,
@@ -370,27 +386,27 @@ export default function Settings() {
   const handleLogout = async () => {
     try {
       // Call backend logout endpoint if available
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (token) {
         try {
-          await fetch('/api/auth/logout', {
-            method: 'POST',
+          await fetch("/api/auth/logout", {
+            method: "POST",
             headers: {
-              'Authorization': `Bearer ${token}`
-            }
+              Authorization: `Bearer ${token}`,
+            },
           });
         } catch (error) {
-          console.error('Backend logout error:', error);
+          console.error("Backend logout error:", error);
         }
       }
 
       // Clear tokens and user data
-      localStorage.removeItem('token');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('currentUser');
-      localStorage.removeItem('userAvatar');
+      localStorage.removeItem("token");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("currentUser");
+      localStorage.removeItem("userAvatar");
 
-      console.log('✅ User logged out successfully');
+      console.log("✅ User logged out successfully");
 
       toast({
         title: "Logged Out",
@@ -398,7 +414,7 @@ export default function Settings() {
       });
       navigate("/login");
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
       toast({
         title: "Logout Error",
         description: "There was an issue logging out. Please try again.",

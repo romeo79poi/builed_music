@@ -277,20 +277,24 @@ export default function Home() {
         setUserDataLoading(true);
 
         // Check if user is logged in with new backend
-        const token = localStorage.getItem('token');
-        const savedUserData = localStorage.getItem('currentUser');
+        const token = localStorage.getItem("token");
+        const savedUserData = localStorage.getItem("currentUser");
 
         if (token && savedUserData) {
           try {
             const parsedUserData = JSON.parse(savedUserData);
             console.log("✅ Loaded user data from backend:", parsedUserData);
             setUserData(parsedUserData);
-            setUserAvatar(parsedUserData.profileImageURL || parsedUserData.avatar_url || null);
+            setUserAvatar(
+              parsedUserData.profileImageURL ||
+                parsedUserData.avatar_url ||
+                null,
+            );
           } catch (error) {
             console.error("Error parsing user data:", error);
             // Clear invalid data
-            localStorage.removeItem('currentUser');
-            localStorage.removeItem('token');
+            localStorage.removeItem("currentUser");
+            localStorage.removeItem("token");
             setUserData(null);
             setUserAvatar(null);
           }
@@ -340,7 +344,7 @@ export default function Home() {
             name: album.title || album.name,
             artist: album.artist_name || album.artist,
             coverImageURL: album.cover_image_url || album.coverImageURL,
-            isNew: true
+            isNew: true,
           }));
           setAlbums(formattedAlbums);
         }
@@ -352,14 +356,14 @@ export default function Home() {
             title: track.title || track.name,
             artist: track.artist_name || track.artist,
             coverImageURL: track.cover_image_url || track.coverImageURL,
-            duration: track.duration || '3:30'
+            duration: track.duration || "3:30",
           }));
           setTracks(formattedTracks);
         }
 
         setApiDataLoaded(true);
       } catch (error) {
-        console.error('Error loading API data:', error);
+        console.error("Error loading API data:", error);
 
         // Show error toast
         toast({

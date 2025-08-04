@@ -1,7 +1,13 @@
 import { RequestHandler } from "express";
 import bcrypt from "bcrypt";
 import { sendVerificationEmail, sendWelcomeEmail } from "../lib/email";
-import { profileUsers, authUsers, syncUserData, getUserByIdentifier, createUser } from "../lib/userStore";
+import {
+  profileUsers,
+  authUsers,
+  syncUserData,
+  getUserByIdentifier,
+  createUser,
+} from "../lib/userStore";
 
 // Using shared user store now
 
@@ -604,7 +610,7 @@ export const loginUser: RequestHandler = async (req, res) => {
           is_artist: profileData.is_artist,
           follower_count: profileData.follower_count,
           following_count: profileData.following_count,
-        })
+        }),
       },
       token: token,
     });
