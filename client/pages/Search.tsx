@@ -432,13 +432,14 @@ export default function Search() {
                 >
                   <img
                     src={album.cover_image_url}
-                    alt={album.name}
+                    alt={album.title}
                     className="w-full aspect-square rounded-lg object-cover mb-3"
                   />
                   <h4 className="font-medium text-white mb-1 truncate">
-                    {album.name}
+                    {album.title}
                   </h4>
-                  <p className="text-xs text-gray-400">{album.artist}</p>
+                  <p className="text-xs text-gray-400">{album.artist_name}</p>
+                  <p className="text-xs text-gray-500">{album.track_count} tracks</p>
                 </div>
               ))}
             </div>
