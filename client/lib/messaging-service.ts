@@ -234,7 +234,7 @@ class MessagingService {
       });
 
       const data = await response.json();
-      return data.chat || null;
+      return data.success ? (data.data || null) : null;
     } catch (error) {
       console.error("Failed to create chat:", error);
       return null;
