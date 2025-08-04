@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
+import { api } from "../lib/api";
 
 interface Track {
   id: string;
@@ -121,11 +122,8 @@ export default function Search() {
 
       if (selectedTab === "all" || selectedTab === "songs") {
         try {
-          const response = await fetch(`/api/v1/tracks?search=${encodeURIComponent(searchQuery)}&limit=20`);
-          if (response.ok) {
-            const data = await response.json();
-            results.tracks = data.tracks || [];
-          }
+          const data = await api.search.searchSongs(searchQuery, 20);
+          results.tracks = data.tracks || data.data || [];
         } catch (error) {
           console.error("Track search error:", error);
         }
@@ -133,11 +131,8 @@ export default function Search() {
 
       if (selectedTab === "all" || selectedTab === "albums") {
         try {
-          const response = await fetch(`/api/v1/albums?search=${encodeURIComponent(searchQuery)}&limit=20`);
-          if (response.ok) {
-            const data = await response.json();
-            results.albums = data.albums || [];
-          }
+          const data = await api.search.searchAlbums(searchQuery, 20);
+          results.albums = data.albums || data.data || [];
         } catch (error) {
           console.error("Album search error:", error);
         }
@@ -145,11 +140,8 @@ export default function Search() {
 
       if (selectedTab === "all" || selectedTab === "artists") {
         try {
-          const response = await fetch(`/api/v1/artists?search=${encodeURIComponent(searchQuery)}&limit=20`);
-          if (response.ok) {
-            const data = await response.json();
-            results.artists = data.artists || [];
-          }
+          const data = await api.search.searchArtists(searchQuery, 20);
+          results.artists = data.artists || data.data || [];
         } catch (error) {
           console.error("Artist search error:", error);
         }

@@ -537,10 +537,7 @@ export const sendEmailVerification: RequestHandler = async (req, res) => {
       success: true,
       message: emailResult.success
         ? "Verification code sent to your email successfully"
-        : "Verification code generated (email service unavailable - check console for debug code)",
-      debugCode: process.env.NODE_ENV === "development" || !emailResult.success 
-        ? verificationCode 
-        : undefined,
+        : "Email service temporarily unavailable, please try again",
       expiresAt: expiry.toISOString(),
       emailSent: emailResult.success,
     });

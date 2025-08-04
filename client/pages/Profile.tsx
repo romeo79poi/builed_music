@@ -50,6 +50,7 @@ import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
 import { UserProfile as BackendUserProfile, Song } from "@shared/api";
 import { fetchUserData, updateUserProfile } from "../lib/auth";
+import { api } from "../lib/api";
 
 // Use backend types
 type UserProfile = BackendUserProfile & {

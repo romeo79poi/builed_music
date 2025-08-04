@@ -272,7 +272,7 @@ export const signUpWithEmailAndPassword = async (
         await setDoc(doc(db, "users", user.uid), userDocData);
         console.log("✅ User data saved to Firestore successfully");
       } catch (firestoreError: any) {
-        console.warn("⚠️ Firestore write failed, continuing without saving user data:", firestoreError.code);
+        console.warn("⚠��� Firestore write failed, continuing without saving user data:", firestoreError.code);
         // Continue even if Firestore write fails - user account is still created in Auth
       }
 
@@ -459,26 +459,56 @@ export const signInWithGoogle = async (): Promise<{
   isNewUser?: boolean;
 }> => {
   try {
+    // Try backend Google authentication first
+    try {
+      const response = await fetch('/api/auth/google/signin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          // Store tokens if provided
+          if (data.accessToken) {
+            localStorage.setItem("token", data.accessToken);
+          }
+          if (data.refreshToken) {
+            localStorage.setItem("refreshToken", data.refreshToken);
+          }
+
+          // Store user data
+          if (data.user) {
+            localStorage.setItem("currentUser", JSON.stringify(data.user));
+            localStorage.setItem("userAvatar", data.user.profile_image || "");
+          }
+
+          console.log("✅ Google backend authentication successful:", data.user);
+
+          return {
+            success: true,
+            user: {
+              uid: data.user.id,
+              email: data.user.email,
+              displayName: data.user.name,
+              emailVerified: data.user.is_verified,
+              photoURL: data.user.profile_image,
+            } as User,
+            isNewUser: data.isNewUser || false,
+          };
+        }
+      }
+    } catch (backendError) {
+      console.warn("Backend Google auth not available, trying Firebase fallback");
+    }
+
     // Check if Firebase is configured
     if (!isFirebaseConfigured || !auth || !db) {
-      // Provide development mode simulation
-      console.warn("🔧 Development mode: Simulating Google sign-in");
-
-      // Simulate Google sign-in for development
-      const mockUser = {
-        uid: `google-dev-${Date.now()}`,
-        email: "demo.user@gmail.com",
-        displayName: "Demo User",
-        emailVerified: true,
-        photoURL: "https://via.placeholder.com/96x96/4285F4/ffffff?text=DU",
-      } as User;
-
-      console.log("✅ Development Google user signed in:", mockUser);
-
       return {
-        success: true,
-        user: mockUser,
-        isNewUser: true,
+        success: false,
+        error: "Social login is temporarily unavailable. Please use email signup instead.",
       };
     }
 
@@ -585,18 +615,11 @@ export const signInWithGoogle = async (): Promise<{
           "🔄 Firebase network/config/permission error, using development mode for Google sign-in",
         );
 
-        // Simulate successful Google user creation for development
-        const mockUser = {
-          uid: `google-dev-${Date.now()}`,
-          email: "demo.user@gmail.com",
-          displayName: "Demo User",
-          emailVerified: true,
-          photoURL: "https://via.placeholder.com/96x96/4285F4/ffffff?text=DU",
-        } as User;
-
-        console.log("✅ Development Google user created:", mockUser);
-
-        return { success: true, user: mockUser, isNewUser: true };
+        // Return error instead of creating demo user
+        return {
+          success: false,
+          error: "Google authentication is not properly configured",
+        };
       }
 
       // Re-throw other Firebase errors to be handled by outer catch
@@ -622,21 +645,8 @@ export const signInWithGoogle = async (): Promise<{
         errorMessage = "Google sign-in is not enabled for this application";
         break;
       case "auth/unauthorized-domain":
-        console.warn("🔧 Unauthorized domain detected, falling back to development mode");
-        // Fallback to development mode for unauthorized domains
-        const mockUser = {
-          uid: `google-dev-${Date.now()}`,
-          email: "demo.user@gmail.com",
-          displayName: "Demo User (Dev Mode)",
-          emailVerified: true,
-          photoURL: "https://via.placeholder.com/96x96/4285F4/ffffff?text=DU",
-        } as User;
-
-        return {
-          success: true,
-          user: mockUser,
-          isNewUser: true
-        };
+        errorMessage = "Google authentication is not configured for this domain";
+        break;
       case "auth/account-exists-with-different-credential":
         errorMessage =
           "An account already exists with the same email address but different sign-in credentials";
@@ -678,26 +688,56 @@ export const signInWithFacebook = async (): Promise<{
   isNewUser?: boolean;
 }> => {
   try {
+    // Try backend Facebook authentication first
+    try {
+      const response = await fetch('/api/auth/facebook/signin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          // Store tokens if provided
+          if (data.accessToken) {
+            localStorage.setItem("token", data.accessToken);
+          }
+          if (data.refreshToken) {
+            localStorage.setItem("refreshToken", data.refreshToken);
+          }
+
+          // Store user data
+          if (data.user) {
+            localStorage.setItem("currentUser", JSON.stringify(data.user));
+            localStorage.setItem("userAvatar", data.user.profile_image || "");
+          }
+
+          console.log("✅ Facebook backend authentication successful:", data.user);
+
+          return {
+            success: true,
+            user: {
+              uid: data.user.id,
+              email: data.user.email,
+              displayName: data.user.name,
+              emailVerified: data.user.is_verified,
+              photoURL: data.user.profile_image,
+            } as User,
+            isNewUser: data.isNewUser || false,
+          };
+        }
+      }
+    } catch (backendError) {
+      console.warn("Backend Facebook auth not available, trying Firebase fallback");
+    }
+
     // Check if Firebase is configured
     if (!isFirebaseConfigured || !auth || !db) {
-      // Provide development mode simulation
-      console.warn("🔧 Development mode: Simulating Facebook sign-in");
-
-      // Simulate Facebook sign-in for development
-      const mockUser = {
-        uid: `facebook-dev-${Date.now()}`,
-        email: "demo.facebook@example.com",
-        displayName: "Demo Facebook User",
-        emailVerified: true,
-        photoURL: "https://via.placeholder.com/96x96/1877F2/ffffff?text=FB",
-      } as User;
-
-      console.log("✅ Development Facebook user signed in:", mockUser);
-
       return {
-        success: true,
-        user: mockUser,
-        isNewUser: true,
+        success: false,
+        error: "Social login is temporarily unavailable. Please use email signup instead.",
       };
     }
 
@@ -795,18 +835,11 @@ export const signInWithFacebook = async (): Promise<{
           "🔄 Firebase network/config/permission error, using development mode for Facebook sign-in",
         );
 
-        // Simulate successful Facebook user creation for development
-        const mockUser = {
-          uid: `facebook-dev-${Date.now()}`,
-          email: "demo.facebook@example.com",
-          displayName: "Demo Facebook User",
-          emailVerified: true,
-          photoURL: "https://via.placeholder.com/96x96/1877F2/ffffff?text=FB",
-        } as User;
-
-        console.log("✅ Development Facebook user created:", mockUser);
-
-        return { success: true, user: mockUser, isNewUser: true };
+        // Return error instead of creating demo user
+        return {
+          success: false,
+          error: "Facebook authentication is not properly configured",
+        };
       }
 
       // Re-throw other Firebase errors to be handled by outer catch
@@ -832,21 +865,8 @@ export const signInWithFacebook = async (): Promise<{
         errorMessage = "Facebook sign-in is not enabled for this application";
         break;
       case "auth/unauthorized-domain":
-        console.warn("🔧 Unauthorized domain detected, falling back to development mode");
-        // Fallback to development mode for unauthorized domains
-        const mockUser = {
-          uid: `facebook-dev-${Date.now()}`,
-          email: "demo.facebook@example.com",
-          displayName: "Demo Facebook User (Dev Mode)",
-          emailVerified: true,
-          photoURL: "https://via.placeholder.com/96x96/1877F2/ffffff?text=FB",
-        } as User;
-
-        return {
-          success: true,
-          user: mockUser,
-          isNewUser: true
-        };
+        errorMessage = "Facebook authentication is not configured for this domain";
+        break;
       case "auth/account-exists-with-different-credential":
         errorMessage =
           "An account already exists with the same email address but different sign-in credentials";
@@ -1171,7 +1191,7 @@ export const fetchUserData = async (userId: string): Promise<{
       console.log("🔍 Created document reference");
 
       const userDoc = await getDoc(userRef);
-      console.log("🔍 Firestore read successful");
+      console.log("�� Firestore read successful");
 
       if (userDoc.exists()) {
         const userData = userDoc.data();
@@ -1179,20 +1199,7 @@ export const fetchUserData = async (userId: string): Promise<{
         return { success: true, userData };
       } else {
         console.log('⚠️ No user data found in Firestore');
-        // Return mock data instead of failing when user doesn't exist
-        const mockUserData = {
-          email: "demo.user@example.com",
-          name: "Demo User",
-          username: "demouser",
-          profile_image: "https://via.placeholder.com/150x150/4285F4/ffffff?text=DU",
-          bio: "This is a demo user profile",
-          dob: "1990-01-01",
-          gender: "Other",
-          created_at: new Date().toISOString(),
-          verified: true
-        };
-        console.log('Using mock user data (user not found):', mockUserData);
-        return { success: true, userData: mockUserData };
+        return { success: false, error: "User data not found" };
       }
     } catch (firestoreError: any) {
       console.error("🔥 Firestore operation failed:", firestoreError);
@@ -1217,39 +1224,20 @@ export const fetchUserData = async (userId: string): Promise<{
       error.toString().includes('permission');
 
     if (isPermissionError) {
-      console.warn("🔧 Firebase permissions denied, using development mode");
-      // Return mock user data when permissions are denied
-      const mockUserData = {
-        email: "demo.user@example.com",
-        name: "Demo User",
-        username: "demouser",
-        profile_image: "https://via.placeholder.com/150x150/4285F4/ffffff?text=DU",
-        bio: "This is a demo user profile",
-        dob: "1990-01-01",
-        gender: "Other",
-        created_at: new Date().toISOString(),
-        verified: true
+      console.warn("🔧 Firebase permissions denied");
+      return {
+        success: false,
+        error: "Authentication required. Please sign in again.",
       };
-      console.log('Using mock user data due to permissions:', mockUserData);
-      return { success: true, userData: mockUserData };
     }
 
-    // For any other Firebase error, also fall back to mock data to prevent app crashes
+    // For any other Firebase error, return proper error
     if (error.name === 'FirebaseError') {
-      console.warn("🔧 Firebase error detected, using development mode fallback");
-      const mockUserData = {
-        email: "demo.user@example.com",
-        name: "Demo User",
-        username: "demouser",
-        profile_image: "https://via.placeholder.com/150x150/4285F4/ffffff?text=DU",
-        bio: "This is a demo user profile",
-        dob: "1990-01-01",
-        gender: "Other",
-        created_at: new Date().toISOString(),
-        verified: true
+      console.warn("🔧 Firebase error detected");
+      return {
+        success: false,
+        error: "Unable to fetch user data. Please try again.",
       };
-      console.log('Using mock user data due to Firebase error:', mockUserData);
-      return { success: true, userData: mockUserData };
     }
 
     return {

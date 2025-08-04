@@ -17,6 +17,7 @@ import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import PasswordStrengthIndicator from "../components/PasswordStrengthIndicator";
 import AvailabilityChecker from "../components/AvailabilityChecker";
 import { useToast } from "../hooks/use-toast";
+import { api } from "../lib/api";
 import {
   validatePhoneNumber,
   formatPhoneInput,
@@ -120,9 +121,7 @@ export default function Signup() {
   const [verificationUser, setVerificationUser] = useState<any>(null);
   const [emailVerificationSent, setEmailVerificationSent] = useState(false);
   const [phoneVerificationSent, setPhoneVerificationSent] = useState(false);
-  const [debugVerificationCode, setDebugVerificationCode] = useState<
-    string | null
-  >(null);
+
 
   // Validation functions
   const validateEmail = (email: string): boolean => {
@@ -693,13 +692,15 @@ export default function Signup() {
       } else {
         console.error("❌ Google sign-in failed:", result.error);
 
-        // Set error alert for domain authorization issues
+        // Set error alert for social auth issues
         if (
           result.error?.includes("domain") ||
-          result.error?.includes("unauthorized")
+          result.error?.includes("unauthorized") ||
+          result.error?.includes("temporarily unavailable") ||
+          result.error?.includes("additional setup")
         ) {
           setErrorAlert(
-            "Google sign-in is not available on this domain. Please use email signup instead.",
+            "Social login is currently unavailable. Please use email signup instead.",
           );
         } else {
           setErrorAlert(
@@ -708,9 +709,8 @@ export default function Signup() {
         }
 
         toast({
-          title: "Google sign-in failed",
-          description:
-            result.error || "Unable to sign in with Google. Please try again.",
+          title: "Google sign-up unavailable",
+          description: "Social signup is temporarily unavailable. Please use email signup instead.",
           variant: "destructive",
         });
       }
@@ -870,13 +870,15 @@ export default function Signup() {
       } else {
         console.error("❌ Facebook sign-in failed:", result.error);
 
-        // Set error alert for domain authorization issues
+        // Set error alert for social auth issues
         if (
           result.error?.includes("domain") ||
-          result.error?.includes("unauthorized")
+          result.error?.includes("unauthorized") ||
+          result.error?.includes("temporarily unavailable") ||
+          result.error?.includes("additional setup")
         ) {
           setErrorAlert(
-            "Facebook sign-in is not available on this domain. Please use email signup instead.",
+            "Social login is currently unavailable. Please use email signup instead.",
           );
         } else {
           setErrorAlert(
@@ -885,10 +887,8 @@ export default function Signup() {
         }
 
         toast({
-          title: "Facebook sign-in failed",
-          description:
-            result.error ||
-            "Unable to sign in with Facebook. Please try again.",
+          title: "Facebook sign-up unavailable",
+          description: "Social signup is temporarily unavailable. Please use email signup instead.",
           variant: "destructive",
         });
       }
@@ -972,35 +972,18 @@ export default function Signup() {
       if (data.success) {
         setCurrentStep("verification");
 
-        // Store debug code for UI display
-        if (data.debugCode) {
-          setDebugVerificationCode(data.debugCode);
-        }
-
-        // Show different messages based on whether email was actually sent
         if (data.emailSent === false) {
           toast({
-            title: "⚠️ Email delivery failed",
-            description: `Use the code shown below to verify your account`,
+            title: "⚠️ Email service unavailable",
+            description: "Please try again or contact support",
             duration: 8000,
             variant: "destructive",
-          });
-        } else if (data.debugCode) {
-          toast({
-            title: "Verification code sent!",
-            description: `Code also shown below for convenience`,
-            duration: 8000,
           });
         } else {
           toast({
             title: "Verification code sent!",
-            description:
-              "Please check your email for the 6-digit verification code.",
+            description: "Please check your email for the 6-digit verification code.",
           });
-        }
-
-        if (data.debugCode) {
-          console.log(`📧 Email verification code: ${data.debugCode}`);
         }
 
         setResendTimer(60);
@@ -1553,35 +1536,18 @@ export default function Signup() {
       const data = await response.json();
 
       if (data.success) {
-        // Store new debug code for UI display
-        if (data.debugCode) {
-          setDebugVerificationCode(data.debugCode);
-        }
-
-        // Show different messages based on whether email was actually sent
         if (data.emailSent === false) {
           toast({
-            title: "⚠️ New verification code ready",
-            description: `Email service unavailable. Code: ${data.debugCode}`,
+            title: "⚠️ Email service unavailable",
+            description: "Please try again or contact support",
             duration: 10000,
             variant: "destructive",
-          });
-        } else if (data.debugCode) {
-          toast({
-            title: "Verification code resent!",
-            description: `Code: ${data.debugCode} (Development Mode)`,
-            duration: 8000,
           });
         } else {
           toast({
             title: "Verification code resent!",
-            description:
-              "Please check your email for the new 6-digit verification code.",
+            description: "Please check your email for the new 6-digit verification code.",
           });
-        }
-
-        if (data.debugCode) {
-          console.log(`�� Resent email verification code: ${data.debugCode}`);
         }
 
         setResendTimer(60);
@@ -2180,36 +2146,9 @@ export default function Signup() {
                 {formData.email}
               </div>
 
-              {/* Debug Code Display */}
-              {debugVerificationCode && (
-                <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4 mt-4">
-                  <div className="text-center">
-                    <h4 className="text-orange-500 font-medium text-sm mb-2">
-                      📧 Email delivery issue - Use this code:
-                    </h4>
-                    <div className="bg-orange-500/20 rounded-lg p-3 inline-block">
-                      <span className="text-orange-300 text-2xl font-bold font-mono tracking-wider">
-                        {debugVerificationCode}
-                      </span>
-                    </div>
-                    <p className="text-orange-400 text-xs mt-2">
-                      Your email provider may be blocking emails.
-                    </p>
-                    <button
-                      onClick={() => {
-                        setFormData((prev) => ({
-                          ...prev,
-                          otp: debugVerificationCode || "",
-                        }));
-                        setErrors((prev) => ({ ...prev, otp: undefined }));
-                      }}
-                      className="mt-2 px-3 py-1 bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/50 rounded text-orange-300 text-xs transition-colors"
-                    >
-                      Auto-fill Code
-                    </button>
-                  </div>
-                </div>
-              )}
+
+
+
 
               <div>
                 {/* Masked Input Display */}

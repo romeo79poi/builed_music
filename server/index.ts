@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { handleDemo } from "./routes/demo";
+
 import { connectDB } from "./lib/mongodb";
 
 // Profile routes
@@ -79,7 +79,7 @@ import {
   toggleFollow as toggleMongoFollow,
 } from "./routes/profile-mongodb";
 
-import { authenticateJWT } from "./lib/jwt";
+import { authenticateJWT, optionalAuth } from "./middleware/auth";
 
 // Complete Auth System
 import authMainRouter from "./routes/auth-main";
@@ -93,6 +93,8 @@ import {
   facebookAuth,
   socialLogin,
   checkSocialUser,
+  googleSignin,
+  facebookSignin,
 } from "./routes/auth-social";
 
 // Phone routes
@@ -220,8 +222,6 @@ export function createServer() {
     res.json({ message: "Hello from Express server v2!" });
   });
 
-  app.get("/api/demo", handleDemo);
-
   // Authentication API routes
   app.post("/api/auth/register", registerUser);
   app.get("/api/auth/check-availability", checkAvailability);
@@ -282,6 +282,8 @@ export function createServer() {
   // Social Authentication routes
   app.post("/api/auth/google", googleAuth);
   app.post("/api/auth/facebook", facebookAuth);
+  app.post("/api/auth/google/signin", googleSignin);
+  app.post("/api/auth/facebook/signin", facebookSignin);
   app.post("/api/auth/social", socialLogin);
   app.get("/api/auth/social/check", checkSocialUser);
 
@@ -383,7 +385,7 @@ export function createServer() {
   app.get("/api/v1/tracks/trending", getTrendingTracks);
   app.post("/api/v1/tracks/:id/like", toggleTrackLike);
   app.delete("/api/v1/tracks/:id/like", toggleTrackLike);
-  app.get("/api/v1/users/liked-tracks", getUserLikedTracks);
+  app.get("/api/v1/users/liked-tracks", optionalAuth, getUserLikedTracks);
   app.get("/api/v1/artists/:artist_id/tracks", getTracksByArtist);
   app.get("/api/v1/albums/:album_id/tracks", getTracksByAlbum);
 

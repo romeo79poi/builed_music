@@ -51,6 +51,7 @@ import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { useMessaging, useChat } from "@/lib/messaging-service";
+import { api } from "../lib/api";
 
 const Messages = () => {
   const navigate = useNavigate();

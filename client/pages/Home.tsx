@@ -19,6 +19,7 @@ import {
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
+import { api } from "../lib/api";
 // Remove Firebase dependencies - using new backend authentication
 
 // Featured Artist/Album of the Day
@@ -326,36 +327,34 @@ export default function Home() {
       if (apiDataLoaded) return;
 
       try {
-        // Load albums
-        const albumsResponse = await fetch('/api/v1/albums?limit=10');
-        if (albumsResponse.ok) {
-          const albumsData = await albumsResponse.json();
-          if (albumsData.albums && albumsData.albums.length > 0) {
-            const formattedAlbums = albumsData.albums.map((album: any) => ({
-              id: album.id,
-              name: album.title,
-              artist: album.artist_name,
-              coverImageURL: album.cover_image_url,
-              isNew: new Date(album.release_date) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // Released in last 30 days
-            }));
-            setAlbums(formattedAlbums);
-          }
+        // Load home feed data using homeApi
+        const [newReleases, trending] = await Promise.all([
+          api.home.getNewReleases(10).catch(() => ({ data: [] })),
+          api.home.getTrending(10).catch(() => ({ data: [] })),
+        ]);
+
+        // Update albums with new releases
+        if (newReleases?.data?.length > 0) {
+          const formattedAlbums = newReleases.data.map((album: any) => ({
+            id: album.id,
+            name: album.title || album.name,
+            artist: album.artist_name || album.artist,
+            coverImageURL: album.cover_image_url || album.coverImageURL,
+            isNew: true
+          }));
+          setAlbums(formattedAlbums);
         }
 
-        // Load trending tracks
-        const tracksResponse = await fetch('/api/v1/tracks?sort_by=play_count&limit=10');
-        if (tracksResponse.ok) {
-          const tracksData = await tracksResponse.json();
-          if (tracksData.tracks && tracksData.tracks.length > 0) {
-            const formattedTracks = tracksData.tracks.map((track: any) => ({
-              id: track.id,
-              title: track.title,
-              artist: track.artist_name,
-              coverImageURL: track.cover_image_url,
-              duration: `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, '0')}`,
-            }));
-            setTracks(formattedTracks);
-          }
+        // Update tracks with trending
+        if (trending?.data?.length > 0) {
+          const formattedTracks = trending.data.map((track: any) => ({
+            id: track.id,
+            title: track.title || track.name,
+            artist: track.artist_name || track.artist,
+            coverImageURL: track.cover_image_url || track.coverImageURL,
+            duration: track.duration || '3:30'
+          }));
+          setTracks(formattedTracks);
         }
 
         setApiDataLoaded(true);

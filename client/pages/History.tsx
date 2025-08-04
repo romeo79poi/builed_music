@@ -20,6 +20,7 @@ import { useProfileContext } from "../context/ProfileContext";
 import { useMusicContext } from "../context/MusicContext";
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
+import { api } from "../lib/api";
 
 export default function History() {
   const { profile } = useProfileContext();
@@ -44,16 +45,9 @@ export default function History() {
     try {
       setIsLoading(true);
 
-      const [historyRes, analyticsRes] = await Promise.all([
-        fetch(
-          `/api/analytics/${profile.id}/history?period=${timeFilter.toLowerCase().replace(" ", "_")}&limit=50`,
-        ),
-        fetch(`/api/analytics/${profile.id}/engagement`),
-      ]);
-
       const [historyData, analyticsData] = await Promise.all([
-        historyRes.json(),
-        analyticsRes.json(),
+        api.history.getHistory(50, timeFilter.toLowerCase().replace(" ", "_")).catch(() => ({ success: false })),
+        api.history.getAnalytics(timeFilter.toLowerCase().replace(" ", "_")).catch(() => ({ success: false })),
       ]);
 
       if (historyData.success) {

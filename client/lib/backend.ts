@@ -101,7 +101,7 @@ export class BackendAPI {
 
   static async searchSongs(query: string, limit = 20) {
     return this.request(
-      `/songs/search?q=${encodeURIComponent(query)}&limit=${limit}`,
+      `/api/v1/tracks/search?q=${encodeURIComponent(query)}&limit=${limit}`,
     );
   }
 
@@ -113,19 +113,20 @@ export class BackendAPI {
 
   // Likes endpoints
   static async likeSong(songId: string) {
-    return this.request(`/songs/like/${songId}`, {
+    return this.request(`/api/v1/tracks/${songId}/like`, {
       method: "PUT",
     });
   }
 
   static async unlikeSong(songId: string) {
-    return this.request(`/songs/unlike/${songId}`, {
+    return this.request(`/api/v1/tracks/${songId}/like`, {
+      method: "DELETE",
       method: "PUT",
     });
   }
 
   static async getLikedSongs() {
-    return this.request("/songs/liked");
+    return this.request("/api/v1/users/liked-tracks");
   }
 
   // Profile endpoints
@@ -171,14 +172,14 @@ export class BackendAPI {
   }
 
   static async addSongToPlaylist(playlistId: string, songId: string) {
-    return this.request(`/playlists/${playlistId}/songs`, {
+    return this.request(`/api/v1/playlists/${playlistId}/tracks`, {
       method: "POST",
       body: JSON.stringify({ songId }),
     });
   }
 
   static async removeSongFromPlaylist(playlistId: string, songId: string) {
-    return this.request(`/playlists/${playlistId}/songs/${songId}`, {
+    return this.request(`/api/v1/playlists/${playlistId}/tracks/${songId}`, {
       method: "DELETE",
     });
   }

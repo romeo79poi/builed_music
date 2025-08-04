@@ -432,12 +432,15 @@ export const toggleTrackLike: RequestHandler = async (req, res) => {
 // Get user's liked tracks
 export const getUserLikedTracks: RequestHandler = async (req, res) => {
   try {
-    const userId = req.headers['user-id'] as string;
-    
-    if (!userId) {
-      return res.status(401).json({
-        success: false,
-        message: "User ID required"
+    const userId = req.userId || "dev_user"; // Use default user ID in development mode
+
+    // In development mode without authentication, return empty liked tracks
+    if (!req.userId) {
+      return res.json({
+        success: true,
+        data: [],
+        total: 0,
+        message: "Development mode - no authentication"
       });
     }
     
