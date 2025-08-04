@@ -1,40 +1,20 @@
 import nodemailer from "nodemailer";
 
 // Create email transporter
-const createTransporter = async () => {
-  // Use working SMTP service for email delivery
-  const emailUser = process.env.EMAIL_USER || "noreply@musiccatch.com";
-
-  // Create a test account for development/testing
-  try {
-    const testAccount = await nodemailer.createTestAccount();
-
-    return nodemailer.createTransport({
-      host: "smtp.ethereal.email",
-      port: 587,
-      secure: false,
-      auth: {
-        user: testAccount.user,
-        pass: testAccount.pass,
-      },
-    });
-  } catch (error) {
-    console.warn("Failed to create test account, using fallback configuration");
-
-    // Fallback to a working configuration
-    return nodemailer.createTransport({
-      host: "smtp.ethereal.email",
-      port: 587,
-      secure: false,
-      auth: {
-        user: "test@example.com",
-        pass: "test123",
-      },
-      tls: {
-        rejectUnauthorized: false
-      }
-    });
-  }
+const createTransporter = () => {
+  // Use a simple configuration that always works for testing
+  return nodemailer.createTransport({
+    host: "smtp.ethereal.email",
+    port: 587,
+    secure: false,
+    auth: {
+      user: "berta.howe83@ethereal.email",
+      pass: "4tQ9t3MRyXBe3W4zVw",
+    },
+    tls: {
+      rejectUnauthorized: false
+    }
+  });
 };
 
 // Beautiful HTML email template
