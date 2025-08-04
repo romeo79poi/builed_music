@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { useFirebase } from "../context/FirebaseContext";
+import { useAuth } from "../context/AuthContext";
 import Splash from "../pages/Splash";
 import Home from "../pages/Home";
 import Signup from "../pages/Signup";
 
 export default function AuthRouter() {
-  const { user, loading } = useFirebase();
+  const { user, loading, isAuthenticated } = useAuth();
   const [showSplash, setShowSplash] = useState(true);
   const [splashComplete, setSplashComplete] = useState(false);
 
@@ -26,7 +26,7 @@ export default function AuthRouter() {
 
   // After splash is complete and auth is loaded
   // If user is authenticated, show Home
-  if (user) {
+  if (isAuthenticated && user) {
     return <Home />;
   }
 
