@@ -53,10 +53,6 @@ export default function EditProfile() {
 
   const currentProfile = { ...profile, ...editedProfile };
 
-  // Debug logging
-  console.log("Current profile data:", currentProfile);
-  console.log("Profile picture URL:", currentProfile.profilePicture);
-
   // Reset image error when profile picture URL changes
   React.useEffect(() => {
     setImageLoadError(false);

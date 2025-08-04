@@ -103,8 +103,6 @@ router.post("/send-otp", async (req, res) => {
       success: true,
       message: "OTP sent successfully",
       phoneNumber: formattedPhone,
-      // For demo purposes, include OTP in response (remove in production)
-      debugOtp: process.env.NODE_ENV === "development" ? otp : undefined,
     });
   } catch (error) {
     console.error("Send OTP error:", error);

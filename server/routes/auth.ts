@@ -1,7 +1,13 @@
 import { RequestHandler } from "express";
 import bcrypt from "bcrypt";
 import { sendVerificationEmail, sendWelcomeEmail } from "../lib/email";
-import { profileUsers, authUsers, syncUserData, getUserByIdentifier, createUser } from "../lib/userStore";
+import {
+  profileUsers,
+  authUsers,
+  syncUserData,
+  getUserByIdentifier,
+  createUser,
+} from "../lib/userStore";
 
 // Using shared user store now
 
@@ -316,28 +322,23 @@ export const sendEmailVerification: RequestHandler = async (req, res) => {
     const emailResult = await sendVerificationEmail(email, verificationCode);
 
     if (!emailResult.success) {
-      console.warn(
-        "Email service unavailable, continuing with in-memory verification:",
-        emailResult.error,
-      );
-      // Don't fail the request, just log the issue
-      // In development, we'll still provide the debug code
+      console.error("❌ Email service failed:", emailResult.error);
     } else {
       console.log(`✅ Verification email sent successfully to: ${email}`);
     }
 
+    if (!emailResult.success) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send verification email. Please try again later.",
+      });
+    }
+
     res.json({
       success: true,
-      message: emailResult.success
-        ? "Verification code sent to your email successfully"
-        : "Verification code generated (email service unavailable - check console for debug code)",
-      // For development/demo - always include debug code when email fails or in dev mode
-      debugCode:
-        process.env.NODE_ENV === "development" || !emailResult.success
-          ? verificationCode
-          : undefined,
+      message: "Verification code sent to your email successfully",
+      emailSent: true,
       expiresAt: expiry.toISOString(),
-      emailSent: emailResult.success,
     });
   } catch (error) {
     console.error("Send email verification error:", error);
@@ -609,7 +610,7 @@ export const loginUser: RequestHandler = async (req, res) => {
           is_artist: profileData.is_artist,
           follower_count: profileData.follower_count,
           following_count: profileData.following_count,
-        })
+        }),
       },
       token: token,
     });

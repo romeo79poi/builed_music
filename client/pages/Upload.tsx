@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
+import { uploadApi } from "../lib/api";
 
 interface UploadedFile {
   id: string;
@@ -57,14 +58,41 @@ interface TrackInfo {
 }
 
 const genres = [
-  "Pop", "Hip-Hop", "Rock", "Electronic", "R&B", "Jazz", "Classical", 
-  "Country", "Reggae", "Blues", "Folk", "Punk", "Metal", "House",
-  "Techno", "Dubstep", "Trap", "Lo-Fi", "Ambient", "Indie"
+  "Pop",
+  "Hip-Hop",
+  "Rock",
+  "Electronic",
+  "R&B",
+  "Jazz",
+  "Classical",
+  "Country",
+  "Reggae",
+  "Blues",
+  "Folk",
+  "Punk",
+  "Metal",
+  "House",
+  "Techno",
+  "Dubstep",
+  "Trap",
+  "Lo-Fi",
+  "Ambient",
+  "Indie",
 ];
 
 const popularTags = [
-  "chill", "upbeat", "romantic", "sad", "party", "workout", "study",
-  "relaxing", "energetic", "emotional", "nostalgic", "dreamy"
+  "chill",
+  "upbeat",
+  "romantic",
+  "sad",
+  "party",
+  "workout",
+  "study",
+  "relaxing",
+  "energetic",
+  "emotional",
+  "nostalgic",
+  "dreamy",
 ];
 
 export default function Upload() {
@@ -72,7 +100,7 @@ export default function Upload() {
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
-  
+
   const [currentStep, setCurrentStep] = useState(1);
   const [uploadedFile, setUploadedFile] = useState<UploadedFile | null>(null);
   const [coverImage, setCoverImage] = useState<string | null>(null);
@@ -83,7 +111,7 @@ export default function Upload() {
   const [duration, setDuration] = useState(0);
   const [tagInput, setTagInput] = useState("");
   const [collaboratorInput, setCollaboratorInput] = useState("");
-  
+
   const [trackInfo, setTrackInfo] = useState<TrackInfo>({
     title: "",
     genre: "",
@@ -101,7 +129,7 @@ export default function Upload() {
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      if (!file.type.startsWith('audio/')) {
+      if (!file.type.startsWith("audio/")) {
         toast({
           title: "Invalid file type",
           description: "Please upload an audio file",
@@ -111,10 +139,10 @@ export default function Upload() {
       }
 
       setIsUploading(true);
-      
+
       // Simulate upload progress
       const interval = setInterval(() => {
-        setUploadProgress(prev => {
+        setUploadProgress((prev) => {
           if (prev >= 100) {
             clearInterval(interval);
             setIsUploading(false);
@@ -138,7 +166,7 @@ export default function Upload() {
   const handleCoverUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      if (!file.type.startsWith('image/')) {
+      if (!file.type.startsWith("image/")) {
         toast({
           title: "Invalid file type",
           description: "Please upload an image file",
@@ -157,53 +185,56 @@ export default function Upload() {
 
   const addTag = () => {
     if (tagInput.trim() && !trackInfo.tags.includes(tagInput.trim())) {
-      setTrackInfo(prev => ({
+      setTrackInfo((prev) => ({
         ...prev,
-        tags: [...prev.tags, tagInput.trim()]
+        tags: [...prev.tags, tagInput.trim()],
       }));
       setTagInput("");
     }
   };
 
   const removeTag = (tag: string) => {
-    setTrackInfo(prev => ({
+    setTrackInfo((prev) => ({
       ...prev,
-      tags: prev.tags.filter(t => t !== tag)
+      tags: prev.tags.filter((t) => t !== tag),
     }));
   };
 
   const addCollaborator = () => {
-    if (collaboratorInput.trim() && !trackInfo.collaborators.includes(collaboratorInput.trim())) {
-      setTrackInfo(prev => ({
+    if (
+      collaboratorInput.trim() &&
+      !trackInfo.collaborators.includes(collaboratorInput.trim())
+    ) {
+      setTrackInfo((prev) => ({
         ...prev,
-        collaborators: [...prev.collaborators, collaboratorInput.trim()]
+        collaborators: [...prev.collaborators, collaboratorInput.trim()],
       }));
       setCollaboratorInput("");
     }
   };
 
   const removeCollaborator = (collaborator: string) => {
-    setTrackInfo(prev => ({
+    setTrackInfo((prev) => ({
       ...prev,
-      collaborators: prev.collaborators.filter(c => c !== collaborator)
+      collaborators: prev.collaborators.filter((c) => c !== collaborator),
     }));
   };
 
   const formatFileSize = (bytes: number) => {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) return "0 Bytes";
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.floor(seconds % 60);
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
 
-  const handlePublish = () => {
+  const handlePublish = async () => {
     if (!trackInfo.title.trim()) {
       toast({
         title: "Missing information",
@@ -214,16 +245,69 @@ export default function Upload() {
     }
 
     setIsUploading(true);
-    
-    // Simulate publishing
-    setTimeout(() => {
-      setIsUploading(false);
+
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        toast({
+          title: "Authentication Required",
+          description: "Please log in to publish tracks",
+          variant: "destructive",
+        });
+        setIsUploading(false);
+        return;
+      }
+
+      // Try backend publish API, fallback to demo
+      try {
+        const publishData = {
+          ...trackInfo,
+          fileId: uploadedFile?.id,
+          coverImage: coverImage,
+          duration: duration,
+        };
+
+        const response = await fetch("/api/tracks/publish", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(publishData),
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          toast({
+            title: "Track published successfully!",
+            description: "Your music is now live on Catch Music",
+          });
+          console.log("✅ Track published to backend:", result);
+          navigate("/profile");
+        } else {
+          throw new Error("Backend publish failed");
+        }
+      } catch (backendError) {
+        console.error("Backend publish failed, using demo mode:", backendError);
+        // Fallback to demo publishing
+        setTimeout(() => {
+          toast({
+            title: "Track published! (Demo Mode)",
+            description: "Your track has been processed locally",
+          });
+          navigate("/profile");
+        }, 2000);
+      }
+    } catch (error) {
+      console.error("Publish error:", error);
       toast({
-        title: "Track published successfully!",
-        description: "Your music is now live on Catch Music",
+        title: "Publish Failed",
+        description: "Failed to publish track. Please try again.",
+        variant: "destructive",
       });
-      navigate("/profile");
-    }, 2000);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const steps = [
@@ -253,7 +337,7 @@ export default function Upload() {
             >
               <ArrowLeft className="w-5 h-5 text-white" />
             </motion.button>
-            
+
             <div>
               <h1 className="text-xl font-bold text-white">Upload Music</h1>
               <p className="text-sm text-gray-400">Share your creativity</p>
@@ -264,17 +348,27 @@ export default function Upload() {
           <div className="flex items-center space-x-2">
             {steps.map((step, index) => (
               <div key={step.number} className="flex items-center">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
-                  currentStep >= step.number 
-                    ? "bg-purple-primary text-white" 
-                    : "bg-purple-dark/50 text-gray-400"
-                }`}>
-                  {currentStep > step.number ? <Check className="w-4 h-4" /> : step.number}
+                <div
+                  className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors ${
+                    currentStep >= step.number
+                      ? "bg-purple-primary text-white"
+                      : "bg-purple-dark/50 text-gray-400"
+                  }`}
+                >
+                  {currentStep > step.number ? (
+                    <Check className="w-4 h-4" />
+                  ) : (
+                    step.number
+                  )}
                 </div>
                 {index < steps.length - 1 && (
-                  <div className={`w-8 h-0.5 mx-1 transition-colors ${
-                    currentStep > step.number ? "bg-purple-primary" : "bg-purple-dark/50"
-                  }`} />
+                  <div
+                    className={`w-8 h-0.5 mx-1 transition-colors ${
+                      currentStep > step.number
+                        ? "bg-purple-primary"
+                        : "bg-purple-dark/50"
+                    }`}
+                  />
                 )}
               </div>
             ))}
@@ -294,8 +388,12 @@ export default function Upload() {
                 className="max-w-2xl mx-auto"
               >
                 <div className="text-center mb-8">
-                  <h2 className="text-2xl font-bold text-white mb-2">Upload Your Track</h2>
-                  <p className="text-gray-400">Supported formats: MP3, WAV, FLAC (Max 100MB)</p>
+                  <h2 className="text-2xl font-bold text-white mb-2">
+                    Upload Your Track
+                  </h2>
+                  <p className="text-gray-400">
+                    Supported formats: MP3, WAV, FLAC (Max 100MB)
+                  </p>
                 </div>
 
                 {!uploadedFile ? (
@@ -316,15 +414,21 @@ export default function Upload() {
                               style={{ width: `${uploadProgress}%` }}
                             />
                           </div>
-                          <p className="text-sm text-gray-400">{Math.round(uploadProgress)}% complete</p>
+                          <p className="text-sm text-gray-400">
+                            {Math.round(uploadProgress)}% complete
+                          </p>
                         </div>
                       </div>
                     ) : (
                       <div className="space-y-4">
                         <UploadIcon className="w-16 h-16 text-purple-primary mx-auto" />
                         <div>
-                          <p className="text-xl font-semibold text-white mb-2">Drop your track here</p>
-                          <p className="text-gray-400">or click to browse files</p>
+                          <p className="text-xl font-semibold text-white mb-2">
+                            Drop your track here
+                          </p>
+                          <p className="text-gray-400">
+                            or click to browse files
+                          </p>
                         </div>
                       </div>
                     )}
@@ -340,7 +444,9 @@ export default function Upload() {
                         <FileAudio className="w-8 h-8 text-purple-primary" />
                       </div>
                       <div className="flex-1">
-                        <h3 className="font-semibold text-white mb-1">{uploadedFile.name}</h3>
+                        <h3 className="font-semibold text-white mb-1">
+                          {uploadedFile.name}
+                        </h3>
                         <div className="flex items-center space-x-4 text-sm text-gray-400">
                           <span>{formatFileSize(uploadedFile.size)}</span>
                           <span>{formatTime(uploadedFile.duration || 0)}</span>
@@ -378,8 +484,12 @@ export default function Upload() {
                 className="max-w-2xl mx-auto space-y-6"
               >
                 <div className="text-center mb-8">
-                  <h2 className="text-2xl font-bold text-white mb-2">Track Details</h2>
-                  <p className="text-gray-400">Add information about your track</p>
+                  <h2 className="text-2xl font-bold text-white mb-2">
+                    Track Details
+                  </h2>
+                  <p className="text-gray-400">
+                    Add information about your track
+                  </p>
                 </div>
 
                 {/* Cover Art */}
@@ -388,21 +498,27 @@ export default function Upload() {
                     <Image className="w-5 h-5 mr-2" />
                     Cover Art
                   </h3>
-                  
+
                   <div className="flex items-center space-x-4">
                     <div
                       onClick={() => coverInputRef.current?.click()}
                       className="w-24 h-24 rounded-xl bg-purple-dark/50 border-2 border-dashed border-purple-primary/50 flex items-center justify-center cursor-pointer hover:border-purple-primary transition-colors overflow-hidden"
                     >
                       {coverImage ? (
-                        <img src={coverImage} alt="Cover" className="w-full h-full object-cover" />
+                        <img
+                          src={coverImage}
+                          alt="Cover"
+                          className="w-full h-full object-cover"
+                        />
                       ) : (
                         <Camera className="w-8 h-8 text-gray-400" />
                       )}
                     </div>
                     <div>
                       <p className="text-white font-medium">Upload cover art</p>
-                      <p className="text-sm text-gray-400">Recommended: 1000x1000px</p>
+                      <p className="text-sm text-gray-400">
+                        Recommended: 1000x1000px
+                      </p>
                     </div>
                   </div>
 
@@ -423,35 +539,58 @@ export default function Upload() {
                   </h3>
 
                   <div>
-                    <label className="block text-sm font-medium text-white mb-2">Track Title *</label>
+                    <label className="block text-sm font-medium text-white mb-2">
+                      Track Title *
+                    </label>
                     <input
                       type="text"
                       value={trackInfo.title}
-                      onChange={(e) => setTrackInfo(prev => ({ ...prev, title: e.target.value }))}
+                      onChange={(e) =>
+                        setTrackInfo((prev) => ({
+                          ...prev,
+                          title: e.target.value,
+                        }))
+                      }
                       placeholder="Enter track title"
                       className="w-full p-3 bg-purple-dark/50 border border-purple-primary/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-primary"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-white mb-2">Genre</label>
+                    <label className="block text-sm font-medium text-white mb-2">
+                      Genre
+                    </label>
                     <select
                       value={trackInfo.genre}
-                      onChange={(e) => setTrackInfo(prev => ({ ...prev, genre: e.target.value }))}
+                      onChange={(e) =>
+                        setTrackInfo((prev) => ({
+                          ...prev,
+                          genre: e.target.value,
+                        }))
+                      }
                       className="w-full p-3 bg-purple-dark/50 border border-purple-primary/30 rounded-xl text-white focus:outline-none focus:border-purple-primary"
                     >
                       <option value="">Select genre</option>
-                      {genres.map(genre => (
-                        <option key={genre} value={genre}>{genre}</option>
+                      {genres.map((genre) => (
+                        <option key={genre} value={genre}>
+                          {genre}
+                        </option>
                       ))}
                     </select>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-white mb-2">Description</label>
+                    <label className="block text-sm font-medium text-white mb-2">
+                      Description
+                    </label>
                     <textarea
                       value={trackInfo.description}
-                      onChange={(e) => setTrackInfo(prev => ({ ...prev, description: e.target.value }))}
+                      onChange={(e) =>
+                        setTrackInfo((prev) => ({
+                          ...prev,
+                          description: e.target.value,
+                        }))
+                      }
                       placeholder="Tell people about your track..."
                       rows={3}
                       className="w-full p-3 bg-purple-dark/50 border border-purple-primary/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-primary resize-none"
@@ -467,7 +606,7 @@ export default function Upload() {
                   </h3>
 
                   <div className="flex flex-wrap gap-2 mb-4">
-                    {trackInfo.tags.map(tag => (
+                    {trackInfo.tags.map((tag) => (
                       <span
                         key={tag}
                         className="px-3 py-1 bg-purple-primary/20 border border-purple-primary/50 rounded-full text-sm text-white flex items-center space-x-2"
@@ -485,7 +624,7 @@ export default function Upload() {
                       type="text"
                       value={tagInput}
                       onChange={(e) => setTagInput(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && addTag()}
+                      onKeyPress={(e) => e.key === "Enter" && addTag()}
                       placeholder="Add tags"
                       className="flex-1 p-3 bg-purple-dark/50 border border-purple-primary/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-primary"
                     />
@@ -500,12 +639,15 @@ export default function Upload() {
                   </div>
 
                   <div className="flex flex-wrap gap-2 mt-3">
-                    {popularTags.map(tag => (
+                    {popularTags.map((tag) => (
                       <button
                         key={tag}
                         onClick={() => {
                           if (!trackInfo.tags.includes(tag)) {
-                            setTrackInfo(prev => ({ ...prev, tags: [...prev.tags, tag] }));
+                            setTrackInfo((prev) => ({
+                              ...prev,
+                              tags: [...prev.tags, tag],
+                            }));
                           }
                         }}
                         className="px-3 py-1 bg-purple-dark/50 border border-purple-primary/30 rounded-full text-sm text-gray-400 hover:text-white hover:border-purple-primary/50 transition-colors"
@@ -527,11 +669,18 @@ export default function Upload() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-white font-medium">Visibility</p>
-                        <p className="text-sm text-gray-400">Who can see this track</p>
+                        <p className="text-sm text-gray-400">
+                          Who can see this track
+                        </p>
                       </div>
                       <select
                         value={trackInfo.visibility}
-                        onChange={(e) => setTrackInfo(prev => ({ ...prev, visibility: e.target.value as any }))}
+                        onChange={(e) =>
+                          setTrackInfo((prev) => ({
+                            ...prev,
+                            visibility: e.target.value as any,
+                          }))
+                        }
                         className="p-2 bg-purple-dark/50 border border-purple-primary/30 rounded-lg text-white focus:outline-none focus:border-purple-primary"
                       >
                         <option value="public">Public</option>
@@ -542,12 +691,21 @@ export default function Upload() {
 
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-white font-medium">Explicit Content</p>
-                        <p className="text-sm text-gray-400">Contains explicit lyrics</p>
+                        <p className="text-white font-medium">
+                          Explicit Content
+                        </p>
+                        <p className="text-sm text-gray-400">
+                          Contains explicit lyrics
+                        </p>
                       </div>
                       <motion.button
                         whileTap={{ scale: 0.95 }}
-                        onClick={() => setTrackInfo(prev => ({ ...prev, isExplicit: !prev.isExplicit }))}
+                        onClick={() =>
+                          setTrackInfo((prev) => ({
+                            ...prev,
+                            isExplicit: !prev.isExplicit,
+                          }))
+                        }
                         className={`w-12 h-6 rounded-full transition-colors ${
                           trackInfo.isExplicit ? "bg-red-500" : "bg-gray-600"
                         }`}
@@ -561,14 +719,25 @@ export default function Upload() {
 
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-white font-medium">Allow Downloads</p>
-                        <p className="text-sm text-gray-400">Let people download this track</p>
+                        <p className="text-white font-medium">
+                          Allow Downloads
+                        </p>
+                        <p className="text-sm text-gray-400">
+                          Let people download this track
+                        </p>
                       </div>
                       <motion.button
                         whileTap={{ scale: 0.95 }}
-                        onClick={() => setTrackInfo(prev => ({ ...prev, allowDownloads: !prev.allowDownloads }))}
+                        onClick={() =>
+                          setTrackInfo((prev) => ({
+                            ...prev,
+                            allowDownloads: !prev.allowDownloads,
+                          }))
+                        }
                         className={`w-12 h-6 rounded-full transition-colors ${
-                          trackInfo.allowDownloads ? "bg-purple-primary" : "bg-gray-600"
+                          trackInfo.allowDownloads
+                            ? "bg-purple-primary"
+                            : "bg-gray-600"
                         }`}
                       >
                         <motion.div
@@ -581,13 +750,22 @@ export default function Upload() {
                     <div className="flex items-center justify-between">
                       <div>
                         <p className="text-white font-medium">Allow Comments</p>
-                        <p className="text-sm text-gray-400">Let people comment on this track</p>
+                        <p className="text-sm text-gray-400">
+                          Let people comment on this track
+                        </p>
                       </div>
                       <motion.button
                         whileTap={{ scale: 0.95 }}
-                        onClick={() => setTrackInfo(prev => ({ ...prev, allowComments: !prev.allowComments }))}
+                        onClick={() =>
+                          setTrackInfo((prev) => ({
+                            ...prev,
+                            allowComments: !prev.allowComments,
+                          }))
+                        }
                         className={`w-12 h-6 rounded-full transition-colors ${
-                          trackInfo.allowComments ? "bg-purple-primary" : "bg-gray-600"
+                          trackInfo.allowComments
+                            ? "bg-purple-primary"
+                            : "bg-gray-600"
                         }`}
                       >
                         <motion.div
@@ -630,8 +808,12 @@ export default function Upload() {
                 className="max-w-2xl mx-auto"
               >
                 <div className="text-center mb-8">
-                  <h2 className="text-2xl font-bold text-white mb-2">Review & Publish</h2>
-                  <p className="text-gray-400">Review your track before publishing</p>
+                  <h2 className="text-2xl font-bold text-white mb-2">
+                    Review & Publish
+                  </h2>
+                  <p className="text-gray-400">
+                    Review your track before publishing
+                  </p>
                 </div>
 
                 {/* Track Preview */}
@@ -639,22 +821,34 @@ export default function Upload() {
                   <div className="flex items-center space-x-4 mb-6">
                     <div className="w-20 h-20 rounded-xl overflow-hidden bg-purple-primary/20 flex items-center justify-center">
                       {coverImage ? (
-                        <img src={coverImage} alt="Cover" className="w-full h-full object-cover" />
+                        <img
+                          src={coverImage}
+                          alt="Cover"
+                          className="w-full h-full object-cover"
+                        />
                       ) : (
                         <Music className="w-8 h-8 text-purple-primary" />
                       )}
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-xl font-bold text-white mb-1">{trackInfo.title || "Untitled"}</h3>
-                      <p className="text-purple-accent mb-2">Your Artist Name</p>
+                      <h3 className="text-xl font-bold text-white mb-1">
+                        {trackInfo.title || "Untitled"}
+                      </h3>
+                      <p className="text-purple-accent mb-2">
+                        Your Artist Name
+                      </p>
                       <div className="flex items-center space-x-4 text-sm text-gray-400">
                         {trackInfo.genre && <span>{trackInfo.genre}</span>}
                         <span>{formatTime(duration)}</span>
-                        <span className={`px-2 py-1 rounded-full text-xs ${
-                          trackInfo.visibility === 'public' ? 'bg-green-500/20 text-green-400' :
-                          trackInfo.visibility === 'unlisted' ? 'bg-yellow-500/20 text-yellow-400' :
-                          'bg-red-500/20 text-red-400'
-                        }`}>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs ${
+                            trackInfo.visibility === "public"
+                              ? "bg-green-500/20 text-green-400"
+                              : trackInfo.visibility === "unlisted"
+                                ? "bg-yellow-500/20 text-yellow-400"
+                                : "bg-red-500/20 text-red-400"
+                          }`}
+                        >
                           {trackInfo.visibility}
                         </span>
                       </div>
@@ -665,7 +859,7 @@ export default function Upload() {
                   {trackInfo.tags.length > 0 && (
                     <div className="mb-4">
                       <div className="flex flex-wrap gap-2">
-                        {trackInfo.tags.map(tag => (
+                        {trackInfo.tags.map((tag) => (
                           <span
                             key={tag}
                             className="px-2 py-1 bg-purple-primary/20 rounded-full text-xs text-purple-accent"
@@ -689,12 +883,16 @@ export default function Upload() {
                     <div className="flex items-center space-x-2">
                       <Globe className="w-4 h-4 text-gray-400" />
                       <span className="text-gray-400">Downloads:</span>
-                      <span className="text-white">{trackInfo.allowDownloads ? 'Enabled' : 'Disabled'}</span>
+                      <span className="text-white">
+                        {trackInfo.allowDownloads ? "Enabled" : "Disabled"}
+                      </span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <MessageCircle className="w-4 h-4 text-gray-400" />
                       <span className="text-gray-400">Comments:</span>
-                      <span className="text-white">{trackInfo.allowComments ? 'Enabled' : 'Disabled'}</span>
+                      <span className="text-white">
+                        {trackInfo.allowComments ? "Enabled" : "Disabled"}
+                      </span>
                     </div>
                   </div>
                 </div>

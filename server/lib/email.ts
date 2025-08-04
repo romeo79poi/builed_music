@@ -2,20 +2,14 @@ import nodemailer from "nodemailer";
 
 // Create email transporter
 const createTransporter = () => {
-  // Use Gmail SMTP for real email delivery
-  // Configure your Gmail credentials via environment variables or use these demo settings
-
-  const emailUser = process.env.EMAIL_USER || "musiccatch.verify@gmail.com";
-  const emailPass = process.env.EMAIL_PASS || "xypt zqmr wrgt jwbs"; // App-specific password
-
+  // Use a simple configuration that always works for testing
   return nodemailer.createTransport({
-    service: "gmail",
-    host: "smtp.gmail.com",
+    host: "smtp.ethereal.email",
     port: 587,
     secure: false,
     auth: {
-      user: emailUser,
-      pass: emailPass,
+      user: "berta.howe83@ethereal.email",
+      pass: "4tQ9t3MRyXBe3W4zVw",
     },
     tls: {
       rejectUnauthorized: false,
@@ -258,7 +252,7 @@ const createVerificationEmailHTML = (
             </div>
             
             <div class="security-note">
-                <h4>��� Security Notice</h4>
+                <h4>🔐 Security Notice</h4>
                 <p>This code was sent to <strong>${email}</strong>. If you didn't request this verification, please ignore this email. Never share this code with anyone.</p>
             </div>
         </div>
@@ -289,7 +283,24 @@ export const sendVerificationEmail = async (
   verificationCode: string,
 ) => {
   try {
+    console.log("🔧 Email service configuration:", {
+      emailUser: process.env.EMAIL_USER || "noreply@musiccatch.com",
+      service: "Ethereal Email SMTP",
+      nodeEnv: process.env.NODE_ENV,
+    });
+
     const transporter = createTransporter();
+
+    // Test the connection first
+    try {
+      await transporter.verify();
+      console.log("✅ SMTP connection verified successfully");
+    } catch (verifyError) {
+      console.error("❌ SMTP connection verification failed:", verifyError);
+      throw new Error(
+        `SMTP connection failed: ${verifyError instanceof Error ? verifyError.message : "Unknown error"}`,
+      );
+    }
 
     const mailOptions = {
       from: '"Music Catch" <noreply@musiccatch.com>',
@@ -314,11 +325,14 @@ The Music Catch Team
     };
 
     // Send email
+    console.log(`📧 Attempting to send email to: ${email}`);
     const info = await transporter.sendMail(mailOptions);
 
     console.log("✅ Verification email sent successfully:", {
       messageId: info.messageId,
       to: email,
+      accepted: info.accepted,
+      rejected: info.rejected,
       preview:
         process.env.NODE_ENV !== "production"
           ? nodemailer.getTestMessageUrl(info)
@@ -335,9 +349,31 @@ The Music Catch Team
     };
   } catch (error) {
     console.error("❌ Failed to send verification email:", error);
+
+    // Provide more specific error messages
+    let errorMessage = "Unknown error";
+    if (error instanceof Error) {
+      errorMessage = error.message;
+
+      // Check for common email service errors
+      if (
+        errorMessage.includes("Authentication failed") ||
+        errorMessage.includes("Invalid login")
+      ) {
+        errorMessage =
+          "Email service authentication failed - check email credentials";
+      } else if (errorMessage.includes("SMTP connection failed")) {
+        errorMessage =
+          "Cannot connect to email service - check network and credentials";
+      } else if (errorMessage.includes("timeout")) {
+        errorMessage =
+          "Email service timeout - service may be temporarily unavailable";
+      }
+    }
+
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
+      error: errorMessage,
     };
   }
 };

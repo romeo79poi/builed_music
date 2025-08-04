@@ -34,21 +34,22 @@ import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
 import ThemeToggle from "../components/ThemeToggle";
 import { useTheme } from "../context/ThemeContext";
+import { settingsApi } from "../lib/api";
 
 export default function Settings() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { theme, actualTheme, setTheme } = useTheme();
 
-  // User data state
+  // User data state - will be loaded from backend
   const [userProfile, setUserProfile] = useState({
-    name: "John Doe",
-    email: "john.doe@example.com",
-    profileImage:
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-    joinDate: "January 2024",
-    premium: true,
+    name: "Loading...",
+    email: "Loading...",
+    profileImage: "",
+    joinDate: "Loading...",
+    premium: false,
   });
+  const [loading, setLoading] = useState(true);
 
   // Settings state
   const [settings, setSettings] = useState({
@@ -69,6 +70,97 @@ export default function Settings() {
   // Modal states
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  // Load user profile and settings from backend
+  useEffect(() => {
+    loadUserData();
+    loadUserSettings();
+  }, []);
+
+  const loadUserData = async () => {
+    try {
+      const userData = localStorage.getItem("currentUser");
+      const token = localStorage.getItem("token");
+
+      if (userData) {
+        const user = JSON.parse(userData);
+        setUserProfile({
+          name: user.name || user.displayName || "Unknown User",
+          email: user.email || "No email",
+          profileImage: user.profileImageURL || user.profile_image || "",
+          joinDate: user.created_at
+            ? new Date(user.created_at).toLocaleDateString()
+            : "Unknown",
+          premium: user.premium || false,
+        });
+      }
+
+      // Try to fetch updated profile from backend
+      if (token) {
+        try {
+          const response = await fetch("/api/v2/profile", {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          if (response.ok) {
+            const profileData = await response.json();
+            if (profileData.success && profileData.user) {
+              setUserProfile({
+                name: profileData.user.name || "Unknown User",
+                email: profileData.user.email || "No email",
+                profileImage: profileData.user.profile_image || "",
+                joinDate: profileData.user.created_at
+                  ? new Date(profileData.user.created_at).toLocaleDateString()
+                  : "Unknown",
+                premium: profileData.user.premium || false,
+              });
+              console.log(
+                "✅ Loaded user profile from backend:",
+                profileData.user,
+              );
+            }
+          }
+        } catch (error) {
+          console.error("Error loading profile from backend:", error);
+        }
+      }
+    } catch (error) {
+      console.error("Error loading user data:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadUserSettings = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+
+      const userSettings = await settingsApi.getUserSettings();
+      if (userSettings) {
+        setSettings({
+          darkTheme: userSettings.theme === "dark",
+          notifications: userSettings.notifications?.email || true,
+          autoDownload: userSettings.playback?.autoDownload || true,
+          highQuality: userSettings.playback?.highQuality || true,
+          offlineMode: userSettings.playback?.offlineMode || true,
+          publicProfile: userSettings.privacy?.publicProfile !== false,
+          showActivity: userSettings.privacy?.showActivity !== false,
+          autoPlay: userSettings.playback?.autoPlay !== false,
+          crossfade: userSettings.playback?.crossfade || true,
+          normalization: userSettings.playback?.normalization || true,
+          language: userSettings.language || "English",
+          region: userSettings.region || "United States",
+        });
+        console.log("✅ Loaded user settings from backend:", userSettings);
+      }
+    } catch (error) {
+      console.error("Error loading settings from backend:", error);
+      // Keep default settings on error
+    }
+  };
 
   const settingsSections = [
     {
@@ -232,25 +324,103 @@ export default function Settings() {
     },
   ];
 
-  const handleToggleSetting = (key: string) => {
+  const handleToggleSetting = async (key: string) => {
+    const newValue = !settings[key as keyof typeof settings];
+
+    // Update local state immediately for responsiveness
     setSettings((prev) => ({
       ...prev,
-      [key]: !prev[key as keyof typeof prev],
+      [key]: newValue,
     }));
 
-    toast({
-      title: "Setting Updated",
-      description: `${key} has been ${settings[key as keyof typeof settings] ? "disabled" : "enabled"}`,
-    });
+    try {
+      const token = localStorage.getItem("token");
+      if (token) {
+        // Update settings on backend
+        let updateData: any = {};
+
+        // Map settings to backend format
+        if (key === "notifications") {
+          updateData = { notifications: { email: newValue } };
+        } else if (
+          [
+            "autoDownload",
+            "highQuality",
+            "offlineMode",
+            "autoPlay",
+            "crossfade",
+            "normalization",
+          ].includes(key)
+        ) {
+          updateData = { playback: { [key]: newValue } };
+        } else if (["publicProfile", "showActivity"].includes(key)) {
+          updateData = { privacy: { [key]: newValue } };
+        } else {
+          updateData = { [key]: newValue };
+        }
+
+        await settingsApi.updateUserSettings(updateData);
+        console.log("✅ Updated setting on backend:", key, newValue);
+      }
+
+      toast({
+        title: "Setting Updated",
+        description: `${key} has been ${newValue ? "enabled" : "disabled"}`,
+      });
+    } catch (error) {
+      console.error("Error updating setting on backend:", error);
+      // Revert local state on error
+      setSettings((prev) => ({
+        ...prev,
+        [key]: !newValue,
+      }));
+
+      toast({
+        title: "Update Failed",
+        description: "Failed to update setting. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
-  const handleLogout = () => {
-    // Add logout logic here
-    toast({
-      title: "Logged Out",
-      description: "You have been successfully logged out",
-    });
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      // Call backend logout endpoint if available
+      const token = localStorage.getItem("token");
+      if (token) {
+        try {
+          await fetch("/api/auth/logout", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+        } catch (error) {
+          console.error("Backend logout error:", error);
+        }
+      }
+
+      // Clear tokens and user data
+      localStorage.removeItem("token");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("currentUser");
+      localStorage.removeItem("userAvatar");
+
+      console.log("✅ User logged out successfully");
+
+      toast({
+        title: "Logged Out",
+        description: "You have been successfully logged out",
+      });
+      navigate("/login");
+    } catch (error) {
+      console.error("Logout error:", error);
+      toast({
+        title: "Logout Error",
+        description: "There was an issue logging out. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleDeleteAccount = () => {

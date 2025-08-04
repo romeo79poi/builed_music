@@ -122,7 +122,6 @@ export default function Signup() {
   const [emailVerificationSent, setEmailVerificationSent] = useState(false);
   const [phoneVerificationSent, setPhoneVerificationSent] = useState(false);
 
-
   // Validation functions
   const validateEmail = (email: string): boolean => {
     if (!email) {
@@ -467,11 +466,6 @@ export default function Signup() {
             title: "Verification code sent!",
             description: `We sent a 6-digit code to ${formatPhoneDisplay(formData.phone)}`,
           });
-
-          // For development, show OTP in console
-          if (result.debugOtp) {
-            console.log(`📱 OTP for ${formData.phone}: ${result.debugOtp}`);
-          }
         } else {
           toast({
             title: "Failed to send code",
@@ -710,7 +704,8 @@ export default function Signup() {
 
         toast({
           title: "Google sign-up unavailable",
-          description: "Social signup is temporarily unavailable. Please use email signup instead.",
+          description:
+            "Social signup is temporarily unavailable. Please use email signup instead.",
           variant: "destructive",
         });
       }
@@ -888,7 +883,8 @@ export default function Signup() {
 
         toast({
           title: "Facebook sign-up unavailable",
-          description: "Social signup is temporarily unavailable. Please use email signup instead.",
+          description:
+            "Social signup is temporarily unavailable. Please use email signup instead.",
           variant: "destructive",
         });
       }
@@ -972,19 +968,11 @@ export default function Signup() {
       if (data.success) {
         setCurrentStep("verification");
 
-        if (data.emailSent === false) {
-          toast({
-            title: "⚠️ Email service unavailable",
-            description: "Please try again or contact support",
-            duration: 8000,
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "Verification code sent!",
-            description: "Please check your email for the 6-digit verification code.",
-          });
-        }
+        toast({
+          title: "Verification code sent!",
+          description:
+            "Please check your email for the 6-digit verification code.",
+        });
 
         setResendTimer(60);
       } else {
@@ -1536,19 +1524,11 @@ export default function Signup() {
       const data = await response.json();
 
       if (data.success) {
-        if (data.emailSent === false) {
-          toast({
-            title: "⚠️ Email service unavailable",
-            description: "Please try again or contact support",
-            duration: 10000,
-            variant: "destructive",
-          });
-        } else {
-          toast({
-            title: "Verification code resent!",
-            description: "Please check your email for the new 6-digit verification code.",
-          });
-        }
+        toast({
+          title: "Verification code resent!",
+          description:
+            "Please check your email for the new 6-digit verification code.",
+        });
 
         setResendTimer(60);
       } else {
@@ -2145,10 +2125,6 @@ export default function Signup() {
               <div className="text-center text-purple-primary text-sm break-all mt-4">
                 {formData.email}
               </div>
-
-
-
-
 
               <div>
                 {/* Masked Input Display */}
