@@ -709,9 +709,8 @@ export default function Signup() {
         }
 
         toast({
-          title: "Google sign-in failed",
-          description:
-            result.error || "Unable to sign in with Google. Please try again.",
+          title: "Google sign-up unavailable",
+          description: "Social signup is temporarily unavailable. Please use email signup instead.",
           variant: "destructive",
         });
       }
@@ -1871,7 +1870,7 @@ export default function Signup() {
                 onClick={() => setCurrentStep("method")}
                 className="w-full text-purple-primary hover:text-purple-secondary transition-colors text-sm mt-4"
               >
-                ��� Back to other options
+                ← Back to other options
               </button>
             </motion.div>
           )}
