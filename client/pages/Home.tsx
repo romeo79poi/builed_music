@@ -269,66 +269,46 @@ export default function Home() {
     return () => clearInterval(timer);
   }, []);
 
-  // Load user data when Firebase user is available
+  // Load user data from new backend authentication
   useEffect(() => {
     const loadUserData = async () => {
-      if (firebaseUser && !authLoading) {
+      try {
         setUserDataLoading(true);
-        try {
-          // Try to load from Firestore first
-          if (db) {
-            const userDocRef = doc(db, "users", firebaseUser.uid);
-            const userDoc = await getDoc(userDocRef);
 
-            if (userDoc.exists()) {
-              const firestoreData = userDoc.data();
-              console.log("✅ Loaded user data from Firestore:", firestoreData);
-              setUserData(firestoreData);
-              setUserAvatar(firestoreData.profileImageURL || firebaseUser.photoURL || null);
-            } else {
-              console.log("📝 No Firestore data, using Firebase user data");
-              // Use Firebase Auth data as fallback
-              setUserData({
-                name: firebaseUser.displayName || "User",
-                username: firebaseUser.email?.split("@")[0] || "user",
-                email: firebaseUser.email || "",
-                profileImageURL: firebaseUser.photoURL || "",
-              });
-              setUserAvatar(firebaseUser.photoURL || null);
-            }
-          } else {
-            // No Firestore, use Firebase Auth data
-            console.log("🔧 No Firestore available, using Firebase Auth data");
-            setUserData({
-              name: firebaseUser.displayName || "User",
-              username: firebaseUser.email?.split("@")[0] || "user",
-              email: firebaseUser.email || "",
-              profileImageURL: firebaseUser.photoURL || "",
-            });
-            setUserAvatar(firebaseUser.photoURL || null);
+        // Check if user is logged in with new backend
+        const token = localStorage.getItem('token');
+        const savedUserData = localStorage.getItem('currentUser');
+
+        if (token && savedUserData) {
+          try {
+            const parsedUserData = JSON.parse(savedUserData);
+            console.log("✅ Loaded user data from backend:", parsedUserData);
+            setUserData(parsedUserData);
+            setUserAvatar(parsedUserData.profileImageURL || parsedUserData.avatar_url || null);
+          } catch (error) {
+            console.error("Error parsing user data:", error);
+            // Clear invalid data
+            localStorage.removeItem('currentUser');
+            localStorage.removeItem('token');
+            setUserData(null);
+            setUserAvatar(null);
           }
-        } catch (error) {
-          console.error("❌ Error loading user data:", error);
-          // Use Firebase Auth data as ultimate fallback
-          setUserData({
-            name: firebaseUser.displayName || "User",
-            username: firebaseUser.email?.split("@")[0] || "user",
-            email: firebaseUser.email || "",
-            profileImageURL: firebaseUser.photoURL || "",
-          });
-          setUserAvatar(firebaseUser.photoURL || null);
-        } finally {
-          setUserDataLoading(false);
+        } else {
+          // No authentication, clear data
+          setUserData(null);
+          setUserAvatar(null);
         }
-      } else if (!firebaseUser && !authLoading) {
-        // User is not authenticated, clear data
+      } catch (error) {
+        console.error("❌ Error loading user data:", error);
         setUserData(null);
         setUserAvatar(null);
+      } finally {
+        setUserDataLoading(false);
       }
     };
 
     loadUserData();
-  }, [firebaseUser, authLoading]);
+  }, []); // Remove Firebase dependencies
 
   // Fallback: Load user data from localStorage if no Firebase user
   useEffect(() => {
