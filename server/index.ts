@@ -446,5 +446,12 @@ export function createServer() {
     res.json({ message: "API is working", timestamp: Date.now() });
   });
 
+  // Debug middleware to log all API requests
+  app.use("/api", (req, res, next) => {
+    console.log(`🔍 API Request: ${req.method} ${req.url}`);
+    console.log(`🔍 Headers:`, req.headers);
+    next();
+  });
+
   return app;
 }
