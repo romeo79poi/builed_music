@@ -1231,6 +1231,25 @@ export default function Signup() {
 
               console.log("✅ User created with backend:", data.user);
 
+              // Fetch and store user profile data
+              try {
+                const profileResponse = await fetch(`/api/v1/users/${data.user.id}`, {
+                  headers: {
+                    'user-id': data.user.id
+                  }
+                });
+
+                if (profileResponse.ok) {
+                  const profileData = await profileResponse.json();
+                  localStorage.setItem("currentUser", JSON.stringify(profileData.data));
+                } else {
+                  localStorage.setItem("currentUser", JSON.stringify(data.user));
+                }
+              } catch (error) {
+                console.warn("Failed to fetch profile data:", error);
+                localStorage.setItem("currentUser", JSON.stringify(data.user));
+              }
+
               setTimeout(() => {
                 navigate("/home");
               }, 2000);
