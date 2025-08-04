@@ -564,6 +564,13 @@ export const completeRegistration: RequestHandler = async (req, res) => {
       });
     }
 
+    // Create user profile in the profile system
+    try {
+      await createUserProfile(newUser);
+    } catch (profileError) {
+      console.warn("Failed to create user profile:", profileError);
+    }
+
     // Return success response (without password)
     const { password: _, ...userResponse } = newUser;
 
