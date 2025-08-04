@@ -260,8 +260,8 @@ export default function Home() {
   const [userAvatar, setUserAvatar] = useState<string | null>(null);
   const [userData, setUserData] = useState<any>(null);
   const [userDataLoading, setUserDataLoading] = useState(false);
-  const [albums, setAlbums] = useState<any[]>(sampleAlbums);
-  const [tracks, setTracks] = useState<any[]>(sampleSongs);
+  const [albums, setAlbums] = useState<any[]>([]);
+  const [tracks, setTracks] = useState<any[]>([]);
   const [apiDataLoaded, setApiDataLoaded] = useState(false);
 
   // Update time for greeting
