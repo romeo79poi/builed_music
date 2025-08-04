@@ -33,6 +33,7 @@ import MongoAuthDemo from "./pages/MongoAuthDemo";
 import CompleteAuthDemo from "./pages/CompleteAuthDemo";
 import VerifyEmail from "./pages/VerifyEmail";
 import ResetPassword from "./pages/ResetPassword";
+import JWTEmailDemo from "./pages/JWTEmailDemo";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -73,6 +74,7 @@ const App = () => {
                     <Route path="/complete-auth-demo" element={<CompleteAuthDemo />} />
                     <Route path="/verify-email" element={<VerifyEmail />} />
                     <Route path="/reset-password" element={<ResetPassword />} />
+                    <Route path="/jwt-email-demo" element={<JWTEmailDemo />} />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
