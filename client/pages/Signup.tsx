@@ -116,7 +116,7 @@ export default function Signup() {
   const [resendTimer, setResendTimer] = useState(0);
   const [errorAlert, setErrorAlert] = useState<string | null>(null);
   const [confirmationResult, setConfirmationResult] = useState<any>(null);
-  const [useFirebaseAuth, setUseFirebaseAuth] = useState(true);
+  const [useFirebaseAuth, setUseFirebaseAuth] = useState(false); // Use backend only
   const [verificationUser, setVerificationUser] = useState<any>(null);
   const [emailVerificationSent, setEmailVerificationSent] = useState(false);
   const [phoneVerificationSent, setPhoneVerificationSent] = useState(false);
