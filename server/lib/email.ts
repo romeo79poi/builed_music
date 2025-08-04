@@ -289,7 +289,7 @@ export const sendVerificationEmail = async (
       nodeEnv: process.env.NODE_ENV,
     });
 
-    const transporter = await createTransporter();
+    const transporter = createTransporter();
 
     // Test the connection first
     try {
@@ -367,7 +367,7 @@ The Music Catch Team
 // Send welcome email after successful registration
 export const sendWelcomeEmail = async (email: string, name: string) => {
   try {
-    const transporter = await createTransporter();
+    const transporter = createTransporter();
 
     const mailOptions = {
       from: '"Music Catch Team" <hello@musiccatch.com>',
