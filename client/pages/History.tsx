@@ -20,6 +20,7 @@ import { useProfileContext } from "../context/ProfileContext";
 import { useMusicContext } from "../context/MusicContext";
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
+import { api } from "../lib/api";
 
 export default function History() {
   const { profile } = useProfileContext();
