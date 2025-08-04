@@ -18,56 +18,14 @@ const emailVerificationCodes: Map<
 
 // No demo user initialization - users start with empty database
 
-// Create user profile function
-const createUserProfile = async (user: any) => {
-  const profileData = {
-    id: user.id,
-    email: user.email,
-    username: user.username,
-    display_name: user.name || user.username,
-    profile_image_url: "",
-    bio: "New to Music Catch! 🎵",
-    country: "",
-    date_of_birth: "",
-    gender: "",
-    is_verified: user.is_verified || false,
-    is_artist: false,
-    is_active: true,
-    follower_count: 0,
-    following_count: 0,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    last_login: new Date().toISOString()
-  };
-
-  // Store in users map for profile endpoints
-  usersMap.set(user.id, profileData);
-
-  console.log("✅ Created user profile:", profileData);
-  return profileData;
-};
-
-// Mock Supabase functions for in-memory operations
+// Mock Supabase functions for in-memory operations using shared store
 const mockSupabase = {
   async createUser(userData: any) {
-    const userId = `user${++userIdCounter}`;
-    const user = {
-      id: userId,
-      ...userData,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-
-    // Store by email, username, and id for easy lookup
-    users.set(user.email, user);
-    users.set(user.username, user);
-    users.set(user.id, user);
-
-    return { data: user, error: null };
+    return createUser(userData);
   },
 
   async getUserByEmail(email: string) {
-    const user = users.get(email);
+    const user = getUserByIdentifier(email);
     return {
       data: user || null,
       error: user ? null : { code: "PGRST116", message: "User not found" },
@@ -75,7 +33,7 @@ const mockSupabase = {
   },
 
   async getUserByUsername(username: string) {
-    const user = users.get(username);
+    const user = getUserByIdentifier(username);
     return {
       data: user || null,
       error: user ? null : { code: "PGRST116", message: "User not found" },
