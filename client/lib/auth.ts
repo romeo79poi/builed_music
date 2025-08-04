@@ -1142,21 +1142,11 @@ export const fetchUserData = async (userId: string): Promise<{
       error.toString().includes('permission');
 
     if (isPermissionError) {
-      console.warn("🔧 Firebase permissions denied, using development mode");
-      // Return mock user data when permissions are denied
-      const mockUserData = {
-        email: "demo.user@example.com",
-        name: "Demo User",
-        username: "demouser",
-        profile_image: "https://via.placeholder.com/150x150/4285F4/ffffff?text=DU",
-        bio: "This is a demo user profile",
-        dob: "1990-01-01",
-        gender: "Other",
-        created_at: new Date().toISOString(),
-        verified: true
+      console.warn("🔧 Firebase permissions denied");
+      return {
+        success: false,
+        error: "Authentication required. Please sign in again.",
       };
-      console.log('Using mock user data due to permissions:', mockUserData);
-      return { success: true, userData: mockUserData };
     }
 
     // For any other Firebase error, also fall back to mock data to prevent app crashes
