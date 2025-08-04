@@ -101,7 +101,7 @@ export class BackendAPI {
 
   static async searchSongs(query: string, limit = 20) {
     return this.request(
-      `/songs/search?q=${encodeURIComponent(query)}&limit=${limit}`,
+      `/api/v1/tracks/search?q=${encodeURIComponent(query)}&limit=${limit}`,
     );
   }
 
@@ -113,13 +113,14 @@ export class BackendAPI {
 
   // Likes endpoints
   static async likeSong(songId: string) {
-    return this.request(`/songs/like/${songId}`, {
+    return this.request(`/api/v1/tracks/${songId}/like`, {
       method: "PUT",
     });
   }
 
   static async unlikeSong(songId: string) {
-    return this.request(`/songs/unlike/${songId}`, {
+    return this.request(`/api/v1/tracks/${songId}/like`, {
+      method: "DELETE",
       method: "PUT",
     });
   }
