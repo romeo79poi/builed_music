@@ -542,6 +542,11 @@ export const sendEmailVerification: RequestHandler = async (req, res) => {
       expiresAt: expiry.toISOString(),
       emailSent: emailResult.success,
     });
+
+    // Log verification code for development when email fails
+    if (!emailResult.success) {
+      console.log(`🔑 Verification code for ${email}: ${verificationCode}`);
+    }
   } catch (error) {
     console.error("Send email verification error:", error);
     res.status(500).json({
