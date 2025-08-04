@@ -57,12 +57,8 @@ export const googleAuth: RequestHandler = async (req, res) => {
       });
     }
 
-    if (!isMongoConnected()) {
-      return res.status(503).json({
-        success: false,
-        message: "Database connection unavailable"
-      });
-    }
+    // Ensure MongoDB connection before proceeding
+    await connectDB();
 
     // Check if user already exists
     let user = await User.findOne({ 
@@ -152,12 +148,8 @@ export const facebookAuth: RequestHandler = async (req, res) => {
       });
     }
 
-    if (!isMongoConnected()) {
-      return res.status(503).json({
-        success: false,
-        message: "Database connection unavailable"
-      });
-    }
+    // Ensure MongoDB connection before proceeding
+    await connectDB();
 
     // Check if user already exists
     let user = await User.findOne({ 
@@ -254,12 +246,8 @@ export const socialLogin: RequestHandler = async (req, res) => {
       });
     }
 
-    if (!isMongoConnected()) {
-      return res.status(503).json({
-        success: false,
-        message: "Database connection unavailable"
-      });
-    }
+    // Ensure MongoDB connection before proceeding
+    await connectDB();
 
     // Check if user already exists
     const socialFieldMap = {
@@ -352,12 +340,8 @@ export const checkSocialUser: RequestHandler = async (req, res) => {
       });
     }
 
-    if (!isMongoConnected()) {
-      return res.status(503).json({
-        success: false,
-        message: "Database connection unavailable"
-      });
-    }
+    // Ensure MongoDB connection before proceeding
+    await connectDB();
 
     const socialFieldMap = {
       google: 'google_id',
