@@ -356,6 +356,54 @@ export default function Home() {
     }
   }, [firebaseUser, authLoading]);
 
+  // Load data from new backend APIs
+  useEffect(() => {
+    const loadApiData = async () => {
+      if (apiDataLoaded) return;
+
+      try {
+        // Load albums
+        const albumsResponse = await fetch('/api/v1/albums?limit=10');
+        if (albumsResponse.ok) {
+          const albumsData = await albumsResponse.json();
+          if (albumsData.albums && albumsData.albums.length > 0) {
+            const formattedAlbums = albumsData.albums.map((album: any) => ({
+              id: album.id,
+              name: album.title,
+              artist: album.artist_name,
+              coverImageURL: album.cover_image_url,
+              isNew: new Date(album.release_date) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // Released in last 30 days
+            }));
+            setAlbums(formattedAlbums);
+          }
+        }
+
+        // Load trending tracks
+        const tracksResponse = await fetch('/api/v1/tracks?sort_by=play_count&limit=10');
+        if (tracksResponse.ok) {
+          const tracksData = await tracksResponse.json();
+          if (tracksData.tracks && tracksData.tracks.length > 0) {
+            const formattedTracks = tracksData.tracks.map((track: any) => ({
+              id: track.id,
+              title: track.title,
+              artist: track.artist_name,
+              coverImageURL: track.cover_image_url,
+              duration: `${Math.floor(track.duration / 60)}:${(track.duration % 60).toString().padStart(2, '0')}`,
+            }));
+            setTracks(formattedTracks);
+          }
+        }
+
+        setApiDataLoaded(true);
+      } catch (error) {
+        console.error('Error loading API data:', error);
+        // Keep using sample data as fallback
+      }
+    };
+
+    loadApiData();
+  }, [apiDataLoaded]);
+
   // Get appropriate greeting
   const getGreeting = () => {
     const hour = currentTime.getHours();
