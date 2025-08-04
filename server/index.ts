@@ -445,5 +445,33 @@ export function createServer() {
   // Code Generator API routes
   app.post("/api/code-generator/generate", generateCode);
 
+  // Temporary email test endpoint
+  app.get("/api/test-email", async (req, res) => {
+    try {
+      console.log("🧪 Testing email service via endpoint...");
+      const { sendVerificationEmail } = await import('./lib/email');
+
+      const result = await sendVerificationEmail('test@example.com', '123456');
+
+      console.log('📧 Email test result:', {
+        success: result.success,
+        error: result.error,
+        messageId: result.messageId,
+      });
+
+      res.json({
+        success: true,
+        emailTest: result,
+        message: result.success ? "Email service is working!" : "Email service has issues",
+      });
+    } catch (error) {
+      console.error("Email test error:", error);
+      res.status(500).json({
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  });
+
   return app;
 }
