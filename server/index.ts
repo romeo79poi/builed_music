@@ -79,7 +79,7 @@ import {
   toggleFollow as toggleMongoFollow,
 } from "./routes/profile-mongodb";
 
-import { authenticateJWT } from "./lib/jwt";
+import { authenticateJWT } from "./middleware/auth";
 
 // Complete Auth System
 import authMainRouter from "./routes/auth-main";
