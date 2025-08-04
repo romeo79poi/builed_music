@@ -315,52 +315,66 @@ export default function Profile() {
     try {
       setLoading(true);
 
-      // Get current user ID from localStorage or context
-      const userId = localStorage.getItem('currentUserId') || 'user1';
-
-      // Use the fetchUserData function from auth library with additional error handling
-      let result;
-      try {
-        result = await fetchUserData(userId);
-      } catch (fetchError) {
-        console.error("❌ Unexpected error in fetchUserData:", fetchError);
-        // Force fallback if fetchUserData throws an unexpected error
-        result = {
-          success: false,
-          error: "Unexpected fetch error"
-        };
+      // Get current user from auth context or localStorage
+      const currentUser = localStorage.getItem("currentUser");
+      if (!currentUser) {
+        throw new Error("No authenticated user found");
       }
 
-      if (result.success && result.userData) {
-        // Transform fetched data to match our profile interface
-        const userData = result.userData;
+      const userData = JSON.parse(currentUser);
+      const userId = userData.id || userData.uid;
+      const token = localStorage.getItem("token");
+
+      if (!userId) {
+        throw new Error("User ID not found");
+      }
+
+      // Fetch complete profile data from backend
+      const response = await fetch(`/api/v1/users/${userId}`, {
+        headers: {
+          'user-id': userId,
+          'Authorization': token ? `Bearer ${token}` : '',
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const result = await response.json();
+
+      if (result.success && result.data) {
+        const backendData = result.data;
+
+        // Transform backend data to profile interface
         const transformedProfile: UserProfile = {
           id: userId,
-          displayName: userData.name || sampleProfile.displayName,
-          username: userData.username || sampleProfile.username,
-          email: userData.email || sampleProfile.email,
-          bio: userData.bio || sampleProfile.bio,
-          avatar: userData.profile_image || sampleProfile.avatar,
-          coverImage: sampleProfile.coverImage, // Use sample for now
-          location: sampleProfile.location, // Use sample for now
-          website: sampleProfile.website, // Use sample for now
-          isVerified: userData.verified || false,
-          isArtist: sampleProfile.isArtist, // Use sample for now
-          joinedDate: userData.created_at ? new Date(userData.created_at) : new Date(),
+          displayName: backendData.display_name || backendData.name || "User",
+          username: backendData.username || "user",
+          email: backendData.email || "",
+          bio: backendData.bio || "",
+          avatar: backendData.profile_image_url || "",
+          coverImage: backendData.cover_image_url || "",
+          location: backendData.location || "",
+          website: backendData.website || "",
+          isVerified: backendData.is_verified || false,
+          isArtist: backendData.is_artist || false,
+          joinedDate: backendData.created_at ? new Date(backendData.created_at) : new Date(),
           socialLinks: {
-            instagram: userData.socialLinks?.instagram || sampleProfile.socialLinks?.instagram,
-            twitter: userData.socialLinks?.twitter || sampleProfile.socialLinks?.twitter,
-            youtube: userData.socialLinks?.youtube || sampleProfile.socialLinks?.youtube,
+            instagram: backendData.social_links?.instagram || "",
+            twitter: backendData.social_links?.twitter || "",
+            youtube: backendData.social_links?.youtube || "",
           },
           stats: {
-            followers: userData.followers || 0,
-            following: userData.following || 0,
-            totalPlays: sampleProfile.stats.totalPlays || 0, // Use sample for now
-            totalTracks: userData.totalTracks || 0,
-            totalPlaylists: userData.totalPlaylists || 0,
-            monthlyListeners: sampleProfile.stats.monthlyListeners || 0, // Use sample for now
+            followers: backendData.follower_count || 0,
+            following: backendData.following_count || 0,
+            totalPlays: backendData.total_plays || 0,
+            totalTracks: backendData.total_tracks || 0,
+            totalPlaylists: backendData.total_playlists || 0,
+            monthlyListeners: backendData.monthly_listeners || 0,
           },
-          badges: sampleProfile.badges, // Use sample for now
+          badges: backendData.badges || [],
         };
 
         setProfile(transformedProfile);
@@ -370,7 +384,7 @@ export default function Profile() {
           displayName: transformedProfile.displayName,
           username: transformedProfile.username,
           bio: transformedProfile.bio,
-          location: transformedProfile.location || "",
+          location: transformedProfile.location,
           socialLinks: {
             instagram: transformedProfile.socialLinks?.instagram || "",
             twitter: transformedProfile.socialLinks?.twitter || "",
@@ -378,63 +392,22 @@ export default function Profile() {
           },
         });
 
-        console.log("✅ Profile data loaded using fetchUserData:", transformedProfile);
+        console.log("✅ Profile data loaded from backend API:", transformedProfile);
       } else {
-        // Fallback to saved user data or sample data
-        const savedUserData = localStorage.getItem("currentUser");
-        if (savedUserData) {
-          try {
-            const userData = JSON.parse(savedUserData);
-            const fallbackProfile: UserProfile = {
-              ...sampleProfile,
-              displayName: userData.name || sampleProfile.displayName,
-              username: userData.username || sampleProfile.username,
-              email: userData.email || sampleProfile.email,
-              bio: userData.bio || sampleProfile.bio,
-              avatar: userData.profile_image || userData.profileImageURL || sampleProfile.avatar,
-            };
-            setProfile(fallbackProfile);
-          } catch (error) {
-            console.error("Error parsing saved user data:", error);
-            setProfile(sampleProfile);
-          }
-        } else {
-          setProfile(sampleProfile);
-        }
-        setEditForm({
-          displayName: sampleProfile.displayName,
-          username: sampleProfile.username,
-          bio: sampleProfile.bio,
-          location: sampleProfile.location,
-          socialLinks: {
-            instagram: sampleProfile.socialLinks?.instagram || "",
-            twitter: sampleProfile.socialLinks?.twitter || "",
-            youtube: sampleProfile.socialLinks?.youtube || "",
-          },
-        });
-        console.warn("⚠️ Using fallback profile data");
+        throw new Error(result.message || "Failed to load profile data");
       }
     } catch (error) {
       console.error("❌ Error fetching profile:", error);
-      // Fallback to sample data
-      setProfile(sampleProfile);
-      setEditForm({
-        displayName: sampleProfile.displayName,
-        username: sampleProfile.username,
-        bio: sampleProfile.bio,
-        location: sampleProfile.location,
-        socialLinks: {
-          instagram: sampleProfile.socialLinks?.instagram || "",
-          twitter: sampleProfile.socialLinks?.twitter || "",
-          youtube: sampleProfile.socialLinks?.youtube || "",
-        },
-      });
 
+      // Show error to user
       toast({
-        title: "Error loading profile",
-        description: "Using demo data. Check your connection.",
+        title: "Failed to load profile",
+        description: "Please check your connection and try again.",
         variant: "destructive",
       });
+
+      // Don't fall back to sample data - let the user know there's an issue
+      setProfile(null);
     } finally {
       setLoading(false);
     }
