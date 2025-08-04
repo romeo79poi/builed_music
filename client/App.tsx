@@ -76,6 +76,7 @@ const App = () => {
                     <Route path="/verify-email" element={<VerifyEmail />} />
                     <Route path="/reset-password" element={<ResetPassword />} />
                     <Route path="/jwt-email-demo" element={<JWTEmailDemo />} />
+                    <Route path="/social-auth-test" element={<SocialAuthTest />} />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
