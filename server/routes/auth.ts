@@ -41,7 +41,7 @@ const mockSupabase = {
   },
 
   async checkEmailAvailability(email: string) {
-    const user = users.get(email);
+    const user = getUserByIdentifier(email);
     return { available: !user, error: null };
   },
 
@@ -102,7 +102,7 @@ const mockSupabase = {
       };
     }
 
-    const user = users.get(username);
+    const user = getUserByIdentifier(username);
     return { available: !user, error: null };
   },
 };
