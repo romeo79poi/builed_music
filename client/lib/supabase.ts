@@ -89,7 +89,7 @@ export const supabaseAuth = {
   // Email/Password Authentication
   async signUp(email: string, password: string, metadata?: { username?: string, name?: string }) {
     if (!isSupabaseConfigured) {
-      return { data: { user: { id: 'demo-user', email }, session: null }, error: null }
+      return { data: null, error: { message: 'Supabase not configured' } }
     }
 
     const { data, error } = await supabase.auth.signUp({
