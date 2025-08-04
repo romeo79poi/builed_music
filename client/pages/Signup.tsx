@@ -954,18 +954,23 @@ export default function Signup() {
       if (data.success) {
         setCurrentStep("verification");
 
+        // Store debug code for UI display
+        if (data.debugCode) {
+          setDebugVerificationCode(data.debugCode);
+        }
+
         // Show different messages based on whether email was actually sent
         if (data.emailSent === false) {
           toast({
-            title: "⚠️ Verification code ready",
-            description: `Email service unavailable. Code: ${data.debugCode}`,
-            duration: 10000,
+            title: "⚠️ Email delivery failed",
+            description: `Use the code shown below to verify your account`,
+            duration: 8000,
             variant: "destructive",
           });
         } else if (data.debugCode) {
           toast({
             title: "Verification code sent!",
-            description: `Code: ${data.debugCode} (Development Mode)`,
+            description: `Code also shown below for convenience`,
             duration: 8000,
           });
         } else {
