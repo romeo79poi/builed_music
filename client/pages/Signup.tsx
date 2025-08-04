@@ -887,10 +887,8 @@ export default function Signup() {
         }
 
         toast({
-          title: "Facebook sign-in failed",
-          description:
-            result.error ||
-            "Unable to sign in with Facebook. Please try again.",
+          title: "Facebook sign-up unavailable",
+          description: "Social signup is temporarily unavailable. Please use email signup instead.",
           variant: "destructive",
         });
       }
