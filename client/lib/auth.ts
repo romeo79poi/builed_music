@@ -753,18 +753,11 @@ export const signInWithFacebook = async (): Promise<{
           "🔄 Firebase network/config/permission error, using development mode for Facebook sign-in",
         );
 
-        // Simulate successful Facebook user creation for development
-        const mockUser = {
-          uid: `facebook-dev-${Date.now()}`,
-          email: "demo.facebook@example.com",
-          displayName: "Demo Facebook User",
-          emailVerified: true,
-          photoURL: "https://via.placeholder.com/96x96/1877F2/ffffff?text=FB",
-        } as User;
-
-        console.log("✅ Development Facebook user created:", mockUser);
-
-        return { success: true, user: mockUser, isNewUser: true };
+        // Return error instead of creating demo user
+        return {
+          success: false,
+          error: "Facebook authentication is not properly configured",
+        };
       }
 
       // Re-throw other Firebase errors to be handled by outer catch
