@@ -13,7 +13,6 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
-import { useFirebase } from "../context/FirebaseContext";
 import {
   loginWithEmailAndPassword,
   signInWithGoogle,
@@ -21,7 +20,6 @@ import {
 } from "../lib/auth";
 import { supabaseOperations } from "../lib/supabase";
 import { useToast } from "../hooks/use-toast";
-import { serverTimestamp } from "../lib/firebase";
 import ConnectivityChecker, {
   getNetworkErrorMessage,
 } from "../lib/connectivity";
