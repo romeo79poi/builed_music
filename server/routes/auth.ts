@@ -316,12 +316,7 @@ export const sendEmailVerification: RequestHandler = async (req, res) => {
     const emailResult = await sendVerificationEmail(email, verificationCode);
 
     if (!emailResult.success) {
-      console.warn(
-        "⚠️ Email service unavailable, continuing with in-memory verification:",
-        emailResult.error,
-      );
-      console.log(`🔑 EMAIL VERIFICATION CODE for ${email}: ${verificationCode}`);
-      console.log("📝 User can enter this code to proceed with verification");
+      console.error("❌ Email service failed:", emailResult.error);
     } else {
       console.log(`✅ Verification email sent successfully to: ${email}`);
     }
