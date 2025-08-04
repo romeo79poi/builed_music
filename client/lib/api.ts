@@ -166,7 +166,7 @@ export const playlistApi = {
 
   // Add song to playlist
   addSongToPlaylist: (playlistId: string, songId: string, userId = "user1") =>
-    apiRequest(`/playlist/${playlistId}/songs/${userId}`, {
+    apiRequest(`/api/playlist/${playlistId}/songs/${userId}`, {
       method: "POST",
       body: JSON.stringify({ songId }),
     }),
@@ -177,7 +177,7 @@ export const playlistApi = {
     songId: string,
     userId = "user1",
   ) =>
-    apiRequest(`/playlist/${playlistId}/songs/${songId}/${userId}`, {
+    apiRequest(`/api/playlist/${playlistId}/songs/${songId}/${userId}`, {
       method: "DELETE",
     }),
 };
