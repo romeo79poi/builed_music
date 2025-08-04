@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
+import { connectDB } from "./lib/mongodb";
 
 // Profile routes
 import {
@@ -55,6 +56,21 @@ import {
   completeRegistration,
   loginUser,
 } from "./routes/auth";
+
+// MongoDB + JWT Auth routes
+import {
+  registerUserMongoDB,
+  loginUserMongoDB,
+  checkAvailabilityMongoDB,
+  getUserProfile,
+  updateUserProfile,
+  refreshToken,
+  completeRegistrationMongoDB,
+  sendEmailVerification as sendEmailVerificationMongoDB,
+  verifyEmailCode as verifyEmailCodeMongoDB,
+} from "./routes/auth-mongodb";
+
+import { authenticateJWT } from "./lib/jwt";
 
 // Phone routes
 import phoneRoutes from "./routes/phone";
@@ -168,6 +184,9 @@ import {
 export function createServer() {
   const app = express();
 
+  // Initialize MongoDB connection
+  connectDB().catch(console.error);
+
   // Middleware
   app.use(cors());
   app.use(express.json({ limit: "10mb" }));
@@ -191,6 +210,23 @@ export function createServer() {
 
   // Login route
   app.post("/api/auth/login", loginUser);
+
+  // ===============================================
+  // MONGODB + JWT AUTHENTICATION ROUTES
+  // ===============================================
+
+  // MongoDB Auth routes (v2)
+  app.post("/api/v2/auth/register", registerUserMongoDB);
+  app.post("/api/v2/auth/login", loginUserMongoDB);
+  app.get("/api/v2/auth/check-availability", checkAvailabilityMongoDB);
+  app.post("/api/v2/auth/complete-registration", completeRegistrationMongoDB);
+  app.post("/api/v2/auth/send-email-verification", sendEmailVerificationMongoDB);
+  app.post("/api/v2/auth/verify-email", verifyEmailCodeMongoDB);
+  app.post("/api/v2/auth/refresh-token", refreshToken);
+
+  // Protected profile routes
+  app.get("/api/v2/profile", authenticateJWT, getUserProfile);
+  app.put("/api/v2/profile", authenticateJWT, updateUserProfile);
 
   // Phone verification API routes
   app.use("/api/phone", phoneRoutes);
