@@ -92,40 +92,59 @@ export default function Library() {
     }
   };
 
-  const loadLibraryData = async (userId: string) => {
+  const loadLibraryData = async () => {
     try {
-      // Load user's library data
-      const [playlistsRes, likedRes, historyRes, songsRes] = await Promise.all([
-        supabaseOperations.getUserPlaylists(userId),
-        supabaseOperations.getUserLikes(userId),
-        supabaseOperations.getUserHistory(userId, 20),
-        supabaseOperations.getSongs(20),
-      ]);
+      const token = localStorage.getItem('token');
+      if (!token) return;
 
-      // Set playlists
-      if (playlistsRes.data) {
-        setUserPlaylists(playlistsRes.data);
+      // Load playlists
+      try {
+        const playlistsResponse = await fetch('/api/v1/users/playlists', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (playlistsResponse.ok) {
+          const playlistsData = await playlistsResponse.json();
+          setUserPlaylists(playlistsData.playlists || []);
+        }
+      } catch (error) {
+        console.error('Error loading playlists:', error);
       }
 
-      // Set liked songs
-      if (likedRes.data) {
-        const likedSongsData = likedRes.data
-          .map((like) => like.songs)
-          .filter(Boolean) as Song[];
-        setLikedSongs(likedSongsData);
+      // Load liked songs
+      try {
+        const likedResponse = await fetch('/api/v1/users/liked-tracks', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (likedResponse.ok) {
+          const likedData = await likedResponse.json();
+          setLikedSongs(likedData.liked_tracks || []);
+        }
+      } catch (error) {
+        console.error('Error loading liked songs:', error);
       }
 
-      // Set recently played (from history)
-      if (historyRes.data) {
-        const recentSongsData = historyRes.data
-          .map((history) => history.songs)
-          .filter(Boolean) as Song[];
-        setRecentlyPlayed(recentSongsData);
+      // Load recently played
+      try {
+        const historyResponse = await fetch('/api/v1/users/play-history?limit=20', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (historyResponse.ok) {
+          const historyData = await historyResponse.json();
+          setRecentlyPlayed(historyData.play_history || []);
+        }
+      } catch (error) {
+        console.error('Error loading play history:', error);
       }
 
-      // Set recently added songs
-      if (songsRes.data) {
-        setRecentlyAdded(songsRes.data);
+      // Load recently added songs (trending tracks as fallback)
+      try {
+        const tracksResponse = await fetch('/api/v1/tracks?sort_by=created_at&limit=20');
+        if (tracksResponse.ok) {
+          const tracksData = await tracksResponse.json();
+          setRecentlyAdded(tracksData.tracks || []);
+        }
+      } catch (error) {
+        console.error('Error loading recent tracks:', error);
       }
     } catch (error) {
       console.error("Failed to load library data:", error);
