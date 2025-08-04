@@ -120,7 +120,9 @@ export default function Signup() {
   const [verificationUser, setVerificationUser] = useState<any>(null);
   const [emailVerificationSent, setEmailVerificationSent] = useState(false);
   const [phoneVerificationSent, setPhoneVerificationSent] = useState(false);
-  const [debugVerificationCode, setDebugVerificationCode] = useState<string | null>(null);
+  const [debugVerificationCode, setDebugVerificationCode] = useState<
+    string | null
+  >(null);
 
   // Validation functions
   const validateEmail = (email: string): boolean => {
@@ -624,36 +626,44 @@ export default function Signup() {
           emailVerified: result.user.emailVerified,
         });
 
-        // Register new Google users with backend
-        if (result.isNewUser) {
-          try {
-            const backendResponse = await fetch("/api/auth/register", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                email: result.user.email,
-                username: result.user.email.split("@")[0] + "_google",
-                name: displayName,
-                password: "google_auth_" + Date.now(), // Dummy password for Google users
-                provider: "google",
-              }),
-            });
+        // Register/Login Google users with backend
+        try {
+          const backendResponse = await fetch("/api/auth/google", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: result.user.email,
+              name: displayName,
+              picture: result.user.photoURL || "",
+              googleId: result.user.uid,
+              isNewUser: result.isNewUser || true,
+            }),
+          });
 
-            const backendData = await backendResponse.json();
-            if (backendData.success) {
-              console.log(
-                "✅ Google user also registered in backend:",
-                backendData.user,
-              );
+          const backendData = await backendResponse.json();
+          if (backendData.success) {
+            // Store tokens
+            if (backendData.accessToken) {
+              localStorage.setItem("token", backendData.accessToken);
             }
-          } catch (backendError) {
-            console.warn(
-              "Backend registration failed for Google user, continuing:",
-              backendError,
+            if (backendData.refreshToken) {
+              localStorage.setItem("refreshToken", backendData.refreshToken);
+            }
+
+            console.log(
+              "✅ Google user authenticated with backend:",
+              backendData.user,
             );
+          } else {
+            console.warn("Backend authentication failed:", backendData.message);
           }
+        } catch (backendError) {
+          console.warn(
+            "Backend authentication failed for Google user:",
+            backendError,
+          );
         }
 
         // Save Google user data to localStorage for immediate access
@@ -793,36 +803,44 @@ export default function Signup() {
           emailVerified: result.user.emailVerified,
         });
 
-        // Register new Facebook users with backend
-        if (result.isNewUser) {
-          try {
-            const backendResponse = await fetch("/api/auth/register", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                email: result.user.email,
-                username: result.user.email.split("@")[0] + "_facebook",
-                name: displayName,
-                password: "facebook_auth_" + Date.now(), // Dummy password for Facebook users
-                provider: "facebook",
-              }),
-            });
+        // Register/Login Facebook users with backend
+        try {
+          const backendResponse = await fetch("/api/auth/facebook", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: result.user.email,
+              name: displayName,
+              picture: result.user.photoURL || "",
+              facebookId: result.user.uid,
+              isNewUser: result.isNewUser || true,
+            }),
+          });
 
-            const backendData = await backendResponse.json();
-            if (backendData.success) {
-              console.log(
-                "✅ Facebook user also registered in backend:",
-                backendData.user,
-              );
+          const backendData = await backendResponse.json();
+          if (backendData.success) {
+            // Store tokens
+            if (backendData.accessToken) {
+              localStorage.setItem("token", backendData.accessToken);
             }
-          } catch (backendError) {
-            console.warn(
-              "Backend registration failed for Facebook user, continuing:",
-              backendError,
+            if (backendData.refreshToken) {
+              localStorage.setItem("refreshToken", backendData.refreshToken);
+            }
+
+            console.log(
+              "✅ Facebook user authenticated with backend:",
+              backendData.user,
             );
+          } else {
+            console.warn("Backend authentication failed:", backendData.message);
           }
+        } catch (backendError) {
+          console.warn(
+            "Backend authentication failed for Facebook user:",
+            backendError,
+          );
         }
 
         // Save Facebook user data to localStorage for immediate access
@@ -1239,17 +1257,26 @@ export default function Signup() {
 
               // Fetch and store user profile data
               try {
-                const profileResponse = await fetch(`/api/v1/users/${data.user.id}`, {
-                  headers: {
-                    'user-id': data.user.id
-                  }
-                });
+                const profileResponse = await fetch(
+                  `/api/v1/users/${data.user.id}`,
+                  {
+                    headers: {
+                      "user-id": data.user.id,
+                    },
+                  },
+                );
 
                 if (profileResponse.ok) {
                   const profileData = await profileResponse.json();
-                  localStorage.setItem("currentUser", JSON.stringify(profileData.data));
+                  localStorage.setItem(
+                    "currentUser",
+                    JSON.stringify(profileData.data),
+                  );
                 } else {
-                  localStorage.setItem("currentUser", JSON.stringify(data.user));
+                  localStorage.setItem(
+                    "currentUser",
+                    JSON.stringify(data.user),
+                  );
                 }
               } catch (error) {
                 console.warn("Failed to fetch profile data:", error);
@@ -2170,8 +2197,11 @@ export default function Signup() {
                     </p>
                     <button
                       onClick={() => {
-                        setFormData(prev => ({ ...prev, otp: debugVerificationCode || "" }));
-                        setErrors(prev => ({ ...prev, otp: undefined }));
+                        setFormData((prev) => ({
+                          ...prev,
+                          otp: debugVerificationCode || "",
+                        }));
+                        setErrors((prev) => ({ ...prev, otp: undefined }));
                       }}
                       className="mt-2 px-3 py-1 bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/50 rounded text-orange-300 text-xs transition-colors"
                     >

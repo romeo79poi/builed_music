@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { handleDemo } from "./routes/demo";
+import { connectDB } from "./lib/mongodb";
 
 // Profile routes
 import {
@@ -55,6 +56,44 @@ import {
   completeRegistration,
   loginUser,
 } from "./routes/auth";
+
+// MongoDB + JWT Auth routes
+import {
+  registerUserMongoDB,
+  loginUserMongoDB,
+  checkAvailabilityMongoDB,
+  getUserProfile as getMongoUserProfile,
+  updateUserProfile as updateMongoUserProfile,
+  refreshToken,
+  completeRegistrationMongoDB,
+  sendEmailVerification as sendEmailVerificationMongoDB,
+  verifyEmailCode as verifyEmailCodeMongoDB,
+} from "./routes/auth-mongodb";
+
+// MongoDB Profile routes
+import {
+  getUserProfile,
+  updateUserProfile,
+  getUserStats as getMongoUserStats,
+  searchUsers as searchMongoUsers,
+  toggleFollow as toggleMongoFollow,
+} from "./routes/profile-mongodb";
+
+import { authenticateJWT } from "./lib/jwt";
+
+// Complete Auth System
+import authMainRouter from "./routes/auth-main";
+
+// Enhanced JWT Email Auth System
+import authV4Router from "./routes/auth-v4";
+
+// Social Authentication
+import {
+  googleAuth,
+  facebookAuth,
+  socialLogin,
+  checkSocialUser,
+} from "./routes/auth-social";
 
 // Phone routes
 import phoneRoutes from "./routes/phone";
@@ -168,6 +207,9 @@ import {
 export function createServer() {
   const app = express();
 
+  // Initialize MongoDB connection
+  connectDB().catch(console.error);
+
   // Middleware
   app.use(cors());
   app.use(express.json({ limit: "10mb" }));
@@ -191,6 +233,57 @@ export function createServer() {
 
   // Login route
   app.post("/api/auth/login", loginUser);
+
+  // ===============================================
+  // MONGODB + JWT AUTHENTICATION ROUTES
+  // ===============================================
+
+  // MongoDB Auth routes (v2)
+  app.post("/api/v2/auth/register", registerUserMongoDB);
+  app.post("/api/v2/auth/login", loginUserMongoDB);
+  app.get("/api/v2/auth/check-availability", checkAvailabilityMongoDB);
+  app.post("/api/v2/auth/complete-registration", completeRegistrationMongoDB);
+  app.post(
+    "/api/v2/auth/send-email-verification",
+    sendEmailVerificationMongoDB,
+  );
+  app.post("/api/v2/auth/verify-email", verifyEmailCodeMongoDB);
+  app.post("/api/v2/auth/refresh-token", refreshToken);
+
+  // Protected profile routes
+  app.get("/api/v2/profile", authenticateJWT, getMongoUserProfile);
+  app.put("/api/v2/profile", authenticateJWT, updateMongoUserProfile);
+
+  // Additional MongoDB profile routes
+  app.get("/api/v2/profile/:userId", getUserProfile);
+  app.put("/api/v2/profile/:userId", updateUserProfile);
+  app.get("/api/v2/profile/:userId/stats", getMongoUserStats);
+  app.get("/api/v2/users/search", searchMongoUsers);
+  app.post(
+    "/api/v2/profile/:targetUserId/follow",
+    authenticateJWT,
+    toggleMongoFollow,
+  );
+
+  // ===============================================
+  // COMPLETE AUTH SYSTEM (v3) - PRODUCTION READY
+  // ===============================================
+
+  // Mount complete auth router with all features
+  app.use("/api/v3/auth", authMainRouter);
+
+  // ===============================================
+  // JWT EMAIL VERIFICATION SYSTEM (v4) - NODEMAILER + JWT
+  // ===============================================
+
+  // Mount enhanced JWT email auth router
+  app.use("/api/v4/auth", authV4Router);
+
+  // Social Authentication routes
+  app.post("/api/auth/google", googleAuth);
+  app.post("/api/auth/facebook", facebookAuth);
+  app.post("/api/auth/social", socialLogin);
+  app.get("/api/auth/social/check", checkSocialUser);
 
   // Phone verification API routes
   app.use("/api/phone", phoneRoutes);

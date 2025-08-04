@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useAuth } from "../context/AuthContext";
-import { signInWithGoogle } from "../lib/auth";
+import { signInWithGoogle, signInWithFacebook } from "../lib/auth";
 import { useToast } from "../hooks/use-toast";
 import ConnectivityChecker, {
   getNetworkErrorMessage,
@@ -36,8 +36,6 @@ export default function Login() {
     ConnectivityChecker.getConnectionStatus(),
   );
   const [backendError, setBackendError] = useState<string | null>(null);
-
-
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -123,48 +121,76 @@ export default function Login() {
       const result = await signInWithGoogle();
 
       if (result.success && result.user) {
-        // Register with backend for Google users
+        // Register/Login with backend for Google users
         try {
-          const response = await fetch("/api/auth/register", {
+          const response = await fetch("/api/auth/google", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
               email: result.user.email,
-              username: result.user.email?.split("@")[0] || `user${Date.now()}`,
-              name: result.user.displayName || result.user.email?.split("@")[0] || "User",
-              password: `google-${result.user.uid}`, // Dummy password for Google users
-              provider: "google",
+              name:
+                result.user.displayName ||
+                result.user.email?.split("@")[0] ||
+                "User",
+              picture: result.user.photoURL || "",
+              googleId: result.user.uid,
+              isNewUser: result.isNewUser || false,
             }),
           });
 
           const backendResult = await response.json();
 
           if (backendResult.success) {
-            // Store token if available
-            if (backendResult.token) {
-              localStorage.setItem("token", backendResult.token);
+            // Store tokens
+            if (backendResult.accessToken) {
+              localStorage.setItem("token", backendResult.accessToken);
+            }
+            if (backendResult.refreshToken) {
+              localStorage.setItem("refreshToken", backendResult.refreshToken);
             }
 
             // Store user data and redirect
-            localStorage.setItem("currentUser", JSON.stringify(backendResult.user));
+            localStorage.setItem(
+              "currentUser",
+              JSON.stringify(backendResult.user),
+            );
 
             toast({
               title: "Welcome!",
               description: `Successfully logged in with Google as ${backendResult.user.name}`,
             });
 
-            console.log("✅ Google user registered with backend:", backendResult.user);
+            console.log(
+              "✅ Google user authenticated with backend:",
+              backendResult.user,
+            );
             navigate("/"); // Let AuthRouter handle the redirect
             return;
+          } else {
+            setBackendError(
+              backendResult.message || "Failed to authenticate with backend",
+            );
+            toast({
+              title: "Google login failed",
+              description:
+                backendResult.message || "Failed to authenticate with backend",
+              variant: "destructive",
+            });
           }
         } catch (backendError) {
-          console.warn("Backend registration failed for Google user:", backendError);
-          setBackendError("Failed to register with backend. Please try email signup.");
+          console.warn(
+            "Backend authentication failed for Google user:",
+            backendError,
+          );
+          setBackendError(
+            "Failed to authenticate with backend. Please try email signup.",
+          );
           toast({
             title: "Google login failed",
-            description: "Failed to register with backend. Please try email signup.",
+            description:
+              "Failed to authenticate with backend. Please try email signup.",
             variant: "destructive",
           });
         }
@@ -292,13 +318,115 @@ export default function Login() {
             </button>
 
             <button
-              onClick={() => {
-                toast({
-                  title: "Coming soon",
-                  description: "Facebook login will be available soon!",
-                });
+              onClick={async () => {
+                setIsLoading(true);
+                try {
+                  // For now, simulate Facebook login
+                  const result = await signInWithFacebook();
+
+                  if (result.success && result.user) {
+                    // Register/Login with backend for Facebook users
+                    try {
+                      const response = await fetch("/api/auth/facebook", {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                          email: result.user.email,
+                          name:
+                            result.user.displayName ||
+                            result.user.email?.split("@")[0] ||
+                            "User",
+                          picture: result.user.photoURL || "",
+                          facebookId: result.user.uid,
+                          isNewUser: result.isNewUser || false,
+                        }),
+                      });
+
+                      const backendResult = await response.json();
+
+                      if (backendResult.success) {
+                        // Store tokens
+                        if (backendResult.accessToken) {
+                          localStorage.setItem(
+                            "token",
+                            backendResult.accessToken,
+                          );
+                        }
+                        if (backendResult.refreshToken) {
+                          localStorage.setItem(
+                            "refreshToken",
+                            backendResult.refreshToken,
+                          );
+                        }
+
+                        // Store user data and redirect
+                        localStorage.setItem(
+                          "currentUser",
+                          JSON.stringify(backendResult.user),
+                        );
+
+                        toast({
+                          title: "Welcome!",
+                          description: `Successfully logged in with Facebook as ${backendResult.user.name}`,
+                        });
+
+                        console.log(
+                          "✅ Facebook user authenticated with backend:",
+                          backendResult.user,
+                        );
+                        navigate("/"); // Let AuthRouter handle the redirect
+                        return;
+                      } else {
+                        setBackendError(
+                          backendResult.message ||
+                            "Failed to authenticate with backend",
+                        );
+                        toast({
+                          title: "Facebook login failed",
+                          description:
+                            backendResult.message ||
+                            "Failed to authenticate with backend",
+                          variant: "destructive",
+                        });
+                      }
+                    } catch (backendError) {
+                      console.warn(
+                        "Backend authentication failed for Facebook user:",
+                        backendError,
+                      );
+                      setBackendError(
+                        "Failed to authenticate with backend. Please try email signup.",
+                      );
+                      toast({
+                        title: "Facebook login failed",
+                        description:
+                          "Failed to authenticate with backend. Please try email signup.",
+                        variant: "destructive",
+                      });
+                    }
+                  } else {
+                    toast({
+                      title: "Facebook login failed",
+                      description:
+                        result.error ||
+                        "Unable to sign in with Facebook. Please try again.",
+                      variant: "destructive",
+                    });
+                  }
+                } catch (error) {
+                  toast({
+                    title: "Facebook login error",
+                    description: "An unexpected error occurred",
+                    variant: "destructive",
+                  });
+                } finally {
+                  setIsLoading(false);
+                }
               }}
-              className="w-full h-14 bg-purple-dark/50 border border-purple-secondary/30 rounded-full flex items-center justify-center text-white font-medium hover:bg-purple-dark/70 hover:border-purple-secondary/50 transition-all duration-200 hover:shadow-lg hover:shadow-purple-secondary/20"
+              disabled={isLoading}
+              className="w-full h-14 bg-purple-dark/50 border border-purple-secondary/30 rounded-full flex items-center justify-center text-white font-medium hover:bg-purple-dark/70 hover:border-purple-secondary/50 transition-all duration-200 hover:shadow-lg hover:shadow-purple-secondary/20 disabled:opacity-50"
             >
               <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24" fill="#1877F2">
                 <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
@@ -454,9 +582,7 @@ export default function Login() {
                 <h4 className="text-red-500 font-medium text-sm">
                   Authentication Error
                 </h4>
-                <p className="text-red-200 text-sm mt-1">
-                  {backendError}
-                </p>
+                <p className="text-red-200 text-sm mt-1">{backendError}</p>
                 <button
                   onClick={() => setBackendError(null)}
                   className="mt-3 text-red-400 hover:text-red-300 text-sm font-medium"
