@@ -360,7 +360,13 @@ export default function Home() {
         setApiDataLoaded(true);
       } catch (error) {
         console.error('Error loading API data:', error);
-        // Keep using sample data as fallback
+
+        // Show error toast
+        toast({
+          title: "Failed to load content",
+          description: "Please check your connection and refresh the page.",
+          variant: "destructive",
+        });
       }
     };
 
