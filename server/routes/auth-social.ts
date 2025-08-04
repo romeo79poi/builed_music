@@ -63,35 +63,55 @@ export const googleSignin: RequestHandler = async (req, res) => {
       dbAvailable = false;
     }
 
-    let user = await User.findOne({ email: googleUser.email });
+    let user: any;
     let isNewUser = false;
 
-    if (!user) {
-      // Create new user
+    if (dbAvailable) {
+      // Use MongoDB
+      user = await User.findOne({ email: googleUser.email });
+
+      if (!user) {
+        // Create new user in MongoDB
+        isNewUser = true;
+        user = new User({
+          email: googleUser.email,
+          username: `google_user_${Date.now()}`,
+          name: googleUser.name,
+          profile_image_url: googleUser.picture,
+          google_id: googleUser.id,
+          provider: "google",
+          is_verified: true,
+          email_verified: true,
+          last_login: new Date(),
+        });
+        await user.save();
+        console.log("✅ New Google user created in MongoDB:", user.email);
+      } else {
+        // Update existing user in MongoDB
+        user.last_login = new Date();
+        if (!user.google_id) {
+          user.google_id = googleUser.id;
+          user.provider = "google";
+        }
+        await user.save();
+        console.log("✅ Existing Google user logged in from MongoDB:", user.email);
+      }
+    } else {
+      // Use in-memory storage
       isNewUser = true;
-      user = new User({
+      user = {
+        _id: { toString: () => `google_${Date.now()}` },
         email: googleUser.email,
         username: `google_user_${Date.now()}`,
         name: googleUser.name,
         profile_image_url: googleUser.picture,
         google_id: googleUser.id,
         provider: "google",
-        is_verified: true, // Social logins are auto-verified
+        is_verified: true,
         email_verified: true,
         last_login: new Date(),
-      });
-
-      await user.save();
-      console.log("✅ New Google user created:", user.email);
-    } else {
-      // Update existing user
-      user.last_login = new Date();
-      if (!user.google_id) {
-        user.google_id = googleUser.id;
-        user.provider = "google";
-      }
-      await user.save();
-      console.log("✅ Existing Google user logged in:", user.email);
+      };
+      console.log("✅ Google user created in memory:", user.email);
     }
 
     // Generate tokens
