@@ -172,14 +172,14 @@ export class BackendAPI {
   }
 
   static async addSongToPlaylist(playlistId: string, songId: string) {
-    return this.request(`/playlists/${playlistId}/songs`, {
+    return this.request(`/api/v1/playlists/${playlistId}/tracks`, {
       method: "POST",
       body: JSON.stringify({ songId }),
     });
   }
 
   static async removeSongFromPlaylist(playlistId: string, songId: string) {
-    return this.request(`/playlists/${playlistId}/songs/${songId}`, {
+    return this.request(`/api/v1/playlists/${playlistId}/tracks/${songId}`, {
       method: "DELETE",
     });
   }
