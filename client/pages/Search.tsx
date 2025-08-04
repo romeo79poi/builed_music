@@ -446,32 +446,36 @@ export default function Search() {
           </div>
         )}
 
-        {/* Playlists Results */}
-        {searchResults.playlists && searchResults.playlists.length > 0 && (
+        {/* Artists Results */}
+        {searchResults.artists && searchResults.artists.length > 0 && (
           <div>
             <h3 className="text-lg font-bold mb-4 flex items-center">
-              <Disc className="w-5 h-5 mr-2 text-purple-accent" />
-              Playlists
+              <Users className="w-5 h-5 mr-2 text-purple-accent" />
+              Artists
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {searchResults.playlists.map((playlist) => (
+              {searchResults.artists.map((artist) => (
                 <div
-                  key={playlist.id}
+                  key={artist.id}
                   className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition-all cursor-pointer"
                 >
                   <img
-                    src={
-                      playlist.cover_image_url ||
-                      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop"
-                    }
-                    alt={playlist.name}
+                    src={artist.avatar_url || "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop"}
+                    alt={artist.name}
                     className="w-full aspect-square rounded-lg object-cover mb-3"
                   />
-                  <h4 className="font-medium text-white mb-1 truncate">
-                    {playlist.name}
-                  </h4>
+                  <div className="flex items-center space-x-1 mb-1">
+                    <h4 className="font-medium text-white truncate">
+                      {artist.name}
+                    </h4>
+                    {artist.is_verified && (
+                      <div className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+                        <span className="text-white text-xs">✓</span>
+                      </div>
+                    )}
+                  </div>
                   <p className="text-xs text-gray-400">
-                    {playlist.is_public ? "Public" : "Private"} Playlist
+                    {artist.monthly_listeners.toLocaleString()} monthly listeners
                   </p>
                 </div>
               ))}
