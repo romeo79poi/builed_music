@@ -42,6 +42,40 @@ const validateEmail = (email: string): boolean => {
 // Initialize MongoDB
 connectDB();
 
+// GOOGLE SIGNIN
+export const googleSignin: RequestHandler = async (req, res) => {
+  try {
+    // For now, return error since we need proper Google OAuth setup
+    return res.status(501).json({
+      success: false,
+      message: "Google authentication requires additional setup. Please use email signup.",
+    });
+  } catch (error) {
+    console.error("Google signin error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
+// FACEBOOK SIGNIN
+export const facebookSignin: RequestHandler = async (req, res) => {
+  try {
+    // For now, return error since we need proper Facebook OAuth setup
+    return res.status(501).json({
+      success: false,
+      message: "Facebook authentication requires additional setup. Please use email signup.",
+    });
+  } catch (error) {
+    console.error("Facebook signin error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
 // GOOGLE AUTHENTICATION
 export const googleAuth: RequestHandler = async (req, res) => {
   try {
