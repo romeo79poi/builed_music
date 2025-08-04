@@ -519,7 +519,7 @@ export default function Login() {
               onClick={() => setLoginMethod("social")}
               className="w-full text-purple-secondary hover:text-purple-primary transition-colors text-sm"
             >
-              ��� Back to other options
+              ← Back to other options
             </button>
           </motion.div>
         )}
@@ -573,6 +573,14 @@ export default function Login() {
           <p className="text-xs text-slate-500 mt-2">
             ✅ Backend authentication active
           </p>
+
+          {/* Test Link */}
+          <button
+            onClick={() => navigate("/social-auth-test")}
+            className="text-xs text-purple-primary hover:text-purple-secondary mt-2 underline"
+          >
+            🧪 Test Social Auth Backend
+          </button>
         </motion.div>
       </div>
     </div>
