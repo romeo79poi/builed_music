@@ -624,36 +624,44 @@ export default function Signup() {
           emailVerified: result.user.emailVerified,
         });
 
-        // Register new Google users with backend
-        if (result.isNewUser) {
-          try {
-            const backendResponse = await fetch("/api/auth/register", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                email: result.user.email,
-                username: result.user.email.split("@")[0] + "_google",
-                name: displayName,
-                password: "google_auth_" + Date.now(), // Dummy password for Google users
-                provider: "google",
-              }),
-            });
+        // Register/Login Google users with backend
+        try {
+          const backendResponse = await fetch("/api/auth/google", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: result.user.email,
+              name: displayName,
+              picture: result.user.photoURL || "",
+              googleId: result.user.uid,
+              isNewUser: result.isNewUser || true,
+            }),
+          });
 
-            const backendData = await backendResponse.json();
-            if (backendData.success) {
-              console.log(
-                "✅ Google user also registered in backend:",
-                backendData.user,
-              );
+          const backendData = await backendResponse.json();
+          if (backendData.success) {
+            // Store tokens
+            if (backendData.accessToken) {
+              localStorage.setItem("token", backendData.accessToken);
             }
-          } catch (backendError) {
-            console.warn(
-              "Backend registration failed for Google user, continuing:",
-              backendError,
+            if (backendData.refreshToken) {
+              localStorage.setItem("refreshToken", backendData.refreshToken);
+            }
+
+            console.log(
+              "✅ Google user authenticated with backend:",
+              backendData.user,
             );
+          } else {
+            console.warn("Backend authentication failed:", backendData.message);
           }
+        } catch (backendError) {
+          console.warn(
+            "Backend authentication failed for Google user:",
+            backendError,
+          );
         }
 
         // Save Google user data to localStorage for immediate access
