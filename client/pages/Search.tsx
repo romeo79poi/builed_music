@@ -107,62 +107,43 @@ export default function Search() {
       let results: any = {};
 
       if (selectedTab === "all" || selectedTab === "songs") {
-        const { data: songs } = await supabaseOperations.searchSongs(
-          searchQuery,
-          20,
-        );
-        if (songs) results.songs = songs;
+        try {
+          const response = await fetch(`/api/v1/tracks?search=${encodeURIComponent(searchQuery)}&limit=20`);
+          if (response.ok) {
+            const data = await response.json();
+            results.tracks = data.tracks || [];
+          }
+        } catch (error) {
+          console.error("Track search error:", error);
+        }
       }
 
       if (selectedTab === "all" || selectedTab === "albums") {
-        // Search albums by name
         try {
-          const { data: albums } = await supabaseOperations.getAlbums(20);
-          if (albums) {
-            const filteredAlbums = albums.filter(
-              (album) =>
-                album.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                album.artist.toLowerCase().includes(searchQuery.toLowerCase()),
-            );
-            results.albums = filteredAlbums;
+          const response = await fetch(`/api/v1/albums?search=${encodeURIComponent(searchQuery)}&limit=20`);
+          if (response.ok) {
+            const data = await response.json();
+            results.albums = data.albums || [];
           }
         } catch (error) {
           console.error("Album search error:", error);
         }
       }
 
-      if (selectedTab === "all" || selectedTab === "playlists") {
-        if (currentUser) {
-          try {
-            const { data: playlists } =
-              await supabaseOperations.getUserPlaylists(currentUser.id);
-            if (playlists) {
-              const filteredPlaylists = playlists.filter((playlist) =>
-                playlist.name.toLowerCase().includes(searchQuery.toLowerCase()),
-              );
-              results.playlists = filteredPlaylists;
-            }
-          } catch (error) {
-            console.error("Playlist search error:", error);
+      if (selectedTab === "all" || selectedTab === "artists") {
+        try {
+          const response = await fetch(`/api/v1/artists?search=${encodeURIComponent(searchQuery)}&limit=20`);
+          if (response.ok) {
+            const data = await response.json();
+            results.artists = data.artists || [];
           }
+        } catch (error) {
+          console.error("Artist search error:", error);
         }
       }
 
       setSearchResults(results);
 
-      // Save search to history
-      if (currentUser) {
-        try {
-          await supabaseOperations.addToHistory(
-            currentUser.id,
-            "search",
-            0,
-            false,
-          );
-        } catch (error) {
-          console.error("Error saving search history:", error);
-        }
-      }
     } catch (error) {
       console.error("Search error:", error);
       toast({
