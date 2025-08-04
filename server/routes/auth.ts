@@ -581,23 +581,19 @@ export const loginUser: RequestHandler = async (req, res) => {
     const token = `token-${user.id}-${Date.now()}`;
 
     // Update last login in profile system
-    const profileUser = usersMap.get(user.id);
+    const profileUser = profileUsers.get(user.id);
     if (profileUser) {
       profileUser.last_login = new Date().toISOString();
       profileUser.updated_at = new Date().toISOString();
-      usersMap.set(user.id, profileUser);
+      profileUsers.set(user.id, profileUser);
     } else {
-      // Create profile if it doesn't exist (for existing users)
-      try {
-        await createUserProfile(user);
-      } catch (error) {
-        console.warn("Failed to create profile for existing user:", error);
-      }
+      // Sync user data if profile doesn't exist
+      syncUserData(user.id, user);
     }
 
     // Return success response (without password) with profile data
     const { password: _, ...userResponse } = user;
-    const profileData = usersMap.get(user.id);
+    const profileData = profileUsers.get(user.id);
 
     res.json({
       success: true,
