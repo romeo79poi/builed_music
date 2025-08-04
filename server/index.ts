@@ -78,6 +78,14 @@ import authMainRouter from "./routes/auth-main";
 // Enhanced JWT Email Auth System
 import authV4Router from "./routes/auth-v4";
 
+// Social Authentication
+import {
+  googleAuth,
+  facebookAuth,
+  socialLogin,
+  checkSocialUser,
+} from "./routes/auth-social";
+
 // Phone routes
 import phoneRoutes from "./routes/phone";
 
