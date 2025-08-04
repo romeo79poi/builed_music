@@ -86,14 +86,9 @@ export const googleSignin: RequestHandler = async (req, res) => {
     } else {
       // Update existing user
       user.last_login = new Date();
-      if (!user.social_providers?.google) {
-        user.social_providers = {
-          ...user.social_providers,
-          google: {
-            id: googleUser.id,
-            profile_url: `https://accounts.google.com/profile/${googleUser.id}`
-          }
-        };
+      if (!user.google_id) {
+        user.google_id = googleUser.id;
+        user.provider = "google";
       }
       await user.save();
       console.log("✅ Existing Google user logged in:", user.email);
