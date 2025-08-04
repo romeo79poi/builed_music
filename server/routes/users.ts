@@ -375,10 +375,10 @@ export const unfollowUser: RequestHandler = async (req, res) => {
     // Update timestamps
     targetUser.updated_at = new Date().toISOString();
     currentUser.updated_at = new Date().toISOString();
-    
-    users.set(id, targetUser);
-    users.set(userId, currentUser);
-    
+
+    profileUsers.set(id, targetUser);
+    profileUsers.set(userId, currentUser);
+
     res.json({
       success: true,
       message: "Successfully unfollowed user",
