@@ -1606,40 +1606,8 @@ export default function Signup() {
   // Timer for resend functionality
   // Check Firebase connection on mount
   useEffect(() => {
-    const checkFirebaseConnection = async () => {
-      try {
-        // Test Firebase connection
-        if (!auth || !db) {
-          console.error("Firebase not properly initialized");
-          setErrorAlert(
-            "Authentication service unavailable. Try email signup or refresh the page.",
-          );
-        } else {
-          console.log("✅ Firebase services initialized successfully");
-
-          // Test auth connection by checking current user
-          try {
-            const currentUser = auth.currentUser;
-            console.log(
-              "Firebase auth status:",
-              currentUser ? "Connected" : "Ready",
-            );
-          } catch (authError) {
-            console.warn("Firebase auth test failed:", authError);
-            setErrorAlert(
-              "Google sign-in may not work. Please use email signup.",
-            );
-          }
-        }
-      } catch (error) {
-        console.error("Firebase initialization error:", error);
-        setErrorAlert(
-          "Authentication service error. Please use email signup or refresh the page.",
-        );
-      }
-    };
-
-    checkFirebaseConnection();
+    // Using new backend authentication instead of Firebase
+    console.log("✅ Backend authentication ready");
   }, []);
 
   useEffect(() => {
