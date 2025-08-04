@@ -177,13 +177,7 @@ export const registerUser: RequestHandler = async (req, res) => {
       });
     }
 
-    // Create user profile in the profile system
-    try {
-      await createUserProfile(newUser);
-    } catch (profileError) {
-      console.warn("Failed to create user profile:", profileError);
-      // Don't fail registration if profile creation fails
-    }
+    // Profile is automatically created by shared store
 
     // Return success response (without password)
     const { password: _, ...userResponse } = newUser;
