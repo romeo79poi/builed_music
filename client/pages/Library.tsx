@@ -21,13 +21,28 @@ import {
   Pause,
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
-import {
-  supabaseAuth,
-  supabaseOperations,
-  Song,
-  Playlist,
-} from "../lib/supabase";
 import MobileFooter from "../components/MobileFooter";
+
+interface Track {
+  id: string;
+  title: string;
+  artist_name: string;
+  album_title?: string;
+  duration: number;
+  cover_image_url: string;
+  genre?: string;
+  play_count?: number;
+}
+
+interface Playlist {
+  id: string;
+  name: string;
+  description?: string;
+  cover_image_url?: string;
+  is_public: boolean;
+  track_count: number;
+  created_at: string;
+}
 
 export default function Library() {
   const navigate = useNavigate();
@@ -36,11 +51,11 @@ export default function Library() {
   const [activeTab, setActiveTab] = useState("Recently Added");
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [userPlaylists, setUserPlaylists] = useState<Playlist[]>([]);
-  const [likedSongs, setLikedSongs] = useState<Song[]>([]);
-  const [recentlyPlayed, setRecentlyPlayed] = useState<Song[]>([]);
-  const [recentlyAdded, setRecentlyAdded] = useState<Song[]>([]);
+  const [likedSongs, setLikedSongs] = useState<Track[]>([]);
+  const [recentlyPlayed, setRecentlyPlayed] = useState<Track[]>([]);
+  const [recentlyAdded, setRecentlyAdded] = useState<Track[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentSong, setCurrentSong] = useState<Song | null>(null);
+  const [currentSong, setCurrentSong] = useState<Track | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
   const tabs = [
@@ -59,11 +74,13 @@ export default function Library() {
       setIsLoading(true);
 
       // Check authentication
-      const { data: session } = await supabaseAuth.getCurrentSession();
+      const token = localStorage.getItem('token');
+      const userData = localStorage.getItem('currentUser');
 
-      if (session?.user) {
-        setCurrentUser(session.user);
-        await loadLibraryData(session.user.id);
+      if (token && userData) {
+        const user = JSON.parse(userData);
+        setCurrentUser(user);
+        await loadLibraryData();
       } else {
         navigate("/login");
       }
@@ -120,7 +137,7 @@ export default function Library() {
     }
   };
 
-  const handlePlaySong = async (song: Song) => {
+  const handlePlaySong = async (song: Track) => {
     try {
       if (currentSong?.id === song.id) {
         setIsPlaying(!isPlaying);
