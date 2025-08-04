@@ -97,6 +97,61 @@ import {
   deleteMessage,
 } from "./routes/messages";
 
+// New Backend API routes - Tracks
+import {
+  getAllTracks,
+  getTrackById,
+  recordTrackPlay,
+  searchTracks,
+  getTrendingTracks,
+  toggleTrackLike,
+  getUserLikedTracks,
+  getTracksByArtist,
+  getTracksByAlbum,
+} from "./routes/tracks";
+
+// Artists API routes
+import {
+  getAllArtists,
+  getArtistById as getBackendArtistById,
+  searchArtists,
+  getTrendingArtists,
+  toggleArtistFollow,
+  getUserFollowedArtists,
+  getArtistsByGenre,
+  getArtistTopTracks,
+  getSimilarArtists,
+} from "./routes/artists";
+
+// Playlists API routes
+import {
+  getAllPlaylists,
+  getPlaylistById as getBackendPlaylistById,
+  getPlaylistTracks,
+  createPlaylist as createBackendPlaylist,
+  updatePlaylist as updateBackendPlaylist,
+  deletePlaylist as deleteBackendPlaylist,
+  addTrackToPlaylist,
+  removeTrackFromPlaylist,
+  togglePlaylistFollow,
+  searchPlaylists,
+  getUserPlaylists as getBackendUserPlaylists,
+} from "./routes/playlists";
+
+// Albums API routes
+import {
+  getAllAlbums,
+  getAlbumById,
+  searchAlbums,
+  getNewReleases,
+  getTrendingAlbums,
+  toggleAlbumLike,
+  getUserLikedAlbums,
+  getAlbumsByArtist,
+  getAlbumsByGenre,
+  getAlbumStats,
+} from "./routes/albums";
+
 export function createServer() {
   const app = express();
 
