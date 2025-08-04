@@ -969,25 +969,10 @@ export default function Signup() {
       if (data.success) {
         setCurrentStep("verification");
 
-        if (data.emailSent === false) {
-          toast({
-            title: "Email service temporarily unavailable",
-            description: data.verificationCode
-              ? `Development mode: Use verification code ${data.verificationCode}`
-              : "Verification will proceed normally. Please contact support if you need assistance.",
-            duration: 8000,
-          });
-
-          // Log the verification code for development
-          if (data.verificationCode) {
-            console.log(`🔑 Verification code: ${data.verificationCode}`);
-          }
-        } else {
-          toast({
-            title: "Verification code sent!",
-            description: "Please check your email for the 6-digit verification code.",
-          });
-        }
+        toast({
+          title: "Verification code sent!",
+          description: "Please check your email for the 6-digit verification code.",
+        });
 
         setResendTimer(60);
       } else {
@@ -1539,24 +1524,10 @@ export default function Signup() {
       const data = await response.json();
 
       if (data.success) {
-        if (data.emailSent === false) {
-          toast({
-            title: "Email service temporarily unavailable",
-            description: data.verificationCode
-              ? `Development mode: Use verification code ${data.verificationCode}`
-              : "New verification code generated. Please contact support if you need assistance.",
-            duration: 8000,
-          });
-
-          if (data.verificationCode) {
-            console.log(`🔑 Resend verification code: ${data.verificationCode}`);
-          }
-        } else {
-          toast({
-            title: "Verification code resent!",
-            description: "Please check your email for the new 6-digit verification code.",
-          });
-        }
+        toast({
+          title: "Verification code resent!",
+          description: "Please check your email for the new 6-digit verification code.",
+        });
 
         setResendTimer(60);
       } else {
