@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { handleDemo } from "./routes/demo";
+
 import { connectDB } from "./lib/mongodb";
 
 // Profile routes
