@@ -29,6 +29,7 @@ import Upload from "./pages/Upload";
 import Rewards from "./pages/Rewards";
 import Reels from "./pages/Reels";
 import Messages from "./pages/Messages";
+import MongoAuthDemo from "./pages/MongoAuthDemo";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -65,6 +66,7 @@ const App = () => {
                     <Route path="/rewards" element={<Rewards />} />
                     <Route path="/reels" element={<Reels />} />
                     <Route path="/messages" element={<Messages />} />
+                    <Route path="/mongo-auth-demo" element={<MongoAuthDemo />} />
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
                   </Routes>
