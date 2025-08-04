@@ -783,21 +783,8 @@ export const signInWithFacebook = async (): Promise<{
         errorMessage = "Facebook sign-in is not enabled for this application";
         break;
       case "auth/unauthorized-domain":
-        console.warn("🔧 Unauthorized domain detected, falling back to development mode");
-        // Fallback to development mode for unauthorized domains
-        const mockUser = {
-          uid: `facebook-dev-${Date.now()}`,
-          email: "demo.facebook@example.com",
-          displayName: "Demo Facebook User (Dev Mode)",
-          emailVerified: true,
-          photoURL: "https://via.placeholder.com/96x96/1877F2/ffffff?text=FB",
-        } as User;
-
-        return {
-          success: true,
-          user: mockUser,
-          isNewUser: true
-        };
+        errorMessage = "Facebook authentication is not configured for this domain";
+        break;
       case "auth/account-exists-with-different-credential":
         errorMessage =
           "An account already exists with the same email address but different sign-in credentials";
