@@ -22,6 +22,35 @@ const emailVerificationCodes: Map<
 
 // No demo user initialization - users start with empty database
 
+// Create user profile function
+const createUserProfile = async (user: any) => {
+  const profileData = {
+    id: user.id,
+    email: user.email,
+    username: user.username,
+    display_name: user.name || user.username,
+    profile_image_url: "",
+    bio: "New to Music Catch! 🎵",
+    country: "",
+    date_of_birth: "",
+    gender: "",
+    is_verified: user.is_verified || false,
+    is_artist: false,
+    is_active: true,
+    follower_count: 0,
+    following_count: 0,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    last_login: new Date().toISOString()
+  };
+
+  // Store in users map for profile endpoints
+  usersMap.set(user.id, profileData);
+
+  console.log("✅ Created user profile:", profileData);
+  return profileData;
+};
+
 // Mock Supabase functions for in-memory operations
 const mockSupabase = {
   async createUser(userData: any) {
