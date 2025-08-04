@@ -199,8 +199,8 @@ export default function Login() {
         const errorMessage =
           getNetworkErrorMessage(result) || result.error || "Please try again";
         toast({
-          title: "Google login failed",
-          description: errorMessage,
+          title: "Google login unavailable",
+          description: "Social login is temporarily unavailable. Please use email login instead.",
           variant: "destructive",
         });
       }
