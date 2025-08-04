@@ -248,8 +248,15 @@ export function createServer() {
   app.post("/api/v2/auth/refresh-token", refreshToken);
 
   // Protected profile routes
-  app.get("/api/v2/profile", authenticateJWT, getUserProfile);
-  app.put("/api/v2/profile", authenticateJWT, updateUserProfile);
+  app.get("/api/v2/profile", authenticateJWT, getMongoUserProfile);
+  app.put("/api/v2/profile", authenticateJWT, updateMongoUserProfile);
+
+  // Additional MongoDB profile routes
+  app.get("/api/v2/profile/:userId", getUserProfile);
+  app.put("/api/v2/profile/:userId", updateUserProfile);
+  app.get("/api/v2/profile/:userId/stats", getMongoUserStats);
+  app.get("/api/v2/users/search", searchMongoUsers);
+  app.post("/api/v2/profile/:targetUserId/follow", authenticateJWT, toggleMongoFollow);
 
   // ===============================================
   // COMPLETE AUTH SYSTEM (v3) - PRODUCTION READY
