@@ -317,11 +317,11 @@ export const sendEmailVerification: RequestHandler = async (req, res) => {
 
     if (!emailResult.success) {
       console.warn(
-        "Email service unavailable, continuing with in-memory verification:",
+        "⚠️ Email service unavailable, continuing with in-memory verification:",
         emailResult.error,
       );
-      // Don't fail the request, just log the issue
-      // In development, we'll still provide the debug code
+      console.log(`🔑 EMAIL VERIFICATION CODE for ${email}: ${verificationCode}`);
+      console.log("📝 User can enter this code to proceed with verification");
     } else {
       console.log(`✅ Verification email sent successfully to: ${email}`);
     }
