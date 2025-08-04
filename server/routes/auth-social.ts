@@ -53,14 +53,14 @@ export const googleSignin: RequestHandler = async (req, res) => {
       picture: "https://via.placeholder.com/96x96/4285F4/ffffff?text=GU"
     };
 
-    // Check if user exists in database
-    await connectDB();
-
-    if (!isMongoConnected()) {
-      return res.status(503).json({
-        success: false,
-        message: "Database connection unavailable",
-      });
+    // Try to connect to database, but continue without it if unavailable
+    let dbAvailable = false;
+    try {
+      await connectDB();
+      dbAvailable = isMongoConnected();
+    } catch (error) {
+      console.warn("⚠️ MongoDB unavailable, using in-memory storage for Google auth");
+      dbAvailable = false;
     }
 
     let user = await User.findOne({ email: googleUser.email });
