@@ -1,6 +1,9 @@
 import { RequestHandler } from "express";
+import { connectDB } from "../lib/mongodb";
+import Message from "../models/Message";
+import Chat from "../models/Chat";
 
-interface Message {
+interface MessageType {
   id: string;
   chatId: string;
   senderId: string;
@@ -18,13 +21,13 @@ interface Message {
   metadata?: any; // For voice duration, image URLs, etc.
 }
 
-interface Chat {
+interface ChatType {
   id: string;
   participants: string[];
   type: "direct" | "group" | "ai";
   name?: string;
   avatar?: string;
-  lastMessage?: Message;
+  lastMessage?: MessageType;
   updatedAt: Date;
   isArchived: boolean;
   isPinned: boolean;
