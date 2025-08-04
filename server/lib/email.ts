@@ -305,11 +305,11 @@ export const sendVerificationEmail = async (
   try {
     console.log("🔧 Email service configuration:", {
       emailUser: process.env.EMAIL_USER || "noreply@musiccatch.com",
-      service: "Mailtrap SMTP",
+      service: "Ethereal Email SMTP",
       nodeEnv: process.env.NODE_ENV,
     });
 
-    const transporter = createTransporter();
+    const transporter = await createTransporter();
 
     // Test the connection first
     try {
@@ -387,7 +387,7 @@ The Music Catch Team
 // Send welcome email after successful registration
 export const sendWelcomeEmail = async (email: string, name: string) => {
   try {
-    const transporter = createTransporter();
+    const transporter = await createTransporter();
 
     const mailOptions = {
       from: '"Music Catch Team" <hello@musiccatch.com>',
