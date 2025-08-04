@@ -935,113 +935,57 @@ export default function Signup() {
         return;
       }
 
-      if (useFirebaseAuth) {
-        // For email signup, send verification code via backend
-        const response = await fetch("/api/auth/send-email-verification", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email: formData.email }),
-        });
+      // Send verification code via backend
+      const response = await fetch("/api/auth/send-email-verification", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: formData.email }),
+      });
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
-        const data = await response.json();
+      const data = await response.json();
 
-        if (data.success) {
-          setCurrentStep("verification");
+      if (data.success) {
+        setCurrentStep("verification");
 
-          // Show different messages based on whether email was actually sent
-          if (data.emailSent === false) {
-            toast({
-              title: "⚠️ Verification code ready",
-              description: `Email service unavailable. Check console for your verification code.`,
-              variant: "destructive",
-            });
-          } else {
-            toast({
-              title: "✉️ Verification email sent!",
-              description: `Check your email at ${formData.email} for a verification code.`,
-            });
-          }
-
-          // For development, show code in console and preview URL
-          if (data.debugCode) {
-            console.log(`📧 Email verification code: ${data.debugCode}`);
-            toast({
-              title: "📧 Development Mode",
-              description: `Verification code: ${data.debugCode} (check console)`,
-              duration: 10000,
-            });
-          }
-          if (data.previewUrl) {
-            console.log(`🔗 Email preview: ${data.previewUrl}`);
-          }
-
-          setResendTimer(60);
-        } else {
+        // Show different messages based on whether email was actually sent
+        if (data.emailSent === false) {
           toast({
-            title: "Failed to send verification code",
-            description: data.message || "Please try again",
+            title: "⚠️ Verification code ready",
+            description: `Email service unavailable. Code: ${data.debugCode}`,
+            duration: 10000,
             variant: "destructive",
           });
+        } else if (data.debugCode) {
+          toast({
+            title: "Verification code sent!",
+            description: `Code: ${data.debugCode} (Development Mode)`,
+            duration: 8000,
+          });
+        } else {
+          toast({
+            title: "Verification code sent!",
+            description:
+              "Please check your email for the 6-digit verification code.",
+          });
         }
+
+        if (data.debugCode) {
+          console.log(`📧 Email verification code: ${data.debugCode}`);
+        }
+
+        setResendTimer(60);
       } else {
-        // Use backend email verification
-        const response = await fetch("/api/auth/send-email-verification", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email: formData.email }),
+        toast({
+          title: "Failed to send verification code",
+          description: data.message || "Please try again",
+          variant: "destructive",
         });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        if (data.success) {
-          setCurrentStep("verification");
-
-          // Show different messages based on whether email was actually sent
-          if (data.emailSent === false) {
-            toast({
-              title: "⚠️ Verification code ready",
-              description: `Email service unavailable. Code: ${data.debugCode}`,
-              duration: 10000,
-              variant: "destructive",
-            });
-          } else if (data.debugCode) {
-            toast({
-              title: "Verification code sent!",
-              description: `Code: ${data.debugCode} (Development Mode)`,
-              duration: 8000,
-            });
-          } else {
-            toast({
-              title: "Verification code sent!",
-              description:
-                "Please check your email for the 6-digit verification code.",
-            });
-          }
-
-          if (data.debugCode) {
-            console.log(`📧 Email verification code: ${data.debugCode}`);
-          }
-
-          setResendTimer(60);
-        } else {
-          toast({
-            title: "Failed to send verification code",
-            description: data.message || "Please try again",
-            variant: "destructive",
-          });
-        }
       }
     } catch (error) {
       console.error("Email verification error:", error);
