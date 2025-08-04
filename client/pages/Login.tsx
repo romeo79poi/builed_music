@@ -212,18 +212,39 @@ export default function Login() {
       const result = await signInWithGoogle();
 
       if (result.success && result.user) {
-        // Google accounts are typically verified, but check anyway
-        if (!result.user.emailVerified && result.user.email) {
-          console.warn("⚠️ Google user email not verified, but proceeding...");
-        }
+        // Try to register/login with backend using Google user data
+        try {
+          const response = await fetch("/api/auth/register", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: result.user.email,
+              username: result.user.email?.split("@")[0] || `user${Date.now()}`,
+              name: result.user.displayName || result.user.email?.split("@")[0] || "User",
+              password: `google-${result.user.uid}`, // Dummy password for Google users
+              provider: "google",
+            }),
+          });
 
-        // Store token if provided (for backend auth)
-        if (result.token) {
-          localStorage.setItem("token", result.token);
-        }
+          const backendResult = await response.json();
 
-        // Fetch existing user profile from Firestore
-        const userProfile = await getUserProfile(result.user.uid);
+          if (backendResult.success) {
+            localStorage.setItem("currentUser", JSON.stringify(backendResult.user));
+
+            toast({
+              title: "Welcome!",
+              description: `Successfully logged in with Google as ${backendResult.user.name}`,
+            });
+
+            console.log("✅ Google user registered/logged in with backend:", backendResult.user);
+            navigate("/home");
+            return;
+          }
+        } catch (backendError) {
+          console.warn("Backend registration failed for Google user:", backendError);
+        }
 
         if (userProfile) {
           console.log(
