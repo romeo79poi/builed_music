@@ -1149,22 +1149,13 @@ export const fetchUserData = async (userId: string): Promise<{
       };
     }
 
-    // For any other Firebase error, also fall back to mock data to prevent app crashes
+    // For any other Firebase error, return proper error
     if (error.name === 'FirebaseError') {
-      console.warn("🔧 Firebase error detected, using development mode fallback");
-      const mockUserData = {
-        email: "demo.user@example.com",
-        name: "Demo User",
-        username: "demouser",
-        profile_image: "https://via.placeholder.com/150x150/4285F4/ffffff?text=DU",
-        bio: "This is a demo user profile",
-        dob: "1990-01-01",
-        gender: "Other",
-        created_at: new Date().toISOString(),
-        verified: true
+      console.warn("🔧 Firebase error detected");
+      return {
+        success: false,
+        error: "Unable to fetch user data. Please try again.",
       };
-      console.log('Using mock user data due to Firebase error:', mockUserData);
-      return { success: true, userData: mockUserData };
     }
 
     return {
