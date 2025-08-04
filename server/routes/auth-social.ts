@@ -73,7 +73,7 @@ export const googleSignin: RequestHandler = async (req, res) => {
         email: googleUser.email,
         username: `google_user_${Date.now()}`,
         name: googleUser.name,
-        profile_image: googleUser.picture,
+        profile_image_url: googleUser.picture,
         social_providers: {
           google: {
             id: googleUser.id,
@@ -118,7 +118,7 @@ export const googleSignin: RequestHandler = async (req, res) => {
         email: user.email,
         username: user.username,
         name: user.name,
-        profile_image: user.profile_image,
+        profile_image_url: user.profile_image_url,
         is_verified: user.is_verified,
       },
       accessToken,
@@ -171,7 +171,7 @@ export const facebookSignin: RequestHandler = async (req, res) => {
         email: facebookUser.email,
         username: `fb_user_${Date.now()}`,
         name: facebookUser.name,
-        profile_image_url: facebookUser.picture.data.url,
+        profile_image_url_url: facebookUser.picture.data.url,
         facebook_id: facebookUser.id,
         provider: "facebook",
         is_verified: true, // Social logins are auto-verified
@@ -180,7 +180,7 @@ export const facebookSignin: RequestHandler = async (req, res) => {
       });
 
       await user.save();
-      console.log("��� New Facebook user created:", user.email);
+      console.log("✅ New Facebook user created:", user.email);
     } else {
       // Update existing user
       user.last_login = new Date();
@@ -207,7 +207,7 @@ export const facebookSignin: RequestHandler = async (req, res) => {
         email: user.email,
         username: user.username,
         name: user.name,
-        profile_image: user.profile_image,
+        profile_image_url: user.profile_image_url,
         is_verified: user.is_verified,
       },
       accessToken,
@@ -257,8 +257,8 @@ export const googleAuth: RequestHandler = async (req, res) => {
       if (!user.google_id) {
         user.google_id = googleId;
         user.provider = "google";
-        if (picture && !user.profile_image_url) {
-          user.profile_image_url = picture;
+        if (picture && !user.profile_image_url_url) {
+          user.profile_image_url_url = picture;
         }
         await user.save();
       }
@@ -274,7 +274,7 @@ export const googleAuth: RequestHandler = async (req, res) => {
         password: await bcrypt.hash("google_auth_" + googleId, 12), // Dummy password
         google_id: googleId,
         provider: "google",
-        profile_image_url: picture || "",
+        profile_image_url_url: picture || "",
         is_verified: true, // Google accounts are pre-verified
         email_verified: true,
         bio: "",
@@ -344,8 +344,8 @@ export const facebookAuth: RequestHandler = async (req, res) => {
       if (!user.facebook_id) {
         user.facebook_id = facebookId;
         user.provider = "facebook";
-        if (picture && !user.profile_image_url) {
-          user.profile_image_url = picture;
+        if (picture && !user.profile_image_url_url) {
+          user.profile_image_url_url = picture;
         }
         await user.save();
       }
@@ -361,7 +361,7 @@ export const facebookAuth: RequestHandler = async (req, res) => {
         password: await bcrypt.hash("facebook_auth_" + facebookId, 12), // Dummy password
         facebook_id: facebookId,
         provider: "facebook",
-        profile_image_url: picture || "",
+        profile_image_url_url: picture || "",
         is_verified: true, // Facebook accounts are pre-verified
         email_verified: true,
         bio: "",
@@ -454,8 +454,8 @@ export const socialLogin: RequestHandler = async (req, res) => {
       if (!user[socialField as keyof typeof user]) {
         (user as any)[socialField] = socialId;
         user.provider = provider;
-        if (picture && !user.profile_image_url) {
-          user.profile_image_url = picture;
+        if (picture && !user.profile_image_url_url) {
+          user.profile_image_url_url = picture;
         }
         await user.save();
       }
@@ -470,7 +470,7 @@ export const socialLogin: RequestHandler = async (req, res) => {
         display_name: name || email.split("@")[0],
         password: await bcrypt.hash(provider + "_auth_" + socialId, 12),
         provider,
-        profile_image_url: picture || "",
+        profile_image_url_url: picture || "",
         is_verified: true,
         email_verified: true,
         bio: "",
