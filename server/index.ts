@@ -256,6 +256,12 @@ export function createServer() {
   // Mount enhanced JWT email auth router
   app.use("/api/v4/auth", authV4Router);
 
+  // Social Authentication routes
+  app.post("/api/auth/google", googleAuth);
+  app.post("/api/auth/facebook", facebookAuth);
+  app.post("/api/auth/social", socialLogin);
+  app.get("/api/auth/social/check", checkSocialUser);
+
   // Phone verification API routes
   app.use("/api/phone", phoneRoutes);
 
