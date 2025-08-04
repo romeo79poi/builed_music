@@ -1536,26 +1536,17 @@ export default function Signup() {
       const data = await response.json();
 
       if (data.success) {
-        // Only store debug code if email delivery failed
-        if (data.emailSent === false && data.debugCode) {
-          setDebugVerificationCode(data.debugCode);
-        } else {
-          setDebugVerificationCode(null);
-        }
-
-        // Show different messages based on whether email was actually sent
         if (data.emailSent === false) {
           toast({
-            title: "⚠️ Email delivery failed",
-            description: `Please contact support. Verification code: ${data.debugCode}`,
+            title: "⚠️ Email service unavailable",
+            description: "Please try again or contact support",
             duration: 10000,
             variant: "destructive",
           });
         } else {
           toast({
             title: "Verification code resent!",
-            description:
-              "Please check your email for the new 6-digit verification code.",
+            description: "Please check your email for the new 6-digit verification code.",
           });
         }
 
