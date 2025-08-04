@@ -5,13 +5,14 @@ const createTransporter = () => {
   // Use working SMTP service for email delivery
   const emailUser = process.env.EMAIL_USER || "noreply@musiccatch.com";
 
-  // Use Mailtrap for reliable email testing and delivery
+  // Use Ethereal Email for reliable testing
   return nodemailer.createTransport({
-    host: "sandbox.smtp.mailtrap.io",
-    port: 2525,
+    host: "smtp.ethereal.email",
+    port: 587,
+    secure: false,
     auth: {
-      user: "b8d8a46d2e7c5a",
-      pass: "3c7f9b2d1e8a56",
+      user: "ethereal.user@ethereal.email",
+      pass: "ethereal.pass",
     },
   });
 };
