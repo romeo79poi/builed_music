@@ -871,13 +871,15 @@ export default function Signup() {
       } else {
         console.error("❌ Facebook sign-in failed:", result.error);
 
-        // Set error alert for domain authorization issues
+        // Set error alert for social auth issues
         if (
           result.error?.includes("domain") ||
-          result.error?.includes("unauthorized")
+          result.error?.includes("unauthorized") ||
+          result.error?.includes("temporarily unavailable") ||
+          result.error?.includes("additional setup")
         ) {
           setErrorAlert(
-            "Facebook sign-in is not available on this domain. Please use email signup instead.",
+            "Social login is currently unavailable. Please use email signup instead.",
           );
         } else {
           setErrorAlert(
@@ -1869,7 +1871,7 @@ export default function Signup() {
                 onClick={() => setCurrentStep("method")}
                 className="w-full text-purple-primary hover:text-purple-secondary transition-colors text-sm mt-4"
               >
-                ← Back to other options
+                ��� Back to other options
               </button>
             </motion.div>
           )}
