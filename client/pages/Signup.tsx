@@ -120,9 +120,7 @@ export default function Signup() {
   const [verificationUser, setVerificationUser] = useState<any>(null);
   const [emailVerificationSent, setEmailVerificationSent] = useState(false);
   const [phoneVerificationSent, setPhoneVerificationSent] = useState(false);
-  const [debugVerificationCode, setDebugVerificationCode] = useState<
-    string | null
-  >(null);
+
 
   // Validation functions
   const validateEmail = (email: string): boolean => {
