@@ -244,38 +244,13 @@ export default function Login() {
           }
         } catch (backendError) {
           console.warn("Backend registration failed for Google user:", backendError);
+
+          toast({
+            title: "Google login failed",
+            description: "Failed to register with backend. Please try email signup.",
+            variant: "destructive",
+          });
         }
-
-        if (userProfile) {
-          console.log(
-            "✅ Google user data loaded from Firestore:",
-            userProfile,
-          );
-        } else {
-          // Create profile if it doesn't exist (for new Google users)
-          const profileData = {
-            name:
-              result.user.displayName ||
-              result.user.email?.split("@")[0] ||
-              "User",
-            username: result.user.email?.split("@")[0] || "",
-            email: result.user.email || "",
-            phone: "",
-            profileImageURL: result.user.photoURL || "",
-            createdAt: new Date().toISOString(),
-          };
-
-          await saveUserProfile(result.user.uid, profileData);
-          console.log("✅ Created Google user profile:", profileData);
-        }
-
-        toast({
-          title: "Welcome!",
-          description: "Successfully logged in with Google",
-        });
-
-        // Redirect to homepage
-        navigate("/home");
       } else {
         const errorMessage =
           getNetworkErrorMessage(result) || result.error || "Please try again";
