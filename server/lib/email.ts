@@ -8,7 +8,7 @@ const createTransporter = () => {
   const emailUser = process.env.EMAIL_USER || "musiccatch.verify@gmail.com";
   const emailPass = process.env.EMAIL_PASS || "xypt zqmr wrgt jwbs"; // App-specific password
 
-  return nodemailer.createTransporter({
+  return nodemailer.createTransport({
     service: "gmail",
     host: "smtp.gmail.com",
     port: 587,
