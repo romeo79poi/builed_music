@@ -169,26 +169,36 @@ export default function Search() {
     }
   };
 
-  const handlePlaySong = async (song: Song) => {
+  const handlePlaySong = async (track: Track) => {
     try {
-      if (currentSong?.id === song.id) {
+      if (currentSong?.id === track.id) {
         setIsPlaying(!isPlaying);
       } else {
-        setCurrentSong(song);
+        setCurrentSong(track);
         setIsPlaying(true);
 
         // Add to listening history
         if (currentUser) {
-          await supabaseOperations.addToHistory(currentUser.id, song.id);
+          const token = localStorage.getItem('token');
+          if (token) {
+            await fetch(`/api/v1/users/play-history`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({ track_id: track.id })
+            });
+          }
         }
       }
     } catch (error) {
       console.error("Failed to play song:", error);
       // Still allow playback even if history fails
-      if (currentSong?.id === song.id) {
+      if (currentSong?.id === track.id) {
         setIsPlaying(!isPlaying);
       } else {
-        setCurrentSong(song);
+        setCurrentSong(track);
         setIsPlaying(true);
       }
     }
