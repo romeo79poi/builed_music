@@ -39,8 +39,8 @@ const featuredContent = {
   isNew: true,
 };
 
-// Sample data for the layout
-const sampleAlbums = [
+// Sample data for the layout - will be replaced with API data
+let sampleAlbums = [
   {
     id: "1",
     name: "After Hours",
@@ -151,7 +151,7 @@ const moodPlaylists = [
   },
 ];
 
-const sampleSongs = [
+let sampleSongs = [
   {
     id: "1",
     title: "Blinding Lights",
@@ -261,6 +261,9 @@ export default function Home() {
   const [userAvatar, setUserAvatar] = useState<string | null>(null);
   const [userData, setUserData] = useState<any>(null);
   const [userDataLoading, setUserDataLoading] = useState(false);
+  const [albums, setAlbums] = useState<any[]>(sampleAlbums);
+  const [tracks, setTracks] = useState<any[]>(sampleSongs);
+  const [apiDataLoaded, setApiDataLoaded] = useState(false);
 
   // Update time for greeting
   useEffect(() => {
