@@ -495,14 +495,7 @@ export default function Profile() {
 
   // Load data on component mount
   useEffect(() => {
-    // Test Firebase connection first
-    testFirebaseConnection().then(result => {
-      if (!result.success) {
-        console.warn("🔥 Firebase connection test failed:", result.error, result.details);
-      } else {
-        console.log("✅ Firebase connection test passed:", result.details);
-      }
-    });
+    // Using new backend authentication instead of Firebase
 
     fetchProfile();
     fetchLikedSongs();
