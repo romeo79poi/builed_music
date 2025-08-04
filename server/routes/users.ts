@@ -51,7 +51,7 @@ export const getUserById: RequestHandler = async (req, res) => {
     const { id } = req.params;
     const currentUserId = req.headers['user-id'] as string;
     
-    const user = users.get(id);
+    const user = profileUsers.get(id);
     
     if (!user) {
       return res.status(404).json({
@@ -109,7 +109,7 @@ export const getCurrentUser: RequestHandler = async (req, res) => {
       });
     }
     
-    const user = users.get(userId);
+    const user = profileUsers.get(userId);
     
     if (!user) {
       return res.status(404).json({
@@ -151,7 +151,7 @@ export const updateUserProfile: RequestHandler = async (req, res) => {
       });
     }
     
-    const user = users.get(id);
+    const user = profileUsers.get(id);
     
     if (!user) {
       return res.status(404).json({
@@ -263,8 +263,8 @@ export const followUser: RequestHandler = async (req, res) => {
       });
     }
     
-    const targetUser = users.get(id);
-    const currentUser = users.get(userId);
+    const targetUser = profileUsers.get(id);
+    const currentUser = profileUsers.get(userId);
     
     if (!targetUser) {
       return res.status(404).json({
@@ -339,8 +339,8 @@ export const unfollowUser: RequestHandler = async (req, res) => {
       });
     }
     
-    const targetUser = users.get(id);
-    const currentUser = users.get(userId);
+    const targetUser = profileUsers.get(id);
+    const currentUser = profileUsers.get(userId);
     
     if (!targetUser || !currentUser) {
       return res.status(404).json({
@@ -403,7 +403,7 @@ export const getUserFollowers: RequestHandler = async (req, res) => {
     const { id } = req.params;
     const { page = 1, limit = 20 } = req.query;
     
-    const user = users.get(id);
+    const user = profileUsers.get(id);
     
     if (!user) {
       return res.status(404).json({
@@ -417,7 +417,7 @@ export const getUserFollowers: RequestHandler = async (req, res) => {
     
     for (const [followerId, followSet] of userFollows.entries()) {
       if (followSet.has(id)) {
-        const follower = users.get(followerId);
+        const follower = profileUsers.get(followerId);
         if (follower) {
           followers.push({
             id: follower.id,
@@ -464,7 +464,7 @@ export const getUserFollowing: RequestHandler = async (req, res) => {
     const { id } = req.params;
     const { page = 1, limit = 20 } = req.query;
     
-    const user = users.get(id);
+    const user = profileUsers.get(id);
     
     if (!user) {
       return res.status(404).json({
@@ -477,7 +477,7 @@ export const getUserFollowing: RequestHandler = async (req, res) => {
     const following: any[] = [];
     
     for (const followedUserId of followSet) {
-      const followedUser = users.get(followedUserId);
+      const followedUser = profileUsers.get(followedUserId);
       if (followedUser) {
         following.push({
           id: followedUser.id,
@@ -522,7 +522,7 @@ export const getUserStatistics: RequestHandler = async (req, res) => {
   try {
     const { id } = req.params;
     
-    const user = users.get(id);
+    const user = profileUsers.get(id);
     
     if (!user) {
       return res.status(404).json({
