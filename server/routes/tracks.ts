@@ -432,12 +432,12 @@ export const toggleTrackLike: RequestHandler = async (req, res) => {
 // Get user's liked tracks
 export const getUserLikedTracks: RequestHandler = async (req, res) => {
   try {
-    const userId = req.headers['user-id'] as string;
-    
+    const userId = req.userId;
+
     if (!userId) {
       return res.status(401).json({
         success: false,
-        message: "User ID required"
+        message: "Authentication required"
       });
     }
     
