@@ -17,6 +17,7 @@ import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import PasswordStrengthIndicator from "../components/PasswordStrengthIndicator";
 import AvailabilityChecker from "../components/AvailabilityChecker";
 import { useToast } from "../hooks/use-toast";
+import { api } from "../lib/api";
 import {
   validatePhoneNumber,
   formatPhoneInput,
@@ -1187,7 +1188,7 @@ export default function Signup() {
                 );
 
                 console.log(
-                  "💾 Saved Firebase user data to localStorage:",
+                  "�� Saved Firebase user data to localStorage:",
                   completeUserData,
                 );
               }
