@@ -2180,36 +2180,7 @@ export default function Signup() {
                 {formData.email}
               </div>
 
-              {/* Debug Code Display */}
-              {debugVerificationCode && (
-                <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4 mt-4">
-                  <div className="text-center">
-                    <h4 className="text-orange-500 font-medium text-sm mb-2">
-                      📧 Email delivery issue - Use this code:
-                    </h4>
-                    <div className="bg-orange-500/20 rounded-lg p-3 inline-block">
-                      <span className="text-orange-300 text-2xl font-bold font-mono tracking-wider">
-                        {debugVerificationCode}
-                      </span>
-                    </div>
-                    <p className="text-orange-400 text-xs mt-2">
-                      Your email provider may be blocking emails.
-                    </p>
-                    <button
-                      onClick={() => {
-                        setFormData((prev) => ({
-                          ...prev,
-                          otp: debugVerificationCode || "",
-                        }));
-                        setErrors((prev) => ({ ...prev, otp: undefined }));
-                      }}
-                      className="mt-2 px-3 py-1 bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/50 rounded text-orange-300 text-xs transition-colors"
-                    >
-                      Auto-fill Code
-                    </button>
-                  </div>
-                </div>
-              )}
+
 
               <div>
                 {/* Masked Input Display */}
