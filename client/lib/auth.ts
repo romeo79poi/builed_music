@@ -272,7 +272,7 @@ export const signUpWithEmailAndPassword = async (
         await setDoc(doc(db, "users", user.uid), userDocData);
         console.log("✅ User data saved to Firestore successfully");
       } catch (firestoreError: any) {
-        console.warn("⚠️ Firestore write failed, continuing without saving user data:", firestoreError.code);
+        console.warn("⚠��� Firestore write failed, continuing without saving user data:", firestoreError.code);
         // Continue even if Firestore write fails - user account is still created in Auth
       }
 
@@ -604,21 +604,8 @@ export const signInWithGoogle = async (): Promise<{
         errorMessage = "Google sign-in is not enabled for this application";
         break;
       case "auth/unauthorized-domain":
-        console.warn("🔧 Unauthorized domain detected, falling back to development mode");
-        // Fallback to development mode for unauthorized domains
-        const mockUser = {
-          uid: `google-dev-${Date.now()}`,
-          email: "demo.user@gmail.com",
-          displayName: "Demo User (Dev Mode)",
-          emailVerified: true,
-          photoURL: "https://via.placeholder.com/96x96/4285F4/ffffff?text=DU",
-        } as User;
-
-        return {
-          success: true,
-          user: mockUser,
-          isNewUser: true
-        };
+        errorMessage = "Google authentication is not configured for this domain";
+        break;
       case "auth/account-exists-with-different-credential":
         errorMessage =
           "An account already exists with the same email address but different sign-in credentials";
@@ -1153,7 +1140,7 @@ export const fetchUserData = async (userId: string): Promise<{
       console.log("🔍 Created document reference");
 
       const userDoc = await getDoc(userRef);
-      console.log("🔍 Firestore read successful");
+      console.log("�� Firestore read successful");
 
       if (userDoc.exists()) {
         const userData = userDoc.data();
