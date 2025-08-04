@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
+import { api } from "../lib/api";
 
 interface Track {
   id: string;
