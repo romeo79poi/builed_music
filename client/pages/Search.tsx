@@ -204,7 +204,7 @@ export default function Search() {
     }
   };
 
-  const handleToggleLike = async (songId: string, e?: React.MouseEvent) => {
+  const handleToggleLike = async (trackId: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
 
     if (!currentUser) {
@@ -217,37 +217,51 @@ export default function Search() {
     }
 
     try {
-      const { liked, error } = await supabaseOperations.toggleLike(
-        currentUser.id,
-        songId,
-      );
-
-      if (error) {
+      const token = localStorage.getItem('token');
+      if (!token) {
         toast({
-          title: "Error",
-          description: "Failed to update like status",
+          title: "Login required",
+          description: "Please log in to like songs",
           variant: "destructive",
         });
         return;
       }
 
-      // Update local state
-      setLikedSongs((prev) => {
-        const newSet = new Set(prev);
-        if (liked) {
-          newSet.add(songId);
-        } else {
-          newSet.delete(songId);
+      const isCurrentlyLiked = likedSongs.has(trackId);
+      const method = isCurrentlyLiked ? 'DELETE' : 'POST';
+
+      const response = await fetch(`/api/v1/users/liked-tracks/${trackId}`, {
+        method,
+        headers: {
+          'Authorization': `Bearer ${token}`
         }
-        return newSet;
       });
 
-      toast({
-        title: liked ? "Added to liked songs" : "Removed from liked songs",
-        description: liked
-          ? "Song added to your favorites"
-          : "Song removed from your favorites",
-      });
+      if (response.ok) {
+        // Update local state
+        setLikedSongs((prev) => {
+          const newSet = new Set(prev);
+          if (isCurrentlyLiked) {
+            newSet.delete(trackId);
+          } else {
+            newSet.add(trackId);
+          }
+          return newSet;
+        });
+
+        toast({
+          title: isCurrentlyLiked ? "Removed from liked songs" : "Added to liked songs",
+          description: isCurrentlyLiked
+            ? "Song removed from your favorites"
+            : "Song added to your favorites",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to update like status",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       console.error("❌ Error toggling like:", error);
       toast({
