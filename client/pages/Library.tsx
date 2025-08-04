@@ -166,7 +166,17 @@ export default function Library() {
 
         // Add to listening history
         if (currentUser) {
-          await supabaseOperations.addToHistory(currentUser.id, song.id);
+          const token = localStorage.getItem('token');
+          if (token) {
+            await fetch('/api/v1/users/play-history', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({ track_id: song.id })
+            });
+          }
         }
       }
     } catch (error) {
