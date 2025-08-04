@@ -104,7 +104,7 @@ class MessagingService {
     try {
       const response = await fetch(`${this.baseUrl}/${chatId}`);
       const data = await response.json();
-      return data.messages || [];
+      return data.success ? (data.data || []) : [];
     } catch (error) {
       console.error("Failed to get messages:", error);
       return [];
