@@ -143,98 +143,40 @@ export default function Login() {
         throw new Error("Unable to connect to the server");
       }
 
-      // Try backend login first
-      let backendResult;
-      try {
-        const response = await fetch("/api/auth/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email,
-            password,
-          }),
-        });
+      // Use backend login
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+        }),
+      });
 
-        backendResult = await response.json();
+      const result = await response.json();
 
-        if (backendResult.success) {
-          // Store token if provided
-          if (backendResult.token) {
-            localStorage.setItem("token", backendResult.token);
-          }
-
-          toast({
-            title: "Welcome back!",
-            description: `Successfully logged in as ${backendResult.user.name}`,
-          });
-
-          console.log("✅ Backend login successful:", backendResult.user);
-
-          // Redirect to homepage
-          navigate("/home");
-          return;
-        }
-      } catch (backendError) {
-        console.warn("Backend login failed, trying Firebase:", backendError);
-      }
-
-      // Fallback to Firebase authentication if backend fails
-      const result = await loginWithEmailAndPassword(email, password);
-
-      if (result.success && result.user) {
-        // Check email verification status
-        if (!checkVerificationStatus(result.user)) {
-          toast({
-            title: "Email verification required",
-            description: "Please verify your email before continuing",
-            variant: "destructive",
-          });
-          return;
-        }
-
-        // Store token if provided (for backend auth)
+      if (result.success) {
+        // Store token and user data
         if (result.token) {
           localStorage.setItem("token", result.token);
         }
-
-        // Fetch existing user profile from Firestore
-        const userProfile = await getUserProfile(result.user.uid);
-
-        if (userProfile) {
-          console.log("✅ User data loaded from Firestore:", userProfile);
-        } else {
-          // Create profile if it doesn't exist (fallback)
-          const profileData = {
-            name: result.user.displayName || "User",
-            username: result.user.email?.split("@")[0] || "",
-            email: result.user.email || "",
-            phone: "",
-            profileImageURL: result.user.photoURL || "",
-            createdAt: new Date().toISOString(),
-          };
-
-          await saveUserProfile(result.user.uid, profileData);
-          console.log("✅ Created missing user profile:", profileData);
-        }
+        localStorage.setItem("currentUser", JSON.stringify(result.user));
 
         toast({
           title: "Welcome back!",
-          description: "Successfully logged in",
+          description: `Successfully logged in as ${result.user.name}`,
         });
+
+        console.log("✅ Backend login successful:", result.user);
 
         // Redirect to homepage
         navigate("/home");
       } else {
-        // Use backend error if available, otherwise Firebase error
-        const errorMessage = backendResult?.message ||
-          getNetworkErrorMessage(result) ||
-          result.error ||
-          "Please check your credentials";
         toast({
           title: "Login failed",
-          description: errorMessage,
+          description: result.message || "Invalid email or password",
           variant: "destructive",
         });
       }
