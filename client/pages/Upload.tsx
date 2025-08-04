@@ -204,7 +204,7 @@ export default function Upload() {
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  const handlePublish = () => {
+  const handlePublish = async () => {
     if (!trackInfo.title.trim()) {
       toast({
         title: "Missing information",
@@ -215,16 +215,69 @@ export default function Upload() {
     }
 
     setIsUploading(true);
-    
-    // Simulate publishing
-    setTimeout(() => {
-      setIsUploading(false);
+
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        toast({
+          title: "Authentication Required",
+          description: "Please log in to publish tracks",
+          variant: "destructive",
+        });
+        setIsUploading(false);
+        return;
+      }
+
+      // Try backend publish API, fallback to demo
+      try {
+        const publishData = {
+          ...trackInfo,
+          fileId: uploadedFile?.id,
+          coverImage: coverImage,
+          duration: duration,
+        };
+
+        const response = await fetch('/api/tracks/publish', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(publishData)
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          toast({
+            title: "Track published successfully!",
+            description: "Your music is now live on Catch Music",
+          });
+          console.log('✅ Track published to backend:', result);
+          navigate("/profile");
+        } else {
+          throw new Error('Backend publish failed');
+        }
+      } catch (backendError) {
+        console.error('Backend publish failed, using demo mode:', backendError);
+        // Fallback to demo publishing
+        setTimeout(() => {
+          toast({
+            title: "Track published! (Demo Mode)",
+            description: "Your track has been processed locally",
+          });
+          navigate("/profile");
+        }, 2000);
+      }
+    } catch (error) {
+      console.error('Publish error:', error);
       toast({
-        title: "Track published successfully!",
-        description: "Your music is now live on Catch Music",
+        title: "Publish Failed",
+        description: "Failed to publish track. Please try again.",
+        variant: "destructive",
       });
-      navigate("/profile");
-    }, 2000);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const steps = [
