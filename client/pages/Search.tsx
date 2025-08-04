@@ -57,14 +57,14 @@ export default function Search() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTab, setSelectedTab] = useState("all");
   const [searchResults, setSearchResults] = useState<{
-    songs?: Song[];
+    tracks?: Track[];
     albums?: Album[];
-    playlists?: Playlist[];
+    artists?: Artist[];
   } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
-  const [currentSong, setCurrentSong] = useState<Song | null>(null);
+  const [currentSong, setCurrentSong] = useState<Track | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [likedSongs, setLikedSongs] = useState<Set<string>>(new Set());
 
