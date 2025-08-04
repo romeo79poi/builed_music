@@ -13,12 +13,8 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
-import {
-  loginWithEmailAndPassword,
-  signInWithGoogle,
-  sendFirebaseEmailVerification,
-} from "../lib/auth";
-import { supabaseOperations } from "../lib/supabase";
+import { useAuth } from "../context/AuthContext";
+import { signInWithGoogle } from "../lib/auth";
 import { useToast } from "../hooks/use-toast";
 import ConnectivityChecker, {
   getNetworkErrorMessage,
@@ -27,6 +23,7 @@ import ConnectivityChecker, {
 export default function Login() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { login } = useAuth();
   const [loginMethod, setLoginMethod] = useState<"social" | "email" | "phone">(
     "social",
   );
@@ -38,81 +35,9 @@ export default function Login() {
   const [isOnline, setIsOnline] = useState(
     ConnectivityChecker.getConnectionStatus(),
   );
-  const [verificationNeeded, setVerificationNeeded] = useState(false);
-  const [currentUser, setCurrentUser] = useState<any>(null);
-  const [sendingVerification, setSendingVerification] = useState(false);
+  const [backendError, setBackendError] = useState<string | null>(null);
 
-  // Save user profile data to Supabase (no longer needed - handled by auth)
-  const saveUserProfile = async (uid: string, profileData: any) => {
-    try {
-      console.log("✅ User profile handled by Supabase auth");
-      // Supabase auth handles user profiles automatically
-    } catch (error) {
-      console.warn("Profile save not needed with Supabase:", error);
-    }
-  };
 
-  // Get existing user profile data from Supabase
-  const getUserProfile = async (uid: string) => {
-    try {
-      const { data: user, error } = await supabaseOperations.getUserById(uid);
-
-      if (error) {
-        console.warn("⚠️ No user profile found in Supabase for UID:", uid);
-        return null;
-      }
-
-      if (user) {
-        console.log("✅ User profile fetched from Supabase:", user);
-        return user;
-      }
-      return null;
-    } catch (error) {
-      console.warn("❌ Supabase not available, using mock profile:", error);
-      return null;
-    }
-  };
-
-  // Check if email verification is required
-  const checkVerificationStatus = (user: any) => {
-    if (!user.emailVerified && user.email) {
-      setVerificationNeeded(true);
-      setCurrentUser(user);
-      return false;
-    }
-    return true;
-  };
-
-  // Resend email verification
-  const handleResendVerification = async () => {
-    if (!currentUser) return;
-
-    setSendingVerification(true);
-    try {
-      const result = await sendFirebaseEmailVerification(currentUser);
-      if (result.success) {
-        toast({
-          title: "Verification email sent!",
-          description:
-            "Please check your email and click the verification link.",
-        });
-      } else {
-        toast({
-          title: "Failed to send verification",
-          description: result.error || "Please try again",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to send verification email",
-        variant: "destructive",
-      });
-    } finally {
-      setSendingVerification(false);
-    }
-  };
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -136,6 +61,7 @@ export default function Login() {
 
     try {
       setIsLoading(true);
+      setBackendError(null);
 
       // Check if we can reach the backend
       const hasConnection = await ConnectivityChecker.checkInternetConnection();
@@ -143,69 +69,24 @@ export default function Login() {
         throw new Error("Unable to connect to the server");
       }
 
-      // Use backend login
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
-
-      const result = await response.json();
+      // Use new auth context login
+      const result = await login(email, password);
 
       if (result.success) {
-        // Store token and user data
-        if (result.token) {
-          localStorage.setItem("token", result.token);
-        }
+        toast({
+          title: "Welcome back!",
+          description: "Successfully logged in",
+        });
 
-        // Fetch user profile data
-        try {
-          const profileResponse = await fetch(`/api/v1/users/${result.user.id}`, {
-            headers: {
-              'user-id': result.user.id
-            }
-          });
+        console.log("✅ Backend login successful");
 
-          if (profileResponse.ok) {
-            const profileData = await profileResponse.json();
-            localStorage.setItem("currentUser", JSON.stringify(profileData.data));
-
-            toast({
-              title: "Welcome back!",
-              description: `Successfully logged in as ${profileData.data.display_name}`,
-            });
-          } else {
-            // Fallback to basic user data
-            localStorage.setItem("currentUser", JSON.stringify(result.user));
-
-            toast({
-              title: "Welcome back!",
-              description: `Successfully logged in as ${result.user.name}`,
-            });
-          }
-        } catch (error) {
-          console.warn("Failed to fetch profile data:", error);
-          localStorage.setItem("currentUser", JSON.stringify(result.user));
-
-          toast({
-            title: "Welcome back!",
-            description: `Successfully logged in as ${result.user.name}`,
-          });
-        }
-
-        console.log("✅ Backend login successful:", result.user);
-
-        // Redirect to homepage
-        navigate("/home");
+        // Navigate to home - AuthRouter will handle the redirect
+        navigate("/");
       } else {
+        setBackendError(result.error || "Invalid email or password");
         toast({
           title: "Login failed",
-          description: result.message || "Invalid email or password",
+          description: result.error || "Invalid email or password",
           variant: "destructive",
         });
       }
@@ -215,6 +96,7 @@ export default function Login() {
         getNetworkErrorMessage(error) ||
         error.message ||
         "An unexpected error occurred";
+      setBackendError(errorMessage);
       toast({
         title: "Login error",
         description: errorMessage,
@@ -241,7 +123,7 @@ export default function Login() {
       const result = await signInWithGoogle();
 
       if (result.success && result.user) {
-        // Try to register/login with backend using Google user data
+        // Register with backend for Google users
         try {
           const response = await fetch("/api/auth/register", {
             method: "POST",
@@ -260,36 +142,26 @@ export default function Login() {
           const backendResult = await response.json();
 
           if (backendResult.success) {
-            // Fetch user profile data
-            try {
-              const profileResponse = await fetch(`/api/v1/users/${backendResult.user.id}`, {
-                headers: {
-                  'user-id': backendResult.user.id
-                }
-              });
-
-              if (profileResponse.ok) {
-                const profileData = await profileResponse.json();
-                localStorage.setItem("currentUser", JSON.stringify(profileData.data));
-              } else {
-                localStorage.setItem("currentUser", JSON.stringify(backendResult.user));
-              }
-            } catch (error) {
-              localStorage.setItem("currentUser", JSON.stringify(backendResult.user));
+            // Store token if available
+            if (backendResult.token) {
+              localStorage.setItem("token", backendResult.token);
             }
+
+            // Store user data and redirect
+            localStorage.setItem("currentUser", JSON.stringify(backendResult.user));
 
             toast({
               title: "Welcome!",
               description: `Successfully logged in with Google as ${backendResult.user.name}`,
             });
 
-            console.log("✅ Google user registered/logged in with backend:", backendResult.user);
-            navigate("/home");
+            console.log("✅ Google user registered with backend:", backendResult.user);
+            navigate("/"); // Let AuthRouter handle the redirect
             return;
           }
         } catch (backendError) {
           console.warn("Backend registration failed for Google user:", backendError);
-
+          setBackendError("Failed to register with backend. Please try email signup.");
           toast({
             title: "Google login failed",
             description: "Failed to register with backend. Please try email signup.",
@@ -568,39 +440,28 @@ export default function Login() {
           </motion.div>
         )}
 
-        {/* Email Verification Required */}
-        {verificationNeeded && (
+        {/* Backend Error Display */}
+        {backendError && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="mt-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg"
+            className="mt-6 p-4 bg-red-500/10 border border-red-500/30 rounded-lg"
           >
             <div className="flex items-start space-x-3">
-              <AlertCircle className="w-5 h-5 text-yellow-500 mt-0.5" />
+              <AlertCircle className="w-5 h-5 text-red-500 mt-0.5" />
               <div className="flex-1">
-                <h4 className="text-yellow-500 font-medium text-sm">
-                  Email Verification Required
+                <h4 className="text-red-500 font-medium text-sm">
+                  Authentication Error
                 </h4>
-                <p className="text-yellow-200 text-sm mt-1">
-                  Please verify your email address to continue. Check your inbox
-                  for a verification link.
+                <p className="text-red-200 text-sm mt-1">
+                  {backendError}
                 </p>
                 <button
-                  onClick={handleResendVerification}
-                  disabled={sendingVerification}
-                  className="mt-3 flex items-center space-x-2 text-yellow-500 hover:text-yellow-400 text-sm font-medium disabled:opacity-50"
+                  onClick={() => setBackendError(null)}
+                  className="mt-3 text-red-400 hover:text-red-300 text-sm font-medium"
                 >
-                  {sendingVerification ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <RefreshCw className="w-4 h-4" />
-                  )}
-                  <span>
-                    {sendingVerification
-                      ? "Sending..."
-                      : "Resend verification email"}
-                  </span>
+                  Dismiss
                 </button>
               </div>
             </div>
@@ -622,6 +483,11 @@ export default function Login() {
             >
               Sign up here
             </Link>
+          </p>
+
+          {/* Backend Auth Status */}
+          <p className="text-xs text-slate-500 mt-2">
+            ✅ Backend authentication active
           </p>
         </motion.div>
       </div>
