@@ -340,7 +340,7 @@ export const songApi = {
   // Get all liked songs
   getLikedSongs: (): Promise<{ likedSongs: any[] }> => {
     const token = localStorage.getItem("token");
-    return apiRequest(`/songs/liked`, {
+    return apiRequest(`/api/v1/users/liked-tracks`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
