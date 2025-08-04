@@ -97,6 +97,74 @@ import {
   deleteMessage,
 } from "./routes/messages";
 
+// New Backend API routes - Tracks
+import {
+  getAllTracks,
+  getTrackById,
+  recordTrackPlay,
+  searchTracks,
+  getTrendingTracks,
+  toggleTrackLike,
+  getUserLikedTracks,
+  getTracksByArtist,
+  getTracksByAlbum,
+} from "./routes/tracks";
+
+// Artists API routes
+import {
+  getAllArtists,
+  getArtistById as getBackendArtistById,
+  searchArtists,
+  getTrendingArtists,
+  toggleArtistFollow,
+  getUserFollowedArtists,
+  getArtistsByGenre,
+  getArtistTopTracks,
+  getSimilarArtists,
+} from "./routes/artists";
+
+// Playlists API routes
+import {
+  getAllPlaylists,
+  getPlaylistById as getBackendPlaylistById,
+  getPlaylistTracks,
+  createPlaylist as createBackendPlaylist,
+  updatePlaylist as updateBackendPlaylist,
+  deletePlaylist as deleteBackendPlaylist,
+  addTrackToPlaylist,
+  removeTrackFromPlaylist,
+  togglePlaylistFollow,
+  searchPlaylists,
+  getUserPlaylists as getBackendUserPlaylists,
+} from "./routes/playlists";
+
+// Albums API routes
+import {
+  getAllAlbums,
+  getAlbumById,
+  searchAlbums,
+  getNewReleases,
+  getTrendingAlbums,
+  toggleAlbumLike,
+  getUserLikedAlbums,
+  getAlbumsByArtist,
+  getAlbumsByGenre,
+  getAlbumStats,
+} from "./routes/albums";
+
+// User management API routes
+import {
+  getUserById,
+  getCurrentUser,
+  updateUserProfile,
+  searchUsers,
+  followUser,
+  unfollowUser,
+  getUserFollowers,
+  getUserFollowing,
+  getUserStatistics,
+} from "./routes/users";
+
 export function createServer() {
   const app = express();
 
@@ -209,6 +277,72 @@ export function createServer() {
   app.get("/api/messages/:chatId/typing", getTypingUsers);
   app.post("/api/messages/chats", createChat);
   app.delete("/api/messages/message/:messageId", deleteMessage);
+
+  // ===============================================
+  // NEW BACKEND API ROUTES (C++/Java/Go/Python Style)
+  // ===============================================
+
+  // Tracks API routes
+  app.get("/api/v1/tracks", getAllTracks);
+  app.get("/api/v1/tracks/:id", getTrackById);
+  app.post("/api/v1/tracks/:id/play", recordTrackPlay);
+  app.get("/api/v1/tracks/search", searchTracks);
+  app.get("/api/v1/tracks/trending", getTrendingTracks);
+  app.post("/api/v1/tracks/:id/like", toggleTrackLike);
+  app.delete("/api/v1/tracks/:id/like", toggleTrackLike);
+  app.get("/api/v1/users/liked-tracks", getUserLikedTracks);
+  app.get("/api/v1/artists/:artist_id/tracks", getTracksByArtist);
+  app.get("/api/v1/albums/:album_id/tracks", getTracksByAlbum);
+
+  // Artists API routes
+  app.get("/api/v1/artists", getAllArtists);
+  app.get("/api/v1/artists/:id", getBackendArtistById);
+  app.get("/api/v1/artists/search", searchArtists);
+  app.get("/api/v1/artists/trending", getTrendingArtists);
+  app.post("/api/v1/artists/:id/follow", toggleArtistFollow);
+  app.delete("/api/v1/artists/:id/follow", toggleArtistFollow);
+  app.get("/api/v1/users/followed-artists", getUserFollowedArtists);
+  app.get("/api/v1/genres/:genre/artists", getArtistsByGenre);
+  app.get("/api/v1/artists/:id/top-tracks", getArtistTopTracks);
+  app.get("/api/v1/artists/:id/similar", getSimilarArtists);
+
+  // Playlists API routes
+  app.get("/api/v1/playlists", getAllPlaylists);
+  app.get("/api/v1/playlists/:id", getBackendPlaylistById);
+  app.get("/api/v1/playlists/:id/tracks", getPlaylistTracks);
+  app.post("/api/v1/playlists", createBackendPlaylist);
+  app.put("/api/v1/playlists/:id", updateBackendPlaylist);
+  app.delete("/api/v1/playlists/:id", deleteBackendPlaylist);
+  app.post("/api/v1/playlists/:id/tracks", addTrackToPlaylist);
+  app.delete("/api/v1/playlists/:id/tracks/:track_id", removeTrackFromPlaylist);
+  app.post("/api/v1/playlists/:id/follow", togglePlaylistFollow);
+  app.delete("/api/v1/playlists/:id/follow", togglePlaylistFollow);
+  app.get("/api/v1/playlists/search", searchPlaylists);
+  app.get("/api/v1/users/:user_id/playlists", getBackendUserPlaylists);
+
+  // Albums API routes
+  app.get("/api/v1/albums", getAllAlbums);
+  app.get("/api/v1/albums/:id", getAlbumById);
+  app.get("/api/v1/albums/search", searchAlbums);
+  app.get("/api/v1/albums/new-releases", getNewReleases);
+  app.get("/api/v1/albums/trending", getTrendingAlbums);
+  app.post("/api/v1/albums/:id/like", toggleAlbumLike);
+  app.delete("/api/v1/albums/:id/like", toggleAlbumLike);
+  app.get("/api/v1/users/liked-albums", getUserLikedAlbums);
+  app.get("/api/v1/artists/:artist_id/albums", getAlbumsByArtist);
+  app.get("/api/v1/genres/:genre/albums", getAlbumsByGenre);
+  app.get("/api/v1/albums/:id/stats", getAlbumStats);
+
+  // User management API routes
+  app.get("/api/v1/users/me", getCurrentUser);
+  app.get("/api/v1/users/:id", getUserById);
+  app.put("/api/v1/users/:id", updateUserProfile);
+  app.get("/api/v1/users/search", searchUsers);
+  app.post("/api/v1/users/:id/follow", followUser);
+  app.delete("/api/v1/users/:id/follow", unfollowUser);
+  app.get("/api/v1/users/:id/followers", getUserFollowers);
+  app.get("/api/v1/users/:id/following", getUserFollowing);
+  app.get("/api/v1/users/:id/stats", getUserStatistics);
 
   return app;
 }

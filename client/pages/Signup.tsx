@@ -36,7 +36,7 @@ import {
   uploadProfileImage,
   uploadProfileImageForSignup,
 } from "../lib/auth";
-import { auth, db } from "../lib/firebase";
+// Firebase removed - using new backend authentication
 
 type SignupStep =
   | "method"
@@ -116,10 +116,11 @@ export default function Signup() {
   const [resendTimer, setResendTimer] = useState(0);
   const [errorAlert, setErrorAlert] = useState<string | null>(null);
   const [confirmationResult, setConfirmationResult] = useState<any>(null);
-  const [useFirebaseAuth, setUseFirebaseAuth] = useState(true);
+  const [useFirebaseAuth, setUseFirebaseAuth] = useState(false); // Use backend only
   const [verificationUser, setVerificationUser] = useState<any>(null);
   const [emailVerificationSent, setEmailVerificationSent] = useState(false);
   const [phoneVerificationSent, setPhoneVerificationSent] = useState(false);
+  const [debugVerificationCode, setDebugVerificationCode] = useState<string | null>(null);
 
   // Validation functions
   const validateEmail = (email: string): boolean => {
@@ -935,113 +936,62 @@ export default function Signup() {
         return;
       }
 
-      if (useFirebaseAuth) {
-        // For email signup, send verification code via backend
-        const response = await fetch("/api/auth/send-email-verification", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email: formData.email }),
-        });
+      // Send verification code via backend
+      const response = await fetch("/api/auth/send-email-verification", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: formData.email }),
+      });
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.success) {
+        setCurrentStep("verification");
+
+        // Store debug code for UI display
+        if (data.debugCode) {
+          setDebugVerificationCode(data.debugCode);
         }
 
-        const data = await response.json();
-
-        if (data.success) {
-          setCurrentStep("verification");
-
-          // Show different messages based on whether email was actually sent
-          if (data.emailSent === false) {
-            toast({
-              title: "⚠️ Verification code ready",
-              description: `Email service unavailable. Check console for your verification code.`,
-              variant: "destructive",
-            });
-          } else {
-            toast({
-              title: "✉️ Verification email sent!",
-              description: `Check your email at ${formData.email} for a verification code.`,
-            });
-          }
-
-          // For development, show code in console and preview URL
-          if (data.debugCode) {
-            console.log(`📧 Email verification code: ${data.debugCode}`);
-            toast({
-              title: "📧 Development Mode",
-              description: `Verification code: ${data.debugCode} (check console)`,
-              duration: 10000,
-            });
-          }
-          if (data.previewUrl) {
-            console.log(`🔗 Email preview: ${data.previewUrl}`);
-          }
-
-          setResendTimer(60);
-        } else {
+        // Show different messages based on whether email was actually sent
+        if (data.emailSent === false) {
           toast({
-            title: "Failed to send verification code",
-            description: data.message || "Please try again",
+            title: "⚠️ Email delivery failed",
+            description: `Use the code shown below to verify your account`,
+            duration: 8000,
             variant: "destructive",
           });
+        } else if (data.debugCode) {
+          toast({
+            title: "Verification code sent!",
+            description: `Code also shown below for convenience`,
+            duration: 8000,
+          });
+        } else {
+          toast({
+            title: "Verification code sent!",
+            description:
+              "Please check your email for the 6-digit verification code.",
+          });
         }
+
+        if (data.debugCode) {
+          console.log(`📧 Email verification code: ${data.debugCode}`);
+        }
+
+        setResendTimer(60);
       } else {
-        // Use backend email verification
-        const response = await fetch("/api/auth/send-email-verification", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email: formData.email }),
+        toast({
+          title: "Failed to send verification code",
+          description: data.message || "Please try again",
+          variant: "destructive",
         });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        if (data.success) {
-          setCurrentStep("verification");
-
-          // Show different messages based on whether email was actually sent
-          if (data.emailSent === false) {
-            toast({
-              title: "⚠️ Verification code ready",
-              description: `Email service unavailable. Code: ${data.debugCode}`,
-              duration: 10000,
-              variant: "destructive",
-            });
-          } else if (data.debugCode) {
-            toast({
-              title: "Verification code sent!",
-              description: `Code: ${data.debugCode} (Development Mode)`,
-              duration: 8000,
-            });
-          } else {
-            toast({
-              title: "Verification code sent!",
-              description:
-                "Please check your email for the 6-digit verification code.",
-            });
-          }
-
-          if (data.debugCode) {
-            console.log(`📧 Email verification code: ${data.debugCode}`);
-          }
-
-          setResendTimer(60);
-        } else {
-          toast({
-            title: "Failed to send verification code",
-            description: data.message || "Please try again",
-            variant: "destructive",
-          });
-        }
       }
     } catch (error) {
       console.error("Email verification error:", error);
@@ -1286,6 +1236,25 @@ export default function Signup() {
               });
 
               console.log("✅ User created with backend:", data.user);
+
+              // Fetch and store user profile data
+              try {
+                const profileResponse = await fetch(`/api/v1/users/${data.user.id}`, {
+                  headers: {
+                    'user-id': data.user.id
+                  }
+                });
+
+                if (profileResponse.ok) {
+                  const profileData = await profileResponse.json();
+                  localStorage.setItem("currentUser", JSON.stringify(profileData.data));
+                } else {
+                  localStorage.setItem("currentUser", JSON.stringify(data.user));
+                }
+              } catch (error) {
+                console.warn("Failed to fetch profile data:", error);
+                localStorage.setItem("currentUser", JSON.stringify(data.user));
+              }
 
               setTimeout(() => {
                 navigate("/home");
@@ -1557,6 +1526,11 @@ export default function Signup() {
       const data = await response.json();
 
       if (data.success) {
+        // Store new debug code for UI display
+        if (data.debugCode) {
+          setDebugVerificationCode(data.debugCode);
+        }
+
         // Show different messages based on whether email was actually sent
         if (data.emailSent === false) {
           toast({
@@ -1606,40 +1580,8 @@ export default function Signup() {
   // Timer for resend functionality
   // Check Firebase connection on mount
   useEffect(() => {
-    const checkFirebaseConnection = async () => {
-      try {
-        // Test Firebase connection
-        if (!auth || !db) {
-          console.error("Firebase not properly initialized");
-          setErrorAlert(
-            "Authentication service unavailable. Try email signup or refresh the page.",
-          );
-        } else {
-          console.log("✅ Firebase services initialized successfully");
-
-          // Test auth connection by checking current user
-          try {
-            const currentUser = auth.currentUser;
-            console.log(
-              "Firebase auth status:",
-              currentUser ? "Connected" : "Ready",
-            );
-          } catch (authError) {
-            console.warn("Firebase auth test failed:", authError);
-            setErrorAlert(
-              "Google sign-in may not work. Please use email signup.",
-            );
-          }
-        }
-      } catch (error) {
-        console.error("Firebase initialization error:", error);
-        setErrorAlert(
-          "Authentication service error. Please use email signup or refresh the page.",
-        );
-      }
-    };
-
-    checkFirebaseConnection();
+    // Using new backend authentication instead of Firebase
+    console.log("✅ Backend authentication ready");
   }, []);
 
   useEffect(() => {
@@ -2210,6 +2152,34 @@ export default function Signup() {
               <div className="text-center text-purple-primary text-sm break-all mt-4">
                 {formData.email}
               </div>
+
+              {/* Debug Code Display */}
+              {debugVerificationCode && (
+                <div className="bg-orange-500/10 border border-orange-500/30 rounded-lg p-4 mt-4">
+                  <div className="text-center">
+                    <h4 className="text-orange-500 font-medium text-sm mb-2">
+                      📧 Email delivery issue - Use this code:
+                    </h4>
+                    <div className="bg-orange-500/20 rounded-lg p-3 inline-block">
+                      <span className="text-orange-300 text-2xl font-bold font-mono tracking-wider">
+                        {debugVerificationCode}
+                      </span>
+                    </div>
+                    <p className="text-orange-400 text-xs mt-2">
+                      Your email provider may be blocking emails.
+                    </p>
+                    <button
+                      onClick={() => {
+                        setFormData(prev => ({ ...prev, otp: debugVerificationCode || "" }));
+                        setErrors(prev => ({ ...prev, otp: undefined }));
+                      }}
+                      className="mt-2 px-3 py-1 bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/50 rounded text-orange-300 text-xs transition-colors"
+                    >
+                      Auto-fill Code
+                    </button>
+                  </div>
+                </div>
+              )}
 
               <div>
                 {/* Masked Input Display */}

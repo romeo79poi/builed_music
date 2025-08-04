@@ -21,13 +21,28 @@ import {
   Pause,
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
-import {
-  supabaseAuth,
-  supabaseOperations,
-  Song,
-  Playlist,
-} from "../lib/supabase";
 import MobileFooter from "../components/MobileFooter";
+
+interface Track {
+  id: string;
+  title: string;
+  artist_name: string;
+  album_title?: string;
+  duration: number;
+  cover_image_url: string;
+  genre?: string;
+  play_count?: number;
+}
+
+interface Playlist {
+  id: string;
+  name: string;
+  description?: string;
+  cover_image_url?: string;
+  is_public: boolean;
+  track_count: number;
+  created_at: string;
+}
 
 export default function Library() {
   const navigate = useNavigate();
@@ -36,11 +51,11 @@ export default function Library() {
   const [activeTab, setActiveTab] = useState("Recently Added");
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [userPlaylists, setUserPlaylists] = useState<Playlist[]>([]);
-  const [likedSongs, setLikedSongs] = useState<Song[]>([]);
-  const [recentlyPlayed, setRecentlyPlayed] = useState<Song[]>([]);
-  const [recentlyAdded, setRecentlyAdded] = useState<Song[]>([]);
+  const [likedSongs, setLikedSongs] = useState<Track[]>([]);
+  const [recentlyPlayed, setRecentlyPlayed] = useState<Track[]>([]);
+  const [recentlyAdded, setRecentlyAdded] = useState<Track[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [currentSong, setCurrentSong] = useState<Song | null>(null);
+  const [currentSong, setCurrentSong] = useState<Track | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
 
   const tabs = [
@@ -59,11 +74,13 @@ export default function Library() {
       setIsLoading(true);
 
       // Check authentication
-      const { data: session } = await supabaseAuth.getCurrentSession();
+      const token = localStorage.getItem('token');
+      const userData = localStorage.getItem('currentUser');
 
-      if (session?.user) {
-        setCurrentUser(session.user);
-        await loadLibraryData(session.user.id);
+      if (token && userData) {
+        const user = JSON.parse(userData);
+        setCurrentUser(user);
+        await loadLibraryData();
       } else {
         navigate("/login");
       }
@@ -75,40 +92,59 @@ export default function Library() {
     }
   };
 
-  const loadLibraryData = async (userId: string) => {
+  const loadLibraryData = async () => {
     try {
-      // Load user's library data
-      const [playlistsRes, likedRes, historyRes, songsRes] = await Promise.all([
-        supabaseOperations.getUserPlaylists(userId),
-        supabaseOperations.getUserLikes(userId),
-        supabaseOperations.getUserHistory(userId, 20),
-        supabaseOperations.getSongs(20),
-      ]);
+      const token = localStorage.getItem('token');
+      if (!token) return;
 
-      // Set playlists
-      if (playlistsRes.data) {
-        setUserPlaylists(playlistsRes.data);
+      // Load playlists
+      try {
+        const playlistsResponse = await fetch('/api/v1/users/playlists', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (playlistsResponse.ok) {
+          const playlistsData = await playlistsResponse.json();
+          setUserPlaylists(playlistsData.playlists || []);
+        }
+      } catch (error) {
+        console.error('Error loading playlists:', error);
       }
 
-      // Set liked songs
-      if (likedRes.data) {
-        const likedSongsData = likedRes.data
-          .map((like) => like.songs)
-          .filter(Boolean) as Song[];
-        setLikedSongs(likedSongsData);
+      // Load liked songs
+      try {
+        const likedResponse = await fetch('/api/v1/users/liked-tracks', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (likedResponse.ok) {
+          const likedData = await likedResponse.json();
+          setLikedSongs(likedData.liked_tracks || []);
+        }
+      } catch (error) {
+        console.error('Error loading liked songs:', error);
       }
 
-      // Set recently played (from history)
-      if (historyRes.data) {
-        const recentSongsData = historyRes.data
-          .map((history) => history.songs)
-          .filter(Boolean) as Song[];
-        setRecentlyPlayed(recentSongsData);
+      // Load recently played
+      try {
+        const historyResponse = await fetch('/api/v1/users/play-history?limit=20', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (historyResponse.ok) {
+          const historyData = await historyResponse.json();
+          setRecentlyPlayed(historyData.play_history || []);
+        }
+      } catch (error) {
+        console.error('Error loading play history:', error);
       }
 
-      // Set recently added songs
-      if (songsRes.data) {
-        setRecentlyAdded(songsRes.data);
+      // Load recently added songs (trending tracks as fallback)
+      try {
+        const tracksResponse = await fetch('/api/v1/tracks?sort_by=created_at&limit=20');
+        if (tracksResponse.ok) {
+          const tracksData = await tracksResponse.json();
+          setRecentlyAdded(tracksData.tracks || []);
+        }
+      } catch (error) {
+        console.error('Error loading recent tracks:', error);
       }
     } catch (error) {
       console.error("Failed to load library data:", error);
@@ -120,7 +156,7 @@ export default function Library() {
     }
   };
 
-  const handlePlaySong = async (song: Song) => {
+  const handlePlaySong = async (song: Track) => {
     try {
       if (currentSong?.id === song.id) {
         setIsPlaying(!isPlaying);
@@ -130,7 +166,17 @@ export default function Library() {
 
         // Add to listening history
         if (currentUser) {
-          await supabaseOperations.addToHistory(currentUser.id, song.id);
+          const token = localStorage.getItem('token');
+          if (token) {
+            await fetch('/api/v1/users/play-history', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({ track_id: song.id })
+            });
+          }
         }
       }
     } catch (error) {
@@ -156,27 +202,42 @@ export default function Library() {
     }
 
     try {
-      const playlistName = `My Playlist #${userPlaylists.length + 1}`;
-      const { data, error } = await supabaseOperations.createPlaylist({
-        name: playlistName,
-        created_by: currentUser.id,
-        is_public: false,
-      });
-
-      if (error) {
+      const token = localStorage.getItem('token');
+      if (!token) {
         toast({
-          title: "Error",
-          description: "Failed to create playlist",
+          title: "Authentication required",
+          description: "Please log in to create playlists",
           variant: "destructive",
         });
         return;
       }
 
-      if (data) {
-        setUserPlaylists([...userPlaylists, data]);
+      const playlistName = `My Playlist #${userPlaylists.length + 1}`;
+      const response = await fetch('/api/v1/playlists', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          name: playlistName,
+          description: 'A new playlist',
+          is_public: false
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUserPlaylists([...userPlaylists, data.playlist]);
         toast({
           title: "Playlist Created",
           description: `${playlistName} has been created`,
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to create playlist",
+          variant: "destructive",
         });
       }
     } catch (error) {
@@ -189,7 +250,7 @@ export default function Library() {
     }
   };
 
-  const handleToggleLike = async (songId: string, e?: React.MouseEvent) => {
+  const handleToggleLike = async (trackId: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
 
     if (!currentUser) {
@@ -202,36 +263,50 @@ export default function Library() {
     }
 
     try {
-      const { liked, error } = await supabaseOperations.toggleLike(
-        currentUser.id,
-        songId,
-      );
-
-      if (error) {
+      const token = localStorage.getItem('token');
+      if (!token) {
         toast({
-          title: "Error",
-          description: "Failed to update like status",
+          title: "Login required",
+          description: "Please log in to like songs",
           variant: "destructive",
         });
         return;
       }
 
-      // Update local state
-      if (liked) {
-        const song = recentlyAdded.find((s) => s.id === songId);
-        if (song) {
-          setLikedSongs((prev) => [...prev, song]);
-        }
-      } else {
-        setLikedSongs((prev) => prev.filter((song) => song.id !== songId));
-      }
+      const isCurrentlyLiked = likedSongs.some(song => song.id === trackId);
+      const method = isCurrentlyLiked ? 'DELETE' : 'POST';
 
-      toast({
-        title: liked ? "Added to liked songs" : "Removed from liked songs",
-        description: liked
-          ? "Song added to your favorites"
-          : "Song removed from your favorites",
+      const response = await fetch(`/api/v1/users/liked-tracks/${trackId}`, {
+        method,
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
       });
+
+      if (response.ok) {
+        // Update local state
+        if (isCurrentlyLiked) {
+          setLikedSongs((prev) => prev.filter((song) => song.id !== trackId));
+        } else {
+          const song = recentlyAdded.find((s) => s.id === trackId);
+          if (song) {
+            setLikedSongs((prev) => [...prev, song]);
+          }
+        }
+
+        toast({
+          title: isCurrentlyLiked ? "Removed from liked songs" : "Added to liked songs",
+          description: isCurrentlyLiked
+            ? "Song removed from your favorites"
+            : "Song added to your favorites",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to update like status",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       console.error("Error toggling like:", error);
       toast({
@@ -294,7 +369,7 @@ export default function Library() {
                     {song.title}
                   </h3>
                   <p className="text-gray-400 text-xs truncate">
-                    {song.artist} {song.genre && `• ${song.genre}`}
+                    {song.artist_name} {song.genre && `• ${song.genre}`}
                   </p>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -344,7 +419,7 @@ export default function Library() {
                     {song.title}
                   </h3>
                   <p className="text-gray-400 text-xs truncate">
-                    {song.artist}
+                    {song.artist_name}
                   </p>
                 </div>
                 <div className="flex items-center space-x-2">
@@ -384,7 +459,7 @@ export default function Library() {
                     <h3 className="font-medium text-white">{playlist.name}</h3>
                     <p className="text-gray-400 text-sm">
                       {playlist.is_public ? "Public" : "Private"} •{" "}
-                      {playlist.total_tracks || 0} songs
+                      {playlist.track_count || 0} songs
                     </p>
                   </div>
                   <MoreHorizontal className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -422,7 +497,7 @@ export default function Library() {
                     {song.title}
                   </h3>
                   <p className="text-gray-400 text-xs truncate">
-                    {song.artist} {song.genre && `• ${song.genre}`}
+                    {song.artist_name} {song.genre && `• ${song.genre}`}
                   </p>
                 </div>
                 <div className="flex items-center space-x-2">

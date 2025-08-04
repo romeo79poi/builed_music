@@ -1,456 +1,358 @@
 -- CATCH Music Streaming Database Schema
--- PostgreSQL database schema inspired by Spotify's architecture
+-- PostgreSQL Database Schema for Music Catch Application
 
--- Enable extensions
+-- Create database extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pg_trgm";
-CREATE EXTENSION IF NOT EXISTS "btree_gin";
 
 -- Users table
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     email VARCHAR(255) UNIQUE NOT NULL,
     username VARCHAR(50) UNIQUE NOT NULL,
     display_name VARCHAR(100) NOT NULL,
-    password_hash TEXT NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
     profile_image_url TEXT,
-    cover_image_url TEXT,
     bio TEXT,
-    country VARCHAR(2), -- ISO country code
-    birth_date DATE,
-    subscription_type VARCHAR(20) DEFAULT 'FREE' CHECK (subscription_type IN ('FREE', 'PREMIUM', 'FAMILY', 'STUDENT')),
+    country VARCHAR(100),
+    date_of_birth DATE,
+    gender VARCHAR(20),
     is_verified BOOLEAN DEFAULT FALSE,
     is_artist BOOLEAN DEFAULT FALSE,
     is_active BOOLEAN DEFAULT TRUE,
-    follower_count BIGINT DEFAULT 0,
-    following_count BIGINT DEFAULT 0,
-    total_play_time_ms BIGINT DEFAULT 0,
-    last_login TIMESTAMP WITH TIME ZONE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    follower_count INTEGER DEFAULT 0,
+    following_count INTEGER DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    last_login TIMESTAMP WITH TIME ZONE
 );
 
--- User roles table
-CREATE TABLE user_roles (
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    role VARCHAR(20) NOT NULL CHECK (role IN ('USER', 'ARTIST', 'ADMIN', 'MODERATOR')),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    PRIMARY KEY (user_id, role)
-);
-
--- Artists table (extended information for artist users)
-CREATE TABLE artists (
+-- Artists table
+CREATE TABLE IF NOT EXISTS artists (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID UNIQUE REFERENCES users(id) ON DELETE CASCADE,
-    stage_name VARCHAR(100),
-    genre VARCHAR(50),
-    record_label VARCHAR(100),
-    monthly_listeners BIGINT DEFAULT 0,
-    verified_at TIMESTAMP WITH TIME ZONE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    name VARCHAR(255) NOT NULL,
+    bio TEXT,
+    genre VARCHAR(100),
+    image_url TEXT,
+    verified BOOLEAN DEFAULT FALSE,
+    monthly_listeners INTEGER DEFAULT 0,
+    user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Albums table
-CREATE TABLE albums (
+CREATE TABLE IF NOT EXISTS albums (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    title VARCHAR(200) NOT NULL,
+    title VARCHAR(255) NOT NULL,
     artist_id UUID REFERENCES artists(id) ON DELETE CASCADE,
-    cover_image_url TEXT,
+    artist_name VARCHAR(255) NOT NULL,
     release_date DATE,
-    album_type VARCHAR(20) DEFAULT 'ALBUM' CHECK (album_type IN ('ALBUM', 'SINGLE', 'EP', 'COMPILATION')),
-    genre VARCHAR(50),
-    total_duration_ms BIGINT DEFAULT 0,
-    track_count INTEGER DEFAULT 0,
-    is_explicit BOOLEAN DEFAULT FALSE,
+    album_type VARCHAR(50) DEFAULT 'album', -- album, single, EP
+    cover_image_url TEXT,
+    total_tracks INTEGER DEFAULT 0,
+    duration_ms INTEGER DEFAULT 0,
+    genre VARCHAR(100),
+    label VARCHAR(255),
     is_active BOOLEAN DEFAULT TRUE,
     play_count BIGINT DEFAULT 0,
-    like_count BIGINT DEFAULT 0,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    like_count INTEGER DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Tracks table
-CREATE TABLE tracks (
+CREATE TABLE IF NOT EXISTS tracks (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    title VARCHAR(200) NOT NULL,
+    title VARCHAR(255) NOT NULL,
     artist_id UUID REFERENCES artists(id) ON DELETE CASCADE,
-    artist_name VARCHAR(100) NOT NULL, -- Denormalized for performance
-    album_id UUID REFERENCES albums(id) ON DELETE SET NULL,
-    album_name VARCHAR(200), -- Denormalized for performance
+    artist_name VARCHAR(255) NOT NULL,
+    album_id UUID REFERENCES albums(id) ON DELETE CASCADE,
+    album_name VARCHAR(255),
     track_number INTEGER,
-    duration_ms BIGINT NOT NULL,
-    file_url TEXT NOT NULL,
-    cover_image_url TEXT,
-    genre VARCHAR(50),
-    release_date DATE,
-    play_count BIGINT DEFAULT 0,
-    like_count BIGINT DEFAULT 0,
-    skip_count BIGINT DEFAULT 0,
-    is_explicit BOOLEAN DEFAULT FALSE,
-    is_active BOOLEAN DEFAULT TRUE,
-    audio_quality VARCHAR(20) DEFAULT '320kbps',
+    duration_ms INTEGER NOT NULL,
+    explicit BOOLEAN DEFAULT FALSE,
+    preview_url TEXT,
+    spotify_url TEXT,
+    youtube_url TEXT,
+    apple_music_url TEXT,
+    audio_file_url TEXT,
     lyrics TEXT,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Track tags for better categorization
-CREATE TABLE track_tags (
-    track_id UUID REFERENCES tracks(id) ON DELETE CASCADE,
-    tag VARCHAR(50) NOT NULL,
-    PRIMARY KEY (track_id, tag)
+    genre VARCHAR(100),
+    mood VARCHAR(50),
+    energy_level INTEGER CHECK (energy_level >= 1 AND energy_level <= 10),
+    release_date DATE,
+    is_active BOOLEAN DEFAULT TRUE,
+    play_count BIGINT DEFAULT 0,
+    like_count INTEGER DEFAULT 0,
+    download_count INTEGER DEFAULT 0,
+    audio_quality VARCHAR(20) DEFAULT 'standard', -- standard, high, lossless
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Playlists table
-CREATE TABLE playlists (
+CREATE TABLE IF NOT EXISTS playlists (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    name VARCHAR(100) NOT NULL,
+    name VARCHAR(255) NOT NULL,
     description TEXT,
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     cover_image_url TEXT,
-    is_public BOOLEAN DEFAULT TRUE,
+    is_public BOOLEAN DEFAULT FALSE,
     is_collaborative BOOLEAN DEFAULT FALSE,
-    follower_count BIGINT DEFAULT 0,
-    play_count BIGINT DEFAULT 0,
     track_count INTEGER DEFAULT 0,
     total_duration_ms BIGINT DEFAULT 0,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    follower_count INTEGER DEFAULT 0,
+    play_count BIGINT DEFAULT 0,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Playlist tracks (many-to-many relationship)
-CREATE TABLE playlist_tracks (
+-- Playlist tracks junction table
+CREATE TABLE IF NOT EXISTS playlist_tracks (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     playlist_id UUID REFERENCES playlists(id) ON DELETE CASCADE,
     track_id UUID REFERENCES tracks(id) ON DELETE CASCADE,
-    position INTEGER NOT NULL,
     added_by UUID REFERENCES users(id) ON DELETE SET NULL,
-    added_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    UNIQUE(playlist_id, track_id, position)
+    position INTEGER NOT NULL,
+    added_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(playlist_id, track_id),
+    UNIQUE(playlist_id, position)
 );
 
--- User follows (social feature)
-CREATE TABLE user_follows (
+-- User follows table
+CREATE TABLE IF NOT EXISTS user_follows (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     follower_id UUID REFERENCES users(id) ON DELETE CASCADE,
     followee_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    PRIMARY KEY (follower_id, followee_id),
-    CHECK (follower_id != followee_id)
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(follower_id, followee_id),
+    CHECK(follower_id != followee_id)
 );
 
 -- User liked tracks
-CREATE TABLE user_liked_tracks (
+CREATE TABLE IF NOT EXISTS user_liked_tracks (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     track_id UUID REFERENCES tracks(id) ON DELETE CASCADE,
-    liked_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    PRIMARY KEY (user_id, track_id)
+    liked_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, track_id)
 );
 
 -- User liked albums
-CREATE TABLE user_liked_albums (
+CREATE TABLE IF NOT EXISTS user_liked_albums (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     album_id UUID REFERENCES albums(id) ON DELETE CASCADE,
-    liked_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    PRIMARY KEY (user_id, album_id)
+    liked_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, album_id)
 );
 
--- User playlist follows
-CREATE TABLE user_playlist_follows (
+-- User liked playlists
+CREATE TABLE IF NOT EXISTS user_liked_playlists (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     playlist_id UUID REFERENCES playlists(id) ON DELETE CASCADE,
-    followed_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    PRIMARY KEY (user_id, playlist_id)
+    liked_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id, playlist_id)
 );
 
--- User play history (for analytics and recommendations)
-CREATE TABLE user_play_history (
+-- User play history
+CREATE TABLE IF NOT EXISTS user_play_history (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
     track_id UUID REFERENCES tracks(id) ON DELETE CASCADE,
-    played_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    play_duration_ms BIGINT, -- How long the track was actually played
-    skip_reason VARCHAR(50), -- 'manual_skip', 'next_track', 'completed', etc.
+    played_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    play_duration_ms INTEGER, -- How long the user listened
+    skip_reason VARCHAR(50), -- if skipped early
+    device_type VARCHAR(50), -- mobile, desktop, web
+    platform VARCHAR(50) -- spotify, youtube, apple_music, native
+);
+
+-- User search history
+CREATE TABLE IF NOT EXISTS user_search_history (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    search_query VARCHAR(255) NOT NULL,
+    search_type VARCHAR(50), -- track, artist, album, playlist
+    result_count INTEGER DEFAULT 0,
+    clicked_result_id UUID, -- ID of what they clicked on
+    clicked_result_type VARCHAR(50), -- track, artist, album, playlist
+    searched_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- User listening sessions
+CREATE TABLE IF NOT EXISTS user_listening_sessions (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    session_start TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    session_end TIMESTAMP WITH TIME ZONE,
+    total_tracks_played INTEGER DEFAULT 0,
+    total_duration_ms BIGINT DEFAULT 0,
     device_type VARCHAR(50),
-    ip_address INET,
-    country VARCHAR(2)
+    platform VARCHAR(50)
 );
 
--- User sessions for tracking active users
-CREATE TABLE user_sessions (
+-- Track analytics (for trending, recommendations)
+CREATE TABLE IF NOT EXISTS track_analytics (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    session_token TEXT UNIQUE NOT NULL,
-    device_info JSONB,
-    ip_address INET,
-    is_active BOOLEAN DEFAULT TRUE,
-    last_activity TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    expires_at TIMESTAMP WITH TIME ZONE NOT NULL
+    track_id UUID REFERENCES tracks(id) ON DELETE CASCADE,
+    date DATE NOT NULL,
+    play_count INTEGER DEFAULT 0,
+    unique_listeners INTEGER DEFAULT 0,
+    skip_count INTEGER DEFAULT 0,
+    completion_rate DECIMAL(5,2), -- percentage of track completed on average
+    like_count INTEGER DEFAULT 0,
+    share_count INTEGER DEFAULT 0,
+    download_count INTEGER DEFAULT 0,
+    playlist_adds INTEGER DEFAULT 0,
+    UNIQUE(track_id, date)
 );
 
--- Search history for improving search algorithms
-CREATE TABLE user_search_history (
+-- User preferences
+CREATE TABLE IF NOT EXISTS user_preferences (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    query TEXT NOT NULL,
-    result_type VARCHAR(20), -- 'track', 'album', 'artist', 'playlist'
-    result_id UUID,
-    clicked BOOLEAN DEFAULT FALSE,
-    searched_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    preferred_genres TEXT[], -- array of genres
+    preferred_moods TEXT[], -- array of moods
+    preferred_decades TEXT[], -- array like '2020s', '2010s'
+    audio_quality VARCHAR(20) DEFAULT 'standard',
+    explicit_content BOOLEAN DEFAULT TRUE,
+    autoplay BOOLEAN DEFAULT TRUE,
+    crossfade_duration INTEGER DEFAULT 0, -- seconds
+    volume INTEGER DEFAULT 80 CHECK (volume >= 0 AND volume <= 100),
+    shuffle_mode BOOLEAN DEFAULT FALSE,
+    repeat_mode VARCHAR(20) DEFAULT 'off', -- off, track, playlist
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(user_id)
 );
 
 -- Notifications table
-CREATE TABLE notifications (
+CREATE TABLE IF NOT EXISTS notifications (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    type VARCHAR(50) NOT NULL, -- 'new_follower', 'track_liked', 'playlist_shared', etc.
-    title VARCHAR(200) NOT NULL,
+    type VARCHAR(50) NOT NULL, -- follow, like, playlist_add, new_release
+    title VARCHAR(255) NOT NULL,
     message TEXT,
-    data JSONB, -- Additional notification data
+    data JSONB, -- additional data like track_id, user_id, etc.
     is_read BOOLEAN DEFAULT FALSE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Content moderation table
-CREATE TABLE content_reports (
+-- User devices
+CREATE TABLE IF NOT EXISTS user_devices (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-    reporter_id UUID REFERENCES users(id) ON DELETE SET NULL,
-    content_type VARCHAR(20) NOT NULL, -- 'track', 'album', 'playlist', 'user'
-    content_id UUID NOT NULL,
-    reason VARCHAR(100) NOT NULL,
-    description TEXT,
-    status VARCHAR(20) DEFAULT 'PENDING' CHECK (status IN ('PENDING', 'REVIEWED', 'RESOLVED', 'DISMISSED')),
-    reviewed_by UUID REFERENCES users(id) ON DELETE SET NULL,
-    reviewed_at TIMESTAMP WITH TIME ZONE,
-    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
-);
-
--- Analytics tables (time-series data)
-CREATE TABLE daily_track_stats (
-    track_id UUID REFERENCES tracks(id) ON DELETE CASCADE,
-    date DATE NOT NULL,
-    play_count BIGINT DEFAULT 0,
-    unique_listeners BIGINT DEFAULT 0,
-    skip_count BIGINT DEFAULT 0,
-    like_count BIGINT DEFAULT 0,
-    share_count BIGINT DEFAULT 0,
-    PRIMARY KEY (track_id, date)
-);
-
-CREATE TABLE daily_user_stats (
     user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    date DATE NOT NULL,
-    tracks_played INTEGER DEFAULT 0,
-    listening_time_ms BIGINT DEFAULT 0,
-    unique_artists INTEGER DEFAULT 0,
-    PRIMARY KEY (user_id, date)
+    device_name VARCHAR(255) NOT NULL,
+    device_type VARCHAR(50) NOT NULL, -- mobile, desktop, tablet, smart_speaker
+    device_id VARCHAR(255) UNIQUE NOT NULL,
+    platform VARCHAR(50), -- ios, android, windows, macos, web
+    is_active BOOLEAN DEFAULT TRUE,
+    last_used TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
--- Indexes for performance optimization
-CREATE INDEX idx_users_email ON users(email);
-CREATE INDEX idx_users_username ON users(username);
-CREATE INDEX idx_users_is_active ON users(is_active);
-CREATE INDEX idx_users_created_at ON users(created_at);
+-- Create indexes for better performance
+CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
+CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
+CREATE INDEX IF NOT EXISTS idx_users_active ON users(is_active);
 
-CREATE INDEX idx_tracks_artist_id ON tracks(artist_id);
-CREATE INDEX idx_tracks_album_id ON tracks(album_id);
-CREATE INDEX idx_tracks_genre ON tracks(genre);
-CREATE INDEX idx_tracks_is_active ON tracks(is_active);
-CREATE INDEX idx_tracks_play_count ON tracks(play_count DESC);
-CREATE INDEX idx_tracks_created_at ON tracks(created_at DESC);
-CREATE INDEX idx_tracks_title_gin ON tracks USING gin(title gin_trgm_ops);
-CREATE INDEX idx_tracks_artist_name_gin ON tracks USING gin(artist_name gin_trgm_ops);
+CREATE INDEX IF NOT EXISTS idx_tracks_artist ON tracks(artist_id);
+CREATE INDEX IF NOT EXISTS idx_tracks_album ON tracks(album_id);
+CREATE INDEX IF NOT EXISTS idx_tracks_active ON tracks(is_active);
+CREATE INDEX IF NOT EXISTS idx_tracks_genre ON tracks(genre);
+CREATE INDEX IF NOT EXISTS idx_tracks_release_date ON tracks(release_date);
+CREATE INDEX IF NOT EXISTS idx_tracks_play_count ON tracks(play_count DESC);
 
-CREATE INDEX idx_albums_artist_id ON albums(artist_id);
-CREATE INDEX idx_albums_release_date ON albums(release_date DESC);
-CREATE INDEX idx_albums_is_active ON albums(is_active);
+CREATE INDEX IF NOT EXISTS idx_albums_artist ON albums(artist_id);
+CREATE INDEX IF NOT EXISTS idx_albums_active ON albums(is_active);
+CREATE INDEX IF NOT EXISTS idx_albums_release_date ON albums(release_date);
 
-CREATE INDEX idx_playlists_user_id ON playlists(user_id);
-CREATE INDEX idx_playlists_is_public ON playlists(is_public);
-CREATE INDEX idx_playlists_created_at ON playlists(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_playlists_user ON playlists(user_id);
+CREATE INDEX IF NOT EXISTS idx_playlists_public ON playlists(is_public);
 
-CREATE INDEX idx_playlist_tracks_playlist_id ON playlist_tracks(playlist_id);
-CREATE INDEX idx_playlist_tracks_track_id ON playlist_tracks(track_id);
-CREATE INDEX idx_playlist_tracks_position ON playlist_tracks(position);
+CREATE INDEX IF NOT EXISTS idx_playlist_tracks_playlist ON playlist_tracks(playlist_id);
+CREATE INDEX IF NOT EXISTS idx_playlist_tracks_position ON playlist_tracks(playlist_id, position);
 
-CREATE INDEX idx_user_follows_follower_id ON user_follows(follower_id);
-CREATE INDEX idx_user_follows_followee_id ON user_follows(followee_id);
-CREATE INDEX idx_user_follows_created_at ON user_follows(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_user_follows_follower ON user_follows(follower_id);
+CREATE INDEX IF NOT EXISTS idx_user_follows_followee ON user_follows(followee_id);
 
-CREATE INDEX idx_user_play_history_user_id ON user_play_history(user_id);
-CREATE INDEX idx_user_play_history_track_id ON user_play_history(track_id);
-CREATE INDEX idx_user_play_history_played_at ON user_play_history(played_at DESC);
+CREATE INDEX IF NOT EXISTS idx_user_liked_tracks_user ON user_liked_tracks(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_liked_tracks_track ON user_liked_tracks(track_id);
 
-CREATE INDEX idx_user_sessions_user_id ON user_sessions(user_id);
-CREATE INDEX idx_user_sessions_session_token ON user_sessions(session_token);
-CREATE INDEX idx_user_sessions_is_active ON user_sessions(is_active);
-CREATE INDEX idx_user_sessions_expires_at ON user_sessions(expires_at);
+CREATE INDEX IF NOT EXISTS idx_user_play_history_user ON user_play_history(user_id);
+CREATE INDEX IF NOT EXISTS idx_user_play_history_track ON user_play_history(track_id);
+CREATE INDEX IF NOT EXISTS idx_user_play_history_played_at ON user_play_history(played_at DESC);
 
-CREATE INDEX idx_notifications_user_id ON notifications(user_id);
-CREATE INDEX idx_notifications_is_read ON notifications(is_read);
-CREATE INDEX idx_notifications_created_at ON notifications(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_track_analytics_track ON track_analytics(track_id);
+CREATE INDEX IF NOT EXISTS idx_track_analytics_date ON track_analytics(date DESC);
 
-CREATE INDEX idx_daily_track_stats_date ON daily_track_stats(date DESC);
-CREATE INDEX idx_daily_user_stats_date ON daily_user_stats(date DESC);
+CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_id);
+CREATE INDEX IF NOT EXISTS idx_notifications_unread ON notifications(user_id, is_read);
 
--- Full-text search indexes
-CREATE INDEX idx_tracks_fulltext ON tracks USING gin(
-    to_tsvector('english', title || ' ' || artist_name || ' ' || COALESCE(album_name, ''))
-);
+-- Create full-text search indexes
+CREATE INDEX IF NOT EXISTS idx_tracks_search ON tracks USING gin(to_tsvector('english', title || ' ' || artist_name || ' ' || COALESCE(album_name, '')));
+CREATE INDEX IF NOT EXISTS idx_artists_search ON artists USING gin(to_tsvector('english', name));
+CREATE INDEX IF NOT EXISTS idx_albums_search ON albums USING gin(to_tsvector('english', title || ' ' || artist_name));
+CREATE INDEX IF NOT EXISTS idx_playlists_search ON playlists USING gin(to_tsvector('english', name || ' ' || COALESCE(description, '')));
 
--- Triggers for updating counters and timestamps
-
--- Update track count in albums when tracks are added/removed
-CREATE OR REPLACE FUNCTION update_album_track_count()
-RETURNS TRIGGER AS $$
-BEGIN
-    IF TG_OP = 'INSERT' THEN
-        UPDATE albums 
-        SET track_count = track_count + 1,
-            updated_at = NOW()
-        WHERE id = NEW.album_id;
-        RETURN NEW;
-    ELSIF TG_OP = 'DELETE' THEN
-        UPDATE albums 
-        SET track_count = track_count - 1,
-            updated_at = NOW()
-        WHERE id = OLD.album_id;
-        RETURN OLD;
-    END IF;
-    RETURN NULL;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trigger_update_album_track_count
-    AFTER INSERT OR DELETE ON tracks
-    FOR EACH ROW EXECUTE FUNCTION update_album_track_count();
-
--- Update playlist track count when tracks are added/removed
-CREATE OR REPLACE FUNCTION update_playlist_track_count()
-RETURNS TRIGGER AS $$
-BEGIN
-    IF TG_OP = 'INSERT' THEN
-        UPDATE playlists 
-        SET track_count = track_count + 1,
-            updated_at = NOW()
-        WHERE id = NEW.playlist_id;
-        RETURN NEW;
-    ELSIF TG_OP = 'DELETE' THEN
-        UPDATE playlists 
-        SET track_count = track_count - 1,
-            updated_at = NOW()
-        WHERE id = OLD.playlist_id;
-        RETURN OLD;
-    END IF;
-    RETURN NULL;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trigger_update_playlist_track_count
-    AFTER INSERT OR DELETE ON playlist_tracks
-    FOR EACH ROW EXECUTE FUNCTION update_playlist_track_count();
-
--- Update updated_at timestamp automatically
+-- Create triggers for updating timestamps
 CREATE OR REPLACE FUNCTION update_updated_at_column()
 RETURNS TRIGGER AS $$
 BEGIN
-    NEW.updated_at = NOW();
+    NEW.updated_at = CURRENT_TIMESTAMP;
     RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ language 'plpgsql';
 
-CREATE TRIGGER trigger_users_updated_at BEFORE UPDATE ON users
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-    
-CREATE TRIGGER trigger_artists_updated_at BEFORE UPDATE ON artists
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-    
-CREATE TRIGGER trigger_albums_updated_at BEFORE UPDATE ON albums
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-    
-CREATE TRIGGER trigger_tracks_updated_at BEFORE UPDATE ON tracks
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
-    
-CREATE TRIGGER trigger_playlists_updated_at BEFORE UPDATE ON playlists
-    FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_users_updated_at BEFORE UPDATE ON users FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_artists_updated_at BEFORE UPDATE ON artists FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_albums_updated_at BEFORE UPDATE ON albums FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_tracks_updated_at BEFORE UPDATE ON tracks FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+CREATE TRIGGER update_playlists_updated_at BEFORE UPDATE ON playlists FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
--- Views for commonly used queries
+-- Insert sample data
+INSERT INTO artists (id, name, bio, genre, verified) VALUES 
+    ('550e8400-e29b-41d4-a716-446655440020', 'Taylor Swift', 'American singer-songwriter', 'Pop', true),
+    ('550e8400-e29b-41d4-a716-446655440021', 'The Weeknd', 'Canadian singer, songwriter, and record producer', 'R&B', true),
+    ('550e8400-e29b-41d4-a716-446655440022', 'Ed Sheeran', 'English singer-songwriter', 'Pop', true),
+    ('550e8400-e29b-41d4-a716-446655440023', 'Dua Lipa', 'English singer and songwriter', 'Pop', true),
+    ('550e8400-e29b-41d4-a716-446655440024', 'Drake', 'Canadian rapper and singer', 'Hip-Hop', true);
 
--- Popular tracks view
-CREATE VIEW popular_tracks AS
-SELECT 
-    t.*,
-    a.stage_name as artist_stage_name,
-    al.title as album_title,
-    (t.play_count * 0.7 + t.like_count * 0.3) as popularity_score
-FROM tracks t
-LEFT JOIN artists a ON t.artist_id = a.id
-LEFT JOIN albums al ON t.album_id = al.id
-WHERE t.is_active = true
-ORDER BY popularity_score DESC;
+INSERT INTO albums (id, title, artist_id, artist_name, release_date, cover_image_url, total_tracks) VALUES 
+    ('550e8400-e29b-41d4-a716-446655440030', 'Midnights', '550e8400-e29b-41d4-a716-446655440020', 'Taylor Swift', '2022-10-21', 'https://example.com/midnights.jpg', 13),
+    ('550e8400-e29b-41d4-a716-446655440031', 'After Hours', '550e8400-e29b-41d4-a716-446655440021', 'The Weeknd', '2020-03-20', 'https://example.com/afterhours.jpg', 14),
+    ('550e8400-e29b-41d4-a716-446655440032', '÷ (Divide)', '550e8400-e29b-41d4-a716-446655440022', 'Ed Sheeran', '2017-03-03', 'https://example.com/divide.jpg', 16),
+    ('550e8400-e29b-41d4-a716-446655440033', 'Future Nostalgia', '550e8400-e29b-41d4-a716-446655440023', 'Dua Lipa', '2020-03-27', 'https://example.com/futurenostalgia.jpg', 11),
+    ('550e8400-e29b-41d4-a716-446655440034', 'Certified Lover Boy', '550e8400-e29b-41d4-a716-446655440024', 'Drake', '2021-09-03', 'https://example.com/clb.jpg', 21);
 
--- User dashboard view
-CREATE VIEW user_dashboard AS
-SELECT 
-    u.id,
-    u.username,
-    u.display_name,
-    u.profile_image_url,
-    u.follower_count,
-    u.following_count,
-    COUNT(DISTINCT uph.track_id) as unique_tracks_played,
-    SUM(uph.play_duration_ms) as total_listening_time,
-    COUNT(DISTINCT ult.track_id) as liked_tracks_count,
-    COUNT(DISTINCT p.id) as playlists_count
-FROM users u
-LEFT JOIN user_play_history uph ON u.id = uph.user_id AND uph.played_at >= NOW() - INTERVAL '30 days'
-LEFT JOIN user_liked_tracks ult ON u.id = ult.user_id
-LEFT JOIN playlists p ON u.id = p.user_id
-WHERE u.is_active = true
-GROUP BY u.id, u.username, u.display_name, u.profile_image_url, u.follower_count, u.following_count;
+INSERT INTO tracks (id, title, artist_id, artist_name, album_id, album_name, track_number, duration_ms, play_count, like_count) VALUES 
+    ('550e8400-e29b-41d4-a716-446655440040', 'Anti-Hero', '550e8400-e29b-41d4-a716-446655440020', 'Taylor Swift', '550e8400-e29b-41d4-a716-446655440030', 'Midnights', 1, 200000, 50000000, 1500000),
+    ('550e8400-e29b-41d4-a716-446655440041', 'Blinding Lights', '550e8400-e29b-41d4-a716-446655440021', 'The Weeknd', '550e8400-e29b-41d4-a716-446655440031', 'After Hours', 1, 200000, 75000000, 2000000),
+    ('550e8400-e29b-41d4-a716-446655440042', 'Shape of You', '550e8400-e29b-41d4-a716-446655440022', 'Ed Sheeran', '550e8400-e29b-41d4-a716-446655440032', '÷ (Divide)', 1, 233712, 60000000, 1800000),
+    ('550e8400-e29b-41d4-a716-446655440043', 'Levitating', '550e8400-e29b-41d4-a716-446655440023', 'Dua Lipa', '550e8400-e29b-41d4-a716-446655440033', 'Future Nostalgia', 2, 203000, 45000000, 1200000),
+    ('550e8400-e29b-41d4-a716-446655440044', 'God''s Plan', '550e8400-e29b-41d4-a716-446655440024', 'Drake', '550e8400-e29b-41d4-a716-446655440034', 'Certified Lover Boy', 3, 198973, 80000000, 2500000),
+    ('550e8400-e29b-41d4-a716-446655440045', 'Lavender Haze', '550e8400-e29b-41d4-a716-446655440020', 'Taylor Swift', '550e8400-e29b-41d4-a716-446655440030', 'Midnights', 2, 202000, 35000000, 900000),
+    ('550e8400-e29b-41d4-a716-446655440046', 'Save Your Tears', '550e8400-e29b-41d4-a716-446655440021', 'The Weeknd', '550e8400-e29b-41d4-a716-446655440031', 'After Hours', 3, 215000, 40000000, 1100000),
+    ('550e8400-e29b-41d4-a716-446655440047', 'Perfect', '550e8400-e29b-41d4-a716-446655440022', 'Ed Sheeran', '550e8400-e29b-41d4-a716-446655440032', '÷ (Divide)', 2, 263000, 55000000, 1600000),
+    ('550e8400-e29b-41d4-a716-446655440048', 'Don''t Start Now', '550e8400-e29b-41d4-a716-446655440023', 'Dua Lipa', '550e8400-e29b-41d4-a716-446655440033', 'Future Nostalgia', 1, 183000, 42000000, 1000000),
+    ('550e8400-e29b-41d4-a716-446655440049', 'Hotline Bling', '550e8400-e29b-41d4-a716-446655440024', 'Drake', '550e8400-e29b-41d4-a716-446655440034', 'Certified Lover Boy', 5, 267000, 65000000, 1900000);
 
--- Trending tracks view (based on recent activity)
-CREATE VIEW trending_tracks AS
-SELECT 
-    t.*,
-    COUNT(uph.id) as recent_plays,
-    COUNT(DISTINCT uph.user_id) as unique_recent_listeners
-FROM tracks t
-JOIN user_play_history uph ON t.id = uph.track_id
-WHERE uph.played_at >= NOW() - INTERVAL '7 days'
-    AND t.is_active = true
-GROUP BY t.id
-HAVING COUNT(uph.id) >= 10 -- Minimum threshold for trending
-ORDER BY recent_plays DESC, unique_recent_listeners DESC;
+-- Insert a demo user for testing
+INSERT INTO users (id, email, username, display_name, password_hash, is_verified, is_active) VALUES 
+    ('550e8400-e29b-41d4-a716-446655440001', 'demo@musiccatch.com', 'demo_user', 'Demo User', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewqHBaQcmElG88se', true, true);
 
--- Insert sample data for testing
--- Sample users
-INSERT INTO users (id, email, username, display_name, password_hash, is_artist, subscription_type) VALUES
-('550e8400-e29b-41d4-a716-446655440001', 'john@example.com', 'johndoe', 'John Doe', '$2a$10$example_hash', false, 'PREMIUM'),
-('550e8400-e29b-41d4-a716-446655440002', 'artist@example.com', 'musicartist', 'The Music Artist', '$2a$10$example_hash', true, 'FREE'),
-('550e8400-e29b-41d4-a716-446655440003', 'jane@example.com', 'janesmith', 'Jane Smith', '$2a$10$example_hash', false, 'FREE');
+-- Insert a sample playlist
+INSERT INTO playlists (id, name, description, user_id, is_public, track_count) VALUES 
+    ('550e8400-e29b-41d4-a716-446655440050', 'Top Hits 2023', 'The biggest hits of 2023', '550e8400-e29b-41d4-a716-446655440001', true, 5);
 
--- Sample artist
-INSERT INTO artists (id, user_id, stage_name, genre) VALUES
-('550e8400-e29b-41d4-a716-446655440010', '550e8400-e29b-41d4-a716-446655440002', 'The Music Artist', 'Pop');
+-- Add tracks to the playlist
+INSERT INTO playlist_tracks (playlist_id, track_id, added_by, position) VALUES 
+    ('550e8400-e29b-41d4-a716-446655440050', '550e8400-e29b-41d4-a716-446655440040', '550e8400-e29b-41d4-a716-446655440001', 1),
+    ('550e8400-e29b-41d4-a716-446655440050', '550e8400-e29b-41d4-a716-446655440041', '550e8400-e29b-41d4-a716-446655440001', 2),
+    ('550e8400-e29b-41d4-a716-446655440050', '550e8400-e29b-41d4-a716-446655440042', '550e8400-e29b-41d4-a716-446655440001', 3),
+    ('550e8400-e29b-41d4-a716-446655440050', '550e8400-e29b-41d4-a716-446655440043', '550e8400-e29b-41d4-a716-446655440001', 4),
+    ('550e8400-e29b-41d4-a716-446655440050', '550e8400-e29b-41d4-a716-446655440044', '550e8400-e29b-41d4-a716-446655440001', 5);
 
--- Sample album
-INSERT INTO albums (id, title, artist_id, release_date, album_type, genre) VALUES
-('550e8400-e29b-41d4-a716-446655440020', 'Greatest Hits', '550e8400-e29b-41d4-a716-446655440010', '2024-01-15', 'ALBUM', 'Pop');
-
--- Sample tracks
-INSERT INTO tracks (id, title, artist_id, artist_name, album_id, album_name, duration_ms, file_url, genre) VALUES
-('550e8400-e29b-41d4-a716-446655440030', 'Amazing Song', '550e8400-e29b-41d4-a716-446655440010', 'The Music Artist', '550e8400-e29b-41d4-a716-446655440020', 'Greatest Hits', 180000, 'https://example.com/track1.mp3', 'Pop'),
-('550e8400-e29b-41d4-a716-446655440031', 'Another Hit', '550e8400-e29b-41d4-a716-446655440010', 'The Music Artist', '550e8400-e29b-41d4-a716-446655440020', 'Greatest Hits', 210000, 'https://example.com/track2.mp3', 'Pop');
-
--- Sample playlist
-INSERT INTO playlists (id, user_id, name, description, is_public) VALUES
-('550e8400-e29b-41d4-a716-446655440040', '550e8400-e29b-41d4-a716-446655440001', 'My Favorites', 'My favorite songs collection', true);
-
--- Add tracks to playlist
-INSERT INTO playlist_tracks (playlist_id, track_id, position) VALUES
-('550e8400-e29b-41d4-a716-446655440040', '550e8400-e29b-41d4-a716-446655440030', 1),
-('550e8400-e29b-41d4-a716-446655440040', '550e8400-e29b-41d4-a716-446655440031', 2);
-
-COMMIT;
+COMMENT ON DATABASE catch_music IS 'CATCH Music Streaming Platform Database';

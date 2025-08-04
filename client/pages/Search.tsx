@@ -21,14 +21,34 @@ import {
   Heart,
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
-import {
-  supabaseAuth,
-  supabaseOperations,
-  Song,
-  Album,
-  Playlist,
-} from "../lib/supabase";
 import MobileFooter from "../components/MobileFooter";
+
+interface Track {
+  id: string;
+  title: string;
+  artist_name: string;
+  album_title: string;
+  duration: number;
+  cover_image_url: string;
+  genre?: string;
+}
+
+interface Artist {
+  id: string;
+  name: string;
+  avatar_url: string;
+  monthly_listeners: number;
+  is_verified: boolean;
+}
+
+interface Album {
+  id: string;
+  title: string;
+  artist_name: string;
+  cover_image_url: string;
+  release_date: string;
+  track_count: number;
+}
 
 export default function Search() {
   const navigate = useNavigate();
@@ -37,14 +57,14 @@ export default function Search() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTab, setSelectedTab] = useState("all");
   const [searchResults, setSearchResults] = useState<{
-    songs?: Song[];
+    tracks?: Track[];
     albums?: Album[];
-    playlists?: Playlist[];
+    artists?: Artist[];
   } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
-  const [currentSong, setCurrentSong] = useState<Song | null>(null);
+  const [currentSong, setCurrentSong] = useState<Track | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [likedSongs, setLikedSongs] = useState<Set<string>>(new Set());
 
@@ -55,22 +75,35 @@ export default function Search() {
 
   const checkAuth = async () => {
     try {
-      const { data: session } = await supabaseAuth.getCurrentSession();
-      if (session?.user) {
-        setCurrentUser(session.user);
-        await loadUserLikes(session.user.id);
+      // Check if user is logged in (token in localStorage)
+      const token = localStorage.getItem('token');
+      const userData = localStorage.getItem('currentUser');
+
+      if (token && userData) {
+        const user = JSON.parse(userData);
+        setCurrentUser(user);
+        await loadUserLikes();
       }
     } catch (error) {
       console.error("Auth check error:", error);
     }
   };
 
-  const loadUserLikes = async (userId: string) => {
+  const loadUserLikes = async () => {
     try {
-      const { data: userLikes } = await supabaseOperations.getUserLikes(userId);
-      if (userLikes) {
-        const likedSongIds = new Set(userLikes.map((like) => like.song_id));
-        setLikedSongs(likedSongIds);
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const response = await fetch('/api/v1/users/liked-tracks', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const likedTrackIds = new Set(data.liked_tracks?.map((track: any) => track.id) || []);
+        setLikedSongs(likedTrackIds);
       }
     } catch (error) {
       console.error("Error loading user likes:", error);
@@ -87,62 +120,43 @@ export default function Search() {
       let results: any = {};
 
       if (selectedTab === "all" || selectedTab === "songs") {
-        const { data: songs } = await supabaseOperations.searchSongs(
-          searchQuery,
-          20,
-        );
-        if (songs) results.songs = songs;
+        try {
+          const response = await fetch(`/api/v1/tracks?search=${encodeURIComponent(searchQuery)}&limit=20`);
+          if (response.ok) {
+            const data = await response.json();
+            results.tracks = data.tracks || [];
+          }
+        } catch (error) {
+          console.error("Track search error:", error);
+        }
       }
 
       if (selectedTab === "all" || selectedTab === "albums") {
-        // Search albums by name
         try {
-          const { data: albums } = await supabaseOperations.getAlbums(20);
-          if (albums) {
-            const filteredAlbums = albums.filter(
-              (album) =>
-                album.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                album.artist.toLowerCase().includes(searchQuery.toLowerCase()),
-            );
-            results.albums = filteredAlbums;
+          const response = await fetch(`/api/v1/albums?search=${encodeURIComponent(searchQuery)}&limit=20`);
+          if (response.ok) {
+            const data = await response.json();
+            results.albums = data.albums || [];
           }
         } catch (error) {
           console.error("Album search error:", error);
         }
       }
 
-      if (selectedTab === "all" || selectedTab === "playlists") {
-        if (currentUser) {
-          try {
-            const { data: playlists } =
-              await supabaseOperations.getUserPlaylists(currentUser.id);
-            if (playlists) {
-              const filteredPlaylists = playlists.filter((playlist) =>
-                playlist.name.toLowerCase().includes(searchQuery.toLowerCase()),
-              );
-              results.playlists = filteredPlaylists;
-            }
-          } catch (error) {
-            console.error("Playlist search error:", error);
+      if (selectedTab === "all" || selectedTab === "artists") {
+        try {
+          const response = await fetch(`/api/v1/artists?search=${encodeURIComponent(searchQuery)}&limit=20`);
+          if (response.ok) {
+            const data = await response.json();
+            results.artists = data.artists || [];
           }
+        } catch (error) {
+          console.error("Artist search error:", error);
         }
       }
 
       setSearchResults(results);
 
-      // Save search to history
-      if (currentUser) {
-        try {
-          await supabaseOperations.addToHistory(
-            currentUser.id,
-            "search",
-            0,
-            false,
-          );
-        } catch (error) {
-          console.error("Error saving search history:", error);
-        }
-      }
     } catch (error) {
       console.error("Search error:", error);
       toast({
@@ -155,32 +169,42 @@ export default function Search() {
     }
   };
 
-  const handlePlaySong = async (song: Song) => {
+  const handlePlaySong = async (track: Track) => {
     try {
-      if (currentSong?.id === song.id) {
+      if (currentSong?.id === track.id) {
         setIsPlaying(!isPlaying);
       } else {
-        setCurrentSong(song);
+        setCurrentSong(track);
         setIsPlaying(true);
 
         // Add to listening history
         if (currentUser) {
-          await supabaseOperations.addToHistory(currentUser.id, song.id);
+          const token = localStorage.getItem('token');
+          if (token) {
+            await fetch(`/api/v1/users/play-history`, {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({ track_id: track.id })
+            });
+          }
         }
       }
     } catch (error) {
       console.error("Failed to play song:", error);
       // Still allow playback even if history fails
-      if (currentSong?.id === song.id) {
+      if (currentSong?.id === track.id) {
         setIsPlaying(!isPlaying);
       } else {
-        setCurrentSong(song);
+        setCurrentSong(track);
         setIsPlaying(true);
       }
     }
   };
 
-  const handleToggleLike = async (songId: string, e?: React.MouseEvent) => {
+  const handleToggleLike = async (trackId: string, e?: React.MouseEvent) => {
     e?.stopPropagation();
 
     if (!currentUser) {
@@ -193,37 +217,51 @@ export default function Search() {
     }
 
     try {
-      const { liked, error } = await supabaseOperations.toggleLike(
-        currentUser.id,
-        songId,
-      );
-
-      if (error) {
+      const token = localStorage.getItem('token');
+      if (!token) {
         toast({
-          title: "Error",
-          description: "Failed to update like status",
+          title: "Login required",
+          description: "Please log in to like songs",
           variant: "destructive",
         });
         return;
       }
 
-      // Update local state
-      setLikedSongs((prev) => {
-        const newSet = new Set(prev);
-        if (liked) {
-          newSet.add(songId);
-        } else {
-          newSet.delete(songId);
+      const isCurrentlyLiked = likedSongs.has(trackId);
+      const method = isCurrentlyLiked ? 'DELETE' : 'POST';
+
+      const response = await fetch(`/api/v1/users/liked-tracks/${trackId}`, {
+        method,
+        headers: {
+          'Authorization': `Bearer ${token}`
         }
-        return newSet;
       });
 
-      toast({
-        title: liked ? "Added to liked songs" : "Removed from liked songs",
-        description: liked
-          ? "Song added to your favorites"
-          : "Song removed from your favorites",
-      });
+      if (response.ok) {
+        // Update local state
+        setLikedSongs((prev) => {
+          const newSet = new Set(prev);
+          if (isCurrentlyLiked) {
+            newSet.delete(trackId);
+          } else {
+            newSet.add(trackId);
+          }
+          return newSet;
+        });
+
+        toast({
+          title: isCurrentlyLiked ? "Removed from liked songs" : "Added to liked songs",
+          description: isCurrentlyLiked
+            ? "Song removed from your favorites"
+            : "Song added to your favorites",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to update like status",
+          variant: "destructive",
+        });
+      }
     } catch (error) {
       console.error("❌ Error toggling like:", error);
       toast({
@@ -261,7 +299,7 @@ export default function Search() {
     { id: "all", label: "All", icon: SearchIcon },
     { id: "songs", label: "Songs", icon: Music },
     { id: "albums", label: "Albums", icon: Disc },
-    { id: "playlists", label: "Playlists", icon: Disc },
+    { id: "artists", label: "Artists", icon: Users },
   ];
 
   const quickSearchButtons = [
@@ -308,34 +346,34 @@ export default function Search() {
 
     return (
       <div className="space-y-6">
-        {/* Songs Results */}
-        {searchResults.songs && searchResults.songs.length > 0 && (
+        {/* Tracks Results */}
+        {searchResults.tracks && searchResults.tracks.length > 0 && (
           <div>
             <h3 className="text-lg font-bold mb-4 flex items-center">
               <Music className="w-5 h-5 mr-2 text-purple-primary" />
-              Songs
+              Tracks
             </h3>
             <div className="space-y-2">
-              {searchResults.songs.map((song) => (
+              {searchResults.tracks.map((track) => (
                 <div
-                  key={song.id}
+                  key={track.id}
                   className="flex items-center space-x-3 p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-all group cursor-pointer"
-                  onClick={() => handlePlaySong(song)}
+                  onClick={() => handlePlaySong(track)}
                 >
                   <div className="relative flex-shrink-0">
                     <img
-                      src={song.cover_image_url}
-                      alt={song.title}
+                      src={track.cover_image_url}
+                      alt={track.title}
                       className="w-12 h-12 object-cover rounded"
                     />
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handlePlaySong(song);
+                        handlePlaySong(track);
                       }}
                       className="absolute inset-0 bg-black/60 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                     >
-                      {currentSong?.id === song.id && isPlaying ? (
+                      {currentSong?.id === track.id && isPlaying ? (
                         <Pause className="w-4 h-4 text-white" />
                       ) : (
                         <Play className="w-4 h-4 text-white ml-0.5" />
@@ -344,28 +382,28 @@ export default function Search() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="font-medium text-sm truncate text-white">
-                      {song.title}
+                      {track.title}
                     </h4>
                     <p className="text-gray-400 text-xs truncate">
-                      {song.artist} {song.genre && `• ${song.genre}`}
+                      {track.artist_name} {track.genre && `• ${track.genre}`}
                     </p>
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className="text-gray-400 text-xs">
-                      {formatDuration(song.duration)}
+                      {formatDuration(track.duration)}
                     </span>
                     <button
-                      onClick={(e) => handleToggleLike(song.id, e)}
+                      onClick={(e) => handleToggleLike(track.id, e)}
                       className={`opacity-0 group-hover:opacity-100 transition-all hover:scale-110 ${
-                        likedSongs.has(song.id)
+                        likedSongs.has(track.id)
                           ? "text-red-500 hover:text-red-600"
                           : "text-gray-400 hover:text-red-500"
                       }`}
-                      title={likedSongs.has(song.id) ? "Unlike" : "Like"}
+                      title={likedSongs.has(track.id) ? "Unlike" : "Like"}
                     >
                       <Heart
                         className={`w-4 h-4 transition-all ${
-                          likedSongs.has(song.id) ? "fill-current" : ""
+                          likedSongs.has(track.id) ? "fill-current" : ""
                         }`}
                       />
                     </button>
@@ -394,45 +432,50 @@ export default function Search() {
                 >
                   <img
                     src={album.cover_image_url}
-                    alt={album.name}
+                    alt={album.title}
                     className="w-full aspect-square rounded-lg object-cover mb-3"
                   />
                   <h4 className="font-medium text-white mb-1 truncate">
-                    {album.name}
+                    {album.title}
                   </h4>
-                  <p className="text-xs text-gray-400">{album.artist}</p>
+                  <p className="text-xs text-gray-400">{album.artist_name}</p>
+                  <p className="text-xs text-gray-500">{album.track_count} tracks</p>
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* Playlists Results */}
-        {searchResults.playlists && searchResults.playlists.length > 0 && (
+        {/* Artists Results */}
+        {searchResults.artists && searchResults.artists.length > 0 && (
           <div>
             <h3 className="text-lg font-bold mb-4 flex items-center">
-              <Disc className="w-5 h-5 mr-2 text-purple-accent" />
-              Playlists
+              <Users className="w-5 h-5 mr-2 text-purple-accent" />
+              Artists
             </h3>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {searchResults.playlists.map((playlist) => (
+              {searchResults.artists.map((artist) => (
                 <div
-                  key={playlist.id}
+                  key={artist.id}
                   className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition-all cursor-pointer"
                 >
                   <img
-                    src={
-                      playlist.cover_image_url ||
-                      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop"
-                    }
-                    alt={playlist.name}
+                    src={artist.avatar_url || "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop"}
+                    alt={artist.name}
                     className="w-full aspect-square rounded-lg object-cover mb-3"
                   />
-                  <h4 className="font-medium text-white mb-1 truncate">
-                    {playlist.name}
-                  </h4>
+                  <div className="flex items-center space-x-1 mb-1">
+                    <h4 className="font-medium text-white truncate">
+                      {artist.name}
+                    </h4>
+                    {artist.is_verified && (
+                      <div className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
+                        <span className="text-white text-xs">✓</span>
+                      </div>
+                    )}
+                  </div>
                   <p className="text-xs text-gray-400">
-                    {playlist.is_public ? "Public" : "Private"} Playlist
+                    {artist.monthly_listeners.toLocaleString()} monthly listeners
                   </p>
                 </div>
               ))}

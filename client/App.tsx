@@ -9,11 +9,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { MusicProvider } from "./context/MusicContext";
 import { ProfileProvider } from "./context/ProfileContext";
 import { ThemeProvider } from "./context/ThemeContext";
-import {
-  FirebaseProvider,
-  firebaseApp,
-  firebaseAuth,
-} from "./context/FirebaseContext";
+import { AuthProvider } from "./context/AuthContext";
 import AuthRouter from "./components/AuthRouter";
 import Splash from "./pages/Splash";
 import Login from "./pages/Login";
@@ -38,12 +34,12 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => {
-  // अब firebaseAuth का use कर सकते हो login/signup में
+  // Backend authentication integrated
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <TooltipProvider>
-          <FirebaseProvider>
+          <AuthProvider>
             <MusicProvider>
               <ProfileProvider>
                 <Toaster />
@@ -75,7 +71,7 @@ const App = () => {
                 </BrowserRouter>
               </ProfileProvider>
             </MusicProvider>
-          </FirebaseProvider>
+          </AuthProvider>
         </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>

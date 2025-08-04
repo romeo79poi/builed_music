@@ -1,10 +1,9 @@
 import { RequestHandler } from "express";
 import bcrypt from "bcrypt";
 import { sendVerificationEmail, sendWelcomeEmail } from "../lib/email";
+import { profileUsers, authUsers, syncUserData, getUserByIdentifier, createUser } from "../lib/userStore";
 
-// In-memory database simulation (in production, use a real database like Supabase)
-let users: Map<string, any> = new Map();
-let userIdCounter = 1;
+// Using shared user store now
 
 // In-memory storage for email verification codes
 const emailVerificationCodes: Map<
@@ -19,27 +18,14 @@ const emailVerificationCodes: Map<
 
 // No demo user initialization - users start with empty database
 
-// Mock Supabase functions for in-memory operations
+// Mock Supabase functions for in-memory operations using shared store
 const mockSupabase = {
   async createUser(userData: any) {
-    const userId = `user${++userIdCounter}`;
-    const user = {
-      id: userId,
-      ...userData,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-    };
-
-    // Store by email, username, and id for easy lookup
-    users.set(user.email, user);
-    users.set(user.username, user);
-    users.set(user.id, user);
-
-    return { data: user, error: null };
+    return createUser(userData);
   },
 
   async getUserByEmail(email: string) {
-    const user = users.get(email);
+    const user = getUserByIdentifier(email);
     return {
       data: user || null,
       error: user ? null : { code: "PGRST116", message: "User not found" },
@@ -47,7 +33,7 @@ const mockSupabase = {
   },
 
   async getUserByUsername(username: string) {
-    const user = users.get(username);
+    const user = getUserByIdentifier(username);
     return {
       data: user || null,
       error: user ? null : { code: "PGRST116", message: "User not found" },
@@ -55,7 +41,7 @@ const mockSupabase = {
   },
 
   async checkEmailAvailability(email: string) {
-    const user = users.get(email);
+    const user = getUserByIdentifier(email);
     return { available: !user, error: null };
   },
 
@@ -116,7 +102,7 @@ const mockSupabase = {
       };
     }
 
-    const user = users.get(username);
+    const user = getUserByIdentifier(username);
     return { available: !user, error: null };
   },
 };
@@ -190,6 +176,8 @@ export const registerUser: RequestHandler = async (req, res) => {
         message: "Failed to create user account",
       });
     }
+
+    // Profile is automatically created by shared store
 
     // Return success response (without password)
     const { password: _, ...userResponse } = newUser;
@@ -524,6 +512,8 @@ export const completeRegistration: RequestHandler = async (req, res) => {
       });
     }
 
+    // Profile is automatically created by shared store
+
     // Return success response (without password)
     const { password: _, ...userResponse } = newUser;
 
@@ -590,13 +580,37 @@ export const loginUser: RequestHandler = async (req, res) => {
     // Generate a simple token (in production, use proper JWT)
     const token = `token-${user.id}-${Date.now()}`;
 
-    // Return success response (without password)
+    // Update last login in profile system
+    const profileUser = profileUsers.get(user.id);
+    if (profileUser) {
+      profileUser.last_login = new Date().toISOString();
+      profileUser.updated_at = new Date().toISOString();
+      profileUsers.set(user.id, profileUser);
+    } else {
+      // Sync user data if profile doesn't exist
+      syncUserData(user.id, user);
+    }
+
+    // Return success response (without password) with profile data
     const { password: _, ...userResponse } = user;
+    const profileData = profileUsers.get(user.id);
 
     res.json({
       success: true,
       message: "Login successful",
-      user: userResponse,
+      user: {
+        ...userResponse,
+        // Include profile data if available
+        ...(profileData && {
+          display_name: profileData.display_name,
+          profile_image_url: profileData.profile_image_url,
+          bio: profileData.bio,
+          is_verified: profileData.is_verified,
+          is_artist: profileData.is_artist,
+          follower_count: profileData.follower_count,
+          following_count: profileData.following_count,
+        })
+      },
       token: token,
     });
 
