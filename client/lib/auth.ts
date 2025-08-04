@@ -652,21 +652,10 @@ export const signInWithFacebook = async (): Promise<{
       // Provide development mode simulation
       console.warn("🔧 Development mode: Simulating Facebook sign-in");
 
-      // Simulate Facebook sign-in for development
-      const mockUser = {
-        uid: `facebook-dev-${Date.now()}`,
-        email: "demo.facebook@example.com",
-        displayName: "Demo Facebook User",
-        emailVerified: true,
-        photoURL: "https://via.placeholder.com/96x96/1877F2/ffffff?text=FB",
-      } as User;
-
-      console.log("✅ Development Facebook user signed in:", mockUser);
-
+      // Return error instead of demo user
       return {
-        success: true,
-        user: mockUser,
-        isNewUser: true,
+        success: false,
+        error: "Facebook authentication is not properly configured",
       };
     }
 
