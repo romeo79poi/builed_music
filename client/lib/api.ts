@@ -316,7 +316,7 @@ export const songApi = {
     songId: string,
   ): Promise<{ message: string; likedSongs: string[] }> => {
     const token = localStorage.getItem("token");
-    return apiRequest(`/songs/like/${songId}`, {
+    return apiRequest(`/api/v1/tracks/${songId}/like`, {
       method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -329,7 +329,8 @@ export const songApi = {
     songId: string,
   ): Promise<{ message: string; likedSongs: string[] }> => {
     const token = localStorage.getItem("token");
-    return apiRequest(`/songs/unlike/${songId}`, {
+    return apiRequest(`/api/v1/tracks/${songId}/like`, {
+      method: "DELETE",
       method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`,
@@ -366,7 +367,7 @@ export const songApi = {
   ): Promise<{ results: any[] }> => {
     const token = localStorage.getItem("token");
     return apiRequest(
-      `/songs/search?q=${encodeURIComponent(query)}&limit=${limit}`,
+      `/api/v1/tracks/search?q=${encodeURIComponent(query)}&limit=${limit}`,
       {
         headers: {
           Authorization: token ? `Bearer ${token}` : undefined,
