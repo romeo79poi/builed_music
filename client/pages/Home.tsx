@@ -19,6 +19,7 @@ import {
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
+import { api } from "../lib/api";
 // Remove Firebase dependencies - using new backend authentication
 
 // Featured Artist/Album of the Day
