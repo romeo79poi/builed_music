@@ -260,7 +260,23 @@ export default function Login() {
           const backendResult = await response.json();
 
           if (backendResult.success) {
-            localStorage.setItem("currentUser", JSON.stringify(backendResult.user));
+            // Fetch user profile data
+            try {
+              const profileResponse = await fetch(`/api/v1/users/${backendResult.user.id}`, {
+                headers: {
+                  'user-id': backendResult.user.id
+                }
+              });
+
+              if (profileResponse.ok) {
+                const profileData = await profileResponse.json();
+                localStorage.setItem("currentUser", JSON.stringify(profileData.data));
+              } else {
+                localStorage.setItem("currentUser", JSON.stringify(backendResult.user));
+              }
+            } catch (error) {
+              localStorage.setItem("currentUser", JSON.stringify(backendResult.user));
+            }
 
             toast({
               title: "Welcome!",
