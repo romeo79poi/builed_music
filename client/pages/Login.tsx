@@ -123,28 +123,31 @@ export default function Login() {
       const result = await signInWithGoogle();
 
       if (result.success && result.user) {
-        // Register with backend for Google users
+        // Register/Login with backend for Google users
         try {
-          const response = await fetch("/api/auth/register", {
+          const response = await fetch("/api/auth/google", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
               email: result.user.email,
-              username: result.user.email?.split("@")[0] || `user${Date.now()}`,
               name: result.user.displayName || result.user.email?.split("@")[0] || "User",
-              password: `google-${result.user.uid}`, // Dummy password for Google users
-              provider: "google",
+              picture: result.user.photoURL || "",
+              googleId: result.user.uid,
+              isNewUser: result.isNewUser || false,
             }),
           });
 
           const backendResult = await response.json();
 
           if (backendResult.success) {
-            // Store token if available
-            if (backendResult.token) {
-              localStorage.setItem("token", backendResult.token);
+            // Store tokens
+            if (backendResult.accessToken) {
+              localStorage.setItem("token", backendResult.accessToken);
+            }
+            if (backendResult.refreshToken) {
+              localStorage.setItem("refreshToken", backendResult.refreshToken);
             }
 
             // Store user data and redirect
@@ -155,16 +158,23 @@ export default function Login() {
               description: `Successfully logged in with Google as ${backendResult.user.name}`,
             });
 
-            console.log("✅ Google user registered with backend:", backendResult.user);
+            console.log("✅ Google user authenticated with backend:", backendResult.user);
             navigate("/"); // Let AuthRouter handle the redirect
             return;
+          } else {
+            setBackendError(backendResult.message || "Failed to authenticate with backend");
+            toast({
+              title: "Google login failed",
+              description: backendResult.message || "Failed to authenticate with backend",
+              variant: "destructive",
+            });
           }
         } catch (backendError) {
-          console.warn("Backend registration failed for Google user:", backendError);
-          setBackendError("Failed to register with backend. Please try email signup.");
+          console.warn("Backend authentication failed for Google user:", backendError);
+          setBackendError("Failed to authenticate with backend. Please try email signup.");
           toast({
             title: "Google login failed",
-            description: "Failed to register with backend. Please try email signup.",
+            description: "Failed to authenticate with backend. Please try email signup.",
             variant: "destructive",
           });
         }
