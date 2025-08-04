@@ -310,29 +310,15 @@ export default function Home() {
     loadUserData();
   }, []); // Remove Firebase dependencies
 
-  // Fallback: Load user data from localStorage if no Firebase user
+  // Additional fallback for avatar only
   useEffect(() => {
-    if (!firebaseUser && !authLoading) {
-      const savedUserData = localStorage.getItem("currentUser");
+    if (!userData) {
       const savedAvatar = localStorage.getItem("userAvatar");
-
-      if (savedUserData) {
-        try {
-          const parsedUserData = JSON.parse(savedUserData);
-          console.log("📱 Loaded user data from localStorage:", parsedUserData);
-          setUserData(parsedUserData);
-          setUserAvatar(parsedUserData.profileImageURL || savedAvatar || null);
-        } catch (error) {
-          console.error("Error parsing localStorage user data:", error);
-          if (savedAvatar) {
-            setUserAvatar(savedAvatar);
-          }
-        }
-      } else if (savedAvatar) {
+      if (savedAvatar) {
         setUserAvatar(savedAvatar);
       }
     }
-  }, [firebaseUser, authLoading]);
+  }, [userData]);
 
   // Load data from new backend APIs
   useEffect(() => {
