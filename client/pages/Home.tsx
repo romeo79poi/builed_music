@@ -247,7 +247,7 @@ const glowVariants = {
 export default function Home() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user: firebaseUser, loading: authLoading } = useFirebase();
+  // Using new backend authentication instead of Firebase
 
   const [currentSong, setCurrentSong] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
