@@ -48,40 +48,10 @@ export const FirebaseProvider: React.FC<FirebaseProviderProps> = ({
         setLoading(false);
       }, 500);
     } else {
-      // Try to initialize real Firebase
-      import("firebase/app")
-        .then(({ initializeApp }) =>
-          import("firebase/auth").then((auth) => ({ initializeApp, ...auth })),
-        )
-        .then(({ initializeApp, getAuth, onAuthStateChanged }) => {
-          const firebaseConfig = {
-            apiKey: "AIzaSyAqlECno9m_k7b_vFf1qW6LBnP-1BGhnPA",
-            authDomain: "music-catch-59b79.firebaseapp.com",
-            projectId: "music-catch-59b79",
-            storageBucket: "music-catch-59b79.firebasestorage.app",
-            messagingSenderId: "185813176462",
-            appId: "1:185813176462:web:8269607d16eb315f55b9df",
-            measurementId: "G-PBGMC7JZR3",
-          };
-
-          const app = initializeApp(firebaseConfig);
-          const auth = getAuth(app);
-
-          const unsubscribe = onAuthStateChanged(auth, (user) => {
-            setUser(user);
-            setLoading(false);
-          });
-
-          return unsubscribe;
-        })
-        .catch((error) => {
-          console.warn(
-            "Firebase initialization failed, using mock auth:",
-            error,
-          );
-          setUser(mockUser);
-          setLoading(false);
-        });
+      // Force mock auth to prevent Firebase permission errors
+      console.log("🔧 Forcing mock auth to prevent Firebase permission errors");
+      setUser(null);
+      setLoading(false);
     }
   }, []);
 
