@@ -284,6 +284,8 @@ export function createServer() {
   // Social Authentication routes
   app.post("/api/auth/google", googleAuth);
   app.post("/api/auth/facebook", facebookAuth);
+  app.post("/api/auth/google/signin", googleSignin);
+  app.post("/api/auth/facebook/signin", facebookSignin);
   app.post("/api/auth/social", socialLogin);
   app.get("/api/auth/social/check", checkSocialUser);
 
