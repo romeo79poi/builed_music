@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import { sendVerificationEmail, sendWelcomeEmail } from "../lib/email";
 
 // Import users map from users.ts to sync profile data
+// We'll create a shared user store
 const usersMap = new Map();
 
 // In-memory database simulation (in production, use a real database like Supabase)
