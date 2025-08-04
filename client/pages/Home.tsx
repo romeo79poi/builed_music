@@ -777,7 +777,7 @@ export default function Home() {
             </div>
 
             <div className="flex space-x-4 overflow-x-auto scrollbar-hide pb-4">
-              {sampleAlbums.map((album, index) => (
+              {albums.map((album, index) => (
                 <motion.div
                   key={album.id}
                   initial={{ opacity: 0, x: 50 }}
