@@ -376,14 +376,332 @@ export const songApi = {
   },
 };
 
+// Messages API
+export const messagesApi = {
+  // Get conversations
+  getConversations: (): Promise<any[]> => {
+    return apiRequest("/messages/conversations", {
+      headers: getAuthHeaders(),
+    });
+  },
+
+  // Get messages for a conversation
+  getMessages: (conversationId: string): Promise<any[]> => {
+    return apiRequest(`/messages/${conversationId}`, {
+      headers: getAuthHeaders(),
+    });
+  },
+
+  // Send a message
+  sendMessage: (conversationId: string, content: string): Promise<any> => {
+    return apiRequest(`/messages/${conversationId}`, {
+      method: "POST",
+      body: JSON.stringify({ content }),
+      headers: getAuthHeaders(),
+    });
+  },
+
+  // Create new conversation
+  createConversation: (userId: string): Promise<any> => {
+    return apiRequest("/messages/conversations", {
+      method: "POST",
+      body: JSON.stringify({ userId }),
+      headers: getAuthHeaders(),
+    });
+  },
+};
+
+// Search API
+export const searchApi = {
+  // Search all content
+  searchAll: (query: string, limit = 20): Promise<any> => {
+    return apiRequest(
+      `/search?q=${encodeURIComponent(query)}&limit=${limit}`,
+      {
+        headers: getAuthHeaders(),
+      },
+    );
+  },
+
+  // Search songs
+  searchSongs: (query: string, limit = 20): Promise<any> => {
+    return apiRequest(
+      `/search/songs?q=${encodeURIComponent(query)}&limit=${limit}`,
+      {
+        headers: getAuthHeaders(),
+      },
+    );
+  },
+
+  // Search artists
+  searchArtists: (query: string, limit = 20): Promise<any> => {
+    return apiRequest(
+      `/search/artists?q=${encodeURIComponent(query)}&limit=${limit}`,
+      {
+        headers: getAuthHeaders(),
+      },
+    );
+  },
+
+  // Search albums
+  searchAlbums: (query: string, limit = 20): Promise<any> => {
+    return apiRequest(
+      `/search/albums?q=${encodeURIComponent(query)}&limit=${limit}`,
+      {
+        headers: getAuthHeaders(),
+      },
+    );
+  },
+
+  // Search users
+  searchUsers: (query: string, limit = 20): Promise<any> => {
+    return apiRequest(
+      `/search/users?q=${encodeURIComponent(query)}&limit=${limit}`,
+      {
+        headers: getAuthHeaders(),
+      },
+    );
+  },
+};
+
+// Home feed API
+export const homeApi = {
+  // Get home feed
+  getFeed: (limit = 20): Promise<any> => {
+    return apiRequest(`/home/feed?limit=${limit}`, {
+      headers: getAuthHeaders(),
+    });
+  },
+
+  // Get featured content
+  getFeatured: (): Promise<any> => {
+    return apiRequest("/home/featured", {
+      headers: getAuthHeaders(),
+    });
+  },
+
+  // Get trending songs
+  getTrending: (limit = 10): Promise<any> => {
+    return apiRequest(`/home/trending?limit=${limit}`, {
+      headers: getAuthHeaders(),
+    });
+  },
+
+  // Get new releases
+  getNewReleases: (limit = 10): Promise<any> => {
+    return apiRequest(`/home/new-releases?limit=${limit}`, {
+      headers: getAuthHeaders(),
+    });
+  },
+
+  // Get recommended for user
+  getRecommendations: (limit = 10): Promise<any> => {
+    return apiRequest(`/home/recommendations?limit=${limit}`, {
+      headers: getAuthHeaders(),
+    });
+  },
+};
+
+// History API
+export const historyApi = {
+  // Get listening history
+  getHistory: (limit = 50, period = "all"): Promise<any> => {
+    return apiRequest(`/history?limit=${limit}&period=${period}`, {
+      headers: getAuthHeaders(),
+    });
+  },
+
+  // Add to history
+  addToHistory: (songId: string): Promise<any> => {
+    return apiRequest("/history", {
+      method: "POST",
+      body: JSON.stringify({ songId }),
+      headers: getAuthHeaders(),
+    });
+  },
+
+  // Clear history
+  clearHistory: (): Promise<any> => {
+    return apiRequest("/history", {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    });
+  },
+
+  // Get analytics
+  getAnalytics: (period = "week"): Promise<any> => {
+    return apiRequest(`/analytics/user?period=${period}`, {
+      headers: getAuthHeaders(),
+    });
+  },
+};
+
+// Library API
+export const libraryApi = {
+  // Get user library
+  getLibrary: (): Promise<any> => {
+    return apiRequest("/library", {
+      headers: getAuthHeaders(),
+    });
+  },
+
+  // Get saved albums
+  getSavedAlbums: (limit = 50): Promise<any> => {
+    return apiRequest(`/library/albums?limit=${limit}`, {
+      headers: getAuthHeaders(),
+    });
+  },
+
+  // Get saved artists
+  getSavedArtists: (limit = 50): Promise<any> => {
+    return apiRequest(`/library/artists?limit=${limit}`, {
+      headers: getAuthHeaders(),
+    });
+  },
+
+  // Save album
+  saveAlbum: (albumId: string): Promise<any> => {
+    return apiRequest(`/library/albums/${albumId}`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+    });
+  },
+
+  // Unsave album
+  unsaveAlbum: (albumId: string): Promise<any> => {
+    return apiRequest(`/library/albums/${albumId}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    });
+  },
+
+  // Follow artist
+  followArtist: (artistId: string): Promise<any> => {
+    return apiRequest(`/library/artists/${artistId}`, {
+      method: "POST",
+      headers: getAuthHeaders(),
+    });
+  },
+
+  // Unfollow artist
+  unfollowArtist: (artistId: string): Promise<any> => {
+    return apiRequest(`/library/artists/${artistId}`, {
+      method: "DELETE",
+      headers: getAuthHeaders(),
+    });
+  },
+};
+
+// Auth API
+export const authApi = {
+  // Login with email
+  loginWithEmail: (email: string, password: string): Promise<any> => {
+    return apiRequest("/auth/login/email", {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+    });
+  },
+
+  // Login with username
+  loginWithUsername: (username: string, password: string): Promise<any> => {
+    return apiRequest("/auth/login/username", {
+      method: "POST",
+      body: JSON.stringify({ username, password }),
+    });
+  },
+
+  // Register with email
+  registerWithEmail: (userData: any): Promise<any> => {
+    return apiRequest("/auth/register/email", {
+      method: "POST",
+      body: JSON.stringify(userData),
+    });
+  },
+
+  // Register with phone
+  registerWithPhone: (userData: any): Promise<any> => {
+    return apiRequest("/auth/register/phone", {
+      method: "POST",
+      body: JSON.stringify(userData),
+    });
+  },
+
+  // Send email verification
+  sendEmailVerification: (email: string): Promise<any> => {
+    return apiRequest("/auth/send-email-verification", {
+      method: "POST",
+      body: JSON.stringify({ email }),
+    });
+  },
+
+  // Verify email
+  verifyEmail: (email: string, code: string): Promise<any> => {
+    return apiRequest("/auth/verify-email", {
+      method: "POST",
+      body: JSON.stringify({ email, code }),
+    });
+  },
+
+  // Send phone OTP
+  sendPhoneOTP: (phone: string): Promise<any> => {
+    return apiRequest("/auth/send-phone-otp", {
+      method: "POST",
+      body: JSON.stringify({ phone }),
+    });
+  },
+
+  // Verify phone OTP
+  verifyPhoneOTP: (phone: string, code: string): Promise<any> => {
+    return apiRequest("/auth/verify-phone-otp", {
+      method: "POST",
+      body: JSON.stringify({ phone, code }),
+    });
+  },
+
+  // Logout
+  logout: (): Promise<any> => {
+    return apiRequest("/auth/logout", {
+      method: "POST",
+      headers: getAuthHeaders(),
+    });
+  },
+
+  // Refresh token
+  refreshToken: (): Promise<any> => {
+    const refreshToken = localStorage.getItem("refreshToken");
+    return apiRequest("/auth/token/refresh", {
+      method: "POST",
+      body: JSON.stringify({ refreshToken }),
+    });
+  },
+
+  // Get user profile
+  getUserProfile: (): Promise<any> => {
+    return apiRequest("/auth/profile", {
+      headers: getAuthHeaders(),
+    });
+  },
+
+  // Check availability
+  checkAvailability: (field: string, value: string): Promise<any> => {
+    return apiRequest(`/auth/check-availability?${field}=${encodeURIComponent(value)}`);
+  },
+};
+
 // Export all APIs
 export const api = {
+  auth: authApi,
   profile: profileApi,
   playlist: playlistApi,
   upload: uploadApi,
   settings: settingsApi,
   subscription: subscriptionApi,
   song: songApi,
+  messages: messagesApi,
+  search: searchApi,
+  home: homeApi,
+  history: historyApi,
+  library: libraryApi,
 };
 
 export default api;
