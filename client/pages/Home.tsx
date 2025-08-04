@@ -987,7 +987,7 @@ export default function Home() {
             </div>
 
             <div className="space-y-2">
-              {sampleSongs.map((song, index) => (
+              {tracks.map((song, index) => (
                 <motion.div
                   key={song.id}
                   initial={{ opacity: 0, x: -30 }}
