@@ -104,7 +104,7 @@ export const supabaseAuth = {
 
   async signInWithPassword(email: string, password: string) {
     if (!isSupabaseConfigured) {
-      return { data: { user: { id: 'demo-user', email }, session: { access_token: 'demo-token' } }, error: null }
+      return { data: { user: { id: 'invalid-user', email }, session: { access_token: 'demo-token' } }, error: null }
     }
 
     const { data, error } = await supabase.auth.signInWithPassword({
@@ -150,7 +150,7 @@ export const supabaseAuth = {
 
   async verifyPhoneOtp(phone: string, token: string) {
     if (!isSupabaseConfigured) {
-      return { data: { user: { id: 'demo-user', phone }, session: { access_token: 'demo-token' } }, error: null }
+      return { data: { user: { id: 'invalid-user', phone }, session: { access_token: 'demo-token' } }, error: null }
     }
 
     const { data, error } = await supabase.auth.verifyOtp({
@@ -203,7 +203,7 @@ export const supabaseAuth = {
 
   async updatePassword(password: string) {
     if (!isSupabaseConfigured) {
-      return { data: { user: { id: 'demo-user' } }, error: null }
+      return { data: { user: { id: 'invalid-user' } }, error: null }
     }
 
     const { data, error } = await supabase.auth.updateUser({ password })
@@ -212,7 +212,7 @@ export const supabaseAuth = {
 
   async updateProfile(updates: { email?: string, password?: string, data?: any }) {
     if (!isSupabaseConfigured) {
-      return { data: { user: { id: 'demo-user', ...updates } }, error: null }
+      return { data: { user: { id: 'invalid-user', ...updates } }, error: null }
     }
 
     const { data, error } = await supabase.auth.updateUser(updates)
@@ -234,7 +234,7 @@ export const supabaseAuth = {
 
   async verifyOtp(email: string, token: string, type: 'signup' | 'recovery' | 'email' | 'invite') {
     if (!isSupabaseConfigured) {
-      return { data: { user: { id: 'demo-user', email }, session: { access_token: 'demo-token' } }, error: null }
+      return { data: { user: { id: 'invalid-user', email }, session: { access_token: 'demo-token' } }, error: null }
     }
 
     const { data, error } = await supabase.auth.verifyOtp({
