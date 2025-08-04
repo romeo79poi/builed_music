@@ -692,13 +692,15 @@ export default function Signup() {
       } else {
         console.error("❌ Google sign-in failed:", result.error);
 
-        // Set error alert for domain authorization issues
+        // Set error alert for social auth issues
         if (
           result.error?.includes("domain") ||
-          result.error?.includes("unauthorized")
+          result.error?.includes("unauthorized") ||
+          result.error?.includes("temporarily unavailable") ||
+          result.error?.includes("additional setup")
         ) {
           setErrorAlert(
-            "Google sign-in is not available on this domain. Please use email signup instead.",
+            "Social login is currently unavailable. Please use email signup instead.",
           );
         } else {
           setErrorAlert(
@@ -1188,7 +1190,7 @@ export default function Signup() {
                 );
 
                 console.log(
-                  "�� Saved Firebase user data to localStorage:",
+                  "💾 Saved Firebase user data to localStorage:",
                   completeUserData,
                 );
               }
