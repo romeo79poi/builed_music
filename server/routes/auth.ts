@@ -3,9 +3,7 @@ import bcrypt from "bcrypt";
 import { sendVerificationEmail, sendWelcomeEmail } from "../lib/email";
 import { profileUsers, authUsers, syncUserData, getUserByIdentifier, createUser } from "../lib/userStore";
 
-// In-memory database simulation (in production, use a real database like Supabase)
-let users: Map<string, any> = new Map();
-let userIdCounter = 1;
+// Using shared user store now
 
 // In-memory storage for email verification codes
 const emailVerificationCodes: Map<
