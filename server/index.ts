@@ -72,6 +72,9 @@ import {
 
 import { authenticateJWT } from "./lib/jwt";
 
+// Complete Auth System
+import authMainRouter from "./routes/auth-main";
+
 // Phone routes
 import phoneRoutes from "./routes/phone";
 
@@ -227,6 +230,13 @@ export function createServer() {
   // Protected profile routes
   app.get("/api/v2/profile", authenticateJWT, getUserProfile);
   app.put("/api/v2/profile", authenticateJWT, updateUserProfile);
+
+  // ===============================================
+  // COMPLETE AUTH SYSTEM (v3) - PRODUCTION READY
+  // ===============================================
+
+  // Mount complete auth router with all features
+  app.use("/api/v3/auth", authMainRouter);
 
   // Phone verification API routes
   app.use("/api/phone", phoneRoutes);
