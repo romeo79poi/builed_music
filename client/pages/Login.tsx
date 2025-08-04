@@ -162,12 +162,41 @@ export default function Login() {
         if (result.token) {
           localStorage.setItem("token", result.token);
         }
-        localStorage.setItem("currentUser", JSON.stringify(result.user));
 
-        toast({
-          title: "Welcome back!",
-          description: `Successfully logged in as ${result.user.name}`,
-        });
+        // Fetch user profile data
+        try {
+          const profileResponse = await fetch(`/api/v1/users/${result.user.id}`, {
+            headers: {
+              'user-id': result.user.id
+            }
+          });
+
+          if (profileResponse.ok) {
+            const profileData = await profileResponse.json();
+            localStorage.setItem("currentUser", JSON.stringify(profileData.data));
+
+            toast({
+              title: "Welcome back!",
+              description: `Successfully logged in as ${profileData.data.display_name}`,
+            });
+          } else {
+            // Fallback to basic user data
+            localStorage.setItem("currentUser", JSON.stringify(result.user));
+
+            toast({
+              title: "Welcome back!",
+              description: `Successfully logged in as ${result.user.name}`,
+            });
+          }
+        } catch (error) {
+          console.warn("Failed to fetch profile data:", error);
+          localStorage.setItem("currentUser", JSON.stringify(result.user));
+
+          toast({
+            title: "Welcome back!",
+            description: `Successfully logged in as ${result.user.name}`,
+          });
+        }
 
         console.log("✅ Backend login successful:", result.user);
 
