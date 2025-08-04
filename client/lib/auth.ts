@@ -1117,20 +1117,7 @@ export const fetchUserData = async (userId: string): Promise<{
         return { success: true, userData };
       } else {
         console.log('⚠️ No user data found in Firestore');
-        // Return mock data instead of failing when user doesn't exist
-        const mockUserData = {
-          email: "demo.user@example.com",
-          name: "Demo User",
-          username: "demouser",
-          profile_image: "https://via.placeholder.com/150x150/4285F4/ffffff?text=DU",
-          bio: "This is a demo user profile",
-          dob: "1990-01-01",
-          gender: "Other",
-          created_at: new Date().toISOString(),
-          verified: true
-        };
-        console.log('Using mock user data (user not found):', mockUserData);
-        return { success: true, userData: mockUserData };
+        return { success: false, error: "User data not found" };
       }
     } catch (firestoreError: any) {
       console.error("🔥 Firestore operation failed:", firestoreError);
