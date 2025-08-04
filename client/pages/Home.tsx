@@ -371,7 +371,7 @@ export default function Home() {
   // Get appropriate greeting
   const getGreeting = () => {
     const hour = currentTime.getHours();
-    const userName = userData?.name || userData?.username || firebaseUser?.displayName || firebaseUser?.email?.split("@")[0] || "User";
+    const userName = userData?.name || userData?.username || "User";
 
     let timeGreeting = "";
     if (hour >= 0 && hour < 6) timeGreeting = "Good Midnight";
