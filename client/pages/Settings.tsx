@@ -367,13 +367,44 @@ export default function Settings() {
     }
   };
 
-  const handleLogout = () => {
-    // Add logout logic here
-    toast({
-      title: "Logged Out",
-      description: "You have been successfully logged out",
-    });
-    navigate("/login");
+  const handleLogout = async () => {
+    try {
+      // Call backend logout endpoint if available
+      const token = localStorage.getItem('token');
+      if (token) {
+        try {
+          await fetch('/api/auth/logout', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+        } catch (error) {
+          console.error('Backend logout error:', error);
+        }
+      }
+
+      // Clear tokens and user data
+      localStorage.removeItem('token');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('currentUser');
+      localStorage.removeItem('userAvatar');
+
+      console.log('✅ User logged out successfully');
+
+      toast({
+        title: "Logged Out",
+        description: "You have been successfully logged out",
+      });
+      navigate("/login");
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast({
+        title: "Logout Error",
+        description: "There was an issue logging out. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleDeleteAccount = () => {
