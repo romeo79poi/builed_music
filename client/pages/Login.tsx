@@ -574,13 +574,7 @@ export default function Login() {
             ✅ Backend authentication active
           </p>
 
-          {/* Test Link */}
-          <button
-            onClick={() => navigate("/social-auth-test")}
-            className="text-xs text-purple-primary hover:text-purple-secondary mt-2 underline"
-          >
-            🧪 Test Social Auth Backend
-          </button>
+
         </motion.div>
       </div>
     </div>
