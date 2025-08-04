@@ -333,5 +333,16 @@ export function createServer() {
   app.get("/api/v1/genres/:genre/albums", getAlbumsByGenre);
   app.get("/api/v1/albums/:id/stats", getAlbumStats);
 
+  // User management API routes
+  app.get("/api/v1/users/me", getCurrentUser);
+  app.get("/api/v1/users/:id", getUserById);
+  app.put("/api/v1/users/:id", updateUserProfile);
+  app.get("/api/v1/users/search", searchUsers);
+  app.post("/api/v1/users/:id/follow", followUser);
+  app.delete("/api/v1/users/:id/follow", unfollowUser);
+  app.get("/api/v1/users/:id/followers", getUserFollowers);
+  app.get("/api/v1/users/:id/following", getUserFollowing);
+  app.get("/api/v1/users/:id/stats", getUserStatistics);
+
   return app;
 }
