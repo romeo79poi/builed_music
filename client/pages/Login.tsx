@@ -16,6 +16,7 @@ import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useAuth } from "../context/AuthContext";
 import { signInWithGoogle, signInWithFacebook } from "../lib/auth";
 import { useToast } from "../hooks/use-toast";
+import { api } from "../lib/api";
 import ConnectivityChecker, {
   getNetworkErrorMessage,
 } from "../lib/connectivity";
