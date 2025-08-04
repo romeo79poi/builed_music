@@ -459,15 +459,42 @@ export const signInWithGoogle = async (): Promise<{
   isNewUser?: boolean;
 }> => {
   try {
+    // Try backend Google authentication first
+    try {
+      const response = await fetch('/api/auth/google/signin', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          // Store tokens if provided
+          if (data.accessToken) {
+            localStorage.setItem("token", data.accessToken);
+          }
+          if (data.refreshToken) {
+            localStorage.setItem("refreshToken", data.refreshToken);
+          }
+
+          return {
+            success: true,
+            user: data.user,
+            isNewUser: data.isNewUser || false,
+          };
+        }
+      }
+    } catch (backendError) {
+      console.warn("Backend Google auth not available, trying Firebase fallback");
+    }
+
     // Check if Firebase is configured
     if (!isFirebaseConfigured || !auth || !db) {
-      // Provide development mode simulation
-      console.warn("🔧 Development mode: Simulating Google sign-in");
-
-      // Return error instead of demo user
       return {
         success: false,
-        error: "Google authentication is not properly configured",
+        error: "Social login is temporarily unavailable. Please use email signup instead.",
       };
     }
 
