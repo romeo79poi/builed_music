@@ -346,34 +346,34 @@ export default function Search() {
 
     return (
       <div className="space-y-6">
-        {/* Songs Results */}
-        {searchResults.songs && searchResults.songs.length > 0 && (
+        {/* Tracks Results */}
+        {searchResults.tracks && searchResults.tracks.length > 0 && (
           <div>
             <h3 className="text-lg font-bold mb-4 flex items-center">
               <Music className="w-5 h-5 mr-2 text-purple-primary" />
-              Songs
+              Tracks
             </h3>
             <div className="space-y-2">
-              {searchResults.songs.map((song) => (
+              {searchResults.tracks.map((track) => (
                 <div
-                  key={song.id}
+                  key={track.id}
                   className="flex items-center space-x-3 p-3 bg-white/5 rounded-lg hover:bg-white/10 transition-all group cursor-pointer"
-                  onClick={() => handlePlaySong(song)}
+                  onClick={() => handlePlaySong(track)}
                 >
                   <div className="relative flex-shrink-0">
                     <img
-                      src={song.cover_image_url}
-                      alt={song.title}
+                      src={track.cover_image_url}
+                      alt={track.title}
                       className="w-12 h-12 object-cover rounded"
                     />
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        handlePlaySong(song);
+                        handlePlaySong(track);
                       }}
                       className="absolute inset-0 bg-black/60 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                     >
-                      {currentSong?.id === song.id && isPlaying ? (
+                      {currentSong?.id === track.id && isPlaying ? (
                         <Pause className="w-4 h-4 text-white" />
                       ) : (
                         <Play className="w-4 h-4 text-white ml-0.5" />
@@ -382,28 +382,28 @@ export default function Search() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <h4 className="font-medium text-sm truncate text-white">
-                      {song.title}
+                      {track.title}
                     </h4>
                     <p className="text-gray-400 text-xs truncate">
-                      {song.artist} {song.genre && `• ${song.genre}`}
+                      {track.artist_name} {track.genre && `• ${track.genre}`}
                     </p>
                   </div>
                   <div className="flex items-center space-x-2">
                     <span className="text-gray-400 text-xs">
-                      {formatDuration(song.duration)}
+                      {formatDuration(track.duration)}
                     </span>
                     <button
-                      onClick={(e) => handleToggleLike(song.id, e)}
+                      onClick={(e) => handleToggleLike(track.id, e)}
                       className={`opacity-0 group-hover:opacity-100 transition-all hover:scale-110 ${
-                        likedSongs.has(song.id)
+                        likedSongs.has(track.id)
                           ? "text-red-500 hover:text-red-600"
                           : "text-gray-400 hover:text-red-500"
                       }`}
-                      title={likedSongs.has(song.id) ? "Unlike" : "Like"}
+                      title={likedSongs.has(track.id) ? "Unlike" : "Like"}
                     >
                       <Heart
                         className={`w-4 h-4 transition-all ${
-                          likedSongs.has(song.id) ? "fill-current" : ""
+                          likedSongs.has(track.id) ? "fill-current" : ""
                         }`}
                       />
                     </button>
