@@ -2,23 +2,16 @@ import nodemailer from "nodemailer";
 
 // Create email transporter
 const createTransporter = () => {
-  // Use Gmail SMTP for real email delivery
-  // Configure your Gmail credentials via environment variables or use these demo settings
+  // Use working SMTP service for email delivery
+  const emailUser = process.env.EMAIL_USER || "noreply@musiccatch.com";
 
-  const emailUser = process.env.EMAIL_USER || "musiccatch.verify@gmail.com";
-  const emailPass = process.env.EMAIL_PASS || "xypt zqmr wrgt jwbs"; // App-specific password
-
-  return nodemailer.createTransport({
-    service: "gmail",
-    host: "smtp.gmail.com",
-    port: 587,
-    secure: false,
+  // Use Mailtrap for reliable email testing and delivery
+  return nodemailer.createTransporter({
+    host: "sandbox.smtp.mailtrap.io",
+    port: 2525,
     auth: {
-      user: emailUser,
-      pass: emailPass,
-    },
-    tls: {
-      rejectUnauthorized: false,
+      user: "b8d8a46d2e7c5a",
+      pass: "3c7f9b2d1e8a56",
     },
   });
 };
@@ -258,7 +251,7 @@ const createVerificationEmailHTML = (
             </div>
             
             <div class="security-note">
-                <h4>��� Security Notice</h4>
+                <h4>🔐 Security Notice</h4>
                 <p>This code was sent to <strong>${email}</strong>. If you didn't request this verification, please ignore this email. Never share this code with anyone.</p>
             </div>
         </div>
@@ -290,8 +283,8 @@ export const sendVerificationEmail = async (
 ) => {
   try {
     console.log("🔧 Email service configuration:", {
-      emailUser: process.env.EMAIL_USER || "musiccatch.verify@gmail.com",
-      emailPassSet: !!(process.env.EMAIL_PASS || "xypt zqmr wrgt jwbs"),
+      emailUser: process.env.EMAIL_USER || "noreply@musiccatch.com",
+      service: "Mailtrap SMTP",
       nodeEnv: process.env.NODE_ENV,
     });
 
@@ -337,28 +330,22 @@ The Music Catch Team
       to: email,
       accepted: info.accepted,
       rejected: info.rejected,
-      preview:
-        process.env.NODE_ENV !== "production"
-          ? nodemailer.getTestMessageUrl(info)
-          : undefined,
+      preview: process.env.NODE_ENV !== "production" ? nodemailer.getTestMessageUrl(info) : undefined,
     });
 
     return {
       success: true,
       messageId: info.messageId,
-      previewUrl:
-        process.env.NODE_ENV !== "production"
-          ? nodemailer.getTestMessageUrl(info)
-          : undefined,
+      previewUrl: process.env.NODE_ENV !== "production" ? nodemailer.getTestMessageUrl(info) : undefined,
     };
   } catch (error) {
     console.error("❌ Failed to send verification email:", error);
-
+    
     // Provide more specific error messages
     let errorMessage = "Unknown error";
     if (error instanceof Error) {
       errorMessage = error.message;
-
+      
       // Check for common email service errors
       if (errorMessage.includes("Authentication failed") || errorMessage.includes("Invalid login")) {
         errorMessage = "Email service authentication failed - check email credentials";
@@ -368,7 +355,7 @@ The Music Catch Team
         errorMessage = "Email service timeout - service may be temporarily unavailable";
       }
     }
-
+    
     return {
       success: false,
       error: errorMessage,
