@@ -299,7 +299,7 @@ export default function Search() {
     { id: "all", label: "All", icon: SearchIcon },
     { id: "songs", label: "Songs", icon: Music },
     { id: "albums", label: "Albums", icon: Disc },
-    { id: "playlists", label: "Playlists", icon: Disc },
+    { id: "artists", label: "Artists", icon: Users },
   ];
 
   const quickSearchButtons = [
