@@ -124,7 +124,7 @@ export default function Login() {
       if (result.success && result.user) {
         // Register/Login with backend for Google users
         try {
-          const response = await fetch("/api/auth/google/signin", {
+          const response = await fetch("/api/auth/google", {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -328,7 +328,7 @@ export default function Login() {
                   if (result.success && result.user) {
                     // Register/Login with backend for Facebook users
                     try {
-                      const response = await fetch("/api/auth/facebook/signin", {
+                      const response = await fetch("/api/auth/facebook", {
                         method: "POST",
                         headers: {
                           "Content-Type": "application/json",
