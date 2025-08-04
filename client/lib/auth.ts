@@ -464,21 +464,10 @@ export const signInWithGoogle = async (): Promise<{
       // Provide development mode simulation
       console.warn("🔧 Development mode: Simulating Google sign-in");
 
-      // Simulate Google sign-in for development
-      const mockUser = {
-        uid: `google-dev-${Date.now()}`,
-        email: "demo.user@gmail.com",
-        displayName: "Demo User",
-        emailVerified: true,
-        photoURL: "https://via.placeholder.com/96x96/4285F4/ffffff?text=DU",
-      } as User;
-
-      console.log("✅ Development Google user signed in:", mockUser);
-
+      // Return error instead of demo user
       return {
-        success: true,
-        user: mockUser,
-        isNewUser: true,
+        success: false,
+        error: "Google authentication is not properly configured",
       };
     }
 
