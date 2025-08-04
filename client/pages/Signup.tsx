@@ -1526,6 +1526,11 @@ export default function Signup() {
       const data = await response.json();
 
       if (data.success) {
+        // Store new debug code for UI display
+        if (data.debugCode) {
+          setDebugVerificationCode(data.debugCode);
+        }
+
         // Show different messages based on whether email was actually sent
         if (data.emailSent === false) {
           toast({
