@@ -125,7 +125,7 @@ export class BackendAPI {
   }
 
   static async getLikedSongs() {
-    return this.request("/songs/liked");
+    return this.request("/api/v1/users/liked-tracks");
   }
 
   // Profile endpoints
