@@ -76,6 +76,12 @@ const userSchema = new mongoose.Schema({
   },
   phone: {
     type: String
+  },
+  google_id: {
+    type: String
+  },
+  facebook_id: {
+    type: String
   }
 }, {
   timestamps: { 
