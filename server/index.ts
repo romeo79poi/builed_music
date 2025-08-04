@@ -441,5 +441,10 @@ export function createServer() {
   app.get("/api/v1/users/:id/following", getUserFollowing);
   app.get("/api/v1/users/:id/stats", getUserStatistics);
 
+  // Simple test endpoint for debugging
+  app.get("/api/test", (req, res) => {
+    res.json({ message: "API is working", timestamp: Date.now() });
+  });
+
   return app;
 }
