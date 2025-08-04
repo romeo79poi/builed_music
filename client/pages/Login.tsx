@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useAuth } from "../context/AuthContext";
-import { signInWithGoogle } from "../lib/auth";
+import { signInWithGoogle, signInWithFacebook } from "../lib/auth";
 import { useToast } from "../hooks/use-toast";
 import ConnectivityChecker, {
   getNetworkErrorMessage,
@@ -519,7 +519,7 @@ export default function Login() {
               onClick={() => setLoginMethod("social")}
               className="w-full text-purple-secondary hover:text-purple-primary transition-colors text-sm"
             >
-              ← Back to other options
+              ��� Back to other options
             </button>
           </motion.div>
         )}
