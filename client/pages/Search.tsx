@@ -21,14 +21,34 @@ import {
   Heart,
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
-import {
-  supabaseAuth,
-  supabaseOperations,
-  Song,
-  Album,
-  Playlist,
-} from "../lib/supabase";
 import MobileFooter from "../components/MobileFooter";
+
+interface Track {
+  id: string;
+  title: string;
+  artist_name: string;
+  album_title: string;
+  duration: number;
+  cover_image_url: string;
+  genre?: string;
+}
+
+interface Artist {
+  id: string;
+  name: string;
+  avatar_url: string;
+  monthly_listeners: number;
+  is_verified: boolean;
+}
+
+interface Album {
+  id: string;
+  title: string;
+  artist_name: string;
+  cover_image_url: string;
+  release_date: string;
+  track_count: number;
+}
 
 export default function Search() {
   const navigate = useNavigate();
