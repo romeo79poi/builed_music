@@ -387,7 +387,7 @@ export function createServer() {
   app.get("/api/v1/tracks/trending", getTrendingTracks);
   app.post("/api/v1/tracks/:id/like", toggleTrackLike);
   app.delete("/api/v1/tracks/:id/like", toggleTrackLike);
-  app.get("/api/v1/users/liked-tracks", authenticateJWT, getUserLikedTracks);
+  app.get("/api/v1/users/liked-tracks", optionalAuth, getUserLikedTracks);
   app.get("/api/v1/artists/:artist_id/tracks", getTracksByArtist);
   app.get("/api/v1/albums/:album_id/tracks", getTracksByAlbum);
 
