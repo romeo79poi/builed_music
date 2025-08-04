@@ -441,16 +441,18 @@ export function createServer() {
   app.get("/api/v1/users/:id/following", getUserFollowing);
   app.get("/api/v1/users/:id/stats", getUserStatistics);
 
+  // Debug middleware to log all API requests
+  app.use((req, res, next) => {
+    if (req.url?.startsWith('/api')) {
+      console.log(`🔍 API Request: ${req.method} ${req.url}`);
+      console.log(`🔍 Headers:`, JSON.stringify(req.headers, null, 2));
+    }
+    next();
+  });
+
   // Simple test endpoint for debugging
   app.get("/api/test", (req, res) => {
     res.json({ message: "API is working", timestamp: Date.now() });
-  });
-
-  // Debug middleware to log all API requests
-  app.use("/api", (req, res, next) => {
-    console.log(`🔍 API Request: ${req.method} ${req.url}`);
-    console.log(`🔍 Headers:`, req.headers);
-    next();
   });
 
   return app;
