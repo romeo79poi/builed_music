@@ -206,6 +206,9 @@ import {
   getUserStatistics,
 } from "./routes/users";
 
+// Code generator routes
+import { generateCode } from "./routes/code-generator";
+
 export function createServer() {
   const app = express();
 
@@ -438,6 +441,9 @@ export function createServer() {
   app.get("/api/v1/users/:id/followers", getUserFollowers);
   app.get("/api/v1/users/:id/following", getUserFollowing);
   app.get("/api/v1/users/:id/stats", getUserStatistics);
+
+  // Code Generator API routes
+  app.post("/api/code-generator/generate", generateCode);
 
   return app;
 }

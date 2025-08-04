@@ -1,57 +1,54 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-// MongoDB connection
+const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGODB_URL || "";
+
 let isConnected = false;
 
-export const connectDB = async (): Promise<void> => {
+export async function connectDB() {
+  // Skip MongoDB connection in development if no URI provided
+  if (!MONGODB_URI) {
+    console.log("⚠️  No MongoDB URI provided - running in development mode without database");
+    console.log("✅ Backend server ready (no database connection)");
+    return { success: true, message: "Development mode - no database connection" };
+  }
+
   if (isConnected) {
-    console.log('📊 MongoDB already connected');
-    return;
+    console.log("📊 MongoDB already connected");
+    return { success: true, message: "Already connected" };
   }
 
   try {
-    const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/music_catch';
+    console.log("🔌 Connecting to MongoDB...");
     
-    await mongoose.connect(mongoUri, {
-      maxPoolSize: 10,
-      serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS: 45000,
+    const connection = await mongoose.connect(MONGODB_URI, {
+      serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of 30s
+      socketTimeoutMS: 10000, // Close sockets after 10s of inactivity
     });
 
     isConnected = true;
-    console.log('✅ Connected to MongoDB successfully');
+    console.log("✅ Connected to MongoDB successfully");
     
     // Handle connection events
-    mongoose.connection.on('error', (err) => {
-      console.error('❌ MongoDB connection error:', err);
-      isConnected = false;
-    });
-
     mongoose.connection.on('disconnected', () => {
-      console.warn('⚠️ MongoDB disconnected');
       isConnected = false;
+      console.log("⚠️ MongoDB disconnected");
     });
 
-    mongoose.connection.on('reconnected', () => {
-      console.log('🔄 MongoDB reconnected');
-      isConnected = true;
+    mongoose.connection.on('error', (err) => {
+      console.log("❌ MongoDB connection error:", err.message);
     });
 
-  } catch (error) {
-    console.error('❌ Error connecting to MongoDB:', error);
-    isConnected = false;
+    return { success: true, connection };
+  } catch (error: any) {
+    console.log("❌ Error connecting to MongoDB:", error.message);
+    console.log("⚠️ Continuing without MongoDB in development mode...");
     
-    // In development, continue without MongoDB for now
-    if (process.env.NODE_ENV === 'development') {
-      console.warn('⚠️ Continuing without MongoDB in development mode...');
-      return;
-    }
-    
-    throw error;
+    // Don't throw error in development - allow app to continue
+    return { success: false, error: error.message };
   }
-};
+}
 
-export const disconnectDB = async (): Promise<void> => {
+export async function disconnectDB() {
   if (!isConnected) {
     return;
   }
@@ -59,12 +56,17 @@ export const disconnectDB = async (): Promise<void> => {
   try {
     await mongoose.disconnect();
     isConnected = false;
-    console.log('👋 Disconnected from MongoDB');
-  } catch (error) {
-    console.error('❌ Error disconnecting from MongoDB:', error);
+    console.log("✅ Disconnected from MongoDB");
+  } catch (error: any) {
+    console.log("❌ Error disconnecting from MongoDB:", error.message);
   }
-};
+}
 
-export const isMongoConnected = (): boolean => {
-  return isConnected && mongoose.connection.readyState === 1;
-};
+export function getConnectionStatus() {
+  return {
+    isConnected,
+    readyState: mongoose.connection.readyState,
+    host: mongoose.connection.host,
+    name: mongoose.connection.name,
+  };
+}
