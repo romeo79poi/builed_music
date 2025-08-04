@@ -172,35 +172,55 @@ export const facebookSignin: RequestHandler = async (req, res) => {
       dbAvailable = false;
     }
 
-    let user = await User.findOne({ email: facebookUser.email });
+    let user: any;
     let isNewUser = false;
 
-    if (!user) {
-      // Create new user
+    if (dbAvailable) {
+      // Use MongoDB
+      user = await User.findOne({ email: facebookUser.email });
+
+      if (!user) {
+        // Create new user in MongoDB
+        isNewUser = true;
+        user = new User({
+          email: facebookUser.email,
+          username: `fb_user_${Date.now()}`,
+          name: facebookUser.name,
+          profile_image_url: facebookUser.picture.data.url,
+          facebook_id: facebookUser.id,
+          provider: "facebook",
+          is_verified: true,
+          email_verified: true,
+          last_login: new Date(),
+        });
+        await user.save();
+        console.log("✅ New Facebook user created in MongoDB:", user.email);
+      } else {
+        // Update existing user in MongoDB
+        user.last_login = new Date();
+        if (!user.facebook_id) {
+          user.facebook_id = facebookUser.id;
+          user.provider = "facebook";
+        }
+        await user.save();
+        console.log("✅ Existing Facebook user logged in from MongoDB:", user.email);
+      }
+    } else {
+      // Use in-memory storage
       isNewUser = true;
-      user = new User({
+      user = {
+        _id: { toString: () => `facebook_${Date.now()}` },
         email: facebookUser.email,
         username: `fb_user_${Date.now()}`,
         name: facebookUser.name,
-        profile_image_url_url: facebookUser.picture.data.url,
+        profile_image_url: facebookUser.picture.data.url,
         facebook_id: facebookUser.id,
         provider: "facebook",
-        is_verified: true, // Social logins are auto-verified
+        is_verified: true,
         email_verified: true,
         last_login: new Date(),
-      });
-
-      await user.save();
-      console.log("✅ New Facebook user created:", user.email);
-    } else {
-      // Update existing user
-      user.last_login = new Date();
-      if (!user.facebook_id) {
-        user.facebook_id = facebookUser.id;
-        user.provider = "facebook";
-      }
-      await user.save();
-      console.log("✅ Existing Facebook user logged in:", user.email);
+      };
+      console.log("✅ Facebook user created in memory:", user.email);
     }
 
     // Generate tokens
