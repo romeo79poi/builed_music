@@ -479,9 +479,23 @@ export const signInWithGoogle = async (): Promise<{
             localStorage.setItem("refreshToken", data.refreshToken);
           }
 
+          // Store user data
+          if (data.user) {
+            localStorage.setItem("currentUser", JSON.stringify(data.user));
+            localStorage.setItem("userAvatar", data.user.profile_image || "");
+          }
+
+          console.log("✅ Google backend authentication successful:", data.user);
+
           return {
             success: true,
-            user: data.user,
+            user: {
+              uid: data.user.id,
+              email: data.user.email,
+              displayName: data.user.name,
+              emailVerified: data.user.is_verified,
+              photoURL: data.user.profile_image,
+            } as User,
             isNewUser: data.isNewUser || false,
           };
         }
