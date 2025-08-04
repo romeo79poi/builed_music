@@ -93,6 +93,8 @@ import {
   facebookAuth,
   socialLogin,
   checkSocialUser,
+  googleSignin,
+  facebookSignin,
 } from "./routes/auth-social";
 
 // Phone routes
