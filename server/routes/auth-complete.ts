@@ -501,16 +501,17 @@ export const sendEmailVerification: RequestHandler = async (req, res) => {
 
     const emailResult = await sendVerificationEmail(email, code);
 
+    if (!emailResult.success) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send verification email. Please try again.",
+      });
+    }
+
     res.json({
       success: true,
-      message: emailResult.success
-        ? "Verification code sent to your email"
-        : "Verification code generated (email service unavailable)",
-      emailSent: emailResult.success,
-      debugCode:
-        process.env.NODE_ENV === "development" || !emailResult.success
-          ? code
-          : undefined,
+      message: "Verification code sent to your email",
+      emailSent: true,
       expiresAt: expiry.toISOString(),
     });
   } catch (error) {
@@ -618,7 +619,6 @@ export const sendPhoneOTP: RequestHandler = async (req, res) => {
     res.json({
       success: true,
       message: "OTP sent to your phone number",
-      debugOtp: process.env.NODE_ENV === "development" ? code : undefined,
       expiresAt: expiry.toISOString(),
     });
   } catch (error) {
