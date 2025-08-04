@@ -6,7 +6,7 @@ const createTransporter = () => {
   const emailUser = process.env.EMAIL_USER || "noreply@musiccatch.com";
 
   // Use Mailtrap for reliable email testing and delivery
-  return nodemailer.createTransporter({
+  return nodemailer.createTransport({
     host: "sandbox.smtp.mailtrap.io",
     port: 2525,
     auth: {
