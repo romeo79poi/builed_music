@@ -1541,11 +1541,16 @@ export default function Signup() {
       if (data.success) {
         if (data.emailSent === false) {
           toast({
-            title: "Failed to resend email",
-            description: "Please try again or contact support if the issue persists.",
-            variant: "destructive",
+            title: "Email service temporarily unavailable",
+            description: data.verificationCode
+              ? `Development mode: Use verification code ${data.verificationCode}`
+              : "New verification code generated. Please contact support if you need assistance.",
+            duration: 8000,
           });
-          return;
+
+          if (data.verificationCode) {
+            console.log(`🔑 Resend verification code: ${data.verificationCode}`);
+          }
         } else {
           toast({
             title: "Verification code resent!",
