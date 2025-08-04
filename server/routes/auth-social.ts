@@ -74,14 +74,10 @@ export const googleSignin: RequestHandler = async (req, res) => {
         username: `google_user_${Date.now()}`,
         name: googleUser.name,
         profile_image_url: googleUser.picture,
-        social_providers: {
-          google: {
-            id: googleUser.id,
-            profile_url: `https://accounts.google.com/profile/${googleUser.id}`
-          }
-        },
+        google_id: googleUser.id,
+        provider: "google",
         is_verified: true, // Social logins are auto-verified
-        created_at: new Date(),
+        email_verified: true,
         last_login: new Date(),
       });
 
