@@ -212,7 +212,7 @@ export default function Login() {
             email: result.user.email || "",
             phone: "",
             profileImageURL: result.user.photoURL || "",
-            createdAt: serverTimestamp(),
+            createdAt: new Date().toISOString(),
           };
 
           await saveUserProfile(result.user.uid, profileData);
@@ -299,7 +299,7 @@ export default function Login() {
             email: result.user.email || "",
             phone: "",
             profileImageURL: result.user.photoURL || "",
-            createdAt: serverTimestamp(),
+            createdAt: new Date().toISOString(),
           };
 
           await saveUserProfile(result.user.uid, profileData);
