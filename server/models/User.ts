@@ -93,6 +93,8 @@ const userSchema = new mongoose.Schema({
 // Indexes for better performance
 userSchema.index({ email: 1 });
 userSchema.index({ username: 1 });
+userSchema.index({ google_id: 1 });
+userSchema.index({ facebook_id: 1 });
 userSchema.index({ created_at: -1 });
 
 // Remove password from JSON output
