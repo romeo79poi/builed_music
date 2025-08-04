@@ -637,13 +637,41 @@ export const loginUser: RequestHandler = async (req, res) => {
     // Generate a simple token (in production, use proper JWT)
     const token = `token-${user.id}-${Date.now()}`;
 
-    // Return success response (without password)
+    // Update last login in profile system
+    const profileUser = usersMap.get(user.id);
+    if (profileUser) {
+      profileUser.last_login = new Date().toISOString();
+      profileUser.updated_at = new Date().toISOString();
+      usersMap.set(user.id, profileUser);
+    } else {
+      // Create profile if it doesn't exist (for existing users)
+      try {
+        await createUserProfile(user);
+      } catch (error) {
+        console.warn("Failed to create profile for existing user:", error);
+      }
+    }
+
+    // Return success response (without password) with profile data
     const { password: _, ...userResponse } = user;
+    const profileData = usersMap.get(user.id);
 
     res.json({
       success: true,
       message: "Login successful",
-      user: userResponse,
+      user: {
+        ...userResponse,
+        // Include profile data if available
+        ...(profileData && {
+          display_name: profileData.display_name,
+          profile_image_url: profileData.profile_image_url,
+          bio: profileData.bio,
+          is_verified: profileData.is_verified,
+          is_artist: profileData.is_artist,
+          follower_count: profileData.follower_count,
+          following_count: profileData.following_count,
+        })
+      },
       token: token,
     });
 
