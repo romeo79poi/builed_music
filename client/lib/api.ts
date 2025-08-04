@@ -18,6 +18,12 @@ import {
 
 const API_BASE_URL = "/api";
 
+// Auth helper function
+function getAuthHeaders() {
+  const token = localStorage.getItem("token");
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 class ApiError extends Error {
   constructor(
     message: string,
