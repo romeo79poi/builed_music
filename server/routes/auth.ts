@@ -2,6 +2,9 @@ import { RequestHandler } from "express";
 import bcrypt from "bcrypt";
 import { sendVerificationEmail, sendWelcomeEmail } from "../lib/email";
 
+// Import users map from users.ts to sync profile data
+const usersMap = new Map();
+
 // In-memory database simulation (in production, use a real database like Supabase)
 let users: Map<string, any> = new Map();
 let userIdCounter = 1;
