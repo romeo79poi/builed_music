@@ -202,27 +202,42 @@ export default function Library() {
     }
 
     try {
-      const playlistName = `My Playlist #${userPlaylists.length + 1}`;
-      const { data, error } = await supabaseOperations.createPlaylist({
-        name: playlistName,
-        created_by: currentUser.id,
-        is_public: false,
-      });
-
-      if (error) {
+      const token = localStorage.getItem('token');
+      if (!token) {
         toast({
-          title: "Error",
-          description: "Failed to create playlist",
+          title: "Authentication required",
+          description: "Please log in to create playlists",
           variant: "destructive",
         });
         return;
       }
 
-      if (data) {
-        setUserPlaylists([...userPlaylists, data]);
+      const playlistName = `My Playlist #${userPlaylists.length + 1}`;
+      const response = await fetch('/api/v1/playlists', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          name: playlistName,
+          description: 'A new playlist',
+          is_public: false
+        })
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setUserPlaylists([...userPlaylists, data.playlist]);
         toast({
           title: "Playlist Created",
           description: `${playlistName} has been created`,
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to create playlist",
+          variant: "destructive",
         });
       }
     } catch (error) {
