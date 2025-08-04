@@ -179,7 +179,7 @@ export const updateUserProfile: RequestHandler = async (req, res) => {
     
     user.updated_at = new Date().toISOString();
     
-    users.set(id, user);
+    profileUsers.set(id, user);
     
     res.json({
       success: true,
