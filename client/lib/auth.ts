@@ -35,12 +35,9 @@ export const uploadProfileImageForSignup = async (
 ): Promise<{ success: boolean; imageURL?: string; error?: string }> => {
   try {
     if (!isFirebaseConfigured || !auth || !storage) {
-      console.warn("🔧 Development mode: Simulating profile image upload");
-      // Create a temporary URL for the uploaded image in development
-      const imageURL = URL.createObjectURL(imageFile);
       return {
-        success: true,
-        imageURL: imageURL
+        success: false,
+        error: "Image upload service is not configured"
       };
     }
 
