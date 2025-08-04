@@ -537,16 +537,10 @@ export const sendEmailVerification: RequestHandler = async (req, res) => {
       success: true,
       message: emailResult.success
         ? "Verification code sent to your email successfully"
-        : "Verification code generated (email service unavailable)",
-      debugCode: !emailResult.success ? verificationCode : undefined,
+        : "Email service temporarily unavailable, please try again",
       expiresAt: expiry.toISOString(),
       emailSent: emailResult.success,
     });
-
-    // Log verification code for development when email fails
-    if (!emailResult.success) {
-      console.log(`🔑 Verification code for ${email}: ${verificationCode}`);
-    }
   } catch (error) {
     console.error("Send email verification error:", error);
     res.status(500).json({
