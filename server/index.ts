@@ -152,6 +152,19 @@ import {
   getAlbumStats,
 } from "./routes/albums";
 
+// User management API routes
+import {
+  getUserById,
+  getCurrentUser,
+  updateUserProfile,
+  searchUsers,
+  followUser,
+  unfollowUser,
+  getUserFollowers,
+  getUserFollowing,
+  getUserStatistics,
+} from "./routes/users";
+
 export function createServer() {
   const app = express();
 
