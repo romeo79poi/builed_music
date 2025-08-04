@@ -31,6 +31,7 @@ import Reels from "./pages/Reels";
 import Messages from "./pages/Messages";
 import VerifyEmail from "./pages/VerifyEmail";
 import ResetPassword from "./pages/ResetPassword";
+import CodeGenerator from "./pages/CodeGenerator";
 
 import NotFound from "./pages/NotFound";
 
@@ -70,6 +71,7 @@ const App = () => {
                     <Route path="/messages" element={<Messages />} />
                     <Route path="/verify-email" element={<VerifyEmail />} />
                     <Route path="/reset-password" element={<ResetPassword />} />
+                    <Route path="/code-generator" element={<CodeGenerator />} />
 
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
