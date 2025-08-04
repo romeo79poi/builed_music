@@ -210,7 +210,7 @@ export const searchUsers: RequestHandler = async (req, res) => {
     const searchTerm = (q as string).toLowerCase();
     const limitNum = parseInt(limit as string);
     
-    const searchResults = Array.from(users.values())
+    const searchResults = Array.from(profileUsers.values())
       .filter(user => user.is_active)
       .filter(user =>
         user.username.toLowerCase().includes(searchTerm) ||
