@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
+import { uploadApi } from "../lib/api";
 
 interface UploadedFile {
   id: string;
