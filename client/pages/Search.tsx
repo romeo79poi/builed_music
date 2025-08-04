@@ -75,22 +75,35 @@ export default function Search() {
 
   const checkAuth = async () => {
     try {
-      const { data: session } = await supabaseAuth.getCurrentSession();
-      if (session?.user) {
-        setCurrentUser(session.user);
-        await loadUserLikes(session.user.id);
+      // Check if user is logged in (token in localStorage)
+      const token = localStorage.getItem('token');
+      const userData = localStorage.getItem('currentUser');
+
+      if (token && userData) {
+        const user = JSON.parse(userData);
+        setCurrentUser(user);
+        await loadUserLikes();
       }
     } catch (error) {
       console.error("Auth check error:", error);
     }
   };
 
-  const loadUserLikes = async (userId: string) => {
+  const loadUserLikes = async () => {
     try {
-      const { data: userLikes } = await supabaseOperations.getUserLikes(userId);
-      if (userLikes) {
-        const likedSongIds = new Set(userLikes.map((like) => like.song_id));
-        setLikedSongs(likedSongIds);
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const response = await fetch('/api/v1/users/liked-tracks', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const likedTrackIds = new Set(data.liked_tracks?.map((track: any) => track.id) || []);
+        setLikedSongs(likedTrackIds);
       }
     } catch (error) {
       console.error("Error loading user likes:", error);
