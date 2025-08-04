@@ -459,7 +459,7 @@ export default function Library() {
                     <h3 className="font-medium text-white">{playlist.name}</h3>
                     <p className="text-gray-400 text-sm">
                       {playlist.is_public ? "Public" : "Private"} •{" "}
-                      {playlist.total_tracks || 0} songs
+                      {playlist.track_count || 0} songs
                     </p>
                   </div>
                   <MoreHorizontal className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
