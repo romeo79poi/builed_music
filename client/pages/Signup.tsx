@@ -973,12 +973,21 @@ export default function Signup() {
         setCurrentStep("verification");
 
         if (data.emailSent === false) {
+          // Email service is unavailable, but verification can still proceed with debug code
           toast({
-            title: "⚠️ Email service unavailable",
-            description: "Please try again or contact support",
-            duration: 8000,
-            variant: "destructive",
+            title: "📧 Email service temporarily unavailable",
+            description: data.debugCode
+              ? `Debug mode: Use code ${data.debugCode} (development only)`
+              : "Please check console for verification code or try again later",
+            duration: 12000,
+            variant: "default", // Changed from destructive to default (less alarming)
           });
+
+          // Log debug information
+          if (data.debugCode) {
+            console.log(`🔍 DEBUG EMAIL VERIFICATION CODE: ${data.debugCode}`);
+            console.log("📝 Email service is unavailable, but you can still proceed with verification");
+          }
         } else {
           toast({
             title: "Verification code sent!",
