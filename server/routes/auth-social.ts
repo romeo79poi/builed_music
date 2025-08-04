@@ -171,15 +171,11 @@ export const facebookSignin: RequestHandler = async (req, res) => {
         email: facebookUser.email,
         username: `fb_user_${Date.now()}`,
         name: facebookUser.name,
-        profile_image: facebookUser.picture.data.url,
-        social_providers: {
-          facebook: {
-            id: facebookUser.id,
-            profile_url: `https://facebook.com/${facebookUser.id}`
-          }
-        },
+        profile_image_url: facebookUser.picture.data.url,
+        facebook_id: facebookUser.id,
+        provider: "facebook",
         is_verified: true, // Social logins are auto-verified
-        created_at: new Date(),
+        email_verified: true,
         last_login: new Date(),
       });
 
