@@ -75,6 +75,9 @@ import { authenticateJWT } from "./lib/jwt";
 // Complete Auth System
 import authMainRouter from "./routes/auth-main";
 
+// Enhanced JWT Email Auth System
+import authV4Router from "./routes/auth-v4";
+
 // Phone routes
 import phoneRoutes from "./routes/phone";
 
@@ -237,6 +240,13 @@ export function createServer() {
 
   // Mount complete auth router with all features
   app.use("/api/v3/auth", authMainRouter);
+
+  // ===============================================
+  // JWT EMAIL VERIFICATION SYSTEM (v4) - NODEMAILER + JWT
+  // ===============================================
+
+  // Mount enhanced JWT email auth router
+  app.use("/api/v4/auth", authV4Router);
 
   // Phone verification API routes
   app.use("/api/phone", phoneRoutes);
