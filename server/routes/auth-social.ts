@@ -180,18 +180,13 @@ export const facebookSignin: RequestHandler = async (req, res) => {
       });
 
       await user.save();
-      console.log("✅ New Facebook user created:", user.email);
+      console.log("��� New Facebook user created:", user.email);
     } else {
       // Update existing user
       user.last_login = new Date();
-      if (!user.social_providers?.facebook) {
-        user.social_providers = {
-          ...user.social_providers,
-          facebook: {
-            id: facebookUser.id,
-            profile_url: `https://facebook.com/${facebookUser.id}`
-          }
-        };
+      if (!user.facebook_id) {
+        user.facebook_id = facebookUser.id;
+        user.provider = "facebook";
       }
       await user.save();
       console.log("✅ Existing Facebook user logged in:", user.email);
