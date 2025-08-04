@@ -62,13 +62,22 @@ import {
   registerUserMongoDB,
   loginUserMongoDB,
   checkAvailabilityMongoDB,
-  getUserProfile,
-  updateUserProfile,
+  getUserProfile as getMongoUserProfile,
+  updateUserProfile as updateMongoUserProfile,
   refreshToken,
   completeRegistrationMongoDB,
   sendEmailVerification as sendEmailVerificationMongoDB,
   verifyEmailCode as verifyEmailCodeMongoDB,
 } from "./routes/auth-mongodb";
+
+// MongoDB Profile routes
+import {
+  getUserProfile,
+  updateUserProfile,
+  getUserStats as getMongoUserStats,
+  searchUsers as searchMongoUsers,
+  toggleFollow as toggleMongoFollow,
+} from "./routes/profile-mongodb";
 
 import { authenticateJWT } from "./lib/jwt";
 
