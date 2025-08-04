@@ -972,26 +972,17 @@ export default function Signup() {
       if (data.success) {
         setCurrentStep("verification");
 
-        // Only store debug code if email delivery failed
-        if (data.emailSent === false && data.debugCode) {
-          setDebugVerificationCode(data.debugCode);
-        } else {
-          setDebugVerificationCode(null);
-        }
-
-        // Show different messages based on whether email was actually sent
         if (data.emailSent === false) {
           toast({
-            title: "⚠️ Email delivery failed",
-            description: `Please check your email or contact support. Verification code: ${data.debugCode}`,
+            title: "⚠️ Email service unavailable",
+            description: "Please try again or contact support",
             duration: 8000,
             variant: "destructive",
           });
         } else {
           toast({
             title: "Verification code sent!",
-            description:
-              "Please check your email for the 6-digit verification code.",
+            description: "Please check your email for the 6-digit verification code.",
           });
         }
 
