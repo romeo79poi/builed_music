@@ -574,18 +574,11 @@ export const signInWithGoogle = async (): Promise<{
           "🔄 Firebase network/config/permission error, using development mode for Google sign-in",
         );
 
-        // Simulate successful Google user creation for development
-        const mockUser = {
-          uid: `google-dev-${Date.now()}`,
-          email: "demo.user@gmail.com",
-          displayName: "Demo User",
-          emailVerified: true,
-          photoURL: "https://via.placeholder.com/96x96/4285F4/ffffff?text=DU",
-        } as User;
-
-        console.log("✅ Development Google user created:", mockUser);
-
-        return { success: true, user: mockUser, isNewUser: true };
+        // Return error instead of creating demo user
+        return {
+          success: false,
+          error: "Google authentication is not properly configured",
+        };
       }
 
       // Re-throw other Firebase errors to be handled by outer catch
