@@ -133,9 +133,9 @@ class MessagingService {
 
       const data = await response.json();
 
-      if (data.message) {
-        this.emit("message-sent", data.message);
-        return data.message;
+      if (data.success && data.data) {
+        this.emit("message-sent", data.data);
+        return data.data;
       }
 
       return null;
