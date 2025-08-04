@@ -220,7 +220,7 @@ export function createServer() {
     res.json({ message: "Hello from Express server v2!" });
   });
 
-  app.get("/api/demo", handleDemo);
+
 
   // Authentication API routes
   app.post("/api/auth/register", registerUser);
