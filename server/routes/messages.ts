@@ -33,364 +33,566 @@ interface ChatType {
   isPinned: boolean;
 }
 
-// In-memory storage for demo (replace with real database)
-let chats: Chat[] = [
-  {
-    id: "ai-chat",
-    participants: ["user", "ai"],
-    type: "ai",
-    name: "AI Assistant",
-    avatar: "/placeholder.svg",
-    updatedAt: new Date(),
-    isArchived: false,
-    isPinned: true,
-  },
-  {
-    id: "chat-1",
-    participants: ["user", "priya"],
-    type: "direct",
-    name: "Priya Sharma",
-    avatar: "/placeholder.svg",
-    updatedAt: new Date(),
-    isArchived: false,
-    isPinned: false,
-  },
-];
+// Initialize MongoDB connection
+connectDB();
 
-let messages: Message[] = [
-  {
-    id: "ai-1",
-    chatId: "ai-chat",
-    senderId: "ai",
-    content:
-      "Hi! I'm your AI music assistant. I can help you discover new music, create playlists, and chat about anything music-related! What would you like to know?",
-    type: "text",
-    timestamp: new Date(),
-    isRead: false,
-  },
-  {
-    id: "msg-1",
-    chatId: "chat-1",
-    senderId: "priya",
-    content: "Hey! Did you listen to that new track?",
-    type: "text",
-    timestamp: new Date(),
-    isRead: false,
-  },
-];
+// Store active typing users (in-memory for real-time features)
+let typingUsers: { [chatId: string]: { [userId: string]: Date } } = {};
 
-// Store active typing users
-const typingUsers = new Map<string, Set<string>>();
+// Helper function to initialize default chats if they don't exist
+const initializeDefaultChats = async () => {
+  try {
+    const existingChats = await Chat.countDocuments();
+    if (existingChats === 0) {
+      // Create AI chat
+      const aiChat = new Chat({
+        _id: "ai-chat",
+        participants: ["user", "ai"],
+        type: "ai",
+        name: "AI Assistant",
+        avatar: "/placeholder.svg",
+        isArchived: false,
+        isPinned: true,
+      });
+      await aiChat.save();
 
-// AI Response Generator
-const generateAIResponse = (userMessage: string): string => {
-  const responses = {
-    greeting: [
-      "Hello! How can I help you with music today?",
-      "Hi there! Ready to discover some amazing music?",
-      "Hey! What's on your musical mind today?",
-    ],
-    music: [
-      "That's a great song! Have you heard similar tracks by other artists?",
-      "Music is amazing! What genre are you into lately?",
-      "I love discussing music! Tell me more about your favorite artists.",
-    ],
-    recommendation: [
-      "Based on your taste, you might like some indie pop or alternative rock!",
-      "I'd recommend checking out some Lo-fi hip hop or electronic ambient music.",
-      "Have you tried exploring world music or jazz fusion?",
-    ],
-    general: [
-      "That's interesting! Tell me more about it.",
-      "I see! How does that relate to your music preferences?",
-      "Fascinating! Music connects to so many aspects of life, doesn't it?",
-    ],
-    default: [
-      "That's a great question! I'm here to help with anything music-related.",
-      "Interesting! Let's talk more about this.",
-      "I'd love to help you with that! Can you tell me more?",
-    ],
-  };
+      // Create demo chat
+      const demoChat = new Chat({
+        _id: "chat-1",
+        participants: ["user", "priya"],
+        type: "direct",
+        name: "Priya Sharma",
+        avatar: "/placeholder.svg",
+        isArchived: false,
+        isPinned: false,
+      });
+      await demoChat.save();
 
-  const message = userMessage.toLowerCase();
+      // Create initial messages
+      const aiMessage = new Message({
+        chatId: "ai-chat",
+        senderId: "ai",
+        content: "Hi! I'm your AI music assistant. I can help you discover new music, create playlists, and chat about anything music-related! What would you like to know?",
+        type: "text",
+        isRead: false,
+      });
+      await aiMessage.save();
 
-  if (
-    message.includes("hello") ||
-    message.includes("hi") ||
-    message.includes("hey")
-  ) {
-    return responses.greeting[
-      Math.floor(Math.random() * responses.greeting.length)
-    ];
+      const demoMessage = new Message({
+        chatId: "chat-1",
+        senderId: "priya",
+        content: "Hey! Did you listen to that new track?",
+        type: "text",
+        isRead: false,
+      });
+      await demoMessage.save();
+
+      // Update chats with last messages
+      await Chat.findByIdAndUpdate("ai-chat", { lastMessage: aiMessage._id });
+      await Chat.findByIdAndUpdate("chat-1", { lastMessage: demoMessage._id });
+
+      console.log("✅ Default chats and messages initialized");
+    }
+  } catch (error) {
+    console.error("Error initializing default chats:", error);
   }
-
-  if (
-    message.includes("song") ||
-    message.includes("music") ||
-    message.includes("artist") ||
-    message.includes("album")
-  ) {
-    return responses.music[Math.floor(Math.random() * responses.music.length)];
-  }
-
-  if (
-    message.includes("recommend") ||
-    message.includes("suggest") ||
-    message.includes("playlist")
-  ) {
-    return responses.recommendation[
-      Math.floor(Math.random() * responses.recommendation.length)
-    ];
-  }
-
-  if (
-    message.includes("how") ||
-    message.includes("what") ||
-    message.includes("why")
-  ) {
-    return responses.general[
-      Math.floor(Math.random() * responses.general.length)
-    ];
-  }
-
-  return responses.default[
-    Math.floor(Math.random() * responses.default.length)
-  ];
 };
 
-// Get all chats for a user
-export const getChats: RequestHandler = (req, res) => {
+// Initialize default data
+initializeDefaultChats();
+
+// GET /api/messages/chats/:userId? - Get all chats for a user
+export const getChats: RequestHandler = async (req, res) => {
   try {
-    const userId = req.params.userId || "user";
+    await connectDB();
+    
+    const userId = req.params.userId || "user"; // Default to "user" for demo
+    
+    const chats = await Chat.find({
+      participants: userId
+    })
+    .populate('lastMessage')
+    .sort({ updated_at: -1 });
 
-    // Add last message to each chat
-    const chatsWithMessages = chats.map((chat) => {
-      const chatMessages = messages.filter((msg) => msg.chatId === chat.id);
-      const lastMessage = chatMessages.sort(
-        (a, b) =>
-          new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime(),
-      )[0];
+    const formattedChats = chats.map(chat => ({
+      id: chat._id.toString(),
+      participants: chat.participants,
+      type: chat.type,
+      name: chat.name,
+      avatar: chat.avatar,
+      lastMessage: chat.lastMessage ? {
+        id: chat.lastMessage._id.toString(),
+        chatId: chat.lastMessage.chatId,
+        senderId: chat.lastMessage.senderId,
+        content: chat.lastMessage.content,
+        type: chat.lastMessage.type,
+        timestamp: chat.lastMessage.timestamp,
+        isRead: chat.lastMessage.isRead,
+        reactions: chat.lastMessage.reactions,
+        replyTo: chat.lastMessage.replyTo,
+        isForwarded: chat.lastMessage.isForwarded,
+        isDisappearing: chat.lastMessage.isDisappearing,
+        metadata: chat.lastMessage.metadata
+      } : undefined,
+      updatedAt: chat.updated_at,
+      isArchived: chat.isArchived,
+      isPinned: chat.isPinned
+    }));
 
-      return {
-        ...chat,
-        lastMessage,
-        unreadCount: chatMessages.filter(
-          (msg) => !msg.isRead && msg.senderId !== userId,
-        ).length,
-      };
+    res.json({
+      success: true,
+      data: formattedChats
     });
-
-    res.json({ chats: chatsWithMessages });
   } catch (error) {
-    res.status(500).json({ error: "Failed to get chats" });
+    console.error("Error getting chats:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to get chats"
+    });
   }
 };
 
-// Get messages for a specific chat
-export const getChatMessages: RequestHandler = (req, res) => {
+// GET /api/messages/:chatId - Get messages for a specific chat
+export const getChatMessages: RequestHandler = async (req, res) => {
   try {
-    const { chatId } = req.params;
-    const chatMessages = messages
-      .filter((msg) => msg.chatId === chatId)
-      .sort(
-        (a, b) =>
-          new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
-      );
+    await connectDB();
+    
+    const chatId = req.params.chatId;
+    const limit = parseInt(req.query.limit as string) || 50;
+    const offset = parseInt(req.query.offset as string) || 0;
 
-    res.json({ messages: chatMessages });
+    const messages = await Message.find({ chatId })
+      .sort({ timestamp: -1 })
+      .limit(limit)
+      .skip(offset);
+
+    const formattedMessages = messages.reverse().map(msg => ({
+      id: msg._id.toString(),
+      chatId: msg.chatId,
+      senderId: msg.senderId,
+      content: msg.content,
+      type: msg.type,
+      timestamp: msg.timestamp,
+      isRead: msg.isRead,
+      reactions: msg.reactions,
+      replyTo: msg.replyTo,
+      isForwarded: msg.isForwarded,
+      isDisappearing: msg.isDisappearing,
+      metadata: msg.metadata
+    }));
+
+    res.json({
+      success: true,
+      data: formattedMessages
+    });
   } catch (error) {
-    res.status(500).json({ error: "Failed to get messages" });
+    console.error("Error getting messages:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to get messages"
+    });
   }
 };
 
-// Send a new message
+// POST /api/messages/:chatId - Send a new message
 export const sendMessage: RequestHandler = async (req, res) => {
   try {
-    const { chatId } = req.params;
-    const { content, type = "text", replyTo, metadata } = req.body;
-    const senderId = req.body.senderId || "user";
+    await connectDB();
+    
+    const chatId = req.params.chatId;
+    const { senderId, content, type = "text", replyTo, metadata } = req.body;
 
-    const newMessage: Message = {
-      id: Date.now().toString(),
+    if (!senderId || !content) {
+      return res.status(400).json({
+        success: false,
+        message: "Sender ID and content are required"
+      });
+    }
+
+    // Check if chat exists
+    const chat = await Chat.findById(chatId);
+    if (!chat) {
+      return res.status(404).json({
+        success: false,
+        message: "Chat not found"
+      });
+    }
+
+    // Create new message
+    const newMessage = new Message({
       chatId,
       senderId,
       content,
       type,
-      timestamp: new Date(),
-      isRead: false,
       replyTo,
       metadata,
-    };
+      isRead: false
+    });
 
-    messages.push(newMessage);
+    await newMessage.save();
 
-    // Update chat's last message and timestamp
-    const chatIndex = chats.findIndex((chat) => chat.id === chatId);
-    if (chatIndex !== -1) {
-      chats[chatIndex].lastMessage = newMessage;
-      chats[chatIndex].updatedAt = new Date();
-    }
+    // Update chat's last message and updated_at
+    await Chat.findByIdAndUpdate(chatId, {
+      lastMessage: newMessage._id,
+      updated_at: new Date()
+    });
 
-    // Remove typing indicator
-    const typingSet = typingUsers.get(chatId);
-    if (typingSet) {
-      typingSet.delete(senderId);
-    }
-
-    // Handle AI response
-    if (chatId === "ai-chat" && senderId === "user") {
-      setTimeout(
-        () => {
-          const aiResponse: Message = {
-            id: Date.now().toString() + "-ai",
+    // Handle AI response for AI chats
+    if (chat.type === "ai" && senderId !== "ai") {
+      setTimeout(async () => {
+        try {
+          const aiResponse = new Message({
             chatId,
             senderId: "ai",
             content: generateAIResponse(content),
             type: "text",
-            timestamp: new Date(),
-            isRead: false,
-          };
-
-          messages.push(aiResponse);
-
-          // Update chat's last message
-          const aiChatIndex = chats.findIndex((chat) => chat.id === chatId);
-          if (aiChatIndex !== -1) {
-            chats[aiChatIndex].lastMessage = aiResponse;
-            chats[aiChatIndex].updatedAt = new Date();
-          }
-        },
-        1000 + Math.random() * 2000,
-      ); // Random delay between 1-3 seconds
+            isRead: false
+          });
+          
+          await aiResponse.save();
+          await Chat.findByIdAndUpdate(chatId, {
+            lastMessage: aiResponse._id,
+            updated_at: new Date()
+          });
+        } catch (error) {
+          console.error("Error sending AI response:", error);
+        }
+      }, 1000 + Math.random() * 2000); // 1-3 second delay
     }
 
-    res.json({ message: newMessage });
-  } catch (error) {
-    res.status(500).json({ error: "Failed to send message" });
-  }
-};
+    const responseMessage = {
+      id: newMessage._id.toString(),
+      chatId: newMessage.chatId,
+      senderId: newMessage.senderId,
+      content: newMessage.content,
+      type: newMessage.type,
+      timestamp: newMessage.timestamp,
+      isRead: newMessage.isRead,
+      reactions: newMessage.reactions,
+      replyTo: newMessage.replyTo,
+      isForwarded: newMessage.isForwarded,
+      isDisappearing: newMessage.isDisappearing,
+      metadata: newMessage.metadata
+    };
 
-// Mark messages as read
-export const markAsRead: RequestHandler = (req, res) => {
-  try {
-    const { chatId } = req.params;
-    const userId = req.body.userId || "user";
-
-    messages.forEach((msg) => {
-      if (msg.chatId === chatId && msg.senderId !== userId) {
-        msg.isRead = true;
-      }
+    res.json({
+      success: true,
+      data: responseMessage
     });
-
-    res.json({ success: true });
   } catch (error) {
-    res.status(500).json({ error: "Failed to mark messages as read" });
+    console.error("Error sending message:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to send message"
+    });
   }
 };
 
-// Add reaction to message
-export const addReaction: RequestHandler = (req, res) => {
+// PUT /api/messages/:chatId/read - Mark messages as read
+export const markAsRead: RequestHandler = async (req, res) => {
   try {
-    const { messageId } = req.params;
-    const { emoji, userId = "user" } = req.body;
+    await connectDB();
+    
+    const chatId = req.params.chatId;
+    const { userId } = req.body;
 
-    const messageIndex = messages.findIndex((msg) => msg.id === messageId);
-    if (messageIndex === -1) {
-      return res.status(404).json({ error: "Message not found" });
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID is required"
+      });
     }
 
-    if (!messages[messageIndex].reactions) {
-      messages[messageIndex].reactions = [];
-    }
-
-    // Remove existing reaction from this user
-    messages[messageIndex].reactions = messages[messageIndex].reactions!.filter(
-      (reaction) => reaction.userId !== userId,
+    // Mark all messages in the chat as read for messages not sent by the user
+    await Message.updateMany(
+      { 
+        chatId, 
+        senderId: { $ne: userId },
+        isRead: false 
+      },
+      { isRead: true }
     );
 
-    // Add new reaction
-    messages[messageIndex].reactions!.push({ emoji, userId });
-
-    res.json({ message: messages[messageIndex] });
+    res.json({
+      success: true,
+      message: "Messages marked as read"
+    });
   } catch (error) {
-    res.status(500).json({ error: "Failed to add reaction" });
+    console.error("Error marking messages as read:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to mark messages as read"
+    });
   }
 };
 
-// Set typing status
-export const setTyping: RequestHandler = (req, res) => {
+// POST /api/messages/reaction/:messageId - Add reaction to message
+export const addReaction: RequestHandler = async (req, res) => {
   try {
-    const { chatId } = req.params;
-    const { isTyping, userId = "user" } = req.body;
+    await connectDB();
+    
+    const messageId = req.params.messageId;
+    const { userId, emoji } = req.body;
 
-    if (!typingUsers.has(chatId)) {
-      typingUsers.set(chatId, new Set());
+    if (!userId || !emoji) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID and emoji are required"
+      });
     }
 
-    const typingSet = typingUsers.get(chatId)!;
+    const message = await Message.findById(messageId);
+    if (!message) {
+      return res.status(404).json({
+        success: false,
+        message: "Message not found"
+      });
+    }
+
+    // Check if user already reacted with this emoji
+    const existingReactionIndex = message.reactions?.findIndex(
+      r => r.userId === userId && r.emoji === emoji
+    ) ?? -1;
+
+    if (existingReactionIndex >= 0) {
+      // Remove existing reaction
+      message.reactions?.splice(existingReactionIndex, 1);
+    } else {
+      // Add new reaction
+      if (!message.reactions) message.reactions = [];
+      message.reactions.push({ emoji, userId });
+    }
+
+    await message.save();
+
+    res.json({
+      success: true,
+      data: {
+        reactions: message.reactions
+      }
+    });
+  } catch (error) {
+    console.error("Error adding reaction:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to add reaction"
+    });
+  }
+};
+
+// POST /api/messages/:chatId/typing - Set typing status
+export const setTyping: RequestHandler = async (req, res) => {
+  try {
+    const chatId = req.params.chatId;
+    const { userId, isTyping } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID is required"
+      });
+    }
+
+    if (!typingUsers[chatId]) {
+      typingUsers[chatId] = {};
+    }
 
     if (isTyping) {
-      typingSet.add(userId);
+      typingUsers[chatId][userId] = new Date();
     } else {
-      typingSet.delete(userId);
+      delete typingUsers[chatId][userId];
     }
 
-    res.json({ success: true });
+    // Auto-remove typing status after 3 seconds
+    if (isTyping) {
+      setTimeout(() => {
+        if (typingUsers[chatId] && typingUsers[chatId][userId]) {
+          delete typingUsers[chatId][userId];
+        }
+      }, 3000);
+    }
+
+    res.json({
+      success: true,
+      message: "Typing status updated"
+    });
   } catch (error) {
-    res.status(500).json({ error: "Failed to set typing status" });
+    console.error("Error setting typing status:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to set typing status"
+    });
   }
 };
 
-// Get typing users for a chat
-export const getTypingUsers: RequestHandler = (req, res) => {
+// GET /api/messages/:chatId/typing - Get typing users
+export const getTypingUsers: RequestHandler = async (req, res) => {
   try {
-    const { chatId } = req.params;
-    const typingSet = typingUsers.get(chatId) || new Set();
+    const chatId = req.params.chatId;
+    const currentTime = new Date();
+    
+    // Clean up old typing statuses (older than 5 seconds)
+    if (typingUsers[chatId]) {
+      Object.keys(typingUsers[chatId]).forEach(userId => {
+        const typingTime = typingUsers[chatId][userId];
+        if (currentTime.getTime() - typingTime.getTime() > 5000) {
+          delete typingUsers[chatId][userId];
+        }
+      });
+    }
 
-    res.json({ typingUsers: Array.from(typingSet) });
+    const activeTypingUsers = typingUsers[chatId] 
+      ? Object.keys(typingUsers[chatId])
+      : [];
+
+    res.json({
+      success: true,
+      data: activeTypingUsers
+    });
   } catch (error) {
-    res.status(500).json({ error: "Failed to get typing users" });
+    console.error("Error getting typing users:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to get typing users"
+    });
   }
 };
 
-// Create new chat
-export const createChat: RequestHandler = (req, res) => {
+// POST /api/messages/chats - Create a new chat
+export const createChat: RequestHandler = async (req, res) => {
   try {
+    await connectDB();
+    
     const { participants, type = "direct", name, avatar } = req.body;
 
-    const newChat: Chat = {
-      id: Date.now().toString(),
+    if (!participants || participants.length < 2) {
+      return res.status(400).json({
+        success: false,
+        message: "At least 2 participants are required"
+      });
+    }
+
+    // Check if direct chat already exists between these participants
+    if (type === "direct" && participants.length === 2) {
+      const existingChat = await Chat.findOne({
+        type: "direct",
+        participants: { $all: participants, $size: 2 }
+      });
+
+      if (existingChat) {
+        return res.json({
+          success: true,
+          data: {
+            id: existingChat._id.toString(),
+            participants: existingChat.participants,
+            type: existingChat.type,
+            name: existingChat.name,
+            avatar: existingChat.avatar,
+            updatedAt: existingChat.updated_at,
+            isArchived: existingChat.isArchived,
+            isPinned: existingChat.isPinned
+          }
+        });
+      }
+    }
+
+    const newChat = new Chat({
       participants,
       type,
       name,
       avatar,
-      updatedAt: new Date(),
       isArchived: false,
-      isPinned: false,
-    };
+      isPinned: false
+    });
 
-    chats.push(newChat);
+    await newChat.save();
 
-    res.json({ chat: newChat });
+    res.json({
+      success: true,
+      data: {
+        id: newChat._id.toString(),
+        participants: newChat.participants,
+        type: newChat.type,
+        name: newChat.name,
+        avatar: newChat.avatar,
+        updatedAt: newChat.updated_at,
+        isArchived: newChat.isArchived,
+        isPinned: newChat.isPinned
+      }
+    });
   } catch (error) {
-    res.status(500).json({ error: "Failed to create chat" });
+    console.error("Error creating chat:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to create chat"
+    });
   }
 };
 
-// Delete message
-export const deleteMessage: RequestHandler = (req, res) => {
+// DELETE /api/messages/message/:messageId - Delete a message
+export const deleteMessage: RequestHandler = async (req, res) => {
   try {
-    const { messageId } = req.params;
+    await connectDB();
+    
+    const messageId = req.params.messageId;
+    const { userId } = req.body;
 
-    const messageIndex = messages.findIndex((msg) => msg.id === messageId);
-    if (messageIndex === -1) {
-      return res.status(404).json({ error: "Message not found" });
+    const message = await Message.findById(messageId);
+    if (!message) {
+      return res.status(404).json({
+        success: false,
+        message: "Message not found"
+      });
     }
 
-    messages.splice(messageIndex, 1);
+    // Only allow sender or admin to delete message
+    if (message.senderId !== userId) {
+      return res.status(403).json({
+        success: false,
+        message: "You can only delete your own messages"
+      });
+    }
 
-    res.json({ success: true });
+    await Message.findByIdAndDelete(messageId);
+
+    // Update chat's last message if this was the last message
+    const chat = await Chat.findById(message.chatId);
+    if (chat && chat.lastMessage?.toString() === messageId) {
+      const lastMessage = await Message.findOne({ chatId: message.chatId })
+        .sort({ timestamp: -1 });
+      
+      await Chat.findByIdAndUpdate(message.chatId, {
+        lastMessage: lastMessage?._id || null
+      });
+    }
+
+    res.json({
+      success: true,
+      message: "Message deleted successfully"
+    });
   } catch (error) {
-    res.status(500).json({ error: "Failed to delete message" });
+    console.error("Error deleting message:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to delete message"
+    });
   }
 };
+
+// Helper function to generate AI responses
+function generateAIResponse(userMessage: string): string {
+  const responses = [
+    "That's a great question! I'd love to help you with that.",
+    "Interesting! Let me think about that for a moment...",
+    "I totally understand what you mean. Music has that effect on people!",
+    "Have you tried exploring similar artists? I can recommend some!",
+    "That's one of my favorite topics! Music discovery is so exciting.",
+    "I can help you create a playlist for that mood if you'd like!",
+    "That reminds me of a few songs that might interest you.",
+    "Music taste is so personal - I love hearing about what people enjoy!",
+    "That's a really cool perspective on music!",
+    "I'm here whenever you want to chat about music or anything else!"
+  ];
+  
+  return responses[Math.floor(Math.random() * responses.length)];
+}
