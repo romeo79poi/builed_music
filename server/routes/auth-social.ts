@@ -288,8 +288,8 @@ export const googleAuth: RequestHandler = async (req, res) => {
       if (!user.google_id) {
         user.google_id = googleId;
         user.provider = "google";
-        if (picture && !user.profile_image_url_url) {
-          user.profile_image_url_url = picture;
+        if (picture && !user.profile_image_url) {
+          user.profile_image_url = picture;
         }
         await user.save();
       }
@@ -305,7 +305,7 @@ export const googleAuth: RequestHandler = async (req, res) => {
         password: await bcrypt.hash("google_auth_" + googleId, 12), // Dummy password
         google_id: googleId,
         provider: "google",
-        profile_image_url_url: picture || "",
+        profile_image_url: picture || "",
         is_verified: true, // Google accounts are pre-verified
         email_verified: true,
         bio: "",
@@ -375,8 +375,8 @@ export const facebookAuth: RequestHandler = async (req, res) => {
       if (!user.facebook_id) {
         user.facebook_id = facebookId;
         user.provider = "facebook";
-        if (picture && !user.profile_image_url_url) {
-          user.profile_image_url_url = picture;
+        if (picture && !user.profile_image_url) {
+          user.profile_image_url = picture;
         }
         await user.save();
       }
@@ -392,7 +392,7 @@ export const facebookAuth: RequestHandler = async (req, res) => {
         password: await bcrypt.hash("facebook_auth_" + facebookId, 12), // Dummy password
         facebook_id: facebookId,
         provider: "facebook",
-        profile_image_url_url: picture || "",
+        profile_image_url: picture || "",
         is_verified: true, // Facebook accounts are pre-verified
         email_verified: true,
         bio: "",
@@ -485,8 +485,8 @@ export const socialLogin: RequestHandler = async (req, res) => {
       if (!user[socialField as keyof typeof user]) {
         (user as any)[socialField] = socialId;
         user.provider = provider;
-        if (picture && !user.profile_image_url_url) {
-          user.profile_image_url_url = picture;
+        if (picture && !user.profile_image_url) {
+          user.profile_image_url = picture;
         }
         await user.save();
       }
@@ -501,7 +501,7 @@ export const socialLogin: RequestHandler = async (req, res) => {
         display_name: name || email.split("@")[0],
         password: await bcrypt.hash(provider + "_auth_" + socialId, 12),
         provider,
-        profile_image_url_url: picture || "",
+        profile_image_url: picture || "",
         is_verified: true,
         email_verified: true,
         bio: "",
