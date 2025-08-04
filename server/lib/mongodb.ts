@@ -70,3 +70,7 @@ export function getConnectionStatus() {
     name: mongoose.connection.name,
   };
 }
+
+export function isMongoConnected() {
+  return isConnected;
+}
