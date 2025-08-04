@@ -162,14 +162,14 @@ export const facebookSignin: RequestHandler = async (req, res) => {
       }
     };
 
-    // Check if user exists in database
-    await connectDB();
-
-    if (!isMongoConnected()) {
-      return res.status(503).json({
-        success: false,
-        message: "Database connection unavailable",
-      });
+    // Try to connect to database, but continue without it if unavailable
+    let dbAvailable = false;
+    try {
+      await connectDB();
+      dbAvailable = isMongoConnected();
+    } catch (error) {
+      console.warn("⚠️ MongoDB unavailable, using in-memory storage for Facebook auth");
+      dbAvailable = false;
     }
 
     let user = await User.findOne({ email: facebookUser.email });
