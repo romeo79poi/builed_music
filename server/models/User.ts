@@ -58,10 +58,24 @@ const userSchema = new mongoose.Schema({
   last_login: { 
     type: Date 
   },
-  provider: { 
-    type: String, 
+  provider: {
+    type: String,
     default: 'email',
-    enum: ['email', 'google'] 
+    enum: ['email', 'phone', 'google', 'facebook']
+  },
+  is_admin: {
+    type: Boolean,
+    default: false
+  },
+  is_banned: {
+    type: Boolean,
+    default: false
+  },
+  ban_reason: {
+    type: String
+  },
+  phone: {
+    type: String
   }
 }, {
   timestamps: { 
