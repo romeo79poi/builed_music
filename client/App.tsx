@@ -34,6 +34,7 @@ import CompleteAuthDemo from "./pages/CompleteAuthDemo";
 import VerifyEmail from "./pages/VerifyEmail";
 import ResetPassword from "./pages/ResetPassword";
 import JWTEmailDemo from "./pages/JWTEmailDemo";
+import SocialAuthTest from "./pages/SocialAuthTest";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
