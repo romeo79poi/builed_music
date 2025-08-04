@@ -801,36 +801,44 @@ export default function Signup() {
           emailVerified: result.user.emailVerified,
         });
 
-        // Register new Facebook users with backend
-        if (result.isNewUser) {
-          try {
-            const backendResponse = await fetch("/api/auth/register", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                email: result.user.email,
-                username: result.user.email.split("@")[0] + "_facebook",
-                name: displayName,
-                password: "facebook_auth_" + Date.now(), // Dummy password for Facebook users
-                provider: "facebook",
-              }),
-            });
+        // Register/Login Facebook users with backend
+        try {
+          const backendResponse = await fetch("/api/auth/facebook", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email: result.user.email,
+              name: displayName,
+              picture: result.user.photoURL || "",
+              facebookId: result.user.uid,
+              isNewUser: result.isNewUser || true,
+            }),
+          });
 
-            const backendData = await backendResponse.json();
-            if (backendData.success) {
-              console.log(
-                "✅ Facebook user also registered in backend:",
-                backendData.user,
-              );
+          const backendData = await backendResponse.json();
+          if (backendData.success) {
+            // Store tokens
+            if (backendData.accessToken) {
+              localStorage.setItem("token", backendData.accessToken);
             }
-          } catch (backendError) {
-            console.warn(
-              "Backend registration failed for Facebook user, continuing:",
-              backendError,
+            if (backendData.refreshToken) {
+              localStorage.setItem("refreshToken", backendData.refreshToken);
+            }
+
+            console.log(
+              "✅ Facebook user authenticated with backend:",
+              backendData.user,
             );
+          } else {
+            console.warn("Backend authentication failed:", backendData.message);
           }
+        } catch (backendError) {
+          console.warn(
+            "Backend authentication failed for Facebook user:",
+            backendError,
+          );
         }
 
         // Save Facebook user data to localStorage for immediate access
