@@ -371,7 +371,6 @@ export default function Home() {
   // Get appropriate greeting
   const getGreeting = () => {
     const hour = currentTime.getHours();
-    const userName = userData?.name || userData?.username || "User";
 
     let timeGreeting = "";
     if (hour >= 0 && hour < 6) timeGreeting = "Good Midnight";
@@ -379,7 +378,7 @@ export default function Home() {
     else if (hour < 17) timeGreeting = "Good Afternoon";
     else timeGreeting = "Good Evening";
 
-    return `${timeGreeting}, ${userName}`;
+    return <p>{timeGreeting}</p>;
   };
 
   const handlePlaySong = (songId: string) => {
