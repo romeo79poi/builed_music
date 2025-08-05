@@ -356,8 +356,14 @@ export class MusicIntegrationService {
         id: 'fallback-1',
         title: `Demo Song (${query})`,
         artist: 'Demo Artist',
-        cover_url: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop',
+        album: 'Demo Album',
         duration: 180,
+        url: 'https://example.com/demo.mp3',
+        cover_url: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop',
+        genre: 'Demo',
+        release_date: '2024-01-01',
+        play_count: 0,
+        likes_count: 0,
         created_at: new Date().toISOString()
       }
     ]
