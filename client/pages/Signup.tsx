@@ -39,7 +39,7 @@ import {
   uploadProfileImage,
   uploadProfileImageForSignup,
 } from "../lib/auth";
-import { catchFirebaseAuth } from "../lib/firebase-auth";
+// import { catchFirebaseAuth } from "../lib/firebase-auth";
 
 type SignupStep =
   | "method"
@@ -638,7 +638,7 @@ export default function Signup() {
 
       if (result.success) {
         toast({
-          title: "Facebook sign-in successful! ����",
+          title: "Facebook sign-in successful! 🎉",
           description: result.message,
         });
 
