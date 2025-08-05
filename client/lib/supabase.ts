@@ -384,7 +384,7 @@ export const supabaseAPI = {
     }
 
     const { data, error } = await supabase
-      .from('users')
+      .from('profiles')
       .select('id')
       .eq('email', email)
       .single()
@@ -401,7 +401,7 @@ export const supabaseAPI = {
     }
 
     const { data, error } = await supabase
-      .from('users')
+      .from('profiles')
       .select('id')
       .eq('username', username)
       .single()
