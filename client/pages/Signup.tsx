@@ -541,12 +541,36 @@ export default function Signup() {
 
   const { signInWithGoogle, signInWithFacebook, signUp } = useAuth();
 
-  // Google signup handler
+  // Google signup handler with Firebase
   const handleGoogleSignup = async () => {
     setIsLoading(true);
     setErrorAlert(null);
 
     try {
+      console.log('🔥 Attempting Firebase Google sign-in...');
+
+      // Try Firebase Google Auth first
+      const firebaseResult = await firebaseHelpers.googleSignIn();
+
+      if (firebaseResult.success && firebaseResult.user) {
+        console.log('✅ Firebase Google sign-in successful:', firebaseResult.user);
+
+        toast({
+          title: "Welcome to CATCH! 🎉",
+          description: `Signed in as ${firebaseResult.user.displayName || firebaseResult.user.email}`,
+        });
+
+        // Optional: Sync with your backend here
+        // await syncFirebaseUserWithBackend(firebaseResult.user);
+
+        setTimeout(() => {
+          navigate("/home");
+        }, 1500);
+        return;
+      }
+
+      // Fallback to backend Google auth if Firebase fails
+      console.log('📱 Falling back to backend Google auth');
       const result = await signInWithGoogle();
 
       if (result.success) {
@@ -567,6 +591,7 @@ export default function Signup() {
         });
       }
     } catch (error: any) {
+      console.error('❌ Google sign-in error:', error);
       setErrorAlert(error.message || "Google sign-in failed");
       toast({
         title: "Google sign-in error",
