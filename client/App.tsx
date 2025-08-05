@@ -33,6 +33,7 @@ import Messages from "./pages/Messages";
 import VerifyEmail from "./pages/VerifyEmail";
 import ResetPassword from "./pages/ResetPassword";
 import CodeGenerator from "./pages/CodeGenerator";
+import FirebaseDemo from "./pages/FirebaseDemo";
 
 import NotFound from "./pages/NotFound";
 
