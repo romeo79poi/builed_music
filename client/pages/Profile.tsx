@@ -654,17 +654,20 @@ export default function Profile() {
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     onClick={handleFollow}
-                    className={`px-4 py-2 rounded-lg font-medium transition-all border border-border ${
+                    className={`px-6 py-3 rounded-lg font-bold text-sm transition-all border border-border min-w-[90px] ${
                       isFollowing
                         ? "bg-green-500/20 text-green-500 border-green-500/30 hover:bg-green-500/30"
                         : "bg-primary text-primary-foreground hover:bg-primary/90"
                     }`}
                   >
-                    {isFollowing ? (
-                      <UserCheck className="w-4 h-4" />
-                    ) : (
-                      <UserPlus className="w-4 h-4" />
-                    )}
+                    <div className="flex items-center space-x-2">
+                      {isFollowing ? (
+                        <UserCheck className="w-4 h-4" />
+                      ) : (
+                        <UserPlus className="w-4 h-4" />
+                      )}
+                      <span>{isFollowing ? "Following" : "Follow"}</span>
+                    </div>
                   </motion.button>
 
                   <motion.button
