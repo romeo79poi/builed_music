@@ -197,7 +197,7 @@ export class MusicIntegrationService {
       // Get trending from external API and recent from Supabase
       const [externalTrending, recentSongs] = await Promise.allSettled([
         musicAPI.getTrendingTracks(Math.ceil(limit / 2)),
-        supabaseAPI.getSongs(Math.ceil(limit / 2), 0)
+        supabaseAPI.getTrendingSongs(Math.ceil(limit / 2))
       ])
 
       let songs: Song[] = []
