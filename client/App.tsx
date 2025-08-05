@@ -10,6 +10,7 @@ import { MusicProvider } from "./context/MusicContextSupabase";
 import { ProfileProvider } from "./context/ProfileContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
+import { FirebaseProvider } from "./context/FirebaseContext";
 // import { SocketProvider } from "./context/SocketContext";
 import AuthRouter from "./components/AuthRouter";
 import Splash from "./pages/Splash";
@@ -45,8 +46,9 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <TooltipProvider>
-          <AuthProvider>
-            <MusicProvider>
+          <FirebaseProvider>
+            <AuthProvider>
+              <MusicProvider>
               <ProfileProvider>
                 <Toaster />
                 <Sonner />
@@ -81,8 +83,9 @@ const App = () => {
                   </Routes>
                 </BrowserRouter>
               </ProfileProvider>
-            </MusicProvider>
-          </AuthProvider>
+              </MusicProvider>
+            </AuthProvider>
+          </FirebaseProvider>
         </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>
