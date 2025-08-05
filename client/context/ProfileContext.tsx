@@ -117,6 +117,10 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({
       twitter: "@biospectramusic",
       spotify: "biospectra",
     },
+  });
+
+  // Additional user settings not part of the main profile
+  const [userSettings] = useState({
     subscription: {
       plan: "premium",
       status: "active",
