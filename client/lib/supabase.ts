@@ -109,10 +109,19 @@ export interface Album {
   created_at: string
 }
 
+// Helper function to check if Supabase is properly configured
+const isSupabaseConfigured = () => {
+  return isValidUrl(supabaseUrl) && supabaseAnonKey && !supabaseAnonKey.includes('[')
+}
+
 // Supabase API functions
 export const supabaseAPI = {
   // Authentication
   async signUp(email: string, password: string, userData: any) {
+    if (!isSupabaseConfigured()) {
+      return { data: null, error: { message: 'Supabase not configured. Please set environment variables.' } }
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
