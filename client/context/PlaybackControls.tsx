@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
-import { usePlayerStore } from "@/stores/usePlayerStore";
+import { useMusic } from "./MusicContextSupabase";
 import { Laptop2, ListMusic, Mic2, Pause, Play, Repeat, Shuffle, SkipBack, SkipForward, Volume1 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -10,160 +10,155 @@ const formatTime = (seconds: number) => {
 	return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
 };
 
-export const PlaybackControls = () => {
-	const { currentSong, isPlaying, togglePlay, playNext, playPrevious } = usePlayerStore();
-
-	const [volume, setVolume] = useState(75);
+const PlaybackControls = () => {
 	const [currentTime, setCurrentTime] = useState(0);
-	const [duration, setDuration] = useState(0);
-	const audioRef = useRef<HTMLAudioElement | null>(null);
+	const [localVolume, setLocalVolume] = useState(50);
+	const [isDragging, setIsDragging] = useState(false);
+	const {
+		currentSong,
+		isPlaying,
+		volume,
+		progress,
+		duration,
+		playSong,
+		pauseSong,
+		resumeSong,
+		nextSong,
+		previousSong,
+		seekTo,
+		setVolume
+	} = useMusic();
 
+	const progressIntervalRef = useRef<NodeJS.Timeout>();
+
+	// Update progress when not dragging
 	useEffect(() => {
-		audioRef.current = document.querySelector("audio");
+		if (!isDragging) {
+			setCurrentTime(progress);
+		}
+	}, [progress, isDragging]);
 
-		const audio = audioRef.current;
-		if (!audio) return;
+	// Update volume when it changes from context
+	useEffect(() => {
+		setLocalVolume(volume * 100);
+	}, [volume]);
 
-		const updateTime = () => setCurrentTime(audio.currentTime);
-		const updateDuration = () => setDuration(audio.duration);
-
-		audio.addEventListener("timeupdate", updateTime);
-		audio.addEventListener("loadedmetadata", updateDuration);
-
-		const handleEnded = () => {
-			usePlayerStore.setState({ isPlaying: false });
-		};
-
-		audio.addEventListener("ended", handleEnded);
-
-		return () => {
-			audio.removeEventListener("timeupdate", updateTime);
-			audio.removeEventListener("loadedmetadata", updateDuration);
-			audio.removeEventListener("ended", handleEnded);
-		};
-	}, [currentSong]);
-
-	const handleSeek = (value: number[]) => {
-		if (audioRef.current) {
-			audioRef.current.currentTime = value[0];
+	const handlePlayPause = () => {
+		if (!currentSong) return;
+		
+		if (isPlaying) {
+			pauseSong();
+		} else {
+			resumeSong();
 		}
 	};
 
+	const handleProgressChange = (values: number[]) => {
+		const newTime = values[0];
+		setCurrentTime(newTime);
+		setIsDragging(true);
+	};
+
+	const handleProgressCommit = (values: number[]) => {
+		const newTime = values[0];
+		seekTo(newTime);
+		setIsDragging(false);
+	};
+
+	const handleVolumeChange = (values: number[]) => {
+		const newVolume = values[0] / 100;
+		setLocalVolume(values[0]);
+		setVolume(newVolume);
+	};
+
+	if (!currentSong) {
+		return null;
+	}
+
 	return (
-		<footer className='h-20 sm:h-24 bg-zinc-900 border-t border-zinc-800 px-4'>
-			<div className='flex justify-between items-center h-full max-w-[1800px] mx-auto'>
-				{/* currently playing song */}
-				<div className='hidden sm:flex items-center gap-4 min-w-[180px] w-[30%]'>
-					{currentSong && (
-						<>
-							<img
-								src={currentSong.imageUrl}
-								alt={currentSong.title}
-								className='w-14 h-14 object-cover rounded-md'
-							/>
-							<div className='flex-1 min-w-0'>
-								<div className='font-medium truncate hover:underline cursor-pointer'>
-									{currentSong.title}
-								</div>
-								<div className='text-sm text-zinc-400 truncate hover:underline cursor-pointer'>
-									{currentSong.artist}
-								</div>
-							</div>
-						</>
+		<div className="flex items-center justify-between p-4 bg-background border-t">
+			{/* Song Info */}
+			<div className="flex items-center space-x-4 flex-1 min-w-0">
+				<div className="h-12 w-12 rounded bg-muted flex items-center justify-center">
+					{currentSong.cover_url ? (
+						<img 
+							src={currentSong.cover_url} 
+							alt={currentSong.title}
+							className="h-full w-full rounded object-cover"
+						/>
+					) : (
+						<ListMusic className="h-6 w-6" />
 					)}
 				</div>
-
-				{/* player controls*/}
-				<div className='flex flex-col items-center gap-2 flex-1 max-w-full sm:max-w-[45%]'>
-					<div className='flex items-center gap-4 sm:gap-6'>
-						<Button
-							size='icon'
-							variant='ghost'
-							className='hidden sm:inline-flex hover:text-white text-zinc-400'
-						>
-							<Shuffle className='h-4 w-4' />
-						</Button>
-
-						<Button
-							size='icon'
-							variant='ghost'
-							className='hover:text-white text-zinc-400'
-							onClick={playPrevious}
-							disabled={!currentSong}
-						>
-							<SkipBack className='h-4 w-4' />
-						</Button>
-
-						<Button
-							size='icon'
-							className='bg-white hover:bg-white/80 text-black rounded-full h-8 w-8'
-							onClick={togglePlay}
-							disabled={!currentSong}
-						>
-							{isPlaying ? <Pause className='h-5 w-5' /> : <Play className='h-5 w-5' />}
-						</Button>
-						<Button
-							size='icon'
-							variant='ghost'
-							className='hover:text-white text-zinc-400'
-							onClick={playNext}
-							disabled={!currentSong}
-						>
-							<SkipForward className='h-4 w-4' />
-						</Button>
-						<Button
-							size='icon'
-							variant='ghost'
-							className='hidden sm:inline-flex hover:text-white text-zinc-400'
-						>
-							<Repeat className='h-4 w-4' />
-						</Button>
-					</div>
-
-					<div className='hidden sm:flex items-center gap-2 w-full'>
-						<div className='text-xs text-zinc-400'>{formatTime(currentTime)}</div>
-						<Slider
-							value={[currentTime]}
-							max={duration || 100}
-							step={1}
-							className='w-full hover:cursor-grab active:cursor-grabbing'
-							onValueChange={handleSeek}
-						/>
-						<div className='text-xs text-zinc-400'>{formatTime(duration)}</div>
-					</div>
-				</div>
-				{/* volume controls */}
-				<div className='hidden sm:flex items-center gap-4 min-w-[180px] w-[30%] justify-end'>
-					<Button size='icon' variant='ghost' className='hover:text-white text-zinc-400'>
-						<Mic2 className='h-4 w-4' />
-					</Button>
-					<Button size='icon' variant='ghost' className='hover:text-white text-zinc-400'>
-						<ListMusic className='h-4 w-4' />
-					</Button>
-					<Button size='icon' variant='ghost' className='hover:text-white text-zinc-400'>
-						<Laptop2 className='h-4 w-4' />
-					</Button>
-
-					<div className='flex items-center gap-2'>
-						<Button size='icon' variant='ghost' className='hover:text-white text-zinc-400'>
-							<Volume1 className='h-4 w-4' />
-						</Button>
-
-						<Slider
-							value={[volume]}
-							max={100}
-							step={1}
-							className='w-24 hover:cursor-grab active:cursor-grabbing'
-							onValueChange={(value) => {
-								setVolume(value[0]);
-								if (audioRef.current) {
-									audioRef.current.volume = value[0] / 100;
-								}
-							}}
-						/>
-					</div>
+				<div className="min-w-0 flex-1">
+					<p className="font-medium truncate">{currentSong.title}</p>
+					<p className="text-sm text-muted-foreground truncate">{currentSong.artist}</p>
 				</div>
 			</div>
-		</footer>
+
+			{/* Main Controls */}
+			<div className="flex flex-col items-center space-y-2 flex-1 max-w-md">
+				<div className="flex items-center space-x-2">
+					<Button variant="ghost" size="sm" onClick={() => {}}>
+						<Shuffle className="h-4 w-4" />
+					</Button>
+					<Button variant="ghost" size="sm" onClick={previousSong}>
+						<SkipBack className="h-4 w-4" />
+					</Button>
+					<Button onClick={handlePlayPause} size="sm">
+						{isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+					</Button>
+					<Button variant="ghost" size="sm" onClick={nextSong}>
+						<SkipForward className="h-4 w-4" />
+					</Button>
+					<Button variant="ghost" size="sm" onClick={() => {}}>
+						<Repeat className="h-4 w-4" />
+					</Button>
+				</div>
+				
+				{/* Progress Bar */}
+				<div className="flex items-center space-x-2 w-full">
+					<span className="text-xs text-muted-foreground min-w-[40px]">
+						{formatTime(currentTime)}
+					</span>
+					<Slider
+						value={[currentTime]}
+						max={duration || 100}
+						step={1}
+						onValueChange={handleProgressChange}
+						onValueCommit={handleProgressCommit}
+						className="flex-1"
+					/>
+					<span className="text-xs text-muted-foreground min-w-[40px]">
+						{formatTime(duration || 0)}
+					</span>
+				</div>
+			</div>
+
+			{/* Volume & Additional Controls */}
+			<div className="flex items-center space-x-2 flex-1 justify-end">
+				<Button variant="ghost" size="sm">
+					<Mic2 className="h-4 w-4" />
+				</Button>
+				<Button variant="ghost" size="sm">
+					<ListMusic className="h-4 w-4" />
+				</Button>
+				<Button variant="ghost" size="sm">
+					<Laptop2 className="h-4 w-4" />
+				</Button>
+				<div className="flex items-center space-x-2">
+					<Volume1 className="h-4 w-4" />
+					<Slider
+						value={[localVolume]}
+						max={100}
+						step={1}
+						onValueChange={handleVolumeChange}
+						className="w-20"
+					/>
+				</div>
+			</div>
+		</div>
 	);
 };
+
+export default PlaybackControls;

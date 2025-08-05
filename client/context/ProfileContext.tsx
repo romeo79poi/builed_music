@@ -41,6 +41,9 @@ export interface MusicPreferences {
   favoriteArtists: string[];
   mood: string;
   language: string[];
+  autoPlay?: boolean;
+  crossfade?: boolean;
+  soundQuality?: "low" | "medium" | "high" | "lossless";
 }
 
 export interface SocialLinks {
@@ -107,13 +110,17 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({
       language: ["English", "French"],
       autoPlay: true,
       crossfade: false,
-      soundQuality: "high",
+      soundQuality: "high" as "high",
     },
     socialLinks: {
       instagram: "@biospectra",
       twitter: "@biospectramusic",
       spotify: "biospectra",
     },
+  });
+
+  // Additional user settings not part of the main profile
+  const [userSettings] = useState({
     subscription: {
       plan: "premium",
       status: "active",

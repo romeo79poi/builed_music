@@ -280,7 +280,7 @@ export function MiniPlayer() {
         </button>
       </div>
 
-      <style jsx>{`
+      <style>{`
         .slider::-webkit-slider-thumb {
           appearance: none;
           width: 14px;

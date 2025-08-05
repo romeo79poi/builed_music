@@ -1060,6 +1060,7 @@ export const initializeRecaptcha = (
       }
 
       recaptchaVerifier = new RecaptchaVerifier(
+        auth,
         elementId,
         {
           size: "invisible",
@@ -1070,7 +1071,6 @@ export const initializeRecaptcha = (
             console.log("reCAPTCHA expired");
           },
         },
-        auth,
       );
 
       resolve({ success: true });

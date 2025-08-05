@@ -1,7 +1,7 @@
 // Enhanced Music Player Service with Supabase Integration
 // This service manages music playback, integrates with Supabase for song data, and handles audio streaming
 
-import { supabase, supabaseOperations, Song } from './supabase'
+import { supabase, supabaseAPI, type Song } from './supabase'
 import { musicAPI, ExternalSong } from './music-api'
 
 export interface PlaybackState {
@@ -101,12 +101,11 @@ export class MusicPlayerService {
       this.notifyListeners()
 
       // Get audio URL - either from Supabase storage or external source
-      let audioUrl = song.audio_url
+      let audioUrl = song.url
 
       if (!audioUrl && song.id) {
-        // Try to get audio from Supabase storage
-        const { data } = await supabaseOperations.getPublicUrl('songs', `${song.id}.mp3`)
-        audioUrl = data.publicUrl
+        // Try to get audio from Supabase storage - construct URL directly
+        audioUrl = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/songs/${song.id}.mp3`
       }
 
       if (!audioUrl) {
@@ -311,13 +310,13 @@ export class MusicPlayerService {
   // Analytics and Tracking
   private async trackPlayback(songId: string) {
     try {
-      const { data: session } = await supabase.auth.getSession()
-      if (session?.user) {
+      const { data } = await supabase.auth.getSession()
+      if (data?.session?.user) {
         // Track in listening history
         await supabase
           .from('listening_history')
           .insert([{
-            user_id: session.user.id,
+            user_id: data.session.user.id,
             song_id: songId,
             played_at: new Date().toISOString(),
             duration_played: 0,
@@ -331,8 +330,8 @@ export class MusicPlayerService {
 
   private async trackCompletion(songId: string) {
     try {
-      const { data: session } = await supabase.auth.getSession()
-      if (session?.user) {
+      const { data } = await supabase.auth.getSession()
+      if (data?.session?.user) {
         // Update listening history with completion
         await supabase
           .from('listening_history')
@@ -340,7 +339,7 @@ export class MusicPlayerService {
             duration_played: this.state.currentTime,
             completed: this.state.currentTime >= (this.state.duration * 0.8) // 80% completion threshold
           })
-          .eq('user_id', session.user.id)
+          .eq('user_id', data.session.user.id)
           .eq('song_id', songId)
           .eq('played_at', new Date().toISOString().split('T')[0]) // Today's plays
       }
@@ -379,7 +378,7 @@ export class MusicPlayerService {
   // Playlist Integration
   async loadPlaylist(playlistId: string, startIndex = 0) {
     try {
-      const { data: playlistSongs, error } = await supabaseOperations.getPlaylistSongs(playlistId)
+      const { data: playlistSongs, error } = await supabaseAPI.getPlaylistSongs(playlistId)
       
       if (error) {
         throw new Error('Failed to load playlist')
@@ -399,12 +398,12 @@ export class MusicPlayerService {
 
   async loadUserLikes() {
     try {
-      const { data: session } = await supabase.auth.getSession()
-      if (!session?.user) {
+      const { data } = await supabase.auth.getSession()
+      if (!data?.session?.user) {
         throw new Error('User not authenticated')
       }
 
-      const { data: userLikes, error } = await supabaseOperations.getUserLikes(session.user.id)
+      const { data: userLikes, error } = await supabaseAPI.getUserLikedSongs(data.session.user.id)
       
       if (error) {
         throw new Error('Failed to load liked songs')

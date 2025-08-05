@@ -2,7 +2,7 @@
 // This service connects the external music APIs with our Supabase backend and existing UI components
 
 import { musicAPI, ExternalSong, integrateExternalSong } from './music-api'
-import { supabaseOperations, Song, Album, Playlist } from './supabase'
+import { supabaseAPI, type Song, type Album, type Playlist } from './supabase'
 import { ErrorHandler } from './error-handler'
 
 const errorHandler = ErrorHandler.getInstance()
@@ -119,16 +119,16 @@ export class MusicIntegrationService {
     filters?: SearchFilters
   ): Promise<{ songs: Song[]; albums: Album[]; playlists: Playlist[] }> {
     try {
-      const { data, error } = await supabaseOperations.searchAll(query, limit)
+      const { data, error } = await supabaseAPI.searchSongs(query, limit)
       
       if (error) {
         throw error
       }
 
       return {
-        songs: data?.songs || [],
-        albums: data?.albums || [],
-        playlists: data?.playlists || []
+        songs: data || [],
+        albums: [],
+        playlists: []
       }
     } catch (error) {
       console.warn('Supabase search failed:', error)
@@ -153,11 +153,17 @@ export class MusicIntegrationService {
         const internalSong = await integrateExternalSong(externalSong)
         return {
           id: externalSong.id,
-          ...internalSong,
-          // Add external metadata
-          external_id: externalSong.id,
-          external_urls: externalSong.external_urls || {},
-          preview_url: externalSong.preview_url
+          title: internalSong.title,
+          artist: internalSong.artist,
+          album: externalSong.album || 'Unknown Album',
+          duration: internalSong.duration,
+          url: (internalSong as any).audio_url || externalSong.preview_url || '',
+          cover_url: (internalSong as any).cover_image_url || externalSong.cover_image_url,
+          genre: (externalSong as any).genre || 'Unknown',
+          release_date: (externalSong as any).release_date || new Date().toISOString().split('T')[0],
+          play_count: 0,
+          likes_count: 0,
+          created_at: internalSong.created_at
         } as Song
       })
     )
@@ -191,7 +197,7 @@ export class MusicIntegrationService {
       // Get trending from external API and recent from Supabase
       const [externalTrending, recentSongs] = await Promise.allSettled([
         musicAPI.getTrendingTracks(Math.ceil(limit / 2)),
-        supabaseOperations.getSongs(Math.ceil(limit / 2), 0)
+        supabaseAPI.getTrendingSongs(Math.ceil(limit / 2))
       ])
 
       let songs: Song[] = []
@@ -244,7 +250,7 @@ export class MusicIntegrationService {
 
       const [externalPopular, supabaseAlbums] = await Promise.allSettled([
         musicAPI.getPopularTracks(Math.ceil(limit / 2)),
-        supabaseOperations.getAlbums(10)
+        supabaseAPI.getTrendingAlbums(10)
       ])
 
       let songs: Song[] = []
@@ -350,8 +356,14 @@ export class MusicIntegrationService {
         id: 'fallback-1',
         title: `Demo Song (${query})`,
         artist: 'Demo Artist',
-        cover_image_url: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop',
+        album: 'Demo Album',
         duration: 180,
+        url: 'https://example.com/demo.mp3',
+        cover_url: 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop',
+        genre: 'Demo',
+        release_date: '2024-01-01',
+        play_count: 0,
+        likes_count: 0,
         created_at: new Date().toISOString()
       }
     ]

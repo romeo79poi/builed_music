@@ -24,14 +24,14 @@ function getAuthHeaders() {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-class ApiError extends Error {
+class LocalApiError extends Error {
   constructor(
     message: string,
     public code?: string,
     public status?: number,
   ) {
     super(message);
-    this.name = "ApiError";
+    this.name = "LocalApiError";
   }
 }
 
@@ -59,7 +59,7 @@ async function apiRequest<T>(
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    throw new ApiError(
+    throw new LocalApiError(
       errorData.message || `API request failed with status ${response.status}`,
       errorData.code,
       response.status,
@@ -203,7 +203,7 @@ export const uploadApi = {
             method: "POST",
             body: JSON.stringify(fileData),
           });
-          resolve(response);
+          resolve(response as UploadResponse);
         } catch (error) {
           reject(error);
         }
@@ -331,7 +331,6 @@ export const songApi = {
     const token = localStorage.getItem("token");
     return apiRequest(`/api/v1/tracks/${songId}/like`, {
       method: "DELETE",
-      method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`,
       },

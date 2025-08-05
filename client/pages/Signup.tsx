@@ -18,6 +18,8 @@ import PasswordStrengthIndicator from "../components/PasswordStrengthIndicator";
 import AvailabilityChecker from "../components/AvailabilityChecker";
 import { useToast } from "../hooks/use-toast";
 import { api } from "../lib/api";
+import { useAuth } from "../context/AuthContext";
+import { supabaseAPI } from "../lib/supabase";
 import {
   validatePhoneNumber,
   formatPhoneInput,
@@ -313,7 +315,7 @@ export default function Signup() {
     return true;
   };
 
-  // Check availability with backend
+  // Check availability with Supabase
   const checkAvailability = async (
     field: "email" | "username" | "phone",
     value: string,
@@ -321,78 +323,50 @@ export default function Signup() {
     if (!value) return;
 
     try {
-      let response, data;
+      let isAvailable = true;
 
-      if (field === "phone") {
-        response = await fetch(
-          `/api/phone/check-availability?phone=${encodeURIComponent(value)}`,
-        );
-        data = await response.json();
+      if (field === "email") {
+        const { available, error } =
+          await supabaseAPI.checkEmailAvailability(value);
+        if (error) throw error;
+        isAvailable = available;
+      } else if (field === "username") {
+        const { available, error } =
+          await supabaseAPI.checkUsernameAvailability(value);
+        if (error) throw error;
+        isAvailable = available;
+      } else if (field === "phone") {
+        // For phone, we'll just assume it's available for now
+        // You can implement phone checking in Supabase later if needed
+        isAvailable = true;
+      }
 
-        if (data.success) {
-          setAvailability((prev) => ({
-            ...prev,
-            phone: data.phoneAvailable,
-          }));
+      setAvailability((prev) => ({
+        ...prev,
+        [field]: isAvailable,
+      }));
 
-          if (!data.phoneAvailable) {
-            setErrors((prev) => ({
-              ...prev,
-              phone: "Phone number is already registered",
-            }));
-          }
-        }
+      if (isAvailable) {
+        // Clear any existing errors if the field is available
+        setErrors((prev) => ({
+          ...prev,
+          [field]: "",
+        }));
       } else {
-        response = await fetch(
-          `/api/auth/check-availability?${field}=${encodeURIComponent(value)}`,
-        );
-        data = await response.json();
-
-        if (data.success) {
-          const isAvailable =
-            field === "email" ? data.emailAvailable : data.usernameAvailable;
-
-          setAvailability((prev) => ({
-            ...prev,
-            [field]: isAvailable,
-          }));
-
-          if (isAvailable) {
-            // Clear any existing errors if the field is available
-            setErrors((prev) => ({
-              ...prev,
-              [field]: "",
-            }));
-          } else {
-            // Show unavailable error
-            if (field === "email") {
-              setErrors((prev) => ({
-                ...prev,
-                email: "Email is already registered",
-              }));
-            } else if (field === "username") {
-              setErrors((prev) => ({
-                ...prev,
-                username: "Username is already taken",
-              }));
-            }
-          }
-        } else {
-          // Handle validation errors from backend
-          console.error(`❌ ${field} validation error:`, data.message);
+        // Show unavailable error
+        if (field === "email") {
           setErrors((prev) => ({
             ...prev,
-            [field]: data.message || `Invalid ${field}`,
+            email: "Email is already registered",
           }));
-
-          // Set availability to false for validation errors
-          setAvailability((prev) => ({
+        } else if (field === "username") {
+          setErrors((prev) => ({
             ...prev,
-            [field]: false,
+            username: "Username is already taken",
           }));
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Availability check failed:", error);
       setErrors((prev) => ({
         ...prev,
@@ -565,361 +539,79 @@ export default function Signup() {
     }
   };
 
+  const { signInWithGoogle, signInWithFacebook, signUp } = useAuth();
+
   // Google signup handler
   const handleGoogleSignup = async () => {
     setIsLoading(true);
-    setErrorAlert(null); // Clear any existing errors
-    console.log("🚀 Starting Google sign-up process...");
-
-    // Add timeout to prevent infinite loading
-    const timeoutId = setTimeout(() => {
-      setIsLoading(false);
-      setErrorAlert(
-        "Google sign-in is taking too long. Please try again or use email signup.",
-      );
-      console.log("⏰ Google sign-in timeout");
-    }, 30000); // 30 second timeout
+    setErrorAlert(null);
 
     try {
-      // Try Firebase first, then fallback to backend simulation
       const result = await signInWithGoogle();
 
-      // Clear timeout if we got a response
-      clearTimeout(timeoutId);
-
-      console.log("📋 Google sign-in result:", {
-        success: result.success,
-        hasUser: !!result.user,
-        isNewUser: result.isNewUser,
-        error: result.error,
-      });
-
-      if (result.success && result.user) {
-        // Validate user data
-        if (!result.user.email) {
-          throw new Error("Google account must have a valid email address");
-        }
-
-        const displayName =
-          result.user.displayName || result.user.email?.split("@")[0] || "User";
-        const message = result.isNewUser
-          ? `Welcome to Music Catch, ${displayName}!`
-          : `Welcome back, ${displayName}!`;
-
+      if (result.success) {
         toast({
           title: "Google sign-in successful! 🎉",
-          description: message,
+          description: result.message,
         });
 
-        console.log("✅ Google authentication successful:", {
-          uid: result.user.uid,
-          email: result.user.email,
-          displayName: result.user.displayName,
-          isNewUser: result.isNewUser,
-          emailVerified: result.user.emailVerified,
-        });
-
-        // Register/Login Google users with backend
-        try {
-          const backendResponse = await fetch("/api/auth/google", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              email: result.user.email,
-              name: displayName,
-              picture: result.user.photoURL || "",
-              googleId: result.user.uid,
-              isNewUser: result.isNewUser || true,
-            }),
-          });
-
-          const backendData = await backendResponse.json();
-          if (backendData.success) {
-            // Store tokens
-            if (backendData.accessToken) {
-              localStorage.setItem("token", backendData.accessToken);
-            }
-            if (backendData.refreshToken) {
-              localStorage.setItem("refreshToken", backendData.refreshToken);
-            }
-
-            console.log(
-              "✅ Google user authenticated with backend:",
-              backendData.user,
-            );
-          } else {
-            console.warn("Backend authentication failed:", backendData.message);
-          }
-        } catch (backendError) {
-          console.warn(
-            "Backend authentication failed for Google user:",
-            backendError,
-          );
-        }
-
-        // Save Google user data to localStorage for immediate access
-        const googleUserData = {
-          uid: result.user.uid,
-          email: result.user.email || "",
-          name: displayName,
-          username: result.user.email?.split("@")[0] || "user",
-          profileImageURL: result.user.photoURL || "",
-          dateOfBirth: "",
-          gender: "",
-          bio: "",
-        };
-
-        localStorage.setItem("currentUser", JSON.stringify(googleUserData));
-        localStorage.setItem("userAvatar", result.user.photoURL || "");
-
-        console.log(
-          "💾 Saved Google user data to localStorage:",
-          googleUserData,
-        );
-
-        // Navigate after a short delay to show success message
         setTimeout(() => {
           navigate("/home");
         }, 1500);
       } else {
-        console.error("❌ Google sign-in failed:", result.error);
-
-        // Set error alert for social auth issues
-        if (
-          result.error?.includes("domain") ||
-          result.error?.includes("unauthorized") ||
-          result.error?.includes("temporarily unavailable") ||
-          result.error?.includes("additional setup")
-        ) {
-          setErrorAlert(
-            "Social login is currently unavailable. Please use email signup instead.",
-          );
-        } else {
-          setErrorAlert(
-            result.error || "Google sign-in failed. Please try email signup.",
-          );
-        }
-
+        setErrorAlert(result.message);
         toast({
-          title: "Google sign-up unavailable",
-          description:
-            "Social signup is temporarily unavailable. Please use email signup instead.",
+          title: "Google sign-up failed",
+          description: result.message,
           variant: "destructive",
         });
       }
     } catch (error: any) {
-      console.error("💥 Google signup error:", error);
-
-      let errorMessage = "An unexpected error occurred";
-      if (error.message?.includes("email")) {
-        errorMessage = "Google account must have a valid email address";
-      } else if (error.message?.includes("network")) {
-        errorMessage = "Network error. Please check your connection.";
-      } else if (error.message?.includes("popup")) {
-        errorMessage =
-          "Sign-in popup was blocked. Please allow popups and try again.";
-      } else if (
-        error.message?.includes("domain") ||
-        error.message?.includes("unauthorized")
-      ) {
-        errorMessage =
-          "Google sign-in not available on this domain. Use email signup.";
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
-
-      setErrorAlert(errorMessage);
-
+      setErrorAlert(error.message || "Google sign-in failed");
       toast({
         title: "Google sign-in error",
-        description: errorMessage,
+        description: error.message || "An unexpected error occurred",
         variant: "destructive",
       });
     } finally {
-      clearTimeout(timeoutId); // Clear timeout in case it's still running
       setIsLoading(false);
-      console.log("🏁 Google sign-up process completed");
     }
   };
 
   // Facebook signup handler
   const handleFacebookSignup = async () => {
     setIsLoading(true);
-    setErrorAlert(null); // Clear any existing errors
-    console.log("🚀 Starting Facebook sign-up process...");
-
-    // Add timeout to prevent infinite loading
-    const timeoutId = setTimeout(() => {
-      setIsLoading(false);
-      setErrorAlert(
-        "Facebook sign-in is taking too long. Please try again or use email signup.",
-      );
-      console.log("⏰ Facebook sign-in timeout");
-    }, 30000); // 30 second timeout
+    setErrorAlert(null);
 
     try {
-      // Try Firebase first, then fallback to backend simulation
       const result = await signInWithFacebook();
 
-      // Clear timeout if we got a response
-      clearTimeout(timeoutId);
-
-      console.log("📋 Facebook sign-in result:", {
-        success: result.success,
-        hasUser: !!result.user,
-        isNewUser: result.isNewUser,
-        error: result.error,
-      });
-
-      if (result.success && result.user) {
-        // Validate user data
-        if (!result.user.email) {
-          throw new Error("Facebook account must have a valid email address");
-        }
-
-        const displayName =
-          result.user.displayName || result.user.email?.split("@")[0] || "User";
-        const message = result.isNewUser
-          ? `Welcome to Music Catch, ${displayName}!`
-          : `Welcome back, ${displayName}!`;
-
+      if (result.success) {
         toast({
           title: "Facebook sign-in successful! 🎉",
-          description: message,
+          description: result.message,
         });
 
-        console.log("✅ Facebook authentication successful:", {
-          uid: result.user.uid,
-          email: result.user.email,
-          displayName: result.user.displayName,
-          isNewUser: result.isNewUser,
-          emailVerified: result.user.emailVerified,
-        });
-
-        // Register/Login Facebook users with backend
-        try {
-          const backendResponse = await fetch("/api/auth/facebook", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              email: result.user.email,
-              name: displayName,
-              picture: result.user.photoURL || "",
-              facebookId: result.user.uid,
-              isNewUser: result.isNewUser || true,
-            }),
-          });
-
-          const backendData = await backendResponse.json();
-          if (backendData.success) {
-            // Store tokens
-            if (backendData.accessToken) {
-              localStorage.setItem("token", backendData.accessToken);
-            }
-            if (backendData.refreshToken) {
-              localStorage.setItem("refreshToken", backendData.refreshToken);
-            }
-
-            console.log(
-              "✅ Facebook user authenticated with backend:",
-              backendData.user,
-            );
-          } else {
-            console.warn("Backend authentication failed:", backendData.message);
-          }
-        } catch (backendError) {
-          console.warn(
-            "Backend authentication failed for Facebook user:",
-            backendError,
-          );
-        }
-
-        // Save Facebook user data to localStorage for immediate access
-        const facebookUserData = {
-          uid: result.user.uid,
-          email: result.user.email || "",
-          name: displayName,
-          username: result.user.email?.split("@")[0] || "user",
-          profileImageURL: result.user.photoURL || "",
-          dateOfBirth: "",
-          gender: "",
-          bio: "",
-        };
-
-        localStorage.setItem("currentUser", JSON.stringify(facebookUserData));
-        localStorage.setItem("userAvatar", result.user.photoURL || "");
-
-        console.log(
-          "💾 Saved Facebook user data to localStorage:",
-          facebookUserData,
-        );
-
-        // Navigate after a short delay to show success message
         setTimeout(() => {
           navigate("/home");
         }, 1500);
       } else {
-        console.error("❌ Facebook sign-in failed:", result.error);
-
-        // Set error alert for social auth issues
-        if (
-          result.error?.includes("domain") ||
-          result.error?.includes("unauthorized") ||
-          result.error?.includes("temporarily unavailable") ||
-          result.error?.includes("additional setup")
-        ) {
-          setErrorAlert(
-            "Social login is currently unavailable. Please use email signup instead.",
-          );
-        } else {
-          setErrorAlert(
-            result.error || "Facebook sign-in failed. Please try email signup.",
-          );
-        }
-
+        setErrorAlert(result.message);
         toast({
-          title: "Facebook sign-up unavailable",
-          description:
-            "Social signup is temporarily unavailable. Please use email signup instead.",
+          title: "Facebook sign-up failed",
+          description: result.message,
           variant: "destructive",
         });
       }
     } catch (error: any) {
-      console.error("💥 Facebook signup error:", error);
-
-      let errorMessage = "An unexpected error occurred";
-      if (error.message?.includes("email")) {
-        errorMessage = "Facebook account must have a valid email address";
-      } else if (error.message?.includes("network")) {
-        errorMessage = "Network error. Please check your connection.";
-      } else if (error.message?.includes("popup")) {
-        errorMessage =
-          "Sign-in popup was blocked. Please allow popups and try again.";
-      } else if (
-        error.message?.includes("domain") ||
-        error.message?.includes("unauthorized")
-      ) {
-        errorMessage =
-          "Facebook sign-in not available on this domain. Use email signup.";
-      } else if (error.message) {
-        errorMessage = error.message;
-      }
-
-      setErrorAlert(errorMessage);
-
+      setErrorAlert(error.message || "Facebook sign-in failed");
       toast({
         title: "Facebook sign-in error",
-        description: errorMessage,
+        description: error.message || "An unexpected error occurred",
         variant: "destructive",
       });
     } finally {
-      clearTimeout(timeoutId); // Clear timeout in case it's still running
       setIsLoading(false);
-      console.log("🏁 Facebook sign-up process completed");
     }
   };
 
@@ -939,59 +631,10 @@ export default function Signup() {
   const handleEmailStep = async () => {
     if (!validateEmail(formData.email)) return;
 
-    setIsLoading(true);
-
-    try {
-      // Check email availability first
-      await checkAvailability("email", formData.email);
-
-      if (availability.email === false) {
-        setIsLoading(false);
-        return;
-      }
-
-      // Send verification code via backend
-      const response = await fetch("/api/auth/send-email-verification", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email: formData.email }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (data.success) {
-        setCurrentStep("verification");
-
-        toast({
-          title: "Verification code sent!",
-          description:
-            "Please check your email for the 6-digit verification code.",
-        });
-
-        setResendTimer(60);
-      } else {
-        toast({
-          title: "Failed to send verification code",
-          description: data.message || "Please try again",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error("Email verification error:", error);
-      toast({
-        title: "Network error",
-        description: "Please check your connection and try again",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    // For Supabase, we skip the separate email verification step
+    // and go directly to the profile step since Supabase handles
+    // email verification after account creation
+    setCurrentStep("profile");
   };
 
   const handlePhoneStep = async () => {
@@ -1025,64 +668,8 @@ export default function Signup() {
   };
 
   const handleVerificationStep = async () => {
-    if (!validateOTP(formData.otp)) return;
-
-    if (signupMethod === "email") {
-      setIsLoading(true);
-
-      try {
-        // Verify email code with backend
-        console.log(
-          `🔍 Verifying email: ${formData.email} with code: ${formData.otp}`,
-        );
-
-        const response = await fetch("/api/auth/verify-email", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: formData.email,
-            code: formData.otp,
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        console.log(`📝 Verification response:`, data);
-
-        if (data.success) {
-          toast({
-            title: "Email verified!",
-            description: "Your email has been successfully verified.",
-          });
-          setCurrentStep("profile");
-        } else {
-          setErrors((prev) => ({ ...prev, otp: data.message }));
-
-          if (data.attemptsRemaining !== undefined) {
-            toast({
-              title: "Invalid code",
-              description: `${data.attemptsRemaining} attempts remaining`,
-              variant: "destructive",
-            });
-          }
-        }
-      } catch (error) {
-        console.error("Email verification error:", error);
-        setErrors((prev) => ({
-          ...prev,
-          otp: "Verification failed. Please try again.",
-        }));
-      } finally {
-        setIsLoading(false);
-      }
-    } else {
-      setCurrentStep("password");
-    }
+    // Skip verification for Supabase - go directly to profile
+    setCurrentStep("profile");
   };
 
   const handlePhoneVerifyStep = async () => {
@@ -1333,95 +920,32 @@ export default function Signup() {
       // Clear any previous errors
       setErrorAlert(null);
 
-      if (useFirebaseAuth) {
-        // Use Firebase email signup with verification
-        const result = await signUpWithEmailAndPasswordWithVerification(
-          formData.email,
-          formData.password,
-          formData.name,
-          formData.username,
-          formData.phone,
-        );
+      // Use Supabase for email registration
+      const result = await signUp(formData.email, formData.password, {
+        username: formData.username,
+        name: formData.name,
+        dateOfBirth: formData.dateOfBirth,
+        gender: formData.gender,
+        bio: formData.bio,
+        profileImageURL: formData.profileImageURL,
+      });
 
-        if (result.success) {
-          // Store user for email verification
-          if (result.user) {
-            setVerificationUser(result.user);
-            setEmailVerificationSent(true);
-          }
-
-          toast({
-            title: "Account created successfully! ����",
-            description: `Welcome to Music Catch, ${formData.name}! Please check your email for verification.`,
-          });
-
-          console.log("✅ User created with Firebase:", result.user);
-
-          setTimeout(() => {
-            navigate("/home");
-          }, 2000);
-        } else {
-          setErrorAlert(
-            result.error || "Registration failed. Please try again.",
-          );
-        }
-      } else {
-        // Use backend API for email registration
-        const response = await fetch("/api/auth/complete-registration", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: formData.email,
-            username: formData.username,
-            name: formData.name,
-            password: formData.password,
-            dateOfBirth: formData.dateOfBirth,
-            gender: formData.gender,
-            bio: formData.bio,
-          }),
+      if (result.success) {
+        toast({
+          title: "Account created successfully! 🎉",
+          description: result.message,
         });
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        if (data.success) {
-          // Save user data to localStorage for immediate access
-          const completeUserData = {
-            uid: data.user?.id || `user-${Date.now()}`,
-            email: formData.email,
-            name: formData.name,
-            username: formData.username,
-            profileImageURL: formData.profileImageURL || "",
-            dateOfBirth: formData.dateOfBirth,
-            gender: formData.gender,
-            bio: formData.bio,
-          };
-
-          localStorage.setItem("currentUser", JSON.stringify(completeUserData));
-          localStorage.setItem("userAvatar", formData.profileImageURL || "");
-
-          console.log("💾 Saved user data to localStorage:", completeUserData);
-
-          toast({
-            title: "Account created successfully! 🎉",
-            description: `Welcome to Music Catch, ${formData.name}!`,
-          });
-
-          console.log("✅ User created with backend:", data.user);
-
-          setTimeout(() => {
-            navigate("/home");
-          }, 2000);
-        } else {
-          setErrorAlert(
-            data.message || "Registration failed. Please try again.",
-          );
-        }
+        setTimeout(() => {
+          navigate("/home");
+        }, 2000);
+      } else {
+        setErrorAlert(result.message);
+        toast({
+          title: "Registration failed",
+          description: result.message,
+          variant: "destructive",
+        });
       }
     } catch (error) {
       console.error("Registration error:", error);
@@ -1444,10 +968,8 @@ export default function Signup() {
       } else {
         setCurrentStep("phone-verify");
       }
-    } else if (currentStep === "verification") {
-      setCurrentStep("profile");
     } else if (currentStep === "password") {
-      setCurrentStep("verification");
+      setCurrentStep("profile");
     } else if (currentStep === "dob") {
       setCurrentStep("password");
     } else if (currentStep === "profileImage") {
