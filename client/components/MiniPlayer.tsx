@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { useMusicContext } from "../context/MusicContext";
 import LikeButton from "./LikeButton";
+import { useFirebase } from "../context/FirebaseContext";
 
 export function MiniPlayer() {
   const {
@@ -35,9 +36,53 @@ export function MiniPlayer() {
     toggleShuffle,
     toggleRepeat,
   } = useMusicContext();
+  const { user: firebaseUser } = useFirebase();
 
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
+
+  // Save playback preferences to Firebase user's profile
+  useEffect(() => {
+    if (firebaseUser && volume !== undefined) {
+      // Save volume preference
+      localStorage.setItem(`firebase_${firebaseUser.uid}_volume`, volume.toString());
+    }
+  }, [volume, firebaseUser]);
+
+  useEffect(() => {
+    if (firebaseUser && (isShuffle !== undefined || isRepeat !== undefined)) {
+      // Save playback mode preferences
+      localStorage.setItem(`firebase_${firebaseUser.uid}_shuffle`, isShuffle.toString());
+      localStorage.setItem(`firebase_${firebaseUser.uid}_repeat`, isRepeat.toString());
+    }
+  }, [isShuffle, isRepeat, firebaseUser]);
+
+  // Load user preferences on mount
+  useEffect(() => {
+    if (firebaseUser) {
+      const savedVolume = localStorage.getItem(`firebase_${firebaseUser.uid}_volume`);
+      const savedShuffle = localStorage.getItem(`firebase_${firebaseUser.uid}_shuffle`);
+      const savedRepeat = localStorage.getItem(`firebase_${firebaseUser.uid}_repeat`);
+
+      if (savedVolume && setVolume) {
+        setVolume(parseFloat(savedVolume));
+      }
+      if (savedShuffle && toggleShuffle) {
+        // Only update if different from current state
+        const shouldShuffle = savedShuffle === 'true';
+        if (shouldShuffle !== isShuffle) {
+          console.log('🔥 Loading Firebase user shuffle preference:', shouldShuffle);
+        }
+      }
+      if (savedRepeat && toggleRepeat) {
+        // Only update if different from current state
+        const shouldRepeat = savedRepeat === 'true';
+        if (shouldRepeat !== isRepeat) {
+          console.log('🔥 Loading Firebase user repeat preference:', shouldRepeat);
+        }
+      }
+    }
+  }, [firebaseUser]);
 
   if (!currentSong) return null;
 
