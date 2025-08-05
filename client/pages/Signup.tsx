@@ -1020,6 +1020,9 @@ export default function Signup() {
       {/* Background glow effect */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-primary/10 via-purple-secondary/5 to-purple-accent/8"></div>
 
+      {/* reCAPTCHA container for Firebase phone auth */}
+      <div id="recaptcha-container" className="hidden"></div>
+
       <div className="relative z-10 w-full max-w-md px-2 sm:px-0 flex-1 flex flex-col justify-center min-h-0">
         {/* Header */}
         <motion.div
