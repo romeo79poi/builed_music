@@ -20,7 +20,8 @@ import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
 import { api } from "../lib/api";
-// Remove Firebase dependencies - using new backend authentication
+import { useAuth } from "../context/AuthContext";
+import { useMusic } from "../context/MusicContextSupabase";
 
 // Featured Artist/Album of the Day
 const featuredContent = {
