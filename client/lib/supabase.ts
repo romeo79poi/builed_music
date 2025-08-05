@@ -377,8 +377,47 @@ export const supabaseAPI = {
       .subscribe()
   },
 
+  // Availability Checks
+  async checkEmailAvailability(email: string) {
+    if (!isSupabaseConfigured()) {
+      return { available: true, error: null }
+    }
+
+    const { data, error } = await supabase
+      .from('users')
+      .select('id')
+      .eq('email', email)
+      .single()
+
+    return {
+      available: !data && error?.code === 'PGRST116', // No rows returned
+      error: data ? null : (error?.code === 'PGRST116' ? null : error)
+    }
+  },
+
+  async checkUsernameAvailability(username: string) {
+    if (!isSupabaseConfigured()) {
+      return { available: true, error: null }
+    }
+
+    const { data, error } = await supabase
+      .from('users')
+      .select('id')
+      .eq('username', username)
+      .single()
+
+    return {
+      available: !data && error?.code === 'PGRST116', // No rows returned
+      error: data ? null : (error?.code === 'PGRST116' ? null : error)
+    }
+  },
+
   // Analytics
   async recordSongPlay(userId: string, songId: string) {
+    if (!isSupabaseConfigured()) {
+      return { data: null, error: { message: 'Supabase not configured' } }
+    }
+
     const { data, error } = await supabase
       .from('user_listening_history')
       .insert({
@@ -386,17 +425,21 @@ export const supabaseAPI = {
         song_id: songId,
         played_at: new Date().toISOString()
       })
-    
+
     // Also increment play count
     await supabase
       .from('songs')
       .rpc('increment_play_count', { song_id: songId })
       .eq('id', songId)
-    
+
     return { data, error }
   },
 
   async getUserListeningHistory(userId: string, limit = 50) {
+    if (!isSupabaseConfigured()) {
+      return { data: null, error: { message: 'Supabase not configured' } }
+    }
+
     const { data, error } = await supabase
       .from('user_listening_history')
       .select(`
