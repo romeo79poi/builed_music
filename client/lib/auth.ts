@@ -1071,7 +1071,6 @@ export const initializeRecaptcha = (
             console.log("reCAPTCHA expired");
           },
         },
-        auth,
       );
 
       resolve({ success: true });
