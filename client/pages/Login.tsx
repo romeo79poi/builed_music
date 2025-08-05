@@ -86,6 +86,28 @@ export default function Login() {
     setBackendError(null);
 
     try {
+      console.log('🔥 Attempting Firebase Google login...');
+
+      // Try Firebase Google Auth first
+      const firebaseResult = await firebaseHelpers.googleSignIn();
+
+      if (firebaseResult.success && firebaseResult.user) {
+        console.log('✅ Firebase Google login successful:', firebaseResult.user);
+
+        toast({
+          title: "Welcome back to CATCH! 🎉",
+          description: `Signed in as ${firebaseResult.user.displayName || firebaseResult.user.email}`,
+        });
+
+        // Navigate to home
+        setTimeout(() => {
+          navigate("/home");
+        }, 1500);
+        return;
+      }
+
+      // Fallback to backend Google auth if Firebase fails
+      console.log('📱 Falling back to backend Google auth');
       const result = await signInWithGoogle();
 
       if (result.success) {
@@ -102,6 +124,7 @@ export default function Login() {
         });
       }
     } catch (error: any) {
+      console.error('❌ Google login error:', error);
       setBackendError(error.message || "Google login failed");
       toast({
         title: "Google login error",
