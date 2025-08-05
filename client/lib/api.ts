@@ -24,14 +24,14 @@ function getAuthHeaders() {
   return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-class ApiError extends Error {
+class LocalApiError extends Error {
   constructor(
     message: string,
     public code?: string,
     public status?: number,
   ) {
     super(message);
-    this.name = "ApiError";
+    this.name = "LocalApiError";
   }
 }
 
