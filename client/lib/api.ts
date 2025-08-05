@@ -203,7 +203,7 @@ export const uploadApi = {
             method: "POST",
             body: JSON.stringify(fileData),
           });
-          resolve(response);
+          resolve(response as UploadResponse);
         } catch (error) {
           reject(error);
         }
