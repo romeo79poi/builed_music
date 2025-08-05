@@ -1,13 +1,16 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useChatStore } from "@/stores/useChatStore";
-import { useUser } from "@clerk/clerk-react";
+import { useAuth } from "./AuthContext";
+import { useMusic } from "./MusicContextSupabase";
 import { HeadphonesIcon, Music, Users } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 const FriendsActivity = () => {
-	const { users, fetchUsers, onlineUsers, userActivities } = useChatStore();
-	const { user } = useUser();
+	const [users, setUsers] = useState<any[]>([]);
+	const [onlineUsers, setOnlineUsers] = useState<any[]>([]);
+	const [userActivities, setUserActivities] = useState<any[]>([]);
+	const { user } = useAuth();
+	const { friendsActivity } = useMusic();
 
 	useEffect(() => {
 		if (user) fetchUsers();

@@ -1,11 +1,11 @@
-import { usePlayerStore } from "@/stores/usePlayerStore";
 import { useEffect, useRef } from "react";
+import { useMusic } from "./MusicContextSupabase";
 
 const AudioPlayer = () => {
 	const audioRef = useRef<HTMLAudioElement>(null);
 	const prevSongRef = useRef<string | null>(null);
 
-	const { currentSong, isPlaying, playNext } = usePlayerStore();
+	const { currentSong, isPlaying, nextSong } = useMusic();
 
 	// handle play/pause logic
 	useEffect(() => {
