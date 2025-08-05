@@ -101,7 +101,7 @@ export class MusicPlayerService {
       this.notifyListeners()
 
       // Get audio URL - either from Supabase storage or external source
-      let audioUrl = song.audio_url
+      let audioUrl = song.url
 
       if (!audioUrl && song.id) {
         // Try to get audio from Supabase storage
