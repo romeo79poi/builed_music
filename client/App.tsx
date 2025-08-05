@@ -10,7 +10,7 @@ import { MusicProvider } from "./context/MusicContextSupabase";
 import { ProfileProvider } from "./context/ProfileContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
-// import { SocketProvider } from "./context/SocketContext";
+import { RealtimeProvider } from "./context/RealtimeContext";
 import AuthRouter from "./components/AuthRouter";
 import Splash from "./pages/Splash";
 import Login from "./pages/Login";
@@ -45,8 +45,9 @@ const App = () => {
       <ThemeProvider>
         <TooltipProvider>
           <AuthProvider>
-            <MusicProvider>
-              <ProfileProvider>
+            <RealtimeProvider>
+              <MusicProvider>
+                <ProfileProvider>
                 <Toaster />
                 <Sonner />
                 <BrowserRouter>
@@ -78,8 +79,9 @@ const App = () => {
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </BrowserRouter>
-              </ProfileProvider>
-            </MusicProvider>
+                </ProfileProvider>
+              </MusicProvider>
+            </RealtimeProvider>
           </AuthProvider>
         </TooltipProvider>
       </ThemeProvider>
