@@ -1060,6 +1060,7 @@ export const initializeRecaptcha = (
       }
 
       recaptchaVerifier = new RecaptchaVerifier(
+        auth,
         elementId,
         {
           size: "invisible",
