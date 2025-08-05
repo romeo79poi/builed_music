@@ -19,7 +19,7 @@ import AvailabilityChecker from "../components/AvailabilityChecker";
 import { useToast } from "../hooks/use-toast";
 import { api } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
-import { supabaseAPI } from "../lib/supabase";
+// import { supabaseAPI } from "../lib/supabase"; // Removed - using Firebase/Backend
 import {
   validatePhoneNumber,
   formatPhoneInput,
