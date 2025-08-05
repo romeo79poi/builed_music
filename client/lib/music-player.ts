@@ -1,7 +1,7 @@
 // Enhanced Music Player Service with Supabase Integration
 // This service manages music playback, integrates with Supabase for song data, and handles audio streaming
 
-import { supabase, supabaseOperations, Song } from './supabase'
+import { supabase, supabaseAPI, type Song } from './supabase'
 import { musicAPI, ExternalSong } from './music-api'
 
 export interface PlaybackState {
