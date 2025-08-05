@@ -32,17 +32,10 @@ export function SocketProvider({ children }: SocketProviderProps) {
   const [isConnected, setIsConnected] = useState(false);
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
 
-  // Safely get auth context - might not be available initially
-  let user = null;
-  let token = null;
-  try {
-    const auth = useAuth();
-    user = auth?.user;
-    token = auth?.token;
-  } catch (error) {
-    // Auth context not available yet
-    console.log('Auth context not available yet');
-  }
+  // Try to get auth context - will be null if not available
+  const authContext = React.useContext(require('./AuthContext').AuthContext);
+  const user = authContext?.user || null;
+  const token = authContext?.token || null;
 
   useEffect(() => {
     if (user && token) {
