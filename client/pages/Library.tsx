@@ -23,6 +23,8 @@ import {
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
 import { api } from "../lib/api";
+import { useAuth } from "../context/AuthContext";
+import { useMusic } from "../context/MusicContextSupabase";
 
 interface Track {
   id: string;
