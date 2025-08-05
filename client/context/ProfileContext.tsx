@@ -110,7 +110,7 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({
       language: ["English", "French"],
       autoPlay: true,
       crossfade: false,
-      soundQuality: "high",
+      soundQuality: "high" as "high",
     },
     socialLinks: {
       instagram: "@biospectra",
