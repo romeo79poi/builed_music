@@ -46,8 +46,12 @@ export default function History() {
       setIsLoading(true);
 
       const [historyData, analyticsData] = await Promise.all([
-        api.history.getHistory(50, timeFilter.toLowerCase().replace(" ", "_")).catch(() => ({ success: false })),
-        api.history.getAnalytics(timeFilter.toLowerCase().replace(" ", "_")).catch(() => ({ success: false })),
+        api.history
+          .getHistory(50, timeFilter.toLowerCase().replace(" ", "_"))
+          .catch(() => ({ success: false })),
+        api.history
+          .getAnalytics(timeFilter.toLowerCase().replace(" ", "_"))
+          .catch(() => ({ success: false })),
       ]);
 
       if (historyData.success) {

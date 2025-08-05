@@ -260,7 +260,7 @@ export default function Home() {
     isPlaying,
     loading,
     likeSong,
-    unlikeSong
+    unlikeSong,
   } = useMusic();
 
   const [hoveredAlbum, setHoveredAlbum] = useState<string | null>(null);

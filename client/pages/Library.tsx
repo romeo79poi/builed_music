@@ -77,8 +77,8 @@ export default function Library() {
       setIsLoading(true);
 
       // Check authentication
-      const token = localStorage.getItem('token');
-      const userData = localStorage.getItem('currentUser');
+      const token = localStorage.getItem("token");
+      const userData = localStorage.getItem("currentUser");
 
       if (token && userData) {
         const user = JSON.parse(userData);
@@ -97,57 +97,62 @@ export default function Library() {
 
   const loadLibraryData = async () => {
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) return;
 
       // Load playlists
       try {
-        const playlistsResponse = await fetch('/api/v1/users/playlists', {
-          headers: { 'Authorization': `Bearer ${token}` }
+        const playlistsResponse = await fetch("/api/v1/users/playlists", {
+          headers: { Authorization: `Bearer ${token}` },
         });
         if (playlistsResponse.ok) {
           const playlistsData = await playlistsResponse.json();
           setUserPlaylists(playlistsData.playlists || []);
         }
       } catch (error) {
-        console.error('Error loading playlists:', error);
+        console.error("Error loading playlists:", error);
       }
 
       // Load liked songs
       try {
-        const likedResponse = await fetch('/api/v1/users/liked-tracks', {
-          headers: { 'Authorization': `Bearer ${token}` }
+        const likedResponse = await fetch("/api/v1/users/liked-tracks", {
+          headers: { Authorization: `Bearer ${token}` },
         });
         if (likedResponse.ok) {
           const likedData = await likedResponse.json();
           setLikedSongs(likedData.liked_tracks || []);
         }
       } catch (error) {
-        console.error('Error loading liked songs:', error);
+        console.error("Error loading liked songs:", error);
       }
 
       // Load recently played
       try {
-        const historyResponse = await fetch('/api/v1/users/play-history?limit=20', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const historyResponse = await fetch(
+          "/api/v1/users/play-history?limit=20",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          },
+        );
         if (historyResponse.ok) {
           const historyData = await historyResponse.json();
           setRecentlyPlayed(historyData.play_history || []);
         }
       } catch (error) {
-        console.error('Error loading play history:', error);
+        console.error("Error loading play history:", error);
       }
 
       // Load recently added songs (trending tracks as fallback)
       try {
-        const tracksResponse = await fetch('/api/v1/tracks?sort_by=created_at&limit=20');
+        const tracksResponse = await fetch(
+          "/api/v1/tracks?sort_by=created_at&limit=20",
+        );
         if (tracksResponse.ok) {
           const tracksData = await tracksResponse.json();
           setRecentlyAdded(tracksData.tracks || []);
         }
       } catch (error) {
-        console.error('Error loading recent tracks:', error);
+        console.error("Error loading recent tracks:", error);
       }
     } catch (error) {
       console.error("Failed to load library data:", error);
@@ -169,15 +174,15 @@ export default function Library() {
 
         // Add to listening history
         if (currentUser) {
-          const token = localStorage.getItem('token');
+          const token = localStorage.getItem("token");
           if (token) {
-            await fetch('/api/v1/users/play-history', {
-              method: 'POST',
+            await fetch("/api/v1/users/play-history", {
+              method: "POST",
               headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
               },
-              body: JSON.stringify({ track_id: song.id })
+              body: JSON.stringify({ track_id: song.id }),
             });
           }
         }
@@ -205,7 +210,7 @@ export default function Library() {
     }
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
         toast({
           title: "Authentication required",
@@ -216,17 +221,17 @@ export default function Library() {
       }
 
       const playlistName = `My Playlist #${userPlaylists.length + 1}`;
-      const response = await fetch('/api/v1/playlists', {
-        method: 'POST',
+      const response = await fetch("/api/v1/playlists", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           name: playlistName,
-          description: 'A new playlist',
-          is_public: false
-        })
+          description: "A new playlist",
+          is_public: false,
+        }),
       });
 
       if (response.ok) {
@@ -266,7 +271,7 @@ export default function Library() {
     }
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
         toast({
           title: "Login required",
@@ -276,14 +281,14 @@ export default function Library() {
         return;
       }
 
-      const isCurrentlyLiked = likedSongs.some(song => song.id === trackId);
-      const method = isCurrentlyLiked ? 'DELETE' : 'POST';
+      const isCurrentlyLiked = likedSongs.some((song) => song.id === trackId);
+      const method = isCurrentlyLiked ? "DELETE" : "POST";
 
       const response = await fetch(`/api/v1/users/liked-tracks/${trackId}`, {
         method,
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (response.ok) {
@@ -298,7 +303,9 @@ export default function Library() {
         }
 
         toast({
-          title: isCurrentlyLiked ? "Removed from liked songs" : "Added to liked songs",
+          title: isCurrentlyLiked
+            ? "Removed from liked songs"
+            : "Added to liked songs",
           description: isCurrentlyLiked
             ? "Song removed from your favorites"
             : "Song added to your favorites",

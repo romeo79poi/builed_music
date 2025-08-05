@@ -10,6 +10,7 @@ import { MusicProvider } from "./context/MusicContextSupabase";
 import { ProfileProvider } from "./context/ProfileContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
+// import { SocketProvider } from "./context/SocketContext";
 import AuthRouter from "./components/AuthRouter";
 import Splash from "./pages/Splash";
 import Login from "./pages/Login";
@@ -32,6 +33,7 @@ import Messages from "./pages/Messages";
 import VerifyEmail from "./pages/VerifyEmail";
 import ResetPassword from "./pages/ResetPassword";
 import CodeGenerator from "./pages/CodeGenerator";
+import FirebaseDemo from "./pages/FirebaseDemo";
 
 import NotFound from "./pages/NotFound";
 
@@ -72,6 +74,7 @@ const App = () => {
                     <Route path="/verify-email" element={<VerifyEmail />} />
                     <Route path="/reset-password" element={<ResetPassword />} />
                     <Route path="/code-generator" element={<CodeGenerator />} />
+                    <Route path="/firebase-demo" element={<FirebaseDemo />} />
 
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
