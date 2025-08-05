@@ -155,14 +155,14 @@ export class MusicIntegrationService {
           id: externalSong.id,
           title: internalSong.title,
           artist: internalSong.artist,
-          album: internalSong.album,
+          album: externalSong.album || 'Unknown Album',
           duration: internalSong.duration,
-          url: internalSong.url,
-          cover_url: internalSong.cover_url,
-          genre: internalSong.genre,
-          release_date: internalSong.release_date,
-          play_count: internalSong.play_count || 0,
-          likes_count: internalSong.likes_count || 0,
+          url: (internalSong as any).audio_url || externalSong.preview_url || '',
+          cover_url: (internalSong as any).cover_image_url || externalSong.cover_image_url,
+          genre: externalSong.genre || 'Unknown',
+          release_date: externalSong.release_date || new Date().toISOString().split('T')[0],
+          play_count: 0,
+          likes_count: 0,
           created_at: internalSong.created_at
         } as Song
       })
