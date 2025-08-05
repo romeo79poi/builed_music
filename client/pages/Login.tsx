@@ -14,7 +14,6 @@ import {
 } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useAuth } from "../context/AuthContext";
-import { signInWithGoogle, signInWithFacebook } from "../lib/auth";
 import { useToast } from "../hooks/use-toast";
 import { api } from "../lib/api";
 import ConnectivityChecker, {
@@ -24,7 +23,7 @@ import ConnectivityChecker, {
 export default function Login() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { login } = useAuth();
+  const { signIn, signInWithGoogle, signInWithFacebook } = useAuth();
   const [loginMethod, setLoginMethod] = useState<"social" | "email" | "phone">(
     "social",
   );
@@ -46,6 +45,102 @@ export default function Login() {
         variant: "destructive",
       });
       return;
+    }
+
+    setIsLoading(true);
+    setBackendError(null);
+
+    try {
+      const result = await signIn(email, password);
+
+      if (result.success) {
+        toast({
+          title: "Login successful! 🎉",
+          description: result.message,
+        });
+
+        navigate("/home");
+      } else {
+        setBackendError(result.message);
+        toast({
+          title: "Login failed",
+          description: result.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      setBackendError(error.message || "Network error occurred");
+      toast({
+        title: "Login error",
+        description: error.message || "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setIsLoading(true);
+    setBackendError(null);
+
+    try {
+      const result = await signInWithGoogle();
+
+      if (result.success) {
+        toast({
+          title: "Google login successful! 🎉",
+          description: result.message,
+        });
+      } else {
+        setBackendError(result.message);
+        toast({
+          title: "Google login failed",
+          description: result.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      setBackendError(error.message || "Google login failed");
+      toast({
+        title: "Google login error",
+        description: error.message || "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleFacebookLogin = async () => {
+    setIsLoading(true);
+    setBackendError(null);
+
+    try {
+      const result = await signInWithFacebook();
+
+      if (result.success) {
+        toast({
+          title: "Facebook login successful! 🎉",
+          description: result.message,
+        });
+      } else {
+        setBackendError(result.message);
+        toast({
+          title: "Facebook login failed",
+          description: result.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      setBackendError(error.message || "Facebook login failed");
+      toast({
+        title: "Facebook login error",
+        description: error.message || "An unexpected error occurred",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
 
     // Check connectivity before attempting login
