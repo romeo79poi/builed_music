@@ -399,12 +399,12 @@ export class MusicPlayerService {
 
   async loadUserLikes() {
     try {
-      const { data: session } = await supabase.auth.getSession()
-      if (!session?.user) {
+      const { data } = await supabase.auth.getSession()
+      if (!data?.session?.user) {
         throw new Error('User not authenticated')
       }
 
-      const { data: userLikes, error } = await supabaseAPI.getUserLikes(session.user.id)
+      const { data: userLikes, error } = await supabaseAPI.getUserLikes(data.session.user.id)
       
       if (error) {
         throw new Error('Failed to load liked songs')
