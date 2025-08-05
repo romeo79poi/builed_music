@@ -153,11 +153,17 @@ export class MusicIntegrationService {
         const internalSong = await integrateExternalSong(externalSong)
         return {
           id: externalSong.id,
-          ...internalSong,
-          // Add external metadata
-          external_id: externalSong.id,
-          external_urls: externalSong.external_urls || {},
-          preview_url: externalSong.preview_url
+          title: internalSong.title,
+          artist: internalSong.artist,
+          album: internalSong.album,
+          duration: internalSong.duration,
+          url: internalSong.url,
+          cover_url: internalSong.cover_url,
+          genre: internalSong.genre,
+          release_date: internalSong.release_date,
+          play_count: internalSong.play_count || 0,
+          likes_count: internalSong.likes_count || 0,
+          created_at: internalSong.created_at
         } as Song
       })
     )
