@@ -617,20 +617,11 @@ const Messages = () => {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <h1 className="text-xl font-bold">Messages</h1>
-            <Badge variant="secondary" className="text-xs">
-              {
-                filteredChats.filter((chat) => (chat.unreadCount || 0) > 0)
-                  .length
-              }
-            </Badge>
           </div>
 
           <div className="flex items-center space-x-2">
             <Button variant="outline" className="hover:bg-accent">
               Join
-            </Button>
-            <Button variant="ghost" size="icon" className="hover:bg-accent">
-              <Send className="h-5 w-5" />
             </Button>
             <Button variant="ghost" size="icon" className="hover:bg-accent">
               <Edit className="h-5 w-5" />
