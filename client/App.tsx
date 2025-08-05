@@ -11,6 +11,7 @@ import { ProfileProvider } from "./context/ProfileContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
 import { RealtimeProvider } from "./context/RealtimeContext";
+import { FirebaseProvider } from "./context/FirebaseContext";
 import AuthRouter from "./components/AuthRouter";
 import Splash from "./pages/Splash";
 import Login from "./pages/Login";
@@ -45,9 +46,10 @@ const App = () => {
       <ThemeProvider>
         <TooltipProvider>
           <AuthProvider>
-            <RealtimeProvider>
-              <MusicProvider>
-                <ProfileProvider>
+            <FirebaseProvider>
+              <RealtimeProvider>
+                <MusicProvider>
+                  <ProfileProvider>
                 <Toaster />
                 <Sonner />
                 <BrowserRouter>
@@ -79,9 +81,10 @@ const App = () => {
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </BrowserRouter>
-                </ProfileProvider>
-              </MusicProvider>
-            </RealtimeProvider>
+                  </ProfileProvider>
+                </MusicProvider>
+              </RealtimeProvider>
+            </FirebaseProvider>
           </AuthProvider>
         </TooltipProvider>
       </ThemeProvider>
