@@ -337,7 +337,17 @@ export default function History() {
           <Link to="/home">
             <ArrowLeft className="w-6 h-6 text-white" />
           </Link>
-          <h1 className="text-xl font-bold">Listening History</h1>
+          <div className="flex items-center space-x-2">
+            <h1 className="text-xl font-bold">Listening History</h1>
+            {firebaseUser && (
+              <div className="flex items-center space-x-1 px-2 py-1 bg-orange-500/10 rounded-full">
+                <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                <span className="text-xs text-orange-500 font-medium">
+                  Firebase
+                </span>
+              </div>
+            )}
+          </div>
           <div className="flex items-center space-x-3">
             <Search className="w-6 h-6 text-gray-400" />
             <Calendar className="w-6 h-6 text-gray-400" />
