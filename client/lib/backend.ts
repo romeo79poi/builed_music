@@ -121,7 +121,6 @@ export class BackendAPI {
   static async unlikeSong(songId: string) {
     return this.request(`/api/v1/tracks/${songId}/like`, {
       method: "DELETE",
-      method: "PUT",
     });
   }
 
