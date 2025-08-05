@@ -35,7 +35,7 @@ export function MusicCatchLogo({
           style={{
             // Clean, crisp rendering like Google's logo
             imageRendering: "crisp-edges",
-            WebkitImageRendering: "crisp-edges",
+            WebkitImageRendering: "crisp-edges" as any,
           }}
         />
       </div>
