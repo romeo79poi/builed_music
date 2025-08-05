@@ -28,15 +28,6 @@ function expressPlugin(): Plugin {
     configureServer(server) {
       const app = createServer();
 
-      // Initialize Socket.IO if the method exists
-      if (typeof (app as any).setupSocketIO === 'function') {
-        try {
-          (app as any).setupSocketIO(server.httpServer);
-        } catch (error) {
-          console.warn('⚠️ Failed to initialize Socket.IO:', error);
-        }
-      }
-
       // Add Express app as middleware to handle all requests
       // This needs to be added before Vite's internal middleware
       server.middlewares.use((req, res, next) => {
