@@ -177,7 +177,7 @@ export const MusicProvider: React.FC<MusicProviderProps> = ({ children }) => {
       const result = await BackendAPI.getLikedSongs();
       if (result.success && result.data) {
         const likedSongIds =
-          result.data.likedSongs?.map((song: any) => song.id || song._id) || [];
+          (result.data as any)?.likedSongs?.map((song: any) => song.id || song._id) || [];
         setLikedSongs(likedSongIds);
       }
     } catch (error) {
