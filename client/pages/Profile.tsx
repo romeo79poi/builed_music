@@ -653,10 +653,27 @@ export default function Profile() {
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={handleShare}
+                    onClick={handleFollow}
+                    className={`px-4 py-2 rounded-lg font-medium transition-all border border-border ${
+                      isFollowing
+                        ? "bg-green-500/20 text-green-500 border-green-500/30 hover:bg-green-500/30"
+                        : "bg-primary text-primary-foreground hover:bg-primary/90"
+                    }`}
+                  >
+                    {isFollowing ? (
+                      <UserCheck className="w-4 h-4" />
+                    ) : (
+                      <UserPlus className="w-4 h-4" />
+                    )}
+                  </motion.button>
+
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={() => navigate('/messages', { state: { from: 'profile' } })}
                     className="px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg font-medium transition-all border border-border text-foreground"
                   >
-                    <Share2 className="w-4 h-4" />
+                    <MessageCircle className="w-4 h-4" />
                   </motion.button>
                 </div>
               )}
