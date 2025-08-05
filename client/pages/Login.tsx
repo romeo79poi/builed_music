@@ -19,6 +19,7 @@ import { api } from "../lib/api";
 import ConnectivityChecker, {
   getNetworkErrorMessage,
 } from "../lib/connectivity";
+import { firebaseHelpers } from "../lib/firebase-simple";
 
 export default function Login() {
   const navigate = useNavigate();
