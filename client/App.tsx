@@ -74,6 +74,7 @@ const App = () => {
                     <Route path="/verify-email" element={<VerifyEmail />} />
                     <Route path="/reset-password" element={<ResetPassword />} />
                     <Route path="/code-generator" element={<CodeGenerator />} />
+                    <Route path="/firebase-demo" element={<FirebaseDemo />} />
 
                     {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                     <Route path="*" element={<NotFound />} />
