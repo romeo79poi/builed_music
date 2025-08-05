@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
+import { useFirebase } from "../context/FirebaseContext";
 
 interface Notification {
   id: string;
