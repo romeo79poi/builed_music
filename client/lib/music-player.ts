@@ -105,7 +105,7 @@ export class MusicPlayerService {
 
       if (!audioUrl && song.id) {
         // Try to get audio from Supabase storage
-        const { data } = await supabaseOperations.getPublicUrl('songs', `${song.id}.mp3`)
+        const { data } = await supabaseAPI.getPublicUrl('songs', `${song.id}.mp3`)
         audioUrl = data.publicUrl
       }
 
@@ -379,7 +379,7 @@ export class MusicPlayerService {
   // Playlist Integration
   async loadPlaylist(playlistId: string, startIndex = 0) {
     try {
-      const { data: playlistSongs, error } = await supabaseOperations.getPlaylistSongs(playlistId)
+      const { data: playlistSongs, error } = await supabaseAPI.getPlaylistSongs(playlistId)
       
       if (error) {
         throw new Error('Failed to load playlist')
@@ -404,7 +404,7 @@ export class MusicPlayerService {
         throw new Error('User not authenticated')
       }
 
-      const { data: userLikes, error } = await supabaseOperations.getUserLikes(session.user.id)
+      const { data: userLikes, error } = await supabaseAPI.getUserLikes(session.user.id)
       
       if (error) {
         throw new Error('Failed to load liked songs')
