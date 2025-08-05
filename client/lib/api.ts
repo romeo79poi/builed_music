@@ -331,7 +331,6 @@ export const songApi = {
     const token = localStorage.getItem("token");
     return apiRequest(`/api/v1/tracks/${songId}/like`, {
       method: "DELETE",
-      method: "PUT",
       headers: {
         Authorization: `Bearer ${token}`,
       },
