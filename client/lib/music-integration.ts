@@ -2,7 +2,7 @@
 // This service connects the external music APIs with our Supabase backend and existing UI components
 
 import { musicAPI, ExternalSong, integrateExternalSong } from './music-api'
-import { supabaseOperations, Song, Album, Playlist } from './supabase'
+import { supabaseAPI, type Song, type Album, type Playlist } from './supabase'
 import { ErrorHandler } from './error-handler'
 
 const errorHandler = ErrorHandler.getInstance()
