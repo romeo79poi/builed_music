@@ -695,135 +695,67 @@ export default function Signup() {
         setErrorAlert(null);
 
         try {
-          if (useFirebaseAuth) {
-            // Use Firebase email signup with verification
-            const result = await signUpWithEmailAndPasswordWithVerification(
-              formData.email,
-              formData.password,
-              formData.name,
-              formData.username,
-              formData.phone,
-            );
+          // Use Firebase email signup with verification
+          const result = await signUpWithEmailAndPasswordWithVerification(
+            formData.email,
+            formData.password,
+            formData.name,
+            formData.username,
+            formData.phone,
+          );
 
-            if (result.success) {
-              // Store user for email verification
-              if (result.user) {
-                setVerificationUser(result.user);
-                setEmailVerificationSent(true);
+          if (result.success) {
+            // Store user for email verification
+            if (result.user) {
+              setVerificationUser(result.user);
+              setEmailVerificationSent(true);
 
-                // Save user data to localStorage for immediate access
-                const completeUserData = {
-                  uid: result.user.uid,
-                  email: formData.email,
-                  name: formData.name,
-                  username: formData.username,
-                  profileImageURL:
-                    formData.profileImageURL || result.user.photoURL || "",
-                  dateOfBirth: formData.dateOfBirth,
-                  gender: formData.gender,
-                  bio: formData.bio,
-                };
-
-                localStorage.setItem(
-                  "currentUser",
-                  JSON.stringify(completeUserData),
-                );
-                localStorage.setItem(
-                  "userAvatar",
+              // Save user data to localStorage for immediate access
+              const completeUserData = {
+                uid: result.user.uid,
+                email: formData.email,
+                name: formData.name,
+                username: formData.username,
+                profileImageURL:
                   formData.profileImageURL || result.user.photoURL || "",
-                );
+                dateOfBirth: formData.dateOfBirth,
+                gender: formData.gender,
+                bio: formData.bio,
+              };
 
-                console.log(
-                  "💾 Saved Firebase user data to localStorage:",
-                  completeUserData,
-                );
-              }
+              localStorage.setItem(
+                "currentUser",
+                JSON.stringify(completeUserData),
+              );
+              localStorage.setItem(
+                "userAvatar",
+                formData.profileImageURL || result.user.photoURL || "",
+              );
 
-              toast({
-                title: "Account created successfully! 🎉",
-                description: `Welcome to Music Catch, ${formData.name}! Please check your email for verification.`,
-              });
-
-              console.log("✅ User created with Firebase:", result.user);
-
-              setTimeout(() => {
-                navigate("/home");
-              }, 2000);
-            } else {
-              setErrorAlert(
-                result.error || "Registration failed. Please try again.",
+              console.log(
+                "💾 Saved Firebase user data to localStorage:",
+                completeUserData,
               );
             }
-          } else {
-            // Use backend API for email registration
-            const response = await fetch("/api/auth/complete-registration", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                email: formData.email,
-                username: formData.username,
-                name: formData.name,
-                password: formData.password,
-              }),
+
+            toast({
+              title: "Account created successfully! 🎉",
+              description: `Welcome to Music Catch, ${formData.name}! Please check your email for verification.`,
             });
 
-            if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            console.log("✅ User created with Firebase:", result.user);
 
-            const data = await response.json();
-
-            if (data.success) {
-              toast({
-                title: "Account created successfully! ��",
-                description: `Welcome to Music Catch, ${formData.name}!`,
-              });
-
-              console.log("✅ User created with backend:", data.user);
-
-              // Fetch and store user profile data
-              try {
-                const profileResponse = await fetch(
-                  `/api/v1/users/${data.user.id}`,
-                  {
-                    headers: {
-                      "user-id": data.user.id,
-                    },
-                  },
-                );
-
-                if (profileResponse.ok) {
-                  const profileData = await profileResponse.json();
-                  localStorage.setItem(
-                    "currentUser",
-                    JSON.stringify(profileData.data),
-                  );
-                } else {
-                  localStorage.setItem(
-                    "currentUser",
-                    JSON.stringify(data.user),
-                  );
-                }
-              } catch (error) {
-                console.warn("Failed to fetch profile data:", error);
-                localStorage.setItem("currentUser", JSON.stringify(data.user));
-              }
-
-              setTimeout(() => {
-                navigate("/home");
-              }, 2000);
-            } else {
-              // Show error in red alert box
-              setErrorAlert(
-                data.message || "Registration failed. Please try again.",
-              );
-            }
+            setTimeout(() => {
+              navigate("/home");
+            }, 2000);
+          } else {
+            setErrorAlert(
+              result.error || "Registration failed. Please try again.",
+            );
           }
-        } catch (error) {
+        } catch (error: any) {
           console.error("Registration error:", error);
-          setErrorAlert("Network error. Please try again.");
+          setErrorAlert(error.message || "Network error. Please try again.");
         }
       }
     } catch (error) {
