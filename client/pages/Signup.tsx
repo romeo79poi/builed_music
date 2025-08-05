@@ -603,12 +603,36 @@ export default function Signup() {
     }
   };
 
-  // Facebook signup handler
+  // Facebook signup handler with Firebase
   const handleFacebookSignup = async () => {
     setIsLoading(true);
     setErrorAlert(null);
 
     try {
+      console.log('🔥 Attempting Firebase Facebook sign-in...');
+
+      // Try Firebase Facebook Auth first
+      const firebaseResult = await firebaseHelpers.facebookSignIn();
+
+      if (firebaseResult.success && firebaseResult.user) {
+        console.log('✅ Firebase Facebook sign-in successful:', firebaseResult.user);
+
+        toast({
+          title: "Welcome to CATCH! 🎉",
+          description: `Signed in as ${firebaseResult.user.displayName || firebaseResult.user.email}`,
+        });
+
+        // Optional: Sync with your backend here
+        // await syncFirebaseUserWithBackend(firebaseResult.user);
+
+        setTimeout(() => {
+          navigate("/home");
+        }, 1500);
+        return;
+      }
+
+      // Fallback to backend Facebook auth if Firebase fails
+      console.log('📱 Falling back to backend Facebook auth');
       const result = await signInWithFacebook();
 
       if (result.success) {
@@ -629,6 +653,7 @@ export default function Signup() {
         });
       }
     } catch (error: any) {
+      console.error('❌ Facebook sign-in error:', error);
       setErrorAlert(error.message || "Facebook sign-in failed");
       toast({
         title: "Facebook sign-in error",
