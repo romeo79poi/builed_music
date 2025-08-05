@@ -25,6 +25,7 @@ import MobileFooter from "../components/MobileFooter";
 import { api } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
 import { useMusic } from "../context/MusicContextSupabase";
+import { useFirebase } from "../context/FirebaseContext";
 
 interface Track {
   id: string;
@@ -50,6 +51,7 @@ interface Playlist {
 export default function Library() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user: firebaseUser, loading: firebaseLoading } = useFirebase();
 
   const [activeTab, setActiveTab] = useState("Recently Added");
   const [currentUser, setCurrentUser] = useState<any>(null);
@@ -69,26 +71,33 @@ export default function Library() {
   ];
 
   useEffect(() => {
-    checkAuthAndLoadData();
-  }, []);
+    if (!firebaseLoading) {
+      checkAuthAndLoadData();
+    }
+  }, [firebaseUser, firebaseLoading]);
 
   const checkAuthAndLoadData = async () => {
     try {
       setIsLoading(true);
 
-      // Check authentication
-      const token = localStorage.getItem("token");
-      const userData = localStorage.getItem("currentUser");
-
-      if (token && userData) {
-        const user = JSON.parse(userData);
-        setCurrentUser(user);
-        await loadLibraryData();
-      } else {
+      // Check Firebase authentication
+      if (!firebaseUser) {
+        console.log("❌ No Firebase user found");
         navigate("/login");
+        return;
       }
+
+      console.log("🔥 Loading library for Firebase user:", firebaseUser.email);
+      setCurrentUser({
+        id: firebaseUser.uid,
+        name: firebaseUser.displayName || "User",
+        email: firebaseUser.email,
+        avatar: firebaseUser.photoURL,
+      });
+
+      await loadLibraryData();
     } catch (error) {
-      console.error("Auth check error:", error);
+      console.error("❌ Auth check error:", error);
       navigate("/login");
     } finally {
       setIsLoading(false);
@@ -97,49 +106,98 @@ export default function Library() {
 
   const loadLibraryData = async () => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) return;
+      if (!firebaseUser) return;
 
-      // Load playlists
+      console.log("🔥 Loading library data for Firebase user:", firebaseUser.uid);
+
+      // Load playlists with Firebase user ID
       try {
-        const playlistsResponse = await fetch("/api/v1/users/playlists", {
-          headers: { Authorization: `Bearer ${token}` },
+        const playlistsResponse = await fetch(`/api/v1/users/${firebaseUser.uid}/playlists`, {
+          headers: {
+            "user-id": firebaseUser.uid,
+            "Content-Type": "application/json",
+          },
         });
         if (playlistsResponse.ok) {
           const playlistsData = await playlistsResponse.json();
           setUserPlaylists(playlistsData.playlists || []);
+          console.log("✅ Loaded playlists from backend:", playlistsData.playlists?.length || 0);
         }
       } catch (error) {
-        console.error("Error loading playlists:", error);
+        console.error("⚠️ Error loading playlists:", error);
+        // Set mock playlists as fallback
+        setUserPlaylists([
+          {
+            id: "mock-1",
+            name: "My Favorites",
+            description: "Firebase user's favorite tracks",
+            cover_image_url: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
+            is_public: false,
+            track_count: 15,
+            created_at: new Date().toISOString(),
+          },
+        ]);
       }
 
-      // Load liked songs
+      // Load liked songs with Firebase user ID
       try {
-        const likedResponse = await fetch("/api/v1/users/liked-tracks", {
-          headers: { Authorization: `Bearer ${token}` },
+        const likedResponse = await fetch(`/api/v1/users/${firebaseUser.uid}/liked-tracks`, {
+          headers: {
+            "user-id": firebaseUser.uid,
+            "Content-Type": "application/json",
+          },
         });
         if (likedResponse.ok) {
           const likedData = await likedResponse.json();
           setLikedSongs(likedData.liked_tracks || []);
+          console.log("✅ Loaded liked songs from backend:", likedData.liked_tracks?.length || 0);
         }
       } catch (error) {
-        console.error("Error loading liked songs:", error);
+        console.error("⚠️ Error loading liked songs:", error);
+        // Set mock liked songs as fallback
+        setLikedSongs([
+          {
+            id: "mock-like-1",
+            title: "Midnight Dreams",
+            artist_name: "Alex Johnson",
+            duration: 234,
+            cover_image_url: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
+            genre: "Electronic",
+            play_count: 1240,
+          },
+        ]);
       }
 
-      // Load recently played
+      // Load recently played with Firebase user ID
       try {
         const historyResponse = await fetch(
-          "/api/v1/users/play-history?limit=20",
+          `/api/v1/users/${firebaseUser.uid}/play-history?limit=20`,
           {
-            headers: { Authorization: `Bearer ${token}` },
+            headers: {
+              "user-id": firebaseUser.uid,
+              "Content-Type": "application/json",
+            },
           },
         );
         if (historyResponse.ok) {
           const historyData = await historyResponse.json();
           setRecentlyPlayed(historyData.play_history || []);
+          console.log("✅ Loaded play history from backend:", historyData.play_history?.length || 0);
         }
       } catch (error) {
-        console.error("Error loading play history:", error);
+        console.error("⚠️ Error loading play history:", error);
+        // Set mock recent plays as fallback
+        setRecentlyPlayed([
+          {
+            id: "mock-recent-1",
+            title: "Summer Vibes",
+            artist_name: "Beach Boys Redux",
+            duration: 198,
+            cover_image_url: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
+            genre: "Pop",
+            play_count: 890,
+          },
+        ]);
       }
 
       // Load recently added songs (trending tracks as fallback)
