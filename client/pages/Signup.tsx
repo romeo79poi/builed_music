@@ -665,64 +665,8 @@ export default function Signup() {
   };
 
   const handleVerificationStep = async () => {
-    if (!validateOTP(formData.otp)) return;
-
-    if (signupMethod === "email") {
-      setIsLoading(true);
-
-      try {
-        // Verify email code with backend
-        console.log(
-          `🔍 Verifying email: ${formData.email} with code: ${formData.otp}`,
-        );
-
-        const response = await fetch("/api/auth/verify-email", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: formData.email,
-            code: formData.otp,
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-        console.log(`📝 Verification response:`, data);
-
-        if (data.success) {
-          toast({
-            title: "Email verified!",
-            description: "Your email has been successfully verified.",
-          });
-          setCurrentStep("profile");
-        } else {
-          setErrors((prev) => ({ ...prev, otp: data.message }));
-
-          if (data.attemptsRemaining !== undefined) {
-            toast({
-              title: "Invalid code",
-              description: `${data.attemptsRemaining} attempts remaining`,
-              variant: "destructive",
-            });
-          }
-        }
-      } catch (error) {
-        console.error("Email verification error:", error);
-        setErrors((prev) => ({
-          ...prev,
-          otp: "Verification failed. Please try again.",
-        }));
-      } finally {
-        setIsLoading(false);
-      }
-    } else {
-      setCurrentStep("password");
-    }
+    // Skip verification for Supabase - go directly to profile
+    setCurrentStep("profile");
   };
 
   const handlePhoneVerifyStep = async () => {
