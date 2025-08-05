@@ -19,7 +19,6 @@ import AvailabilityChecker from "../components/AvailabilityChecker";
 import { useToast } from "../hooks/use-toast";
 import { api } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
-// import { supabaseAPI } from "../lib/supabase"; // Removed - using Firebase/Backend
 import {
   validatePhoneNumber,
   formatPhoneInput,
@@ -315,7 +314,7 @@ export default function Signup() {
     return true;
   };
 
-  // Check availability with Supabase
+  // Check availability (simplified for Firebase)
   const checkAvailability = async (
     field: "email" | "username" | "phone",
     value: string,
@@ -323,60 +322,23 @@ export default function Signup() {
     if (!value) return;
 
     try {
-      let isAvailable = true;
-
-      if (field === "email") {
-        const { available, error } =
-          await supabaseAPI.checkEmailAvailability(value);
-        if (error) throw error;
-        isAvailable = available;
-      } else if (field === "username") {
-        const { available, error } =
-          await supabaseAPI.checkUsernameAvailability(value);
-        if (error) throw error;
-        isAvailable = available;
-      } else if (field === "phone") {
-        // For phone, we'll just assume it's available for now
-        // You can implement phone checking in Supabase later if needed
-        isAvailable = true;
-      }
-
+      // For now, assume all fields are available
+      // TODO: Implement proper availability checking with Firebase/backend
       setAvailability((prev) => ({
         ...prev,
-        [field]: isAvailable,
+        [field]: true,
       }));
 
-      if (isAvailable) {
-        // Clear any existing errors if the field is available
-        setErrors((prev) => ({
-          ...prev,
-          [field]: "",
-        }));
-      } else {
-        // Show unavailable error
-        if (field === "email") {
-          setErrors((prev) => ({
-            ...prev,
-            email: "Email is already registered",
-          }));
-        } else if (field === "username") {
-          setErrors((prev) => ({
-            ...prev,
-            username: "Username is already taken",
-          }));
-        }
-      }
+      // Clear any existing errors
+      setErrors((prev) => ({
+        ...prev,
+        [field]: "",
+      }));
     } catch (error: any) {
       console.error("Availability check failed:", error);
       setErrors((prev) => ({
         ...prev,
         [field]: `Unable to verify ${field}`,
-      }));
-
-      // Set availability to false for network errors
-      setAvailability((prev) => ({
-        ...prev,
-        [field]: false,
       }));
     }
   };
@@ -928,15 +890,14 @@ export default function Signup() {
       // Clear any previous errors
       setErrorAlert(null);
 
-      // Use Supabase for email registration
-      const result = await signUp(formData.email, formData.password, {
-        username: formData.username,
-        name: formData.name,
-        dateOfBirth: formData.dateOfBirth,
-        gender: formData.gender,
-        bio: formData.bio,
-        profileImageURL: formData.profileImageURL,
-      });
+      // Use Firebase for email registration
+      const result = await signUpWithEmailAndPasswordWithVerification(
+        formData.email,
+        formData.password,
+        formData.name,
+        formData.username,
+        formData.phone
+      );
 
       if (result.success) {
         toast({
