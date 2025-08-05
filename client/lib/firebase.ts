@@ -1,4 +1,5 @@
-import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
+// Temporarily disabled Firebase imports
+// import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { 
   getAuth, 
   Auth, 
