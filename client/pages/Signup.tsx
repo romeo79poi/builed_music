@@ -917,95 +917,32 @@ export default function Signup() {
       // Clear any previous errors
       setErrorAlert(null);
 
-      if (useFirebaseAuth) {
-        // Use Firebase email signup with verification
-        const result = await signUpWithEmailAndPasswordWithVerification(
-          formData.email,
-          formData.password,
-          formData.name,
-          formData.username,
-          formData.phone,
-        );
+      // Use Supabase for email registration
+      const result = await signUp(formData.email, formData.password, {
+        username: formData.username,
+        name: formData.name,
+        dateOfBirth: formData.dateOfBirth,
+        gender: formData.gender,
+        bio: formData.bio,
+        profileImageURL: formData.profileImageURL
+      });
 
-        if (result.success) {
-          // Store user for email verification
-          if (result.user) {
-            setVerificationUser(result.user);
-            setEmailVerificationSent(true);
-          }
-
-          toast({
-            title: "Account created successfully! ����",
-            description: `Welcome to Music Catch, ${formData.name}! Please check your email for verification.`,
-          });
-
-          console.log("✅ User created with Firebase:", result.user);
-
-          setTimeout(() => {
-            navigate("/home");
-          }, 2000);
-        } else {
-          setErrorAlert(
-            result.error || "Registration failed. Please try again.",
-          );
-        }
-      } else {
-        // Use backend API for email registration
-        const response = await fetch("/api/auth/complete-registration", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            email: formData.email,
-            username: formData.username,
-            name: formData.name,
-            password: formData.password,
-            dateOfBirth: formData.dateOfBirth,
-            gender: formData.gender,
-            bio: formData.bio,
-          }),
+      if (result.success) {
+        toast({
+          title: "Account created successfully! 🎉",
+          description: result.message,
         });
 
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        if (data.success) {
-          // Save user data to localStorage for immediate access
-          const completeUserData = {
-            uid: data.user?.id || `user-${Date.now()}`,
-            email: formData.email,
-            name: formData.name,
-            username: formData.username,
-            profileImageURL: formData.profileImageURL || "",
-            dateOfBirth: formData.dateOfBirth,
-            gender: formData.gender,
-            bio: formData.bio,
-          };
-
-          localStorage.setItem("currentUser", JSON.stringify(completeUserData));
-          localStorage.setItem("userAvatar", formData.profileImageURL || "");
-
-          console.log("💾 Saved user data to localStorage:", completeUserData);
-
-          toast({
-            title: "Account created successfully! 🎉",
-            description: `Welcome to Music Catch, ${formData.name}!`,
-          });
-
-          console.log("✅ User created with backend:", data.user);
-
-          setTimeout(() => {
-            navigate("/home");
-          }, 2000);
-        } else {
-          setErrorAlert(
-            data.message || "Registration failed. Please try again.",
-          );
-        }
+        setTimeout(() => {
+          navigate("/home");
+        }, 2000);
+      } else {
+        setErrorAlert(result.message);
+        toast({
+          title: "Registration failed",
+          description: result.message,
+          variant: "destructive",
+        });
       }
     } catch (error) {
       console.error("Registration error:", error);
