@@ -119,7 +119,7 @@ export default function Signup() {
   const [resendTimer, setResendTimer] = useState(0);
   const [errorAlert, setErrorAlert] = useState<string | null>(null);
   const [confirmationResult, setConfirmationResult] = useState<any>(null);
-  const [useFirebaseAuth, setUseFirebaseAuth] = useState(false); // Use backend only
+  const [useFirebaseAuth, setUseFirebaseAuth] = useState(true); // Use Firebase
   const [verificationUser, setVerificationUser] = useState<any>(null);
   const [emailVerificationSent, setEmailVerificationSent] = useState(false);
   const [phoneVerificationSent, setPhoneVerificationSent] = useState(false);
@@ -549,47 +549,24 @@ export default function Signup() {
     try {
       console.log("🔥 Attempting Firebase Google sign-in...");
 
-      // Try Firebase Google Auth first
-      const firebaseResult = await firebaseHelpers.googleSignIn();
+      const result = await firebaseHelpers.googleSignIn();
 
-      if (firebaseResult.success && firebaseResult.user) {
-        console.log(
-          "✅ Firebase Google sign-in successful:",
-          firebaseResult.user,
-        );
+      if (result.success && result.user) {
+        console.log("✅ Firebase Google sign-in successful:", result.user);
 
         toast({
           title: "Welcome to CATCH! 🎉",
-          description: `Signed in as ${firebaseResult.user.displayName || firebaseResult.user.email}`,
-        });
-
-        // Optional: Sync with your backend here
-        // await syncFirebaseUserWithBackend(firebaseResult.user);
-
-        setTimeout(() => {
-          navigate("/home");
-        }, 1500);
-        return;
-      }
-
-      // Fallback to backend Google auth if Firebase fails
-      console.log("📱 Falling back to backend Google auth");
-      const result = await signInWithGoogle();
-
-      if (result.success) {
-        toast({
-          title: "Google sign-in successful! 🎉",
-          description: result.message,
+          description: `Signed in as ${result.user.displayName || result.user.email}`,
         });
 
         setTimeout(() => {
           navigate("/home");
         }, 1500);
       } else {
-        setErrorAlert(result.message);
+        setErrorAlert(result.error || "Google sign-in failed");
         toast({
-          title: "Google sign-up failed",
-          description: result.message,
+          title: "Google sign-in failed",
+          description: result.error || "Please try again",
           variant: "destructive",
         });
       }
@@ -614,47 +591,24 @@ export default function Signup() {
     try {
       console.log("🔥 Attempting Firebase Facebook sign-in...");
 
-      // Try Firebase Facebook Auth first
-      const firebaseResult = await firebaseHelpers.facebookSignIn();
+      const result = await firebaseHelpers.facebookSignIn();
 
-      if (firebaseResult.success && firebaseResult.user) {
-        console.log(
-          "✅ Firebase Facebook sign-in successful:",
-          firebaseResult.user,
-        );
+      if (result.success && result.user) {
+        console.log("✅ Firebase Facebook sign-in successful:", result.user);
 
         toast({
           title: "Welcome to CATCH! 🎉",
-          description: `Signed in as ${firebaseResult.user.displayName || firebaseResult.user.email}`,
-        });
-
-        // Optional: Sync with your backend here
-        // await syncFirebaseUserWithBackend(firebaseResult.user);
-
-        setTimeout(() => {
-          navigate("/home");
-        }, 1500);
-        return;
-      }
-
-      // Fallback to backend Facebook auth if Firebase fails
-      console.log("📱 Falling back to backend Facebook auth");
-      const result = await signInWithFacebook();
-
-      if (result.success) {
-        toast({
-          title: "Facebook sign-in successful! 🎉",
-          description: result.message,
+          description: `Signed in as ${result.user.displayName || result.user.email}`,
         });
 
         setTimeout(() => {
           navigate("/home");
         }, 1500);
       } else {
-        setErrorAlert(result.message);
+        setErrorAlert(result.error || "Facebook sign-in failed");
         toast({
-          title: "Facebook sign-up failed",
-          description: result.message,
+          title: "Facebook sign-in failed",
+          description: result.error || "Please try again",
           variant: "destructive",
         });
       }
@@ -687,9 +641,7 @@ export default function Signup() {
   const handleEmailStep = async () => {
     if (!validateEmail(formData.email)) return;
 
-    // For Supabase, we skip the separate email verification step
-    // and go directly to the profile step since Supabase handles
-    // email verification after account creation
+    // Skip separate email verification step and go directly to profile
     setCurrentStep("profile");
   };
 
