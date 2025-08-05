@@ -133,6 +133,10 @@ export const supabaseAPI = {
   },
 
   async signIn(email: string, password: string) {
+    if (!isSupabaseConfigured()) {
+      return { data: null, error: { message: 'Supabase not configured. Please set environment variables.' } }
+    }
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
