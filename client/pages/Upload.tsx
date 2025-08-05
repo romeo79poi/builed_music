@@ -98,6 +98,7 @@ const popularTags = [
 
 export default function Upload() {
   const navigate = useNavigate();
+  const { user: firebaseUser } = useFirebase();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
