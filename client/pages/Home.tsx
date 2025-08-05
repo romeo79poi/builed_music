@@ -249,14 +249,24 @@ const glowVariants = {
 export default function Home() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  // Using new backend authentication instead of Firebase
+  const { user } = useAuth();
+  const {
+    trendingSongs,
+    trendingAlbums,
+    userPlaylists,
+    recentlyPlayed,
+    playSong,
+    currentSong,
+    isPlaying,
+    loading,
+    likeSong,
+    unlikeSong
+  } = useMusic();
 
-  const [currentSong, setCurrentSong] = useState<string | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [likedSongs, setLikedSongs] = useState<Set<string>>(new Set());
   const [hoveredAlbum, setHoveredAlbum] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [likedSongs, setLikedSongs] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
   const [userAvatar, setUserAvatar] = useState<string | null>(null);
   const [userData, setUserData] = useState<any>(null);
