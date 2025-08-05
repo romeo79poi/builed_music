@@ -338,9 +338,7 @@ export const supabaseAPI = {
     // Also increment play count
     await supabase
       .from('songs')
-      .update({ 
-        play_count: supabase.sql`play_count + 1` 
-      })
+      .rpc('increment_play_count', { song_id: songId })
       .eq('id', songId)
     
     return { data, error }

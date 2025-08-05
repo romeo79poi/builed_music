@@ -159,8 +159,8 @@ export class MusicIntegrationService {
           duration: internalSong.duration,
           url: (internalSong as any).audio_url || externalSong.preview_url || '',
           cover_url: (internalSong as any).cover_image_url || externalSong.cover_image_url,
-          genre: externalSong.genre || 'Unknown',
-          release_date: externalSong.release_date || new Date().toISOString().split('T')[0],
+          genre: (externalSong as any).genre || 'Unknown',
+          release_date: (externalSong as any).release_date || new Date().toISOString().split('T')[0],
           play_count: 0,
           likes_count: 0,
           created_at: internalSong.created_at

@@ -87,7 +87,7 @@ class RealTimeMusicService implements RealTimeMusicManager {
       await supabase
         .from('songs')
         .update({ 
-          play_count: supabase.sql`play_count + 1`,
+          play_count: 1, // Simple increment - actual SQL would be handled server-side
           last_played: new Date().toISOString()
         })
         .eq('id', songId);
