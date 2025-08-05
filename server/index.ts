@@ -212,6 +212,9 @@ import { generateCode } from "./routes/code-generator";
 export function createServer() {
   const app = express();
 
+  // Store the HTTP server reference for Socket.IO
+  let httpServer: any = null;
+
   // Initialize MongoDB connection
   connectDB().catch(console.error);
 
