@@ -51,10 +51,10 @@ import MobileFooter from "../components/MobileFooter";
 import { UserProfile as BackendUserProfile, Song } from "@shared/api";
 import { fetchUserData, updateUserProfile } from "../lib/auth";
 import { api } from "../lib/api";
-import { useAuth } from "../context/AuthContext";
+import { useFirebase } from "../context/FirebaseContext";
 import { useMusic } from "../context/MusicContextSupabase";
 
-// Use backend types
+// Use Firebase user with backend profile extension
 type UserProfile = BackendUserProfile & {
   avatar: string;
   coverImage: string;
@@ -97,37 +97,6 @@ interface Playlist {
   plays: number;
 }
 
-const sampleProfile: UserProfile = {
-  id: "user1",
-  username: "alexmusic",
-  displayName: "Alex Johnson",
-  email: "alex@alexmusic.com",
-  bio: "Music producer & artist 🎵 | Creating beats that move souls | Collabs welcome 💫 | Stream my latest tracks below ⬇️",
-  avatar:
-    "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop",
-  coverImage:
-    "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=800&h=300&fit=crop",
-  location: "Los Angeles, CA",
-  website: "alexmusic.com",
-  isVerified: true,
-  isArtist: true,
-  joinedDate: new Date("2022-03-15"),
-  socialLinks: {
-    instagram: "@alexmusic",
-    twitter: "@alexbeats",
-    youtube: "AlexMusicOfficial",
-  },
-  stats: {
-    followers: 234500,
-    following: 892,
-    totalPlays: 12400000,
-    totalTracks: 47,
-    totalPlaylists: 12,
-    monthlyListeners: 1890000,
-  },
-  badges: ["verified", "top_artist", "trending", "collaboration_king"],
-};
-
 const sampleTracks: Track[] = [
   {
     id: "1",
@@ -155,32 +124,6 @@ const sampleTracks: Track[] = [
     isPublic: true,
     genre: "Pop",
   },
-  {
-    id: "3",
-    title: "Neon Nights",
-    coverUrl:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
-    duration: 267,
-    plays: 1560000,
-    likes: 32100,
-    comments: 654,
-    uploadDate: new Date("2024-01-05"),
-    isPublic: true,
-    genre: "Synthwave",
-  },
-  {
-    id: "4",
-    title: "Acoustic Soul",
-    coverUrl:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop",
-    duration: 287,
-    plays: 890000,
-    likes: 18700,
-    comments: 423,
-    uploadDate: new Date("2023-12-28"),
-    isPublic: true,
-    genre: "Acoustic",
-  },
 ];
 
 const samplePlaylists: Playlist[] = [
@@ -194,28 +137,6 @@ const samplePlaylists: Playlist[] = [
     isPublic: true,
     createdDate: new Date("2024-01-01"),
     plays: 567000,
-  },
-  {
-    id: "2",
-    name: "Chill Sessions",
-    description: "Perfect for relaxing and studying",
-    coverUrl:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
-    trackCount: 18,
-    isPublic: true,
-    createdDate: new Date("2023-12-15"),
-    plays: 342000,
-  },
-  {
-    id: "3",
-    name: "Work in Progress",
-    description: "Upcoming releases and demos",
-    coverUrl:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
-    trackCount: 8,
-    isPublic: false,
-    createdDate: new Date("2024-01-20"),
-    plays: 0,
   },
 ];
 
@@ -240,56 +161,21 @@ const sampleRecentlyPlayed: RecentlyPlayedTrack[] = [
     duration: 234,
     isCurrentlyPlaying: true,
   },
-  {
-    id: "recent2",
-    title: "Blinding Lights",
-    artist: "The Weeknd",
-    coverUrl:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=300&h=300&fit=crop",
-    playedAt: "15 minutes ago",
-    duration: 200,
-  },
-  {
-    id: "recent3",
-    title: "Watermelon Sugar",
-    artist: "Harry Styles",
-    coverUrl:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=300&h=300&fit=crop",
-    playedAt: "32 minutes ago",
-    duration: 174,
-  },
-  {
-    id: "recent4",
-    title: "Levitating",
-    artist: "Dua Lipa",
-    coverUrl:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=300&h=300&fit=crop",
-    playedAt: "1 hour ago",
-    duration: 203,
-  },
-  {
-    id: "recent5",
-    title: "Good 4 U",
-    artist: "Olivia Rodrigo",
-    coverUrl:
-      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
-    playedAt: "2 hours ago",
-    duration: 178,
-  },
 ];
 
 export default function Profile() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user: firebaseUser, loading: firebaseLoading } = useFirebase();
 
   // State management
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
-  const [tracks, setTracks] = useState<Track[]>([]);
-  const [playlists, setPlaylists] = useState<Playlist[]>([]);
+  const [tracks, setTracks] = useState<Track[]>(sampleTracks);
+  const [playlists, setPlaylists] = useState<Playlist[]>(samplePlaylists);
   const [recentlyPlayed, setRecentlyPlayed] = useState<RecentlyPlayedTrack[]>(
-    [],
+    sampleRecentlyPlayed,
   );
   const [selectedTab, setSelectedTab] = useState("tracks");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
@@ -314,181 +200,142 @@ export default function Profile() {
     },
   });
 
-  // Fetch profile data using the auth library function
+  // Fetch profile data using Firebase user
   const fetchProfile = async () => {
     try {
       setLoading(true);
 
-      // Get current user from auth context or localStorage
-      const currentUser = localStorage.getItem("currentUser");
-      if (!currentUser) {
-        throw new Error("No authenticated user found");
+      if (!firebaseUser) {
+        console.log("❌ No Firebase user found");
+        toast({
+          title: "Authentication required",
+          description: "Please sign in to view your profile",
+          variant: "destructive",
+        });
+        navigate("/login");
+        return;
       }
 
-      const userData = JSON.parse(currentUser);
-      const userId = userData.id || userData.uid;
-      const token = localStorage.getItem("token");
+      console.log("🔥 Fetching profile for Firebase user:", firebaseUser.email);
 
-      if (!userId) {
-        throw new Error("User ID not found");
-      }
-
-      // Fetch complete profile data from backend
-      const response = await fetch(`/api/v1/users/${userId}`, {
-        headers: {
-          "user-id": userId,
-          Authorization: token ? `Bearer ${token}` : "",
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
-
-      if (result.success && result.data) {
-        const backendData = result.data;
-
-        // Transform backend data to profile interface
-        const transformedProfile: UserProfile = {
-          id: userId,
-          displayName: backendData.display_name || backendData.name || "User",
-          username: backendData.username || "user",
-          email: backendData.email || "",
-          bio: backendData.bio || "",
-          avatar: backendData.profile_image_url || "",
-          coverImage: backendData.cover_image_url || "",
-          location: backendData.location || "",
-          website: backendData.website || "",
-          isVerified: backendData.is_verified || false,
-          isArtist: backendData.is_artist || false,
-          joinedDate: backendData.created_at
-            ? new Date(backendData.created_at)
-            : new Date(),
-          socialLinks: {
-            instagram: backendData.social_links?.instagram || "",
-            twitter: backendData.social_links?.twitter || "",
-            youtube: backendData.social_links?.youtube || "",
-          },
-          stats: {
-            followers: backendData.follower_count || 0,
-            following: backendData.following_count || 0,
-            totalPlays: backendData.total_plays || 0,
-            totalTracks: backendData.total_tracks || 0,
-            totalPlaylists: backendData.total_playlists || 0,
-            monthlyListeners: backendData.monthly_listeners || 0,
-          },
-          badges: backendData.badges || [],
-        };
-
-        setProfile(transformedProfile);
-
-        // Update edit form with fetched data
-        setEditForm({
-          displayName: transformedProfile.displayName,
-          username: transformedProfile.username,
-          bio: transformedProfile.bio,
-          location: transformedProfile.location,
-          socialLinks: {
-            instagram: transformedProfile.socialLinks?.instagram || "",
-            twitter: transformedProfile.socialLinks?.twitter || "",
-            youtube: transformedProfile.socialLinks?.youtube || "",
+      // Try to fetch from backend first
+      try {
+        const backendResponse = await fetch(`/api/v1/users/${firebaseUser.uid}`, {
+          headers: {
+            "user-id": firebaseUser.uid,
+            "Content-Type": "application/json",
           },
         });
 
-        console.log(
-          "✅ Profile data loaded from backend API:",
-          transformedProfile,
-        );
-      } else {
-        throw new Error(result.message || "Failed to load profile data");
+        if (backendResponse.ok) {
+          const result = await backendResponse.json();
+          if (result.success && result.data) {
+            const backendData = result.data;
+            
+            // Transform backend data to profile interface
+            const transformedProfile: UserProfile = {
+              id: firebaseUser.uid,
+              displayName: backendData.display_name || backendData.name || firebaseUser.displayName || "User",
+              username: backendData.username || firebaseUser.email?.split("@")[0] || "user",
+              email: firebaseUser.email || "",
+              bio: backendData.bio || "",
+              avatar: backendData.profile_image_url || firebaseUser.photoURL || "",
+              coverImage: backendData.cover_image_url || "",
+              location: backendData.location || "",
+              website: backendData.website || "",
+              isVerified: backendData.is_verified || false,
+              isArtist: backendData.is_artist || false,
+              joinedDate: backendData.created_at
+                ? new Date(backendData.created_at)
+                : new Date(),
+              socialLinks: {
+                instagram: backendData.social_links?.instagram || "",
+                twitter: backendData.social_links?.twitter || "",
+                youtube: backendData.social_links?.youtube || "",
+              },
+              stats: {
+                followers: backendData.follower_count || 0,
+                following: backendData.following_count || 0,
+                totalPlays: backendData.total_plays || 0,
+                totalTracks: backendData.total_tracks || 0,
+                totalPlaylists: backendData.total_playlists || 0,
+                monthlyListeners: backendData.monthly_listeners || 0,
+              },
+              badges: backendData.badges || [],
+            };
+
+            setProfile(transformedProfile);
+            console.log("✅ Profile loaded from backend:", transformedProfile);
+            return;
+          }
+        }
+      } catch (backendError) {
+        console.warn("⚠️ Backend profile fetch failed:", backendError);
       }
+
+      // If backend fails, create profile from Firebase user data
+      const firebaseProfile: UserProfile = {
+        id: firebaseUser.uid,
+        displayName: firebaseUser.displayName || "User",
+        username: firebaseUser.email?.split("@")[0] || "user",
+        email: firebaseUser.email || "",
+        bio: "Music lover using Firebase authentication 🎵",
+        avatar: firebaseUser.photoURL || "",
+        coverImage: "",
+        location: "",
+        website: "",
+        isVerified: firebaseUser.emailVerified || false,
+        isArtist: false,
+        joinedDate: new Date(),
+        socialLinks: {
+          instagram: "",
+          twitter: "",
+          youtube: "",
+        },
+        stats: {
+          followers: 0,
+          following: 0,
+          totalPlays: 0,
+          totalTracks: 0,
+          totalPlaylists: 0,
+          monthlyListeners: 0,
+        },
+        badges: [],
+      };
+
+      setProfile(firebaseProfile);
+      console.log("✅ Profile created from Firebase user:", firebaseProfile);
+
+      // Update edit form with Firebase data
+      setEditForm({
+        displayName: firebaseProfile.displayName,
+        username: firebaseProfile.username,
+        bio: firebaseProfile.bio,
+        location: firebaseProfile.location,
+        socialLinks: firebaseProfile.socialLinks,
+      });
+
     } catch (error) {
       console.error("❌ Error fetching profile:", error);
-
-      // Show error to user
       toast({
         title: "Failed to load profile",
         description: "Please check your connection and try again.",
         variant: "destructive",
       });
-
-      // Don't fall back to sample data - let the user know there's an issue
       setProfile(null);
     } finally {
       setLoading(false);
     }
   };
 
-  // Fetch liked songs
-  const fetchLikedSongs = async () => {
-    try {
-      const userId = localStorage.getItem("currentUserId") || "user1";
-      const response = await fetch(`/api/profile/${userId}/liked-songs`);
-      const data = await response.json();
-
-      if (data.success) {
-        // Ensure all songs have required properties with defaults
-        const safeSongs = (data.songs || []).map((song: any) => ({
-          ...song,
-          plays: song.plays || 0,
-          likes: song.likes || 0,
-          comments: song.comments || 0,
-          duration: song.duration || 0,
-        }));
-        setTracks(safeSongs.length > 0 ? safeSongs : sampleTracks);
-      } else {
-        setTracks(sampleTracks);
-      }
-    } catch (error) {
-      console.error("Error fetching liked songs:", error);
-      setTracks(sampleTracks);
-    }
-  };
-
-  // Fetch recently played
-  const fetchRecentlyPlayed = async () => {
-    try {
-      const userId = localStorage.getItem("currentUserId") || "user1";
-      const response = await fetch(`/api/profile/${userId}/recently-played`);
-      const data = await response.json();
-
-      if (data.success) {
-        // Transform backend recently played to match our interface
-        const transformedRecentlyPlayed = (data.songs || []).map(
-          (song: any, index: number) => ({
-            id: song.id || `recent-${index}`,
-            title: song.title || "Unknown Song",
-            artist: song.artist || "Unknown Artist",
-            coverUrl: song.coverImage || "",
-            playedAt: song.playedAt || `${index * 15 + 5} minutes ago`,
-            duration: song.duration || 0,
-            isCurrentlyPlaying: index === 0, // Mark first as currently playing
-          }),
-        );
-        setRecentlyPlayed(transformedRecentlyPlayed);
-      } else {
-        setRecentlyPlayed(sampleRecentlyPlayed);
-      }
-    } catch (error) {
-      console.error("Error fetching recently played:", error);
-      setRecentlyPlayed(sampleRecentlyPlayed);
-    }
-  };
-
-  // Load data on component mount
+  // Load data when Firebase user is available
   useEffect(() => {
-    // Using new backend authentication instead of Firebase
-
-    fetchProfile();
-    fetchLikedSongs();
-    fetchRecentlyPlayed();
-  }, []);
+    if (!firebaseLoading) {
+      fetchProfile();
+    }
+  }, [firebaseUser, firebaseLoading]);
 
   const formatNumber = (num: number | undefined | null) => {
-    // Handle undefined, null, or NaN values
     if (num == null || isNaN(num)) {
       return "0";
     }
@@ -557,18 +404,18 @@ export default function Profile() {
   };
 
   const handleSaveProfile = async () => {
-    if (!profile) return;
+    if (!profile || !firebaseUser) return;
 
     try {
       setUploading(true);
-      const userId = localStorage.getItem("currentUserId") || profile.id;
 
-      // Use the updateUserProfile function from auth library
-      const result = await updateUserProfile(
-        userId,
-        editForm.bio,
-        profile.avatar,
-      );
+      // Use Firebase updateUserProfile function
+      const result = await updateUserProfile(firebaseUser.uid, {
+        name: editForm.displayName,
+        username: editForm.username,
+        bio: editForm.bio,
+        location: editForm.location,
+      });
 
       if (result.success) {
         // Update local state with saved data
@@ -579,20 +426,19 @@ export default function Profile() {
           bio: editForm.bio,
           location: editForm.location,
           socialLinks: {
-            instagram: editForm.socialLinks.instagram || undefined,
-            twitter: editForm.socialLinks.twitter || undefined,
-            youtube: editForm.socialLinks.youtube || undefined,
+            instagram: editForm.socialLinks.instagram || "",
+            twitter: editForm.socialLinks.twitter || "",
+            youtube: editForm.socialLinks.youtube || "",
           },
         });
 
         setIsEditing(false);
         toast({
           title: "Profile Updated",
-          description:
-            "Your profile has been successfully updated using auth library",
+          description: "Your profile has been successfully updated",
         });
 
-        console.log("✅ Profile updated using updateUserProfile function");
+        console.log("✅ Profile updated successfully");
       } else {
         toast({
           title: "Update Failed",
@@ -637,8 +483,6 @@ export default function Profile() {
       reader.onload = (e) => {
         const newAvatar = e.target?.result as string;
         setProfile((prev) => (prev ? { ...prev, avatar: newAvatar } : null));
-        // Store in localStorage for persistence
-        localStorage.setItem("userAvatar", newAvatar);
         setUploading(false);
         toast({
           title: "Profile Image Updated",
@@ -648,39 +492,6 @@ export default function Profile() {
       reader.readAsDataURL(file);
     }
   };
-
-  const handleCoverUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file && profile) {
-      setUploading(true);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const newCover = e.target?.result as string;
-        setProfile((prev) => (prev ? { ...prev, coverImage: newCover } : null));
-        // Store in localStorage for persistence
-        localStorage.setItem("userCoverImage", newCover);
-        setUploading(false);
-        toast({
-          title: "Cover Image Updated",
-          description: "Your cover image has been updated successfully",
-        });
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
-  // Load saved images on component mount
-  useEffect(() => {
-    const savedAvatar = localStorage.getItem("userAvatar");
-    const savedCover = localStorage.getItem("userCoverImage");
-    if (savedAvatar || savedCover) {
-      setProfile((prev) => ({
-        ...prev,
-        ...(savedAvatar && { avatar: savedAvatar }),
-        ...(savedCover && { coverImage: savedCover }),
-      }));
-    }
-  }, []);
 
   const getBadgeInfo = (badge: string) => {
     switch (badge) {
@@ -710,7 +521,7 @@ export default function Profile() {
   };
 
   // Show loading state
-  if (loading || !profile) {
+  if (firebaseLoading || loading || !profile) {
     return (
       <div className="h-screen bg-background text-foreground relative overflow-hidden theme-transition max-w-sm mx-auto">
         <div className="fixed inset-0 bg-gradient-to-b from-background to-secondary/30 theme-transition"></div>
@@ -738,6 +549,11 @@ export default function Profile() {
             <div className="text-center">
               <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
               <p className="text-muted-foreground">Loading profile...</p>
+              {firebaseUser && (
+                <p className="text-xs text-muted-foreground mt-2">
+                  🔥 Signed in as {firebaseUser.email}
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -800,7 +616,7 @@ export default function Profile() {
             <div className="flex items-end justify-between mb-2">
               <div className="relative">
                 <img
-                  src={profile.avatar}
+                  src={profile.avatar || `https://via.placeholder.com/64?text=${profile.displayName.charAt(0)}`}
                   alt={profile.displayName}
                   className="w-16 h-16 rounded-full object-cover border-2 border-background shadow-md cursor-pointer"
                   onClick={() =>
@@ -837,31 +653,10 @@ export default function Profile() {
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={handleFollow}
-                    className={`px-6 py-2 rounded-lg font-medium transition-all bg-primary hover:bg-primary/90 text-primary-foreground`}
-                  >
-                    {isFollowing ? (
-                      <>
-                        <UserCheck className="w-4 h-4 mr-2 inline" />
-                        Following
-                      </>
-                    ) : (
-                      <>
-                        <UserPlus className="w-4 h-4 mr-2 inline" />
-                        Follow
-                      </>
-                    )}
-                  </motion.button>
-
-                  <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() =>
-                      navigate("/messages", { state: { from: "profile" } })
-                    }
+                    onClick={handleShare}
                     className="px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg font-medium transition-all border border-border text-foreground"
                   >
-                    <MessageCircle className="w-4 h-4" />
+                    <Share2 className="w-4 h-4" />
                   </motion.button>
                 </div>
               )}
@@ -938,112 +733,6 @@ export default function Profile() {
                     />
                   </div>
 
-                  {/* Profile Image Upload */}
-                  <div>
-                    <label className="block text-sm font-medium text-muted-foreground mb-2">
-                      Profile Image
-                    </label>
-                    <div className="flex items-center space-x-4">
-                      <div className="relative">
-                        <img
-                          src={profile.avatar}
-                          alt="Profile Preview"
-                          className="w-16 h-16 rounded-full object-cover border-2 border-border"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <motion.button
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={() =>
-                            document.getElementById("avatar-upload")?.click()
-                          }
-                          className="px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg font-medium transition-all text-foreground flex items-center space-x-2 border border-border"
-                        >
-                          <Camera className="w-4 h-4" />
-                          <span>Change Photo</span>
-                        </motion.button>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          JPG, PNG up to 5MB
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Social Links */}
-                  <div>
-                    <label className="block text-sm font-medium text-muted-foreground mb-2">
-                      Social Links
-                    </label>
-                    <div className="space-y-2">
-                      {/* Instagram */}
-                      <div className="relative">
-                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
-                          <Instagram className="w-4 h-4 text-pink-500" />
-                        </div>
-                        <input
-                          type="text"
-                          value={editForm.socialLinks.instagram}
-                          onChange={(e) =>
-                            setEditForm({
-                              ...editForm,
-                              socialLinks: {
-                                ...editForm.socialLinks,
-                                instagram: e.target.value,
-                              },
-                            })
-                          }
-                          className="w-full p-3 pl-10 bg-card border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:border-purple-primary/50"
-                          placeholder="Instagram username"
-                        />
-                      </div>
-
-                      {/* Twitter */}
-                      <div className="relative">
-                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
-                          <Twitter className="w-4 h-4 text-blue-400" />
-                        </div>
-                        <input
-                          type="text"
-                          value={editForm.socialLinks.twitter}
-                          onChange={(e) =>
-                            setEditForm({
-                              ...editForm,
-                              socialLinks: {
-                                ...editForm.socialLinks,
-                                twitter: e.target.value,
-                              },
-                            })
-                          }
-                          className="w-full p-3 pl-10 bg-card border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:border-purple-primary/50"
-                          placeholder="Twitter username"
-                        />
-                      </div>
-
-                      {/* YouTube */}
-                      <div className="relative">
-                        <div className="absolute left-3 top-1/2 transform -translate-y-1/2">
-                          <Youtube className="w-4 h-4 text-red-500" />
-                        </div>
-                        <input
-                          type="text"
-                          value={editForm.socialLinks.youtube}
-                          onChange={(e) =>
-                            setEditForm({
-                              ...editForm,
-                              socialLinks: {
-                                ...editForm.socialLinks,
-                                youtube: e.target.value,
-                              },
-                            })
-                          }
-                          className="w-full p-3 pl-10 bg-card border border-border rounded-xl text-foreground placeholder-muted-foreground focus:outline-none focus:border-purple-primary/50"
-                          placeholder="YouTube channel"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
                   {/* Edit Mode Action Buttons */}
                   <div className="flex items-center space-x-2 mt-4">
                     <motion.button
@@ -1096,6 +785,16 @@ export default function Profile() {
                     {profile.bio}
                   </p>
 
+                  {/* Firebase indicator */}
+                  <div className="flex items-center space-x-2 mb-2">
+                    <div className="flex items-center space-x-1 px-2 py-1 bg-orange-500/10 rounded-full">
+                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                      <span className="text-xs text-orange-500 font-medium">
+                        Firebase
+                      </span>
+                    </div>
+                  </div>
+
                   {/* Location and Website */}
                   <div className="flex items-center space-x-3 text-xs text-muted-foreground mb-2">
                     {profile.location && (
@@ -1104,76 +803,11 @@ export default function Profile() {
                         <span>{profile.location}</span>
                       </div>
                     )}
-                    {profile.website && (
-                      <div className="flex items-center space-x-1">
-                        <Link2 className="w-4 h-4" />
-                      </div>
-                    )}
                     <div className="flex items-center space-x-1">
                       <Calendar className="w-4 h-4" />
                       <span>Joined {formatDate(profile.joinedDate)}</span>
                     </div>
                   </div>
-
-                  {/* Social Links */}
-                  {Object.keys(profile.socialLinks).length > 0 && (
-                    <div className="flex items-center space-x-2 mb-3">
-                      {profile.socialLinks.instagram && (
-                        <motion.a
-                          whileHover={{ scale: 1.1 }}
-                          href={`https://instagram.com/${profile.socialLinks.instagram}`}
-                          className="w-6 h-6 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full flex items-center justify-center"
-                        >
-                          <Instagram className="w-3 h-3 text-white" />
-                        </motion.a>
-                      )}
-                      {profile.socialLinks.twitter && (
-                        <motion.a
-                          whileHover={{ scale: 1.1 }}
-                          href={`https://twitter.com/${profile.socialLinks.twitter}`}
-                          className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center"
-                        >
-                          <Twitter className="w-3 h-3 text-white" />
-                        </motion.a>
-                      )}
-                      {profile.socialLinks.youtube && (
-                        <motion.a
-                          whileHover={{ scale: 1.1 }}
-                          href={`https://youtube.com/${profile.socialLinks.youtube}`}
-                          className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center"
-                        >
-                          <Youtube className="w-3 h-3 text-white" />
-                        </motion.a>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Badges */}
-                  {profile.badges.length > 0 && (
-                    <div className="flex flex-wrap gap-1 mb-3">
-                      {profile.badges.map((badge, index) => {
-                        const badgeInfo = getBadgeInfo(badge);
-                        const BadgeIcon = badgeInfo.icon;
-                        return (
-                          <motion.div
-                            key={badge}
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: index * 0.1 }}
-                            className={`flex items-center space-x-1 px-1.5 py-0.5 bg-muted/50 rounded-full border border-border`}
-                            title={badgeInfo.label}
-                          >
-                            <BadgeIcon
-                              className={`w-2.5 h-2.5 ${badgeInfo.color}`}
-                            />
-                            <span className="text-[10px] text-foreground font-medium">
-                              {badgeInfo.label}
-                            </span>
-                          </motion.div>
-                        );
-                      })}
-                    </div>
-                  )}
                 </>
               )}
             </div>
@@ -1221,498 +855,42 @@ export default function Profile() {
               </div>
             )}
 
-            {/* Tabs */}
+            {/* Recent Activity */}
             {!isEditing && (
-              <>
-                {/* Content Based on Selected Tab */}
-                <AnimatePresence mode="wait">
-                  {selectedTab === "tracks" && (
-                    <motion.div
-                      key="tracks"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      className="space-y-4"
+              <div className="bg-card rounded-xl p-4 border border-border">
+                <h3 className="text-sm font-medium text-foreground mb-3 flex items-center">
+                  <Music className="w-4 h-4 mr-2 text-purple-primary" />
+                  Recent Activity
+                </h3>
+                <div className="space-y-2">
+                  {recentlyPlayed.slice(0, 3).map((track, index) => (
+                    <div
+                      key={track.id}
+                      className="flex items-center space-x-3 p-2 rounded-lg hover:bg-muted/50"
                     >
-                      <div className="grid grid-cols-2 gap-4"></div>
-                    </motion.div>
-                  )}
-
-                  {selectedTab === "playlists" && (
-                    <motion.div
-                      key="playlists"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      className="space-y-4"
-                    >
-                      {viewMode === "grid" ? (
-                        <div className="grid grid-cols-2 gap-4">
-                          {playlists.map((playlist, index) => (
-                            <motion.div
-                              key={playlist.id}
-                              initial={{ opacity: 0, scale: 0.9 }}
-                              animate={{ opacity: 1, scale: 1 }}
-                              transition={{ delay: index * 0.1 }}
-                              className="bg-card rounded-xl p-3 border border-border"
-                            >
-                              <div className="relative mb-3">
-                                <img
-                                  src={playlist.coverUrl}
-                                  alt={playlist.name}
-                                  className="w-full aspect-square rounded-lg object-cover"
-                                />
-                                {!playlist.isPublic && (
-                                  <div className="absolute top-2 left-2 px-2 py-1 bg-card/60 rounded-md">
-                                    <span className="text-xs text-foreground font-medium">
-                                      Private
-                                    </span>
-                                  </div>
-                                )}
-                              </div>
-                              <h3 className="font-medium text-foreground mb-1 truncate">
-                                {playlist.name}
-                              </h3>
-                              <div className="flex items-center justify-between text-xs text-muted-foreground">
-                                <span>{playlist.trackCount} tracks</span>
-                                <span>
-                                  {formatNumber(playlist.plays)} plays
-                                </span>
-                              </div>
-                            </motion.div>
-                          ))}
-                        </div>
-                      ) : (
-                        <div className="space-y-2">
-                          {playlists.map((playlist, index) => (
-                            <motion.div
-                              key={playlist.id}
-                              initial={{ opacity: 0, x: -20 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ delay: index * 0.05 }}
-                              className="flex items-center space-x-3 p-3 bg-card rounded-xl hover:bg-card/80 transition-colors cursor-pointer border border-border"
-                            >
-                              <img
-                                src={playlist.coverUrl}
-                                alt={playlist.name}
-                                className="w-12 h-12 rounded-lg object-cover"
-                              />
-                              <div className="flex-1">
-                                <h3 className="font-medium text-foreground mb-1">
-                                  {playlist.name}
-                                </h3>
-                                <p className="text-sm text-muted-foreground mb-1 line-clamp-1">
-                                  {playlist.description}
-                                </p>
-                                <div className="flex items-center space-x-4 text-xs text-muted-foreground">
-                                  <span>{playlist.trackCount} tracks</span>
-                                  <span>
-                                    {formatNumber(playlist.plays)} plays
-                                  </span>
-                                  <span>
-                                    {playlist.isPublic ? "Public" : "Private"}
-                                  </span>
-                                </div>
-                              </div>
-                              <motion.button
-                                whileHover={{ scale: 1.1 }}
-                                whileTap={{ scale: 0.9 }}
-                                className="p-2 rounded-full hover:bg-muted/80 transition-colors"
-                              >
-                                <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
-                              </motion.button>
-                            </motion.div>
-                          ))}
-                        </div>
-                      )}
-                    </motion.div>
-                  )}
-
-                  {selectedTab === "analytics" && profile.isArtist && (
-                    <motion.div
-                      key="analytics"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      className="space-y-6"
-                    >
-                      {/* Quick Stats */}
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="bg-purple-dark/30 rounded-xl p-4 border border-purple-primary/20">
-                          <div className="flex items-center justify-between mb-2">
-                            <h3 className="text-sm font-medium text-gray-400">
-                              Monthly Listeners
-                            </h3>
-                            <Headphones className="w-4 h-4 text-purple-primary" />
-                          </div>
-                          <p className="text-2xl font-bold text-white">
-                            {formatNumber(profile.stats.monthlyListeners)}
-                          </p>
-                          <p className="text-xs text-green-400">
-                            +12.5% from last month
-                          </p>
-                        </div>
-
-                        <div className="bg-purple-dark/30 rounded-xl p-4 border border-purple-primary/20">
-                          <div className="flex items-center justify-between mb-2">
-                            <h3 className="text-sm font-medium text-gray-400">
-                              Total Streams
-                            </h3>
-                            <Play className="w-4 h-4 text-green-400" />
-                          </div>
-                          <p className="text-2xl font-bold text-white">
-                            {formatNumber(profile.stats.totalPlays)}
-                          </p>
-                          <p className="text-xs text-green-400">
-                            +8.3% this month
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Top Tracks Performance */}
-                      <div className="bg-purple-dark/30 rounded-xl p-4 border border-purple-primary/20">
-                        <h3 className="text-lg font-bold text-white mb-4 flex items-center">
-                          <BarChart3 className="w-5 h-5 mr-2 text-purple-primary" />
-                          Top Performing Tracks
-                        </h3>
-                        <div className="space-y-3">
-                          {tracks.slice(0, 3).map((track, index) => (
-                            <div
-                              key={track.id}
-                              className="flex items-center space-x-3 p-2 rounded-lg bg-purple-primary/5"
-                            >
-                              <div
-                                className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold ${
-                                  index === 0
-                                    ? "bg-yellow-500 text-black"
-                                    : index === 1
-                                      ? "bg-gray-400 text-black"
-                                      : "bg-amber-600 text-white"
-                                }`}
-                              >
-                                {index + 1}
-                              </div>
-                              <img
-                                src={track.coverUrl}
-                                alt={track.title}
-                                className="w-8 h-8 rounded object-cover"
-                              />
-                              <div className="flex-1">
-                                <h4 className="font-medium text-white text-sm">
-                                  {track.title}
-                                </h4>
-                                <p className="text-xs text-gray-400">
-                                  {formatNumber(track.plays)} plays
-                                </p>
-                              </div>
-                              <div className="text-right">
-                                <p className="text-xs text-gray-400">
-                                  {formatNumber(track.likes)} likes
-                                </p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Quick Actions */}
-                      <div className="grid grid-cols-2 gap-4">
-                        <motion.button
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={() => navigate("/rewards")}
-                          className="p-4 bg-gradient-to-r from-green-500/20 to-blue-500/20 rounded-xl border border-green-500/30 text-left"
-                        >
-                          <DollarSign className="w-6 h-6 text-green-400 mb-2" />
-                          <h3 className="font-medium text-white">
-                            View Earnings
-                          </h3>
-                          <p className="text-xs text-gray-400">
-                            Check your revenue
-                          </p>
-                        </motion.button>
-
-                        <motion.button
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          onClick={() => navigate("/notifications")}
-                          className="p-4 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-xl border border-purple-500/30 text-left"
-                        >
-                          <Star className="w-6 h-6 text-purple-400 mb-2" />
-                          <h3 className="font-medium text-white">
-                            Fan Activity
-                          </h3>
-                          <p className="text-xs text-gray-400">
-                            See fan interactions
-                          </p>
-                        </motion.button>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {selectedTab === "history" && (
-                    <motion.div
-                      key="history"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      className="space-y-4"
-                    >
-                      {/* Now Playing */}
-                      {recentlyPlayed.find(
-                        (track) => track.isCurrentlyPlaying,
-                      ) && (
-                        <div className="mb-6">
-                          <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center">
-                            <Music className="w-4 h-4 mr-2 text-neon-green" />
-                            Now Playing
-                          </h3>
-                          {(() => {
-                            const nowPlaying = recentlyPlayed.find(
-                              (track) => track.isCurrentlyPlaying,
-                            );
-                            return nowPlaying ? (
-                              <motion.div
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                className="relative h-32 rounded-xl overflow-hidden group cursor-pointer"
-                                style={{
-                                  backgroundImage: `linear-gradient(135deg, rgba(0,0,0,0.7), rgba(0,0,0,0.4)), url(${nowPlaying.coverUrl})`,
-                                  backgroundSize: "cover",
-                                  backgroundPosition: "center",
-                                }}
-                                onClick={() => handlePlay(nowPlaying.id)}
-                              >
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
-                                <div className="absolute bottom-3 left-3 right-3">
-                                  <h4 className="text-white font-semibold text-sm mb-1">
-                                    {nowPlaying.title}
-                                  </h4>
-                                  <p className="text-white/80 text-xs">
-                                    {nowPlaying.artist}
-                                  </p>
-                                  <div className="flex items-center justify-between mt-2">
-                                    <span className="text-neon-green text-xs font-medium">
-                                      ● PLAYING
-                                    </span>
-                                    <span className="text-white/60 text-xs">
-                                      {formatDuration(nowPlaying.duration)}
-                                    </span>
-                                  </div>
-                                </div>
-                                <motion.div
-                                  whileHover={{ scale: 1.1 }}
-                                  whileTap={{ scale: 0.9 }}
-                                  className="absolute top-3 right-3 w-8 h-8 bg-black/60 rounded-full flex items-center justify-center backdrop-blur-sm"
-                                >
-                                  {isPlaying ? (
-                                    <Pause className="w-4 h-4 text-white" />
-                                  ) : (
-                                    <Play className="w-4 h-4 text-white ml-0.5" />
-                                  )}
-                                </motion.div>
-                              </motion.div>
-                            ) : null;
-                          })()}
-                        </div>
-                      )}
-
-                      {/* Recently Played */}
-                      <div>
-                        <h3 className="text-sm font-medium text-muted-foreground mb-3 flex items-center">
-                          <Clock className="w-4 h-4 mr-2 text-purple-primary" />
-                          Recently Played
-                        </h3>
-                        <div className="grid grid-cols-2 gap-3">
-                          {recentlyPlayed
-                            .filter((track) => !track.isCurrentlyPlaying)
-                            .map((track, index) => (
-                              <motion.div
-                                key={track.id}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: index * 0.1 }}
-                                className="relative h-24 rounded-lg overflow-hidden group cursor-pointer"
-                                style={{
-                                  backgroundImage: `linear-gradient(135deg, rgba(0,0,0,0.6), rgba(0,0,0,0.3)), url(${track.coverUrl})`,
-                                  backgroundSize: "cover",
-                                  backgroundPosition: "center",
-                                }}
-                                onClick={() => handlePlay(track.id)}
-                              >
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                                <div className="absolute bottom-2 left-2 right-2">
-                                  <h4 className="text-white font-medium text-xs mb-0.5 truncate">
-                                    {track.title}
-                                  </h4>
-                                  <p className="text-white/70 text-[10px] truncate">
-                                    {track.artist}
-                                  </p>
-                                  <p className="text-white/50 text-[9px] mt-0.5">
-                                    {track.playedAt}
-                                  </p>
-                                </div>
-                                <motion.div
-                                  whileHover={{ scale: 1.1 }}
-                                  whileTap={{ scale: 0.9 }}
-                                  className="absolute top-2 right-2 w-6 h-6 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity backdrop-blur-sm"
-                                >
-                                  <Play className="w-3 h-3 text-white ml-0.5" />
-                                </motion.div>
-                              </motion.div>
-                            ))}
-                        </div>
-                      </div>
-
-                      {/* View All History Button */}
-                      <motion.button
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        onClick={() => navigate("/history")}
-                        className="w-full py-3 mt-4 bg-card rounded-xl text-foreground font-medium flex items-center justify-center space-x-2 border border-border"
-                      >
-                        <Clock className="w-4 h-4" />
-                        <span>View Full History</span>
-                      </motion.button>
-                    </motion.div>
-                  )}
-
-                  {selectedTab === "about" && (
-                    <motion.div
-                      key="about"
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -20 }}
-                      className="space-y-6"
-                    >
-                      {/* Detailed Stats */}
-                      <div className="bg-purple-dark/30 rounded-xl p-4 border border-purple-primary/20">
-                        <h3 className="text-lg font-bold text-white mb-4">
-                          Profile Statistics
-                        </h3>
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="text-center">
-                            <p className="text-2xl font-bold text-purple-accent">
-                              {formatNumber(profile.stats.totalTracks)}
-                            </p>
-                            <p className="text-sm text-gray-400">Tracks</p>
-                          </div>
-                          <div className="text-center">
-                            <p className="text-2xl font-bold text-purple-accent">
-                              {formatNumber(profile.stats.totalPlaylists)}
-                            </p>
-                            <p className="text-sm text-gray-400">Playlists</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Bio Section */}
-                      <div className="bg-purple-dark/30 rounded-xl p-4 border border-purple-primary/20">
-                        <h3 className="text-lg font-bold text-white mb-4">
-                          About
-                        </h3>
-                        <p className="text-gray-300 leading-relaxed">
-                          {profile.bio}
+                      <img
+                        src={track.coverUrl}
+                        alt={track.title}
+                        className="w-8 h-8 rounded object-cover"
+                      />
+                      <div className="flex-1">
+                        <h4 className="font-medium text-foreground text-sm">
+                          {track.title}
+                        </h4>
+                        <p className="text-xs text-muted-foreground">
+                          {track.artist}
                         </p>
                       </div>
-
-                      {/* Contact Info */}
-                      <div className="bg-purple-dark/30 rounded-xl p-4 border border-purple-primary/20">
-                        <h3 className="text-lg font-bold text-white mb-4">
-                          Contact & Links
-                        </h3>
-                        <div className="space-y-3">
-                          {profile.website && (
-                            <div className="flex items-center space-x-3">
-                              <Globe className="w-5 h-5 text-gray-400" />
-                              <a
-                                href={`https://${profile.website}`}
-                                className="text-purple-accent hover:underline"
-                              >
-                                {profile.website}
-                              </a>
-                            </div>
-                          )}
-                          {profile.location && (
-                            <div className="flex items-center space-x-3">
-                              <MapPin className="w-5 h-5 text-gray-400" />
-                              <span className="text-white">
-                                {profile.location}
-                              </span>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </>
+                      <span className="text-xs text-muted-foreground">
+                        {track.playedAt}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
           </div>
         </div>
-
-        {/* Stats Modal */}
-        <AnimatePresence>
-          {showStats && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
-              onClick={() => setShowStats(false)}
-            >
-              <motion.div
-                initial={{ scale: 0.9, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                exit={{ scale: 0.9, opacity: 0 }}
-                onClick={(e) => e.stopPropagation()}
-                className="bg-purple-dark rounded-2xl p-6 w-full max-w-md border border-purple-primary/30"
-              >
-                <h2 className="text-xl font-bold text-white mb-6 text-center">
-                  Profile Statistics
-                </h2>
-
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center p-3 bg-purple-primary/10 rounded-xl">
-                    <span className="text-white">Followers</span>
-                    <span className="font-bold text-purple-accent">
-                      {formatNumber(profile.stats.followers)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center p-3 bg-purple-primary/10 rounded-xl">
-                    <span className="text-white">Following</span>
-                    <span className="font-bold text-purple-accent">
-                      {formatNumber(profile.stats.following)}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center p-3 bg-purple-primary/10 rounded-xl">
-                    <span className="text-white">Total Plays</span>
-                    <span className="font-bold text-purple-accent">
-                      {formatNumber(profile.stats.totalPlays)}
-                    </span>
-                  </div>
-                  {profile.isArtist && (
-                    <div className="flex justify-between items-center p-3 bg-purple-primary/10 rounded-xl">
-                      <span className="text-white">Monthly Listeners</span>
-                      <span className="font-bold text-purple-accent">
-                        {formatNumber(profile.stats.monthlyListeners)}
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setShowStats(false)}
-                  className="w-full py-3 mt-6 bg-purple-primary rounded-xl text-white font-medium"
-                >
-                  Close
-                </motion.button>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         {/* Mobile Footer */}
         <MobileFooter />
