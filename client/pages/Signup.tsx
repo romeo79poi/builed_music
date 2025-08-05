@@ -39,7 +39,7 @@ import {
   uploadProfileImage,
   uploadProfileImageForSignup,
 } from "../lib/auth";
-// Firebase removed - using new backend authentication
+import { firebaseHelpers } from "../lib/firebase-simple";
 
 type SignupStep =
   | "method"
