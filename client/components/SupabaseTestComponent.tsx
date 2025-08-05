@@ -34,7 +34,7 @@ export default function SupabaseTestComponent() {
       test: async () => {
         const startTime = Date.now();
         try {
-          const { data, error } = await supabaseAPI.getCurrentUser();
+          const { user, error } = await supabaseAPI.getCurrentUser();
           if (error && error.code !== 'PGRST116') throw error;
           const duration = Date.now() - startTime;
           updateTestResult('Supabase Client Connection', 'success', `Connected successfully (${duration}ms)`, duration);
@@ -110,7 +110,7 @@ export default function SupabaseTestComponent() {
         const startTime = Date.now();
         try {
           // Test real-time subscription
-          const channel = supabaseAPI.supabase
+          const channel = supabase
             .channel('test-channel')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'songs' }, () => {})
             .subscribe();

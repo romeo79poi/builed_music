@@ -17,8 +17,8 @@ export default function SupabaseConnectionTest() {
 
     try {
       // Test basic connection
-      const { data, error } = await supabaseAPI.getCurrentUser();
-      
+      const { user, error } = await supabaseAPI.getCurrentUser();
+
       if (error && error.code !== 'PGRST116') {
         throw error;
       }
