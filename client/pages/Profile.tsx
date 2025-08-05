@@ -796,21 +796,12 @@ export default function Profile() {
                     )}
                   </div>
                   <p className="text-xs text-muted-foreground mb-1">
-                    {profile.email}
+                    @{profile.username}
                   </p>
                   <p className="text-xs text-foreground leading-relaxed mb-2">
                     {profile.bio}
                   </p>
 
-                  {/* Firebase indicator */}
-                  <div className="flex items-center space-x-2 mb-2">
-                    <div className="flex items-center space-x-1 px-2 py-1 bg-orange-500/10 rounded-full">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                      <span className="text-xs text-orange-500 font-medium">
-                        Firebase
-                      </span>
-                    </div>
-                  </div>
 
                   {/* Location and Website */}
                   <div className="flex items-center space-x-3 text-xs text-muted-foreground mb-2">
