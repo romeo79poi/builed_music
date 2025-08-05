@@ -658,59 +658,10 @@ export default function Signup() {
   const handleEmailStep = async () => {
     if (!validateEmail(formData.email)) return;
 
-    setIsLoading(true);
-
-    try {
-      // Check email availability first
-      await checkAvailability("email", formData.email);
-
-      if (availability.email === false) {
-        setIsLoading(false);
-        return;
-      }
-
-      // Send verification code via backend
-      const response = await fetch("/api/auth/send-email-verification", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email: formData.email }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-
-      if (data.success) {
-        setCurrentStep("verification");
-
-        toast({
-          title: "Verification code sent!",
-          description:
-            "Please check your email for the 6-digit verification code.",
-        });
-
-        setResendTimer(60);
-      } else {
-        toast({
-          title: "Failed to send verification code",
-          description: data.message || "Please try again",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error("Email verification error:", error);
-      toast({
-        title: "Network error",
-        description: "Please check your connection and try again",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    // For Supabase, we skip the separate email verification step
+    // and go directly to the profile step since Supabase handles
+    // email verification after account creation
+    setCurrentStep("profile");
   };
 
   const handlePhoneStep = async () => {
