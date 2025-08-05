@@ -24,6 +24,67 @@ import { api } from "../lib/api";
 import { useFirebase } from "../context/FirebaseContext";
 import { useNavigate } from "react-router-dom";
 
+// Firebase-aware mock data functions
+const getFirebaseMockHistory = (firebaseUser) => [
+  {
+    id: "firebase-hist-1",
+    track: {
+      id: "firebase-track-1",
+      title: "Midnight Dreams",
+      artist: "Alex Johnson",
+      album: "Digital Horizons",
+      duration: 234,
+      coverUrl: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
+    },
+    playedAt: new Date(Date.now() - 1000 * 60 * 30).toISOString(), // 30 minutes ago
+    userId: firebaseUser.uid,
+  },
+  {
+    id: "firebase-hist-2",
+    track: {
+      id: "firebase-track-2",
+      title: "Summer Vibes",
+      artist: "Beach Boys Redux",
+      album: "Coastal Dreams",
+      duration: 198,
+      coverUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
+    },
+    playedAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
+    userId: firebaseUser.uid,
+  },
+];
+
+const getFirebaseMockStats = (firebaseUser) => ({
+  totalPlays: 156,
+  totalMinutes: 8940,
+  uniqueTracks: 78,
+  uniqueArtists: 45,
+  topGenre: "Electronic",
+  averageSessionLength: 45,
+  firebaseUserId: firebaseUser.uid,
+});
+
+const getFirebaseMockArtists = (firebaseUser) => [
+  {
+    name: "Alex Johnson",
+    plays: 45,
+    image: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100&h=100&fit=crop",
+    firebaseUserId: firebaseUser.uid,
+  },
+  {
+    name: "Beach Boys Redux",
+    plays: 38,
+    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop",
+    firebaseUserId: firebaseUser.uid,
+  },
+  {
+    name: "Electronic Dreams",
+    plays: 32,
+    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop",
+    firebaseUserId: firebaseUser.uid,
+  },
+];
+
 export default function History() {
   const { profile } = useProfileContext();
   const { currentSong, isPlaying, setCurrentSong, togglePlay } =
