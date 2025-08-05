@@ -1,6 +1,12 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { io, Socket } from 'socket.io-client';
-import { useAuth } from './AuthContext';
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from "react";
+import { io, Socket } from "socket.io-client";
+import { useAuth } from "./AuthContext";
 
 interface SocketContextType {
   socket: Socket | null;
@@ -16,7 +22,7 @@ interface SocketContextType {
     isPlaying: boolean;
   }) => void;
   updateActivity: (activity: {
-    type: 'listening' | 'browsing' | 'creating';
+    type: "listening" | "browsing" | "creating";
     details: string;
   }) => void;
 }
@@ -33,7 +39,7 @@ export function SocketProvider({ children }: SocketProviderProps) {
   const [onlineUsers, setOnlineUsers] = useState<string[]>([]);
 
   // Try to get auth context - will be null if not available
-  const authContext = React.useContext(require('./AuthContext').AuthContext);
+  const authContext = React.useContext(require("./AuthContext").AuthContext);
   const user = authContext?.user || null;
   const token = authContext?.token || null;
 
@@ -46,50 +52,50 @@ export function SocketProvider({ children }: SocketProviderProps) {
         },
       });
 
-      newSocket.on('connect', () => {
-        console.log('🔌 Connected to server');
+      newSocket.on("connect", () => {
+        console.log("🔌 Connected to server");
         setIsConnected(true);
       });
 
-      newSocket.on('disconnect', () => {
-        console.log('🔌 Disconnected from server');
+      newSocket.on("disconnect", () => {
+        console.log("🔌 Disconnected from server");
         setIsConnected(false);
       });
 
-      newSocket.on('connect_error', (error) => {
-        console.error('🔌 Connection error:', error);
+      newSocket.on("connect_error", (error) => {
+        console.error("🔌 Connection error:", error);
         setIsConnected(false);
       });
 
       // Listen for friend activity
-      newSocket.on('friend:now-playing', (data) => {
-        console.log('🎵 Friend now playing:', data);
+      newSocket.on("friend:now-playing", (data) => {
+        console.log("🎵 Friend now playing:", data);
         // You can dispatch this to a friends activity context
       });
 
-      newSocket.on('friend:activity', (data) => {
-        console.log('👥 Friend activity:', data);
+      newSocket.on("friend:activity", (data) => {
+        console.log("👥 Friend activity:", data);
         // Update friends activity UI
       });
 
       // Listen for messages
-      newSocket.on('message:receive', (data) => {
-        console.log('💬 Message received:', data);
+      newSocket.on("message:receive", (data) => {
+        console.log("💬 Message received:", data);
         // Dispatch to messages context or show notification
       });
 
-      newSocket.on('message:typing', (data) => {
-        console.log('⌨️ User typing:', data);
+      newSocket.on("message:typing", (data) => {
+        console.log("⌨️ User typing:", data);
         // Show typing indicator
       });
 
       // Listen for party events
-      newSocket.on('party:user-joined', (data) => {
-        console.log('🎉 User joined party:', data);
+      newSocket.on("party:user-joined", (data) => {
+        console.log("🎉 User joined party:", data);
       });
 
-      newSocket.on('party:sync', (data) => {
-        console.log('🎵 Party sync:', data);
+      newSocket.on("party:sync", (data) => {
+        console.log("🎵 Party sync:", data);
         // Sync music playback
       });
 
@@ -101,15 +107,19 @@ export function SocketProvider({ children }: SocketProviderProps) {
     }
   }, [user, token]);
 
-  const sendMessage = (chatId: string, content: string, recipientId: string) => {
+  const sendMessage = (
+    chatId: string,
+    content: string,
+    recipientId: string,
+  ) => {
     if (socket) {
-      socket.emit('message:send', { chatId, content, recipientId });
+      socket.emit("message:send", { chatId, content, recipientId });
     }
   };
 
   const joinMusicParty = (partyId: string) => {
     if (socket) {
-      socket.emit('music:join-party', partyId);
+      socket.emit("music:join-party", partyId);
     }
   };
 
@@ -121,16 +131,16 @@ export function SocketProvider({ children }: SocketProviderProps) {
     isPlaying: boolean;
   }) => {
     if (socket) {
-      socket.emit('music:now-playing', songData);
+      socket.emit("music:now-playing", songData);
     }
   };
 
   const updateActivity = (activity: {
-    type: 'listening' | 'browsing' | 'creating';
+    type: "listening" | "browsing" | "creating";
     details: string;
   }) => {
     if (socket) {
-      socket.emit('activity:update', activity);
+      socket.emit("activity:update", activity);
     }
   };
 
@@ -145,16 +155,14 @@ export function SocketProvider({ children }: SocketProviderProps) {
   };
 
   return (
-    <SocketContext.Provider value={value}>
-      {children}
-    </SocketContext.Provider>
+    <SocketContext.Provider value={value}>{children}</SocketContext.Provider>
   );
 }
 
 export function useSocket() {
   const context = useContext(SocketContext);
   if (context === undefined) {
-    throw new Error('useSocket must be used within a SocketProvider');
+    throw new Error("useSocket must be used within a SocketProvider");
   }
   return context;
 }

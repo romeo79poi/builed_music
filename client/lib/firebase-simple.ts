@@ -1,6 +1,6 @@
 /**
  * Lightweight Firebase Integration for CATCH Music App
- * 
+ *
  * This provides a simple Firebase setup that can be easily integrated
  * with your existing authentication system without breaking the app.
  */
@@ -13,17 +13,22 @@ export const firebaseConfig = {
   storageBucket: "music-catch-59b79.firebasestorage.app",
   messagingSenderId: "185813176462",
   appId: "1:185813176462:web:8269607d16eb315f55b9df",
-  measurementId: "G-PBGMC7JZR3"
+  measurementId: "G-PBGMC7JZR3",
 };
 
 // Simple Firebase setup using dynamic imports to avoid bundle issues
 export const initializeFirebase = async () => {
   try {
     // Dynamic import to avoid loading Firebase unless explicitly called
-    const { initializeApp } = await import('firebase/app');
-    const { getAuth, GoogleAuthProvider, FacebookAuthProvider, signInWithPopup } = await import('firebase/auth');
-    const { getFirestore } = await import('firebase/firestore');
-    const { getStorage } = await import('firebase/storage');
+    const { initializeApp } = await import("firebase/app");
+    const {
+      getAuth,
+      GoogleAuthProvider,
+      FacebookAuthProvider,
+      signInWithPopup,
+    } = await import("firebase/auth");
+    const { getFirestore } = await import("firebase/firestore");
+    const { getStorage } = await import("firebase/storage");
 
     // Initialize Firebase
     const app = initializeApp(firebaseConfig);
@@ -31,24 +36,24 @@ export const initializeFirebase = async () => {
     const db = getFirestore(app);
     const storage = getStorage(app);
 
-    console.log('🔥 Firebase initialized for CATCH Music');
+    console.log("🔥 Firebase initialized for CATCH Music");
 
     return {
       app,
       auth,
       db,
       storage,
-      
+
       // Simple authentication methods
       async signInWithGoogle() {
         const provider = new GoogleAuthProvider();
-        provider.addScope('profile');
-        provider.addScope('email');
-        
+        provider.addScope("profile");
+        provider.addScope("email");
+
         try {
           const result = await signInWithPopup(auth, provider);
-          console.log('✅ Google sign-in successful:', result.user.email);
-          
+          console.log("✅ Google sign-in successful:", result.user.email);
+
           return {
             success: true,
             user: {
@@ -56,27 +61,27 @@ export const initializeFirebase = async () => {
               email: result.user.email,
               displayName: result.user.displayName,
               photoURL: result.user.photoURL,
-              emailVerified: result.user.emailVerified
-            }
+              emailVerified: result.user.emailVerified,
+            },
           };
         } catch (error: any) {
-          console.error('❌ Google sign-in failed:', error);
+          console.error("❌ Google sign-in failed:", error);
           return {
             success: false,
-            error: error.message
+            error: error.message,
           };
         }
       },
 
       async signInWithFacebook() {
         const provider = new FacebookAuthProvider();
-        provider.addScope('public_profile');
-        provider.addScope('email');
-        
+        provider.addScope("public_profile");
+        provider.addScope("email");
+
         try {
           const result = await signInWithPopup(auth, provider);
-          console.log('✅ Facebook sign-in successful:', result.user.email);
-          
+          console.log("✅ Facebook sign-in successful:", result.user.email);
+
           return {
             success: true,
             user: {
@@ -84,20 +89,20 @@ export const initializeFirebase = async () => {
               email: result.user.email,
               displayName: result.user.displayName,
               photoURL: result.user.photoURL,
-              emailVerified: result.user.emailVerified
-            }
+              emailVerified: result.user.emailVerified,
+            },
           };
         } catch (error: any) {
-          console.error('❌ Facebook sign-in failed:', error);
+          console.error("❌ Facebook sign-in failed:", error);
           return {
             success: false,
-            error: error.message
+            error: error.message,
           };
         }
-      }
+      },
     };
   } catch (error) {
-    console.warn('⚠️ Firebase not available:', error);
+    console.warn("⚠️ Firebase not available:", error);
     return null;
   }
 };
@@ -116,8 +121,8 @@ export const getFirebase = async () => {
 // Check if Firebase is configured
 export const isFirebaseConfigured = () => {
   return !!(
-    firebaseConfig.apiKey && 
-    firebaseConfig.authDomain && 
+    firebaseConfig.apiKey &&
+    firebaseConfig.authDomain &&
     firebaseConfig.projectId
   );
 };
@@ -134,19 +139,19 @@ export const firebaseHelpers = {
   async googleSignIn() {
     const firebase = await getFirebase();
     if (!firebase) {
-      return { success: false, error: 'Firebase not available' };
+      return { success: false, error: "Firebase not available" };
     }
     return firebase.signInWithGoogle();
   },
 
-  // Facebook sign-in helper  
+  // Facebook sign-in helper
   async facebookSignIn() {
     const firebase = await getFirebase();
     if (!firebase) {
-      return { success: false, error: 'Firebase not available' };
+      return { success: false, error: "Firebase not available" };
     }
     return firebase.signInWithFacebook();
-  }
+  },
 };
 
 export default firebaseHelpers;

@@ -11,12 +11,33 @@ export const isSupabaseConfigured = false;
 
 // Mock supabaseAPI to prevent errors
 export const supabaseAPI = {
-  signUp: () => Promise.resolve({ data: null, error: { message: 'Supabase removed - use Firebase' } }),
-  signIn: () => Promise.resolve({ data: null, error: { message: 'Supabase removed - use Firebase' } }),
-  signOut: () => Promise.resolve({ error: { message: 'Supabase removed - use Firebase' } }),
-  getCurrentUser: () => Promise.resolve({ user: null, error: { message: 'Supabase removed - use Firebase' } }),
-  signInWithGoogle: () => Promise.resolve({ data: null, error: { message: 'Supabase removed - use Firebase' } }),
-  signInWithFacebook: () => Promise.resolve({ data: null, error: { message: 'Supabase removed - use Firebase' } }),
+  signUp: () =>
+    Promise.resolve({
+      data: null,
+      error: { message: "Supabase removed - use Firebase" },
+    }),
+  signIn: () =>
+    Promise.resolve({
+      data: null,
+      error: { message: "Supabase removed - use Firebase" },
+    }),
+  signOut: () =>
+    Promise.resolve({ error: { message: "Supabase removed - use Firebase" } }),
+  getCurrentUser: () =>
+    Promise.resolve({
+      user: null,
+      error: { message: "Supabase removed - use Firebase" },
+    }),
+  signInWithGoogle: () =>
+    Promise.resolve({
+      data: null,
+      error: { message: "Supabase removed - use Firebase" },
+    }),
+  signInWithFacebook: () =>
+    Promise.resolve({
+      data: null,
+      error: { message: "Supabase removed - use Firebase" },
+    }),
   getUserProfile: () => Promise.resolve(null),
   updateUserProfile: () => Promise.resolve(false),
   searchUsers: () => Promise.resolve({ data: [], error: null }),
@@ -34,12 +55,14 @@ export const supabaseAPI = {
   getTrendingAlbums: () => Promise.resolve({ data: [], error: null }),
   getAlbumById: () => Promise.resolve(null),
   getAlbumSongs: () => Promise.resolve({ data: [], error: null }),
-  checkEmailAvailability: () => Promise.resolve({ available: true, error: null }),
-  checkUsernameAvailability: () => Promise.resolve({ available: true, error: null }),
+  checkEmailAvailability: () =>
+    Promise.resolve({ available: true, error: null }),
+  checkUsernameAvailability: () =>
+    Promise.resolve({ available: true, error: null }),
   recordSongPlay: () => Promise.resolve({ data: null, error: null }),
   getUserListeningHistory: () => Promise.resolve({ data: [], error: null }),
   subscribeToUserActivity: () => ({ unsubscribe: () => {} }),
-  subscribeToPlaylistChanges: () => ({ unsubscribe: () => {} })
+  subscribeToPlaylistChanges: () => ({ unsubscribe: () => {} }),
 };
 
 // Mock types for backwards compatibility

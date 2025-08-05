@@ -1,15 +1,21 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
-import { Button } from '../components/ui/button';
-import { Badge } from '../components/ui/badge';
-import { Loader2, CheckCircle, XCircle, User, Zap } from 'lucide-react';
-import { firebaseHelpers, isFirebaseConfigured } from '../lib/firebase-simple';
+import React, { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
+import { Button } from "../components/ui/button";
+import { Badge } from "../components/ui/badge";
+import { Loader2, CheckCircle, XCircle, User, Zap } from "lucide-react";
+import { firebaseHelpers, isFirebaseConfigured } from "../lib/firebase-simple";
 
 export default function FirebaseDemo() {
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<any>(null);
-  const [error, setError] = useState<string>('');
-  const [success, setSuccess] = useState<string>('');
+  const [error, setError] = useState<string>("");
+  const [success, setSuccess] = useState<string>("");
   const [connectionTest, setConnectionTest] = useState<boolean | null>(null);
 
   // Test Firebase connection on mount
@@ -21,33 +27,36 @@ export default function FirebaseDemo() {
     try {
       const isAvailable = await firebaseHelpers.testConnection();
       setConnectionTest(isAvailable);
-      console.log('🔥 Firebase connection test:', isAvailable ? 'SUCCESS' : 'FAILED');
+      console.log(
+        "🔥 Firebase connection test:",
+        isAvailable ? "SUCCESS" : "FAILED",
+      );
     } catch (error) {
       setConnectionTest(false);
-      console.error('❌ Firebase connection test failed:', error);
+      console.error("❌ Firebase connection test failed:", error);
     }
   };
 
   const handleGoogleSignIn = async () => {
     setLoading(true);
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
 
     try {
-      console.log('🔥 Starting Google sign-in...');
+      console.log("🔥 Starting Google sign-in...");
       const result = await firebaseHelpers.googleSignIn();
 
       if (result.success) {
         setUser(result.user);
         setSuccess(`Welcome ${result.user.displayName || result.user.email}!`);
-        console.log('✅ Google sign-in successful:', result.user);
+        console.log("✅ Google sign-in successful:", result.user);
       } else {
-        setError(result.error || 'Google sign-in failed');
-        console.error('❌ Google sign-in failed:', result.error);
+        setError(result.error || "Google sign-in failed");
+        console.error("❌ Google sign-in failed:", result.error);
       }
     } catch (error: any) {
-      setError(error.message || 'Google sign-in error');
-      console.error('❌ Google sign-in error:', error);
+      setError(error.message || "Google sign-in error");
+      console.error("❌ Google sign-in error:", error);
     } finally {
       setLoading(false);
     }
@@ -55,24 +64,24 @@ export default function FirebaseDemo() {
 
   const handleFacebookSignIn = async () => {
     setLoading(true);
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
 
     try {
-      console.log('🔥 Starting Facebook sign-in...');
+      console.log("🔥 Starting Facebook sign-in...");
       const result = await firebaseHelpers.facebookSignIn();
 
       if (result.success) {
         setUser(result.user);
         setSuccess(`Welcome ${result.user.displayName || result.user.email}!`);
-        console.log('✅ Facebook sign-in successful:', result.user);
+        console.log("✅ Facebook sign-in successful:", result.user);
       } else {
-        setError(result.error || 'Facebook sign-in failed');
-        console.error('❌ Facebook sign-in failed:', result.error);
+        setError(result.error || "Facebook sign-in failed");
+        console.error("❌ Facebook sign-in failed:", result.error);
       }
     } catch (error: any) {
-      setError(error.message || 'Facebook sign-in error');
-      console.error('❌ Facebook sign-in error:', error);
+      setError(error.message || "Facebook sign-in error");
+      console.error("❌ Facebook sign-in error:", error);
     } finally {
       setLoading(false);
     }
@@ -96,7 +105,10 @@ export default function FirebaseDemo() {
             <div className="flex items-center gap-2">
               <span className="text-sm font-medium">Configuration:</span>
               {isFirebaseConfigured() ? (
-                <Badge variant="default" className="bg-green-100 text-green-800">
+                <Badge
+                  variant="default"
+                  className="bg-green-100 text-green-800"
+                >
                   <CheckCircle className="h-3 w-3 mr-1" />
                   Configured
                 </Badge>
@@ -117,7 +129,10 @@ export default function FirebaseDemo() {
                   Testing...
                 </Badge>
               ) : connectionTest ? (
-                <Badge variant="default" className="bg-green-100 text-green-800">
+                <Badge
+                  variant="default"
+                  className="bg-green-100 text-green-800"
+                >
                   <CheckCircle className="h-3 w-3 mr-1" />
                   Connected
                 </Badge>
@@ -144,7 +159,9 @@ export default function FirebaseDemo() {
                   <div className="flex items-center gap-3">
                     <User className="h-8 w-8 text-green-600" />
                     <div>
-                      <p className="font-medium text-green-800">{user.displayName || 'Unknown'}</p>
+                      <p className="font-medium text-green-800">
+                        {user.displayName || "Unknown"}
+                      </p>
                       <p className="text-sm text-green-600">{user.email}</p>
                       <p className="text-xs text-green-500">UID: {user.uid}</p>
                     </div>
@@ -209,7 +226,11 @@ export default function FirebaseDemo() {
                 {loading ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 ) : (
-                  <svg className="h-4 w-4 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                  <svg
+                    className="h-4 w-4 mr-2"
+                    fill="currentColor"
+                    viewBox="0 0 24 24"
+                  >
                     <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
                   </svg>
                 )}

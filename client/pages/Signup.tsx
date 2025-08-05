@@ -547,13 +547,16 @@ export default function Signup() {
     setErrorAlert(null);
 
     try {
-      console.log('🔥 Attempting Firebase Google sign-in...');
+      console.log("🔥 Attempting Firebase Google sign-in...");
 
       // Try Firebase Google Auth first
       const firebaseResult = await firebaseHelpers.googleSignIn();
 
       if (firebaseResult.success && firebaseResult.user) {
-        console.log('✅ Firebase Google sign-in successful:', firebaseResult.user);
+        console.log(
+          "✅ Firebase Google sign-in successful:",
+          firebaseResult.user,
+        );
 
         toast({
           title: "Welcome to CATCH! 🎉",
@@ -570,7 +573,7 @@ export default function Signup() {
       }
 
       // Fallback to backend Google auth if Firebase fails
-      console.log('📱 Falling back to backend Google auth');
+      console.log("📱 Falling back to backend Google auth");
       const result = await signInWithGoogle();
 
       if (result.success) {
@@ -591,7 +594,7 @@ export default function Signup() {
         });
       }
     } catch (error: any) {
-      console.error('❌ Google sign-in error:', error);
+      console.error("❌ Google sign-in error:", error);
       setErrorAlert(error.message || "Google sign-in failed");
       toast({
         title: "Google sign-in error",
@@ -609,13 +612,16 @@ export default function Signup() {
     setErrorAlert(null);
 
     try {
-      console.log('🔥 Attempting Firebase Facebook sign-in...');
+      console.log("🔥 Attempting Firebase Facebook sign-in...");
 
       // Try Firebase Facebook Auth first
       const firebaseResult = await firebaseHelpers.facebookSignIn();
 
       if (firebaseResult.success && firebaseResult.user) {
-        console.log('✅ Firebase Facebook sign-in successful:', firebaseResult.user);
+        console.log(
+          "✅ Firebase Facebook sign-in successful:",
+          firebaseResult.user,
+        );
 
         toast({
           title: "Welcome to CATCH! 🎉",
@@ -632,7 +638,7 @@ export default function Signup() {
       }
 
       // Fallback to backend Facebook auth if Firebase fails
-      console.log('📱 Falling back to backend Facebook auth');
+      console.log("📱 Falling back to backend Facebook auth");
       const result = await signInWithFacebook();
 
       if (result.success) {
@@ -653,7 +659,7 @@ export default function Signup() {
         });
       }
     } catch (error: any) {
-      console.error('❌ Facebook sign-in error:', error);
+      console.error("❌ Facebook sign-in error:", error);
       setErrorAlert(error.message || "Facebook sign-in failed");
       toast({
         title: "Facebook sign-in error",

@@ -1,5 +1,11 @@
 // MusicContext - Supabase integration removed, now using Firebase/Backend
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+} from "react";
 
 // Mock types for backwards compatibility
 interface Song {
@@ -46,13 +52,13 @@ interface MusicContextType {
   currentTime: number;
   duration: number;
   progress: number;
-  
+
   // Music data
   trendingSongs: Song[];
   userPlaylists: Playlist[];
   likedSongs: Song[];
   recentlyPlayed: Song[];
-  
+
   // Music controls
   playSong: (song: Song) => Promise<void>;
   pauseSong: () => void;
@@ -62,7 +68,7 @@ interface MusicContextType {
   previousSong: () => void;
   seekTo: (time: number) => void;
   setVolume: (volume: number) => void;
-  
+
   // Music data actions
   searchSongs: (query: string) => Promise<Song[]>;
   getTrendingSongs: () => Promise<void>;
@@ -70,7 +76,7 @@ interface MusicContextType {
   createPlaylist: (name: string, description?: string) => Promise<void>;
   addToPlaylist: (playlistId: string, songId: string) => Promise<void>;
   toggleLikeSong: (songId: string) => Promise<void>;
-  
+
   // Real-time features (disabled)
   isConnected: boolean;
   onlineUsers: number;
@@ -86,7 +92,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   const [volume, setVolumeState] = useState(1);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  
+
   // Music data state (all empty since Supabase is removed)
   const [trendingSongs, setTrendingSongs] = useState<Song[]>([]);
   const [userPlaylists, setUserPlaylists] = useState<Playlist[]>([]);
@@ -95,7 +101,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
 
   // Mock functions - all Supabase functionality removed
   const playSong = async (song: Song) => {
-    console.log('🎵 Play song (Supabase removed):', song.title);
+    console.log("🎵 Play song (Supabase removed):", song.title);
     setCurrentSong(song);
     setIsPlaying(true);
     setIsPaused(false);
@@ -118,11 +124,11 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   };
 
   const nextSong = () => {
-    console.log('🎵 Next song (Supabase removed)');
+    console.log("🎵 Next song (Supabase removed)");
   };
 
   const previousSong = () => {
-    console.log('🎵 Previous song (Supabase removed)');
+    console.log("🎵 Previous song (Supabase removed)");
   };
 
   const seekTo = (time: number) => {
@@ -134,30 +140,30 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   };
 
   const searchSongs = async (query: string): Promise<Song[]> => {
-    console.log('🔍 Search songs (Supabase removed):', query);
+    console.log("🔍 Search songs (Supabase removed):", query);
     return [];
   };
 
   const getTrendingSongs = async () => {
-    console.log('📈 Get trending songs (Supabase removed)');
+    console.log("📈 Get trending songs (Supabase removed)");
     setTrendingSongs([]);
   };
 
   const getUserPlaylists = async () => {
-    console.log('📂 Get user playlists (Supabase removed)');
+    console.log("📂 Get user playlists (Supabase removed)");
     setUserPlaylists([]);
   };
 
   const createPlaylist = async (name: string, description?: string) => {
-    console.log('➕ Create playlist (Supabase removed):', name);
+    console.log("➕ Create playlist (Supabase removed):", name);
   };
 
   const addToPlaylist = async (playlistId: string, songId: string) => {
-    console.log('➕ Add to playlist (Supabase removed):', playlistId, songId);
+    console.log("➕ Add to playlist (Supabase removed):", playlistId, songId);
   };
 
   const toggleLikeSong = async (songId: string) => {
-    console.log('❤️ Toggle like song (Supabase removed):', songId);
+    console.log("❤️ Toggle like song (Supabase removed):", songId);
   };
 
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
@@ -172,13 +178,13 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     currentTime,
     duration,
     progress,
-    
+
     // Music data
     trendingSongs,
     userPlaylists,
     likedSongs,
     recentlyPlayed,
-    
+
     // Controls
     playSong,
     pauseSong,
@@ -188,7 +194,7 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     previousSong,
     seekTo,
     setVolume,
-    
+
     // Data actions
     searchSongs,
     getTrendingSongs,
@@ -196,23 +202,21 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     createPlaylist,
     addToPlaylist,
     toggleLikeSong,
-    
+
     // Real-time (disabled)
     isConnected: false,
     onlineUsers: 0,
   };
 
   return (
-    <MusicContext.Provider value={value}>
-      {children}
-    </MusicContext.Provider>
+    <MusicContext.Provider value={value}>{children}</MusicContext.Provider>
   );
 }
 
 export function useMusic() {
   const context = useContext(MusicContext);
   if (context === undefined) {
-    throw new Error('useMusic must be used within a MusicProvider');
+    throw new Error("useMusic must be used within a MusicProvider");
   }
   return context;
 }
