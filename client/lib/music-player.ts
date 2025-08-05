@@ -317,7 +317,7 @@ export class MusicPlayerService {
         await supabase
           .from('listening_history')
           .insert([{
-            user_id: session.user.id,
+            user_id: data.session.user.id,
             song_id: songId,
             played_at: new Date().toISOString(),
             duration_played: 0,
