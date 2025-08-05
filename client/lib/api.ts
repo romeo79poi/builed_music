@@ -59,7 +59,7 @@ async function apiRequest<T>(
 
   if (!response.ok) {
     const errorData = await response.json().catch(() => ({}));
-    throw new ApiError(
+    throw new LocalApiError(
       errorData.message || `API request failed with status ${response.status}`,
       errorData.code,
       response.status,
