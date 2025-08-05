@@ -45,9 +45,8 @@ const App = () => {
       <ThemeProvider>
         <TooltipProvider>
           <AuthProvider>
-            <SocketProvider>
-              <MusicProvider>
-                <ProfileProvider>
+            <MusicProvider>
+              <ProfileProvider>
                 <Toaster />
                 <Sonner />
                 <BrowserRouter>
@@ -79,9 +78,8 @@ const App = () => {
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </BrowserRouter>
-                </ProfileProvider>
-              </MusicProvider>
-            </SocketProvider>
+              </ProfileProvider>
+            </MusicProvider>
           </AuthProvider>
         </TooltipProvider>
       </ThemeProvider>
