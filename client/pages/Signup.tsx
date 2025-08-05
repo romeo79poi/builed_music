@@ -541,37 +541,12 @@ export default function Signup() {
 
   const { signInWithGoogle, signInWithFacebook, signUp } = useAuth();
 
-  // Google signup handler - Enhanced with Firebase
+  // Google signup handler
   const handleGoogleSignup = async () => {
     setIsLoading(true);
     setErrorAlert(null);
 
     try {
-      // Try Firebase first
-      if (catchFirebaseAuth.isAvailable()) {
-        console.log('🔥 Using Firebase Google Auth');
-        const result = await catchFirebaseAuth.signInWithGoogle();
-
-        if (result.success && result.user) {
-          toast({
-            title: "Google sign-in successful! 🎉",
-            description: `Welcome ${result.user.displayName || result.user.email}!`,
-          });
-
-          // You can sync with your backend here if needed
-          console.log('✅ Firebase user:', result.user);
-
-          setTimeout(() => {
-            navigate("/home");
-          }, 1500);
-          return;
-        } else {
-          throw new Error(result.error || 'Firebase Google sign-in failed');
-        }
-      }
-
-      // Fallback to existing backend auth
-      console.log('📱 Using backend Google Auth');
       const result = await signInWithGoogle();
 
       if (result.success) {
