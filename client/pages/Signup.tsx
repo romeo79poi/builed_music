@@ -326,11 +326,13 @@ export default function Signup() {
       let isAvailable = true;
 
       if (field === "email") {
-        const { available, error } = await supabaseAPI.checkEmailAvailability(value);
+        const { available, error } =
+          await supabaseAPI.checkEmailAvailability(value);
         if (error) throw error;
         isAvailable = available;
       } else if (field === "username") {
-        const { available, error } = await supabaseAPI.checkUsernameAvailability(value);
+        const { available, error } =
+          await supabaseAPI.checkUsernameAvailability(value);
         if (error) throw error;
         isAvailable = available;
       } else if (field === "phone") {
@@ -925,7 +927,7 @@ export default function Signup() {
         dateOfBirth: formData.dateOfBirth,
         gender: formData.gender,
         bio: formData.bio,
-        profileImageURL: formData.profileImageURL
+        profileImageURL: formData.profileImageURL,
       });
 
       if (result.success) {
