@@ -578,37 +578,12 @@ export default function Signup() {
     }
   };
 
-  // Facebook signup handler - Enhanced with Firebase
+  // Facebook signup handler
   const handleFacebookSignup = async () => {
     setIsLoading(true);
     setErrorAlert(null);
 
     try {
-      // Try Firebase first
-      if (catchFirebaseAuth.isAvailable()) {
-        console.log('🔥 Using Firebase Facebook Auth');
-        const result = await catchFirebaseAuth.signInWithFacebook();
-
-        if (result.success && result.user) {
-          toast({
-            title: "Facebook sign-in successful! 🎉",
-            description: `Welcome ${result.user.displayName || result.user.email}!`,
-          });
-
-          // You can sync with your backend here if needed
-          console.log('✅ Firebase user:', result.user);
-
-          setTimeout(() => {
-            navigate("/home");
-          }, 1500);
-          return;
-        } else {
-          throw new Error(result.error || 'Firebase Facebook sign-in failed');
-        }
-      }
-
-      // Fallback to existing backend auth
-      console.log('📱 Using backend Facebook Auth');
       const result = await signInWithFacebook();
 
       if (result.success) {
