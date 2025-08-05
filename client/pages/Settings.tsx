@@ -35,11 +35,15 @@ import MobileFooter from "../components/MobileFooter";
 import ThemeToggle from "../components/ThemeToggle";
 import { useTheme } from "../context/ThemeContext";
 import { settingsApi } from "../lib/api";
+import { useFirebase } from "../context/FirebaseContext";
+import { signOut } from "firebase/auth";
+import { auth } from "../lib/firebase";
 
 export default function Settings() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { theme, actualTheme, setTheme } = useTheme();
+  const { user: firebaseUser, loading: firebaseLoading } = useFirebase();
 
   // User data state - will be loaded from backend
   const [userProfile, setUserProfile] = useState({
@@ -71,63 +75,71 @@ export default function Settings() {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  // Load user profile and settings from backend
+  // Load user profile and settings when Firebase user is available
   useEffect(() => {
-    loadUserData();
-    loadUserSettings();
-  }, []);
+    if (!firebaseLoading && firebaseUser) {
+      loadUserData();
+      loadUserSettings();
+    } else if (!firebaseLoading && !firebaseUser) {
+      // Redirect to login if not authenticated
+      navigate("/login");
+    }
+  }, [firebaseUser, firebaseLoading]);
 
   const loadUserData = async () => {
     try {
-      const userData = localStorage.getItem("currentUser");
-      const token = localStorage.getItem("token");
-
-      if (userData) {
-        const user = JSON.parse(userData);
-        setUserProfile({
-          name: user.name || user.displayName || "Unknown User",
-          email: user.email || "No email",
-          profileImage: user.profileImageURL || user.profile_image || "",
-          joinDate: user.created_at
-            ? new Date(user.created_at).toLocaleDateString()
-            : "Unknown",
-          premium: user.premium || false,
-        });
+      if (!firebaseUser) {
+        console.log("❌ No Firebase user found");
+        setLoading(false);
+        return;
       }
+
+      console.log("🔥 Loading user data for Firebase user:", firebaseUser.email);
+
+      // Set Firebase user data first
+      const firebaseProfile = {
+        name: firebaseUser.displayName || "User",
+        email: firebaseUser.email || "No email",
+        profileImage: firebaseUser.photoURL || `https://via.placeholder.com/64?text=${(firebaseUser.displayName || "U").charAt(0)}`,
+        joinDate: firebaseUser.metadata.creationTime
+          ? new Date(firebaseUser.metadata.creationTime).toLocaleDateString()
+          : "Unknown",
+        premium: false,
+      };
+
+      setUserProfile(firebaseProfile);
 
       // Try to fetch updated profile from backend
-      if (token) {
-        try {
-          const response = await fetch("/api/v2/profile", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
+      try {
+        const response = await fetch(`/api/v1/users/${firebaseUser.uid}`, {
+          headers: {
+            "user-id": firebaseUser.uid,
+            "Content-Type": "application/json",
+          },
+        });
 
-          if (response.ok) {
-            const profileData = await response.json();
-            if (profileData.success && profileData.user) {
-              setUserProfile({
-                name: profileData.user.name || "Unknown User",
-                email: profileData.user.email || "No email",
-                profileImage: profileData.user.profile_image || "",
-                joinDate: profileData.user.created_at
-                  ? new Date(profileData.user.created_at).toLocaleDateString()
-                  : "Unknown",
-                premium: profileData.user.premium || false,
-              });
-              console.log(
-                "✅ Loaded user profile from backend:",
-                profileData.user,
-              );
-            }
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success && result.data) {
+            const backendData = result.data;
+            setUserProfile({
+              name: backendData.display_name || backendData.name || firebaseProfile.name,
+              email: firebaseUser.email || "No email",
+              profileImage: backendData.profile_image_url || firebaseProfile.profileImage,
+              joinDate: backendData.created_at
+                ? new Date(backendData.created_at).toLocaleDateString()
+                : firebaseProfile.joinDate,
+              premium: backendData.premium || false,
+            });
+            console.log("✅ Loaded user profile from backend:", backendData);
           }
-        } catch (error) {
-          console.error("Error loading profile from backend:", error);
         }
+      } catch (error) {
+        console.error("⚠️ Backend profile fetch failed:", error);
+        // Keep Firebase profile data
       }
     } catch (error) {
-      console.error("Error loading user data:", error);
+      console.error("❌ Error loading user data:", error);
     } finally {
       setLoading(false);
     }
@@ -135,8 +147,9 @@ export default function Settings() {
 
   const loadUserSettings = async () => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) return;
+      if (!firebaseUser) return;
+
+      console.log("🔥 Loading settings for Firebase user:", firebaseUser.uid);
 
       const userSettings = await settingsApi.getUserSettings();
       if (userSettings) {
@@ -157,7 +170,7 @@ export default function Settings() {
         console.log("✅ Loaded user settings from backend:", userSettings);
       }
     } catch (error) {
-      console.error("Error loading settings from backend:", error);
+      console.error("⚠️ Error loading settings from backend:", error);
       // Keep default settings on error
     }
   };
@@ -334,9 +347,8 @@ export default function Settings() {
     }));
 
     try {
-      const token = localStorage.getItem("token");
-      if (token) {
-        // Update settings on backend
+      if (firebaseUser) {
+        // Update settings on backend with Firebase user ID
         let updateData: any = {};
 
         // Map settings to backend format
@@ -368,7 +380,7 @@ export default function Settings() {
         description: `${key} has been ${newValue ? "enabled" : "disabled"}`,
       });
     } catch (error) {
-      console.error("Error updating setting on backend:", error);
+      console.error("⚠️ Error updating setting on backend:", error);
       // Revert local state on error
       setSettings((prev) => ({
         ...prev,
@@ -385,28 +397,16 @@ export default function Settings() {
 
   const handleLogout = async () => {
     try {
-      // Call backend logout endpoint if available
-      const token = localStorage.getItem("token");
-      if (token) {
-        try {
-          await fetch("/api/auth/logout", {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-        } catch (error) {
-          console.error("Backend logout error:", error);
-        }
-      }
+      // Sign out from Firebase
+      await signOut(auth);
 
-      // Clear tokens and user data
+      // Clear any remaining local storage
       localStorage.removeItem("token");
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("currentUser");
       localStorage.removeItem("userAvatar");
 
-      console.log("✅ User logged out successfully");
+      console.log("✅ User logged out successfully from Firebase");
 
       toast({
         title: "Logged Out",
@@ -414,7 +414,7 @@ export default function Settings() {
       });
       navigate("/login");
     } catch (error) {
-      console.error("Logout error:", error);
+      console.error("❌ Firebase logout error:", error);
       toast({
         title: "Logout Error",
         description: "There was an issue logging out. Please try again.",
