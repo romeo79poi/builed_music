@@ -2,6 +2,7 @@
 // This file is kept for backwards compatibility but all functions are disabled
 
 // Mock exports to maintain compatibility
+export const supabase = null; // Main supabase client (removed)
 export const auth = null;
 export const db = null;
 export const storage = null;
