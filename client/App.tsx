@@ -10,7 +10,7 @@ import { MusicProvider } from "./context/MusicContextSupabase";
 import { ProfileProvider } from "./context/ProfileContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
-import { SocketProvider } from "./context/SocketContext";
+// import { SocketProvider } from "./context/SocketContext";
 import AuthRouter from "./components/AuthRouter";
 import Splash from "./pages/Splash";
 import Login from "./pages/Login";
