@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useMusic } from '../context/MusicContextSupabase';
-import { supabaseAPI } from '../lib/supabase';
+import { supabaseAPI, supabase } from '../lib/supabase';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { Badge } from './ui/badge';
