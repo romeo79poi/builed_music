@@ -119,16 +119,16 @@ export class MusicIntegrationService {
     filters?: SearchFilters
   ): Promise<{ songs: Song[]; albums: Album[]; playlists: Playlist[] }> {
     try {
-      const { data, error } = await supabaseAPI.searchAll(query, limit)
+      const { data, error } = await supabaseAPI.searchSongs(query, limit)
       
       if (error) {
         throw error
       }
 
       return {
-        songs: data?.songs || [],
-        albums: data?.albums || [],
-        playlists: data?.playlists || []
+        songs: data || [],
+        albums: [],
+        playlists: []
       }
     } catch (error) {
       console.warn('Supabase search failed:', error)
@@ -250,7 +250,7 @@ export class MusicIntegrationService {
 
       const [externalPopular, supabaseAlbums] = await Promise.allSettled([
         musicAPI.getPopularTracks(Math.ceil(limit / 2)),
-        supabaseAPI.getAlbums(10)
+        supabaseAPI.getTrendingAlbums(10)
       ])
 
       let songs: Song[] = []
