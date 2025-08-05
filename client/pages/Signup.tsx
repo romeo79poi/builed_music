@@ -965,10 +965,8 @@ export default function Signup() {
       } else {
         setCurrentStep("phone-verify");
       }
-    } else if (currentStep === "verification") {
-      setCurrentStep("profile");
     } else if (currentStep === "password") {
-      setCurrentStep("verification");
+      setCurrentStep("profile");
     } else if (currentStep === "dob") {
       setCurrentStep("password");
     } else if (currentStep === "profileImage") {
