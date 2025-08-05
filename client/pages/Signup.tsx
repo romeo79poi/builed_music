@@ -314,7 +314,7 @@ export default function Signup() {
     return true;
   };
 
-  // Check availability with backend
+  // Check availability with Supabase
   const checkAvailability = async (
     field: "email" | "username" | "phone",
     value: string,
@@ -322,78 +322,48 @@ export default function Signup() {
     if (!value) return;
 
     try {
-      let response, data;
+      let isAvailable = true;
 
-      if (field === "phone") {
-        response = await fetch(
-          `/api/phone/check-availability?phone=${encodeURIComponent(value)}`,
-        );
-        data = await response.json();
+      if (field === "email") {
+        const { available, error } = await supabaseAPI.checkEmailAvailability(value);
+        if (error) throw error;
+        isAvailable = available;
+      } else if (field === "username") {
+        const { available, error } = await supabaseAPI.checkUsernameAvailability(value);
+        if (error) throw error;
+        isAvailable = available;
+      } else if (field === "phone") {
+        // For phone, we'll just assume it's available for now
+        // You can implement phone checking in Supabase later if needed
+        isAvailable = true;
+      }
 
-        if (data.success) {
-          setAvailability((prev) => ({
-            ...prev,
-            phone: data.phoneAvailable,
-          }));
+      setAvailability((prev) => ({
+        ...prev,
+        [field]: isAvailable,
+      }));
 
-          if (!data.phoneAvailable) {
-            setErrors((prev) => ({
-              ...prev,
-              phone: "Phone number is already registered",
-            }));
-          }
-        }
+      if (isAvailable) {
+        // Clear any existing errors if the field is available
+        setErrors((prev) => ({
+          ...prev,
+          [field]: "",
+        }));
       } else {
-        response = await fetch(
-          `/api/auth/check-availability?${field}=${encodeURIComponent(value)}`,
-        );
-        data = await response.json();
-
-        if (data.success) {
-          const isAvailable =
-            field === "email" ? data.emailAvailable : data.usernameAvailable;
-
-          setAvailability((prev) => ({
-            ...prev,
-            [field]: isAvailable,
-          }));
-
-          if (isAvailable) {
-            // Clear any existing errors if the field is available
-            setErrors((prev) => ({
-              ...prev,
-              [field]: "",
-            }));
-          } else {
-            // Show unavailable error
-            if (field === "email") {
-              setErrors((prev) => ({
-                ...prev,
-                email: "Email is already registered",
-              }));
-            } else if (field === "username") {
-              setErrors((prev) => ({
-                ...prev,
-                username: "Username is already taken",
-              }));
-            }
-          }
-        } else {
-          // Handle validation errors from backend
-          console.error(`❌ ${field} validation error:`, data.message);
+        // Show unavailable error
+        if (field === "email") {
           setErrors((prev) => ({
             ...prev,
-            [field]: data.message || `Invalid ${field}`,
+            email: "Email is already registered",
           }));
-
-          // Set availability to false for validation errors
-          setAvailability((prev) => ({
+        } else if (field === "username") {
+          setErrors((prev) => ({
             ...prev,
-            [field]: false,
+            username: "Username is already taken",
           }));
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Availability check failed:", error);
       setErrors((prev) => ({
         ...prev,
