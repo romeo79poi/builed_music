@@ -119,7 +119,7 @@ export class MusicIntegrationService {
     filters?: SearchFilters
   ): Promise<{ songs: Song[]; albums: Album[]; playlists: Playlist[] }> {
     try {
-      const { data, error } = await supabaseOperations.searchAll(query, limit)
+      const { data, error } = await supabaseAPI.searchAll(query, limit)
       
       if (error) {
         throw error
@@ -191,7 +191,7 @@ export class MusicIntegrationService {
       // Get trending from external API and recent from Supabase
       const [externalTrending, recentSongs] = await Promise.allSettled([
         musicAPI.getTrendingTracks(Math.ceil(limit / 2)),
-        supabaseOperations.getSongs(Math.ceil(limit / 2), 0)
+        supabaseAPI.getSongs(Math.ceil(limit / 2), 0)
       ])
 
       let songs: Song[] = []
@@ -244,7 +244,7 @@ export class MusicIntegrationService {
 
       const [externalPopular, supabaseAlbums] = await Promise.allSettled([
         musicAPI.getPopularTracks(Math.ceil(limit / 2)),
-        supabaseOperations.getAlbums(10)
+        supabaseAPI.getAlbums(10)
       ])
 
       let songs: Song[] = []
