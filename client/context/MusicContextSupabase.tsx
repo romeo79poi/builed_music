@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabaseAPI, type Song, type Playlist, type Album } from '@/lib/supabase';
 import { useAuth } from './AuthContext';
+import { realTimeMusicService, type MusicRoomActivity } from '@/lib/realtime-music';
 
 interface CurrentSong extends Song {
   isPlaying: boolean;
@@ -48,7 +49,13 @@ interface MusicContextType {
   
   // Search
   searchSongs: (query: string) => Promise<Song[]>;
-  
+
+  // Real-time features
+  friendsActivity: MusicRoomActivity[];
+  createListeningRoom: (songId: string, isPublic: boolean) => Promise<string | null>;
+  joinListeningRoom: (roomId: string) => Promise<void>;
+  leaveListeningRoom: (roomId: string) => Promise<void>;
+
   // Loading states
   loading: {
     trending: boolean;
@@ -79,7 +86,10 @@ export function MusicProvider({ children }: { children: ReactNode }) {
   const [likedSongs, setLikedSongs] = useState<Song[]>([]);
   const [recentlyPlayed, setRecentlyPlayed] = useState<Song[]>([]);
   const [trendingAlbums, setTrendingAlbums] = useState<Album[]>([]);
-  
+
+  // Real-time state
+  const [friendsActivity, setFriendsActivity] = useState<MusicRoomActivity[]>([]);
+
   // Loading states
   const [loading, setLoading] = useState({
     trending: false,
@@ -97,6 +107,23 @@ export function MusicProvider({ children }: { children: ReactNode }) {
       refreshLikedSongs();
       refreshRecentlyPlayed();
       refreshTrendingAlbums();
+
+      // Subscribe to real-time features
+      const friendsActivityChannel = realTimeMusicService.subscribeToFriendsActivity(
+        user.id,
+        setFriendsActivity
+      );
+
+      const trendingUpdatesChannel = realTimeMusicService.subscribeToTrendingUpdates(
+        setTrendingSongs
+      );
+
+      // Cleanup on unmount
+      return () => {
+        friendsActivityChannel.unsubscribe();
+        trendingUpdatesChannel.unsubscribe();
+        realTimeMusicService.cleanup();
+      };
     }
   }, [user]);
 
@@ -109,15 +136,17 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     });
     setIsPlaying(true);
     setProgress(0);
-    
+
     if (newQueue) {
       setQueue(newQueue);
       setCurrentIndex(newQueue.findIndex(s => s.id === song.id));
     }
-    
-    // Record play in Supabase
+
+    // Start real-time listening session
     if (user) {
       try {
+        await realTimeMusicService.startListeningSession(user.id, song.id);
+        // Also record in traditional way for fallback
         await supabaseAPI.recordSongPlay(user.id, song.id);
         // Refresh recently played
         refreshRecentlyPlayed();
@@ -305,6 +334,39 @@ export function MusicProvider({ children }: { children: ReactNode }) {
     return [];
   };
 
+  // Real-time room functions
+  const createListeningRoom = async (songId: string, isPublic: boolean): Promise<string | null> => {
+    if (!user) return null;
+
+    try {
+      const roomId = await realTimeMusicService.createListeningRoom(user.id, songId, isPublic);
+      return roomId;
+    } catch (error) {
+      console.error('Failed to create listening room:', error);
+      return null;
+    }
+  };
+
+  const joinListeningRoom = async (roomId: string): Promise<void> => {
+    if (!user) return;
+
+    try {
+      await realTimeMusicService.joinListeningRoom(roomId, user.id);
+    } catch (error) {
+      console.error('Failed to join listening room:', error);
+    }
+  };
+
+  const leaveListeningRoom = async (roomId: string): Promise<void> => {
+    if (!user) return;
+
+    try {
+      await realTimeMusicService.leaveListeningRoom(roomId, user.id);
+    } catch (error) {
+      console.error('Failed to leave listening room:', error);
+    }
+  };
+
   return (
     <MusicContext.Provider value={{
       // Current playback
@@ -347,7 +409,13 @@ export function MusicProvider({ children }: { children: ReactNode }) {
       
       // Search
       searchSongs,
-      
+
+      // Real-time features
+      friendsActivity,
+      createListeningRoom,
+      joinListeningRoom,
+      leaveListeningRoom,
+
       // Loading states
       loading
     }}>
