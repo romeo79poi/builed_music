@@ -11,7 +11,7 @@ import { ProfileProvider } from "./context/ProfileContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
 import { RealtimeProvider } from "./context/RealtimeContext";
-import { FirebaseProvider } from "./context/FirebaseContext";
+// import { FirebaseProvider } from "./context/FirebaseContext";
 import AuthRouter from "./components/AuthRouter";
 import Splash from "./pages/Splash";
 import Login from "./pages/Login";
