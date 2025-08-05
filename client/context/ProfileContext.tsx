@@ -43,7 +43,7 @@ export interface MusicPreferences {
   language: string[];
   autoPlay?: boolean;
   crossfade?: boolean;
-  soundQuality?: string;
+  soundQuality?: "low" | "medium" | "high" | "lossless";
 }
 
 export interface SocialLinks {
