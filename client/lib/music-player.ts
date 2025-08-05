@@ -311,8 +311,8 @@ export class MusicPlayerService {
   // Analytics and Tracking
   private async trackPlayback(songId: string) {
     try {
-      const { data: session } = await supabase.auth.getSession()
-      if (session?.user) {
+      const { data } = await supabase.auth.getSession()
+      if (data?.session?.user) {
         // Track in listening history
         await supabase
           .from('listening_history')
@@ -331,8 +331,8 @@ export class MusicPlayerService {
 
   private async trackCompletion(songId: string) {
     try {
-      const { data: session } = await supabase.auth.getSession()
-      if (session?.user) {
+      const { data } = await supabase.auth.getSession()
+      if (data?.session?.user) {
         // Update listening history with completion
         await supabase
           .from('listening_history')
@@ -340,7 +340,7 @@ export class MusicPlayerService {
             duration_played: this.state.currentTime,
             completed: this.state.currentTime >= (this.state.duration * 0.8) // 80% completion threshold
           })
-          .eq('user_id', session.user.id)
+          .eq('user_id', data.session.user.id)
           .eq('song_id', songId)
           .eq('played_at', new Date().toISOString().split('T')[0]) // Today's plays
       }
