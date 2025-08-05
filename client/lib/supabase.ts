@@ -1,15 +1,54 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://your-project-ref.supabase.co'
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'your-anon-key-here'
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || ''
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || ''
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true
+// Validate URL format
+const isValidUrl = (url: string) => {
+  try {
+    new URL(url)
+    return url.includes('.supabase.co') && !url.includes('[') && !url.includes(']')
+  } catch {
+    return false
   }
-})
+}
+
+// Create a mock client if credentials are not properly configured
+export const supabase = (() => {
+  if (!isValidUrl(supabaseUrl) || !supabaseAnonKey || supabaseAnonKey.includes('[')) {
+    console.warn('⚠️ Supabase not configured. Using mock client. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY environment variables.')
+
+    // Return a mock client that prevents errors
+    return {
+      auth: {
+        signUp: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
+        signInWithPassword: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
+        signInWithOAuth: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
+        signOut: () => Promise.resolve({ error: null }),
+        getUser: () => Promise.resolve({ data: { user: null }, error: { message: 'Supabase not configured' } }),
+        onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => {} } } })
+      },
+      from: () => ({
+        select: () => ({ eq: () => ({ single: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }) }) }),
+        insert: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
+        update: () => ({ eq: () => ({ select: () => ({ single: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }) }) }) }),
+        delete: () => ({ eq: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }) }),
+        rpc: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } })
+      }),
+      channel: () => ({
+        on: () => ({ subscribe: () => ({ unsubscribe: () => {} }) })
+      })
+    } as any
+  }
+
+  return createClient(supabaseUrl, supabaseAnonKey, {
+    auth: {
+      autoRefreshToken: true,
+      persistSession: true,
+      detectSessionInUrl: true
+    }
+  })
+})()
 
 // Database types for TypeScript
 export interface User {
