@@ -448,5 +448,18 @@ export function createServer() {
   // Code Generator API routes
   app.post("/api/code-generator/generate", generateCode);
 
+  // Socket.IO setup - will be initialized when the HTTP server is created
+  (app as any).setupSocketIO = (server: any) => {
+    try {
+      const { MusicSocketServer } = require('./lib/socket-server');
+      const socketServer = new MusicSocketServer(server);
+      console.log('🎵 Socket.IO server initialized successfully');
+      return socketServer;
+    } catch (error) {
+      console.warn('⚠️ Socket.IO server initialization failed:', error.message);
+      return null;
+    }
+  };
+
   return app;
 }
