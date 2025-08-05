@@ -41,6 +41,9 @@ export interface MusicPreferences {
   favoriteArtists: string[];
   mood: string;
   language: string[];
+  autoPlay?: boolean;
+  crossfade?: boolean;
+  soundQuality?: string;
 }
 
 export interface SocialLinks {
