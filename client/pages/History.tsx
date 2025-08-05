@@ -21,12 +21,16 @@ import { useMusicContext } from "../context/MusicContext";
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
 import { api } from "../lib/api";
+import { useFirebase } from "../context/FirebaseContext";
+import { useNavigate } from "react-router-dom";
 
 export default function History() {
   const { profile } = useProfileContext();
   const { currentSong, isPlaying, setCurrentSong, togglePlay } =
     useMusicContext();
   const { toast } = useToast();
+  const { user: firebaseUser, loading: firebaseLoading } = useFirebase();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("Recent");
   const [timeFilter, setTimeFilter] = useState("Today");
   const [listeningHistory, setListeningHistory] = useState([]);
@@ -38,54 +42,77 @@ export default function History() {
   const timeFilters = ["Today", "Yesterday", "This Week", "This Month"];
 
   useEffect(() => {
-    loadHistoryData();
-  }, [timeFilter]);
+    if (!firebaseLoading) {
+      if (firebaseUser) {
+        loadHistoryData();
+      } else {
+        navigate("/login");
+      }
+    }
+  }, [timeFilter, firebaseUser, firebaseLoading]);
 
   const loadHistoryData = async () => {
     try {
       setIsLoading(true);
 
-      const [historyData, analyticsData] = await Promise.all([
-        api.history
-          .getHistory(50, timeFilter.toLowerCase().replace(" ", "_"))
-          .catch(() => ({ success: false })),
-        api.history
-          .getAnalytics(timeFilter.toLowerCase().replace(" ", "_"))
-          .catch(() => ({ success: false })),
-      ]);
-
-      if (historyData.success) {
-        setListeningHistory(historyData.history || []);
-        setStats(historyData.stats);
-      } else {
-        // Fallback to mock data
-        setListeningHistory(mockListeningHistory);
-        setStats(mockStats);
+      if (!firebaseUser) {
+        console.log("❌ No Firebase user found");
+        setIsLoading(false);
+        return;
       }
 
-      if (analyticsData.success) {
-        // Extract top artists from analytics
-        const artists = [
+      console.log("🔥 Loading history for Firebase user:", firebaseUser.email);
+
+      // Try to load history from backend with Firebase user ID
+      try {
+        const historyResponse = await fetch(
+          `/api/v1/users/${firebaseUser.uid}/play-history?limit=50&period=${timeFilter.toLowerCase().replace(" ", "_")}`,
           {
-            name: "The Weeknd",
-            plays: 45,
-            image:
-              "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100&h=100&fit=crop",
+            headers: {
+              "user-id": firebaseUser.uid,
+              "Content-Type": "application/json",
+            },
           },
+        );
+
+        if (historyResponse.ok) {
+          const historyData = await historyResponse.json();
+          setListeningHistory(historyData.history || historyData.play_history || []);
+          setStats(historyData.stats);
+          console.log("✅ Loaded history from backend:", historyData.history?.length || 0);
+        } else {
+          throw new Error("Backend history fetch failed");
+        }
+      } catch (error) {
+        console.warn("⚠️ Backend history fetch failed:", error);
+        // Fallback to Firebase-aware mock data
+        setListeningHistory(getFirebaseMockHistory(firebaseUser));
+        setStats(getFirebaseMockStats(firebaseUser));
+      }
+
+      // Try to load analytics
+      try {
+        const analyticsResponse = await fetch(
+          `/api/v1/users/${firebaseUser.uid}/analytics?period=${timeFilter.toLowerCase().replace(" ", "_")}`,
           {
-            name: "Dua Lipa",
-            plays: 38,
-            image:
-              "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop",
+            headers: {
+              "user-id": firebaseUser.uid,
+              "Content-Type": "application/json",
+            },
           },
-          {
-            name: "Harry Styles",
-            plays: 32,
-            image:
-              "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop",
-          },
-        ];
-        setTopArtists(artists);
+        );
+
+        if (analyticsResponse.ok) {
+          const analyticsData = await analyticsResponse.json();
+          setTopArtists(analyticsData.top_artists || []);
+          console.log("✅ Loaded analytics from backend");
+        } else {
+          throw new Error("Backend analytics fetch failed");
+        }
+      } catch (error) {
+        console.warn("⚠️ Backend analytics fetch failed:", error);
+        // Fallback to Firebase-aware mock artists
+        setTopArtists(getFirebaseMockArtists(firebaseUser));
       }
     } catch (error) {
       console.error("Failed to load history data:", error);
