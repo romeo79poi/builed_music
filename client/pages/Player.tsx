@@ -29,6 +29,7 @@ import { useFirebase } from "../context/FirebaseContext";
 export default function Player() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user: firebaseUser } = useFirebase();
   const { toast } = useToast();
 
   // Sample song data (replace with actual data from props/context)
