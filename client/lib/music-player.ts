@@ -104,9 +104,8 @@ export class MusicPlayerService {
       let audioUrl = song.url
 
       if (!audioUrl && song.id) {
-        // Try to get audio from Supabase storage
-        const { data } = await supabaseAPI.getPublicUrl('songs', `${song.id}.mp3`)
-        audioUrl = data.publicUrl
+        // Try to get audio from Supabase storage - construct URL directly
+        audioUrl = `${import.meta.env.VITE_SUPABASE_URL}/storage/v1/object/public/songs/${song.id}.mp3`
       }
 
       if (!audioUrl) {
@@ -404,7 +403,7 @@ export class MusicPlayerService {
         throw new Error('User not authenticated')
       }
 
-      const { data: userLikes, error } = await supabaseAPI.getUserLikes(data.session.user.id)
+      const { data: userLikes, error } = await supabaseAPI.getUserLikedSongs(data.session.user.id)
       
       if (error) {
         throw new Error('Failed to load liked songs')
