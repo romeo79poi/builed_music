@@ -38,6 +38,43 @@ export default function Login() {
     }
   }, [firebaseUser, loading, navigate]);
 
+  const checkUserExists = async (email: string) => {
+    try {
+      // Check Firebase auth users and Firestore data
+      const { fetchUserData } = await import('../lib/auth');
+
+      // Try to get user data from Firestore
+      try {
+        const userData = await fetchUserData(email);
+        if (userData) {
+          console.log("✅ User found in database:", userData);
+          return true;
+        }
+      } catch (error) {
+        console.log("🔍 User not found in Firestore");
+      }
+
+      // Check localStorage for recent signup data
+      const localUser = localStorage.getItem('currentUser');
+      if (localUser) {
+        try {
+          const userData = JSON.parse(localUser);
+          if (userData.email === email) {
+            console.log("✅ User found in localStorage");
+            return true;
+          }
+        } catch (error) {
+          console.log("⚠️ Failed to parse localStorage user data");
+        }
+      }
+
+      return false;
+    } catch (error) {
+      console.error("❌ Error checking user existence:", error);
+      return false;
+    }
+  };
+
   const handleEmailLogin = async () => {
     if (!email || !password) {
       toast({
@@ -52,33 +89,87 @@ export default function Login() {
     setAuthError(null);
 
     try {
-      console.log("🔑 Attempting Firebase email login...");
-      
+      console.log("🔍 Checking if user exists for email:", email);
+
+      // First check if user exists
+      const userExists = await checkUserExists(email);
+
+      if (!userExists) {
+        // User doesn't exist, redirect to signup
+        setAuthError("Account not found. Please sign up first.");
+        toast({
+          title: "Account not found 😕",
+          description: "This email is not registered. Redirecting to signup...",
+          variant: "destructive",
+        });
+
+        setTimeout(() => {
+          navigate("/signup", { state: { email: email } });
+        }, 2000);
+        return;
+      }
+
+      console.log("🔑 User exists, attempting Firebase email login...");
+
       // Use Firebase authentication
       const result = await loginWithEmailAndPassword(email, password);
 
-      if (result.success) {
+      if (result.success && result.user) {
+        // Fetch complete user profile data
+        await loadCompleteUserProfile(result.user);
+
         toast({
           title: "Welcome back! 🎉",
-          description: "Successfully logged in with Firebase",
+          description: "Successfully logged in",
         });
 
         console.log("✅ Firebase email login successful");
         navigate("/home");
       } else {
-        setAuthError(result.error || "Login failed");
+        // Handle specific error cases
+        let errorMessage = result.error || "Login failed";
+
+        if (errorMessage.includes("user-not-found")) {
+          errorMessage = "Account not found. Please sign up first.";
+          setTimeout(() => {
+            navigate("/signup", { state: { email: email } });
+          }, 2000);
+        } else if (errorMessage.includes("wrong-password")) {
+          errorMessage = "Incorrect password. Please try again.";
+        } else if (errorMessage.includes("invalid-email")) {
+          errorMessage = "Invalid email format.";
+        }
+
+        setAuthError(errorMessage);
         toast({
           title: "Login failed",
-          description: result.error || "Invalid email or password",
+          description: errorMessage,
           variant: "destructive",
         });
       }
     } catch (error: any) {
       console.error("❌ Email login error:", error);
-      setAuthError(error.message || "Login failed");
+
+      let errorMessage = error.message || "Login failed";
+
+      // Handle Firebase error codes
+      if (error.code === 'auth/user-not-found') {
+        errorMessage = "Account not found. Redirecting to signup...";
+        setTimeout(() => {
+          navigate("/signup", { state: { email: email } });
+        }, 2000);
+      } else if (error.code === 'auth/wrong-password') {
+        errorMessage = "Incorrect password. Please try again.";
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = "Invalid email format.";
+      } else if (error.code === 'auth/user-disabled') {
+        errorMessage = "This account has been disabled.";
+      }
+
+      setAuthError(errorMessage);
       toast({
         title: "Login error",
-        description: error.message || "An unexpected error occurred",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
