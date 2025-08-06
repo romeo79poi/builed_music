@@ -18,6 +18,8 @@ import { songApi } from "../lib/api";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import LikeButton from "../components/LikeButton";
+import { useFirebase } from "../context/FirebaseContext";
+import { useToast } from "../hooks/use-toast";
 
 interface Song {
   id: string;
@@ -34,6 +36,8 @@ export default function LikedSongs() {
   const { profile, toggleLikedSong } = useProfileContext();
   const { currentSong, isPlaying, setCurrentSong, togglePlay } =
     useMusicContext();
+  const { user: firebaseUser, loading: firebaseLoading } = useFirebase();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
 
   const [likedSongs, setLikedSongs] = useState<Song[]>([]);
