@@ -44,8 +44,14 @@ export default function LikedSongs() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    loadLikedSongs();
-  }, []);
+    if (!firebaseLoading) {
+      if (firebaseUser) {
+        loadLikedSongs();
+      } else {
+        navigate("/login");
+      }
+    }
+  }, [firebaseUser, firebaseLoading]);
 
   const loadLikedSongs = async () => {
     try {
