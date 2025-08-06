@@ -453,7 +453,7 @@ export default function Signup() {
             }
 
             toast({
-              title: "Account created successfully! 🎉",
+              title: "Account created successfully! ��",
               description: "Welcome to Music Catch!",
             });
 
@@ -933,6 +933,13 @@ export default function Signup() {
   };
 
   const handleProfileImageStep = async () => {
+    // Check email verification for email signups
+    if (signupMethod === "email" && !emailVerified) {
+      setErrorAlert("Email verification required.");
+      setCurrentStep("email-verify");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -2439,7 +2446,7 @@ export default function Signup() {
                 onClick={goBack}
                 className="w-full text-purple-primary hover:text-purple-secondary transition-colors text-sm mt-4"
               >
-                ← Back
+                ��� Back
               </button>
             </motion.div>
           )}
