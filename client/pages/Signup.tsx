@@ -896,7 +896,7 @@ export default function Signup() {
           navigate("/home");
         }, 2000);
       } else {
-        // Use Firebase for email registration
+        // Use Firebase for email registration with complete profile data
         const result = await signUpWithEmailAndPasswordWithVerification(
           formData.email,
           formData.password,
@@ -905,12 +905,49 @@ export default function Signup() {
           formData.phone
         );
 
-        if (result.success) {
-          // Send Firebase email verification notification
-          if (result.user) {
-            setEmailVerificationSent(true);
-            setVerificationUser(result.user);
+        if (result.success && result.user) {
+          // Save complete profile data to Firestore
+          const additionalProfileData = {
+            username: formData.username,
+            name: formData.name,
+            dob: formData.dateOfBirth,
+            gender: formData.gender,
+            bio: formData.bio,
+            profileImage: formData.profileImageURL,
+          };
+
+          console.log("💾 Saving complete profile data:", additionalProfileData);
+
+          const saveResult = await saveUserData(result.user, additionalProfileData);
+
+          if (saveResult.success) {
+            console.log("✅ Complete profile data saved to Firestore");
+          } else {
+            console.warn("⚠️ Failed to save complete profile data:", saveResult.error);
           }
+
+          // Save complete user data to localStorage for immediate access
+          const completeUserData = {
+            uid: result.user.uid,
+            email: formData.email,
+            name: formData.name,
+            username: formData.username,
+            profileImageURL: formData.profileImageURL,
+            dateOfBirth: formData.dateOfBirth,
+            gender: formData.gender,
+            bio: formData.bio,
+            phone: formData.phone,
+            emailVerified: result.user.emailVerified,
+          };
+
+          localStorage.setItem("currentUser", JSON.stringify(completeUserData));
+          localStorage.setItem("userAvatar", formData.profileImageURL || "");
+
+          console.log("💾 Saved complete user data to localStorage:", completeUserData);
+
+          // Send Firebase email verification notification
+          setEmailVerificationSent(true);
+          setVerificationUser(result.user);
 
           toast({
             title: "Account created successfully! 🎉",
