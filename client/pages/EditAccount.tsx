@@ -364,19 +364,100 @@ export default function EditAccount() {
     }
   };
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const newImage = e.target?.result as string;
-        setAccountData((prev) => ({ ...prev, profileImage: newImage }));
+    if (file && firebaseUser) {
+      setIsLoading(true);
+
+      try {
+        // Validate file size (max 5MB)
+        if (file.size > 5 * 1024 * 1024) {
+          toast({
+            title: "File Too Large",
+            description: "Please select an image smaller than 5MB",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+          toast({
+            title: "Invalid File Type",
+            description: "Please select a valid image file",
+            variant: "destructive",
+          });
+          return;
+        }
+
+        console.log("🔥 Uploading profile image for Firebase user:", firebaseUser.uid);
+
+        const reader = new FileReader();
+        reader.onload = async (e) => {
+          const newImage = e.target?.result as string;
+
+          // Update local state immediately for better UX
+          setAccountData((prev) => ({ ...prev, profileImage: newImage }));
+
+          try {
+            // Update Firebase profile
+            await updateProfile(firebaseUser, {
+              photoURL: newImage,
+            });
+            console.log("✅ Firebase profile image updated");
+
+            // Try to update backend
+            try {
+              const response = await fetch(`/api/v1/users/${firebaseUser.uid}`, {
+                method: 'PUT',
+                headers: {
+                  "user-id": firebaseUser.uid,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  profile_image_url: newImage,
+                }),
+              });
+
+              if (response.ok) {
+                console.log("✅ Backend profile image updated");
+              }
+            } catch (backendError) {
+              console.warn("⚠️ Backend image update failed:", backendError);
+            }
+
+            // Save to localStorage
+            const userDataKey = `firebase_account_${firebaseUser.uid}`;
+            const currentData = JSON.parse(localStorage.getItem(userDataKey) || '{}');
+            localStorage.setItem(userDataKey, JSON.stringify({
+              ...currentData,
+              profileImage: newImage,
+            }));
+
+            toast({
+              title: "Profile Image Updated",
+              description: "Your profile image has been updated successfully",
+            });
+          } catch (error) {
+            console.error("❌ Profile image update failed:", error);
+            toast({
+              title: "Update Failed",
+              description: "Failed to update profile image. Please try again.",
+              variant: "destructive",
+            });
+          }
+        };
+        reader.readAsDataURL(file);
+      } catch (error) {
+        console.error("❌ Image upload error:", error);
         toast({
-          title: "Profile Image Updated",
-          description: "Your profile image has been updated successfully",
+          title: "Upload Failed",
+          description: "Failed to upload image. Please try again.",
+          variant: "destructive",
         });
-      };
-      reader.readAsDataURL(file);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
