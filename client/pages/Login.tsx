@@ -786,6 +786,61 @@ export default function Login() {
           </motion.div>
         )}
 
+        {/* Network Status Indicator */}
+        {!networkStatus.isOnline && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mt-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg"
+          >
+            <div className="flex items-center space-x-3">
+              <AlertCircle className="w-5 h-5 text-yellow-500" />
+              <div className="flex-1">
+                <h4 className="text-yellow-500 font-medium text-sm">
+                  No Internet Connection
+                </h4>
+                <p className="text-yellow-200 text-sm mt-1">
+                  Please check your internet connection and try again.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Firebase Connection Status */}
+        {networkStatus.isOnline && authError?.includes('network') && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mt-6 p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg"
+          >
+            <div className="flex items-center space-x-3">
+              <AlertCircle className="w-5 h-5 text-blue-500" />
+              <div className="flex-1">
+                <h4 className="text-blue-500 font-medium text-sm">
+                  Connection Issue
+                </h4>
+                <p className="text-blue-200 text-sm mt-1">
+                  Having trouble connecting to Firebase. This might be due to:
+                </p>
+                <ul className="text-blue-200 text-xs mt-2 ml-4 list-disc space-y-1">
+                  <li>Firewall or network restrictions</li>
+                  <li>Temporary server issues</li>
+                  <li>Browser security settings</li>
+                </ul>
+                <button
+                  onClick={() => window.location.reload()}
+                  className="mt-3 text-blue-400 hover:text-blue-300 text-sm font-medium"
+                >
+                  Refresh Page
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* Footer */}
         <motion.div
           initial={{ opacity: 0 }}
