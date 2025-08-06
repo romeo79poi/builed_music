@@ -1228,6 +1228,7 @@ export default function Signup() {
   const stepTitles = {
     method: "Choose signup method",
     email: "What's your email?",
+    "email-verify": "Verify your email",
     phone: "What's your phone number?",
     "phone-verify": "Verify your phone",
     profile: "Tell us about yourself",
@@ -1241,7 +1242,8 @@ export default function Signup() {
 
   const stepDescriptions = {
     method: "Sign up with email, phone, or social media",
-    email: "We'll send you a verification email",
+    email: "We'll send you a verification email immediately",
+    "email-verify": "Click the verification link sent to your email",
     phone: "We'll send you a verification code",
     "phone-verify": "Enter the 6-digit code we sent to your phone",
     profile: "Help others find you on Music Catch",
