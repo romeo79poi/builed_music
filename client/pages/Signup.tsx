@@ -527,6 +527,7 @@ export default function Signup() {
 
         // Store the authenticated user
         setVerificationUser(result.user);
+        setIsSocialSignup(true);
 
         toast({
           title: "Welcome to CATCH! 🎉",
@@ -579,6 +580,7 @@ export default function Signup() {
 
         // Store the authenticated user
         setVerificationUser(result.user);
+        setIsSocialSignup(true);
 
         toast({
           title: "Welcome to CATCH! 🎉",
