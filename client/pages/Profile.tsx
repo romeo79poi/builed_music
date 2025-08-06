@@ -576,12 +576,36 @@ export default function Profile() {
     try {
       setUploading(true);
 
-      // Use Firebase updateUserProfile function
+      // Validate required fields
+      if (!editForm.displayName.trim()) {
+        toast({
+          title: "Validation Error",
+          description: "Display name is required",
+          variant: "destructive",
+        });
+        setUploading(false);
+        return;
+      }
+
+      if (!editForm.username.trim()) {
+        toast({
+          title: "Validation Error",
+          description: "Username is required",
+          variant: "destructive",
+        });
+        setUploading(false);
+        return;
+      }
+
+      // Use Firebase updateUserProfile function with all required parameters
       const result = await updateUserProfile(firebaseUser.uid, {
         name: editForm.displayName,
         username: editForm.username,
         bio: editForm.bio,
-        location: editForm.location,
+        email: firebaseUser.email || "",
+        phone: firebaseUser.phoneNumber || "",
+        profileImageURL: profile.avatar,
+        verified: firebaseUser.emailVerified,
       });
 
       if (result.success) {
