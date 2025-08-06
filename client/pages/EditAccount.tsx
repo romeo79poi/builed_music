@@ -501,8 +501,28 @@ export default function EditAccount() {
           <div className="w-10 h-10"></div>
         </motion.header>
 
+        {/* Loading State */}
+        {(firebaseLoading || dataLoading) && (
+          <div className="flex-1 flex items-center justify-center">
+            <div className="text-center">
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                className="w-8 h-8 border-2 border-purple-primary border-t-transparent rounded-full mx-auto mb-4"
+              />
+              <p className="text-white/70">Loading account data...</p>
+              {firebaseUser && (
+                <p className="text-xs text-purple-primary mt-2">
+                  🔥 Signed in as {firebaseUser.email}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Main Content */}
-        <main className="flex-1 overflow-y-auto pb-32">
+        {!firebaseLoading && !dataLoading && (
+          <main className="flex-1 overflow-y-auto pb-32">
           {/* Profile Overview */}
           <motion.section
             initial={{ y: 20, opacity: 0 }}
@@ -1325,6 +1345,7 @@ export default function EditAccount() {
             </motion.section>
           </div>
         </main>
+        )}
 
         {/* Mobile Footer */}
         <MobileFooter />
