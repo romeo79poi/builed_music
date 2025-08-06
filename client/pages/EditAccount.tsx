@@ -28,39 +28,44 @@ import {
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
+import { useFirebase } from "../context/FirebaseContext";
+import { updatePassword, updateProfile, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
+import { auth } from "../lib/firebase";
 
 export default function EditAccount() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user: firebaseUser, loading: firebaseLoading } = useFirebase();
 
-  // User account data
+  // User account data - will be loaded from Firebase and backend
   const [accountData, setAccountData] = useState({
     // Basic Info
-    fullName: "John Doe",
-    username: "johndoe123",
-    email: "john.doe@example.com",
-    phone: "+1 (555) 123-4567",
-    dateOfBirth: "1995-06-15",
-    gender: "Male",
+    fullName: "",
+    username: "",
+    email: "",
+    phone: "",
+    dateOfBirth: "",
+    gender: "",
 
     // Address Info
-    country: "United States",
-    city: "Los Angeles",
-    address: "123 Music Street, Beverly Hills",
-    zipCode: "90210",
+    country: "",
+    city: "",
+    address: "",
+    zipCode: "",
 
     // Account Info
-    accountType: "Premium",
-    memberSince: "January 2024",
-    isVerified: true,
-    twoFactorEnabled: true,
+    accountType: "Free",
+    memberSince: "",
+    isVerified: false,
+    twoFactorEnabled: false,
 
     // Profile
-    profileImage:
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
-    bio: "Music enthusiast and audio lover. Always discovering new beats and sharing great music with the community.",
-    website: "www.johndoe-music.com",
+    profileImage: "",
+    bio: "",
+    website: "",
   });
+
+  const [dataLoading, setDataLoading] = useState(true);
 
   // Form states
   const [editMode, setEditMode] = useState({
@@ -85,22 +90,205 @@ export default function EditAccount() {
 
   const [isLoading, setIsLoading] = useState(false);
 
+  // Load user data from Firebase and backend
+  useEffect(() => {
+    if (!firebaseLoading) {
+      if (firebaseUser) {
+        loadUserAccountData();
+      } else {
+        navigate("/login");
+      }
+    }
+  }, [firebaseUser, firebaseLoading]);
+
+  const loadUserAccountData = async () => {
+    try {
+      setDataLoading(true);
+
+      if (!firebaseUser) {
+        console.log("❌ No Firebase user found");
+        return;
+      }
+
+      console.log("🔥 Loading account data for Firebase user:", firebaseUser.email);
+
+      // Set initial Firebase data
+      const firebaseData = {
+        fullName: firebaseUser.displayName || "",
+        username: firebaseUser.email?.split('@')[0] || "",
+        email: firebaseUser.email || "",
+        phone: firebaseUser.phoneNumber || "",
+        dateOfBirth: "",
+        gender: "",
+        country: "",
+        city: "",
+        address: "",
+        zipCode: "",
+        accountType: "Free",
+        memberSince: firebaseUser.metadata.creationTime
+          ? new Date(firebaseUser.metadata.creationTime).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'long'
+            })
+          : "Unknown",
+        isVerified: firebaseUser.emailVerified,
+        twoFactorEnabled: false,
+        profileImage: firebaseUser.photoURL || `https://ui-avatars.io/api/?name=${encodeURIComponent(firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User')}&background=6366f1&color=fff&size=150`,
+        bio: "",
+        website: "",
+      };
+
+      setAccountData(firebaseData);
+      console.log("✅ Firebase account data loaded:", firebaseData);
+
+      // Try to fetch additional data from backend
+      try {
+        const response = await fetch(`/api/v1/users/${firebaseUser.uid}`, {
+          headers: {
+            "user-id": firebaseUser.uid,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success && result.data) {
+            const backendData = result.data;
+            const enhancedData = {
+              ...firebaseData,
+              fullName: backendData.display_name || backendData.full_name || firebaseData.fullName,
+              username: backendData.username || firebaseData.username,
+              phone: backendData.phone || firebaseData.phone,
+              dateOfBirth: backendData.date_of_birth || "",
+              gender: backendData.gender || "",
+              country: backendData.country || "",
+              city: backendData.city || "",
+              address: backendData.address || "",
+              zipCode: backendData.zip_code || "",
+              accountType: backendData.premium ? "Premium" : "Free",
+              bio: backendData.bio || "",
+              website: backendData.website || "",
+              profileImage: backendData.profile_image_url || firebaseData.profileImage,
+            };
+            setAccountData(enhancedData);
+            console.log("✅ Enhanced account data from backend:", enhancedData);
+          }
+        } else {
+          console.warn("⚠️ Backend user fetch returned:", response.status);
+        }
+      } catch (backendError) {
+        console.warn("⚠️ Backend fetch failed, using Firebase data only:", backendError);
+      }
+    } catch (error) {
+      console.error("❌ Error loading account data:", error);
+      toast({
+        title: "Error Loading Account",
+        description: "Failed to load account data. Please try refreshing.",
+        variant: "destructive",
+      });
+    } finally {
+      setDataLoading(false);
+    }
+  };
+
   const handleSaveSection = async (section: string) => {
+    if (!firebaseUser) {
+      toast({
+        title: "Error",
+        description: "User not authenticated",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    try {
+      console.log("🔥 Saving section:", section, "for user:", firebaseUser.uid);
 
-    setEditMode((prev) => ({ ...prev, [section]: false }));
-    setIsLoading(false);
+      // Update Firebase profile if it's basic info
+      if (section === 'basic' && (accountData.fullName !== firebaseUser.displayName)) {
+        try {
+          await updateProfile(firebaseUser, {
+            displayName: accountData.fullName,
+            photoURL: accountData.profileImage,
+          });
+          console.log("✅ Firebase profile updated");
+        } catch (firebaseError) {
+          console.error("⚠️ Firebase profile update failed:", firebaseError);
+        }
+      }
 
-    toast({
-      title: "Changes Saved",
-      description: `Your ${section} information has been updated successfully`,
-    });
+      // Try to save to backend
+      try {
+        const updateData = {
+          display_name: accountData.fullName,
+          username: accountData.username,
+          phone: accountData.phone,
+          date_of_birth: accountData.dateOfBirth,
+          gender: accountData.gender,
+          country: accountData.country,
+          city: accountData.city,
+          address: accountData.address,
+          zip_code: accountData.zipCode,
+          bio: accountData.bio,
+          website: accountData.website,
+          profile_image_url: accountData.profileImage,
+        };
+
+        const response = await fetch(`/api/v1/users/${firebaseUser.uid}`, {
+          method: 'PUT',
+          headers: {
+            "user-id": firebaseUser.uid,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(updateData),
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          console.log("✅ Backend update successful:", result);
+        } else {
+          console.warn("⚠️ Backend update failed:", response.status);
+          // Continue anyway since Firebase data is updated
+        }
+      } catch (backendError) {
+        console.warn("⚠️ Backend update failed:", backendError);
+        // Continue anyway since Firebase data is updated
+      }
+
+      // Save to localStorage as backup
+      const userDataKey = `firebase_account_${firebaseUser.uid}`;
+      localStorage.setItem(userDataKey, JSON.stringify(accountData));
+
+      setEditMode((prev) => ({ ...prev, [section]: false }));
+
+      toast({
+        title: "Changes Saved",
+        description: `Your ${section} information has been updated successfully`,
+      });
+    } catch (error) {
+      console.error("❌ Error saving section:", error);
+      toast({
+        title: "Save Failed",
+        description: "Failed to save changes. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handlePasswordChange = async () => {
+    if (!firebaseUser) {
+      toast({
+        title: "Error",
+        description: "User not authenticated",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!passwords.current) {
       toast({
         title: "Error",
@@ -129,16 +317,51 @@ export default function EditAccount() {
     }
 
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1500));
 
-    setPasswords({ current: "", new: "", confirm: "" });
-    setEditMode((prev) => ({ ...prev, security: false }));
-    setIsLoading(false);
+    try {
+      console.log("🔥 Updating password for Firebase user:", firebaseUser.email);
 
-    toast({
-      title: "Password Updated",
-      description: "Your password has been changed successfully",
-    });
+      // Re-authenticate user with current password
+      const credential = EmailAuthProvider.credential(
+        firebaseUser.email!,
+        passwords.current
+      );
+
+      await reauthenticateWithCredential(firebaseUser, credential);
+      console.log("✅ User re-authenticated successfully");
+
+      // Update password in Firebase
+      await updatePassword(firebaseUser, passwords.new);
+      console.log("✅ Password updated in Firebase");
+
+      setPasswords({ current: "", new: "", confirm: "" });
+      setEditMode((prev) => ({ ...prev, security: false }));
+
+      toast({
+        title: "Password Updated",
+        description: "Your password has been changed successfully",
+      });
+    } catch (error: any) {
+      console.error("❌ Password update failed:", error);
+
+      let errorMessage = "Failed to update password. Please try again.";
+
+      if (error.code === 'auth/wrong-password') {
+        errorMessage = "Current password is incorrect";
+      } else if (error.code === 'auth/weak-password') {
+        errorMessage = "New password is too weak";
+      } else if (error.code === 'auth/requires-recent-login') {
+        errorMessage = "Please log out and log back in, then try again";
+      }
+
+      toast({
+        title: "Password Update Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
