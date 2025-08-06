@@ -932,7 +932,6 @@ export default function Login() {
               Sign up here
             </Link>
           </p>
-
         </motion.div>
       </div>
     </div>
