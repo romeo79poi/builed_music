@@ -626,8 +626,32 @@ export default function Signup() {
   const handleEmailStep = async () => {
     if (!validateEmail(formData.email)) return;
 
-    // Skip separate email verification step and go directly to profile
-    setCurrentStep("profile");
+    setIsLoading(true);
+
+    try {
+      // Check if email is available
+      await checkAvailability("email", formData.email);
+
+      if (availability.email !== false) {
+        // For Firebase, we'll verify email during account creation
+        // Go directly to profile step for now, verification happens at password step
+        setCurrentStep("profile");
+
+        toast({
+          title: "Email verified ✅",
+          description: "Please continue with your profile information",
+        });
+      }
+    } catch (error) {
+      console.error("Email validation error:", error);
+      toast({
+        title: "Email validation failed",
+        description: "Please try again or use a different email",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handlePhoneStep = async () => {
