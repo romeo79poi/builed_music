@@ -258,6 +258,64 @@ export const signUpWithEmailAndPasswordWithVerification = async (
 };
 
 // Login with email and password
+// Check network connectivity
+const checkNetworkConnectivity = async (): Promise<boolean> => {
+  try {
+    // Check if online
+    if (!navigator.onLine) {
+      return false;
+    }
+
+    // Try to reach Firebase auth domain
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+    const response = await fetch('https://identitytoolkit.googleapis.com/v1/projects', {
+      method: 'HEAD',
+      mode: 'no-cors',
+      signal: controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+    return true;
+  } catch (error) {
+    console.warn('⚠️ Network connectivity check failed:', error);
+    return false;
+  }
+};
+
+// Retry function with exponential backoff
+const retryWithBackoff = async <T>(
+  fn: () => Promise<T>,
+  maxAttempts: number = 3,
+  baseDelay: number = 1000
+): Promise<T> => {
+  let lastError: Error;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    try {
+      return await fn();
+    } catch (error: any) {
+      lastError = error;
+
+      // Don't retry for auth errors that aren't network related
+      if (error.code && !error.code.includes('network') && !error.code.includes('timeout')) {
+        throw error;
+      }
+
+      if (attempt === maxAttempts) {
+        throw error;
+      }
+
+      const delay = baseDelay * Math.pow(2, attempt - 1);
+      console.log(`🔄 Retrying Firebase request in ${delay}ms (attempt ${attempt}/${maxAttempts})`);
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }
+
+  throw lastError!;
+};
+
 export const loginWithEmailAndPassword = async (
   email: string,
   password: string,
@@ -274,12 +332,24 @@ export const loginWithEmailAndPassword = async (
       };
     }
 
-    const userCredential = await signInWithEmailAndPassword(
-      auth,
-      email,
-      password,
+    // Check network connectivity first
+    const isOnline = await checkNetworkConnectivity();
+    if (!isOnline) {
+      return {
+        success: false,
+        error: "Network connection failed. Please check your internet connection and try again.",
+      };
+    }
+
+    console.log('🔑 Attempting Firebase login with retry logic...');
+
+    // Attempt login with retry logic
+    const userCredential = await retryWithBackoff(
+      () => signInWithEmailAndPassword(auth, email, password),
+      3,
+      1000
     );
-    
+
     console.log("✅ Firebase authentication successful");
     return { success: true, user: userCredential.user };
   } catch (error: any) {
@@ -291,7 +361,8 @@ export const loginWithEmailAndPassword = async (
         errorMessage = "No account found with this email";
         break;
       case "auth/wrong-password":
-        errorMessage = "Incorrect password";
+      case "auth/invalid-credential":
+        errorMessage = "Incorrect email or password";
         break;
       case "auth/invalid-email":
         errorMessage = "Invalid email format";
@@ -302,8 +373,22 @@ export const loginWithEmailAndPassword = async (
       case "auth/too-many-requests":
         errorMessage = "Too many failed attempts. Please try again later";
         break;
+      case "auth/network-request-failed":
+        errorMessage = "Network connection failed. Please check your internet connection and try again.";
+        break;
+      case "auth/timeout":
+        errorMessage = "Request timed out. Please try again.";
+        break;
+      case "auth/internal-error":
+        errorMessage = "Internal error occurred. Please try again.";
+        break;
       default:
-        errorMessage = error.message || errorMessage;
+        // For unknown errors, provide a helpful message
+        if (error.message?.includes('network')) {
+          errorMessage = "Network connection failed. Please check your internet connection and try again.";
+        } else {
+          errorMessage = error.message || errorMessage;
+        }
     }
 
     return { success: false, error: errorMessage };
