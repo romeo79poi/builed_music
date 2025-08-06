@@ -494,16 +494,62 @@ export default function Profile() {
     }
   };
 
-  const handleFollow = () => {
+  const handleFollow = async () => {
     if (!profile) return;
 
-    setIsFollowing(!isFollowing);
-    toast({
-      title: isFollowing ? "Unfollowed" : "Following",
-      description: isFollowing
-        ? `You unfollowed ${profile.displayName}`
-        : `You're now following ${profile.displayName}`,
-    });
+    const currentlyFollowing = isFollowingUser(profile.id);
+
+    try {
+      if (currentlyFollowing) {
+        const success = await unfollowUser(profile.id);
+        if (success) {
+          setProfile(prev => prev ? {
+            ...prev,
+            stats: {
+              ...prev.stats,
+              followers: Math.max(0, prev.stats.followers - 1)
+            }
+          } : null);
+          toast({
+            title: "Unfollowed",
+            description: `You unfollowed ${profile.displayName}`,
+          });
+        }
+      } else {
+        const socialUser = {
+          id: profile.id,
+          displayName: profile.displayName,
+          username: profile.username,
+          avatar: profile.avatar,
+          bio: profile.bio,
+          isVerified: profile.isVerified,
+          isOnline: true, // Assume online for now
+          location: profile.location,
+        };
+
+        const success = await followUser(profile.id, socialUser);
+        if (success) {
+          setProfile(prev => prev ? {
+            ...prev,
+            stats: {
+              ...prev.stats,
+              followers: prev.stats.followers + 1
+            }
+          } : null);
+          toast({
+            title: "Following",
+            description: `You're now following ${profile.displayName}`,
+          });
+        }
+      }
+    } catch (error) {
+      console.error('Error following/unfollowing user:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update follow status. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleShare = () => {
