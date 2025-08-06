@@ -748,7 +748,7 @@ export default function Settings() {
             Settings
           </h1>
 
-          <div className="relative">
+          <div className="relative support-dropdown">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
