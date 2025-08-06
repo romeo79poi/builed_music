@@ -218,7 +218,71 @@ export default function Profile() {
 
       console.log("🔥 Fetching profile for Firebase user:", firebaseUser.email);
 
-      // Try to fetch from backend first
+      // First, try to load complete data from localStorage (signup data)
+      const localUserData = localStorage.getItem('currentUser');
+      if (localUserData) {
+        try {
+          const userData = JSON.parse(localUserData);
+          console.log("💾 Found localStorage user data:", userData);
+
+          if (userData.uid === firebaseUser.uid) {
+            // Use complete signup data from localStorage
+            const completeProfile: UserProfile = {
+              id: firebaseUser.uid,
+              displayName: userData.name || firebaseUser.displayName || "User",
+              username: userData.username || firebaseUser.email?.split("@")[0] || "user",
+              email: userData.email || firebaseUser.email || "",
+              bio: userData.bio || "Music lover 🎵",
+              avatar: userData.profileImageURL || firebaseUser.photoURL || "",
+              coverImage: "",
+              location: "",
+              website: "",
+              isVerified: firebaseUser.emailVerified || false,
+              isArtist: false,
+              joinedDate: firebaseUser.metadata.creationTime
+                ? new Date(firebaseUser.metadata.creationTime)
+                : new Date(),
+              socialLinks: {
+                instagram: "",
+                twitter: "",
+                youtube: "",
+              },
+              stats: {
+                followers: 0,
+                following: 0,
+                totalPlays: 0,
+                totalTracks: 0,
+                totalPlaylists: 0,
+                monthlyListeners: 0,
+              },
+              badges: [],
+              // Additional signup data
+              dateOfBirth: userData.dateOfBirth,
+              gender: userData.gender,
+              phone: userData.phone,
+            };
+
+            setProfile(completeProfile);
+            console.log("✅ Profile loaded from localStorage signup data:", completeProfile);
+
+            // Update edit form with complete data
+            setEditForm({
+              displayName: completeProfile.displayName,
+              username: completeProfile.username,
+              bio: completeProfile.bio,
+              location: completeProfile.location,
+              socialLinks: completeProfile.socialLinks,
+            });
+
+            setLoading(false);
+            return;
+          }
+        } catch (parseError) {
+          console.warn("⚠️ Failed to parse localStorage user data:", parseError);
+        }
+      }
+
+      // Try to fetch from backend as fallback
       try {
         const backendResponse = await fetch(`/api/v1/users/${firebaseUser.uid}`, {
           headers: {
