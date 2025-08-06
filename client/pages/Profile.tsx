@@ -634,16 +634,72 @@ export default function Profile() {
     const file = event.target.files?.[0];
     if (file && profile) {
       setUploading(true);
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "File too large",
+          description: "Please select an image smaller than 5MB",
+          variant: "destructive",
+        });
+        setUploading(false);
+        return;
+      }
+
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast({
+          title: "Invalid file type",
+          description: "Please select an image file",
+          variant: "destructive",
+        });
+        setUploading(false);
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = (e) => {
         const newAvatar = e.target?.result as string;
+        console.log("🖼️ New avatar uploaded:", newAvatar.substring(0, 50) + "...");
+
+        // Update profile state
         setProfile((prev) => (prev ? { ...prev, avatar: newAvatar } : null));
+
+        // Update localStorage with new image
+        const localUserData = localStorage.getItem('currentUser');
+        if (localUserData) {
+          try {
+            const userData = JSON.parse(localUserData);
+            const updatedUserData = {
+              ...userData,
+              profileImageURL: newAvatar,
+              avatar: newAvatar,
+            };
+            localStorage.setItem('currentUser', JSON.stringify(updatedUserData));
+            localStorage.setItem('userAvatar', newAvatar);
+            console.log("💾 Updated localStorage with new avatar");
+          } catch (error) {
+            console.warn("⚠️ Failed to update localStorage with new avatar:", error);
+          }
+        }
+
         setUploading(false);
         toast({
           title: "Profile Image Updated",
           description: "Your profile image has been updated successfully",
         });
       };
+
+      reader.onerror = (error) => {
+        console.error("❌ Failed to read image file:", error);
+        setUploading(false);
+        toast({
+          title: "Upload Failed",
+          description: "Failed to read the image file",
+          variant: "destructive",
+        });
+      };
+
       reader.readAsDataURL(file);
     }
   };
