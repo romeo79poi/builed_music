@@ -953,7 +953,16 @@ export default function Profile() {
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => navigate('/messages', { state: { from: 'profile' } })}
+                    onClick={() => navigate('/messages', {
+                      state: {
+                        profileUser: {
+                          id: profile.id,
+                          displayName: profile.displayName,
+                          username: profile.username,
+                          avatar: profile.avatar,
+                        }
+                      }
+                    })}
                     className="px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg font-medium transition-all border border-border text-foreground"
                   >
                     <MessageCircle className="w-4 h-4" />
