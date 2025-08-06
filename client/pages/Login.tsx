@@ -1,19 +1,17 @@
 import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import {
-  Eye,
-  EyeOff,
-  Loader2,
-  Mail,
-  Phone,
-  AlertCircle,
-} from "lucide-react";
+import { Eye, EyeOff, Loader2, Mail, Phone, AlertCircle } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useFirebase } from "../context/FirebaseContext";
 import { useToast } from "../hooks/use-toast";
 import { firebaseHelpers } from "../lib/firebase-simple";
-import { loginWithEmailAndPassword, saveUserData, fetchUserData, sendFirebaseEmailVerification } from "../lib/auth";
+import {
+  loginWithEmailAndPassword,
+  saveUserData,
+  fetchUserData,
+  sendFirebaseEmailVerification,
+} from "../lib/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
 
@@ -21,7 +19,7 @@ export default function Login() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user: firebaseUser, signIn: firebaseSignIn, loading } = useFirebase();
-  
+
   const [loginMethod, setLoginMethod] = useState<"social" | "email" | "phone">(
     "social",
   );
@@ -42,20 +40,20 @@ export default function Login() {
   useEffect(() => {
     const handleOnline = () => {
       setNetworkStatus({ isOnline: true, lastChecked: Date.now() });
-      console.log('✅ Network connection restored');
+      console.log("✅ Network connection restored");
     };
 
     const handleOffline = () => {
       setNetworkStatus({ isOnline: false, lastChecked: Date.now() });
-      console.log('❌ Network connection lost');
+      console.log("❌ Network connection lost");
     };
 
-    window.addEventListener('online', handleOnline);
-    window.addEventListener('offline', handleOffline);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
 
     return () => {
-      window.removeEventListener('online', handleOnline);
-      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
     };
   }, []);
 
@@ -72,13 +70,13 @@ export default function Login() {
       console.log("🔍 Checking user existence for:", email);
 
       // Check localStorage for recent signup data first (faster)
-      const localUser = localStorage.getItem('currentUser');
+      const localUser = localStorage.getItem("currentUser");
       if (localUser) {
         try {
           const userData = JSON.parse(localUser);
           if (userData.email === email) {
             console.log("✅ User found in localStorage");
-            return { exists: true, source: 'localStorage', data: userData };
+            return { exists: true, source: "localStorage", data: userData };
           }
         } catch (error) {
           console.log("⚠️ Failed to parse localStorage user data");
@@ -88,11 +86,10 @@ export default function Login() {
       // For now, assume user exists if we reach here
       // The actual Firebase login will handle user-not-found errors
       console.log("🔍 User existence check completed");
-      return { exists: true, source: 'assumed', data: null };
-
+      return { exists: true, source: "assumed", data: null };
     } catch (error) {
       console.error("❌ Error checking user existence:", error);
-      return { exists: true, source: 'error', data: null }; // Allow login attempt
+      return { exists: true, source: "error", data: null }; // Allow login attempt
     }
   };
 
@@ -107,7 +104,8 @@ export default function Login() {
       if (result.success) {
         toast({
           title: "Verification email sent! 📬",
-          description: "Please check your email and click the verification link",
+          description:
+            "Please check your email and click the verification link",
         });
 
         setShowResendVerification(false);
@@ -138,8 +136,8 @@ export default function Login() {
       try {
         const profileResponse = await fetch(`/api/profile/${userId}`, {
           headers: {
-            'user-id': userId,
-            'Content-Type': 'application/json',
+            "user-id": userId,
+            "Content-Type": "application/json",
           },
         });
 
@@ -159,7 +157,7 @@ export default function Login() {
               musicPreferences: profileData.data.musicPreferences || {},
             };
 
-            localStorage.setItem('userActivity', JSON.stringify(activityData));
+            localStorage.setItem("userActivity", JSON.stringify(activityData));
             console.log("💾 User activity data saved to localStorage");
           }
         }
@@ -169,18 +167,27 @@ export default function Login() {
 
       // Try to fetch liked songs
       try {
-        const likedResponse = await fetch(`/api/profile/${userId}/liked-songs`, {
-          headers: {
-            'user-id': userId,
-            'Content-Type': 'application/json',
+        const likedResponse = await fetch(
+          `/api/profile/${userId}/liked-songs`,
+          {
+            headers: {
+              "user-id": userId,
+              "Content-Type": "application/json",
+            },
           },
-        });
+        );
 
         if (likedResponse.ok) {
           const likedData = await likedResponse.json();
           if (likedData.success) {
-            localStorage.setItem('userLikedSongs', JSON.stringify(likedData.data.songs || []));
-            console.log("✅ Liked songs loaded:", likedData.data.songs?.length || 0);
+            localStorage.setItem(
+              "userLikedSongs",
+              JSON.stringify(likedData.data.songs || []),
+            );
+            console.log(
+              "✅ Liked songs loaded:",
+              likedData.data.songs?.length || 0,
+            );
           }
         }
       } catch (likedError) {
@@ -189,24 +196,32 @@ export default function Login() {
 
       // Try to fetch recently played
       try {
-        const recentResponse = await fetch(`/api/profile/${userId}/recently-played`, {
-          headers: {
-            'user-id': userId,
-            'Content-Type': 'application/json',
+        const recentResponse = await fetch(
+          `/api/profile/${userId}/recently-played`,
+          {
+            headers: {
+              "user-id": userId,
+              "Content-Type": "application/json",
+            },
           },
-        });
+        );
 
         if (recentResponse.ok) {
           const recentData = await recentResponse.json();
           if (recentData.success) {
-            localStorage.setItem('userRecentlyPlayed', JSON.stringify(recentData.data.songs || []));
-            console.log("✅ Recently played loaded:", recentData.data.songs?.length || 0);
+            localStorage.setItem(
+              "userRecentlyPlayed",
+              JSON.stringify(recentData.data.songs || []),
+            );
+            console.log(
+              "✅ Recently played loaded:",
+              recentData.data.songs?.length || 0,
+            );
           }
         }
       } catch (recentError) {
         console.warn("⚠️ Recently played fetch failed:", recentError);
       }
-
     } catch (error) {
       console.error("❌ Error loading user activity data:", error);
     }
@@ -229,8 +244,10 @@ export default function Login() {
               uid: user.uid,
               email: user.email,
               name: firestoreData.name || user.displayName || "User",
-              username: firestoreData.username || user.email?.split('@')[0] || "user",
-              profileImageURL: firestoreData.profileImageURL || user.photoURL || "",
+              username:
+                firestoreData.username || user.email?.split("@")[0] || "user",
+              profileImageURL:
+                firestoreData.profileImageURL || user.photoURL || "",
               dateOfBirth: firestoreData.dob || "",
               gender: firestoreData.gender || "",
               bio: firestoreData.bio || "",
@@ -242,21 +259,30 @@ export default function Login() {
             };
 
             // Save to localStorage for immediate access
-            localStorage.setItem('currentUser', JSON.stringify(completeProfile));
-            localStorage.setItem('userAvatar', completeProfile.profileImageURL || '');
+            localStorage.setItem(
+              "currentUser",
+              JSON.stringify(completeProfile),
+            );
+            localStorage.setItem(
+              "userAvatar",
+              completeProfile.profileImageURL || "",
+            );
 
-            console.log("💾 Complete profile saved to localStorage:", completeProfile);
+            console.log(
+              "💾 Complete profile saved to localStorage:",
+              completeProfile,
+            );
 
             // Fetch user activity data
             await loadUserActivityData(user.uid, completeProfile);
 
             // Try to sync with backend API if available
             try {
-              const backendSyncResponse = await fetch('/api/v1/users/sync', {
-                method: 'POST',
+              const backendSyncResponse = await fetch("/api/v1/users/sync", {
+                method: "POST",
                 headers: {
-                  'user-id': user.uid,
-                  'Content-Type': 'application/json',
+                  "user-id": user.uid,
+                  "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
                   firebase_uid: user.uid,
@@ -277,7 +303,10 @@ export default function Login() {
                 console.log("✅ Profile synced with backend:", syncResult);
               }
             } catch (backendError) {
-              console.warn("⚠️ Backend sync failed (continuing with Firebase data):", backendError);
+              console.warn(
+                "⚠️ Backend sync failed (continuing with Firebase data):",
+                backendError,
+              );
             }
 
             return completeProfile;
@@ -291,19 +320,18 @@ export default function Login() {
       const basicProfile = {
         uid: user.uid,
         email: user.email,
-        name: user.displayName || user.email?.split('@')[0] || "User",
-        username: user.email?.split('@')[0] || "user",
+        name: user.displayName || user.email?.split("@")[0] || "User",
+        username: user.email?.split("@")[0] || "user",
         profileImageURL: user.photoURL || "",
         emailVerified: user.emailVerified,
         lastLoginAt: new Date().toISOString(),
       };
 
-      localStorage.setItem('currentUser', JSON.stringify(basicProfile));
-      localStorage.setItem('userAvatar', basicProfile.profileImageURL || '');
+      localStorage.setItem("currentUser", JSON.stringify(basicProfile));
+      localStorage.setItem("userAvatar", basicProfile.profileImageURL || "");
 
       console.log("💾 Basic profile saved to localStorage:", basicProfile);
       return basicProfile;
-
     } catch (error) {
       console.error("❌ Error loading user profile:", error);
       return null;
@@ -325,7 +353,10 @@ export default function Login() {
 
     // Add timeout for long-running requests
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Request timed out after 30 seconds')), 30000);
+      setTimeout(
+        () => reject(new Error("Request timed out after 30 seconds")),
+        30000,
+      );
     });
 
     try {
@@ -334,7 +365,7 @@ export default function Login() {
       // Check if user exists (mainly for localStorage cache)
       const userCheck = await checkUserExists(email);
 
-      if (userCheck.exists && userCheck.source === 'localStorage') {
+      if (userCheck.exists && userCheck.source === "localStorage") {
         console.log("✅ User found in cache, proceeding with login");
       }
 
@@ -350,11 +381,14 @@ export default function Login() {
 
           toast({
             title: "Email verification required 📬",
-            description: "Please check your email and verify your account before logging in",
+            description:
+              "Please check your email and verify your account before logging in",
             variant: "destructive",
           });
 
-          setAuthError("Please verify your email address before logging in. Check your inbox for the verification link.");
+          setAuthError(
+            "Please verify your email address before logging in. Check your inbox for the verification link.",
+          );
           setShowResendVerification(true);
           setUnverifiedUser(result.user);
           return;
@@ -375,12 +409,21 @@ export default function Login() {
         let errorMessage = result.error || "Login failed";
         let shouldRedirectToSignup = false;
 
-        if (errorMessage.includes("user-not-found") || errorMessage.includes("auth/user-not-found")) {
+        if (
+          errorMessage.includes("user-not-found") ||
+          errorMessage.includes("auth/user-not-found")
+        ) {
           errorMessage = "Account not found. Redirecting to signup...";
           shouldRedirectToSignup = true;
-        } else if (errorMessage.includes("wrong-password") || errorMessage.includes("auth/wrong-password")) {
+        } else if (
+          errorMessage.includes("wrong-password") ||
+          errorMessage.includes("auth/wrong-password")
+        ) {
           errorMessage = "Incorrect password. Please try again.";
-        } else if (errorMessage.includes("invalid-email") || errorMessage.includes("auth/invalid-email")) {
+        } else if (
+          errorMessage.includes("invalid-email") ||
+          errorMessage.includes("auth/invalid-email")
+        ) {
           errorMessage = "Invalid email format.";
         } else if (errorMessage.includes("too-many-requests")) {
           errorMessage = "Too many failed attempts. Please try again later.";
@@ -405,16 +448,16 @@ export default function Login() {
       let errorMessage = error.message || "Login failed";
 
       // Handle Firebase error codes
-      if (error.code === 'auth/user-not-found') {
+      if (error.code === "auth/user-not-found") {
         errorMessage = "Account not found. Redirecting to signup...";
         setTimeout(() => {
           navigate("/signup", { state: { email: email } });
         }, 2000);
-      } else if (error.code === 'auth/wrong-password') {
+      } else if (error.code === "auth/wrong-password") {
         errorMessage = "Incorrect password. Please try again.";
-      } else if (error.code === 'auth/invalid-email') {
+      } else if (error.code === "auth/invalid-email") {
         errorMessage = "Invalid email format.";
-      } else if (error.code === 'auth/user-disabled') {
+      } else if (error.code === "auth/user-disabled") {
         errorMessage = "This account has been disabled.";
       }
 
@@ -786,7 +829,7 @@ export default function Login() {
                     </button>
                   )}
 
-                  {authError?.includes('network') && (
+                  {authError?.includes("network") && (
                     <button
                       onClick={handleEmailLogin}
                       disabled={isLoading}
@@ -795,8 +838,18 @@ export default function Login() {
                       {isLoading ? (
                         <Loader2 className="w-3 h-3 animate-spin" />
                       ) : (
-                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        <svg
+                          className="w-3 h-3"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                          />
                         </svg>
                       )}
                       <span>Retry login</span>
@@ -831,7 +884,7 @@ export default function Login() {
         )}
 
         {/* Firebase Connection Status */}
-        {networkStatus.isOnline && authError?.includes('network') && (
+        {networkStatus.isOnline && authError?.includes("network") && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

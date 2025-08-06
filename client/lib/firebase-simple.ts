@@ -1,6 +1,6 @@
 /**
  * Firebase Integration for CATCH Music App
- * 
+ *
  * Properly configured Firebase with Google Authentication
  */
 
@@ -54,7 +54,7 @@ export const initializeFirebase = async () => {
         try {
           console.log("🔑 Starting Google sign-in...");
           const result = await signInWithPopup(auth, provider);
-          
+
           console.log("✅ Google sign-in successful:", result.user.email);
 
           return {
@@ -69,7 +69,7 @@ export const initializeFirebase = async () => {
           };
         } catch (error: any) {
           console.error("❌ Google sign-in failed:", error);
-          
+
           // Handle specific errors
           if (error.code === "auth/popup-closed-by-user") {
             return {
@@ -77,11 +77,12 @@ export const initializeFirebase = async () => {
               error: "Sign-in was cancelled. Please try again.",
             };
           }
-          
+
           if (error.code === "auth/popup-blocked") {
             return {
               success: false,
-              error: "Popup blocked by browser. Please allow popups and try again.",
+              error:
+                "Popup blocked by browser. Please allow popups and try again.",
             };
           }
 
@@ -101,7 +102,7 @@ export const initializeFirebase = async () => {
         try {
           console.log("🔑 Starting Facebook sign-in...");
           const result = await signInWithPopup(auth, provider);
-          
+
           console.log("✅ Facebook sign-in successful:", result.user.email);
 
           return {
@@ -116,7 +117,7 @@ export const initializeFirebase = async () => {
           };
         } catch (error: any) {
           console.error("❌ Facebook sign-in failed:", error);
-          
+
           // Handle specific errors
           if (error.code === "auth/popup-closed-by-user") {
             return {
@@ -124,11 +125,12 @@ export const initializeFirebase = async () => {
               error: "Sign-in was cancelled. Please try again.",
             };
           }
-          
+
           if (error.code === "auth/popup-blocked") {
             return {
               success: false,
-              error: "Popup blocked by browser. Please allow popups and try again.",
+              error:
+                "Popup blocked by browser. Please allow popups and try again.",
             };
           }
 
@@ -188,9 +190,9 @@ export const firebaseHelpers = {
       return await firebase.signInWithGoogle();
     } catch (error: any) {
       console.error("❌ Google sign-in helper failed:", error);
-      return { 
-        success: false, 
-        error: error.message || "Google sign-in failed" 
+      return {
+        success: false,
+        error: error.message || "Google sign-in failed",
       };
     }
   },
@@ -205,9 +207,9 @@ export const firebaseHelpers = {
       return await firebase.signInWithFacebook();
     } catch (error: any) {
       console.error("❌ Facebook sign-in helper failed:", error);
-      return { 
-        success: false, 
-        error: error.message || "Facebook sign-in failed" 
+      return {
+        success: false,
+        error: error.message || "Facebook sign-in failed",
       };
     }
   },

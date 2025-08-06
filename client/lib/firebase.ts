@@ -1,7 +1,10 @@
 // Firebase configuration for CATCH Music App
 import { initializeApp } from "firebase/app";
 import { getAuth } from "firebase/auth";
-import { getFirestore, serverTimestamp as firestoreServerTimestamp } from "firebase/firestore";
+import {
+  getFirestore,
+  serverTimestamp as firestoreServerTimestamp,
+} from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 // Firebase configuration

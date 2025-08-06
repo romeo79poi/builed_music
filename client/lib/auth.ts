@@ -102,9 +102,9 @@ export const uploadProfileImage = async (
     return { success: true, imageURL };
   } catch (error: any) {
     console.error("Profile image upload error:", error);
-    return { 
-      success: false, 
-      error: error.message || "Failed to upload profile image" 
+    return {
+      success: false,
+      error: error.message || "Failed to upload profile image",
     };
   }
 };
@@ -176,17 +176,18 @@ export const signUpWithEmailAndPassword = async (
     if (!isOnline) {
       return {
         success: false,
-        error: "Network connection failed. Please check your internet connection and try again.",
+        error:
+          "Network connection failed. Please check your internet connection and try again.",
       };
     }
 
-    console.log('✨ Creating Firebase user with retry logic...');
+    console.log("✨ Creating Firebase user with retry logic...");
 
     // Create user with Firebase Auth using retry logic
     const userCredential = await retryWithBackoff(
       () => createUserWithEmailAndPassword(auth, email, password),
       3,
-      1000
+      1000,
     );
     const user = userCredential.user;
 
@@ -221,14 +222,16 @@ export const signUpWithEmailAndPassword = async (
         errorMessage = "Email/password signup is not enabled";
         break;
       case "auth/network-request-failed":
-        errorMessage = "Network connection failed. Please check your internet connection and try again.";
+        errorMessage =
+          "Network connection failed. Please check your internet connection and try again.";
         break;
       case "auth/timeout":
         errorMessage = "Request timed out. Please try again.";
         break;
       default:
-        if (error.message?.includes('network')) {
-          errorMessage = "Network connection failed. Please check your internet connection and try again.";
+        if (error.message?.includes("network")) {
+          errorMessage =
+            "Network connection failed. Please check your internet connection and try again.";
         } else {
           errorMessage = error.message || errorMessage;
         }
@@ -264,16 +267,19 @@ export const signUpWithEmailAndPasswordWithVerification = async (
       await sendEmailVerification(signupResult.user);
       console.log("✅ Email verification sent");
     } catch (verifyError: any) {
-      console.warn("⚠️ Failed to send email verification:", verifyError.message);
+      console.warn(
+        "⚠️ Failed to send email verification:",
+        verifyError.message,
+      );
       // Don't fail the signup if email verification fails
     }
 
     return signupResult;
   } catch (error: any) {
     console.error("Signup with verification error:", error);
-    return { 
-      success: false, 
-      error: error.message || "Failed to create account" 
+    return {
+      success: false,
+      error: error.message || "Failed to create account",
     };
   }
 };
@@ -291,16 +297,19 @@ const checkNetworkConnectivity = async (): Promise<boolean> => {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 5000);
 
-    const response = await fetch('https://identitytoolkit.googleapis.com/v1/projects', {
-      method: 'HEAD',
-      mode: 'no-cors',
-      signal: controller.signal,
-    });
+    const response = await fetch(
+      "https://identitytoolkit.googleapis.com/v1/projects",
+      {
+        method: "HEAD",
+        mode: "no-cors",
+        signal: controller.signal,
+      },
+    );
 
     clearTimeout(timeoutId);
     return true;
   } catch (error) {
-    console.warn('⚠️ Network connectivity check failed:', error);
+    console.warn("⚠️ Network connectivity check failed:", error);
     return false;
   }
 };
@@ -309,7 +318,7 @@ const checkNetworkConnectivity = async (): Promise<boolean> => {
 const retryWithBackoff = async <T>(
   fn: () => Promise<T>,
   maxAttempts: number = 3,
-  baseDelay: number = 1000
+  baseDelay: number = 1000,
 ): Promise<T> => {
   let lastError: Error;
 
@@ -320,7 +329,11 @@ const retryWithBackoff = async <T>(
       lastError = error;
 
       // Don't retry for auth errors that aren't network related
-      if (error.code && !error.code.includes('network') && !error.code.includes('timeout')) {
+      if (
+        error.code &&
+        !error.code.includes("network") &&
+        !error.code.includes("timeout")
+      ) {
         throw error;
       }
 
@@ -329,8 +342,10 @@ const retryWithBackoff = async <T>(
       }
 
       const delay = baseDelay * Math.pow(2, attempt - 1);
-      console.log(`🔄 Retrying Firebase request in ${delay}ms (attempt ${attempt}/${maxAttempts})`);
-      await new Promise(resolve => setTimeout(resolve, delay));
+      console.log(
+        `🔄 Retrying Firebase request in ${delay}ms (attempt ${attempt}/${maxAttempts})`,
+      );
+      await new Promise((resolve) => setTimeout(resolve, delay));
     }
   }
 
@@ -358,17 +373,18 @@ export const loginWithEmailAndPassword = async (
     if (!isOnline) {
       return {
         success: false,
-        error: "Network connection failed. Please check your internet connection and try again.",
+        error:
+          "Network connection failed. Please check your internet connection and try again.",
       };
     }
 
-    console.log('🔑 Attempting Firebase login with retry logic...');
+    console.log("🔑 Attempting Firebase login with retry logic...");
 
     // Attempt login with retry logic
     const userCredential = await retryWithBackoff(
       () => signInWithEmailAndPassword(auth, email, password),
       3,
-      1000
+      1000,
     );
 
     console.log("✅ Firebase authentication successful");
@@ -395,7 +411,8 @@ export const loginWithEmailAndPassword = async (
         errorMessage = "Too many failed attempts. Please try again later";
         break;
       case "auth/network-request-failed":
-        errorMessage = "Network connection failed. Please check your internet connection and try again.";
+        errorMessage =
+          "Network connection failed. Please check your internet connection and try again.";
         break;
       case "auth/timeout":
         errorMessage = "Request timed out. Please try again.";
@@ -405,8 +422,9 @@ export const loginWithEmailAndPassword = async (
         break;
       default:
         // For unknown errors, provide a helpful message
-        if (error.message?.includes('network')) {
-          errorMessage = "Network connection failed. Please check your internet connection and try again.";
+        if (error.message?.includes("network")) {
+          errorMessage =
+            "Network connection failed. Please check your internet connection and try again.";
         } else {
           errorMessage = error.message || errorMessage;
         }
@@ -449,10 +467,10 @@ export const signInWithGoogle = async (): Promise<{
       }
     }
 
-    return { 
-      success: true, 
-      user, 
-      message: "Google sign-in successful" 
+    return {
+      success: true,
+      user,
+      message: "Google sign-in successful",
     };
   } catch (error: any) {
     console.error("Google sign-in error:", error);
@@ -461,7 +479,8 @@ export const signInWithGoogle = async (): Promise<{
     if (error.code === "auth/popup-closed-by-user") {
       errorMessage = "Sign-in was cancelled";
     } else if (error.code === "auth/popup-blocked") {
-      errorMessage = "Popup blocked by browser. Please allow popups and try again";
+      errorMessage =
+        "Popup blocked by browser. Please allow popups and try again";
     }
 
     return { success: false, error: errorMessage };
@@ -501,10 +520,10 @@ export const signInWithFacebook = async (): Promise<{
       }
     }
 
-    return { 
-      success: true, 
-      user, 
-      message: "Facebook sign-in successful" 
+    return {
+      success: true,
+      user,
+      message: "Facebook sign-in successful",
     };
   } catch (error: any) {
     console.error("Facebook sign-in error:", error);
@@ -513,7 +532,8 @@ export const signInWithFacebook = async (): Promise<{
     if (error.code === "auth/popup-closed-by-user") {
       errorMessage = "Sign-in was cancelled";
     } else if (error.code === "auth/popup-blocked") {
-      errorMessage = "Popup blocked by browser. Please allow popups and try again";
+      errorMessage =
+        "Popup blocked by browser. Please allow popups and try again";
     }
 
     return { success: false, error: errorMessage };
@@ -537,9 +557,9 @@ export const sendFirebaseEmailVerification = async (
     return { success: true };
   } catch (error: any) {
     console.error("Email verification error:", error);
-    return { 
-      success: false, 
-      error: error.message || "Failed to send email verification" 
+    return {
+      success: false,
+      error: error.message || "Failed to send email verification",
     };
   }
 };
@@ -573,9 +593,9 @@ export const initializeRecaptcha = async (
     return { success: true };
   } catch (error: any) {
     console.error("reCAPTCHA initialization error:", error);
-    return { 
-      success: false, 
-      error: error.message || "Failed to initialize reCAPTCHA" 
+    return {
+      success: false,
+      error: error.message || "Failed to initialize reCAPTCHA",
     };
   }
 };
@@ -583,10 +603,10 @@ export const initializeRecaptcha = async (
 // Send phone OTP
 export const sendPhoneOTP = async (
   phoneNumber: string,
-): Promise<{ 
-  success: boolean; 
-  confirmationResult?: ConfirmationResult; 
-  error?: string 
+): Promise<{
+  success: boolean;
+  confirmationResult?: ConfirmationResult;
+  error?: string;
 }> => {
   try {
     if (!isFirebaseConfigured || !auth) {
@@ -609,14 +629,14 @@ export const sendPhoneOTP = async (
       phoneNumber,
       recaptchaVerifier,
     );
-    
+
     console.log("✅ OTP sent via Firebase to:", phoneNumber);
     return { success: true, confirmationResult };
   } catch (error: any) {
     console.error("Send OTP error:", error);
-    return { 
-      success: false, 
-      error: error.message || "Failed to send OTP" 
+    return {
+      success: false,
+      error: error.message || "Failed to send OTP",
     };
   }
 };
@@ -640,9 +660,9 @@ export const verifyPhoneOTP = async (
     return { success: true, user: result.user };
   } catch (error: any) {
     console.error("Verify OTP error:", error);
-    return { 
-      success: false, 
-      error: error.message || "Invalid verification code" 
+    return {
+      success: false,
+      error: error.message || "Invalid verification code",
     };
   }
 };
@@ -660,7 +680,7 @@ export const fetchUserData = async (
     }
 
     const userDoc = await getDoc(doc(db, "users", userId));
-    
+
     if (userDoc.exists()) {
       const userData = userDoc.data();
       console.log("✅ User data fetched from Firestore");
@@ -673,9 +693,9 @@ export const fetchUserData = async (
     }
   } catch (error: any) {
     console.error("Fetch user data error:", error);
-    return { 
-      success: false, 
-      error: error.message || "Failed to fetch user data" 
+    return {
+      success: false,
+      error: error.message || "Failed to fetch user data",
     };
   }
 };
@@ -703,9 +723,9 @@ export const updateUserProfile = async (
     return { success: true };
   } catch (error: any) {
     console.error("Update profile error:", error);
-    return { 
-      success: false, 
-      error: error.message || "Failed to update profile" 
+    return {
+      success: false,
+      error: error.message || "Failed to update profile",
     };
   }
 };
