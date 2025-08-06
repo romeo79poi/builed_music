@@ -699,9 +699,14 @@ export default function Profile() {
               <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
               <p className="text-muted-foreground">Loading profile...</p>
               {firebaseUser && (
-                <p className="text-xs text-muted-foreground mt-2">
-                  🔥 Signed in as {firebaseUser.email}
-                </p>
+                <div className="text-xs text-muted-foreground mt-2 space-y-1">
+                  <p>🔥 Signed in as {firebaseUser.email}</p>
+                  <p>User ID: {firebaseUser.uid}</p>
+                  <p>Email verified: {firebaseUser.emailVerified ? 'Yes' : 'No'}</p>
+                  {localStorage.getItem('currentUser') && (
+                    <p className="text-green-400">✓ Signup data found in localStorage</p>
+                  )}
+                </div>
               )}
             </div>
           </div>
