@@ -122,6 +122,7 @@ export default function Signup() {
   const [verificationUser, setVerificationUser] = useState<any>(null);
   const [emailVerificationSent, setEmailVerificationSent] = useState(false);
   const [phoneVerificationSent, setPhoneVerificationSent] = useState(false);
+  const [isSocialSignup, setIsSocialSignup] = useState(false);
 
   // Validation functions
   const validateEmail = (email: string): boolean => {
