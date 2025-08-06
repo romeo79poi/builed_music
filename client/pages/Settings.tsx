@@ -735,21 +735,89 @@ export default function Settings() {
             Settings
           </h1>
 
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => {
-              // Open help/support
-              window.open('https://support.musicapp.com', '_blank');
-              toast({
-                title: "Help & Support",
-                description: "Opening support page...",
-              });
-            }}
-            className="w-10 h-10 rounded-full bg-purple-dark/50 backdrop-blur-sm flex items-center justify-center border border-purple-primary/30 hover:bg-purple-primary/20 transition-colors"
-          >
-            <HelpCircle className="w-5 h-5 text-white" />
-          </motion.button>
+          <div className="relative">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowSupportMenu(!showSupportMenu)}
+              className="w-10 h-10 rounded-full bg-purple-dark/50 backdrop-blur-sm flex items-center justify-center border border-purple-primary/30 hover:bg-purple-primary/20 transition-colors"
+            >
+              <HelpCircle className="w-5 h-5 text-white" />
+            </motion.button>
+
+            {/* Support Dropdown Menu */}
+            <AnimatePresence>
+              {showSupportMenu && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute right-0 top-12 w-80 bg-gradient-to-br from-purple-dark to-purple-darker border border-purple-primary/30 rounded-2xl shadow-2xl backdrop-blur-sm z-50"
+                >
+                  {/* Header */}
+                  <div className="p-4 border-b border-purple-primary/20">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-bold text-white flex items-center">
+                        <HelpCircle className="w-5 h-5 mr-2 text-purple-primary" />
+                        Help & Support
+                      </h3>
+                      <button
+                        onClick={() => setShowSupportMenu(false)}
+                        className="p-1 hover:bg-purple-primary/20 rounded-full transition-colors"
+                      >
+                        <X className="w-4 h-4 text-gray-400" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Support Options */}
+                  <div className="max-h-96 overflow-y-auto">
+                    {supportOptions.map((option, index) => (
+                      <motion.button
+                        key={option.key}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        onClick={option.action}
+                        className="w-full p-4 flex items-start space-x-3 hover:bg-purple-primary/10 transition-colors text-left border-b border-purple-primary/10 last:border-b-0"
+                      >
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-primary/20 flex items-center justify-center">
+                          <option.icon className="w-4 h-4 text-purple-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <h4 className="text-white font-medium truncate">
+                              {option.label}
+                            </h4>
+                            <ExternalLink className="w-3 h-3 text-gray-400 flex-shrink-0 ml-2" />
+                          </div>
+                          <p className="text-sm text-gray-400 mt-1 line-clamp-2">
+                            {option.description}
+                          </p>
+                        </div>
+                      </motion.button>
+                    ))}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="p-4 border-t border-purple-primary/20 bg-purple-primary/5">
+                    <div className="text-center">
+                      <p className="text-xs text-gray-400">
+                        Need immediate help? Call us at{" "}
+                        <a
+                          href="tel:+15551234687"
+                          className="text-purple-primary hover:underline"
+                        >
+                          +1 (555) 123-MUSIC
+                        </a>
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </motion.header>
 
         {/* Main Content */}
