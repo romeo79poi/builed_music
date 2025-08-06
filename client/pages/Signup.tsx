@@ -797,6 +797,12 @@ export default function Signup() {
     if (!validatePassword()) return;
 
     if (signupMethod === "email") {
+      // Check email verification status
+      if (!emailVerified) {
+        setErrorAlert("Email verification required.");
+        setCurrentStep("email-verify");
+        return;
+      }
       // For email signup, proceed to DOB step
       setCurrentStep("dob");
       return;
@@ -915,6 +921,14 @@ export default function Signup() {
 
   const handleDOBStep = () => {
     if (!validateDateOfBirth()) return;
+
+    // Check email verification for email signups
+    if (signupMethod === "email" && !emailVerified) {
+      setErrorAlert("Email verification required.");
+      setCurrentStep("email-verify");
+      return;
+    }
+
     setCurrentStep("profileImage");
   };
 
@@ -957,6 +971,14 @@ export default function Signup() {
 
   const handleGenderStep = () => {
     if (!validateGender()) return;
+
+    // Check email verification for email signups
+    if (signupMethod === "email" && !emailVerified) {
+      setErrorAlert("Email verification required.");
+      setCurrentStep("email-verify");
+      return;
+    }
+
     setCurrentStep("bio");
   };
 
@@ -1035,7 +1057,7 @@ export default function Signup() {
           if (saveResult.success) {
             console.log("✅ Complete profile data saved to Firestore");
           } else {
-            console.warn("⚠��� Failed to save complete profile data:", saveResult.error);
+            console.warn("⚠️ Failed to save complete profile data:", saveResult.error);
           }
 
           // Save complete user data to localStorage for immediate access
