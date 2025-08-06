@@ -28,6 +28,7 @@ import {
   Search,
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
+import { useFirebase } from "../context/FirebaseContext";
 import MobileFooter from "../components/MobileFooter";
 
 interface Reel {
@@ -214,6 +215,7 @@ const sampleComments: Comment[] = [
 export default function Reels() {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user: firebaseUser, loading: firebaseLoading } = useFirebase();
   
   const [reels, setReels] = useState<Reel[]>(sampleReels);
   const [currentReelIndex, setCurrentReelIndex] = useState(0);
