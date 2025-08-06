@@ -618,6 +618,98 @@ export default function Home() {
             </motion.div>
           </motion.section>
 
+          {/* User Profile Section */}
+          {userData && (
+            <motion.section variants={itemVariants} className="mb-8">
+              <motion.div
+                whileHover={{ scale: 1.02 }}
+                className="bg-gradient-to-r from-purple-primary/10 to-purple-secondary/10 backdrop-blur-sm rounded-2xl p-4 border border-purple-primary/20 shadow-lg"
+              >
+                <div className="flex items-center space-x-4">
+                  {/* Profile Image */}
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    className="relative"
+                  >
+                    <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-purple-primary/30">
+                      {userAvatar ? (
+                        <img
+                          src={userAvatar}
+                          alt={userData.name || 'Profile'}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-purple-primary to-purple-secondary flex items-center justify-center">
+                          <User className="w-8 h-8 text-white" />
+                        </div>
+                      )}
+                    </div>
+                    {userData.emailVerified && (
+                      <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center border-2 border-background">
+                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                      </div>
+                    )}
+                  </motion.div>
+
+                  {/* Profile Info */}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center space-x-2 mb-1">
+                      <h3 className="text-lg font-bold text-white truncate">
+                        {userData.name || userData.displayName || 'User'}
+                      </h3>
+                      {userData.emailVerified && (
+                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-500/20 text-green-400 border border-green-500/30">
+                          Verified
+                        </span>
+                      )}
+                    </div>
+
+                    <p className="text-purple-accent text-sm font-medium mb-2">
+                      @{userData.username || userData.email?.split('@')[0] || 'user'}
+                    </p>
+
+                    {userData.bio && (
+                      <p className="text-gray-300 text-sm line-clamp-2 mb-2">
+                        {userData.bio}
+                      </p>
+                    )}
+
+                    {/* Additional signup data */}
+                    <div className="flex flex-wrap gap-2 text-xs">
+                      {userData.gender && (
+                        <span className="px-2 py-1 rounded-full bg-purple-primary/20 text-purple-accent border border-purple-primary/30">
+                          {userData.gender}
+                        </span>
+                      )}
+                      {userData.dateOfBirth && (
+                        <span className="px-2 py-1 rounded-full bg-purple-primary/20 text-purple-accent border border-purple-primary/30">
+                          Age {new Date().getFullYear() - new Date(userData.dateOfBirth).getFullYear()}
+                        </span>
+                      )}
+                      {userData.phone && (
+                        <span className="px-2 py-1 rounded-full bg-purple-primary/20 text-purple-accent border border-purple-primary/30">
+                          {userData.phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-****')}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* View Profile Button */}
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => navigate('/profile')}
+                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-primary to-purple-secondary text-white font-medium text-sm hover:shadow-lg transition-all"
+                  >
+                    View Profile
+                  </motion.button>
+                </div>
+              </motion.div>
+            </motion.section>
+          )}
+
           {/* New Releases Section */}
           <motion.section variants={itemVariants} className="mb-8">
             <div className="flex items-center justify-between mb-4">
