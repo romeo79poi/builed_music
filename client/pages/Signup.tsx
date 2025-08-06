@@ -602,7 +602,7 @@ export default function Signup() {
         setIsSocialSignup(true);
 
         toast({
-          title: "Welcome to CATCH! 🎉",
+          title: "Welcome to CATCH! ��",
           description: `Please complete your profile setup`,
         });
 
@@ -1569,22 +1569,6 @@ export default function Signup() {
                 )}
               </div>
 
-              {/* Firebase Verification Info */}
-              <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-3">
-                <div className="flex items-center space-x-2">
-                  <svg className="w-5 h-5 text-blue-400" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M3.89 15.673L6.255 12.5H8.5l-2.82 4.5H8v2H3.5l.39-2.827zM13.5 12.5L11.145 15.673L11.535 18.5H16v-2h-2.32L16.5 12.5H13.5zM12 2.5c5.799 0 10.5 4.701 10.5 10.5S17.799 23.5 12 23.5 1.5 18.799 1.5 13 6.201 2.5 12 2.5z"/>
-                  </svg>
-                  <div>
-                    <p className="text-blue-400 text-xs font-medium">
-                      🔥 Powered by Firebase
-                    </p>
-                    <p className="text-blue-300 text-xs">
-                      Secure email verification will be sent after account creation
-                    </p>
-                  </div>
-                </div>
-              </div>
 
               <button
                 onClick={handleEmailStep}
