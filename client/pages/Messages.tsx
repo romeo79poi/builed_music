@@ -90,7 +90,9 @@ const Messages = () => {
   // Firebase authentication check
   useEffect(() => {
     if (!firebaseLoading && !firebaseUser) {
-      console.log("❌ No Firebase user found in Messages, redirecting to login");
+      console.log(
+        "❌ No Firebase user found in Messages, redirecting to login",
+      );
       navigate("/login");
     }
   }, [firebaseUser, firebaseLoading, navigate]);

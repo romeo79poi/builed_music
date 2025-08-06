@@ -77,12 +77,15 @@ export class FirebaseSettingsService {
 
       // Try to fetch from backend
       try {
-        const response = await fetch(`/api/v1/users/${firebaseUserId}/settings`, {
-          headers: {
-            "user-id": firebaseUserId,
-            "Content-Type": "application/json",
+        const response = await fetch(
+          `/api/v1/users/${firebaseUserId}/settings`,
+          {
+            headers: {
+              "user-id": firebaseUserId,
+              "Content-Type": "application/json",
+            },
           },
-        });
+        );
 
         if (response.ok) {
           const result = await response.json();
@@ -102,7 +105,6 @@ export class FirebaseSettingsService {
       this.saveLocalSettings(firebaseUserId, defaultSettings);
       console.log("✅ Using default settings");
       return defaultSettings;
-
     } catch (error) {
       console.error("❌ Error loading settings:", error);
       return { ...DEFAULT_SETTINGS };
@@ -114,10 +116,14 @@ export class FirebaseSettingsService {
    */
   async updateSettings(
     firebaseUserId: string,
-    updates: Partial<FirebaseUserSettings>
+    updates: Partial<FirebaseUserSettings>,
   ): Promise<boolean> {
     try {
-      console.log("🔥 Updating settings for Firebase user:", firebaseUserId, updates);
+      console.log(
+        "🔥 Updating settings for Firebase user:",
+        firebaseUserId,
+        updates,
+      );
 
       // Get current settings
       const currentSettings = await this.getSettings(firebaseUserId);
@@ -129,14 +135,17 @@ export class FirebaseSettingsService {
 
       // Try to sync with backend
       try {
-        const response = await fetch(`/api/v1/users/${firebaseUserId}/settings`, {
-          method: 'PUT',
-          headers: {
-            "user-id": firebaseUserId,
-            "Content-Type": "application/json",
+        const response = await fetch(
+          `/api/v1/users/${firebaseUserId}/settings`,
+          {
+            method: "PUT",
+            headers: {
+              "user-id": firebaseUserId,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(this.transformToBackendFormat(newSettings)),
           },
-          body: JSON.stringify(this.transformToBackendFormat(newSettings)),
-        });
+        );
 
         if (response.ok) {
           console.log("✅ Settings synced with backend");
@@ -161,24 +170,27 @@ export class FirebaseSettingsService {
   async updateSetting(
     firebaseUserId: string,
     key: string,
-    value: any
+    value: any,
   ): Promise<boolean> {
     try {
       const currentSettings = await this.getSettings(firebaseUserId);
-      
+
       // Handle nested keys like "playback.autoPlay"
-      if (key.includes('.')) {
-        const [section, subKey] = key.split('.');
+      if (key.includes(".")) {
+        const [section, subKey] = key.split(".");
         const updates = {
           [section]: {
             ...currentSettings[section as keyof FirebaseUserSettings],
             [subKey]: value,
-          }
+          },
         };
         return this.updateSettings(firebaseUserId, updates);
       } else {
         const updates = { [key]: value };
-        return this.updateSettings(firebaseUserId, updates as Partial<FirebaseUserSettings>);
+        return this.updateSettings(
+          firebaseUserId,
+          updates as Partial<FirebaseUserSettings>,
+        );
       }
     } catch (error) {
       console.error("❌ Error updating setting:", error);
@@ -189,7 +201,9 @@ export class FirebaseSettingsService {
   /**
    * Get settings from localStorage
    */
-  private getLocalSettings(firebaseUserId: string): FirebaseUserSettings | null {
+  private getLocalSettings(
+    firebaseUserId: string,
+  ): FirebaseUserSettings | null {
     try {
       const stored = localStorage.getItem(this.getStorageKey(firebaseUserId));
       if (stored) {
@@ -204,9 +218,15 @@ export class FirebaseSettingsService {
   /**
    * Save settings to localStorage
    */
-  private saveLocalSettings(firebaseUserId: string, settings: FirebaseUserSettings): void {
+  private saveLocalSettings(
+    firebaseUserId: string,
+    settings: FirebaseUserSettings,
+  ): void {
     try {
-      localStorage.setItem(this.getStorageKey(firebaseUserId), JSON.stringify(settings));
+      localStorage.setItem(
+        this.getStorageKey(firebaseUserId),
+        JSON.stringify(settings),
+      );
     } catch (error) {
       console.error("Error saving local settings:", error);
     }
@@ -215,7 +235,10 @@ export class FirebaseSettingsService {
   /**
    * Background sync with backend
    */
-  private async syncWithBackend(firebaseUserId: string, localSettings: FirebaseUserSettings): Promise<void> {
+  private async syncWithBackend(
+    firebaseUserId: string,
+    localSettings: FirebaseUserSettings,
+  ): Promise<void> {
     try {
       const response = await fetch(`/api/v1/users/${firebaseUserId}/settings`, {
         headers: {
@@ -307,7 +330,10 @@ export class FirebaseSettingsService {
   /**
    * Import settings from backup
    */
-  async importSettings(firebaseUserId: string, settings: FirebaseUserSettings): Promise<boolean> {
+  async importSettings(
+    firebaseUserId: string,
+    settings: FirebaseUserSettings,
+  ): Promise<boolean> {
     return this.updateSettings(firebaseUserId, settings);
   }
 }

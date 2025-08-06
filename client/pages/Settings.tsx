@@ -71,7 +71,7 @@ export default function Settings() {
       icon: FileText,
       description: "Browse our comprehensive help documentation",
       action: () => {
-        window.open('https://help.musicapp.com/docs', '_blank');
+        window.open("https://help.musicapp.com/docs", "_blank");
         toast({
           title: "Help Center",
           description: "Opening help documentation",
@@ -85,7 +85,10 @@ export default function Settings() {
       icon: MessageCircle,
       description: "Get help from our support team",
       action: () => {
-        window.open('mailto:support@musicapp.com?subject=Support Request from Settings', '_blank');
+        window.open(
+          "mailto:support@musicapp.com?subject=Support Request from Settings",
+          "_blank",
+        );
         toast({
           title: "Contact Support",
           description: "Opening email client",
@@ -99,7 +102,7 @@ export default function Settings() {
       icon: MessageCircle,
       description: "Chat with support in real-time",
       action: () => {
-        window.open('https://chat.musicapp.com', '_blank');
+        window.open("https://chat.musicapp.com", "_blank");
         toast({
           title: "Live Chat",
           description: "Opening live chat window",
@@ -113,7 +116,7 @@ export default function Settings() {
       icon: Phone,
       description: "Call us: +1 (555) 123-MUSIC",
       action: () => {
-        window.open('tel:+15551234687', '_self');
+        window.open("tel:+15551234687", "_self");
         toast({
           title: "Phone Support",
           description: "Calling support team",
@@ -127,7 +130,7 @@ export default function Settings() {
       icon: Bug,
       description: "Report technical issues or bugs",
       action: () => {
-        window.open('https://bugs.musicapp.com/report', '_blank');
+        window.open("https://bugs.musicapp.com/report", "_blank");
         toast({
           title: "Bug Report",
           description: "Opening bug report form",
@@ -141,7 +144,7 @@ export default function Settings() {
       icon: Star,
       description: "Suggest new features",
       action: () => {
-        window.open('https://feedback.musicapp.com/features', '_blank');
+        window.open("https://feedback.musicapp.com/features", "_blank");
         toast({
           title: "Feature Request",
           description: "Opening feature request form",
@@ -155,7 +158,7 @@ export default function Settings() {
       icon: Share,
       description: "Share your thoughts about the app",
       action: () => {
-        window.open('https://feedback.musicapp.com', '_blank');
+        window.open("https://feedback.musicapp.com", "_blank");
         toast({
           title: "Send Feedback",
           description: "Opening feedback form",
@@ -169,7 +172,7 @@ export default function Settings() {
       icon: HelpCircle,
       description: "Frequently asked questions",
       action: () => {
-        window.open('https://help.musicapp.com/faq', '_blank');
+        window.open("https://help.musicapp.com/faq", "_blank");
         toast({
           title: "FAQ",
           description: "Opening FAQ page",
@@ -183,7 +186,7 @@ export default function Settings() {
       icon: User,
       description: "Join the community discussion",
       action: () => {
-        window.open('https://community.musicapp.com', '_blank');
+        window.open("https://community.musicapp.com", "_blank");
         toast({
           title: "Community Forum",
           description: "Opening community forum",
@@ -197,7 +200,7 @@ export default function Settings() {
       icon: Info,
       description: "Check current service status",
       action: () => {
-        window.open('https://status.musicapp.com', '_blank');
+        window.open("https://status.musicapp.com", "_blank");
         toast({
           title: "Service Status",
           description: "Opening status page",
@@ -242,13 +245,13 @@ export default function Settings() {
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as Element;
-      if (showSupportMenu && !target.closest('.support-dropdown')) {
+      if (showSupportMenu && !target.closest(".support-dropdown")) {
         setShowSupportMenu(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showSupportMenu]);
 
   const loadUserData = async () => {
@@ -259,21 +262,32 @@ export default function Settings() {
         return;
       }
 
-      console.log("🔥 Loading user data for Firebase user:", firebaseUser.email);
+      console.log(
+        "🔥 Loading user data for Firebase user:",
+        firebaseUser.email,
+      );
       console.log("🔥 Firebase user UID:", firebaseUser.uid);
       console.log("🔥 Firebase user metadata:", firebaseUser.metadata);
 
       // Enhanced Firebase user data
       const firebaseProfile = {
-        name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || "User",
+        name:
+          firebaseUser.displayName ||
+          firebaseUser.email?.split("@")[0] ||
+          "User",
         email: firebaseUser.email || "No email",
-        profileImage: firebaseUser.photoURL || `https://ui-avatars.io/api/?name=${encodeURIComponent(firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User')}&background=6366f1&color=fff&size=64`,
+        profileImage:
+          firebaseUser.photoURL ||
+          `https://ui-avatars.io/api/?name=${encodeURIComponent(firebaseUser.displayName || firebaseUser.email?.split("@")[0] || "User")}&background=6366f1&color=fff&size=64`,
         joinDate: firebaseUser.metadata.creationTime
-          ? new Date(firebaseUser.metadata.creationTime).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'short',
-              day: 'numeric'
-            })
+          ? new Date(firebaseUser.metadata.creationTime).toLocaleDateString(
+              "en-US",
+              {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              },
+            )
           : "Unknown",
         premium: false,
         firebaseUid: firebaseUser.uid,
@@ -303,14 +317,18 @@ export default function Settings() {
             const backendData = result.data;
             const enhancedProfile = {
               ...firebaseProfile,
-              name: backendData.display_name || backendData.name || firebaseProfile.name,
-              profileImage: backendData.profile_image_url || firebaseProfile.profileImage,
+              name:
+                backendData.display_name ||
+                backendData.name ||
+                firebaseProfile.name,
+              profileImage:
+                backendData.profile_image_url || firebaseProfile.profileImage,
               premium: backendData.premium || false,
               joinDate: backendData.created_at
-                ? new Date(backendData.created_at).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric'
+                ? new Date(backendData.created_at).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
                   })
                 : firebaseProfile.joinDate,
             };
@@ -322,8 +340,8 @@ export default function Settings() {
 
         // If backend fetch fails or user doesn't exist, try to create/sync user
         console.log("🔥 Creating/syncing user profile with backend...");
-        const syncResponse = await fetch('/api/v1/users/sync', {
-          method: 'POST',
+        const syncResponse = await fetch("/api/v1/users/sync", {
+          method: "POST",
           headers: {
             "user-id": firebaseUser.uid,
             "Content-Type": "application/json",
@@ -342,7 +360,10 @@ export default function Settings() {
           console.log("✅ User synced with backend:", syncResult);
         }
       } catch (error) {
-        console.error("⚠️ Backend sync failed (using Firebase data only):", error);
+        console.error(
+          "⚠️ Backend sync failed (using Firebase data only):",
+          error,
+        );
         // Continue with Firebase-only data
       }
     } catch (error) {
@@ -363,7 +384,9 @@ export default function Settings() {
 
       console.log("🔥 Loading settings for Firebase user:", firebaseUser.uid);
 
-      const firebaseSettings = await firebaseSettingsService.getSettings(firebaseUser.uid);
+      const firebaseSettings = await firebaseSettingsService.getSettings(
+        firebaseUser.uid,
+      );
 
       // Transform Firebase settings to component state format
       const componentSettings = {
@@ -382,7 +405,10 @@ export default function Settings() {
       };
 
       setSettings(componentSettings);
-      console.log("✅ Settings loaded via Firebase service:", componentSettings);
+      console.log(
+        "✅ Settings loaded via Firebase service:",
+        componentSettings,
+      );
     } catch (error) {
       console.error("❌ Error loading settings:", error);
       // Set default settings on error
@@ -546,7 +572,7 @@ export default function Settings() {
           label: "Help Center",
           icon: HelpCircle,
           action: () => {
-            window.open('https://help.musicapp.com', '_blank');
+            window.open("https://help.musicapp.com", "_blank");
             toast({
               title: "Help Center",
               description: "Opening help center in new tab",
@@ -559,7 +585,10 @@ export default function Settings() {
           label: "Contact Support",
           icon: HelpCircle,
           action: () => {
-            window.open('mailto:support@musicapp.com?subject=Support Request', '_blank');
+            window.open(
+              "mailto:support@musicapp.com?subject=Support Request",
+              "_blank",
+            );
             toast({
               title: "Contact Support",
               description: "Opening email client",
@@ -572,7 +601,7 @@ export default function Settings() {
           label: "Send Feedback",
           icon: Share,
           action: () => {
-            window.open('https://feedback.musicapp.com', '_blank');
+            window.open("https://feedback.musicapp.com", "_blank");
             toast({
               title: "Send Feedback",
               description: "Opening feedback form",
@@ -611,7 +640,16 @@ export default function Settings() {
 
         // Map component state key to Firebase settings structure
         let settingPath = key;
-        if (["autoDownload", "highQuality", "offlineMode", "autoPlay", "crossfade", "normalization"].includes(key)) {
+        if (
+          [
+            "autoDownload",
+            "highQuality",
+            "offlineMode",
+            "autoPlay",
+            "crossfade",
+            "normalization",
+          ].includes(key)
+        ) {
           settingPath = `playback.${key}`;
         } else if (["publicProfile", "showActivity"].includes(key)) {
           settingPath = `privacy.${key}`;
@@ -622,7 +660,7 @@ export default function Settings() {
           const success = await firebaseSettingsService.updateSetting(
             firebaseUser.uid,
             "theme",
-            newValue ? "dark" : "light"
+            newValue ? "dark" : "light",
           );
 
           if (success) {
@@ -640,11 +678,13 @@ export default function Settings() {
         const success = await firebaseSettingsService.updateSetting(
           firebaseUser.uid,
           settingPath,
-          newValue
+          newValue,
         );
 
         if (success) {
-          const friendlyName = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+          const friendlyName = key
+            .replace(/([A-Z])/g, " $1")
+            .replace(/^./, (str) => str.toUpperCase());
           toast({
             title: "Setting Updated",
             description: `${friendlyName} has been ${newValue ? "enabled" : "disabled"}`,

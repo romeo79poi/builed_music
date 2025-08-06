@@ -7,7 +7,10 @@ import {
 } from "react";
 import { User } from "firebase/auth";
 import { useFirebase } from "./FirebaseContext";
-import { signInWithGoogle as firebaseGoogleSignIn, signInWithFacebook as firebaseFacebookSignIn } from "../lib/auth";
+import {
+  signInWithGoogle as firebaseGoogleSignIn,
+  signInWithFacebook as firebaseFacebookSignIn,
+} from "../lib/auth";
 
 // Local user interface for backend profile data
 interface UserProfile {
@@ -60,7 +63,11 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const { user: firebaseUser, loading: firebaseLoading, signOut: firebaseSignOut } = useFirebase();
+  const {
+    user: firebaseUser,
+    loading: firebaseLoading,
+    signOut: firebaseSignOut,
+  } = useFirebase();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -105,13 +112,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           const userProfile: UserProfile = {
             id: firebaseUser.uid,
             email: firebaseUser.email || "",
-            username: backendData.username || firebaseUser.email?.split("@")[0] || "user",
+            username:
+              backendData.username ||
+              firebaseUser.email?.split("@")[0] ||
+              "user",
             name: backendData.name || firebaseUser.displayName || "User",
-            avatar_url: backendData.profile_image_url || firebaseUser.photoURL || "",
+            avatar_url:
+              backendData.profile_image_url || firebaseUser.photoURL || "",
             bio: backendData.bio || "",
             location: backendData.location || "",
             website: backendData.website || "",
-            verified: backendData.is_verified || firebaseUser.emailVerified || false,
+            verified:
+              backendData.is_verified || firebaseUser.emailVerified || false,
             premium: backendData.is_premium || false,
             followers_count: backendData.follower_count || 0,
             following_count: backendData.following_count || 0,
@@ -145,10 +157,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       setUser(firebaseProfile);
       console.log("✅ User profile created from Firebase:", firebaseProfile);
-
     } catch (error) {
       console.error("Error loading user profile:", error);
-      
+
       // Fallback: create minimal profile from Firebase user
       if (firebaseUser) {
         const minimalProfile: UserProfile = {
@@ -176,7 +187,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUp = async (email: string, password: string, userData: any) => {
     console.log("📝 Sign up - Firebase authentication required first");
-    
+
     // Note: Actual signup should be handled through Firebase first,
     // then user profile can be created/updated in backend
     return {
@@ -187,7 +198,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     console.log("🔑 Sign in - using Firebase authentication");
-    
+
     // Note: Actual signin should be handled through Firebase
     return {
       success: false,
@@ -197,37 +208,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithGoogle = async () => {
     console.log("🔑 Google sign in using Firebase");
-    
+
     try {
       const result = await firebaseGoogleSignIn();
       if (result.success) {
         return { success: true, message: "Google sign-in successful!" };
       } else {
-        return { success: false, message: result.error || "Google sign-in failed" };
+        return {
+          success: false,
+          message: result.error || "Google sign-in failed",
+        };
       }
     } catch (error: any) {
-      return { success: false, message: error.message || "Google sign-in failed" };
+      return {
+        success: false,
+        message: error.message || "Google sign-in failed",
+      };
     }
   };
 
   const signInWithFacebook = async () => {
     console.log("🔑 Facebook sign in using Firebase");
-    
+
     try {
       const result = await firebaseFacebookSignIn();
       if (result.success) {
         return { success: true, message: "Facebook sign-in successful!" };
       } else {
-        return { success: false, message: result.error || "Facebook sign-in failed" };
+        return {
+          success: false,
+          message: result.error || "Facebook sign-in failed",
+        };
       }
     } catch (error: any) {
-      return { success: false, message: error.message || "Facebook sign-in failed" };
+      return {
+        success: false,
+        message: error.message || "Facebook sign-in failed",
+      };
     }
   };
 
   const signOut = async () => {
     console.log("👋 Sign out using Firebase");
-    
+
     try {
       await firebaseSignOut();
       setUser(null);
@@ -259,17 +282,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const result = await response.json();
         if (result.success) {
           // Update local state
-          const updatedUser = { ...user, ...updates, updated_at: new Date().toISOString() };
+          const updatedUser = {
+            ...user,
+            ...updates,
+            updated_at: new Date().toISOString(),
+          };
           setUser(updatedUser);
           return { success: true, message: "Profile updated successfully!" };
         }
       }
 
       // If backend update fails, still update local state
-      const updatedUser = { ...user, ...updates, updated_at: new Date().toISOString() };
+      const updatedUser = {
+        ...user,
+        ...updates,
+        updated_at: new Date().toISOString(),
+      };
       setUser(updatedUser);
-      return { success: true, message: "Profile updated locally (backend sync pending)" };
-
+      return {
+        success: true,
+        message: "Profile updated locally (backend sync pending)",
+      };
     } catch (error: any) {
       console.error("Profile update error:", error);
       return { success: false, message: error.message || "Update failed" };
