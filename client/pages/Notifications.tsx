@@ -24,6 +24,7 @@ import {
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
 import { useFirebase } from "../context/FirebaseContext";
+import { useSocial } from "../context/SocialContext";
 
 interface Notification {
   id: string;
