@@ -945,6 +945,38 @@ export default function Signup() {
 
           console.log("💾 Saved complete user data to localStorage:", completeUserData);
 
+          // Try to sync with backend API if available
+          try {
+            const backendSyncResponse = await fetch("/api/auth/register", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                id: result.user.uid,
+                email: formData.email,
+                name: formData.name,
+                username: formData.username,
+                password: formData.password,
+                dateOfBirth: formData.dateOfBirth,
+                gender: formData.gender,
+                bio: formData.bio,
+                profileImageURL: formData.profileImageURL,
+                phone: formData.phone,
+                emailVerified: result.user.emailVerified,
+              }),
+            });
+
+            if (backendSyncResponse.ok) {
+              const backendResult = await backendSyncResponse.json();
+              console.log("✅ User data synced with backend:", backendResult);
+            } else {
+              console.warn("⚠️ Backend sync failed, but continuing with Firebase-only data");
+            }
+          } catch (backendError) {
+            console.warn("⚠️ Backend sync error (continuing with Firebase):", backendError);
+          }
+
           // Send Firebase email verification notification
           setEmailVerificationSent(true);
           setVerificationUser(result.user);
