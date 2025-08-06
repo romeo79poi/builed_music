@@ -13,7 +13,9 @@ import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useFirebase } from "../context/FirebaseContext";
 import { useToast } from "../hooks/use-toast";
 import { firebaseHelpers } from "../lib/firebase-simple";
-import { loginWithEmailAndPassword } from "../lib/auth";
+import { loginWithEmailAndPassword, saveUserData } from "../lib/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../lib/firebase";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -72,6 +74,101 @@ export default function Login() {
     } catch (error) {
       console.error("❌ Error checking user existence:", error);
       return false;
+    }
+  };
+
+  const loadCompleteUserProfile = async (user: any) => {
+    try {
+      console.log("💾 Loading complete user profile for:", user.email);
+
+      // Try to get complete profile data from Firestore
+      if (db) {
+        try {
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          if (userDoc.exists()) {
+            const firestoreData = userDoc.data();
+            console.log("✅ Firestore profile data found:", firestoreData);
+
+            // Combine Firebase auth data with Firestore profile data
+            const completeProfile = {
+              uid: user.uid,
+              email: user.email,
+              name: firestoreData.name || user.displayName || "User",
+              username: firestoreData.username || user.email?.split('@')[0] || "user",
+              profileImageURL: firestoreData.profileImageURL || user.photoURL || "",
+              dateOfBirth: firestoreData.dob || "",
+              gender: firestoreData.gender || "",
+              bio: firestoreData.bio || "",
+              phone: firestoreData.phone || user.phoneNumber || "",
+              emailVerified: user.emailVerified,
+              verified: firestoreData.verified || user.emailVerified,
+              createdAt: firestoreData.createdAt,
+              lastLoginAt: new Date().toISOString(),
+            };
+
+            // Save to localStorage for immediate access
+            localStorage.setItem('currentUser', JSON.stringify(completeProfile));
+            localStorage.setItem('userAvatar', completeProfile.profileImageURL || '');
+
+            console.log("💾 Complete profile saved to localStorage:", completeProfile);
+
+            // Try to sync with backend API if available
+            try {
+              const backendSyncResponse = await fetch('/api/v1/users/sync', {
+                method: 'POST',
+                headers: {
+                  'user-id': user.uid,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  firebase_uid: user.uid,
+                  email: user.email,
+                  display_name: completeProfile.name,
+                  username: completeProfile.username,
+                  profile_image_url: completeProfile.profileImageURL,
+                  date_of_birth: completeProfile.dateOfBirth,
+                  gender: completeProfile.gender,
+                  bio: completeProfile.bio,
+                  phone: completeProfile.phone,
+                  email_verified: user.emailVerified,
+                }),
+              });
+
+              if (backendSyncResponse.ok) {
+                const syncResult = await backendSyncResponse.json();
+                console.log("✅ Profile synced with backend:", syncResult);
+              }
+            } catch (backendError) {
+              console.warn("⚠️ Backend sync failed (continuing with Firebase data):", backendError);
+            }
+
+            return completeProfile;
+          }
+        } catch (firestoreError) {
+          console.warn("⚠️ Firestore fetch failed:", firestoreError);
+        }
+      }
+
+      // Fallback: create basic profile from Firebase auth data
+      const basicProfile = {
+        uid: user.uid,
+        email: user.email,
+        name: user.displayName || user.email?.split('@')[0] || "User",
+        username: user.email?.split('@')[0] || "user",
+        profileImageURL: user.photoURL || "",
+        emailVerified: user.emailVerified,
+        lastLoginAt: new Date().toISOString(),
+      };
+
+      localStorage.setItem('currentUser', JSON.stringify(basicProfile));
+      localStorage.setItem('userAvatar', basicProfile.profileImageURL || '');
+
+      console.log("💾 Basic profile saved to localStorage:", basicProfile);
+      return basicProfile;
+
+    } catch (error) {
+      console.error("❌ Error loading user profile:", error);
+      return null;
     }
   };
 
