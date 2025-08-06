@@ -11,6 +11,7 @@ import { ProfileProvider } from "./context/ProfileContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
 import { FirebaseProvider } from "./context/FirebaseContext";
+import { SocialProvider } from "./context/SocialContext";
 // import { SocketProvider } from "./context/SocketContext";
 import AuthRouter from "./components/AuthRouter";
 import Splash from "./pages/Splash";
