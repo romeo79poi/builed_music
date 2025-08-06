@@ -171,11 +171,22 @@ export const signUpWithEmailAndPassword = async (
       };
     }
 
-    // Create user with Firebase Auth
-    const userCredential = await createUserWithEmailAndPassword(
-      auth,
-      email,
-      password,
+    // Check network connectivity first
+    const isOnline = await checkNetworkConnectivity();
+    if (!isOnline) {
+      return {
+        success: false,
+        error: "Network connection failed. Please check your internet connection and try again.",
+      };
+    }
+
+    console.log('✨ Creating Firebase user with retry logic...');
+
+    // Create user with Firebase Auth using retry logic
+    const userCredential = await retryWithBackoff(
+      () => createUserWithEmailAndPassword(auth, email, password),
+      3,
+      1000
     );
     const user = userCredential.user;
 
@@ -209,8 +220,18 @@ export const signUpWithEmailAndPassword = async (
       case "auth/operation-not-allowed":
         errorMessage = "Email/password signup is not enabled";
         break;
+      case "auth/network-request-failed":
+        errorMessage = "Network connection failed. Please check your internet connection and try again.";
+        break;
+      case "auth/timeout":
+        errorMessage = "Request timed out. Please try again.";
+        break;
       default:
-        errorMessage = error.message || errorMessage;
+        if (error.message?.includes('network')) {
+          errorMessage = "Network connection failed. Please check your internet connection and try again.";
+        } else {
+          errorMessage = error.message || errorMessage;
+        }
     }
 
     return { success: false, error: errorMessage };
