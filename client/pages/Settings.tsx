@@ -544,8 +544,8 @@ export default function Settings() {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-full bg-purple-dark/50 backdrop-blur-sm flex items-center justify-center border border-purple-primary/30"
+            onClick={() => navigate("/home")}
+            className="w-10 h-10 rounded-full bg-purple-dark/50 backdrop-blur-sm flex items-center justify-center border border-purple-primary/30 hover:bg-purple-primary/20 transition-colors"
           >
             <ArrowLeft className="w-5 h-5 text-white" />
           </motion.button>
@@ -554,7 +554,21 @@ export default function Settings() {
             Settings
           </h1>
 
-          <div className="w-10 h-10"></div>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              // Open help/support
+              window.open('https://support.musicapp.com', '_blank');
+              toast({
+                title: "Help & Support",
+                description: "Opening support page...",
+              });
+            }}
+            className="w-10 h-10 rounded-full bg-purple-dark/50 backdrop-blur-sm flex items-center justify-center border border-purple-primary/30 hover:bg-purple-primary/20 transition-colors"
+          >
+            <HelpCircle className="w-5 h-5 text-white" />
+          </motion.button>
         </motion.header>
 
         {/* Main Content */}
