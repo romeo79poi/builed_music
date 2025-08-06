@@ -1194,6 +1194,13 @@ export default function Home() {
               ))}
             </div>
           </motion.section>
+
+          {/* Activity Feed Section */}
+          {userData && (
+            <motion.section variants={itemVariants} className="mb-8">
+              <ActivityFeed limit={5} showHeader={true} />
+            </motion.section>
+          )}
         </main>
 
         {/* Mobile Footer */}
