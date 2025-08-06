@@ -29,6 +29,12 @@ import {
   HelpCircle,
   Star,
   Share,
+  MessageCircle,
+  ExternalLink,
+  FileText,
+  Info,
+  Phone,
+  Bug,
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
