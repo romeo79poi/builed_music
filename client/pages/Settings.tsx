@@ -438,39 +438,52 @@ export default function Settings() {
 
     try {
       if (firebaseUser) {
-        // Update settings on backend with Firebase user ID
-        let updateData: any = {};
+        // Save to localStorage immediately (Firebase user-specific)
+        const localStorageKey = `firebase_settings_${firebaseUser.uid}`;
+        const updatedSettings = { ...settings, [key]: newValue };
+        localStorage.setItem(localStorageKey, JSON.stringify(updatedSettings));
+        console.log("🔥 Cached setting for Firebase user:", key, newValue);
 
-        // Map settings to backend format
-        if (key === "notifications") {
-          updateData = { notifications: { email: newValue } };
-        } else if (
-          [
-            "autoDownload",
-            "highQuality",
-            "offlineMode",
-            "autoPlay",
-            "crossfade",
-            "normalization",
-          ].includes(key)
-        ) {
-          updateData = { playback: { [key]: newValue } };
-        } else if (["publicProfile", "showActivity"].includes(key)) {
-          updateData = { privacy: { [key]: newValue } };
-        } else {
-          updateData = { [key]: newValue };
+        // Try to update backend
+        try {
+          let updateData: any = {};
+
+          // Map settings to backend format
+          if (key === "notifications") {
+            updateData = { notifications: { email: newValue } };
+          } else if (
+            [
+              "autoDownload",
+              "highQuality",
+              "offlineMode",
+              "autoPlay",
+              "crossfade",
+              "normalization",
+            ].includes(key)
+          ) {
+            updateData = { playback: { [key]: newValue } };
+          } else if (["publicProfile", "showActivity"].includes(key)) {
+            updateData = { privacy: { [key]: newValue } };
+          } else if (key === "darkTheme") {
+            updateData = { theme: newValue ? "dark" : "light" };
+          } else {
+            updateData = { [key]: newValue };
+          }
+
+          await settingsApi.updateUserSettings(updateData);
+          console.log("✅ Updated setting on backend:", key, newValue);
+        } catch (backendError) {
+          console.warn("⚠️ Backend update failed, but setting cached locally:", backendError);
+          // Don't revert since we have local cache
         }
-
-        await settingsApi.updateUserSettings(updateData);
-        console.log("✅ Updated setting on backend:", key, newValue);
       }
 
       toast({
         title: "Setting Updated",
-        description: `${key} has been ${newValue ? "enabled" : "disabled"}`,
+        description: `${key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())} has been ${newValue ? "enabled" : "disabled"}`,
       });
     } catch (error) {
-      console.error("⚠️ Error updating setting on backend:", error);
+      console.error("❌ Error updating setting:", error);
       // Revert local state on error
       setSettings((prev) => ({
         ...prev,
