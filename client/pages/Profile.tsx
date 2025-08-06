@@ -204,6 +204,35 @@ export default function Profile() {
     },
   });
 
+  // Helper function to repair localStorage data if needed
+  const repairLocalStorageData = () => {
+    try {
+      const localUserData = localStorage.getItem('currentUser');
+      const userAvatar = localStorage.getItem('userAvatar');
+
+      if (localUserData) {
+        const userData = JSON.parse(localUserData);
+
+        // If userAvatar exists but userData doesn't have profileImageURL, sync them
+        if (userAvatar && !userData.profileImageURL && !userData.avatar) {
+          userData.profileImageURL = userAvatar;
+          userData.avatar = userAvatar;
+          localStorage.setItem('currentUser', JSON.stringify(userData));
+          console.log("���� Repaired localStorage: synced userAvatar to userData");
+        }
+
+        // If userData has profileImageURL but userAvatar is missing, sync them
+        if ((userData.profileImageURL || userData.avatar) && !userAvatar) {
+          const imageURL = userData.profileImageURL || userData.avatar;
+          localStorage.setItem('userAvatar', imageURL);
+          console.log("🔧 Repaired localStorage: synced userData to userAvatar");
+        }
+      }
+    } catch (error) {
+      console.warn("⚠️ Failed to repair localStorage data:", error);
+    }
+  };
+
   // Fetch profile data using Firebase user
   const fetchProfile = async () => {
     try {
