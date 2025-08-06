@@ -13,7 +13,7 @@ import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useFirebase } from "../context/FirebaseContext";
 import { useToast } from "../hooks/use-toast";
 import { firebaseHelpers } from "../lib/firebase-simple";
-import { loginWithEmailAndPassword, saveUserData } from "../lib/auth";
+import { loginWithEmailAndPassword, saveUserData, fetchUserData } from "../lib/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
 
@@ -42,38 +42,30 @@ export default function Login() {
 
   const checkUserExists = async (email: string) => {
     try {
-      // Check Firebase auth users and Firestore data
-      const { fetchUserData } = await import('../lib/auth');
+      console.log("🔍 Checking user existence for:", email);
 
-      // Try to get user data from Firestore
-      try {
-        const userData = await fetchUserData(email);
-        if (userData) {
-          console.log("✅ User found in database:", userData);
-          return true;
-        }
-      } catch (error) {
-        console.log("🔍 User not found in Firestore");
-      }
-
-      // Check localStorage for recent signup data
+      // Check localStorage for recent signup data first (faster)
       const localUser = localStorage.getItem('currentUser');
       if (localUser) {
         try {
           const userData = JSON.parse(localUser);
           if (userData.email === email) {
             console.log("✅ User found in localStorage");
-            return true;
+            return { exists: true, source: 'localStorage', data: userData };
           }
         } catch (error) {
           console.log("⚠️ Failed to parse localStorage user data");
         }
       }
 
-      return false;
+      // For now, assume user exists if we reach here
+      // The actual Firebase login will handle user-not-found errors
+      console.log("🔍 User existence check completed");
+      return { exists: true, source: 'assumed', data: null };
+
     } catch (error) {
       console.error("❌ Error checking user existence:", error);
-      return false;
+      return { exists: true, source: 'error', data: null }; // Allow login attempt
     }
   };
 
