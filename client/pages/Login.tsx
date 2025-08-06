@@ -180,22 +180,11 @@ export default function Login() {
     try {
       console.log("🔍 Checking if user exists for email:", email);
 
-      // First check if user exists
-      const userExists = await checkUserExists(email);
+      // Check if user exists (mainly for localStorage cache)
+      const userCheck = await checkUserExists(email);
 
-      if (!userExists) {
-        // User doesn't exist, redirect to signup
-        setAuthError("Account not found. Please sign up first.");
-        toast({
-          title: "Account not found 😕",
-          description: "This email is not registered. Redirecting to signup...",
-          variant: "destructive",
-        });
-
-        setTimeout(() => {
-          navigate("/signup", { state: { email: email } });
-        }, 2000);
-        return;
+      if (userCheck.exists && userCheck.source === 'localStorage') {
+        console.log("✅ User found in cache, proceeding with login");
       }
 
       console.log("🔑 User exists, attempting Firebase email login...");
@@ -217,16 +206,23 @@ export default function Login() {
       } else {
         // Handle specific error cases
         let errorMessage = result.error || "Login failed";
+        let shouldRedirectToSignup = false;
 
-        if (errorMessage.includes("user-not-found")) {
-          errorMessage = "Account not found. Please sign up first.";
+        if (errorMessage.includes("user-not-found") || errorMessage.includes("auth/user-not-found")) {
+          errorMessage = "Account not found. Redirecting to signup...";
+          shouldRedirectToSignup = true;
+        } else if (errorMessage.includes("wrong-password") || errorMessage.includes("auth/wrong-password")) {
+          errorMessage = "Incorrect password. Please try again.";
+        } else if (errorMessage.includes("invalid-email") || errorMessage.includes("auth/invalid-email")) {
+          errorMessage = "Invalid email format.";
+        } else if (errorMessage.includes("too-many-requests")) {
+          errorMessage = "Too many failed attempts. Please try again later.";
+        }
+
+        if (shouldRedirectToSignup) {
           setTimeout(() => {
             navigate("/signup", { state: { email: email } });
           }, 2000);
-        } else if (errorMessage.includes("wrong-password")) {
-          errorMessage = "Incorrect password. Please try again.";
-        } else if (errorMessage.includes("invalid-email")) {
-          errorMessage = "Invalid email format.";
         }
 
         setAuthError(errorMessage);
