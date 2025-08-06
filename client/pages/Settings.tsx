@@ -238,6 +238,19 @@ export default function Settings() {
     }
   }, [firebaseUser, firebaseLoading]);
 
+  // Close support menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (showSupportMenu && !target.closest('.support-dropdown')) {
+        setShowSupportMenu(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showSupportMenu]);
+
   const loadUserData = async () => {
     try {
       if (!firebaseUser) {
