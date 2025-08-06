@@ -931,6 +931,38 @@ export default function Profile() {
                     {profile.bio}
                   </p>
 
+                  {/* Additional Profile Info from Signup */}
+                  {(profile.gender || profile.dateOfBirth) && (
+                    <div className="bg-card/50 rounded-lg p-2 mb-2 border border-border/50">
+                      <p className="text-[10px] text-muted-foreground font-medium mb-1">
+                        Profile Details
+                      </p>
+                      <div className="space-y-1">
+                        {profile.gender && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] text-muted-foreground">Gender:</span>
+                            <span className="text-[10px] text-foreground">{profile.gender}</span>
+                          </div>
+                        )}
+                        {profile.dateOfBirth && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] text-muted-foreground">Age:</span>
+                            <span className="text-[10px] text-foreground">
+                              {new Date().getFullYear() - new Date(profile.dateOfBirth).getFullYear()}
+                            </span>
+                          </div>
+                        )}
+                        {profile.phone && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] text-muted-foreground">Phone:</span>
+                            <span className="text-[10px] text-foreground">
+                              {profile.phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3')}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Location and Website */}
                   <div className="flex items-center space-x-3 text-xs text-muted-foreground mb-2">
