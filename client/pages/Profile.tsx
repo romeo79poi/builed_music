@@ -53,6 +53,7 @@ import { fetchUserData, updateUserProfile } from "../lib/auth";
 import { api } from "../lib/api";
 import { useFirebase } from "../context/FirebaseContext";
 import { useMusic } from "../context/MusicContextSupabase";
+import { useSocial } from "../context/SocialContext";
 
 // Use Firebase user with backend profile extension
 type UserProfile = BackendUserProfile & {
