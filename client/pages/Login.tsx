@@ -733,12 +733,29 @@ export default function Login() {
                   Authentication Error
                 </h4>
                 <p className="text-red-200 text-sm mt-1">{authError}</p>
-                <button
-                  onClick={() => setAuthError(null)}
-                  className="mt-3 text-red-400 hover:text-red-300 text-sm font-medium"
-                >
-                  Dismiss
-                </button>
+                <div className="flex items-center space-x-3 mt-3">
+                  <button
+                    onClick={() => setAuthError(null)}
+                    className="text-red-400 hover:text-red-300 text-sm font-medium"
+                  >
+                    Dismiss
+                  </button>
+
+                  {showResendVerification && (
+                    <button
+                      onClick={handleResendVerification}
+                      disabled={isLoading}
+                      className="text-purple-400 hover:text-purple-300 text-sm font-medium disabled:opacity-50 flex items-center space-x-1"
+                    >
+                      {isLoading ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <Mail className="w-3 h-3" />
+                      )}
+                      <span>Resend verification email</span>
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           </motion.div>
