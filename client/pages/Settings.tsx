@@ -199,70 +199,44 @@ export default function Settings() {
 
       console.log("🔥 Loading settings for Firebase user:", firebaseUser.uid);
 
-      // Try to load from localStorage first (Firebase user-specific)
-      const localStorageKey = `firebase_settings_${firebaseUser.uid}`;
-      const cachedSettings = localStorage.getItem(localStorageKey);
+      const firebaseSettings = await firebaseSettingsService.getSettings(firebaseUser.uid);
 
-      if (cachedSettings) {
-        try {
-          const parsed = JSON.parse(cachedSettings);
-          setSettings(parsed);
-          console.log("✅ Loaded cached settings for Firebase user:", parsed);
-        } catch (error) {
-          console.error("Failed to parse cached settings:", error);
-        }
-      }
+      // Transform Firebase settings to component state format
+      const componentSettings = {
+        darkTheme: firebaseSettings.theme === "dark",
+        notifications: firebaseSettings.notifications.email,
+        autoDownload: firebaseSettings.playback.autoDownload,
+        highQuality: firebaseSettings.playback.highQuality,
+        offlineMode: firebaseSettings.playback.offlineMode,
+        publicProfile: firebaseSettings.privacy.publicProfile,
+        showActivity: firebaseSettings.privacy.showActivity,
+        autoPlay: firebaseSettings.playback.autoPlay,
+        crossfade: firebaseSettings.playback.crossfade,
+        normalization: firebaseSettings.playback.normalization,
+        language: firebaseSettings.language,
+        region: firebaseSettings.region,
+      };
 
-      // Try to load from backend API
-      try {
-        const userSettings = await settingsApi.getUserSettings();
-        if (userSettings) {
-          const backendSettings = {
-            darkTheme: userSettings.theme === "dark",
-            notifications: userSettings.notifications?.email !== false,
-            autoDownload: userSettings.playback?.autoDownload !== false,
-            highQuality: userSettings.playback?.highQuality !== false,
-            offlineMode: userSettings.playback?.offlineMode !== false,
-            publicProfile: userSettings.privacy?.publicProfile !== false,
-            showActivity: userSettings.privacy?.showActivity !== false,
-            autoPlay: userSettings.playback?.autoPlay !== false,
-            crossfade: userSettings.playback?.crossfade !== false,
-            normalization: userSettings.playback?.normalization !== false,
-            language: userSettings.language || "English",
-            region: userSettings.region || "United States",
-          };
-
-          setSettings(backendSettings);
-          // Cache to localStorage
-          localStorage.setItem(localStorageKey, JSON.stringify(backendSettings));
-          console.log("✅ Loaded and cached user settings from backend:", backendSettings);
-        }
-      } catch (error) {
-        console.error("⚠️ Backend settings fetch failed:", error);
-        // If backend fails but we have cached settings, that's fine
-        if (!cachedSettings) {
-          // Only set defaults if we have no cached data
-          const defaultSettings = {
-            darkTheme: true,
-            notifications: true,
-            autoDownload: false,
-            highQuality: true,
-            offlineMode: false,
-            publicProfile: true,
-            showActivity: true,
-            autoPlay: true,
-            crossfade: false,
-            normalization: true,
-            language: "English",
-            region: "United States",
-          };
-          setSettings(defaultSettings);
-          localStorage.setItem(localStorageKey, JSON.stringify(defaultSettings));
-          console.log("✅ Using default settings for Firebase user:", defaultSettings);
-        }
-      }
+      setSettings(componentSettings);
+      console.log("✅ Settings loaded via Firebase service:", componentSettings);
     } catch (error) {
       console.error("❌ Error loading settings:", error);
+      // Set default settings on error
+      const defaultSettings = {
+        darkTheme: true,
+        notifications: true,
+        autoDownload: false,
+        highQuality: true,
+        offlineMode: false,
+        publicProfile: true,
+        showActivity: true,
+        autoPlay: true,
+        crossfade: false,
+        normalization: true,
+        language: "English",
+        region: "United States",
+      };
+      setSettings(defaultSettings);
     }
   };
 
