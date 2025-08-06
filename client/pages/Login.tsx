@@ -104,6 +104,9 @@ export default function Login() {
 
             console.log("💾 Complete profile saved to localStorage:", completeProfile);
 
+            // Fetch user activity data
+            await loadUserActivityData(user.uid, completeProfile);
+
             // Try to sync with backend API if available
             try {
               const backendSyncResponse = await fetch('/api/v1/users/sync', {
