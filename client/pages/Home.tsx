@@ -300,6 +300,8 @@ export default function Home() {
             setUserData(parsedUserData);
             setUserAvatar(
               parsedUserData.profileImageURL ||
+                parsedUserData.avatar ||
+                parsedUserData.profileImage ||
                 parsedUserData.avatar_url ||
                 null,
             );
