@@ -87,6 +87,14 @@ const Messages = () => {
 
   const reactionEmojis = ["❤️", "😂", "😮", "😢", "😡", "👍"];
 
+  // Firebase authentication check
+  useEffect(() => {
+    if (!firebaseLoading && !firebaseUser) {
+      console.log("❌ No Firebase user found in Messages, redirecting to login");
+      navigate("/login");
+    }
+  }, [firebaseUser, firebaseLoading, navigate]);
+
   // Handle back navigation based on where user came from
   const handleBackNavigation = () => {
     const fromState = location.state?.from;
