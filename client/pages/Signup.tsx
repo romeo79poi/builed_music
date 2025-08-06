@@ -636,20 +636,48 @@ export default function Signup() {
       await checkAvailability("email", formData.email);
 
       if (availability.email !== false) {
-        // For Firebase, we'll verify email during account creation
-        // Go directly to profile step for now, verification happens at password step
-        setCurrentStep("profile");
+        // Create temporary Firebase account to send verification
+        console.log("🔥 Creating temporary Firebase account for email verification...");
 
-        toast({
-          title: "Email verified ✅",
-          description: "Please continue with your profile information",
-        });
+        const tempPassword = Math.random().toString(36).slice(-8) + "A1!"; // Temporary password
+        const result = await signUpWithEmailAndPassword(
+          formData.email,
+          tempPassword,
+          "Temp User", // Temporary name
+          undefined,
+          undefined
+        );
+
+        if (result.success && result.user) {
+          setTempEmailUser(result.user);
+
+          // Send email verification immediately
+          const verificationResult = await sendFirebaseEmailVerification(result.user);
+
+          if (verificationResult.success) {
+            setEmailVerificationSent(true);
+            setResendTimer(60);
+
+            toast({
+              title: "Verification email sent! 📬",
+              description: `Please check ${formData.email} and click the verification link`,
+            });
+
+            // Go to email verification step
+            setCurrentStep("email-verify");
+          } else {
+            throw new Error(verificationResult.error || "Failed to send verification email");
+          }
+        } else {
+          throw new Error(result.error || "Failed to create account");
+        }
       }
-    } catch (error) {
-      console.error("Email validation error:", error);
+    } catch (error: any) {
+      console.error("Email step error:", error);
+      setErrorAlert(error.message || "Failed to send verification email");
       toast({
-        title: "Email validation failed",
-        description: "Please try again or use a different email",
+        title: "Verification failed",
+        description: error.message || "Please try again",
         variant: "destructive",
       });
     } finally {
