@@ -43,6 +43,7 @@ import { firebaseHelpers } from "../lib/firebase-simple";
 type SignupStep =
   | "method"
   | "email"
+  | "email-verify"
   | "phone"
   | "phone-verify"
   | "profile"
@@ -123,6 +124,8 @@ export default function Signup() {
   const [emailVerificationSent, setEmailVerificationSent] = useState(false);
   const [phoneVerificationSent, setPhoneVerificationSent] = useState(false);
   const [isSocialSignup, setIsSocialSignup] = useState(false);
+  const [tempEmailUser, setTempEmailUser] = useState<any>(null);
+  const [emailVerified, setEmailVerified] = useState(false);
 
   // Validation functions
   const validateEmail = (email: string): boolean => {
