@@ -323,6 +323,11 @@ export default function Login() {
     setIsLoading(true);
     setAuthError(null);
 
+    // Add timeout for long-running requests
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Request timed out after 30 seconds')), 30000);
+    });
+
     try {
       console.log("🔍 Checking if user exists for email:", email);
 
