@@ -906,9 +906,15 @@ export default function Signup() {
         );
 
         if (result.success) {
+          // Send Firebase email verification notification
+          if (result.user) {
+            setEmailVerificationSent(true);
+            setVerificationUser(result.user);
+          }
+
           toast({
             title: "Account created successfully! 🎉",
-            description: result.message,
+            description: "Please check your email for verification link",
           });
 
           setTimeout(() => {
