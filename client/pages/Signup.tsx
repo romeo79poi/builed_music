@@ -1602,6 +1602,135 @@ export default function Signup() {
             </motion.div>
           )}
 
+          {/* Email Verification Step */}
+          {currentStep === "email-verify" && (
+            <motion.div
+              key="email-verify"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-4 sm:space-y-6"
+            >
+              <div className="text-center mb-4 sm:mb-6">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <Mail className="w-6 h-6 sm:w-8 sm:h-8 text-blue-500" />
+                </div>
+                <h3 className="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">
+                  Verify your email
+                </h3>
+                <p className="text-slate-400 text-xs sm:text-sm px-2">
+                  Click the verification link sent to your email
+                </p>
+              </div>
+
+              <div className="text-center">
+                <p className="text-white mb-2 text-sm sm:text-base">
+                  Verification email sent to:
+                </p>
+                <p className="text-purple-primary font-medium text-sm sm:text-base mb-4 break-all">
+                  {formData.email}
+                </p>
+
+                {emailVerified ? (
+                  <div className="flex items-center justify-center space-x-2 text-green-500 text-sm mb-4">
+                    <CheckCircle className="w-4 h-4" />
+                    <span>Email verified successfully!</span>
+                  </div>
+                ) : (
+                  <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 mb-4">
+                    <div className="flex items-center space-x-2">
+                      <AlertCircle className="w-5 h-5 text-yellow-500" />
+                      <div className="text-left">
+                        <p className="text-yellow-500 text-sm font-medium">
+                          Waiting for verification
+                        </p>
+                        <p className="text-yellow-400 text-xs">
+                          Check your email and click the verification link
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {errors.email && (
+                  <div className="bg-red-500/10 border border-red-500 rounded-xl p-4 mb-4">
+                    <div className="flex items-center space-x-2">
+                      <AlertCircle className="w-5 h-5 text-red-500" />
+                      <p className="text-red-500 text-sm font-medium">
+                        {errors.email}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <button
+                onClick={handleEmailVerifyStep}
+                disabled={isLoading}
+                className="w-full h-12 sm:h-14 bg-gradient-to-r from-purple-primary to-purple-secondary hover:from-purple-secondary hover:to-purple-accent text-white font-bold text-sm sm:text-lg rounded-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none shadow-lg shadow-purple-primary/30 hover:shadow-purple-secondary/40"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mx-auto" />
+                ) : (
+                  "Check Verification Status"
+                )}
+              </button>
+
+              <div className="text-center">
+                <p className="text-slate-400 text-xs sm:text-sm mb-2">
+                  Didn't receive the email?
+                </p>
+                <button
+                  onClick={async () => {
+                    if (tempEmailUser && resendTimer === 0) {
+                      setIsLoading(true);
+                      try {
+                        const result = await sendFirebaseEmailVerification(tempEmailUser);
+                        if (result.success) {
+                          setResendTimer(60);
+                          toast({
+                            title: "Verification email resent! 📬",
+                            description: "Please check your email",
+                          });
+                        } else {
+                          throw new Error(result.error);
+                        }
+                      } catch (error: any) {
+                        toast({
+                          title: "Resend failed",
+                          description: error.message || "Please try again",
+                          variant: "destructive",
+                        });
+                      } finally {
+                        setIsLoading(false);
+                      }
+                    }
+                  }}
+                  disabled={resendTimer > 0 || isLoading}
+                  className="text-purple-primary hover:text-purple-secondary text-xs sm:text-sm disabled:opacity-50 flex items-center space-x-1 mx-auto"
+                >
+                  {isLoading ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <RefreshCw className="w-3 h-3" />
+                  )}
+                  <span>
+                    {resendTimer > 0
+                      ? `Resend in ${resendTimer}s`
+                      : "Resend verification email"}
+                  </span>
+                </button>
+              </div>
+
+              <button
+                onClick={() => setCurrentStep("email")}
+                className="w-full text-purple-primary hover:text-purple-secondary transition-colors text-sm mt-4"
+              >
+                ← Change email address
+              </button>
+            </motion.div>
+          )}
+
           {/* Phone Verification Step */}
           {currentStep === "phone-verify" && (
             <motion.div
