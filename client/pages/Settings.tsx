@@ -381,21 +381,51 @@ export default function Settings() {
           key: "help",
           label: "Help Center",
           icon: HelpCircle,
-          action: () => {},
+          action: () => {
+            window.open('https://help.musicapp.com', '_blank');
+            toast({
+              title: "Help Center",
+              description: "Opening help center in new tab",
+            });
+          },
           description: "Get help and find answers",
+        },
+        {
+          key: "contact",
+          label: "Contact Support",
+          icon: HelpCircle,
+          action: () => {
+            window.open('mailto:support@musicapp.com?subject=Support Request', '_blank');
+            toast({
+              title: "Contact Support",
+              description: "Opening email client",
+            });
+          },
+          description: "Get direct help from our team",
         },
         {
           key: "feedback",
           label: "Send Feedback",
           icon: Share,
-          action: () => {},
+          action: () => {
+            window.open('https://feedback.musicapp.com', '_blank');
+            toast({
+              title: "Send Feedback",
+              description: "Opening feedback form",
+            });
+          },
           description: "Share your thoughts about the app",
         },
         {
           key: "about",
           label: "About Catch",
           icon: SettingsIcon,
-          action: () => {},
+          action: () => {
+            toast({
+              title: "About Catch Music",
+              description: "Version 1.0.0 - Built with Firebase integration",
+            });
+          },
           description: "Version 1.0.0",
         },
       ],
