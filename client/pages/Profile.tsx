@@ -228,6 +228,12 @@ export default function Profile() {
         try {
           const userData = JSON.parse(localUserData);
           console.log("💾 Found localStorage user data:", userData);
+          console.log("🖼️ Profile image fields in localStorage:", {
+            profileImageURL: userData.profileImageURL,
+            avatar: userData.avatar,
+            profileImage: userData.profileImage,
+            photoURL: userData.photoURL
+          });
 
           if (userData.uid === firebaseUser.uid) {
             // Use complete signup data from localStorage
