@@ -337,7 +337,68 @@ export default function Profile() {
         console.warn("⚠️ Backend profile fetch failed:", backendError);
       }
 
-      // If backend fails, create profile from Firebase user data
+      // Try to fetch from Firestore as secondary fallback
+      try {
+        const firestoreResult = await fetchUserData(firebaseUser.uid);
+        if (firestoreResult.success && firestoreResult.userData) {
+          const firestoreData = firestoreResult.userData;
+          console.log("✅ Firestore data found:", firestoreData);
+
+          const firestoreProfile: UserProfile = {
+            id: firebaseUser.uid,
+            displayName: firestoreData.name || firebaseUser.displayName || "User",
+            username: firestoreData.username || firebaseUser.email?.split("@")[0] || "user",
+            email: firestoreData.email || firebaseUser.email || "",
+            bio: firestoreData.bio || "Music lover 🎵",
+            avatar: firestoreData.profileImageURL || firebaseUser.photoURL || "",
+            coverImage: "",
+            location: "",
+            website: "",
+            isVerified: firestoreData.verified || firebaseUser.emailVerified || false,
+            isArtist: false,
+            joinedDate: firestoreData.createdAt
+              ? new Date(firestoreData.createdAt.seconds * 1000)
+              : new Date(),
+            socialLinks: {
+              instagram: "",
+              twitter: "",
+              youtube: "",
+            },
+            stats: {
+              followers: 0,
+              following: 0,
+              totalPlays: 0,
+              totalTracks: 0,
+              totalPlaylists: 0,
+              monthlyListeners: 0,
+            },
+            badges: [],
+            // Additional signup data from Firestore
+            dateOfBirth: firestoreData.dob,
+            gender: firestoreData.gender,
+            phone: firestoreData.phone,
+          };
+
+          setProfile(firestoreProfile);
+          console.log("✅ Profile loaded from Firestore:", firestoreProfile);
+
+          // Update edit form
+          setEditForm({
+            displayName: firestoreProfile.displayName,
+            username: firestoreProfile.username,
+            bio: firestoreProfile.bio,
+            location: firestoreProfile.location,
+            socialLinks: firestoreProfile.socialLinks,
+          });
+
+          setLoading(false);
+          return;
+        }
+      } catch (firestoreError) {
+        console.warn("⚠️ Firestore fetch failed:", firestoreError);
+      }
+
+      // If all data sources fail, create basic profile from Firebase user data
       const firebaseProfile: UserProfile = {
         id: firebaseUser.uid,
         displayName: firebaseUser.displayName || "User",
