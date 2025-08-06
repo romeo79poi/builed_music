@@ -63,6 +63,150 @@ export default function Settings() {
   const [loading, setLoading] = useState(true);
   const [showSupportMenu, setShowSupportMenu] = useState(false);
 
+  // Support options
+  const supportOptions = [
+    {
+      key: "help-center",
+      label: "Help Center",
+      icon: FileText,
+      description: "Browse our comprehensive help documentation",
+      action: () => {
+        window.open('https://help.musicapp.com/docs', '_blank');
+        toast({
+          title: "Help Center",
+          description: "Opening help documentation",
+        });
+        setShowSupportMenu(false);
+      },
+    },
+    {
+      key: "contact-support",
+      label: "Contact Support",
+      icon: MessageCircle,
+      description: "Get help from our support team",
+      action: () => {
+        window.open('mailto:support@musicapp.com?subject=Support Request from Settings', '_blank');
+        toast({
+          title: "Contact Support",
+          description: "Opening email client",
+        });
+        setShowSupportMenu(false);
+      },
+    },
+    {
+      key: "live-chat",
+      label: "Live Chat",
+      icon: MessageCircle,
+      description: "Chat with support in real-time",
+      action: () => {
+        window.open('https://chat.musicapp.com', '_blank');
+        toast({
+          title: "Live Chat",
+          description: "Opening live chat window",
+        });
+        setShowSupportMenu(false);
+      },
+    },
+    {
+      key: "phone-support",
+      label: "Phone Support",
+      icon: Phone,
+      description: "Call us: +1 (555) 123-MUSIC",
+      action: () => {
+        window.open('tel:+15551234687', '_self');
+        toast({
+          title: "Phone Support",
+          description: "Calling support team",
+        });
+        setShowSupportMenu(false);
+      },
+    },
+    {
+      key: "bug-report",
+      label: "Report Bug",
+      icon: Bug,
+      description: "Report technical issues or bugs",
+      action: () => {
+        window.open('https://bugs.musicapp.com/report', '_blank');
+        toast({
+          title: "Bug Report",
+          description: "Opening bug report form",
+        });
+        setShowSupportMenu(false);
+      },
+    },
+    {
+      key: "feature-request",
+      label: "Feature Request",
+      icon: Star,
+      description: "Suggest new features",
+      action: () => {
+        window.open('https://feedback.musicapp.com/features', '_blank');
+        toast({
+          title: "Feature Request",
+          description: "Opening feature request form",
+        });
+        setShowSupportMenu(false);
+      },
+    },
+    {
+      key: "feedback",
+      label: "Send Feedback",
+      icon: Share,
+      description: "Share your thoughts about the app",
+      action: () => {
+        window.open('https://feedback.musicapp.com', '_blank');
+        toast({
+          title: "Send Feedback",
+          description: "Opening feedback form",
+        });
+        setShowSupportMenu(false);
+      },
+    },
+    {
+      key: "faq",
+      label: "FAQ",
+      icon: HelpCircle,
+      description: "Frequently asked questions",
+      action: () => {
+        window.open('https://help.musicapp.com/faq', '_blank');
+        toast({
+          title: "FAQ",
+          description: "Opening FAQ page",
+        });
+        setShowSupportMenu(false);
+      },
+    },
+    {
+      key: "community",
+      label: "Community Forum",
+      icon: User,
+      description: "Join the community discussion",
+      action: () => {
+        window.open('https://community.musicapp.com', '_blank');
+        toast({
+          title: "Community Forum",
+          description: "Opening community forum",
+        });
+        setShowSupportMenu(false);
+      },
+    },
+    {
+      key: "status",
+      label: "Service Status",
+      icon: Info,
+      description: "Check current service status",
+      action: () => {
+        window.open('https://status.musicapp.com', '_blank');
+        toast({
+          title: "Service Status",
+          description: "Opening status page",
+        });
+        setShowSupportMenu(false);
+      },
+    },
+  ];
+
   // Settings state
   const [settings, setSettings] = useState({
     darkTheme: true,
