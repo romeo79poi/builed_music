@@ -69,6 +69,88 @@ export default function Login() {
     }
   };
 
+  const loadUserActivityData = async (userId: string, userProfile: any) => {
+    try {
+      console.log("🎵 Loading user activity data...");
+
+      // Fetch user profile data from backend
+      try {
+        const profileResponse = await fetch(`/api/profile/${userId}`, {
+          headers: {
+            'user-id': userId,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (profileResponse.ok) {
+          const profileData = await profileResponse.json();
+          if (profileData.success) {
+            console.log("✅ User profile data loaded:", profileData.data);
+
+            // Store profile activity data
+            const activityData = {
+              profile: profileData.data,
+              likedSongs: profileData.data.likedSongs || [],
+              recentlyPlayed: profileData.data.recentlyPlayed || [],
+              playlists: profileData.data.playlists || [],
+              followers: profileData.data.followers || 0,
+              following: profileData.data.following || 0,
+              musicPreferences: profileData.data.musicPreferences || {},
+            };
+
+            localStorage.setItem('userActivity', JSON.stringify(activityData));
+            console.log("💾 User activity data saved to localStorage");
+          }
+        }
+      } catch (profileError) {
+        console.warn("⚠️ Profile fetch failed:", profileError);
+      }
+
+      // Try to fetch liked songs
+      try {
+        const likedResponse = await fetch(`/api/profile/${userId}/liked-songs`, {
+          headers: {
+            'user-id': userId,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (likedResponse.ok) {
+          const likedData = await likedResponse.json();
+          if (likedData.success) {
+            localStorage.setItem('userLikedSongs', JSON.stringify(likedData.data.songs || []));
+            console.log("✅ Liked songs loaded:", likedData.data.songs?.length || 0);
+          }
+        }
+      } catch (likedError) {
+        console.warn("⚠️ Liked songs fetch failed:", likedError);
+      }
+
+      // Try to fetch recently played
+      try {
+        const recentResponse = await fetch(`/api/profile/${userId}/recently-played`, {
+          headers: {
+            'user-id': userId,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (recentResponse.ok) {
+          const recentData = await recentResponse.json();
+          if (recentData.success) {
+            localStorage.setItem('userRecentlyPlayed', JSON.stringify(recentData.data.songs || []));
+            console.log("✅ Recently played loaded:", recentData.data.songs?.length || 0);
+          }
+        }
+      } catch (recentError) {
+        console.warn("⚠️ Recently played fetch failed:", recentError);
+      }
+
+    } catch (error) {
+      console.error("❌ Error loading user activity data:", error);
+    }
+  };
+
   const loadCompleteUserProfile = async (user: any) => {
     try {
       console.log("💾 Loading complete user profile for:", user.email);
