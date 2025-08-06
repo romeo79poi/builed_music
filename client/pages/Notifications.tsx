@@ -113,7 +113,13 @@ export default function Notifications() {
   const navigate = useNavigate();
   const { user: firebaseUser } = useFirebase();
   const { toast } = useToast();
-  
+  const {
+    notifications: socialNotifications,
+    unreadNotifications,
+    markNotificationAsRead,
+    markAllNotificationsAsRead
+  } = useSocial();
+
   const [notifications, setNotifications] = useState<Notification[]>(sampleNotifications);
   const [selectedTab, setSelectedTab] = useState("all");
   const [showSettings, setShowSettings] = useState(false);
