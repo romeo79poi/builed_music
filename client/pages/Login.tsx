@@ -31,6 +31,8 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [showResendVerification, setShowResendVerification] = useState(false);
+  const [unverifiedUser, setUnverifiedUser] = useState<any>(null);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -289,6 +291,8 @@ export default function Login() {
           });
 
           setAuthError("Please verify your email address before logging in. Check your inbox for the verification link.");
+          setShowResendVerification(true);
+          setUnverifiedUser(result.user);
           return;
         }
 
