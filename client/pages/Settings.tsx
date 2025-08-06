@@ -95,51 +95,98 @@ export default function Settings() {
       }
 
       console.log("🔥 Loading user data for Firebase user:", firebaseUser.email);
+      console.log("🔥 Firebase user UID:", firebaseUser.uid);
+      console.log("🔥 Firebase user metadata:", firebaseUser.metadata);
 
-      // Set Firebase user data first
+      // Enhanced Firebase user data
       const firebaseProfile = {
-        name: firebaseUser.displayName || "User",
+        name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || "User",
         email: firebaseUser.email || "No email",
-        profileImage: firebaseUser.photoURL || `https://via.placeholder.com/64?text=${(firebaseUser.displayName || "U").charAt(0)}`,
+        profileImage: firebaseUser.photoURL || `https://ui-avatars.io/api/?name=${encodeURIComponent(firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User')}&background=6366f1&color=fff&size=64`,
         joinDate: firebaseUser.metadata.creationTime
-          ? new Date(firebaseUser.metadata.creationTime).toLocaleDateString()
+          ? new Date(firebaseUser.metadata.creationTime).toLocaleDateString('en-US', {
+              year: 'numeric',
+              month: 'short',
+              day: 'numeric'
+            })
           : "Unknown",
         premium: false,
+        firebaseUid: firebaseUser.uid,
+        emailVerified: firebaseUser.emailVerified,
+        lastSignIn: firebaseUser.metadata.lastSignInTime
+          ? new Date(firebaseUser.metadata.lastSignInTime).toLocaleDateString()
+          : "Unknown",
       };
 
+      // Set Firebase profile immediately for better UX
       setUserProfile(firebaseProfile);
+      console.log("✅ Firebase profile data loaded:", firebaseProfile);
 
-      // Try to fetch updated profile from backend
+      // Try to sync with backend or create user profile
       try {
-        const response = await fetch(`/api/v1/users/${firebaseUser.uid}`, {
+        // First, try to get existing profile
+        const getResponse = await fetch(`/api/v1/users/${firebaseUser.uid}`, {
           headers: {
             "user-id": firebaseUser.uid,
             "Content-Type": "application/json",
           },
         });
 
-        if (response.ok) {
-          const result = await response.json();
+        if (getResponse.ok) {
+          const result = await getResponse.json();
           if (result.success && result.data) {
             const backendData = result.data;
-            setUserProfile({
+            const enhancedProfile = {
+              ...firebaseProfile,
               name: backendData.display_name || backendData.name || firebaseProfile.name,
-              email: firebaseUser.email || "No email",
               profileImage: backendData.profile_image_url || firebaseProfile.profileImage,
-              joinDate: backendData.created_at
-                ? new Date(backendData.created_at).toLocaleDateString()
-                : firebaseProfile.joinDate,
               premium: backendData.premium || false,
-            });
-            console.log("✅ Loaded user profile from backend:", backendData);
+              joinDate: backendData.created_at
+                ? new Date(backendData.created_at).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric'
+                  })
+                : firebaseProfile.joinDate,
+            };
+            setUserProfile(enhancedProfile);
+            console.log("✅ Enhanced profile from backend:", enhancedProfile);
+            return;
           }
         }
+
+        // If backend fetch fails or user doesn't exist, try to create/sync user
+        console.log("🔥 Creating/syncing user profile with backend...");
+        const syncResponse = await fetch('/api/v1/users/sync', {
+          method: 'POST',
+          headers: {
+            "user-id": firebaseUser.uid,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            firebase_uid: firebaseUser.uid,
+            email: firebaseUser.email,
+            display_name: firebaseUser.displayName,
+            profile_image_url: firebaseUser.photoURL,
+            email_verified: firebaseUser.emailVerified,
+          }),
+        });
+
+        if (syncResponse.ok) {
+          const syncResult = await syncResponse.json();
+          console.log("✅ User synced with backend:", syncResult);
+        }
       } catch (error) {
-        console.error("⚠️ Backend profile fetch failed:", error);
-        // Keep Firebase profile data
+        console.error("⚠️ Backend sync failed (using Firebase data only):", error);
+        // Continue with Firebase-only data
       }
     } catch (error) {
       console.error("❌ Error loading user data:", error);
+      toast({
+        title: "Error Loading Profile",
+        description: "Failed to load user profile. Please try refreshing.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -151,27 +198,70 @@ export default function Settings() {
 
       console.log("🔥 Loading settings for Firebase user:", firebaseUser.uid);
 
-      const userSettings = await settingsApi.getUserSettings();
-      if (userSettings) {
-        setSettings({
-          darkTheme: userSettings.theme === "dark",
-          notifications: userSettings.notifications?.email || true,
-          autoDownload: userSettings.playback?.autoDownload || true,
-          highQuality: userSettings.playback?.highQuality || true,
-          offlineMode: userSettings.playback?.offlineMode || true,
-          publicProfile: userSettings.privacy?.publicProfile !== false,
-          showActivity: userSettings.privacy?.showActivity !== false,
-          autoPlay: userSettings.playback?.autoPlay !== false,
-          crossfade: userSettings.playback?.crossfade || true,
-          normalization: userSettings.playback?.normalization || true,
-          language: userSettings.language || "English",
-          region: userSettings.region || "United States",
-        });
-        console.log("✅ Loaded user settings from backend:", userSettings);
+      // Try to load from localStorage first (Firebase user-specific)
+      const localStorageKey = `firebase_settings_${firebaseUser.uid}`;
+      const cachedSettings = localStorage.getItem(localStorageKey);
+
+      if (cachedSettings) {
+        try {
+          const parsed = JSON.parse(cachedSettings);
+          setSettings(parsed);
+          console.log("✅ Loaded cached settings for Firebase user:", parsed);
+        } catch (error) {
+          console.error("Failed to parse cached settings:", error);
+        }
+      }
+
+      // Try to load from backend API
+      try {
+        const userSettings = await settingsApi.getUserSettings();
+        if (userSettings) {
+          const backendSettings = {
+            darkTheme: userSettings.theme === "dark",
+            notifications: userSettings.notifications?.email !== false,
+            autoDownload: userSettings.playback?.autoDownload !== false,
+            highQuality: userSettings.playback?.highQuality !== false,
+            offlineMode: userSettings.playback?.offlineMode !== false,
+            publicProfile: userSettings.privacy?.publicProfile !== false,
+            showActivity: userSettings.privacy?.showActivity !== false,
+            autoPlay: userSettings.playback?.autoPlay !== false,
+            crossfade: userSettings.playback?.crossfade !== false,
+            normalization: userSettings.playback?.normalization !== false,
+            language: userSettings.language || "English",
+            region: userSettings.region || "United States",
+          };
+
+          setSettings(backendSettings);
+          // Cache to localStorage
+          localStorage.setItem(localStorageKey, JSON.stringify(backendSettings));
+          console.log("✅ Loaded and cached user settings from backend:", backendSettings);
+        }
+      } catch (error) {
+        console.error("⚠️ Backend settings fetch failed:", error);
+        // If backend fails but we have cached settings, that's fine
+        if (!cachedSettings) {
+          // Only set defaults if we have no cached data
+          const defaultSettings = {
+            darkTheme: true,
+            notifications: true,
+            autoDownload: false,
+            highQuality: true,
+            offlineMode: false,
+            publicProfile: true,
+            showActivity: true,
+            autoPlay: true,
+            crossfade: false,
+            normalization: true,
+            language: "English",
+            region: "United States",
+          };
+          setSettings(defaultSettings);
+          localStorage.setItem(localStorageKey, JSON.stringify(defaultSettings));
+          console.log("✅ Using default settings for Firebase user:", defaultSettings);
+        }
       }
     } catch (error) {
-      console.error("⚠️ Error loading settings from backend:", error);
-      // Keep default settings on error
+      console.error("❌ Error loading settings:", error);
     }
   };
 
