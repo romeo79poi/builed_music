@@ -453,7 +453,7 @@ export default function Signup() {
             }
 
             toast({
-              title: "Account created successfully! ��",
+              title: "Account created successfully! 🎉",
               description: "Welcome to Music Catch!",
             });
 
@@ -1676,7 +1676,7 @@ export default function Signup() {
                   Verify your email
                 </h3>
                 <p className="text-slate-400 text-xs sm:text-sm px-2">
-                  Click the verification link sent to your email
+                  Check your email and click the verification link to continue
                 </p>
               </div>
 
@@ -1699,10 +1699,12 @@ export default function Signup() {
                       <AlertCircle className="w-5 h-5 text-yellow-500" />
                       <div className="text-left">
                         <p className="text-yellow-500 text-sm font-medium">
-                          Waiting for verification
+                          📬 Check your email inbox
                         </p>
                         <p className="text-yellow-400 text-xs">
-                          Check your email and click the verification link
+                          1. Open the email from Music Catch<br/>
+                          2. Click the "Verify Email" button<br/>
+                          3. Return here and click "Check Verification Status"
                         </p>
                       </div>
                     </div>
@@ -2446,7 +2448,7 @@ export default function Signup() {
                 onClick={goBack}
                 className="w-full text-purple-primary hover:text-purple-secondary transition-colors text-sm mt-4"
               >
-                ��� Back
+                ← Back
               </button>
             </motion.div>
           )}
