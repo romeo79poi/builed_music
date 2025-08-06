@@ -38,6 +38,7 @@ import { settingsApi } from "../lib/api";
 import { useFirebase } from "../context/FirebaseContext";
 import { signOut } from "firebase/auth";
 import { auth } from "../lib/firebase";
+import firebaseSettingsService from "../lib/firebase-settings";
 
 export default function Settings() {
   const navigate = useNavigate();
