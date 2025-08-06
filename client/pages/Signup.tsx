@@ -516,14 +516,24 @@ export default function Signup() {
       if (result.success && result.user) {
         console.log("✅ Firebase Google sign-in successful:", result.user);
 
+        // Store the user data from Google
+        setFormData((prev) => ({
+          ...prev,
+          email: result.user.email || "",
+          name: result.user.displayName || "",
+          profileImageURL: result.user.photoURL || "",
+        }));
+
+        // Store the authenticated user
+        setVerificationUser(result.user);
+
         toast({
           title: "Welcome to CATCH! 🎉",
-          description: `Signed in as ${result.user.displayName || result.user.email}`,
+          description: `Please complete your profile setup`,
         });
 
-        setTimeout(() => {
-          navigate("/home");
-        }, 1500);
+        // Redirect to DOB step to collect additional information
+        setCurrentStep("dob");
       } else {
         setErrorAlert(result.error || "Google sign-in failed");
         toast({
@@ -558,14 +568,24 @@ export default function Signup() {
       if (result.success && result.user) {
         console.log("✅ Firebase Facebook sign-in successful:", result.user);
 
+        // Store the user data from Facebook
+        setFormData((prev) => ({
+          ...prev,
+          email: result.user.email || "",
+          name: result.user.displayName || "",
+          profileImageURL: result.user.photoURL || "",
+        }));
+
+        // Store the authenticated user
+        setVerificationUser(result.user);
+
         toast({
           title: "Welcome to CATCH! 🎉",
-          description: `Signed in as ${result.user.displayName || result.user.email}`,
+          description: `Please complete your profile setup`,
         });
 
-        setTimeout(() => {
-          navigate("/home");
-        }, 1500);
+        // Redirect to DOB step to collect additional information
+        setCurrentStep("dob");
       } else {
         setErrorAlert(result.error || "Facebook sign-in failed");
         toast({
