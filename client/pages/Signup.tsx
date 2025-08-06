@@ -720,6 +720,63 @@ export default function Signup() {
     setCurrentStep("profile");
   };
 
+  const handleEmailVerifyStep = async () => {
+    if (!tempEmailUser) {
+      setErrorAlert("No user account found. Please start over.");
+      setCurrentStep("email");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Reload the user to get the latest emailVerified status
+      await tempEmailUser.reload();
+
+      if (tempEmailUser.emailVerified) {
+        setEmailVerified(true);
+        setVerificationUser(tempEmailUser);
+
+        toast({
+          title: "Email verified successfully! ✅",
+          description: "Now please complete your profile",
+        });
+
+        // Store verified email user data
+        setFormData(prev => ({
+          ...prev,
+          email: tempEmailUser.email || prev.email
+        }));
+
+        // Proceed to profile step
+        setCurrentStep("profile");
+      } else {
+        // Show verification error
+        setErrors(prev => ({
+          ...prev,
+          email: "Email not verified. Please check your email and click the verification link."
+        }));
+
+        toast({
+          title: "Email not verified ❌",
+          description: "Please check your email and click the verification link before continuing",
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      console.error("Email verification check error:", error);
+      setErrorAlert("Failed to check verification status. Please try again.");
+
+      toast({
+        title: "Verification check failed",
+        description: "Please try again or contact support",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handlePhoneVerifyStep = async () => {
     await verifyOTP();
   };
@@ -916,7 +973,7 @@ export default function Signup() {
         localStorage.setItem("currentUser", JSON.stringify(completeUserData));
         localStorage.setItem("userAvatar", formData.profileImageURL || "");
 
-        console.log("💾 Saved social signup profile data:", completeUserData);
+        console.log("�� Saved social signup profile data:", completeUserData);
 
         toast({
           title: "Profile completed successfully! 🎉",
