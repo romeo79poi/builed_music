@@ -71,6 +71,10 @@ type UserProfile = BackendUserProfile & {
     monthlyListeners: number;
   };
   badges: string[];
+  // Additional signup data fields
+  dateOfBirth?: string;
+  gender?: string;
+  phone?: string;
 };
 
 interface Track {
