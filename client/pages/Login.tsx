@@ -278,6 +278,20 @@ export default function Login() {
       const result = await loginWithEmailAndPassword(email, password);
 
       if (result.success && result.user) {
+        // Check email verification status for signup users
+        if (!result.user.emailVerified) {
+          console.log("⚠️ User email not verified");
+
+          toast({
+            title: "Email verification required 📬",
+            description: "Please check your email and verify your account before logging in",
+            variant: "destructive",
+          });
+
+          setAuthError("Please verify your email address before logging in. Check your inbox for the verification link.");
+          return;
+        }
+
         // Fetch complete user profile data
         await loadCompleteUserProfile(result.user);
 
