@@ -774,6 +774,14 @@ export default function Profile() {
                   onClick={() =>
                     document.getElementById("avatar-upload")?.click()
                   }
+                  onError={(e) => {
+                    console.warn("❌ Profile image failed to load:", profile.avatar);
+                    const target = e.target as HTMLImageElement;
+                    target.src = `https://via.placeholder.com/64?text=${profile.displayName.charAt(0)}`;
+                  }}
+                  onLoad={() => {
+                    console.log("✅ Profile image loaded successfully:", profile.avatar);
+                  }}
                 />
                 {profile.isVerified && (
                   <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center border-2 border-background">
