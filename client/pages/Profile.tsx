@@ -324,60 +324,8 @@ export default function Profile() {
         }
       }
 
-      // Try to fetch from backend as fallback
-      try {
-        const backendResponse = await fetch(`/api/v1/users/${firebaseUser.uid}`, {
-          headers: {
-            "user-id": firebaseUser.uid,
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (backendResponse.ok) {
-          const result = await backendResponse.json();
-          if (result.success && result.data) {
-            const backendData = result.data;
-            
-            // Transform backend data to profile interface
-            const transformedProfile: UserProfile = {
-              id: firebaseUser.uid,
-              displayName: backendData.display_name || backendData.name || firebaseUser.displayName || "User",
-              username: backendData.username || firebaseUser.email?.split("@")[0] || "user",
-              email: firebaseUser.email || "",
-              bio: backendData.bio || "",
-              avatar: backendData.profile_image_url || backendData.profileImageURL || backendData.avatar || firebaseUser.photoURL || "",
-              coverImage: backendData.cover_image_url || "",
-              location: backendData.location || "",
-              website: backendData.website || "",
-              isVerified: backendData.is_verified || false,
-              isArtist: backendData.is_artist || false,
-              joinedDate: backendData.created_at
-                ? new Date(backendData.created_at)
-                : new Date(),
-              socialLinks: {
-                instagram: backendData.social_links?.instagram || "",
-                twitter: backendData.social_links?.twitter || "",
-                youtube: backendData.social_links?.youtube || "",
-              },
-              stats: {
-                followers: backendData.follower_count || 0,
-                following: backendData.following_count || 0,
-                totalPlays: backendData.total_plays || 0,
-                totalTracks: backendData.total_tracks || 0,
-                totalPlaylists: backendData.total_playlists || 0,
-                monthlyListeners: backendData.monthly_listeners || 0,
-              },
-              badges: backendData.badges || [],
-            };
-
-            setProfile(transformedProfile);
-            console.log("✅ Profile loaded from backend:", transformedProfile);
-            return;
-          }
-        }
-      } catch (backendError) {
-        console.warn("⚠️ Backend profile fetch failed:", backendError);
-      }
+      // Skip backend API calls - using Firebase/Firestore only
+      console.log("⚠️ Skipping backend API - using Firebase/Firestore data only");
 
       // Try to fetch from Firestore as secondary fallback
       try {
