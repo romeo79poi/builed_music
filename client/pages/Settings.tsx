@@ -508,17 +508,9 @@ export default function Settings() {
                     {userProfile.name}
                   </h2>
                   <p className="text-gray-400">{userProfile.email}</p>
-                  <div className="flex items-center space-x-4">
-                    <p className="text-sm text-purple-primary">
-                      Member since {userProfile.joinDate}
-                    </p>
-                    <div className="flex items-center space-x-1 px-2 py-1 bg-orange-500/10 rounded-full">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                      <span className="text-xs text-orange-500 font-medium">
-                        Firebase
-                      </span>
-                    </div>
-                  </div>
+                  <p className="text-sm text-purple-primary">
+                    Member since {userProfile.joinDate}
+                  </p>
                 </div>
               </div>
             </div>
