@@ -48,8 +48,9 @@ const App = () => {
         <TooltipProvider>
           <FirebaseProvider>
             <AuthProvider>
-              <MusicProvider>
-              <ProfileProvider>
+              <SocialProvider>
+                <MusicProvider>
+                <ProfileProvider>
                 <Toaster />
                 <Sonner />
                 <BrowserRouter>
@@ -73,6 +74,7 @@ const App = () => {
                     <Route path="/rewards" element={<Rewards />} />
                     <Route path="/reels" element={<Reels />} />
                     <Route path="/messages" element={<Messages />} />
+                    <Route path="/discover" element={<Discover />} />
                     <Route path="/verify-email" element={<VerifyEmail />} />
                     <Route path="/reset-password" element={<ResetPassword />} />
                     <Route path="/code-generator" element={<CodeGenerator />} />
@@ -81,8 +83,9 @@ const App = () => {
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </BrowserRouter>
-              </ProfileProvider>
-              </MusicProvider>
+                </ProfileProvider>
+                </MusicProvider>
+              </SocialProvider>
             </AuthProvider>
           </FirebaseProvider>
         </TooltipProvider>
