@@ -571,42 +571,11 @@ export default function Settings() {
             <ArrowLeft className="w-5 h-5 text-white" />
           </motion.button>
 
-          <div className="flex items-center space-x-2">
-            <h1 className="text-xl font-bold text-white dark:text-white light:text-gray-900">
-              Settings
-            </h1>
-            {firebaseUser && (
-              <div className="flex items-center space-x-1 px-2 py-1 bg-green-500/10 rounded-full">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-xs text-green-500 font-medium">
-                  Firebase
-                </span>
-              </div>
-            )}
-          </div>
+          <h1 className="text-xl font-bold text-white dark:text-white light:text-gray-900">
+            Settings
+          </h1>
 
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => {
-              setLoading(true);
-              loadUserData();
-              loadUserSettings();
-              toast({
-                title: "Refreshing",
-                description: "Updating profile and settings...",
-              });
-            }}
-            className="w-10 h-10 rounded-full bg-purple-dark/50 backdrop-blur-sm flex items-center justify-center border border-purple-primary/30 hover:bg-purple-primary/20"
-            disabled={loading}
-          >
-            <motion.div
-              animate={loading ? { rotate: 360 } : {}}
-              transition={loading ? { duration: 1, repeat: Infinity, ease: "linear" } : {}}
-            >
-              <Download className="w-5 h-5 text-white" />
-            </motion.div>
-          </motion.button>
+          <div className="w-10 h-10"></div>
         </motion.header>
 
         {/* Main Content */}
@@ -638,36 +607,13 @@ export default function Settings() {
                 </div>
 
                 <div className="flex-1">
-                  <div className="flex items-center space-x-2">
-                    <h2 className="text-xl font-bold text-white">
-                      {loading ? "Loading..." : userProfile.name}
-                    </h2>
-                    {firebaseUser && (
-                      <div className="flex items-center space-x-1 px-2 py-1 bg-green-500/10 rounded-full">
-                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                        <span className="text-xs text-green-500 font-medium">
-                          Connected
-                        </span>
-                      </div>
-                    )}
-                  </div>
+                  <h2 className="text-xl font-bold text-white">
+                    {loading ? "Loading..." : userProfile.name}
+                  </h2>
                   <p className="text-gray-400">{userProfile.email}</p>
-                  <div className="flex items-center space-x-3 text-sm">
-                    <p className="text-purple-primary">
-                      Member since {userProfile.joinDate}
-                    </p>
-                    {firebaseUser?.emailVerified && (
-                      <div className="flex items-center space-x-1 text-green-400">
-                        <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-                        <span className="text-xs">Verified</span>
-                      </div>
-                    )}
-                  </div>
-                  {firebaseUser && (
-                    <p className="text-xs text-gray-500 mt-1">
-                      ID: {firebaseUser.uid.substring(0, 8)}...
-                    </p>
-                  )}
+                  <p className="text-sm text-purple-primary">
+                    Member since {userProfile.joinDate}
+                  </p>
                 </div>
               </div>
             </div>
