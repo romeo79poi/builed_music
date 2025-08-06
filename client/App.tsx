@@ -32,6 +32,7 @@ import Upload from "./pages/Upload";
 import Rewards from "./pages/Rewards";
 import Reels from "./pages/Reels";
 import Messages from "./pages/Messages";
+import Discover from "./pages/Discover";
 import VerifyEmail from "./pages/VerifyEmail";
 import ResetPassword from "./pages/ResetPassword";
 import CodeGenerator from "./pages/CodeGenerator";
