@@ -61,6 +61,7 @@ export default function Settings() {
     premium: false,
   });
   const [loading, setLoading] = useState(true);
+  const [showSupportMenu, setShowSupportMenu] = useState(false);
 
   // Settings state
   const [settings, setSettings] = useState({
