@@ -548,7 +548,7 @@ export default function Profile() {
 
       if (result.success) {
         // Update local state with saved data
-        setProfile({
+        const updatedProfile = {
           ...profile,
           displayName: editForm.displayName,
           username: editForm.username,
@@ -559,7 +559,27 @@ export default function Profile() {
             twitter: editForm.socialLinks.twitter || "",
             youtube: editForm.socialLinks.youtube || "",
           },
-        });
+        };
+
+        setProfile(updatedProfile);
+
+        // Update localStorage with new profile data
+        const localUserData = localStorage.getItem('currentUser');
+        if (localUserData) {
+          try {
+            const userData = JSON.parse(localUserData);
+            const updatedUserData = {
+              ...userData,
+              name: editForm.displayName,
+              username: editForm.username,
+              bio: editForm.bio,
+            };
+            localStorage.setItem('currentUser', JSON.stringify(updatedUserData));
+            console.log('💾 Updated localStorage with new profile data');
+          } catch (error) {
+            console.warn('⚠️ Failed to update localStorage:', error);
+          }
+        }
 
         setIsEditing(false);
         toast({
