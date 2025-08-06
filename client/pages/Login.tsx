@@ -13,7 +13,7 @@ import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useFirebase } from "../context/FirebaseContext";
 import { useToast } from "../hooks/use-toast";
 import { firebaseHelpers } from "../lib/firebase-simple";
-import { loginWithEmailAndPassword, saveUserData, fetchUserData } from "../lib/auth";
+import { loginWithEmailAndPassword, saveUserData, fetchUserData, sendFirebaseEmailVerification } from "../lib/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { db } from "../lib/firebase";
 
@@ -68,6 +68,40 @@ export default function Login() {
     } catch (error) {
       console.error("❌ Error checking user existence:", error);
       return { exists: true, source: 'error', data: null }; // Allow login attempt
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!unverifiedUser) return;
+
+    setIsLoading(true);
+
+    try {
+      const result = await sendFirebaseEmailVerification(unverifiedUser);
+
+      if (result.success) {
+        toast({
+          title: "Verification email sent! 📬",
+          description: "Please check your email and click the verification link",
+        });
+
+        setShowResendVerification(false);
+      } else {
+        toast({
+          title: "Failed to send verification email",
+          description: result.error || "Please try again",
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      console.error("Resend verification error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to send verification email",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
