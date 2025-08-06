@@ -413,52 +413,56 @@ export default function Settings() {
 
     try {
       if (firebaseUser) {
-        // Save to localStorage immediately (Firebase user-specific)
-        const localStorageKey = `firebase_settings_${firebaseUser.uid}`;
-        const updatedSettings = { ...settings, [key]: newValue };
-        localStorage.setItem(localStorageKey, JSON.stringify(updatedSettings));
-        console.log("🔥 Cached setting for Firebase user:", key, newValue);
+        console.log("🔥 Updating setting for Firebase user:", key, newValue);
 
-        // Try to update backend
-        try {
-          let updateData: any = {};
+        // Map component state key to Firebase settings structure
+        let settingPath = key;
+        if (["autoDownload", "highQuality", "offlineMode", "autoPlay", "crossfade", "normalization"].includes(key)) {
+          settingPath = `playback.${key}`;
+        } else if (["publicProfile", "showActivity"].includes(key)) {
+          settingPath = `privacy.${key}`;
+        } else if (key === "notifications") {
+          settingPath = "notifications.email";
+        } else if (key === "darkTheme") {
+          // Special handling for theme
+          const success = await firebaseSettingsService.updateSetting(
+            firebaseUser.uid,
+            "theme",
+            newValue ? "dark" : "light"
+          );
 
-          // Map settings to backend format
-          if (key === "notifications") {
-            updateData = { notifications: { email: newValue } };
-          } else if (
-            [
-              "autoDownload",
-              "highQuality",
-              "offlineMode",
-              "autoPlay",
-              "crossfade",
-              "normalization",
-            ].includes(key)
-          ) {
-            updateData = { playback: { [key]: newValue } };
-          } else if (["publicProfile", "showActivity"].includes(key)) {
-            updateData = { privacy: { [key]: newValue } };
-          } else if (key === "darkTheme") {
-            updateData = { theme: newValue ? "dark" : "light" };
+          if (success) {
+            toast({
+              title: "Theme Updated",
+              description: `Switched to ${newValue ? "dark" : "light"} theme`,
+            });
           } else {
-            updateData = { [key]: newValue };
+            throw new Error("Failed to update theme");
           }
+          return;
+        }
 
-          await settingsApi.updateUserSettings(updateData);
-          console.log("✅ Updated setting on backend:", key, newValue);
-        } catch (backendError) {
-          console.warn("⚠️ Backend update failed, but setting cached locally:", backendError);
-          // Don't revert since we have local cache
+        // Update the setting using Firebase service
+        const success = await firebaseSettingsService.updateSetting(
+          firebaseUser.uid,
+          settingPath,
+          newValue
+        );
+
+        if (success) {
+          const friendlyName = key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+          toast({
+            title: "Setting Updated",
+            description: `${friendlyName} has been ${newValue ? "enabled" : "disabled"}`,
+          });
+          console.log("✅ Setting updated successfully:", key, newValue);
+        } else {
+          throw new Error("Firebase settings service failed");
         }
       }
-
-      toast({
-        title: "Setting Updated",
-        description: `${key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())} has been ${newValue ? "enabled" : "disabled"}`,
-      });
     } catch (error) {
       console.error("❌ Error updating setting:", error);
+
       // Revert local state on error
       setSettings((prev) => ({
         ...prev,
