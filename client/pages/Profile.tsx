@@ -750,39 +750,14 @@ export default function Profile() {
 
           <h1 className="text-base font-bold text-foreground">Profile</h1>
 
-          <div className="flex items-center space-x-1">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => {
-                setLoading(true);
-                fetchProfile();
-                toast({
-                  title: "Profile refreshed",
-                  description: "Loading latest profile data",
-                });
-              }}
-              disabled={loading}
-              className="w-8 h-8 rounded-full bg-muted hover:bg-muted/80 flex items-center justify-center transition-colors disabled:opacity-50"
-            >
-              {loading ? (
-                <Loader2 className="w-4 h-4 text-foreground animate-spin" />
-              ) : (
-                <svg className="w-4 h-4 text-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                </svg>
-              )}
-            </motion.button>
-
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => navigate("/settings")}
-              className="w-10 h-10 rounded-full bg-muted hover:bg-muted/80 flex items-center justify-center transition-colors"
-            >
-              <Settings className="w-5 h-5 text-foreground" />
-            </motion.button>
-          </div>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => navigate("/settings")}
+            className="w-10 h-10 rounded-full bg-muted hover:bg-muted/80 flex items-center justify-center transition-colors"
+          >
+            <Settings className="w-5 h-5 text-foreground" />
+          </motion.button>
         </motion.header>
 
         {/* Main Content */}
