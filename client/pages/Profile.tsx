@@ -218,7 +218,7 @@ export default function Profile() {
           userData.profileImageURL = userAvatar;
           userData.avatar = userAvatar;
           localStorage.setItem('currentUser', JSON.stringify(userData));
-          console.log("���� Repaired localStorage: synced userAvatar to userData");
+          console.log("🔧 Repaired localStorage: synced userAvatar to userData");
         }
 
         // If userData has profileImageURL but userAvatar is missing, sync them
@@ -237,6 +237,9 @@ export default function Profile() {
   const fetchProfile = async () => {
     try {
       setLoading(true);
+
+      // First, try to repair localStorage data if needed
+      repairLocalStorageData();
 
       if (!firebaseUser) {
         console.log("❌ No Firebase user found");
