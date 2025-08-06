@@ -297,14 +297,25 @@ export default function Home() {
           try {
             const parsedUserData = JSON.parse(savedUserData);
             console.log("✅ Loaded user data from backend:", parsedUserData);
+
+            // Debug profile image fields
+            console.log("🖼️ Home profile image fields:", {
+              profileImageURL: parsedUserData.profileImageURL,
+              avatar: parsedUserData.avatar,
+              profileImage: parsedUserData.profileImage,
+              avatar_url: parsedUserData.avatar_url
+            });
+
             setUserData(parsedUserData);
-            setUserAvatar(
-              parsedUserData.profileImageURL ||
-                parsedUserData.avatar ||
-                parsedUserData.profileImage ||
-                parsedUserData.avatar_url ||
-                null,
-            );
+
+            const avatarURL = parsedUserData.profileImageURL ||
+              parsedUserData.avatar ||
+              parsedUserData.profileImage ||
+              parsedUserData.avatar_url ||
+              null;
+
+            console.log("🖼️ Selected avatar URL for Home:", avatarURL);
+            setUserAvatar(avatarURL);
           } catch (error) {
             console.error("Error parsing user data:", error);
             // Clear invalid data
