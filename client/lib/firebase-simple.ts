@@ -1,11 +1,10 @@
 /**
- * Lightweight Firebase Integration for CATCH Music App
- *
- * This provides a simple Firebase setup that can be easily integrated
- * with your existing authentication system without breaking the app.
+ * Firebase Integration for CATCH Music App
+ * 
+ * Properly configured Firebase with Google Authentication
  */
 
-// Your Firebase configuration
+// Firebase configuration
 export const firebaseConfig = {
   apiKey: "AIzaSyAqlECno9m_k7b_vFf1qW6LBnP-1BGhnPA",
   authDomain: "music-catch-59b79.firebaseapp.com",
@@ -16,7 +15,7 @@ export const firebaseConfig = {
   measurementId: "G-PBGMC7JZR3",
 };
 
-// Simple Firebase setup using dynamic imports to avoid bundle issues
+// Initialize Firebase
 export const initializeFirebase = async () => {
   try {
     // Dynamic import to avoid loading Firebase unless explicitly called
@@ -26,6 +25,8 @@ export const initializeFirebase = async () => {
       GoogleAuthProvider,
       FacebookAuthProvider,
       signInWithPopup,
+      signInWithRedirect,
+      getRedirectResult,
     } = await import("firebase/auth");
     const { getFirestore } = await import("firebase/firestore");
     const { getStorage } = await import("firebase/storage");
@@ -36,7 +37,7 @@ export const initializeFirebase = async () => {
     const db = getFirestore(app);
     const storage = getStorage(app);
 
-    console.log("🔥 Firebase initialized for CATCH Music");
+    console.log("🔥 Firebase initialized successfully");
 
     return {
       app,
@@ -44,14 +45,16 @@ export const initializeFirebase = async () => {
       db,
       storage,
 
-      // Simple authentication methods
+      // Google authentication
       async signInWithGoogle() {
         const provider = new GoogleAuthProvider();
         provider.addScope("profile");
         provider.addScope("email");
 
         try {
+          console.log("🔑 Starting Google sign-in...");
           const result = await signInWithPopup(auth, provider);
+          
           console.log("✅ Google sign-in successful:", result.user.email);
 
           return {
@@ -66,20 +69,39 @@ export const initializeFirebase = async () => {
           };
         } catch (error: any) {
           console.error("❌ Google sign-in failed:", error);
+          
+          // Handle specific errors
+          if (error.code === "auth/popup-closed-by-user") {
+            return {
+              success: false,
+              error: "Sign-in was cancelled. Please try again.",
+            };
+          }
+          
+          if (error.code === "auth/popup-blocked") {
+            return {
+              success: false,
+              error: "Popup blocked by browser. Please allow popups and try again.",
+            };
+          }
+
           return {
             success: false,
-            error: error.message,
+            error: error.message || "Google sign-in failed",
           };
         }
       },
 
+      // Facebook authentication
       async signInWithFacebook() {
         const provider = new FacebookAuthProvider();
         provider.addScope("public_profile");
         provider.addScope("email");
 
         try {
+          console.log("🔑 Starting Facebook sign-in...");
           const result = await signInWithPopup(auth, provider);
+          
           console.log("✅ Facebook sign-in successful:", result.user.email);
 
           return {
@@ -94,16 +116,32 @@ export const initializeFirebase = async () => {
           };
         } catch (error: any) {
           console.error("❌ Facebook sign-in failed:", error);
+          
+          // Handle specific errors
+          if (error.code === "auth/popup-closed-by-user") {
+            return {
+              success: false,
+              error: "Sign-in was cancelled. Please try again.",
+            };
+          }
+          
+          if (error.code === "auth/popup-blocked") {
+            return {
+              success: false,
+              error: "Popup blocked by browser. Please allow popups and try again.",
+            };
+          }
+
           return {
             success: false,
-            error: error.message,
+            error: error.message || "Facebook sign-in failed",
           };
         }
       },
     };
   } catch (error) {
-    console.warn("⚠️ Firebase not available:", error);
-    return null;
+    console.error("❌ Firebase initialization failed:", error);
+    throw new Error("Firebase configuration error");
   }
 };
 
@@ -127,30 +165,51 @@ export const isFirebaseConfigured = () => {
   );
 };
 
-// Simple helper functions that can be used in your existing components
+// Firebase helper functions
 export const firebaseHelpers = {
   // Test Firebase connection
   async testConnection() {
-    const firebase = await getFirebase();
-    return firebase !== null;
+    try {
+      const firebase = await getFirebase();
+      return firebase !== null;
+    } catch (error) {
+      console.error("❌ Firebase connection test failed:", error);
+      return false;
+    }
   },
 
   // Google sign-in helper
   async googleSignIn() {
-    const firebase = await getFirebase();
-    if (!firebase) {
-      return { success: false, error: "Firebase not available" };
+    try {
+      const firebase = await getFirebase();
+      if (!firebase) {
+        throw new Error("Firebase not available");
+      }
+      return await firebase.signInWithGoogle();
+    } catch (error: any) {
+      console.error("❌ Google sign-in helper failed:", error);
+      return { 
+        success: false, 
+        error: error.message || "Google sign-in failed" 
+      };
     }
-    return firebase.signInWithGoogle();
   },
 
   // Facebook sign-in helper
   async facebookSignIn() {
-    const firebase = await getFirebase();
-    if (!firebase) {
-      return { success: false, error: "Firebase not available" };
+    try {
+      const firebase = await getFirebase();
+      if (!firebase) {
+        throw new Error("Firebase not available");
+      }
+      return await firebase.signInWithFacebook();
+    } catch (error: any) {
+      console.error("❌ Facebook sign-in helper failed:", error);
+      return { 
+        success: false, 
+        error: error.message || "Facebook sign-in failed" 
+      };
     }
-    return firebase.signInWithFacebook();
   },
 };
 

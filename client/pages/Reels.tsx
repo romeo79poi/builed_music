@@ -28,6 +28,7 @@ import {
   Search,
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
+import { useFirebase } from "../context/FirebaseContext";
 import MobileFooter from "../components/MobileFooter";
 
 interface Reel {
@@ -80,15 +81,18 @@ const sampleReels: Reel[] = [
   {
     id: "1",
     videoUrl: "https://example.com/video1.mp4",
-    thumbnailUrl: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=600&fit=crop",
+    thumbnailUrl:
+      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=600&fit=crop",
     title: "Epic Guitar Solo 🎸",
-    description: "When the beat drops and you feel the music in your soul! 🔥 #guitar #music #vibes",
+    description:
+      "When the beat drops and you feel the music in your soul! 🔥 #guitar #music #vibes",
     hashtags: ["guitar", "music", "vibes", "epic", "solo"],
     author: {
       id: "user1",
       name: "Alex Johnson",
       username: "@alexguitar",
-      avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop",
+      avatar:
+        "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop",
       isVerified: true,
       isFollowing: false,
     },
@@ -96,7 +100,8 @@ const sampleReels: Reel[] = [
       id: "audio1",
       title: "Epic Guitar Solo",
       artist: "Alex Johnson",
-      coverUrl: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=60&h=60&fit=crop",
+      coverUrl:
+        "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=60&h=60&fit=crop",
       duration: 30,
     },
     stats: {
@@ -113,15 +118,18 @@ const sampleReels: Reel[] = [
   {
     id: "2",
     videoUrl: "https://example.com/video2.mp4",
-    thumbnailUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=600&fit=crop",
+    thumbnailUrl:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=600&fit=crop",
     title: "Piano Freestyle 🎹",
-    description: "Late night studio sessions hit different ✨ What's your favorite time to create music?",
+    description:
+      "Late night studio sessions hit different ✨ What's your favorite time to create music?",
     hashtags: ["piano", "freestyle", "latenight", "studio", "creativity"],
     author: {
       id: "user2",
       name: "Luna Wave",
       username: "@lunawave",
-      avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=60&h=60&fit=crop",
+      avatar:
+        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=60&h=60&fit=crop",
       isVerified: true,
       isFollowing: true,
     },
@@ -129,7 +137,8 @@ const sampleReels: Reel[] = [
       id: "audio2",
       title: "Midnight Keys",
       artist: "Luna Wave",
-      coverUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=60&h=60&fit=crop",
+      coverUrl:
+        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=60&h=60&fit=crop",
       duration: 25,
     },
     stats: {
@@ -146,7 +155,8 @@ const sampleReels: Reel[] = [
   {
     id: "3",
     videoUrl: "https://example.com/video3.mp4",
-    thumbnailUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=600&fit=crop",
+    thumbnailUrl:
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=600&fit=crop",
     title: "Beatbox Skills 🎤",
     description: "No instruments, just pure talent! Can you beat this? 💫",
     hashtags: ["beatbox", "vocal", "talent", "skills", "challenge"],
@@ -154,7 +164,8 @@ const sampleReels: Reel[] = [
       id: "user3",
       name: "Beat Master",
       username: "@beatmaster",
-      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=60&h=60&fit=crop",
+      avatar:
+        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=60&h=60&fit=crop",
       isVerified: false,
       isFollowing: false,
     },
@@ -162,7 +173,8 @@ const sampleReels: Reel[] = [
       id: "audio3",
       title: "Vocal Beats",
       artist: "Beat Master",
-      coverUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=60&h=60&fit=crop",
+      coverUrl:
+        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=60&h=60&fit=crop",
       duration: 20,
     },
     stats: {
@@ -183,7 +195,8 @@ const sampleComments: Comment[] = [
     id: "1",
     userId: "commenter1",
     username: "musiclover23",
-    avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop",
+    avatar:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop",
     text: "This is absolutely incredible! 🔥🔥🔥",
     likes: 45,
     isLiked: false,
@@ -193,7 +206,8 @@ const sampleComments: Comment[] = [
     id: "2",
     userId: "commenter2",
     username: "guitargeek",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=40&h=40&fit=crop",
+    avatar:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=40&h=40&fit=crop",
     text: "What guitar are you using? The tone is perfect!",
     likes: 23,
     isLiked: true,
@@ -203,7 +217,8 @@ const sampleComments: Comment[] = [
     id: "3",
     userId: "commenter3",
     username: "producer_pro",
-    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=40&h=40&fit=crop",
+    avatar:
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=40&h=40&fit=crop",
     text: "Need to collab ASAP! This is fire! 🎸✨",
     likes: 67,
     isLiked: false,
@@ -214,7 +229,8 @@ const sampleComments: Comment[] = [
 export default function Reels() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  
+  const { user: firebaseUser, loading: firebaseLoading } = useFirebase();
+
   const [reels, setReels] = useState<Reel[]>(sampleReels);
   const [currentReelIndex, setCurrentReelIndex] = useState(0);
   const [showComments, setShowComments] = useState(false);
@@ -223,7 +239,7 @@ export default function Reels() {
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
   const [showMoreActions, setShowMoreActions] = useState(false);
-  
+
   const videoRefs = useRef<(HTMLVideoElement | null)[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -235,12 +251,14 @@ export default function Reels() {
     if (currentVideo) {
       currentVideo.currentTime = 0;
       currentVideo.play().catch(console.error);
-      
+
       // Update playing state
-      setReels(prev => prev.map((reel, index) => ({
-        ...reel,
-        isPlaying: index === currentReelIndex
-      })));
+      setReels((prev) =>
+        prev.map((reel, index) => ({
+          ...reel,
+          isPlaying: index === currentReelIndex,
+        })),
+      );
     }
 
     // Pause other videos
@@ -254,21 +272,25 @@ export default function Reels() {
   // Handle scroll to change reels
   const handleScroll = () => {
     if (!containerRef.current) return;
-    
+
     const scrollTop = containerRef.current.scrollTop;
     const reelHeight = window.innerHeight;
     const newIndex = Math.round(scrollTop / reelHeight);
-    
-    if (newIndex !== currentReelIndex && newIndex >= 0 && newIndex < reels.length) {
+
+    if (
+      newIndex !== currentReelIndex &&
+      newIndex >= 0 &&
+      newIndex < reels.length
+    ) {
       setCurrentReelIndex(newIndex);
     }
   };
 
   const formatNumber = (num: number) => {
     if (num >= 1000000) {
-      return (num / 1000000).toFixed(1) + 'M';
+      return (num / 1000000).toFixed(1) + "M";
     } else if (num >= 1000) {
-      return (num / 1000).toFixed(1) + 'K';
+      return (num / 1000).toFixed(1) + "K";
     }
     return num.toString();
   };
@@ -286,38 +308,46 @@ export default function Reels() {
   };
 
   const handleLike = (reelId: string) => {
-    setReels(prev => prev.map(reel => 
-      reel.id === reelId 
-        ? { 
-            ...reel, 
-            isLiked: !reel.isLiked,
-            stats: { 
-              ...reel.stats, 
-              likes: reel.isLiked ? reel.stats.likes - 1 : reel.stats.likes + 1 
+    setReels((prev) =>
+      prev.map((reel) =>
+        reel.id === reelId
+          ? {
+              ...reel,
+              isLiked: !reel.isLiked,
+              stats: {
+                ...reel.stats,
+                likes: reel.isLiked
+                  ? reel.stats.likes - 1
+                  : reel.stats.likes + 1,
+              },
             }
-          }
-        : reel
-    ));
+          : reel,
+      ),
+    );
   };
 
   const handleFollow = (userId: string) => {
-    setReels(prev => prev.map(reel => 
-      reel.author.id === userId 
-        ? { 
-            ...reel, 
-            author: { 
-              ...reel.author, 
-              isFollowing: !reel.author.isFollowing 
+    setReels((prev) =>
+      prev.map((reel) =>
+        reel.author.id === userId
+          ? {
+              ...reel,
+              author: {
+                ...reel.author,
+                isFollowing: !reel.author.isFollowing,
+              },
             }
-          }
-        : reel
-    ));
+          : reel,
+      ),
+    );
 
     toast({
-      title: reels.find(r => r.author.id === userId)?.author.isFollowing ? "Unfollowed" : "Following",
-      description: reels.find(r => r.author.id === userId)?.author.isFollowing 
-        ? `You unfollowed ${reels.find(r => r.author.id === userId)?.author.name}`
-        : `You're now following ${reels.find(r => r.author.id === userId)?.author.name}`,
+      title: reels.find((r) => r.author.id === userId)?.author.isFollowing
+        ? "Unfollowed"
+        : "Following",
+      description: reels.find((r) => r.author.id === userId)?.author.isFollowing
+        ? `You unfollowed ${reels.find((r) => r.author.id === userId)?.author.name}`
+        : `You're now following ${reels.find((r) => r.author.id === userId)?.author.name}`,
     });
   };
 
@@ -344,22 +374,28 @@ export default function Reels() {
       id: Date.now().toString(),
       userId: "current_user",
       username: "You",
-      avatar: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=40&h=40&fit=crop",
+      avatar:
+        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=40&h=40&fit=crop",
       text: commentText,
       likes: 0,
       isLiked: false,
       createdAt: new Date(),
     };
 
-    setComments(prev => [newComment, ...prev]);
+    setComments((prev) => [newComment, ...prev]);
     setCommentText("");
-    
+
     // Update comment count
-    setReels(prev => prev.map(reel => 
-      reel.id === currentReel.id 
-        ? { ...reel, stats: { ...reel.stats, comments: reel.stats.comments + 1 }}
-        : reel
-    ));
+    setReels((prev) =>
+      prev.map((reel) =>
+        reel.id === currentReel.id
+          ? {
+              ...reel,
+              stats: { ...reel.stats, comments: reel.stats.comments + 1 },
+            }
+          : reel,
+      ),
+    );
 
     toast({
       title: "Comment added!",
@@ -368,15 +404,17 @@ export default function Reels() {
   };
 
   const likeComment = (commentId: string) => {
-    setComments(prev => prev.map(comment => 
-      comment.id === commentId 
-        ? { 
-            ...comment, 
-            isLiked: !comment.isLiked,
-            likes: comment.isLiked ? comment.likes - 1 : comment.likes + 1 
-          }
-        : comment
-    ));
+    setComments((prev) =>
+      prev.map((comment) =>
+        comment.id === commentId
+          ? {
+              ...comment,
+              isLiked: !comment.isLiked,
+              likes: comment.isLiked ? comment.likes - 1 : comment.likes + 1,
+            }
+          : comment,
+      ),
+    );
   };
 
   return (
@@ -396,7 +434,7 @@ export default function Reels() {
           >
             <ArrowLeft className="w-5 h-5 text-white" />
           </motion.button>
-          
+
           <h1 className="text-lg font-bold text-white">Reels</h1>
         </div>
 
@@ -408,7 +446,7 @@ export default function Reels() {
           >
             <Search className="w-5 h-5 text-white" />
           </motion.button>
-          
+
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -425,7 +463,7 @@ export default function Reels() {
         ref={containerRef}
         onScroll={handleScroll}
         className="h-full overflow-y-scroll snap-y snap-mandatory"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
       >
         {reels.map((reel, index) => (
           <div key={reel.id} className="h-screen w-full relative snap-start">
@@ -444,7 +482,7 @@ export default function Reels() {
                   setCurrentReelIndex(index + 1);
                   containerRef.current?.scrollTo({
                     top: (index + 1) * window.innerHeight,
-                    behavior: 'smooth'
+                    behavior: "smooth",
                   });
                 }
               }}
@@ -505,7 +543,7 @@ export default function Reels() {
                       </div>
                     )}
                   </div>
-                  
+
                   {!reel.author.isFollowing && (
                     <motion.button
                       whileHover={{ scale: 1.1 }}
@@ -525,10 +563,14 @@ export default function Reels() {
                   onClick={() => handleLike(reel.id)}
                   className="flex flex-col items-center space-y-1"
                 >
-                  <div className={`w-12 h-12 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center ${
-                    reel.isLiked ? 'bg-red-500/20' : ''
-                  }`}>
-                    <Heart className={`w-6 h-6 ${reel.isLiked ? 'text-red-500 fill-current' : 'text-white'}`} />
+                  <div
+                    className={`w-12 h-12 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center ${
+                      reel.isLiked ? "bg-red-500/20" : ""
+                    }`}
+                  >
+                    <Heart
+                      className={`w-6 h-6 ${reel.isLiked ? "text-red-500 fill-current" : "text-white"}`}
+                    />
                   </div>
                   <span className="text-white text-xs font-medium">
                     {formatNumber(reel.stats.likes)}
@@ -578,7 +620,11 @@ export default function Reels() {
                 {/* Audio/Music Info */}
                 <motion.div
                   animate={{ rotate: reel.isPlaying ? 360 : 0 }}
-                  transition={{ duration: 3, repeat: reel.isPlaying ? Infinity : 0, ease: "linear" }}
+                  transition={{
+                    duration: 3,
+                    repeat: reel.isPlaying ? Infinity : 0,
+                    ease: "linear",
+                  }}
                   className="w-12 h-12 rounded-full overflow-hidden border-2 border-white"
                 >
                   <img
@@ -595,7 +641,9 @@ export default function Reels() {
               <div className="max-w-xs">
                 {/* Author Info */}
                 <div className="flex items-center space-x-2 mb-2">
-                  <span className="font-bold text-white">@{reel.author.username}</span>
+                  <span className="font-bold text-white">
+                    @{reel.author.username}
+                  </span>
                   {reel.author.isVerified && (
                     <div className="w-4 h-4 bg-blue-500 rounded-full flex items-center justify-center">
                       <div className="w-2 h-2 bg-white rounded-full" />
@@ -604,7 +652,9 @@ export default function Reels() {
                   {reel.viralScore > 80 && (
                     <div className="flex items-center space-x-1 px-2 py-1 bg-red-500/20 rounded-full">
                       <Flame className="w-3 h-3 text-red-400" />
-                      <span className="text-xs text-red-400 font-medium">Viral</span>
+                      <span className="text-xs text-red-400 font-medium">
+                        Viral
+                      </span>
                     </div>
                   )}
                 </div>
@@ -709,9 +759,13 @@ export default function Reels() {
                             onClick={() => likeComment(comment.id)}
                             className="flex items-center space-x-1"
                           >
-                            <Heart className={`w-3 h-3 ${comment.isLiked ? 'text-red-500 fill-current' : 'text-gray-400'}`} />
+                            <Heart
+                              className={`w-3 h-3 ${comment.isLiked ? "text-red-500 fill-current" : "text-gray-400"}`}
+                            />
                             <span className="text-xs text-gray-400">
-                              {comment.likes > 0 ? formatNumber(comment.likes) : ''}
+                              {comment.likes > 0
+                                ? formatNumber(comment.likes)
+                                : ""}
                             </span>
                           </motion.button>
                           <button className="text-xs text-gray-400 hover:text-white">
@@ -737,7 +791,7 @@ export default function Reels() {
                       type="text"
                       value={commentText}
                       onChange={(e) => setCommentText(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && addComment()}
+                      onKeyPress={(e) => e.key === "Enter" && addComment()}
                       placeholder="Add a comment..."
                       className="flex-1 bg-purple-dark/50 border border-purple-primary/30 rounded-full px-4 py-2 text-white placeholder-gray-400 focus:outline-none focus:border-purple-primary text-sm"
                     />
@@ -776,8 +830,10 @@ export default function Reels() {
               className="bg-purple-dark rounded-2xl w-full max-w-sm border border-purple-primary/30"
             >
               <div className="p-6">
-                <h3 className="text-lg font-bold text-white mb-4 text-center">More Actions</h3>
-                
+                <h3 className="text-lg font-bold text-white mb-4 text-center">
+                  More Actions
+                </h3>
+
                 <div className="space-y-3">
                   <motion.button
                     whileHover={{ scale: 1.02 }}
@@ -787,7 +843,7 @@ export default function Reels() {
                     <Download className="w-5 h-5" />
                     <span>Save Video</span>
                   </motion.button>
-                  
+
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
@@ -796,7 +852,7 @@ export default function Reels() {
                     <User className="w-5 h-5" />
                     <span>View Profile</span>
                   </motion.button>
-                  
+
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}

@@ -23,6 +23,7 @@ import {
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
+import { useFirebase } from "../context/FirebaseContext";
 
 interface Notification {
   id: string;
@@ -109,6 +110,7 @@ const sampleNotifications: Notification[] = [
 
 export default function Notifications() {
   const navigate = useNavigate();
+  const { user: firebaseUser } = useFirebase();
   const { toast } = useToast();
   
   const [notifications, setNotifications] = useState<Notification[]>(sampleNotifications);

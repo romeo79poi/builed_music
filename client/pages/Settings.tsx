@@ -29,17 +29,28 @@ import {
   HelpCircle,
   Star,
   Share,
+  MessageCircle,
+  ExternalLink,
+  FileText,
+  Info,
+  Phone,
+  Bug,
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
 import ThemeToggle from "../components/ThemeToggle";
 import { useTheme } from "../context/ThemeContext";
 import { settingsApi } from "../lib/api";
+import { useFirebase } from "../context/FirebaseContext";
+import { signOut } from "firebase/auth";
+import { auth } from "../lib/firebase";
+import firebaseSettingsService from "../lib/firebase-settings";
 
 export default function Settings() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { theme, actualTheme, setTheme } = useTheme();
+  const { user: firebaseUser, loading: firebaseLoading } = useFirebase();
 
   // User data state - will be loaded from backend
   const [userProfile, setUserProfile] = useState({
@@ -50,6 +61,154 @@ export default function Settings() {
     premium: false,
   });
   const [loading, setLoading] = useState(true);
+  const [showSupportMenu, setShowSupportMenu] = useState(false);
+
+  // Support options
+  const supportOptions = [
+    {
+      key: "help-center",
+      label: "Help Center",
+      icon: FileText,
+      description: "Browse our comprehensive help documentation",
+      action: () => {
+        window.open("https://help.musicapp.com/docs", "_blank");
+        toast({
+          title: "Help Center",
+          description: "Opening help documentation",
+        });
+        setShowSupportMenu(false);
+      },
+    },
+    {
+      key: "contact-support",
+      label: "Contact Support",
+      icon: MessageCircle,
+      description: "Get help from our support team",
+      action: () => {
+        window.open(
+          "mailto:support@musicapp.com?subject=Support Request from Settings",
+          "_blank",
+        );
+        toast({
+          title: "Contact Support",
+          description: "Opening email client",
+        });
+        setShowSupportMenu(false);
+      },
+    },
+    {
+      key: "live-chat",
+      label: "Live Chat",
+      icon: MessageCircle,
+      description: "Chat with support in real-time",
+      action: () => {
+        window.open("https://chat.musicapp.com", "_blank");
+        toast({
+          title: "Live Chat",
+          description: "Opening live chat window",
+        });
+        setShowSupportMenu(false);
+      },
+    },
+    {
+      key: "phone-support",
+      label: "Phone Support",
+      icon: Phone,
+      description: "Call us: +1 (555) 123-MUSIC",
+      action: () => {
+        window.open("tel:+15551234687", "_self");
+        toast({
+          title: "Phone Support",
+          description: "Calling support team",
+        });
+        setShowSupportMenu(false);
+      },
+    },
+    {
+      key: "bug-report",
+      label: "Report Bug",
+      icon: Bug,
+      description: "Report technical issues or bugs",
+      action: () => {
+        window.open("https://bugs.musicapp.com/report", "_blank");
+        toast({
+          title: "Bug Report",
+          description: "Opening bug report form",
+        });
+        setShowSupportMenu(false);
+      },
+    },
+    {
+      key: "feature-request",
+      label: "Feature Request",
+      icon: Star,
+      description: "Suggest new features",
+      action: () => {
+        window.open("https://feedback.musicapp.com/features", "_blank");
+        toast({
+          title: "Feature Request",
+          description: "Opening feature request form",
+        });
+        setShowSupportMenu(false);
+      },
+    },
+    {
+      key: "feedback",
+      label: "Send Feedback",
+      icon: Share,
+      description: "Share your thoughts about the app",
+      action: () => {
+        window.open("https://feedback.musicapp.com", "_blank");
+        toast({
+          title: "Send Feedback",
+          description: "Opening feedback form",
+        });
+        setShowSupportMenu(false);
+      },
+    },
+    {
+      key: "faq",
+      label: "FAQ",
+      icon: HelpCircle,
+      description: "Frequently asked questions",
+      action: () => {
+        window.open("https://help.musicapp.com/faq", "_blank");
+        toast({
+          title: "FAQ",
+          description: "Opening FAQ page",
+        });
+        setShowSupportMenu(false);
+      },
+    },
+    {
+      key: "community",
+      label: "Community Forum",
+      icon: User,
+      description: "Join the community discussion",
+      action: () => {
+        window.open("https://community.musicapp.com", "_blank");
+        toast({
+          title: "Community Forum",
+          description: "Opening community forum",
+        });
+        setShowSupportMenu(false);
+      },
+    },
+    {
+      key: "status",
+      label: "Service Status",
+      icon: Info,
+      description: "Check current service status",
+      action: () => {
+        window.open("https://status.musicapp.com", "_blank");
+        toast({
+          title: "Service Status",
+          description: "Opening status page",
+        });
+        setShowSupportMenu(false);
+      },
+    },
+  ];
 
   // Settings state
   const [settings, setSettings] = useState({
@@ -71,63 +230,149 @@ export default function Settings() {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  // Load user profile and settings from backend
+  // Load user profile and settings when Firebase user is available
   useEffect(() => {
-    loadUserData();
-    loadUserSettings();
-  }, []);
+    if (!firebaseLoading && firebaseUser) {
+      loadUserData();
+      loadUserSettings();
+    } else if (!firebaseLoading && !firebaseUser) {
+      // Redirect to login if not authenticated
+      navigate("/login");
+    }
+  }, [firebaseUser, firebaseLoading]);
+
+  // Close support menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (showSupportMenu && !target.closest(".support-dropdown")) {
+        setShowSupportMenu(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [showSupportMenu]);
 
   const loadUserData = async () => {
     try {
-      const userData = localStorage.getItem("currentUser");
-      const token = localStorage.getItem("token");
-
-      if (userData) {
-        const user = JSON.parse(userData);
-        setUserProfile({
-          name: user.name || user.displayName || "Unknown User",
-          email: user.email || "No email",
-          profileImage: user.profileImageURL || user.profile_image || "",
-          joinDate: user.created_at
-            ? new Date(user.created_at).toLocaleDateString()
-            : "Unknown",
-          premium: user.premium || false,
-        });
+      if (!firebaseUser) {
+        console.log("❌ No Firebase user found");
+        setLoading(false);
+        return;
       }
 
-      // Try to fetch updated profile from backend
-      if (token) {
-        try {
-          const response = await fetch("/api/v2/profile", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
+      console.log(
+        "🔥 Loading user data for Firebase user:",
+        firebaseUser.email,
+      );
+      console.log("🔥 Firebase user UID:", firebaseUser.uid);
+      console.log("🔥 Firebase user metadata:", firebaseUser.metadata);
 
-          if (response.ok) {
-            const profileData = await response.json();
-            if (profileData.success && profileData.user) {
-              setUserProfile({
-                name: profileData.user.name || "Unknown User",
-                email: profileData.user.email || "No email",
-                profileImage: profileData.user.profile_image || "",
-                joinDate: profileData.user.created_at
-                  ? new Date(profileData.user.created_at).toLocaleDateString()
-                  : "Unknown",
-                premium: profileData.user.premium || false,
-              });
-              console.log(
-                "✅ Loaded user profile from backend:",
-                profileData.user,
-              );
-            }
+      // Enhanced Firebase user data
+      const firebaseProfile = {
+        name:
+          firebaseUser.displayName ||
+          firebaseUser.email?.split("@")[0] ||
+          "User",
+        email: firebaseUser.email || "No email",
+        profileImage:
+          firebaseUser.photoURL ||
+          `https://ui-avatars.io/api/?name=${encodeURIComponent(firebaseUser.displayName || firebaseUser.email?.split("@")[0] || "User")}&background=6366f1&color=fff&size=64`,
+        joinDate: firebaseUser.metadata.creationTime
+          ? new Date(firebaseUser.metadata.creationTime).toLocaleDateString(
+              "en-US",
+              {
+                year: "numeric",
+                month: "short",
+                day: "numeric",
+              },
+            )
+          : "Unknown",
+        premium: false,
+        firebaseUid: firebaseUser.uid,
+        emailVerified: firebaseUser.emailVerified,
+        lastSignIn: firebaseUser.metadata.lastSignInTime
+          ? new Date(firebaseUser.metadata.lastSignInTime).toLocaleDateString()
+          : "Unknown",
+      };
+
+      // Set Firebase profile immediately for better UX
+      setUserProfile(firebaseProfile);
+      console.log("✅ Firebase profile data loaded:", firebaseProfile);
+
+      // Try to sync with backend or create user profile
+      try {
+        // First, try to get existing profile
+        const getResponse = await fetch(`/api/v1/users/${firebaseUser.uid}`, {
+          headers: {
+            "user-id": firebaseUser.uid,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (getResponse.ok) {
+          const result = await getResponse.json();
+          if (result.success && result.data) {
+            const backendData = result.data;
+            const enhancedProfile = {
+              ...firebaseProfile,
+              name:
+                backendData.display_name ||
+                backendData.name ||
+                firebaseProfile.name,
+              profileImage:
+                backendData.profile_image_url || firebaseProfile.profileImage,
+              premium: backendData.premium || false,
+              joinDate: backendData.created_at
+                ? new Date(backendData.created_at).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })
+                : firebaseProfile.joinDate,
+            };
+            setUserProfile(enhancedProfile);
+            console.log("✅ Enhanced profile from backend:", enhancedProfile);
+            return;
           }
-        } catch (error) {
-          console.error("Error loading profile from backend:", error);
         }
+
+        // If backend fetch fails or user doesn't exist, try to create/sync user
+        console.log("🔥 Creating/syncing user profile with backend...");
+        const syncResponse = await fetch("/api/v1/users/sync", {
+          method: "POST",
+          headers: {
+            "user-id": firebaseUser.uid,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            firebase_uid: firebaseUser.uid,
+            email: firebaseUser.email,
+            display_name: firebaseUser.displayName,
+            profile_image_url: firebaseUser.photoURL,
+            email_verified: firebaseUser.emailVerified,
+          }),
+        });
+
+        if (syncResponse.ok) {
+          const syncResult = await syncResponse.json();
+          console.log("✅ User synced with backend:", syncResult);
+        }
+      } catch (error) {
+        console.error(
+          "⚠️ Backend sync failed (using Firebase data only):",
+          error,
+        );
+        // Continue with Firebase-only data
       }
     } catch (error) {
-      console.error("Error loading user data:", error);
+      console.error("❌ Error loading user data:", error);
+      toast({
+        title: "Error Loading Profile",
+        description: "Failed to load user profile. Please try refreshing.",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
     }
@@ -135,30 +380,53 @@ export default function Settings() {
 
   const loadUserSettings = async () => {
     try {
-      const token = localStorage.getItem("token");
-      if (!token) return;
+      if (!firebaseUser) return;
 
-      const userSettings = await settingsApi.getUserSettings();
-      if (userSettings) {
-        setSettings({
-          darkTheme: userSettings.theme === "dark",
-          notifications: userSettings.notifications?.email || true,
-          autoDownload: userSettings.playback?.autoDownload || true,
-          highQuality: userSettings.playback?.highQuality || true,
-          offlineMode: userSettings.playback?.offlineMode || true,
-          publicProfile: userSettings.privacy?.publicProfile !== false,
-          showActivity: userSettings.privacy?.showActivity !== false,
-          autoPlay: userSettings.playback?.autoPlay !== false,
-          crossfade: userSettings.playback?.crossfade || true,
-          normalization: userSettings.playback?.normalization || true,
-          language: userSettings.language || "English",
-          region: userSettings.region || "United States",
-        });
-        console.log("✅ Loaded user settings from backend:", userSettings);
-      }
+      console.log("🔥 Loading settings for Firebase user:", firebaseUser.uid);
+
+      const firebaseSettings = await firebaseSettingsService.getSettings(
+        firebaseUser.uid,
+      );
+
+      // Transform Firebase settings to component state format
+      const componentSettings = {
+        darkTheme: firebaseSettings.theme === "dark",
+        notifications: firebaseSettings.notifications.email,
+        autoDownload: firebaseSettings.playback.autoDownload,
+        highQuality: firebaseSettings.playback.highQuality,
+        offlineMode: firebaseSettings.playback.offlineMode,
+        publicProfile: firebaseSettings.privacy.publicProfile,
+        showActivity: firebaseSettings.privacy.showActivity,
+        autoPlay: firebaseSettings.playback.autoPlay,
+        crossfade: firebaseSettings.playback.crossfade,
+        normalization: firebaseSettings.playback.normalization,
+        language: firebaseSettings.language,
+        region: firebaseSettings.region,
+      };
+
+      setSettings(componentSettings);
+      console.log(
+        "✅ Settings loaded via Firebase service:",
+        componentSettings,
+      );
     } catch (error) {
-      console.error("Error loading settings from backend:", error);
-      // Keep default settings on error
+      console.error("❌ Error loading settings:", error);
+      // Set default settings on error
+      const defaultSettings = {
+        darkTheme: true,
+        notifications: true,
+        autoDownload: false,
+        highQuality: true,
+        offlineMode: false,
+        publicProfile: true,
+        showActivity: true,
+        autoPlay: true,
+        crossfade: false,
+        normalization: true,
+        language: "English",
+        region: "United States",
+      };
+      setSettings(defaultSettings);
     }
   };
 
@@ -303,21 +571,54 @@ export default function Settings() {
           key: "help",
           label: "Help Center",
           icon: HelpCircle,
-          action: () => {},
+          action: () => {
+            window.open("https://help.musicapp.com", "_blank");
+            toast({
+              title: "Help Center",
+              description: "Opening help center in new tab",
+            });
+          },
           description: "Get help and find answers",
+        },
+        {
+          key: "contact",
+          label: "Contact Support",
+          icon: HelpCircle,
+          action: () => {
+            window.open(
+              "mailto:support@musicapp.com?subject=Support Request",
+              "_blank",
+            );
+            toast({
+              title: "Contact Support",
+              description: "Opening email client",
+            });
+          },
+          description: "Get direct help from our team",
         },
         {
           key: "feedback",
           label: "Send Feedback",
           icon: Share,
-          action: () => {},
+          action: () => {
+            window.open("https://feedback.musicapp.com", "_blank");
+            toast({
+              title: "Send Feedback",
+              description: "Opening feedback form",
+            });
+          },
           description: "Share your thoughts about the app",
         },
         {
           key: "about",
           label: "About Catch",
           icon: SettingsIcon,
-          action: () => {},
+          action: () => {
+            toast({
+              title: "About Catch Music",
+              description: "Version 1.0.0 - Built with Firebase integration",
+            });
+          },
           description: "Version 1.0.0",
         },
       ],
@@ -334,15 +635,12 @@ export default function Settings() {
     }));
 
     try {
-      const token = localStorage.getItem("token");
-      if (token) {
-        // Update settings on backend
-        let updateData: any = {};
+      if (firebaseUser) {
+        console.log("🔥 Updating setting for Firebase user:", key, newValue);
 
-        // Map settings to backend format
-        if (key === "notifications") {
-          updateData = { notifications: { email: newValue } };
-        } else if (
+        // Map component state key to Firebase settings structure
+        let settingPath = key;
+        if (
           [
             "autoDownload",
             "highQuality",
@@ -352,23 +650,53 @@ export default function Settings() {
             "normalization",
           ].includes(key)
         ) {
-          updateData = { playback: { [key]: newValue } };
+          settingPath = `playback.${key}`;
         } else if (["publicProfile", "showActivity"].includes(key)) {
-          updateData = { privacy: { [key]: newValue } };
-        } else {
-          updateData = { [key]: newValue };
+          settingPath = `privacy.${key}`;
+        } else if (key === "notifications") {
+          settingPath = "notifications.email";
+        } else if (key === "darkTheme") {
+          // Special handling for theme
+          const success = await firebaseSettingsService.updateSetting(
+            firebaseUser.uid,
+            "theme",
+            newValue ? "dark" : "light",
+          );
+
+          if (success) {
+            toast({
+              title: "Theme Updated",
+              description: `Switched to ${newValue ? "dark" : "light"} theme`,
+            });
+          } else {
+            throw new Error("Failed to update theme");
+          }
+          return;
         }
 
-        await settingsApi.updateUserSettings(updateData);
-        console.log("✅ Updated setting on backend:", key, newValue);
-      }
+        // Update the setting using Firebase service
+        const success = await firebaseSettingsService.updateSetting(
+          firebaseUser.uid,
+          settingPath,
+          newValue,
+        );
 
-      toast({
-        title: "Setting Updated",
-        description: `${key} has been ${newValue ? "enabled" : "disabled"}`,
-      });
+        if (success) {
+          const friendlyName = key
+            .replace(/([A-Z])/g, " $1")
+            .replace(/^./, (str) => str.toUpperCase());
+          toast({
+            title: "Setting Updated",
+            description: `${friendlyName} has been ${newValue ? "enabled" : "disabled"}`,
+          });
+          console.log("✅ Setting updated successfully:", key, newValue);
+        } else {
+          throw new Error("Firebase settings service failed");
+        }
+      }
     } catch (error) {
-      console.error("Error updating setting on backend:", error);
+      console.error("❌ Error updating setting:", error);
+
       // Revert local state on error
       setSettings((prev) => ({
         ...prev,
@@ -385,28 +713,16 @@ export default function Settings() {
 
   const handleLogout = async () => {
     try {
-      // Call backend logout endpoint if available
-      const token = localStorage.getItem("token");
-      if (token) {
-        try {
-          await fetch("/api/auth/logout", {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-        } catch (error) {
-          console.error("Backend logout error:", error);
-        }
-      }
+      // Sign out from Firebase
+      await signOut(auth);
 
-      // Clear tokens and user data
+      // Clear any remaining local storage
       localStorage.removeItem("token");
       localStorage.removeItem("refreshToken");
       localStorage.removeItem("currentUser");
       localStorage.removeItem("userAvatar");
 
-      console.log("✅ User logged out successfully");
+      console.log("✅ User logged out successfully from Firebase");
 
       toast({
         title: "Logged Out",
@@ -414,7 +730,7 @@ export default function Settings() {
       });
       navigate("/login");
     } catch (error) {
-      console.error("Logout error:", error);
+      console.error("❌ Firebase logout error:", error);
       toast({
         title: "Logout Error",
         description: "There was an issue logging out. Please try again.",
@@ -462,8 +778,8 @@ export default function Settings() {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => navigate(-1)}
-            className="w-10 h-10 rounded-full bg-purple-dark/50 backdrop-blur-sm flex items-center justify-center border border-purple-primary/30"
+            onClick={() => navigate("/home")}
+            className="w-10 h-10 rounded-full bg-purple-dark/50 backdrop-blur-sm flex items-center justify-center border border-purple-primary/30 hover:bg-purple-primary/20 transition-colors"
           >
             <ArrowLeft className="w-5 h-5 text-white" />
           </motion.button>
@@ -472,7 +788,89 @@ export default function Settings() {
             Settings
           </h1>
 
-          <div className="w-10 h-10"></div>
+          <div className="relative support-dropdown">
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowSupportMenu(!showSupportMenu)}
+              className="w-10 h-10 rounded-full bg-purple-dark/50 backdrop-blur-sm flex items-center justify-center border border-purple-primary/30 hover:bg-purple-primary/20 transition-colors"
+            >
+              <HelpCircle className="w-5 h-5 text-white" />
+            </motion.button>
+
+            {/* Support Dropdown Menu */}
+            <AnimatePresence>
+              {showSupportMenu && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                  transition={{ duration: 0.2 }}
+                  className="absolute right-0 top-12 w-80 bg-gradient-to-br from-purple-dark to-purple-darker border border-purple-primary/30 rounded-2xl shadow-2xl backdrop-blur-sm z-50"
+                >
+                  {/* Header */}
+                  <div className="p-4 border-b border-purple-primary/20">
+                    <div className="flex items-center justify-between">
+                      <h3 className="text-lg font-bold text-white flex items-center">
+                        <HelpCircle className="w-5 h-5 mr-2 text-purple-primary" />
+                        Help & Support
+                      </h3>
+                      <button
+                        onClick={() => setShowSupportMenu(false)}
+                        className="p-1 hover:bg-purple-primary/20 rounded-full transition-colors"
+                      >
+                        <X className="w-4 h-4 text-gray-400" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Support Options */}
+                  <div className="max-h-96 overflow-y-auto">
+                    {supportOptions.map((option, index) => (
+                      <motion.button
+                        key={option.key}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        onClick={option.action}
+                        className="w-full p-4 flex items-start space-x-3 hover:bg-purple-primary/10 transition-colors text-left border-b border-purple-primary/10 last:border-b-0"
+                      >
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-purple-primary/20 flex items-center justify-center">
+                          <option.icon className="w-4 h-4 text-purple-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <h4 className="text-white font-medium truncate">
+                              {option.label}
+                            </h4>
+                            <ExternalLink className="w-3 h-3 text-gray-400 flex-shrink-0 ml-2" />
+                          </div>
+                          <p className="text-sm text-gray-400 mt-1 line-clamp-2">
+                            {option.description}
+                          </p>
+                        </div>
+                      </motion.button>
+                    ))}
+                  </div>
+
+                  {/* Footer */}
+                  <div className="p-4 border-t border-purple-primary/20 bg-purple-primary/5">
+                    <div className="text-center">
+                      <p className="text-xs text-gray-400">
+                        Need immediate help? Call us at{" "}
+                        <a
+                          href="tel:+15551234687"
+                          className="text-purple-primary hover:underline"
+                        >
+                          +1 (555) 123-MUSIC
+                        </a>
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
         </motion.header>
 
         {/* Main Content */}
@@ -505,7 +903,7 @@ export default function Settings() {
 
                 <div className="flex-1">
                   <h2 className="text-xl font-bold text-white">
-                    {userProfile.name}
+                    {loading ? "Loading..." : userProfile.name}
                   </h2>
                   <p className="text-gray-400">{userProfile.email}</p>
                   <p className="text-sm text-purple-primary">

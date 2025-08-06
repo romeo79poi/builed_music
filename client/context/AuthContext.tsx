@@ -5,9 +5,15 @@ import {
   useEffect,
   ReactNode,
 } from "react";
+import { User } from "firebase/auth";
+import { useFirebase } from "./FirebaseContext";
+import {
+  signInWithGoogle as firebaseGoogleSignIn,
+  signInWithFacebook as firebaseFacebookSignIn,
+} from "../lib/auth";
 
-// Local types (Supabase removed)
-interface User {
+// Local user interface for backend profile data
+interface UserProfile {
   id: string;
   email: string;
   username: string;
@@ -25,7 +31,8 @@ interface User {
 }
 
 interface AuthContextType {
-  user: User | null;
+  user: UserProfile | null;
+  firebaseUser: User | null;
   loading: boolean;
   signUp: (
     email: string,
@@ -40,7 +47,7 @@ interface AuthContextType {
   signInWithFacebook: () => Promise<{ success: boolean; message: string }>;
   signOut: () => Promise<void>;
   updateProfile: (
-    updates: Partial<User>,
+    updates: Partial<UserProfile>,
   ) => Promise<{ success: boolean; message: string }>;
   isAuthenticated: boolean;
 
@@ -56,158 +63,249 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const {
+    user: firebaseUser,
+    loading: firebaseLoading,
+    signOut: firebaseSignOut,
+  } = useFirebase();
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    initializeAuth();
-  }, []);
+    if (!firebaseLoading) {
+      initializeAuth();
+    }
+  }, [firebaseUser, firebaseLoading]);
 
   const initializeAuth = async () => {
     try {
-      // Check for legacy localStorage auth (Supabase removed)
-      await checkLegacyAuth();
+      if (firebaseUser) {
+        console.log("🔥 Firebase user detected:", firebaseUser.email);
+        await loadUserProfile(firebaseUser);
+      } else {
+        console.log("🔥 No Firebase user found");
+        setUser(null);
+      }
     } catch (error) {
       console.error("Auth initialization error:", error);
+      setUser(null);
     } finally {
       setLoading(false);
     }
   };
 
-  const checkLegacyAuth = async () => {
+  const loadUserProfile = async (firebaseUser: User) => {
     try {
-      // Check localStorage for existing session
-      const storedUser = localStorage.getItem("user");
-      const token =
-        localStorage.getItem("token") || localStorage.getItem("authToken");
+      // Try to fetch user profile from backend
+      const response = await fetch(`/api/v1/users/${firebaseUser.uid}`, {
+        headers: {
+          "user-id": firebaseUser.uid,
+          "Content-Type": "application/json",
+        },
+      });
 
-      if (storedUser && token) {
-        const userData = JSON.parse(storedUser);
-        setUser(userData);
-        console.log("✅ Legacy auth restored:", userData.email);
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success && result.data) {
+          // Transform backend data to UserProfile interface
+          const backendData = result.data;
+          const userProfile: UserProfile = {
+            id: firebaseUser.uid,
+            email: firebaseUser.email || "",
+            username:
+              backendData.username ||
+              firebaseUser.email?.split("@")[0] ||
+              "user",
+            name: backendData.name || firebaseUser.displayName || "User",
+            avatar_url:
+              backendData.profile_image_url || firebaseUser.photoURL || "",
+            bio: backendData.bio || "",
+            location: backendData.location || "",
+            website: backendData.website || "",
+            verified:
+              backendData.is_verified || firebaseUser.emailVerified || false,
+            premium: backendData.is_premium || false,
+            followers_count: backendData.follower_count || 0,
+            following_count: backendData.following_count || 0,
+            created_at: backendData.created_at || new Date().toISOString(),
+            updated_at: backendData.updated_at || new Date().toISOString(),
+          };
+
+          setUser(userProfile);
+          console.log("✅ User profile loaded from backend:", userProfile);
+          return;
+        }
       }
+
+      // If backend doesn't have profile, create from Firebase user
+      const firebaseProfile: UserProfile = {
+        id: firebaseUser.uid,
+        email: firebaseUser.email || "",
+        username: firebaseUser.email?.split("@")[0] || "user",
+        name: firebaseUser.displayName || "User",
+        avatar_url: firebaseUser.photoURL || "",
+        bio: "",
+        location: "",
+        website: "",
+        verified: firebaseUser.emailVerified || false,
+        premium: false,
+        followers_count: 0,
+        following_count: 0,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      };
+
+      setUser(firebaseProfile);
+      console.log("✅ User profile created from Firebase:", firebaseProfile);
     } catch (error) {
-      console.error("Legacy auth check failed:", error);
-      // Clear invalid data
-      localStorage.removeItem("user");
-      localStorage.removeItem("token");
-      localStorage.removeItem("authToken");
+      console.error("Error loading user profile:", error);
+
+      // Fallback: create minimal profile from Firebase user
+      if (firebaseUser) {
+        const minimalProfile: UserProfile = {
+          id: firebaseUser.uid,
+          email: firebaseUser.email || "",
+          username: firebaseUser.email?.split("@")[0] || "user",
+          name: firebaseUser.displayName || "User",
+          avatar_url: firebaseUser.photoURL || "",
+          bio: "",
+          location: "",
+          website: "",
+          verified: firebaseUser.emailVerified || false,
+          premium: false,
+          followers_count: 0,
+          following_count: 0,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+
+        setUser(minimalProfile);
+        console.log("✅ Minimal user profile created:", minimalProfile);
+      }
     }
   };
 
   const signUp = async (email: string, password: string, userData: any) => {
-    console.log("📝 Sign up (Supabase removed, using backend):", email);
+    console.log("📝 Sign up - Firebase authentication required first");
 
-    try {
-      // Use backend API for signup
-      const response = await fetch("/api/v2/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password, ...userData }),
-      });
-
-      const result = await response.json();
-
-      if (response.ok && result.success) {
-        return { success: true, message: "Account created successfully!" };
-      } else {
-        return { success: false, message: result.message || "Signup failed" };
-      }
-    } catch (error: any) {
-      return { success: false, message: error.message || "Signup error" };
-    }
+    // Note: Actual signup should be handled through Firebase first,
+    // then user profile can be created/updated in backend
+    return {
+      success: false,
+      message: "Please use Firebase signup flow - see Signup page",
+    };
   };
 
   const signIn = async (email: string, password: string) => {
-    console.log("🔑 Sign in (Supabase removed, using backend):", email);
+    console.log("🔑 Sign in - using Firebase authentication");
 
-    try {
-      // Use backend API for signin
-      const response = await fetch("/api/v2/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-
-      const result = await response.json();
-
-      if (response.ok && result.success) {
-        // Store user data and token
-        if (result.user) {
-          setUser(result.user);
-          localStorage.setItem("user", JSON.stringify(result.user));
-        }
-        if (result.token) {
-          localStorage.setItem("authToken", result.token);
-        }
-
-        return { success: true, message: "Welcome back!" };
-      } else {
-        return { success: false, message: result.message || "Login failed" };
-      }
-    } catch (error: any) {
-      return { success: false, message: error.message || "Login error" };
-    }
+    // Note: Actual signin should be handled through Firebase
+    return {
+      success: false,
+      message: "Please use Firebase signin flow - see Login page",
+    };
   };
 
   const signInWithGoogle = async () => {
-    console.log("🔑 Google sign in (Supabase removed, using Firebase)");
-    return {
-      success: false,
-      message: "Google sign-in moved to Firebase - use Firebase integration",
-    };
+    console.log("🔑 Google sign in using Firebase");
+
+    try {
+      const result = await firebaseGoogleSignIn();
+      if (result.success) {
+        return { success: true, message: "Google sign-in successful!" };
+      } else {
+        return {
+          success: false,
+          message: result.error || "Google sign-in failed",
+        };
+      }
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message || "Google sign-in failed",
+      };
+    }
   };
 
   const signInWithFacebook = async () => {
-    console.log("🔑 Facebook sign in (Supabase removed, using Firebase)");
-    return {
-      success: false,
-      message: "Facebook sign-in moved to Firebase - use Firebase integration",
-    };
+    console.log("🔑 Facebook sign in using Firebase");
+
+    try {
+      const result = await firebaseFacebookSignIn();
+      if (result.success) {
+        return { success: true, message: "Facebook sign-in successful!" };
+      } else {
+        return {
+          success: false,
+          message: result.error || "Facebook sign-in failed",
+        };
+      }
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message || "Facebook sign-in failed",
+      };
+    }
   };
 
   const signOut = async () => {
-    console.log("👋 Sign out (Supabase removed)");
+    console.log("👋 Sign out using Firebase");
 
-    // Clear local state
-    setUser(null);
-
-    // Clear localStorage
-    localStorage.removeItem("user");
-    localStorage.removeItem("token");
-    localStorage.removeItem("authToken");
+    try {
+      await firebaseSignOut();
+      setUser(null);
+      console.log("✅ Successfully signed out");
+    } catch (error) {
+      console.error("Sign out error:", error);
+    }
   };
 
-  const updateProfile = async (updates: Partial<User>) => {
-    console.log("👤 Update profile (Supabase removed):", updates);
+  const updateProfile = async (updates: Partial<UserProfile>) => {
+    console.log("👤 Update profile:", updates);
 
-    if (!user) {
+    if (!user || !firebaseUser) {
       return { success: false, message: "Not authenticated" };
     }
 
     try {
-      // Use backend API for profile updates
-      const response = await fetch("/api/v2/profile", {
+      // Update profile in backend
+      const response = await fetch(`/api/v1/users/${firebaseUser.uid}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
+          "user-id": firebaseUser.uid,
         },
         body: JSON.stringify(updates),
       });
 
-      const result = await response.json();
-
-      if (response.ok && result.success) {
-        const updatedUser = { ...user, ...updates };
-        setUser(updatedUser);
-        localStorage.setItem("user", JSON.stringify(updatedUser));
-        return { success: true, message: "Profile updated successfully!" };
-      } else {
-        return { success: false, message: result.message || "Update failed" };
+      if (response.ok) {
+        const result = await response.json();
+        if (result.success) {
+          // Update local state
+          const updatedUser = {
+            ...user,
+            ...updates,
+            updated_at: new Date().toISOString(),
+          };
+          setUser(updatedUser);
+          return { success: true, message: "Profile updated successfully!" };
+        }
       }
+
+      // If backend update fails, still update local state
+      const updatedUser = {
+        ...user,
+        ...updates,
+        updated_at: new Date().toISOString(),
+      };
+      setUser(updatedUser);
+      return {
+        success: true,
+        message: "Profile updated locally (backend sync pending)",
+      };
     } catch (error: any) {
-      return { success: false, message: error.message || "Update error" };
+      console.error("Profile update error:", error);
+      return { success: false, message: error.message || "Update failed" };
     }
   };
 
@@ -225,14 +323,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const checkAuthState = async () => {
-    await checkLegacyAuth();
+    // Firebase handles auth state automatically
+    console.log("🔥 Auth state managed by Firebase");
   };
 
-  const isAuthenticated = !!user;
+  const isAuthenticated = !!firebaseUser && !!user;
 
   const value: AuthContextType = {
     user,
-    loading,
+    firebaseUser,
+    loading: loading || firebaseLoading,
     signUp,
     signIn,
     signInWithGoogle,

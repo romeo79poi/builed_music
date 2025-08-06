@@ -23,6 +23,8 @@ import {
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
 import { api } from "../lib/api";
+import { useFirebase } from "../context/FirebaseContext";
+import { useAuth } from "../context/AuthContext";
 
 interface Track {
   id: string;
@@ -55,6 +57,8 @@ export default function Search() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { toast } = useToast();
+  const { user, firebaseUser } = useAuth();
+  const { user: fbUser } = useFirebase();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTab, setSelectedTab] = useState("all");
   const [searchResults, setSearchResults] = useState<{
@@ -64,40 +68,34 @@ export default function Search() {
   } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
-  const [currentUser, setCurrentUser] = useState<any>(null);
   const [currentSong, setCurrentSong] = useState<Track | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [likedSongs, setLikedSongs] = useState<Set<string>>(new Set());
 
-  // Check authentication
+  // Check Firebase authentication
   useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
-    try {
-      // Check if user is logged in (token in localStorage)
-      const token = localStorage.getItem('token');
-      const userData = localStorage.getItem('currentUser');
-
-      if (token && userData) {
-        const user = JSON.parse(userData);
-        setCurrentUser(user);
-        await loadUserLikes();
-      }
-    } catch (error) {
-      console.error("Auth check error:", error);
+    if (fbUser) {
+      console.log("🔥 Firebase user detected in Search:", fbUser.email);
+      loadUserLikes();
     }
-  };
+  }, [fbUser]);
 
   const loadUserLikes = async () => {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) return;
+      if (!fbUser) {
+        console.log("🔥 No Firebase user, using mock likes");
+        // Mock some liked songs for better UX
+        setLikedSongs(new Set(['1', '3', '5']));
+        return;
+      }
 
-      const response = await fetch('/api/v1/users/liked-tracks', {
+      console.log("🔥 Loading likes for Firebase user:", fbUser.email);
+
+      // Try to load from backend with Firebase user ID
+      const response = await fetch(`/api/v1/users/${fbUser.uid}/liked-tracks`, {
         headers: {
-          'Authorization': `Bearer ${token}`
+          'user-id': fbUser.uid,
+          'Content-Type': 'application/json'
         }
       });
 

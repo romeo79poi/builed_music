@@ -7,24 +7,19 @@ import {
   Loader2,
   Mail,
   Phone,
-  Wifi,
-  WifiOff,
   AlertCircle,
-  RefreshCw,
 } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
-import { useAuth } from "../context/AuthContext";
+import { useFirebase } from "../context/FirebaseContext";
 import { useToast } from "../hooks/use-toast";
-import { api } from "../lib/api";
-import ConnectivityChecker, {
-  getNetworkErrorMessage,
-} from "../lib/connectivity";
 import { firebaseHelpers } from "../lib/firebase-simple";
+import { loginWithEmailAndPassword } from "../lib/auth";
 
 export default function Login() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { signIn, signInWithGoogle, signInWithFacebook } = useAuth();
+  const { user: firebaseUser, signIn: firebaseSignIn, loading } = useFirebase();
+  
   const [loginMethod, setLoginMethod] = useState<"social" | "email" | "phone">(
     "social",
   );
@@ -33,12 +28,17 @@ export default function Login() {
   const [phone, setPhone] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isOnline, setIsOnline] = useState(
-    ConnectivityChecker.getConnectionStatus(),
-  );
-  const [backendError, setBackendError] = useState<string | null>(null);
+  const [authError, setAuthError] = useState<string | null>(null);
 
-  const handleLogin = async () => {
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (firebaseUser && !loading) {
+      console.log("🔥 User already authenticated, redirecting to home");
+      navigate("/home");
+    }
+  }, [firebaseUser, loading, navigate]);
+
+  const handleEmailLogin = async () => {
     if (!email || !password) {
       toast({
         title: "Missing information",
@@ -49,28 +49,33 @@ export default function Login() {
     }
 
     setIsLoading(true);
-    setBackendError(null);
+    setAuthError(null);
 
     try {
-      const result = await signIn(email, password);
+      console.log("🔑 Attempting Firebase email login...");
+      
+      // Use Firebase authentication
+      const result = await loginWithEmailAndPassword(email, password);
 
       if (result.success) {
         toast({
-          title: "Login successful! 🎉",
-          description: result.message,
+          title: "Welcome back! 🎉",
+          description: "Successfully logged in with Firebase",
         });
 
+        console.log("✅ Firebase email login successful");
         navigate("/home");
       } else {
-        setBackendError(result.message);
+        setAuthError(result.error || "Login failed");
         toast({
           title: "Login failed",
-          description: result.message,
+          description: result.error || "Invalid email or password",
           variant: "destructive",
         });
       }
     } catch (error: any) {
-      setBackendError(error.message || "Network error occurred");
+      console.error("❌ Email login error:", error);
+      setAuthError(error.message || "Login failed");
       toast({
         title: "Login error",
         description: error.message || "An unexpected error occurred",
@@ -83,52 +88,36 @@ export default function Login() {
 
   const handleGoogleLogin = async () => {
     setIsLoading(true);
-    setBackendError(null);
+    setAuthError(null);
 
     try {
       console.log("🔥 Attempting Firebase Google login...");
 
-      // Try Firebase Google Auth first
-      const firebaseResult = await firebaseHelpers.googleSignIn();
+      const result = await firebaseHelpers.googleSignIn();
 
-      if (firebaseResult.success && firebaseResult.user) {
-        console.log(
-          "✅ Firebase Google login successful:",
-          firebaseResult.user,
-        );
+      if (result.success && result.user) {
+        console.log("✅ Firebase Google login successful:", result.user);
 
         toast({
           title: "Welcome back to CATCH! 🎉",
-          description: `Signed in as ${firebaseResult.user.displayName || firebaseResult.user.email}`,
+          description: `Signed in as ${result.user.displayName || result.user.email}`,
         });
 
         // Navigate to home
         setTimeout(() => {
           navigate("/home");
         }, 1500);
-        return;
-      }
-
-      // Fallback to backend Google auth if Firebase fails
-      console.log("📱 Falling back to backend Google auth");
-      const result = await signInWithGoogle();
-
-      if (result.success) {
-        toast({
-          title: "Google login successful! 🎉",
-          description: result.message,
-        });
       } else {
-        setBackendError(result.message);
+        setAuthError(result.error || "Google login failed");
         toast({
           title: "Google login failed",
-          description: result.message,
+          description: result.error || "Please try again",
           variant: "destructive",
         });
       }
     } catch (error: any) {
       console.error("❌ Google login error:", error);
-      setBackendError(error.message || "Google login failed");
+      setAuthError(error.message || "Google login failed");
       toast({
         title: "Google login error",
         description: error.message || "An unexpected error occurred",
@@ -141,112 +130,39 @@ export default function Login() {
 
   const handleFacebookLogin = async () => {
     setIsLoading(true);
-    setBackendError(null);
+    setAuthError(null);
 
     try {
       console.log("🔥 Attempting Firebase Facebook login...");
 
-      // Try Firebase Facebook Auth first
-      const firebaseResult = await firebaseHelpers.facebookSignIn();
+      const result = await firebaseHelpers.facebookSignIn();
 
-      if (firebaseResult.success && firebaseResult.user) {
-        console.log(
-          "✅ Firebase Facebook login successful:",
-          firebaseResult.user,
-        );
+      if (result.success && result.user) {
+        console.log("✅ Firebase Facebook login successful:", result.user);
 
         toast({
           title: "Welcome back to CATCH! 🎉",
-          description: `Signed in as ${firebaseResult.user.displayName || firebaseResult.user.email}`,
+          description: `Signed in as ${result.user.displayName || result.user.email}`,
         });
 
         // Navigate to home
         setTimeout(() => {
           navigate("/home");
         }, 1500);
-        return;
-      }
-
-      // Fallback to backend Facebook auth if Firebase fails
-      console.log("📱 Falling back to backend Facebook auth");
-      const result = await signInWithFacebook();
-
-      if (result.success) {
-        toast({
-          title: "Facebook login successful! 🎉",
-          description: result.message,
-        });
       } else {
-        setBackendError(result.message);
+        setAuthError(result.error || "Facebook login failed");
         toast({
           title: "Facebook login failed",
-          description: result.message,
+          description: result.error || "Please try again",
           variant: "destructive",
         });
       }
     } catch (error: any) {
       console.error("❌ Facebook login error:", error);
-      setBackendError(error.message || "Facebook login failed");
+      setAuthError(error.message || "Facebook login failed");
       toast({
         title: "Facebook login error",
         description: error.message || "An unexpected error occurred",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-
-    // Check connectivity before attempting login
-    if (!ConnectivityChecker.getConnectionStatus()) {
-      toast({
-        title: "No internet connection",
-        description: "Please check your connection and try again",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      setIsLoading(true);
-      setBackendError(null);
-
-      // Check if we can reach the backend
-      const hasConnection = await ConnectivityChecker.checkInternetConnection();
-      if (!hasConnection) {
-        throw new Error("Unable to connect to the server");
-      }
-
-      // Use new auth context login
-      const result = await login(email, password);
-
-      if (result.success) {
-        toast({
-          title: "Welcome back!",
-          description: "Successfully logged in",
-        });
-
-        console.log("✅ Backend login successful");
-
-        // Navigate to home - AuthRouter will handle the redirect
-        navigate("/");
-      } else {
-        setBackendError(result.error || "Invalid email or password");
-        toast({
-          title: "Login failed",
-          description: result.error || "Invalid email or password",
-          variant: "destructive",
-        });
-      }
-    } catch (error: any) {
-      console.error("Login error:", error);
-      const errorMessage =
-        getNetworkErrorMessage(error) ||
-        error.message ||
-        "An unexpected error occurred";
-      setBackendError(errorMessage);
-      toast({
-        title: "Login error",
-        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -261,26 +177,17 @@ export default function Login() {
     });
   };
 
-  // Monitor connectivity status
-  useEffect(() => {
-    const unsubscribe = ConnectivityChecker.addListener((online) => {
-      setIsOnline(online);
-      if (online) {
-        toast({
-          title: "Back online",
-          description: "Your connection has been restored",
-        });
-      } else {
-        toast({
-          title: "Connection lost",
-          description: "Please check your internet connection",
-          variant: "destructive",
-        });
-      }
-    });
-
-    return unsubscribe;
-  }, []);
+  // Show loading if Firebase is still initializing
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-darker via-background to-purple-dark flex flex-col items-center justify-center p-6">
+        <div className="flex items-center space-x-2">
+          <Loader2 className="w-6 h-6 animate-spin text-purple-primary" />
+          <span className="text-white">Initializing Firebase...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-darker via-background to-purple-dark flex flex-col items-center justify-center p-3 sm:p-6 relative overflow-hidden">
@@ -409,6 +316,7 @@ export default function Login() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
                 className="w-full h-12 sm:h-14 bg-purple-dark/30 border border-purple-primary/30 rounded-xl px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:border-purple-primary focus:ring-2 focus:ring-purple-primary/20 transition-all duration-200 text-sm sm:text-base backdrop-blur-sm"
+                disabled={isLoading}
               />
             </div>
 
@@ -440,7 +348,7 @@ export default function Login() {
             </div>
 
             <button
-              onClick={handleLogin}
+              onClick={handleEmailLogin}
               disabled={isLoading || !email || !password}
               className="w-full h-12 sm:h-14 bg-gradient-to-r from-purple-primary to-purple-secondary rounded-xl text-white font-bold text-sm sm:text-lg hover:from-purple-secondary hover:to-purple-accent transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none shadow-lg shadow-purple-primary/30 hover:shadow-purple-secondary/40"
             >
@@ -497,8 +405,8 @@ export default function Login() {
           </motion.div>
         )}
 
-        {/* Backend Error Display */}
-        {backendError && (
+        {/* Authentication Error Display */}
+        {authError && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -511,9 +419,9 @@ export default function Login() {
                 <h4 className="text-red-500 font-medium text-sm">
                   Authentication Error
                 </h4>
-                <p className="text-red-200 text-sm mt-1">{backendError}</p>
+                <p className="text-red-200 text-sm mt-1">{authError}</p>
                 <button
-                  onClick={() => setBackendError(null)}
+                  onClick={() => setAuthError(null)}
                   className="mt-3 text-red-400 hover:text-red-300 text-sm font-medium"
                 >
                   Dismiss
@@ -540,10 +448,13 @@ export default function Login() {
             </Link>
           </p>
 
-          {/* Backend Auth Status */}
-          <p className="text-xs text-slate-500 mt-2">
-            ✅ Backend authentication active
-          </p>
+          {/* Firebase Status */}
+          <div className="flex items-center justify-center space-x-2 mt-4">
+            <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+            <p className="text-xs text-slate-500">
+              🔥 Firebase authentication active
+            </p>
+          </div>
         </motion.div>
       </div>
     </div>

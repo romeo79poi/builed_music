@@ -21,6 +21,7 @@ import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
 import { api } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
+import { useFirebase } from "../context/FirebaseContext";
 import { useMusic } from "../context/MusicContextSupabase";
 
 // Featured Artist/Album of the Day
@@ -249,7 +250,8 @@ const glowVariants = {
 export default function Home() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user } = useAuth();
+  const { user, firebaseUser } = useAuth();
+  const { user: fbUser, loading: firebaseLoading } = useFirebase();
   const {
     trendingSongs,
     trendingAlbums,

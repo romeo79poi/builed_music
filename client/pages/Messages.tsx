@@ -48,8 +48,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { useFirebase } from "../context/FirebaseContext";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useToast } from "@/hooks/use-toast";
+import { useToast } from "../hooks/use-toast";
 import { useMessaging, useChat } from "@/lib/messaging-service";
 import { api } from "../lib/api";
 
@@ -57,6 +58,7 @@ const Messages = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const { user: firebaseUser, loading: firebaseLoading } = useFirebase();
   const [activeChat, setActiveChat] = useState<string | null>(null);
   const [messageInput, setMessageInput] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -84,6 +86,16 @@ const Messages = () => {
   } = useChat(activeChat || "");
 
   const reactionEmojis = ["❤️", "😂", "😮", "😢", "😡", "👍"];
+
+  // Firebase authentication check
+  useEffect(() => {
+    if (!firebaseLoading && !firebaseUser) {
+      console.log(
+        "❌ No Firebase user found in Messages, redirecting to login",
+      );
+      navigate("/login");
+    }
+  }, [firebaseUser, firebaseLoading, navigate]);
 
   // Handle back navigation based on where user came from
   const handleBackNavigation = () => {
@@ -617,20 +629,11 @@ const Messages = () => {
               <ArrowLeft className="h-5 w-5" />
             </Button>
             <h1 className="text-xl font-bold">Messages</h1>
-            <Badge variant="secondary" className="text-xs">
-              {
-                filteredChats.filter((chat) => (chat.unreadCount || 0) > 0)
-                  .length
-              }
-            </Badge>
           </div>
 
           <div className="flex items-center space-x-2">
             <Button variant="outline" className="hover:bg-accent">
               Join
-            </Button>
-            <Button variant="ghost" size="icon" className="hover:bg-accent">
-              <Send className="h-5 w-5" />
             </Button>
             <Button variant="ghost" size="icon" className="hover:bg-accent">
               <Edit className="h-5 w-5" />

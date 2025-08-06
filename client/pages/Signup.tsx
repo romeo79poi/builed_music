@@ -19,7 +19,6 @@ import AvailabilityChecker from "../components/AvailabilityChecker";
 import { useToast } from "../hooks/use-toast";
 import { api } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
-// import { supabaseAPI } from "../lib/supabase"; // Removed - using Firebase/Backend
 import {
   validatePhoneNumber,
   formatPhoneInput,
@@ -119,7 +118,7 @@ export default function Signup() {
   const [resendTimer, setResendTimer] = useState(0);
   const [errorAlert, setErrorAlert] = useState<string | null>(null);
   const [confirmationResult, setConfirmationResult] = useState<any>(null);
-  const [useFirebaseAuth, setUseFirebaseAuth] = useState(false); // Use backend only
+  const [useFirebaseAuth, setUseFirebaseAuth] = useState(true); // Use Firebase
   const [verificationUser, setVerificationUser] = useState<any>(null);
   const [emailVerificationSent, setEmailVerificationSent] = useState(false);
   const [phoneVerificationSent, setPhoneVerificationSent] = useState(false);
@@ -315,7 +314,7 @@ export default function Signup() {
     return true;
   };
 
-  // Check availability with Supabase
+  // Check availability (simplified for Firebase)
   const checkAvailability = async (
     field: "email" | "username" | "phone",
     value: string,
@@ -323,60 +322,23 @@ export default function Signup() {
     if (!value) return;
 
     try {
-      let isAvailable = true;
-
-      if (field === "email") {
-        const { available, error } =
-          await supabaseAPI.checkEmailAvailability(value);
-        if (error) throw error;
-        isAvailable = available;
-      } else if (field === "username") {
-        const { available, error } =
-          await supabaseAPI.checkUsernameAvailability(value);
-        if (error) throw error;
-        isAvailable = available;
-      } else if (field === "phone") {
-        // For phone, we'll just assume it's available for now
-        // You can implement phone checking in Supabase later if needed
-        isAvailable = true;
-      }
-
+      // For now, assume all fields are available
+      // TODO: Implement proper availability checking with Firebase/backend
       setAvailability((prev) => ({
         ...prev,
-        [field]: isAvailable,
+        [field]: true,
       }));
 
-      if (isAvailable) {
-        // Clear any existing errors if the field is available
-        setErrors((prev) => ({
-          ...prev,
-          [field]: "",
-        }));
-      } else {
-        // Show unavailable error
-        if (field === "email") {
-          setErrors((prev) => ({
-            ...prev,
-            email: "Email is already registered",
-          }));
-        } else if (field === "username") {
-          setErrors((prev) => ({
-            ...prev,
-            username: "Username is already taken",
-          }));
-        }
-      }
+      // Clear any existing errors
+      setErrors((prev) => ({
+        ...prev,
+        [field]: "",
+      }));
     } catch (error: any) {
       console.error("Availability check failed:", error);
       setErrors((prev) => ({
         ...prev,
         [field]: `Unable to verify ${field}`,
-      }));
-
-      // Set availability to false for network errors
-      setAvailability((prev) => ({
-        ...prev,
-        [field]: false,
       }));
     }
   };
@@ -549,47 +511,24 @@ export default function Signup() {
     try {
       console.log("🔥 Attempting Firebase Google sign-in...");
 
-      // Try Firebase Google Auth first
-      const firebaseResult = await firebaseHelpers.googleSignIn();
+      const result = await firebaseHelpers.googleSignIn();
 
-      if (firebaseResult.success && firebaseResult.user) {
-        console.log(
-          "✅ Firebase Google sign-in successful:",
-          firebaseResult.user,
-        );
+      if (result.success && result.user) {
+        console.log("✅ Firebase Google sign-in successful:", result.user);
 
         toast({
           title: "Welcome to CATCH! 🎉",
-          description: `Signed in as ${firebaseResult.user.displayName || firebaseResult.user.email}`,
-        });
-
-        // Optional: Sync with your backend here
-        // await syncFirebaseUserWithBackend(firebaseResult.user);
-
-        setTimeout(() => {
-          navigate("/home");
-        }, 1500);
-        return;
-      }
-
-      // Fallback to backend Google auth if Firebase fails
-      console.log("📱 Falling back to backend Google auth");
-      const result = await signInWithGoogle();
-
-      if (result.success) {
-        toast({
-          title: "Google sign-in successful! 🎉",
-          description: result.message,
+          description: `Signed in as ${result.user.displayName || result.user.email}`,
         });
 
         setTimeout(() => {
           navigate("/home");
         }, 1500);
       } else {
-        setErrorAlert(result.message);
+        setErrorAlert(result.error || "Google sign-in failed");
         toast({
-          title: "Google sign-up failed",
-          description: result.message,
+          title: "Google sign-in failed",
+          description: result.error || "Please try again",
           variant: "destructive",
         });
       }
@@ -614,47 +553,24 @@ export default function Signup() {
     try {
       console.log("🔥 Attempting Firebase Facebook sign-in...");
 
-      // Try Firebase Facebook Auth first
-      const firebaseResult = await firebaseHelpers.facebookSignIn();
+      const result = await firebaseHelpers.facebookSignIn();
 
-      if (firebaseResult.success && firebaseResult.user) {
-        console.log(
-          "✅ Firebase Facebook sign-in successful:",
-          firebaseResult.user,
-        );
+      if (result.success && result.user) {
+        console.log("✅ Firebase Facebook sign-in successful:", result.user);
 
         toast({
           title: "Welcome to CATCH! 🎉",
-          description: `Signed in as ${firebaseResult.user.displayName || firebaseResult.user.email}`,
-        });
-
-        // Optional: Sync with your backend here
-        // await syncFirebaseUserWithBackend(firebaseResult.user);
-
-        setTimeout(() => {
-          navigate("/home");
-        }, 1500);
-        return;
-      }
-
-      // Fallback to backend Facebook auth if Firebase fails
-      console.log("📱 Falling back to backend Facebook auth");
-      const result = await signInWithFacebook();
-
-      if (result.success) {
-        toast({
-          title: "Facebook sign-in successful! 🎉",
-          description: result.message,
+          description: `Signed in as ${result.user.displayName || result.user.email}`,
         });
 
         setTimeout(() => {
           navigate("/home");
         }, 1500);
       } else {
-        setErrorAlert(result.message);
+        setErrorAlert(result.error || "Facebook sign-in failed");
         toast({
-          title: "Facebook sign-up failed",
-          description: result.message,
+          title: "Facebook sign-in failed",
+          description: result.error || "Please try again",
           variant: "destructive",
         });
       }
@@ -687,9 +603,7 @@ export default function Signup() {
   const handleEmailStep = async () => {
     if (!validateEmail(formData.email)) return;
 
-    // For Supabase, we skip the separate email verification step
-    // and go directly to the profile step since Supabase handles
-    // email verification after account creation
+    // Skip separate email verification step and go directly to profile
     setCurrentStep("profile");
   };
 
@@ -781,135 +695,67 @@ export default function Signup() {
         setErrorAlert(null);
 
         try {
-          if (useFirebaseAuth) {
-            // Use Firebase email signup with verification
-            const result = await signUpWithEmailAndPasswordWithVerification(
-              formData.email,
-              formData.password,
-              formData.name,
-              formData.username,
-              formData.phone,
-            );
+          // Use Firebase email signup with verification
+          const result = await signUpWithEmailAndPasswordWithVerification(
+            formData.email,
+            formData.password,
+            formData.name,
+            formData.username,
+            formData.phone,
+          );
 
-            if (result.success) {
-              // Store user for email verification
-              if (result.user) {
-                setVerificationUser(result.user);
-                setEmailVerificationSent(true);
+          if (result.success) {
+            // Store user for email verification
+            if (result.user) {
+              setVerificationUser(result.user);
+              setEmailVerificationSent(true);
 
-                // Save user data to localStorage for immediate access
-                const completeUserData = {
-                  uid: result.user.uid,
-                  email: formData.email,
-                  name: formData.name,
-                  username: formData.username,
-                  profileImageURL:
-                    formData.profileImageURL || result.user.photoURL || "",
-                  dateOfBirth: formData.dateOfBirth,
-                  gender: formData.gender,
-                  bio: formData.bio,
-                };
-
-                localStorage.setItem(
-                  "currentUser",
-                  JSON.stringify(completeUserData),
-                );
-                localStorage.setItem(
-                  "userAvatar",
+              // Save user data to localStorage for immediate access
+              const completeUserData = {
+                uid: result.user.uid,
+                email: formData.email,
+                name: formData.name,
+                username: formData.username,
+                profileImageURL:
                   formData.profileImageURL || result.user.photoURL || "",
-                );
+                dateOfBirth: formData.dateOfBirth,
+                gender: formData.gender,
+                bio: formData.bio,
+              };
 
-                console.log(
-                  "💾 Saved Firebase user data to localStorage:",
-                  completeUserData,
-                );
-              }
+              localStorage.setItem(
+                "currentUser",
+                JSON.stringify(completeUserData),
+              );
+              localStorage.setItem(
+                "userAvatar",
+                formData.profileImageURL || result.user.photoURL || "",
+              );
 
-              toast({
-                title: "Account created successfully! 🎉",
-                description: `Welcome to Music Catch, ${formData.name}! Please check your email for verification.`,
-              });
-
-              console.log("✅ User created with Firebase:", result.user);
-
-              setTimeout(() => {
-                navigate("/home");
-              }, 2000);
-            } else {
-              setErrorAlert(
-                result.error || "Registration failed. Please try again.",
+              console.log(
+                "💾 Saved Firebase user data to localStorage:",
+                completeUserData,
               );
             }
-          } else {
-            // Use backend API for email registration
-            const response = await fetch("/api/auth/complete-registration", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                email: formData.email,
-                username: formData.username,
-                name: formData.name,
-                password: formData.password,
-              }),
+
+            toast({
+              title: "Account created successfully! 🎉",
+              description: `Welcome to Music Catch, ${formData.name}! Please check your email for verification.`,
             });
 
-            if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
-            }
+            console.log("✅ User created with Firebase:", result.user);
 
-            const data = await response.json();
-
-            if (data.success) {
-              toast({
-                title: "Account created successfully! ��",
-                description: `Welcome to Music Catch, ${formData.name}!`,
-              });
-
-              console.log("✅ User created with backend:", data.user);
-
-              // Fetch and store user profile data
-              try {
-                const profileResponse = await fetch(
-                  `/api/v1/users/${data.user.id}`,
-                  {
-                    headers: {
-                      "user-id": data.user.id,
-                    },
-                  },
-                );
-
-                if (profileResponse.ok) {
-                  const profileData = await profileResponse.json();
-                  localStorage.setItem(
-                    "currentUser",
-                    JSON.stringify(profileData.data),
-                  );
-                } else {
-                  localStorage.setItem(
-                    "currentUser",
-                    JSON.stringify(data.user),
-                  );
-                }
-              } catch (error) {
-                console.warn("Failed to fetch profile data:", error);
-                localStorage.setItem("currentUser", JSON.stringify(data.user));
-              }
-
-              setTimeout(() => {
-                navigate("/home");
-              }, 2000);
-            } else {
-              // Show error in red alert box
-              setErrorAlert(
-                data.message || "Registration failed. Please try again.",
-              );
-            }
+            setTimeout(() => {
+              navigate("/home");
+            }, 2000);
+          } else {
+            setErrorAlert(
+              result.error || "Registration failed. Please try again.",
+            );
           }
-        } catch (error) {
+        } catch (error: any) {
           console.error("Registration error:", error);
-          setErrorAlert("Network error. Please try again.");
+          setErrorAlert(error.message || "Network error. Please try again.");
         }
       }
     } catch (error) {
@@ -976,15 +822,14 @@ export default function Signup() {
       // Clear any previous errors
       setErrorAlert(null);
 
-      // Use Supabase for email registration
-      const result = await signUp(formData.email, formData.password, {
-        username: formData.username,
-        name: formData.name,
-        dateOfBirth: formData.dateOfBirth,
-        gender: formData.gender,
-        bio: formData.bio,
-        profileImageURL: formData.profileImageURL,
-      });
+      // Use Firebase for email registration
+      const result = await signUpWithEmailAndPasswordWithVerification(
+        formData.email,
+        formData.password,
+        formData.name,
+        formData.username,
+        formData.phone
+      );
 
       if (result.success) {
         toast({
@@ -1174,6 +1019,9 @@ export default function Signup() {
     <div className="min-h-screen bg-gradient-to-br from-purple-darker via-background to-purple-dark flex flex-col items-center py-4 sm:py-8 px-3 sm:px-6 relative overflow-auto">
       {/* Background glow effect */}
       <div className="absolute inset-0 bg-gradient-to-br from-purple-primary/10 via-purple-secondary/5 to-purple-accent/8"></div>
+
+      {/* reCAPTCHA container for Firebase phone auth */}
+      <div id="recaptcha-container" className="hidden"></div>
 
       <div className="relative z-10 w-full max-w-md px-2 sm:px-0 flex-1 flex flex-col justify-center min-h-0">
         {/* Header */}

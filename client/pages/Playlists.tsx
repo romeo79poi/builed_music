@@ -27,6 +27,7 @@ import {
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
+import { useFirebase } from "../context/FirebaseContext";
 
 interface Song {
   id: string;
@@ -55,6 +56,7 @@ export default function Playlists() {
   const navigate = useNavigate();
   const { playlistId } = useParams();
   const { toast } = useToast();
+  const { user: firebaseUser, loading: firebaseLoading } = useFirebase();
 
   // Sample playlists data
   const [playlists, setPlaylists] = useState<Playlist[]>([
