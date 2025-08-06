@@ -996,16 +996,28 @@ export default function Signup() {
           navigate("/home");
         }, 2000);
       } else {
-        // Use Firebase for email registration with complete profile data
-        const result = await signUpWithEmailAndPasswordWithVerification(
-          formData.email,
-          formData.password,
-          formData.name,
-          formData.username,
-          formData.phone
-        );
+        // For email signup, use the already verified user
+        if (!tempEmailUser || !emailVerified) {
+          setErrorAlert("Email verification required. Please verify your email first.");
+          setCurrentStep("email-verify");
+          return;
+        }
+
+        // Update the verified user with complete profile data
+        const result = { success: true, user: tempEmailUser };
 
         if (result.success && result.user) {
+          // Update the verified user's display name and profile
+          try {
+            await result.user.updateProfile({
+              displayName: formData.name,
+              photoURL: formData.profileImageURL || null,
+            });
+            console.log("✅ Updated Firebase user profile");
+          } catch (updateError) {
+            console.warn("⚠️ Failed to update Firebase profile:", updateError);
+          }
+
           // Save complete profile data to Firestore
           const additionalProfileData = {
             username: formData.username,
@@ -1023,7 +1035,7 @@ export default function Signup() {
           if (saveResult.success) {
             console.log("✅ Complete profile data saved to Firestore");
           } else {
-            console.warn("⚠️ Failed to save complete profile data:", saveResult.error);
+            console.warn("⚠��� Failed to save complete profile data:", saveResult.error);
           }
 
           // Save complete user data to localStorage for immediate access
