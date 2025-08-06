@@ -2234,6 +2234,23 @@ export default function Signup() {
                 </div>
               </div>
 
+              {/* Email Verification Info for non-social signups */}
+              {!isSocialSignup && (
+                <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mb-4">
+                  <div className="flex items-center space-x-2">
+                    <Mail className="w-5 h-5 text-blue-400" />
+                    <div>
+                      <p className="text-blue-400 text-sm font-medium">
+                        Email verification via Firebase
+                      </p>
+                      <p className="text-blue-300 text-xs">
+                        We'll send a verification link to {formData.email}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <button
                 onClick={handleBioStep}
                 disabled={isLoading}
