@@ -33,6 +33,31 @@ export default function Login() {
   const [authError, setAuthError] = useState<string | null>(null);
   const [showResendVerification, setShowResendVerification] = useState(false);
   const [unverifiedUser, setUnverifiedUser] = useState<any>(null);
+  const [networkStatus, setNetworkStatus] = useState({
+    isOnline: navigator.onLine,
+    lastChecked: Date.now(),
+  });
+
+  // Monitor network status
+  useEffect(() => {
+    const handleOnline = () => {
+      setNetworkStatus({ isOnline: true, lastChecked: Date.now() });
+      console.log('✅ Network connection restored');
+    };
+
+    const handleOffline = () => {
+      setNetworkStatus({ isOnline: false, lastChecked: Date.now() });
+      console.log('❌ Network connection lost');
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   // Redirect if already authenticated
   useEffect(() => {
