@@ -639,6 +639,16 @@ export default function Home() {
                           src={userAvatar}
                           alt={userData.name || 'Profile'}
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            console.warn("❌ Home profile image failed to load:", userAvatar);
+                            const target = e.target as HTMLImageElement;
+                            // Hide the image and show fallback
+                            target.style.display = 'none';
+                            setUserAvatar(null);
+                          }}
+                          onLoad={() => {
+                            console.log("✅ Home profile image loaded successfully:", userAvatar);
+                          }}
                         />
                       ) : (
                         <div className="w-full h-full bg-gradient-to-br from-purple-primary to-purple-secondary flex items-center justify-center">
