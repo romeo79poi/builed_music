@@ -845,31 +845,59 @@ export default function Signup() {
       // Clear any previous errors
       setErrorAlert(null);
 
-      // Use Firebase for email registration
-      const result = await signUpWithEmailAndPasswordWithVerification(
-        formData.email,
-        formData.password,
-        formData.name,
-        formData.username,
-        formData.phone
-      );
+      if (isSocialSignup && verificationUser) {
+        // For social signups, save the additional profile data
+        const completeUserData = {
+          uid: verificationUser.uid,
+          email: formData.email,
+          name: formData.name,
+          profileImageURL: formData.profileImageURL,
+          dateOfBirth: formData.dateOfBirth,
+          gender: formData.gender,
+          bio: formData.bio,
+        };
 
-      if (result.success) {
+        // Save user data to localStorage for immediate access
+        localStorage.setItem("currentUser", JSON.stringify(completeUserData));
+        localStorage.setItem("userAvatar", formData.profileImageURL || "");
+
+        console.log("💾 Saved social signup profile data:", completeUserData);
+
         toast({
-          title: "Account created successfully! 🎉",
-          description: result.message,
+          title: "Profile completed successfully! 🎉",
+          description: `Welcome to Music Catch, ${formData.name}!`,
         });
 
         setTimeout(() => {
           navigate("/home");
         }, 2000);
       } else {
-        setErrorAlert(result.message);
-        toast({
-          title: "Registration failed",
-          description: result.message,
-          variant: "destructive",
-        });
+        // Use Firebase for email registration
+        const result = await signUpWithEmailAndPasswordWithVerification(
+          formData.email,
+          formData.password,
+          formData.name,
+          formData.username,
+          formData.phone
+        );
+
+        if (result.success) {
+          toast({
+            title: "Account created successfully! 🎉",
+            description: result.message,
+          });
+
+          setTimeout(() => {
+            navigate("/home");
+          }, 2000);
+        } else {
+          setErrorAlert(result.message);
+          toast({
+            title: "Registration failed",
+            description: result.message,
+            variant: "destructive",
+          });
+        }
       }
     } catch (error) {
       console.error("Registration error:", error);
