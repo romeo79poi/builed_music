@@ -571,11 +571,42 @@ export default function Settings() {
             <ArrowLeft className="w-5 h-5 text-white" />
           </motion.button>
 
-          <h1 className="text-xl font-bold text-white dark:text-white light:text-gray-900">
-            Settings
-          </h1>
+          <div className="flex items-center space-x-2">
+            <h1 className="text-xl font-bold text-white dark:text-white light:text-gray-900">
+              Settings
+            </h1>
+            {firebaseUser && (
+              <div className="flex items-center space-x-1 px-2 py-1 bg-green-500/10 rounded-full">
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                <span className="text-xs text-green-500 font-medium">
+                  Firebase
+                </span>
+              </div>
+            )}
+          </div>
 
-          <div className="w-10 h-10"></div>
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              setLoading(true);
+              loadUserData();
+              loadUserSettings();
+              toast({
+                title: "Refreshing",
+                description: "Updating profile and settings...",
+              });
+            }}
+            className="w-10 h-10 rounded-full bg-purple-dark/50 backdrop-blur-sm flex items-center justify-center border border-purple-primary/30 hover:bg-purple-primary/20"
+            disabled={loading}
+          >
+            <motion.div
+              animate={loading ? { rotate: 360 } : {}}
+              transition={loading ? { duration: 1, repeat: Infinity, ease: "linear" } : {}}
+            >
+              <Download className="w-5 h-5 text-white" />
+            </motion.div>
+          </motion.button>
         </motion.header>
 
         {/* Main Content */}
