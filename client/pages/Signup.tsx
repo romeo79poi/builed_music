@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Eye,
@@ -43,6 +43,7 @@ import { firebaseHelpers } from "../lib/firebase-simple";
 type SignupStep =
   | "method"
   | "email"
+  | "email-verify"
   | "phone"
   | "phone-verify"
   | "profile"
@@ -85,6 +86,7 @@ interface ValidationErrors {
 
 export default function Signup() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
 
   const [currentStep, setCurrentStep] = useState<SignupStep>("method");
@@ -104,6 +106,21 @@ export default function Signup() {
     bio: "",
   });
 
+  // Pre-fill email if redirected from login
+  useEffect(() => {
+    const state = location.state as { email?: string };
+    if (state?.email) {
+      setFormData(prev => ({ ...prev, email: state.email }));
+      setSignupMethod("email");
+      setCurrentStep("email");
+      toast({
+        title: "Account not found",
+        description: `Please sign up with ${state.email}`,
+        variant: "default",
+      });
+    }
+  }, [location.state, toast]);
+
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -122,6 +139,9 @@ export default function Signup() {
   const [verificationUser, setVerificationUser] = useState<any>(null);
   const [emailVerificationSent, setEmailVerificationSent] = useState(false);
   const [phoneVerificationSent, setPhoneVerificationSent] = useState(false);
+  const [isSocialSignup, setIsSocialSignup] = useState(false);
+  const [tempEmailUser, setTempEmailUser] = useState<any>(null);
+  const [emailVerified, setEmailVerified] = useState(false);
 
   // Validation functions
   const validateEmail = (email: string): boolean => {
@@ -516,14 +536,25 @@ export default function Signup() {
       if (result.success && result.user) {
         console.log("✅ Firebase Google sign-in successful:", result.user);
 
+        // Store the user data from Google
+        setFormData((prev) => ({
+          ...prev,
+          email: result.user.email || "",
+          name: result.user.displayName || "",
+          profileImageURL: result.user.photoURL || "",
+        }));
+
+        // Store the authenticated user
+        setVerificationUser(result.user);
+        setIsSocialSignup(true);
+
         toast({
           title: "Welcome to CATCH! 🎉",
-          description: `Signed in as ${result.user.displayName || result.user.email}`,
+          description: `Please complete your profile setup`,
         });
 
-        setTimeout(() => {
-          navigate("/home");
-        }, 1500);
+        // Redirect to DOB step to collect additional information
+        setCurrentStep("dob");
       } else {
         setErrorAlert(result.error || "Google sign-in failed");
         toast({
@@ -558,14 +589,25 @@ export default function Signup() {
       if (result.success && result.user) {
         console.log("✅ Firebase Facebook sign-in successful:", result.user);
 
+        // Store the user data from Facebook
+        setFormData((prev) => ({
+          ...prev,
+          email: result.user.email || "",
+          name: result.user.displayName || "",
+          profileImageURL: result.user.photoURL || "",
+        }));
+
+        // Store the authenticated user
+        setVerificationUser(result.user);
+        setIsSocialSignup(true);
+
         toast({
           title: "Welcome to CATCH! 🎉",
-          description: `Signed in as ${result.user.displayName || result.user.email}`,
+          description: `Please complete your profile setup`,
         });
 
-        setTimeout(() => {
-          navigate("/home");
-        }, 1500);
+        // Redirect to DOB step to collect additional information
+        setCurrentStep("dob");
       } else {
         setErrorAlert(result.error || "Facebook sign-in failed");
         toast({
@@ -603,8 +645,60 @@ export default function Signup() {
   const handleEmailStep = async () => {
     if (!validateEmail(formData.email)) return;
 
-    // Skip separate email verification step and go directly to profile
-    setCurrentStep("profile");
+    setIsLoading(true);
+
+    try {
+      // Check if email is available
+      await checkAvailability("email", formData.email);
+
+      if (availability.email !== false) {
+        // Create temporary Firebase account to send verification
+        console.log("🔥 Creating temporary Firebase account for email verification...");
+
+        const tempPassword = Math.random().toString(36).slice(-8) + "A1!"; // Temporary password
+        const result = await signUpWithEmailAndPassword(
+          formData.email,
+          tempPassword,
+          "Temp User", // Temporary name
+          undefined,
+          undefined
+        );
+
+        if (result.success && result.user) {
+          setTempEmailUser(result.user);
+
+          // Send email verification immediately
+          const verificationResult = await sendFirebaseEmailVerification(result.user);
+
+          if (verificationResult.success) {
+            setEmailVerificationSent(true);
+            setResendTimer(60);
+
+            toast({
+              title: "Verification email sent! 📬",
+              description: `Please check ${formData.email} and click the verification link`,
+            });
+
+            // Go to email verification step
+            setCurrentStep("email-verify");
+          } else {
+            throw new Error(verificationResult.error || "Failed to send verification email");
+          }
+        } else {
+          throw new Error(result.error || "Failed to create account");
+        }
+      }
+    } catch (error: any) {
+      console.error("Email step error:", error);
+      setErrorAlert(error.message || "Failed to send verification email");
+      toast({
+        title: "Verification failed",
+        description: error.message || "Please try again",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handlePhoneStep = async () => {
@@ -622,6 +716,18 @@ export default function Signup() {
 
   const handleProfileStep = async () => {
     if (!validateProfile()) return;
+
+    // Check if email is verified for email signups
+    if (signupMethod === "email" && !emailVerified) {
+      setErrorAlert("Please verify your email address before continuing.");
+      toast({
+        title: "Email verification required",
+        description: "Please verify your email before completing your profile",
+        variant: "destructive",
+      });
+      setCurrentStep("email-verify");
+      return;
+    }
 
     setIsLoading(true);
     await checkAvailability("username", formData.username);
@@ -642,6 +748,63 @@ export default function Signup() {
     setCurrentStep("profile");
   };
 
+  const handleEmailVerifyStep = async () => {
+    if (!tempEmailUser) {
+      setErrorAlert("No user account found. Please start over.");
+      setCurrentStep("email");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Reload the user to get the latest emailVerified status
+      await tempEmailUser.reload();
+
+      if (tempEmailUser.emailVerified) {
+        setEmailVerified(true);
+        setVerificationUser(tempEmailUser);
+
+        toast({
+          title: "Email verified successfully! ✅",
+          description: "Now please complete your profile",
+        });
+
+        // Store verified email user data
+        setFormData(prev => ({
+          ...prev,
+          email: tempEmailUser.email || prev.email
+        }));
+
+        // Proceed to profile step
+        setCurrentStep("profile");
+      } else {
+        // Show verification error
+        setErrors(prev => ({
+          ...prev,
+          email: "Email not verified. Please check your email and click the verification link."
+        }));
+
+        toast({
+          title: "Email not verified ❌",
+          description: "Please check your email and click the verification link before continuing",
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      console.error("Email verification check error:", error);
+      setErrorAlert("Failed to check verification status. Please try again.");
+
+      toast({
+        title: "Verification check failed",
+        description: "Please try again or contact support",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handlePhoneVerifyStep = async () => {
     await verifyOTP();
   };
@@ -650,6 +813,12 @@ export default function Signup() {
     if (!validatePassword()) return;
 
     if (signupMethod === "email") {
+      // Check email verification status
+      if (!emailVerified) {
+        setErrorAlert("Email verification required.");
+        setCurrentStep("email-verify");
+        return;
+      }
       // For email signup, proceed to DOB step
       setCurrentStep("dob");
       return;
@@ -768,10 +937,25 @@ export default function Signup() {
 
   const handleDOBStep = () => {
     if (!validateDateOfBirth()) return;
+
+    // Check email verification for email signups
+    if (signupMethod === "email" && !emailVerified) {
+      setErrorAlert("Email verification required.");
+      setCurrentStep("email-verify");
+      return;
+    }
+
     setCurrentStep("profileImage");
   };
 
   const handleProfileImageStep = async () => {
+    // Check email verification for email signups
+    if (signupMethod === "email" && !emailVerified) {
+      setErrorAlert("Email verification required.");
+      setCurrentStep("email-verify");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -810,6 +994,14 @@ export default function Signup() {
 
   const handleGenderStep = () => {
     if (!validateGender()) return;
+
+    // Check email verification for email signups
+    if (signupMethod === "email" && !emailVerified) {
+      setErrorAlert("Email verification required.");
+      setCurrentStep("email-verify");
+      return;
+    }
+
     setCurrentStep("bio");
   };
 
@@ -822,31 +1014,146 @@ export default function Signup() {
       // Clear any previous errors
       setErrorAlert(null);
 
-      // Use Firebase for email registration
-      const result = await signUpWithEmailAndPasswordWithVerification(
-        formData.email,
-        formData.password,
-        formData.name,
-        formData.username,
-        formData.phone
-      );
+      if (isSocialSignup && verificationUser) {
+        // For social signups, save the additional profile data
+        const completeUserData = {
+          uid: verificationUser.uid,
+          email: formData.email,
+          name: formData.name,
+          profileImageURL: formData.profileImageURL,
+          dateOfBirth: formData.dateOfBirth,
+          gender: formData.gender,
+          bio: formData.bio,
+        };
 
-      if (result.success) {
+        // Save user data to localStorage for immediate access
+        localStorage.setItem("currentUser", JSON.stringify(completeUserData));
+        localStorage.setItem("userAvatar", formData.profileImageURL || "");
+
+        console.log("�� Saved social signup profile data:", completeUserData);
+
         toast({
-          title: "Account created successfully! 🎉",
-          description: result.message,
+          title: "Profile completed successfully! 🎉",
+          description: `Welcome to Music Catch, ${formData.name}!`,
         });
 
         setTimeout(() => {
           navigate("/home");
         }, 2000);
       } else {
-        setErrorAlert(result.message);
-        toast({
-          title: "Registration failed",
-          description: result.message,
-          variant: "destructive",
-        });
+        // For email signup, use the already verified user
+        if (!tempEmailUser || !emailVerified) {
+          setErrorAlert("Email verification required. Please verify your email first.");
+          setCurrentStep("email-verify");
+          return;
+        }
+
+        // Update the verified user with complete profile data
+        const result = { success: true, user: tempEmailUser };
+
+        if (result.success && result.user) {
+          // Update the verified user's display name and profile
+          try {
+            await result.user.updateProfile({
+              displayName: formData.name,
+              photoURL: formData.profileImageURL || null,
+            });
+            console.log("✅ Updated Firebase user profile");
+          } catch (updateError) {
+            console.warn("⚠️ Failed to update Firebase profile:", updateError);
+          }
+
+          // Save complete profile data to Firestore
+          const additionalProfileData = {
+            username: formData.username,
+            name: formData.name,
+            dob: formData.dateOfBirth,
+            gender: formData.gender,
+            bio: formData.bio,
+            profileImage: formData.profileImageURL,
+          };
+
+          console.log("💾 Saving complete profile data:", additionalProfileData);
+
+          const saveResult = await saveUserData(result.user, additionalProfileData);
+
+          if (saveResult.success) {
+            console.log("✅ Complete profile data saved to Firestore");
+          } else {
+            console.warn("⚠️ Failed to save complete profile data:", saveResult.error);
+          }
+
+          // Save complete user data to localStorage for immediate access
+          const completeUserData = {
+            uid: result.user.uid,
+            email: formData.email,
+            name: formData.name,
+            username: formData.username,
+            profileImageURL: formData.profileImageURL,
+            dateOfBirth: formData.dateOfBirth,
+            gender: formData.gender,
+            bio: formData.bio,
+            phone: formData.phone,
+            emailVerified: result.user.emailVerified,
+          };
+
+          localStorage.setItem("currentUser", JSON.stringify(completeUserData));
+          localStorage.setItem("userAvatar", formData.profileImageURL || "");
+
+          console.log("💾 Saved complete user data to localStorage:", completeUserData);
+
+          // Try to sync with backend API if available
+          try {
+            const backendSyncResponse = await fetch("/api/auth/register", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                id: result.user.uid,
+                email: formData.email,
+                name: formData.name,
+                username: formData.username,
+                password: formData.password,
+                dateOfBirth: formData.dateOfBirth,
+                gender: formData.gender,
+                bio: formData.bio,
+                profileImageURL: formData.profileImageURL,
+                phone: formData.phone,
+                emailVerified: result.user.emailVerified,
+              }),
+            });
+
+            if (backendSyncResponse.ok) {
+              const backendResult = await backendSyncResponse.json();
+              console.log("✅ User data synced with backend:", backendResult);
+            } else {
+              console.warn("⚠️ Backend sync failed, but continuing with Firebase-only data");
+            }
+          } catch (backendError) {
+            console.warn("⚠️ Backend sync error (continuing with Firebase):", backendError);
+          }
+
+          // Send Firebase email verification notification
+          setEmailVerificationSent(true);
+          setVerificationUser(result.user);
+
+          toast({
+            title: "Account created successfully! 🎉",
+            description: "Please check your email for verification link",
+          });
+
+          setTimeout(() => {
+            navigate("/home");
+          }, 2000);
+        } else {
+          setErrorAlert(result.message);
+          toast({
+            title: "Registration failed",
+            description: result.message,
+            variant: "destructive",
+          });
+        }
       }
     } catch (error) {
       console.error("Registration error:", error);
@@ -859,13 +1166,15 @@ export default function Signup() {
   const goBack = () => {
     if (currentStep === "email") {
       setCurrentStep("method");
+    } else if (currentStep === "email-verify") {
+      setCurrentStep("email");
     } else if (currentStep === "phone") {
       setCurrentStep("method");
     } else if (currentStep === "phone-verify") {
       setCurrentStep("phone");
     } else if (currentStep === "profile") {
       if (signupMethod === "email") {
-        setCurrentStep("email");
+        setCurrentStep("email-verify");
       } else {
         setCurrentStep("phone-verify");
       }
@@ -990,6 +1299,7 @@ export default function Signup() {
   const stepTitles = {
     method: "Choose signup method",
     email: "What's your email?",
+    "email-verify": "Verify your email",
     phone: "What's your phone number?",
     "phone-verify": "Verify your phone",
     profile: "Tell us about yourself",
@@ -1003,7 +1313,8 @@ export default function Signup() {
 
   const stepDescriptions = {
     method: "Sign up with email, phone, or social media",
-    email: "We'll send you a verification email",
+    email: "We'll send you a verification email immediately",
+    "email-verify": "Click the verification link sent to your email",
     phone: "We'll send you a verification code",
     "phone-verify": "Enter the 6-digit code we sent to your phone",
     profile: "Help others find you on Music Catch",
@@ -1258,6 +1569,23 @@ export default function Signup() {
                 )}
               </div>
 
+              {/* Firebase Verification Info */}
+              <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-3">
+                <div className="flex items-center space-x-2">
+                  <svg className="w-5 h-5 text-blue-400" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M3.89 15.673L6.255 12.5H8.5l-2.82 4.5H8v2H3.5l.39-2.827zM13.5 12.5L11.145 15.673L11.535 18.5H16v-2h-2.32L16.5 12.5H13.5zM12 2.5c5.799 0 10.5 4.701 10.5 10.5S17.799 23.5 12 23.5 1.5 18.799 1.5 13 6.201 2.5 12 2.5z"/>
+                  </svg>
+                  <div>
+                    <p className="text-blue-400 text-xs font-medium">
+                      🔥 Powered by Firebase
+                    </p>
+                    <p className="text-blue-300 text-xs">
+                      Secure email verification will be sent after account creation
+                    </p>
+                  </div>
+                </div>
+              </div>
+
               <button
                 onClick={handleEmailStep}
                 disabled={isLoading || !formData.email}
@@ -1343,6 +1671,137 @@ export default function Signup() {
                 className="w-full text-purple-secondary hover:text-purple-primary transition-colors text-sm mt-4"
               >
                 ← Back to other options
+              </button>
+            </motion.div>
+          )}
+
+          {/* Email Verification Step */}
+          {currentStep === "email-verify" && (
+            <motion.div
+              key="email-verify"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              className="space-y-4 sm:space-y-6"
+            >
+              <div className="text-center mb-4 sm:mb-6">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <Mail className="w-6 h-6 sm:w-8 sm:h-8 text-blue-500" />
+                </div>
+                <h3 className="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">
+                  Verify your email
+                </h3>
+                <p className="text-slate-400 text-xs sm:text-sm px-2">
+                  Check your email and click the verification link to continue
+                </p>
+              </div>
+
+              <div className="text-center">
+                <p className="text-white mb-2 text-sm sm:text-base">
+                  Verification email sent to:
+                </p>
+                <p className="text-purple-primary font-medium text-sm sm:text-base mb-4 break-all">
+                  {formData.email}
+                </p>
+
+                {emailVerified ? (
+                  <div className="flex items-center justify-center space-x-2 text-green-500 text-sm mb-4">
+                    <CheckCircle className="w-4 h-4" />
+                    <span>Email verified successfully!</span>
+                  </div>
+                ) : (
+                  <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 mb-4">
+                    <div className="flex items-center space-x-2">
+                      <AlertCircle className="w-5 h-5 text-yellow-500" />
+                      <div className="text-left">
+                        <p className="text-yellow-500 text-sm font-medium">
+                          📬 Check your email inbox
+                        </p>
+                        <p className="text-yellow-400 text-xs">
+                          1. Open the email from Music Catch<br/>
+                          2. Click the "Verify Email" button<br/>
+                          3. Return here and click "Check Verification Status"
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {errors.email && (
+                  <div className="bg-red-500/10 border border-red-500 rounded-xl p-4 mb-4">
+                    <div className="flex items-center space-x-2">
+                      <AlertCircle className="w-5 h-5 text-red-500" />
+                      <p className="text-red-500 text-sm font-medium">
+                        {errors.email}
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <button
+                onClick={handleEmailVerifyStep}
+                disabled={isLoading}
+                className="w-full h-12 sm:h-14 bg-gradient-to-r from-purple-primary to-purple-secondary hover:from-purple-secondary hover:to-purple-accent text-white font-bold text-sm sm:text-lg rounded-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none shadow-lg shadow-purple-primary/30 hover:shadow-purple-secondary/40"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mx-auto" />
+                ) : (
+                  "Check Verification Status"
+                )}
+              </button>
+
+              <div className="text-center">
+                <p className="text-slate-400 text-xs sm:text-sm mb-2">
+                  Didn't receive the email?
+                </p>
+                <button
+                  onClick={async () => {
+                    if (tempEmailUser && resendTimer === 0) {
+                      setIsLoading(true);
+                      try {
+                        const result = await sendFirebaseEmailVerification(tempEmailUser);
+                        if (result.success) {
+                          setResendTimer(60);
+                          toast({
+                            title: "Verification email resent! 📬",
+                            description: "Please check your email",
+                          });
+                        } else {
+                          throw new Error(result.error);
+                        }
+                      } catch (error: any) {
+                        toast({
+                          title: "Resend failed",
+                          description: error.message || "Please try again",
+                          variant: "destructive",
+                        });
+                      } finally {
+                        setIsLoading(false);
+                      }
+                    }
+                  }}
+                  disabled={resendTimer > 0 || isLoading}
+                  className="text-purple-primary hover:text-purple-secondary text-xs sm:text-sm disabled:opacity-50 flex items-center space-x-1 mx-auto"
+                >
+                  {isLoading ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <RefreshCw className="w-3 h-3" />
+                  )}
+                  <span>
+                    {resendTimer > 0
+                      ? `Resend in ${resendTimer}s`
+                      : "Resend verification email"}
+                  </span>
+                </button>
+              </div>
+
+              <button
+                onClick={() => setCurrentStep("email")}
+                className="w-full text-purple-primary hover:text-purple-secondary transition-colors text-sm mt-4"
+              >
+                ← Change email address
               </button>
             </motion.div>
           )}
@@ -2152,6 +2611,23 @@ export default function Signup() {
                   </p>
                 </div>
               </div>
+
+              {/* Email Verification Info for non-social signups */}
+              {!isSocialSignup && (
+                <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4 mb-4">
+                  <div className="flex items-center space-x-2">
+                    <Mail className="w-5 h-5 text-blue-400" />
+                    <div>
+                      <p className="text-blue-400 text-sm font-medium">
+                        Email verification via Firebase
+                      </p>
+                      <p className="text-blue-300 text-xs">
+                        We'll send a verification link to {formData.email}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               <button
                 onClick={handleBioStep}

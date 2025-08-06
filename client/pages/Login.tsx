@@ -13,7 +13,9 @@ import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useFirebase } from "../context/FirebaseContext";
 import { useToast } from "../hooks/use-toast";
 import { firebaseHelpers } from "../lib/firebase-simple";
-import { loginWithEmailAndPassword } from "../lib/auth";
+import { loginWithEmailAndPassword, saveUserData, fetchUserData, sendFirebaseEmailVerification } from "../lib/auth";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "../lib/firebase";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -29,6 +31,33 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [authError, setAuthError] = useState<string | null>(null);
+  const [showResendVerification, setShowResendVerification] = useState(false);
+  const [unverifiedUser, setUnverifiedUser] = useState<any>(null);
+  const [networkStatus, setNetworkStatus] = useState({
+    isOnline: navigator.onLine,
+    lastChecked: Date.now(),
+  });
+
+  // Monitor network status
+  useEffect(() => {
+    const handleOnline = () => {
+      setNetworkStatus({ isOnline: true, lastChecked: Date.now() });
+      console.log('✅ Network connection restored');
+    };
+
+    const handleOffline = () => {
+      setNetworkStatus({ isOnline: false, lastChecked: Date.now() });
+      console.log('❌ Network connection lost');
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -37,6 +66,249 @@ export default function Login() {
       navigate("/home");
     }
   }, [firebaseUser, loading, navigate]);
+
+  const checkUserExists = async (email: string) => {
+    try {
+      console.log("🔍 Checking user existence for:", email);
+
+      // Check localStorage for recent signup data first (faster)
+      const localUser = localStorage.getItem('currentUser');
+      if (localUser) {
+        try {
+          const userData = JSON.parse(localUser);
+          if (userData.email === email) {
+            console.log("✅ User found in localStorage");
+            return { exists: true, source: 'localStorage', data: userData };
+          }
+        } catch (error) {
+          console.log("⚠️ Failed to parse localStorage user data");
+        }
+      }
+
+      // For now, assume user exists if we reach here
+      // The actual Firebase login will handle user-not-found errors
+      console.log("🔍 User existence check completed");
+      return { exists: true, source: 'assumed', data: null };
+
+    } catch (error) {
+      console.error("❌ Error checking user existence:", error);
+      return { exists: true, source: 'error', data: null }; // Allow login attempt
+    }
+  };
+
+  const handleResendVerification = async () => {
+    if (!unverifiedUser) return;
+
+    setIsLoading(true);
+
+    try {
+      const result = await sendFirebaseEmailVerification(unverifiedUser);
+
+      if (result.success) {
+        toast({
+          title: "Verification email sent! 📬",
+          description: "Please check your email and click the verification link",
+        });
+
+        setShowResendVerification(false);
+      } else {
+        toast({
+          title: "Failed to send verification email",
+          description: result.error || "Please try again",
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      console.error("Resend verification error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to send verification email",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const loadUserActivityData = async (userId: string, userProfile: any) => {
+    try {
+      console.log("🎵 Loading user activity data...");
+
+      // Fetch user profile data from backend
+      try {
+        const profileResponse = await fetch(`/api/profile/${userId}`, {
+          headers: {
+            'user-id': userId,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (profileResponse.ok) {
+          const profileData = await profileResponse.json();
+          if (profileData.success) {
+            console.log("✅ User profile data loaded:", profileData.data);
+
+            // Store profile activity data
+            const activityData = {
+              profile: profileData.data,
+              likedSongs: profileData.data.likedSongs || [],
+              recentlyPlayed: profileData.data.recentlyPlayed || [],
+              playlists: profileData.data.playlists || [],
+              followers: profileData.data.followers || 0,
+              following: profileData.data.following || 0,
+              musicPreferences: profileData.data.musicPreferences || {},
+            };
+
+            localStorage.setItem('userActivity', JSON.stringify(activityData));
+            console.log("💾 User activity data saved to localStorage");
+          }
+        }
+      } catch (profileError) {
+        console.warn("⚠️ Profile fetch failed:", profileError);
+      }
+
+      // Try to fetch liked songs
+      try {
+        const likedResponse = await fetch(`/api/profile/${userId}/liked-songs`, {
+          headers: {
+            'user-id': userId,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (likedResponse.ok) {
+          const likedData = await likedResponse.json();
+          if (likedData.success) {
+            localStorage.setItem('userLikedSongs', JSON.stringify(likedData.data.songs || []));
+            console.log("✅ Liked songs loaded:", likedData.data.songs?.length || 0);
+          }
+        }
+      } catch (likedError) {
+        console.warn("⚠️ Liked songs fetch failed:", likedError);
+      }
+
+      // Try to fetch recently played
+      try {
+        const recentResponse = await fetch(`/api/profile/${userId}/recently-played`, {
+          headers: {
+            'user-id': userId,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (recentResponse.ok) {
+          const recentData = await recentResponse.json();
+          if (recentData.success) {
+            localStorage.setItem('userRecentlyPlayed', JSON.stringify(recentData.data.songs || []));
+            console.log("✅ Recently played loaded:", recentData.data.songs?.length || 0);
+          }
+        }
+      } catch (recentError) {
+        console.warn("⚠️ Recently played fetch failed:", recentError);
+      }
+
+    } catch (error) {
+      console.error("❌ Error loading user activity data:", error);
+    }
+  };
+
+  const loadCompleteUserProfile = async (user: any) => {
+    try {
+      console.log("💾 Loading complete user profile for:", user.email);
+
+      // Try to get complete profile data from Firestore
+      if (db) {
+        try {
+          const userDoc = await getDoc(doc(db, "users", user.uid));
+          if (userDoc.exists()) {
+            const firestoreData = userDoc.data();
+            console.log("✅ Firestore profile data found:", firestoreData);
+
+            // Combine Firebase auth data with Firestore profile data
+            const completeProfile = {
+              uid: user.uid,
+              email: user.email,
+              name: firestoreData.name || user.displayName || "User",
+              username: firestoreData.username || user.email?.split('@')[0] || "user",
+              profileImageURL: firestoreData.profileImageURL || user.photoURL || "",
+              dateOfBirth: firestoreData.dob || "",
+              gender: firestoreData.gender || "",
+              bio: firestoreData.bio || "",
+              phone: firestoreData.phone || user.phoneNumber || "",
+              emailVerified: user.emailVerified,
+              verified: firestoreData.verified || user.emailVerified,
+              createdAt: firestoreData.createdAt,
+              lastLoginAt: new Date().toISOString(),
+            };
+
+            // Save to localStorage for immediate access
+            localStorage.setItem('currentUser', JSON.stringify(completeProfile));
+            localStorage.setItem('userAvatar', completeProfile.profileImageURL || '');
+
+            console.log("💾 Complete profile saved to localStorage:", completeProfile);
+
+            // Fetch user activity data
+            await loadUserActivityData(user.uid, completeProfile);
+
+            // Try to sync with backend API if available
+            try {
+              const backendSyncResponse = await fetch('/api/v1/users/sync', {
+                method: 'POST',
+                headers: {
+                  'user-id': user.uid,
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                  firebase_uid: user.uid,
+                  email: user.email,
+                  display_name: completeProfile.name,
+                  username: completeProfile.username,
+                  profile_image_url: completeProfile.profileImageURL,
+                  date_of_birth: completeProfile.dateOfBirth,
+                  gender: completeProfile.gender,
+                  bio: completeProfile.bio,
+                  phone: completeProfile.phone,
+                  email_verified: user.emailVerified,
+                }),
+              });
+
+              if (backendSyncResponse.ok) {
+                const syncResult = await backendSyncResponse.json();
+                console.log("✅ Profile synced with backend:", syncResult);
+              }
+            } catch (backendError) {
+              console.warn("⚠️ Backend sync failed (continuing with Firebase data):", backendError);
+            }
+
+            return completeProfile;
+          }
+        } catch (firestoreError) {
+          console.warn("⚠️ Firestore fetch failed:", firestoreError);
+        }
+      }
+
+      // Fallback: create basic profile from Firebase auth data
+      const basicProfile = {
+        uid: user.uid,
+        email: user.email,
+        name: user.displayName || user.email?.split('@')[0] || "User",
+        username: user.email?.split('@')[0] || "user",
+        profileImageURL: user.photoURL || "",
+        emailVerified: user.emailVerified,
+        lastLoginAt: new Date().toISOString(),
+      };
+
+      localStorage.setItem('currentUser', JSON.stringify(basicProfile));
+      localStorage.setItem('userAvatar', basicProfile.profileImageURL || '');
+
+      console.log("💾 Basic profile saved to localStorage:", basicProfile);
+      return basicProfile;
+
+    } catch (error) {
+      console.error("❌ Error loading user profile:", error);
+      return null;
+    }
+  };
 
   const handleEmailLogin = async () => {
     if (!email || !password) {
@@ -51,34 +323,105 @@ export default function Login() {
     setIsLoading(true);
     setAuthError(null);
 
+    // Add timeout for long-running requests
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Request timed out after 30 seconds')), 30000);
+    });
+
     try {
-      console.log("🔑 Attempting Firebase email login...");
-      
+      console.log("🔍 Checking if user exists for email:", email);
+
+      // Check if user exists (mainly for localStorage cache)
+      const userCheck = await checkUserExists(email);
+
+      if (userCheck.exists && userCheck.source === 'localStorage') {
+        console.log("✅ User found in cache, proceeding with login");
+      }
+
+      console.log("🔑 User exists, attempting Firebase email login...");
+
       // Use Firebase authentication
       const result = await loginWithEmailAndPassword(email, password);
 
-      if (result.success) {
+      if (result.success && result.user) {
+        // Check email verification status for signup users
+        if (!result.user.emailVerified) {
+          console.log("⚠️ User email not verified");
+
+          toast({
+            title: "Email verification required 📬",
+            description: "Please check your email and verify your account before logging in",
+            variant: "destructive",
+          });
+
+          setAuthError("Please verify your email address before logging in. Check your inbox for the verification link.");
+          setShowResendVerification(true);
+          setUnverifiedUser(result.user);
+          return;
+        }
+
+        // Fetch complete user profile data
+        await loadCompleteUserProfile(result.user);
+
         toast({
           title: "Welcome back! 🎉",
-          description: "Successfully logged in with Firebase",
+          description: "Successfully logged in",
         });
 
         console.log("✅ Firebase email login successful");
         navigate("/home");
       } else {
-        setAuthError(result.error || "Login failed");
+        // Handle specific error cases
+        let errorMessage = result.error || "Login failed";
+        let shouldRedirectToSignup = false;
+
+        if (errorMessage.includes("user-not-found") || errorMessage.includes("auth/user-not-found")) {
+          errorMessage = "Account not found. Redirecting to signup...";
+          shouldRedirectToSignup = true;
+        } else if (errorMessage.includes("wrong-password") || errorMessage.includes("auth/wrong-password")) {
+          errorMessage = "Incorrect password. Please try again.";
+        } else if (errorMessage.includes("invalid-email") || errorMessage.includes("auth/invalid-email")) {
+          errorMessage = "Invalid email format.";
+        } else if (errorMessage.includes("too-many-requests")) {
+          errorMessage = "Too many failed attempts. Please try again later.";
+        }
+
+        if (shouldRedirectToSignup) {
+          setTimeout(() => {
+            navigate("/signup", { state: { email: email } });
+          }, 2000);
+        }
+
+        setAuthError(errorMessage);
         toast({
           title: "Login failed",
-          description: result.error || "Invalid email or password",
+          description: errorMessage,
           variant: "destructive",
         });
       }
     } catch (error: any) {
       console.error("❌ Email login error:", error);
-      setAuthError(error.message || "Login failed");
+
+      let errorMessage = error.message || "Login failed";
+
+      // Handle Firebase error codes
+      if (error.code === 'auth/user-not-found') {
+        errorMessage = "Account not found. Redirecting to signup...";
+        setTimeout(() => {
+          navigate("/signup", { state: { email: email } });
+        }, 2000);
+      } else if (error.code === 'auth/wrong-password') {
+        errorMessage = "Incorrect password. Please try again.";
+      } else if (error.code === 'auth/invalid-email') {
+        errorMessage = "Invalid email format.";
+      } else if (error.code === 'auth/user-disabled') {
+        errorMessage = "This account has been disabled.";
+      }
+
+      setAuthError(errorMessage);
       toast({
         title: "Login error",
-        description: error.message || "An unexpected error occurred",
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
@@ -420,11 +763,100 @@ export default function Login() {
                   Authentication Error
                 </h4>
                 <p className="text-red-200 text-sm mt-1">{authError}</p>
+                <div className="flex items-center space-x-3 mt-3">
+                  <button
+                    onClick={() => setAuthError(null)}
+                    className="text-red-400 hover:text-red-300 text-sm font-medium"
+                  >
+                    Dismiss
+                  </button>
+
+                  {showResendVerification && (
+                    <button
+                      onClick={handleResendVerification}
+                      disabled={isLoading}
+                      className="text-purple-400 hover:text-purple-300 text-sm font-medium disabled:opacity-50 flex items-center space-x-1"
+                    >
+                      {isLoading ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <Mail className="w-3 h-3" />
+                      )}
+                      <span>Resend verification email</span>
+                    </button>
+                  )}
+
+                  {authError?.includes('network') && (
+                    <button
+                      onClick={handleEmailLogin}
+                      disabled={isLoading}
+                      className="text-green-400 hover:text-green-300 text-sm font-medium disabled:opacity-50 flex items-center space-x-1"
+                    >
+                      {isLoading ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                      )}
+                      <span>Retry login</span>
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Network Status Indicator */}
+        {!networkStatus.isOnline && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mt-6 p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg"
+          >
+            <div className="flex items-center space-x-3">
+              <AlertCircle className="w-5 h-5 text-yellow-500" />
+              <div className="flex-1">
+                <h4 className="text-yellow-500 font-medium text-sm">
+                  No Internet Connection
+                </h4>
+                <p className="text-yellow-200 text-sm mt-1">
+                  Please check your internet connection and try again.
+                </p>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Firebase Connection Status */}
+        {networkStatus.isOnline && authError?.includes('network') && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="mt-6 p-4 bg-blue-500/10 border border-blue-500/30 rounded-lg"
+          >
+            <div className="flex items-center space-x-3">
+              <AlertCircle className="w-5 h-5 text-blue-500" />
+              <div className="flex-1">
+                <h4 className="text-blue-500 font-medium text-sm">
+                  Connection Issue
+                </h4>
+                <p className="text-blue-200 text-sm mt-1">
+                  Having trouble connecting to Firebase. This might be due to:
+                </p>
+                <ul className="text-blue-200 text-xs mt-2 ml-4 list-disc space-y-1">
+                  <li>Firewall or network restrictions</li>
+                  <li>Temporary server issues</li>
+                  <li>Browser security settings</li>
+                </ul>
                 <button
-                  onClick={() => setAuthError(null)}
-                  className="mt-3 text-red-400 hover:text-red-300 text-sm font-medium"
+                  onClick={() => window.location.reload()}
+                  className="mt-3 text-blue-400 hover:text-blue-300 text-sm font-medium"
                 >
-                  Dismiss
+                  Refresh Page
                 </button>
               </div>
             </div>

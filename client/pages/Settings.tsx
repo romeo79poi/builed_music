@@ -269,6 +269,52 @@ export default function Settings() {
       console.log("🔥 Firebase user UID:", firebaseUser.uid);
       console.log("🔥 Firebase user metadata:", firebaseUser.metadata);
 
+      // Try to load from localStorage first (for email signup users)
+      const localUserData = localStorage.getItem("currentUser");
+      if (localUserData) {
+        try {
+          const userData = JSON.parse(localUserData);
+          console.log("💾 Found localStorage user data:", userData);
+
+          if (userData.uid === firebaseUser.uid) {
+            const localProfile = {
+              name: userData.name || firebaseUser.displayName || "User",
+              email: userData.email || firebaseUser.email || "No email",
+              profileImage: userData.profileImageURL || firebaseUser.photoURL || `https://ui-avatars.io/api/?name=${encodeURIComponent(userData.name || "User")}&background=6366f1&color=fff&size=64`,
+              joinDate: firebaseUser.metadata.creationTime
+                ? new Date(firebaseUser.metadata.creationTime).toLocaleDateString(
+                    "en-US",
+                    {
+                      year: "numeric",
+                      month: "short",
+                      day: "numeric",
+                    },
+                  )
+                : "Unknown",
+              premium: false,
+              firebaseUid: firebaseUser.uid,
+              emailVerified: firebaseUser.emailVerified,
+              lastSignIn: firebaseUser.metadata.lastSignInTime
+                ? new Date(firebaseUser.metadata.lastSignInTime).toLocaleDateString()
+                : "Unknown",
+              // Additional profile data from signup
+              username: userData.username,
+              dateOfBirth: userData.dateOfBirth,
+              gender: userData.gender,
+              bio: userData.bio,
+              phone: userData.phone,
+            };
+
+            setUserProfile(localProfile);
+            console.log("✅ Profile loaded from localStorage:", localProfile);
+            setLoading(false);
+            return;
+          }
+        } catch (error) {
+          console.warn("⚠️ Failed to parse localStorage user data:", error);
+        }
+      }
+
       // Enhanced Firebase user data
       const firebaseProfile = {
         name:

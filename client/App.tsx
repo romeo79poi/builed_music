@@ -11,6 +11,7 @@ import { ProfileProvider } from "./context/ProfileContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
 import { FirebaseProvider } from "./context/FirebaseContext";
+import { SocialProvider } from "./context/SocialContext";
 // import { SocketProvider } from "./context/SocketContext";
 import AuthRouter from "./components/AuthRouter";
 import Splash from "./pages/Splash";
@@ -31,6 +32,7 @@ import Upload from "./pages/Upload";
 import Rewards from "./pages/Rewards";
 import Reels from "./pages/Reels";
 import Messages from "./pages/Messages";
+import Discover from "./pages/Discover";
 import VerifyEmail from "./pages/VerifyEmail";
 import ResetPassword from "./pages/ResetPassword";
 import CodeGenerator from "./pages/CodeGenerator";
@@ -46,8 +48,9 @@ const App = () => {
         <TooltipProvider>
           <FirebaseProvider>
             <AuthProvider>
-              <MusicProvider>
-              <ProfileProvider>
+              <SocialProvider>
+                <MusicProvider>
+                <ProfileProvider>
                 <Toaster />
                 <Sonner />
                 <BrowserRouter>
@@ -71,6 +74,7 @@ const App = () => {
                     <Route path="/rewards" element={<Rewards />} />
                     <Route path="/reels" element={<Reels />} />
                     <Route path="/messages" element={<Messages />} />
+                    <Route path="/discover" element={<Discover />} />
                     <Route path="/verify-email" element={<VerifyEmail />} />
                     <Route path="/reset-password" element={<ResetPassword />} />
                     <Route path="/code-generator" element={<CodeGenerator />} />
@@ -79,8 +83,9 @@ const App = () => {
                     <Route path="*" element={<NotFound />} />
                   </Routes>
                 </BrowserRouter>
-              </ProfileProvider>
-              </MusicProvider>
+                </ProfileProvider>
+                </MusicProvider>
+              </SocialProvider>
             </AuthProvider>
           </FirebaseProvider>
         </TooltipProvider>

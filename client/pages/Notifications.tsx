@@ -24,6 +24,7 @@ import {
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
 import { useFirebase } from "../context/FirebaseContext";
+import { useSocial } from "../context/SocialContext";
 
 interface Notification {
   id: string;
@@ -112,7 +113,13 @@ export default function Notifications() {
   const navigate = useNavigate();
   const { user: firebaseUser } = useFirebase();
   const { toast } = useToast();
-  
+  const {
+    notifications: socialNotifications,
+    unreadNotifications,
+    markNotificationAsRead,
+    markAllNotificationsAsRead
+  } = useSocial();
+
   const [notifications, setNotifications] = useState<Notification[]>(sampleNotifications);
   const [selectedTab, setSelectedTab] = useState("all");
   const [showSettings, setShowSettings] = useState(false);
