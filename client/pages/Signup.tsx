@@ -1097,13 +1097,15 @@ export default function Signup() {
   const goBack = () => {
     if (currentStep === "email") {
       setCurrentStep("method");
+    } else if (currentStep === "email-verify") {
+      setCurrentStep("email");
     } else if (currentStep === "phone") {
       setCurrentStep("method");
     } else if (currentStep === "phone-verify") {
       setCurrentStep("phone");
     } else if (currentStep === "profile") {
       if (signupMethod === "email") {
-        setCurrentStep("email");
+        setCurrentStep("email-verify");
       } else {
         setCurrentStep("phone-verify");
       }
