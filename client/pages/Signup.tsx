@@ -701,6 +701,18 @@ export default function Signup() {
   const handleProfileStep = async () => {
     if (!validateProfile()) return;
 
+    // Check if email is verified for email signups
+    if (signupMethod === "email" && !emailVerified) {
+      setErrorAlert("Please verify your email address before continuing.");
+      toast({
+        title: "Email verification required",
+        description: "Please verify your email before completing your profile",
+        variant: "destructive",
+      });
+      setCurrentStep("email-verify");
+      return;
+    }
+
     setIsLoading(true);
     await checkAvailability("username", formData.username);
     setIsLoading(false);
