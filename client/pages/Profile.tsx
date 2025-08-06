@@ -172,6 +172,13 @@ export default function Profile() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user: firebaseUser, loading: firebaseLoading } = useFirebase();
+  const {
+    isFollowing: isFollowingUser,
+    followUser,
+    unfollowUser,
+    followersCount: socialFollowersCount,
+    followingCount: socialFollowingCount
+  } = useSocial();
 
   // State management
   const [profile, setProfile] = useState<UserProfile | null>(null);
