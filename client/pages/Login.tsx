@@ -780,6 +780,23 @@ export default function Login() {
                       <span>Resend verification email</span>
                     </button>
                   )}
+
+                  {authError?.includes('network') && (
+                    <button
+                      onClick={handleEmailLogin}
+                      disabled={isLoading}
+                      className="text-green-400 hover:text-green-300 text-sm font-medium disabled:opacity-50 flex items-center space-x-1"
+                    >
+                      {isLoading ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                      )}
+                      <span>Retry login</span>
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
