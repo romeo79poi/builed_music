@@ -110,7 +110,7 @@ export default function Signup() {
   useEffect(() => {
     const state = location.state as { email?: string };
     if (state?.email) {
-      setFormData(prev => ({ ...prev, email: state.email }));
+      setFormData((prev) => ({ ...prev, email: state.email }));
       setSignupMethod("email");
       setCurrentStep("email");
       toast({
@@ -602,7 +602,7 @@ export default function Signup() {
         setIsSocialSignup(true);
 
         toast({
-          title: "Welcome to CATCH! 🎉",
+          title: "Welcome to CATCH! ��",
           description: `Please complete your profile setup`,
         });
 
@@ -653,7 +653,9 @@ export default function Signup() {
 
       if (availability.email !== false) {
         // Create temporary Firebase account to send verification
-        console.log("🔥 Creating temporary Firebase account for email verification...");
+        console.log(
+          "🔥 Creating temporary Firebase account for email verification...",
+        );
 
         const tempPassword = Math.random().toString(36).slice(-8) + "A1!"; // Temporary password
         const result = await signUpWithEmailAndPassword(
@@ -661,14 +663,16 @@ export default function Signup() {
           tempPassword,
           "Temp User", // Temporary name
           undefined,
-          undefined
+          undefined,
         );
 
         if (result.success && result.user) {
           setTempEmailUser(result.user);
 
           // Send email verification immediately
-          const verificationResult = await sendFirebaseEmailVerification(result.user);
+          const verificationResult = await sendFirebaseEmailVerification(
+            result.user,
+          );
 
           if (verificationResult.success) {
             setEmailVerificationSent(true);
@@ -682,7 +686,9 @@ export default function Signup() {
             // Go to email verification step
             setCurrentStep("email-verify");
           } else {
-            throw new Error(verificationResult.error || "Failed to send verification email");
+            throw new Error(
+              verificationResult.error || "Failed to send verification email",
+            );
           }
         } else {
           throw new Error(result.error || "Failed to create account");
@@ -771,23 +777,25 @@ export default function Signup() {
         });
 
         // Store verified email user data
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
-          email: tempEmailUser.email || prev.email
+          email: tempEmailUser.email || prev.email,
         }));
 
         // Proceed to profile step
         setCurrentStep("profile");
       } else {
         // Show verification error
-        setErrors(prev => ({
+        setErrors((prev) => ({
           ...prev,
-          email: "Email not verified. Please check your email and click the verification link."
+          email:
+            "Email not verified. Please check your email and click the verification link.",
         }));
 
         toast({
           title: "Email not verified ❌",
-          description: "Please check your email and click the verification link before continuing",
+          description:
+            "Please check your email and click the verification link before continuing",
           variant: "destructive",
         });
       }
@@ -1043,7 +1051,9 @@ export default function Signup() {
       } else {
         // For email signup, use the already verified user
         if (!tempEmailUser || !emailVerified) {
-          setErrorAlert("Email verification required. Please verify your email first.");
+          setErrorAlert(
+            "Email verification required. Please verify your email first.",
+          );
           setCurrentStep("email-verify");
           return;
         }
@@ -1073,14 +1083,23 @@ export default function Signup() {
             profileImage: formData.profileImageURL,
           };
 
-          console.log("💾 Saving complete profile data:", additionalProfileData);
+          console.log(
+            "💾 Saving complete profile data:",
+            additionalProfileData,
+          );
 
-          const saveResult = await saveUserData(result.user, additionalProfileData);
+          const saveResult = await saveUserData(
+            result.user,
+            additionalProfileData,
+          );
 
           if (saveResult.success) {
             console.log("✅ Complete profile data saved to Firestore");
           } else {
-            console.warn("⚠️ Failed to save complete profile data:", saveResult.error);
+            console.warn(
+              "⚠️ Failed to save complete profile data:",
+              saveResult.error,
+            );
           }
 
           // Save complete user data to localStorage for immediate access
@@ -1100,7 +1119,10 @@ export default function Signup() {
           localStorage.setItem("currentUser", JSON.stringify(completeUserData));
           localStorage.setItem("userAvatar", formData.profileImageURL || "");
 
-          console.log("💾 Saved complete user data to localStorage:", completeUserData);
+          console.log(
+            "💾 Saved complete user data to localStorage:",
+            completeUserData,
+          );
 
           // Try to sync with backend API if available
           try {
@@ -1128,10 +1150,15 @@ export default function Signup() {
               const backendResult = await backendSyncResponse.json();
               console.log("✅ User data synced with backend:", backendResult);
             } else {
-              console.warn("⚠️ Backend sync failed, but continuing with Firebase-only data");
+              console.warn(
+                "⚠️ Backend sync failed, but continuing with Firebase-only data",
+              );
             }
           } catch (backendError) {
-            console.warn("⚠️ Backend sync error (continuing with Firebase):", backendError);
+            console.warn(
+              "⚠️ Backend sync error (continuing with Firebase):",
+              backendError,
+            );
           }
 
           // Send Firebase email verification notification
@@ -1569,23 +1596,6 @@ export default function Signup() {
                 )}
               </div>
 
-              {/* Firebase Verification Info */}
-              <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-3">
-                <div className="flex items-center space-x-2">
-                  <svg className="w-5 h-5 text-blue-400" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M3.89 15.673L6.255 12.5H8.5l-2.82 4.5H8v2H3.5l.39-2.827zM13.5 12.5L11.145 15.673L11.535 18.5H16v-2h-2.32L16.5 12.5H13.5zM12 2.5c5.799 0 10.5 4.701 10.5 10.5S17.799 23.5 12 23.5 1.5 18.799 1.5 13 6.201 2.5 12 2.5z"/>
-                  </svg>
-                  <div>
-                    <p className="text-blue-400 text-xs font-medium">
-                      🔥 Powered by Firebase
-                    </p>
-                    <p className="text-blue-300 text-xs">
-                      Secure email verification will be sent after account creation
-                    </p>
-                  </div>
-                </div>
-              </div>
-
               <button
                 onClick={handleEmailStep}
                 disabled={isLoading || !formData.email}
@@ -1718,8 +1728,10 @@ export default function Signup() {
                           📬 Check your email inbox
                         </p>
                         <p className="text-yellow-400 text-xs">
-                          1. Open the email from Music Catch<br/>
-                          2. Click the "Verify Email" button<br/>
+                          1. Open the email from Music Catch
+                          <br />
+                          2. Click the "Verify Email" button
+                          <br />
                           3. Return here and click "Check Verification Status"
                         </p>
                       </div>
@@ -1760,7 +1772,8 @@ export default function Signup() {
                     if (tempEmailUser && resendTimer === 0) {
                       setIsLoading(true);
                       try {
-                        const result = await sendFirebaseEmailVerification(tempEmailUser);
+                        const result =
+                          await sendFirebaseEmailVerification(tempEmailUser);
                         if (result.success) {
                           setResendTimer(60);
                           toast({
@@ -2198,32 +2211,6 @@ export default function Signup() {
                 )}
               </div>
 
-              {/* Email Verification Status */}
-              {emailVerificationSent && (
-                <div className="bg-blue-500/10 border border-blue-500 rounded-lg p-4 mb-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center">
-                      <Mail className="w-5 h-5 text-blue-500 mr-3" />
-                      <div>
-                        <p className="text-blue-500 text-sm font-medium">
-                          Email verification sent
-                        </p>
-                        <p className="text-blue-400 text-xs">
-                          Check your email and click the verification link
-                        </p>
-                      </div>
-                    </div>
-                    <button
-                      onClick={handleResendEmailVerification}
-                      disabled={resendTimer > 0 || isLoading}
-                      className="text-blue-500 hover:text-blue-400 text-xs font-medium disabled:opacity-50"
-                    >
-                      {resendTimer > 0 ? `Resend in ${resendTimer}s` : "Resend"}
-                    </button>
-                  </div>
-                </div>
-              )}
-
               {/* Red Error Alert Box */}
               {errorAlert && (
                 <div className="bg-red-500/10 border border-red-500 rounded-lg p-4 mb-4">
@@ -2241,13 +2228,46 @@ export default function Signup() {
                 disabled={
                   isLoading || !formData.password || !formData.confirmPassword
                 }
-                className="w-full h-12 sm:h-14 bg-gradient-to-r from-neon-green to-neon-blue hover:from-neon-green/80 hover:to-neon-blue/80 text-black font-bold text-sm sm:text-lg rounded-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+                className="w-full h-12 sm:h-14 bg-gradient-to-r from-purple-primary to-purple-secondary hover:from-purple-secondary hover:to-purple-accent text-white font-bold text-sm sm:text-lg rounded-xl transition-all duration-300 transform hover:scale-105 disabled:opacity-50 disabled:transform-none shadow-lg shadow-purple-primary/30 hover:shadow-purple-secondary/40 group relative overflow-hidden"
               >
-                {isLoading ? (
-                  <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mx-auto" />
-                ) : (
-                  "Continue"
-                )}
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-accent to-purple-glow opacity-0 group-hover:opacity-20 transition-opacity duration-300"></div>
+                <div className="relative flex items-center justify-center space-x-2">
+                  {isLoading ? (
+                    <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+                  ) : (
+                    <>
+                      <svg
+                        className="w-5 h-5 text-white group-hover:scale-110 transition-transform duration-300"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      <span className="group-hover:text-purple-glow transition-colors duration-300">
+                        Verify & Continue
+                      </span>
+                      <svg
+                        className="w-4 h-4 text-white group-hover:translate-x-1 transition-transform duration-300"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 5l7 7-7 7"
+                        />
+                      </svg>
+                    </>
+                  )}
+                </div>
               </button>
             </motion.div>
           )}
