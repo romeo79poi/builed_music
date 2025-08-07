@@ -300,7 +300,6 @@ export default function Home() {
           if (enhancedUserData) {
             setUserData(enhancedUserData);
             setUserAvatar(enhancedUserData.avatar || enhancedUserData.profileImageURL);
-            console.log("✅ Enhanced user data loaded for Home:", enhancedUserData);
           } else {
             // Fallback to cached data
             const cachedData = userDataService.getCachedUserData(fbUser.uid);
