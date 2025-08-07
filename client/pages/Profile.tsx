@@ -693,7 +693,7 @@ export default function Profile() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => navigate("/home")}
+              onClick={() => navigate(-1)}
               className="w-8 h-8 rounded-full bg-muted hover:bg-muted/80 flex items-center justify-center transition-colors"
             >
               <ArrowLeft className="w-4 h-4 text-foreground" />
