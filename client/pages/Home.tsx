@@ -362,10 +362,14 @@ export default function Home() {
       if (apiDataLoaded) return;
 
       try {
-        // Load home feed data using homeApi
+        // Load home feed data using homeApi with timeout
+        const apiTimeout = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('API timeout')), 5000); // 5 second timeout
+        });
+
         const [newReleases, trending] = await Promise.all([
-          api.home.getNewReleases(10).catch(() => ({ data: [] })),
-          api.home.getTrending(10).catch(() => ({ data: [] })),
+          Promise.race([api.home.getNewReleases(10), apiTimeout]).catch(() => ({ data: [] })),
+          Promise.race([api.home.getTrending(10), apiTimeout]).catch(() => ({ data: [] })),
         ]);
 
         // Update albums with new releases
@@ -628,7 +632,7 @@ export default function Home() {
                   </p>
                   <div className="flex items-center space-x-3 text-xs text-gray-300">
                     <span>{featuredContent.genre}</span>
-                    <span>•</span>
+                    <span>��</span>
                     <span>{featuredContent.releaseYear}</span>
                   </div>
                 </div>
