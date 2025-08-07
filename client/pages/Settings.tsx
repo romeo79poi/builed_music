@@ -257,7 +257,6 @@ export default function Settings() {
   const loadUserData = async () => {
     try {
       if (!firebaseUser) {
-        console.log("❌ No Firebase user found");
         setLoading(false);
         return;
       }
