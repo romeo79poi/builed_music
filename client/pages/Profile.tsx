@@ -220,18 +220,15 @@ export default function Profile() {
           userData.profileImageURL = userAvatar;
           userData.avatar = userAvatar;
           localStorage.setItem('currentUser', JSON.stringify(userData));
-          console.log("🔧 Repaired localStorage: synced userAvatar to userData");
         }
 
         // If userData has profileImageURL but userAvatar is missing, sync them
         if ((userData.profileImageURL || userData.avatar) && !userAvatar) {
           const imageURL = userData.profileImageURL || userData.avatar;
           localStorage.setItem('userAvatar', imageURL);
-          console.log("🔧 Repaired localStorage: synced userData to userAvatar");
         }
       }
     } catch (error) {
-      console.warn("⚠️ Failed to repair localStorage data:", error);
     }
   };
 
@@ -241,7 +238,6 @@ export default function Profile() {
       setLoading(true);
 
       if (!firebaseUser) {
-        console.log("❌ No Firebase user found");
         toast({
           title: "Authentication required",
           description: "Please sign in to view your profile",
@@ -251,7 +247,6 @@ export default function Profile() {
         return;
       }
 
-      console.log("🔥 Fetching comprehensive profile for Firebase user:", firebaseUser.email);
 
       // Use the enhanced user data service
       const enhancedUserData = await userDataService.fetchUserData(firebaseUser);
@@ -287,7 +282,6 @@ export default function Profile() {
         };
 
         setProfile(enhancedProfile);
-        console.log("✅ Enhanced profile loaded:", enhancedProfile);
 
         // Update edit form with enhanced data
         setEditForm({
@@ -343,7 +337,6 @@ export default function Profile() {
         };
 
         setProfile(firebaseProfile);
-        console.log("✅ Basic Firebase profile created:", firebaseProfile);
 
         // Update edit form with Firebase data
         setEditForm({
@@ -551,7 +544,6 @@ export default function Profile() {
           description: "Your profile has been successfully updated across all platforms",
         });
 
-        console.log("✅ Profile updated successfully using enhanced service");
       } else {
         toast({
           title: "Update Failed",
@@ -618,7 +610,6 @@ export default function Profile() {
       const reader = new FileReader();
       reader.onload = (e) => {
         const newAvatar = e.target?.result as string;
-        console.log("🖼️ New avatar uploaded:", newAvatar.substring(0, 50) + "...");
 
         // Update profile state
         setProfile((prev) => (prev ? { ...prev, avatar: newAvatar } : null));
@@ -635,9 +626,7 @@ export default function Profile() {
             };
             localStorage.setItem('currentUser', JSON.stringify(updatedUserData));
             localStorage.setItem('userAvatar', newAvatar);
-            console.log("💾 Updated localStorage with new avatar");
           } catch (error) {
-            console.warn("⚠️ Failed to update localStorage with new avatar:", error);
           }
         }
 
@@ -795,12 +784,8 @@ export default function Profile() {
                     document.getElementById("avatar-upload")?.click()
                   }
                   onError={(e) => {
-                    console.warn("❌ Profile image failed to load:", profile.avatar);
                     const target = e.target as HTMLImageElement;
                     target.src = `https://via.placeholder.com/64?text=${profile.displayName.charAt(0)}`;
-                  }}
-                  onLoad={() => {
-                    console.log("✅ Profile image loaded successfully:", profile.avatar);
                   }}
                 />
                 {profile.isVerified && (
