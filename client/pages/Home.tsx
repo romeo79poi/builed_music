@@ -294,8 +294,13 @@ export default function Home() {
         // Check if we have a Firebase user
         if (fbUser) {
 
-          // Use enhanced user data service
-          const enhancedUserData = await userDataService.fetchUserData(fbUser);
+          // Use enhanced user data service with timeout
+          const dataPromise = userDataService.fetchUserData(fbUser);
+          const timeoutPromise = new Promise<null>((resolve) => {
+            setTimeout(() => resolve(null), 3000); // 3 second timeout for Home page
+          });
+
+          const enhancedUserData = await Promise.race([dataPromise, timeoutPromise]);
 
           if (enhancedUserData) {
             setUserData(enhancedUserData);
