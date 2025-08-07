@@ -449,40 +449,47 @@ export default function EditAccount() {
             className="p-6"
           >
             <div className="bg-gradient-to-r from-purple-dark/40 to-purple-primary/20 backdrop-blur-sm rounded-2xl p-6 border border-purple-primary/30">
-              <div className="flex items-center space-x-4">
-                <div className="relative">
-                  <img
-                    src={accountData.profileImage}
-                    alt={accountData.fullName}
-                    className="w-20 h-20 rounded-full object-cover border-2 border-neon-green/50"
-                  />
-                  {accountData.isVerified && (
-                    <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center border-2 border-background">
-                      <Award className="w-3 h-3 text-white" />
-                    </div>
-                  )}
-                </div>
-
-                <div className="flex-1">
-                  <div className="flex items-center space-x-2 mb-1">
-                    <h2 className="text-xl font-bold text-white">
-                      {accountData.fullName}
-                    </h2>
-                    {accountData.accountType === "Premium" && (
-                      <div className="flex items-center space-x-1 px-2 py-1 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full">
-                        <Crown className="w-3 h-3 text-black" />
-                        <span className="text-xs font-bold text-black">
-                          PREMIUM
-                        </span>
+              {accountData && (
+                <div className="flex items-center space-x-4">
+                  <div className="relative">
+                    <img
+                      src={accountData.avatar || accountData.profileImageURL || `https://ui-avatars.io/api/?name=${encodeURIComponent(accountData.name)}&background=6366f1&color=fff&size=150`}
+                      alt={accountData.name}
+                      className="w-20 h-20 rounded-full object-cover border-2 border-neon-green/50"
+                    />
+                    {accountData.isVerified && (
+                      <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center border-2 border-background">
+                        <Award className="w-3 h-3 text-white" />
                       </div>
                     )}
                   </div>
-                  <p className="text-gray-400">@{accountData.username}</p>
-                  <p className="text-sm text-purple-primary">
-                    Member since {accountData.memberSince}
-                  </p>
+
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-2 mb-1">
+                      <h2 className="text-xl font-bold text-white">
+                        {accountData.name}
+                      </h2>
+                      {accountData.isPremium && (
+                        <div className="flex items-center space-x-1 px-2 py-1 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full">
+                          <Crown className="w-3 h-3 text-black" />
+                          <span className="text-xs font-bold text-black">
+                            PREMIUM
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                    <p className="text-gray-400">@{accountData.username}</p>
+                    <p className="text-sm text-purple-primary">
+                      Member since {accountData.memberSince}
+                    </p>
+                    {accountData.dataSource && (
+                      <p className="text-xs text-gray-500 mt-1">
+                        Data source: {accountData.dataSource}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           </motion.section>
 
