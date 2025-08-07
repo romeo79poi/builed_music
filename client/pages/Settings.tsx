@@ -261,12 +261,6 @@ export default function Settings() {
         return;
       }
 
-      console.log(
-        "🔥 Loading user data for Firebase user:",
-        firebaseUser.email,
-      );
-      console.log("🔥 Firebase user UID:", firebaseUser.uid);
-      console.log("🔥 Firebase user metadata:", firebaseUser.metadata);
 
       // Try to load from localStorage first (for email signup users)
       const localUserData = localStorage.getItem("currentUser");
