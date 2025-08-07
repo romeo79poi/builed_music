@@ -24,6 +24,7 @@ import { api } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
 import { useFirebase } from "../context/FirebaseContext";
 import { useMusic } from "../context/MusicContextSupabase";
+import { userDataService, EnhancedUserData } from "../lib/user-data-service";
 
 // Featured Artist/Album of the Day
 const featuredContent = {
@@ -272,7 +273,7 @@ export default function Home() {
   const [likedSongs, setLikedSongs] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
   const [userAvatar, setUserAvatar] = useState<string | null>(null);
-  const [userData, setUserData] = useState<any>(null);
+  const [userData, setUserData] = useState<EnhancedUserData | null>(null);
   const [userDataLoading, setUserDataLoading] = useState(false);
   const [albums, setAlbums] = useState<any[]>([]);
   const [tracks, setTracks] = useState<any[]>([]);
@@ -284,63 +285,78 @@ export default function Home() {
     return () => clearInterval(timer);
   }, []);
 
-  // Load user data from new backend authentication
+  // Load user data from comprehensive user data service
   useEffect(() => {
     const loadUserData = async () => {
+      // Don't run if already loading or if we have fresh data
+      if (userDataLoading) return;
+
       try {
         setUserDataLoading(true);
 
-        // Check if user is logged in with new backend
-        const token = localStorage.getItem("token");
-        const savedUserData = localStorage.getItem("currentUser");
+        // Check if we have a Firebase user
+        if (fbUser) {
+          // First try to get cached data immediately for fast UI
+          const cachedData = userDataService.getCachedUserData(fbUser.uid);
+          if (cachedData && !userDataService.isDataStale(fbUser.uid, 5)) {
+            // Use fresh cached data
+            setUserData(cachedData);
+            setUserAvatar(cachedData.avatar || cachedData.profileImageURL);
+            setUserDataLoading(false);
+            return;
+          }
 
-        if (token && savedUserData) {
-          try {
-            const parsedUserData = JSON.parse(savedUserData);
-            console.log("✅ Loaded user data from backend:", parsedUserData);
+          // If no cache or stale, fetch new data with timeout
+          const dataPromise = userDataService.fetchUserData(fbUser);
+          const timeoutPromise = new Promise<null>((resolve) => {
+            setTimeout(() => resolve(null), 2000); // 2 second timeout for Home page
+          });
 
-            // Debug profile image fields
-            console.log("🖼️ Home profile image fields:", {
-              profileImageURL: parsedUserData.profileImageURL,
-              avatar: parsedUserData.avatar,
-              profileImage: parsedUserData.profileImage,
-              avatar_url: parsedUserData.avatar_url
-            });
+          const enhancedUserData = await Promise.race([
+            dataPromise,
+            timeoutPromise,
+          ]);
 
-            setUserData(parsedUserData);
-
-            const avatarURL = parsedUserData.profileImageURL ||
-              parsedUserData.avatar ||
-              parsedUserData.profileImage ||
-              parsedUserData.avatar_url ||
-              null;
-
-            console.log("🖼️ Selected avatar URL for Home:", avatarURL);
-            setUserAvatar(avatarURL);
-          } catch (error) {
-            console.error("Error parsing user data:", error);
-            // Clear invalid data
-            localStorage.removeItem("currentUser");
-            localStorage.removeItem("token");
-            setUserData(null);
-            setUserAvatar(null);
+          if (enhancedUserData) {
+            setUserData(enhancedUserData);
+            setUserAvatar(
+              enhancedUserData.avatar || enhancedUserData.profileImageURL,
+            );
+          } else if (cachedData) {
+            // Use stale cached data as fallback
+            setUserData(cachedData);
+            setUserAvatar(cachedData.avatar || cachedData.profileImageURL);
           }
         } else {
-          // No authentication, clear data
-          setUserData(null);
-          setUserAvatar(null);
+          // Try to load from localStorage if no Firebase user
+          const savedUserData = localStorage.getItem("currentUser");
+          if (savedUserData) {
+            try {
+              const parsedUserData = JSON.parse(savedUserData);
+              if (parsedUserData.uid || parsedUserData.id) {
+                setUserData(parsedUserData);
+                setUserAvatar(
+                  parsedUserData.avatar || parsedUserData.profileImageURL,
+                );
+              }
+            } catch (error) {
+              console.error("Error parsing localStorage user data:", error);
+              localStorage.removeItem("currentUser");
+            }
+          }
         }
       } catch (error) {
-        console.error("❌ Error loading user data:", error);
-        setUserData(null);
-        setUserAvatar(null);
+        console.error("❌ Error loading user data for Home:", error);
+        // Don't clear existing data on error
       } finally {
         setUserDataLoading(false);
       }
     };
 
-    loadUserData();
-  }, []); // Remove Firebase dependencies
+    if (!firebaseLoading && fbUser !== undefined) {
+      loadUserData();
+    }
+  }, [fbUser, firebaseLoading]); // Add Firebase dependencies back
 
   // Additional fallback for avatar only
   useEffect(() => {
@@ -358,10 +374,18 @@ export default function Home() {
       if (apiDataLoaded) return;
 
       try {
-        // Load home feed data using homeApi
+        // Load home feed data using homeApi with timeout
+        const apiTimeout = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error("API timeout")), 5000); // 5 second timeout
+        });
+
         const [newReleases, trending] = await Promise.all([
-          api.home.getNewReleases(10).catch(() => ({ data: [] })),
-          api.home.getTrending(10).catch(() => ({ data: [] })),
+          Promise.race([api.home.getNewReleases(10), apiTimeout]).catch(() => ({
+            data: [],
+          })),
+          Promise.race([api.home.getTrending(10), apiTimeout]).catch(() => ({
+            data: [],
+          })),
         ]);
 
         // Update albums with new releases
@@ -392,12 +416,21 @@ export default function Home() {
       } catch (error) {
         console.error("Error loading API data:", error);
 
-        // Show error toast
+        // Fallback to sample data to keep UI working
+        if (albums.length === 0) {
+          setAlbums(sampleAlbums);
+        }
+        if (tracks.length === 0) {
+          setTracks(sampleSongs);
+        }
+
+        // Show warning toast instead of error
         toast({
-          title: "Failed to load content",
-          description: "Please check your connection and refresh the page.",
-          variant: "destructive",
+          title: "Using offline content",
+          description: "Some content may be limited while offline",
+          variant: "default",
         });
+        setApiDataLoaded(true);
       }
     };
 
@@ -632,107 +665,8 @@ export default function Home() {
             </motion.div>
           </motion.section>
 
-          {/* User Profile Section */}
-          {userData && (
-            <motion.section variants={itemVariants} className="mb-8">
-              <motion.div
-                whileHover={{ scale: 1.02 }}
-                className="bg-gradient-to-r from-purple-primary/10 to-purple-secondary/10 backdrop-blur-sm rounded-2xl p-4 border border-purple-primary/20 shadow-lg"
-              >
-                <div className="flex items-center space-x-4">
-                  {/* Profile Image */}
-                  <motion.div
-                    whileHover={{ scale: 1.05 }}
-                    className="relative"
-                  >
-                    <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-purple-primary/30">
-                      {userAvatar ? (
-                        <img
-                          src={userAvatar}
-                          alt={userData.name || 'Profile'}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            console.warn("❌ Home profile image failed to load:", userAvatar);
-                            const target = e.target as HTMLImageElement;
-                            // Hide the image and show fallback
-                            target.style.display = 'none';
-                            setUserAvatar(null);
-                          }}
-                          onLoad={() => {
-                            console.log("✅ Home profile image loaded successfully:", userAvatar);
-                          }}
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-purple-primary to-purple-secondary flex items-center justify-center">
-                          <User className="w-8 h-8 text-white" />
-                        </div>
-                      )}
-                    </div>
-                    {userData.emailVerified && (
-                      <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center border-2 border-background">
-                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                        </svg>
-                      </div>
-                    )}
-                  </motion.div>
-
-                  {/* Profile Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center space-x-2 mb-1">
-                      <h3 className="text-lg font-bold text-white truncate">
-                        {userData.name || userData.displayName || 'User'}
-                      </h3>
-                      {userData.emailVerified && (
-                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-500/20 text-green-400 border border-green-500/30">
-                          Verified
-                        </span>
-                      )}
-                    </div>
-
-                    <p className="text-purple-accent text-sm font-medium mb-2">
-                      @{userData.username || userData.email?.split('@')[0] || 'user'}
-                    </p>
-
-                    {userData.bio && (
-                      <p className="text-gray-300 text-sm line-clamp-2 mb-2">
-                        {userData.bio}
-                      </p>
-                    )}
-
-                    {/* Additional signup data */}
-                    <div className="flex flex-wrap gap-2 text-xs">
-                      {userData.gender && (
-                        <span className="px-2 py-1 rounded-full bg-purple-primary/20 text-purple-accent border border-purple-primary/30">
-                          {userData.gender}
-                        </span>
-                      )}
-                      {userData.dateOfBirth && (
-                        <span className="px-2 py-1 rounded-full bg-purple-primary/20 text-purple-accent border border-purple-primary/30">
-                          Age {new Date().getFullYear() - new Date(userData.dateOfBirth).getFullYear()}
-                        </span>
-                      )}
-                      {userData.phone && (
-                        <span className="px-2 py-1 rounded-full bg-purple-primary/20 text-purple-accent border border-purple-primary/30">
-                          {userData.phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-****')}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* View Profile Button */}
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => navigate('/profile')}
-                    className="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-primary to-purple-secondary text-white font-medium text-sm hover:shadow-lg transition-all"
-                  >
-                    View Profile
-                  </motion.button>
-                </div>
-              </motion.div>
-            </motion.section>
-          )}
+          <section />
+          {/* Removed user profile section */}
 
           {/* New Releases Section */}
           <motion.section variants={itemVariants} className="mb-8">

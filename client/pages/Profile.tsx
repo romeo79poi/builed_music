@@ -54,14 +54,12 @@ import { api } from "../lib/api";
 import { useFirebase } from "../context/FirebaseContext";
 import { useMusic } from "../context/MusicContextSupabase";
 import { useSocial } from "../context/SocialContext";
+import { userDataService, EnhancedUserData } from "../lib/user-data-service";
 
-// Use Firebase user with backend profile extension
-type UserProfile = BackendUserProfile & {
-  avatar: string;
+// Use enhanced user data type
+type UserProfile = EnhancedUserData & {
   coverImage: string;
   location: string;
-  website: string;
-  isArtist: boolean;
   joinedDate: Date;
   stats: {
     followers: number;
@@ -72,10 +70,6 @@ type UserProfile = BackendUserProfile & {
     monthlyListeners: number;
   };
   badges: string[];
-  // Additional signup data fields
-  dateOfBirth?: string;
-  gender?: string;
-  phone?: string;
 };
 
 interface Track {
@@ -177,7 +171,7 @@ export default function Profile() {
     followUser,
     unfollowUser,
     followersCount: socialFollowersCount,
-    followingCount: socialFollowingCount
+    followingCount: socialFollowingCount,
   } = useSocial();
 
   // State management
@@ -186,9 +180,8 @@ export default function Profile() {
   const [uploading, setUploading] = useState(false);
   const [tracks, setTracks] = useState<Track[]>(sampleTracks);
   const [playlists, setPlaylists] = useState<Playlist[]>(samplePlaylists);
-  const [recentlyPlayed, setRecentlyPlayed] = useState<RecentlyPlayedTrack[]>(
-    sampleRecentlyPlayed,
-  );
+  const [recentlyPlayed, setRecentlyPlayed] =
+    useState<RecentlyPlayedTrack[]>(sampleRecentlyPlayed);
   const [selectedTab, setSelectedTab] = useState("tracks");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [isFollowing, setIsFollowing] = useState(false);
@@ -215,8 +208,8 @@ export default function Profile() {
   // Helper function to repair localStorage data if needed
   const repairLocalStorageData = () => {
     try {
-      const localUserData = localStorage.getItem('currentUser');
-      const userAvatar = localStorage.getItem('userAvatar');
+      const localUserData = localStorage.getItem("currentUser");
+      const userAvatar = localStorage.getItem("userAvatar");
 
       if (localUserData) {
         const userData = JSON.parse(localUserData);
@@ -225,32 +218,24 @@ export default function Profile() {
         if (userAvatar && !userData.profileImageURL && !userData.avatar) {
           userData.profileImageURL = userAvatar;
           userData.avatar = userAvatar;
-          localStorage.setItem('currentUser', JSON.stringify(userData));
-          console.log("🔧 Repaired localStorage: synced userAvatar to userData");
+          localStorage.setItem("currentUser", JSON.stringify(userData));
         }
 
         // If userData has profileImageURL but userAvatar is missing, sync them
         if ((userData.profileImageURL || userData.avatar) && !userAvatar) {
           const imageURL = userData.profileImageURL || userData.avatar;
-          localStorage.setItem('userAvatar', imageURL);
-          console.log("🔧 Repaired localStorage: synced userData to userAvatar");
+          localStorage.setItem("userAvatar", imageURL);
         }
       }
-    } catch (error) {
-      console.warn("⚠️ Failed to repair localStorage data:", error);
-    }
+    } catch (error) {}
   };
 
-  // Fetch profile data using Firebase user
+  // Fetch profile data using enhanced user data service
   const fetchProfile = async () => {
     try {
       setLoading(true);
 
-      // First, try to repair localStorage data if needed
-      repairLocalStorageData();
-
       if (!firebaseUser) {
-        console.log("❌ No Firebase user found");
         toast({
           title: "Authentication required",
           description: "Please sign in to view your profile",
@@ -260,184 +245,121 @@ export default function Profile() {
         return;
       }
 
-      console.log("🔥 Fetching profile for Firebase user:", firebaseUser.email);
-
-      // First, try to load complete data from localStorage (signup data)
-      const localUserData = localStorage.getItem('currentUser');
-      if (localUserData) {
-        try {
-          const userData = JSON.parse(localUserData);
-          console.log("💾 Found localStorage user data:", userData);
-          console.log("🖼️ Profile image fields in localStorage:", {
-            profileImageURL: userData.profileImageURL,
-            avatar: userData.avatar,
-            profileImage: userData.profileImage,
-            photoURL: userData.photoURL
-          });
-
-          if (userData.uid === firebaseUser.uid) {
-            // Use complete signup data from localStorage
-            const completeProfile: UserProfile = {
-              id: firebaseUser.uid,
-              displayName: userData.name || firebaseUser.displayName || "User",
-              username: userData.username || firebaseUser.email?.split("@")[0] || "user",
-              email: userData.email || firebaseUser.email || "",
-              bio: userData.bio || "Music lover 🎵",
-              avatar: userData.profileImageURL || userData.avatar || userData.profileImage || firebaseUser.photoURL || "",
-              coverImage: "",
-              location: "",
-              website: "",
-              isVerified: firebaseUser.emailVerified || false,
-              isArtist: false,
-              joinedDate: firebaseUser.metadata.creationTime
-                ? new Date(firebaseUser.metadata.creationTime)
-                : new Date(),
-              socialLinks: {
-                instagram: "",
-                twitter: "",
-                youtube: "",
-              },
-              stats: {
-                followers: 0,
-                following: 0,
-                totalPlays: 0,
-                totalTracks: 0,
-                totalPlaylists: 0,
-                monthlyListeners: 0,
-              },
-              badges: [],
-              // Additional signup data
-              dateOfBirth: userData.dateOfBirth,
-              gender: userData.gender,
-              phone: userData.phone,
-            };
-
-            setProfile(completeProfile);
-            console.log("✅ Profile loaded from localStorage signup data:", completeProfile);
-
-            // Update edit form with complete data
-            setEditForm({
-              displayName: completeProfile.displayName,
-              username: completeProfile.username,
-              bio: completeProfile.bio,
-              location: completeProfile.location,
-              socialLinks: completeProfile.socialLinks,
-            });
-
-            setLoading(false);
-            return;
-          }
-        } catch (parseError) {
-          console.warn("⚠️ Failed to parse localStorage user data:", parseError);
-        }
-      }
-
-      // Skip backend API calls - using Firebase/Firestore only
-      console.log("⚠️ Skipping backend API - using Firebase/Firestore data only");
-
-      // Try to fetch from Firestore as secondary fallback
-      try {
-        const firestoreResult = await fetchUserData(firebaseUser.uid);
-        if (firestoreResult.success && firestoreResult.userData) {
-          const firestoreData = firestoreResult.userData;
-          console.log("✅ Firestore data found:", firestoreData);
-
-          const firestoreProfile: UserProfile = {
-            id: firebaseUser.uid,
-            displayName: firestoreData.name || firebaseUser.displayName || "User",
-            username: firestoreData.username || firebaseUser.email?.split("@")[0] || "user",
-            email: firestoreData.email || firebaseUser.email || "",
-            bio: firestoreData.bio || "Music lover 🎵",
-            avatar: firestoreData.profileImageURL || firestoreData.avatar || firestoreData.profileImage || firebaseUser.photoURL || "",
-            coverImage: "",
-            location: "",
-            website: "",
-            isVerified: firestoreData.verified || firebaseUser.emailVerified || false,
-            isArtist: false,
-            joinedDate: firestoreData.createdAt
-              ? new Date(firestoreData.createdAt.seconds * 1000)
-              : new Date(),
-            socialLinks: {
-              instagram: "",
-              twitter: "",
-              youtube: "",
-            },
-            stats: {
-              followers: 0,
-              following: 0,
-              totalPlays: 0,
-              totalTracks: 0,
-              totalPlaylists: 0,
-              monthlyListeners: 0,
-            },
-            badges: [],
-            // Additional signup data from Firestore
-            dateOfBirth: firestoreData.dob,
-            gender: firestoreData.gender,
-            phone: firestoreData.phone,
-          };
-
-          setProfile(firestoreProfile);
-          console.log("✅ Profile loaded from Firestore:", firestoreProfile);
-
-          // Update edit form
-          setEditForm({
-            displayName: firestoreProfile.displayName,
-            username: firestoreProfile.username,
-            bio: firestoreProfile.bio,
-            location: firestoreProfile.location,
-            socialLinks: firestoreProfile.socialLinks,
-          });
-
-          setLoading(false);
-          return;
-        }
-      } catch (firestoreError) {
-        console.warn("⚠️ Firestore fetch failed:", firestoreError);
-      }
-
-      // If all data sources fail, create basic profile from Firebase user data
-      const firebaseProfile: UserProfile = {
-        id: firebaseUser.uid,
-        displayName: firebaseUser.displayName || "User",
-        username: firebaseUser.email?.split("@")[0] || "user",
-        email: firebaseUser.email || "",
-        bio: "Music lover using Firebase authentication 🎵",
-        avatar: firebaseUser.photoURL || "",
-        coverImage: "",
-        location: "",
-        website: "",
-        isVerified: firebaseUser.emailVerified || false,
-        isArtist: false,
-        joinedDate: new Date(),
-        socialLinks: {
-          instagram: "",
-          twitter: "",
-          youtube: "",
-        },
-        stats: {
-          followers: 0,
-          following: 0,
-          totalPlays: 0,
-          totalTracks: 0,
-          totalPlaylists: 0,
-          monthlyListeners: 0,
-        },
-        badges: [],
-      };
-
-      setProfile(firebaseProfile);
-      console.log("✅ Profile created from Firebase user:", firebaseProfile);
-
-      // Update edit form with Firebase data
-      setEditForm({
-        displayName: firebaseProfile.displayName,
-        username: firebaseProfile.username,
-        bio: firebaseProfile.bio,
-        location: firebaseProfile.location,
-        socialLinks: firebaseProfile.socialLinks,
+      // Use the enhanced user data service with timeout to prevent hanging
+      const dataFetchPromise = userDataService.fetchUserData(firebaseUser);
+      const timeoutPromise = new Promise<null>((resolve) => {
+        setTimeout(() => {
+          console.warn(
+            "⚠️ Profile data fetch timeout, using Firebase fallback",
+          );
+          resolve(null);
+        }, 4000); // 4 second timeout
       });
 
+      const enhancedUserData = await Promise.race([
+        dataFetchPromise,
+        timeoutPromise,
+      ]);
+
+      if (enhancedUserData) {
+        // Convert enhanced user data to profile format
+        const enhancedProfile: UserProfile = {
+          ...enhancedUserData,
+          id: enhancedUserData.uid,
+          displayName: enhancedUserData.name,
+          isVerified: enhancedUserData.isVerified,
+          isArtist: enhancedUserData.isArtist,
+          avatar: enhancedUserData.avatar || enhancedUserData.profileImageURL,
+          coverImage: "",
+          location:
+            enhancedUserData.city && enhancedUserData.country
+              ? `${enhancedUserData.city}, ${enhancedUserData.country}`
+              : enhancedUserData.city || enhancedUserData.country || "",
+          joinedDate: new Date(enhancedUserData.creationTime),
+          socialLinks: {
+            instagram: "",
+            twitter: "",
+            youtube: "",
+          },
+          stats: {
+            followers: enhancedUserData.followersCount,
+            following: enhancedUserData.followingCount,
+            totalPlays: 0,
+            totalTracks: 0,
+            totalPlaylists: 0,
+            monthlyListeners: 0,
+          },
+          badges: enhancedUserData.isPremium ? ["premium"] : [],
+        };
+
+        setProfile(enhancedProfile);
+
+        // Update edit form with enhanced data
+        setEditForm({
+          displayName: enhancedProfile.displayName,
+          username: enhancedProfile.username,
+          bio: enhancedProfile.bio || "",
+          location: enhancedProfile.location,
+          socialLinks: enhancedProfile.socialLinks,
+        });
+      } else {
+        // Fallback to basic Firebase profile
+        const firebaseProfile: UserProfile = {
+          uid: firebaseUser.uid,
+          id: firebaseUser.uid,
+          displayName: firebaseUser.displayName || "User",
+          name: firebaseUser.displayName || "User",
+          username: firebaseUser.email?.split("@")[0] || "user",
+          email: firebaseUser.email || "",
+          emailVerified: firebaseUser.emailVerified,
+          bio: "Music lover 🎵",
+          avatar: firebaseUser.photoURL || "",
+          profileImageURL: firebaseUser.photoURL || "",
+          photoURL: firebaseUser.photoURL || "",
+          coverImage: "",
+          location: "",
+          website: "",
+          isVerified: firebaseUser.emailVerified,
+          isArtist: false,
+          isPremium: false,
+          accountType: "Free" as const,
+          memberSince: "",
+          followersCount: 0,
+          followingCount: 0,
+          isPublic: true,
+          joinedDate: new Date(),
+          creationTime:
+            firebaseUser.metadata.creationTime || new Date().toISOString(),
+          lastSignInTime:
+            firebaseUser.metadata.lastSignInTime || new Date().toISOString(),
+          socialLinks: {
+            instagram: "",
+            twitter: "",
+            youtube: "",
+          },
+          stats: {
+            followers: 0,
+            following: 0,
+            totalPlays: 0,
+            totalTracks: 0,
+            totalPlaylists: 0,
+            monthlyListeners: 0,
+          },
+          badges: [],
+          dataSource: "firebase" as const,
+        };
+
+        setProfile(firebaseProfile);
+
+        // Update edit form with Firebase data
+        setEditForm({
+          displayName: firebaseProfile.displayName,
+          username: firebaseProfile.username,
+          bio: firebaseProfile.bio,
+          location: firebaseProfile.location,
+          socialLinks: firebaseProfile.socialLinks,
+        });
+      }
     } catch (error) {
       console.error("❌ Error fetching profile:", error);
       toast({
@@ -503,13 +425,17 @@ export default function Profile() {
       if (currentlyFollowing) {
         const success = await unfollowUser(profile.id);
         if (success) {
-          setProfile(prev => prev ? {
-            ...prev,
-            stats: {
-              ...prev.stats,
-              followers: Math.max(0, prev.stats.followers - 1)
-            }
-          } : null);
+          setProfile((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  stats: {
+                    ...prev.stats,
+                    followers: Math.max(0, prev.stats.followers - 1),
+                  },
+                }
+              : null,
+          );
           toast({
             title: "Unfollowed",
             description: `You unfollowed ${profile.displayName}`,
@@ -529,13 +455,17 @@ export default function Profile() {
 
         const success = await followUser(profile.id, socialUser);
         if (success) {
-          setProfile(prev => prev ? {
-            ...prev,
-            stats: {
-              ...prev.stats,
-              followers: prev.stats.followers + 1
-            }
-          } : null);
+          setProfile((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  stats: {
+                    ...prev.stats,
+                    followers: prev.stats.followers + 1,
+                  },
+                }
+              : null,
+          );
           toast({
             title: "Following",
             description: `You're now following ${profile.displayName}`,
@@ -543,7 +473,7 @@ export default function Profile() {
         }
       }
     } catch (error) {
-      console.error('Error following/unfollowing user:', error);
+      console.error("Error following/unfollowing user:", error);
       toast({
         title: "Error",
         description: "Failed to update follow status. Please try again.",
@@ -599,22 +529,26 @@ export default function Profile() {
         return;
       }
 
-      // Use Firebase updateUserProfile function with all required parameters
-      const result = await updateUserProfile(firebaseUser.uid, {
+      // Use enhanced user data service to update
+      const updateData = {
         name: editForm.displayName,
         username: editForm.username,
         bio: editForm.bio,
-        email: firebaseUser.email || "",
-        phone: firebaseUser.phoneNumber || "",
         profileImageURL: profile.avatar,
-        verified: firebaseUser.emailVerified,
-      });
+        avatar: profile.avatar,
+      };
+
+      const result = await userDataService.updateUserData(
+        firebaseUser.uid,
+        updateData,
+      );
 
       if (result.success) {
         // Update local state with saved data
         const updatedProfile = {
           ...profile,
           displayName: editForm.displayName,
+          name: editForm.displayName,
           username: editForm.username,
           bio: editForm.bio,
           location: editForm.location,
@@ -626,32 +560,13 @@ export default function Profile() {
         };
 
         setProfile(updatedProfile);
-
-        // Update localStorage with new profile data
-        const localUserData = localStorage.getItem('currentUser');
-        if (localUserData) {
-          try {
-            const userData = JSON.parse(localUserData);
-            const updatedUserData = {
-              ...userData,
-              name: editForm.displayName,
-              username: editForm.username,
-              bio: editForm.bio,
-            };
-            localStorage.setItem('currentUser', JSON.stringify(updatedUserData));
-            console.log('💾 Updated localStorage with new profile data');
-          } catch (error) {
-            console.warn('⚠️ Failed to update localStorage:', error);
-          }
-        }
-
         setIsEditing(false);
+
         toast({
           title: "Profile Updated",
-          description: "Your profile has been successfully updated",
+          description:
+            "Your profile has been successfully updated across all platforms",
         });
-
-        console.log("✅ Profile updated successfully");
       } else {
         toast({
           title: "Update Failed",
@@ -705,7 +620,7 @@ export default function Profile() {
       }
 
       // Validate file type
-      if (!file.type.startsWith('image/')) {
+      if (!file.type.startsWith("image/")) {
         toast({
           title: "Invalid file type",
           description: "Please select an image file",
@@ -718,13 +633,12 @@ export default function Profile() {
       const reader = new FileReader();
       reader.onload = (e) => {
         const newAvatar = e.target?.result as string;
-        console.log("🖼️ New avatar uploaded:", newAvatar.substring(0, 50) + "...");
 
         // Update profile state
         setProfile((prev) => (prev ? { ...prev, avatar: newAvatar } : null));
 
         // Update localStorage with new image
-        const localUserData = localStorage.getItem('currentUser');
+        const localUserData = localStorage.getItem("currentUser");
         if (localUserData) {
           try {
             const userData = JSON.parse(localUserData);
@@ -733,12 +647,12 @@ export default function Profile() {
               profileImageURL: newAvatar,
               avatar: newAvatar,
             };
-            localStorage.setItem('currentUser', JSON.stringify(updatedUserData));
-            localStorage.setItem('userAvatar', newAvatar);
-            console.log("💾 Updated localStorage with new avatar");
-          } catch (error) {
-            console.warn("⚠️ Failed to update localStorage with new avatar:", error);
-          }
+            localStorage.setItem(
+              "currentUser",
+              JSON.stringify(updatedUserData),
+            );
+            localStorage.setItem("userAvatar", newAvatar);
+          } catch (error) {}
         }
 
         setUploading(false);
@@ -804,7 +718,7 @@ export default function Profile() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => navigate("/home")}
+              onClick={() => navigate(-1)}
               className="w-8 h-8 rounded-full bg-muted hover:bg-muted/80 flex items-center justify-center transition-colors"
             >
               <ArrowLeft className="w-4 h-4 text-foreground" />
@@ -822,9 +736,13 @@ export default function Profile() {
                 <div className="text-xs text-muted-foreground mt-2 space-y-1">
                   <p>🔥 Signed in as {firebaseUser.email}</p>
                   <p>User ID: {firebaseUser.uid}</p>
-                  <p>Email verified: {firebaseUser.emailVerified ? 'Yes' : 'No'}</p>
-                  {localStorage.getItem('currentUser') && (
-                    <p className="text-green-400">✓ Signup data found in localStorage</p>
+                  <p>
+                    Email verified: {firebaseUser.emailVerified ? "Yes" : "No"}
+                  </p>
+                  {localStorage.getItem("currentUser") && (
+                    <p className="text-green-400">
+                      ✓ Signup data found in localStorage
+                    </p>
                   )}
                 </div>
               )}
@@ -888,19 +806,18 @@ export default function Profile() {
             <div className="flex items-end justify-between mb-2">
               <div className="relative">
                 <img
-                  src={profile.avatar || `https://via.placeholder.com/64?text=${profile.displayName.charAt(0)}`}
+                  src={
+                    profile.avatar ||
+                    `https://via.placeholder.com/64?text=${profile.displayName.charAt(0)}`
+                  }
                   alt={profile.displayName}
                   className="w-16 h-16 rounded-full object-cover border-2 border-background shadow-md cursor-pointer"
                   onClick={() =>
                     document.getElementById("avatar-upload")?.click()
                   }
                   onError={(e) => {
-                    console.warn("❌ Profile image failed to load:", profile.avatar);
                     const target = e.target as HTMLImageElement;
                     target.src = `https://via.placeholder.com/64?text=${profile.displayName.charAt(0)}`;
-                  }}
-                  onLoad={() => {
-                    console.log("✅ Profile image loaded successfully:", profile.avatar);
                   }}
                 />
                 {profile.isVerified && (
@@ -946,23 +863,27 @@ export default function Profile() {
                       ) : (
                         <UserPlus className="w-4 h-4" />
                       )}
-                      <span>{isFollowingUser(profile.id) ? "Following" : "Follow"}</span>
+                      <span>
+                        {isFollowingUser(profile.id) ? "Following" : "Follow"}
+                      </span>
                     </div>
                   </motion.button>
 
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => navigate('/messages', {
-                      state: {
-                        profileUser: {
-                          id: profile.id,
-                          displayName: profile.displayName,
-                          username: profile.username,
-                          avatar: profile.avatar,
-                        }
-                      }
-                    })}
+                    onClick={() =>
+                      navigate("/messages", {
+                        state: {
+                          profileUser: {
+                            id: profile.id,
+                            displayName: profile.displayName,
+                            username: profile.username,
+                            avatar: profile.avatar,
+                          },
+                        },
+                      })
+                    }
                     className="px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg font-medium transition-all border border-border text-foreground"
                   >
                     <MessageCircle className="w-4 h-4" />
@@ -1100,23 +1021,35 @@ export default function Profile() {
                       <div className="space-y-1">
                         {profile.gender && (
                           <div className="flex items-center justify-between">
-                            <span className="text-[10px] text-muted-foreground">Gender:</span>
-                            <span className="text-[10px] text-foreground">{profile.gender}</span>
+                            <span className="text-[10px] text-muted-foreground">
+                              Gender:
+                            </span>
+                            <span className="text-[10px] text-foreground">
+                              {profile.gender}
+                            </span>
                           </div>
                         )}
                         {profile.dateOfBirth && (
                           <div className="flex items-center justify-between">
-                            <span className="text-[10px] text-muted-foreground">Age:</span>
+                            <span className="text-[10px] text-muted-foreground">
+                              Age:
+                            </span>
                             <span className="text-[10px] text-foreground">
-                              {new Date().getFullYear() - new Date(profile.dateOfBirth).getFullYear()}
+                              {new Date().getFullYear() -
+                                new Date(profile.dateOfBirth).getFullYear()}
                             </span>
                           </div>
                         )}
                         {profile.phone && (
                           <div className="flex items-center justify-between">
-                            <span className="text-[10px] text-muted-foreground">Phone:</span>
+                            <span className="text-[10px] text-muted-foreground">
+                              Phone:
+                            </span>
                             <span className="text-[10px] text-foreground">
-                              {profile.phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3')}
+                              {profile.phone.replace(
+                                /(\d{3})(\d{3})(\d{4})/,
+                                "($1) $2-$3",
+                              )}
                             </span>
                           </div>
                         )}

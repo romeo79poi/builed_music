@@ -112,7 +112,7 @@ export default function EditProfile() {
 
   const handleCancel = () => {
     cancelEditing();
-    navigate("/profile");
+    navigate(-1);
   };
 
   const addGenre = () => {

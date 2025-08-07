@@ -85,7 +85,7 @@ export default function Search() {
       if (!fbUser) {
         console.log("🔥 No Firebase user, using mock likes");
         // Mock some liked songs for better UX
-        setLikedSongs(new Set(['1', '3', '5']));
+        setLikedSongs(new Set(["1", "3", "5"]));
         return;
       }
 
@@ -94,14 +94,16 @@ export default function Search() {
       // Try to load from backend with Firebase user ID
       const response = await fetch(`/api/v1/users/${fbUser.uid}/liked-tracks`, {
         headers: {
-          'user-id': fbUser.uid,
-          'Content-Type': 'application/json'
-        }
+          "user-id": fbUser.uid,
+          "Content-Type": "application/json",
+        },
       });
 
       if (response.ok) {
         const data = await response.json();
-        const likedTrackIds = new Set(data.liked_tracks?.map((track: any) => track.id) || []);
+        const likedTrackIds = new Set(
+          data.liked_tracks?.map((track: any) => track.id) || [],
+        );
         setLikedSongs(likedTrackIds);
       }
     } catch (error) {
@@ -146,7 +148,6 @@ export default function Search() {
       }
 
       setSearchResults(results);
-
     } catch (error) {
       console.error("Search error:", error);
       toast({
@@ -169,15 +170,15 @@ export default function Search() {
 
         // Add to listening history
         if (currentUser) {
-          const token = localStorage.getItem('token');
+          const token = localStorage.getItem("token");
           if (token) {
             await fetch(`/api/v1/users/play-history`, {
-              method: 'POST',
+              method: "POST",
               headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
               },
-              body: JSON.stringify({ track_id: track.id })
+              body: JSON.stringify({ track_id: track.id }),
             });
           }
         }
@@ -207,7 +208,7 @@ export default function Search() {
     }
 
     try {
-      const token = localStorage.getItem('token');
+      const token = localStorage.getItem("token");
       if (!token) {
         toast({
           title: "Login required",
@@ -218,13 +219,13 @@ export default function Search() {
       }
 
       const isCurrentlyLiked = likedSongs.has(trackId);
-      const method = isCurrentlyLiked ? 'DELETE' : 'POST';
+      const method = isCurrentlyLiked ? "DELETE" : "POST";
 
       const response = await fetch(`/api/v1/users/liked-tracks/${trackId}`, {
         method,
         headers: {
-          'Authorization': `Bearer ${token}`
-        }
+          Authorization: `Bearer ${token}`,
+        },
       });
 
       if (response.ok) {
@@ -240,7 +241,9 @@ export default function Search() {
         });
 
         toast({
-          title: isCurrentlyLiked ? "Removed from liked songs" : "Added to liked songs",
+          title: isCurrentlyLiked
+            ? "Removed from liked songs"
+            : "Added to liked songs",
           description: isCurrentlyLiked
             ? "Song removed from your favorites"
             : "Song added to your favorites",
@@ -429,7 +432,9 @@ export default function Search() {
                     {album.title}
                   </h4>
                   <p className="text-xs text-gray-400">{album.artist_name}</p>
-                  <p className="text-xs text-gray-500">{album.track_count} tracks</p>
+                  <p className="text-xs text-gray-500">
+                    {album.track_count} tracks
+                  </p>
                 </div>
               ))}
             </div>
@@ -450,7 +455,10 @@ export default function Search() {
                   className="bg-white/5 rounded-xl p-4 hover:bg-white/10 transition-all cursor-pointer"
                 >
                   <img
-                    src={artist.avatar_url || "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop"}
+                    src={
+                      artist.avatar_url ||
+                      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop"
+                    }
                     alt={artist.name}
                     className="w-full aspect-square rounded-lg object-cover mb-3"
                   />
@@ -465,7 +473,8 @@ export default function Search() {
                     )}
                   </div>
                   <p className="text-xs text-gray-400">
-                    {artist.monthly_listeners.toLocaleString()} monthly listeners
+                    {artist.monthly_listeners.toLocaleString()} monthly
+                    listeners
                   </p>
                 </div>
               ))}
@@ -484,7 +493,7 @@ export default function Search() {
       <div className="relative z-10 flex flex-col h-screen">
         {/* Header */}
         <div className="flex items-center justify-between p-6 pb-4">
-          <button onClick={() => navigate("/home")}>
+          <button onClick={() => navigate(-1)}>
             <ArrowLeft className="w-6 h-6 text-white" />
           </button>
           <Music className="w-6 h-6 text-purple-primary" />

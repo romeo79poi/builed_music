@@ -108,20 +108,29 @@ export default function Library() {
     try {
       if (!firebaseUser) return;
 
-      console.log("🔥 Loading library data for Firebase user:", firebaseUser.uid);
+      console.log(
+        "🔥 Loading library data for Firebase user:",
+        firebaseUser.uid,
+      );
 
       // Load playlists with Firebase user ID
       try {
-        const playlistsResponse = await fetch(`/api/v1/users/${firebaseUser.uid}/playlists`, {
-          headers: {
-            "user-id": firebaseUser.uid,
-            "Content-Type": "application/json",
+        const playlistsResponse = await fetch(
+          `/api/v1/users/${firebaseUser.uid}/playlists`,
+          {
+            headers: {
+              "user-id": firebaseUser.uid,
+              "Content-Type": "application/json",
+            },
           },
-        });
+        );
         if (playlistsResponse.ok) {
           const playlistsData = await playlistsResponse.json();
           setUserPlaylists(playlistsData.playlists || []);
-          console.log("✅ Loaded playlists from backend:", playlistsData.playlists?.length || 0);
+          console.log(
+            "✅ Loaded playlists from backend:",
+            playlistsData.playlists?.length || 0,
+          );
         }
       } catch (error) {
         console.error("⚠️ Error loading playlists:", error);
@@ -131,7 +140,8 @@ export default function Library() {
             id: "mock-1",
             name: "My Favorites",
             description: "Firebase user's favorite tracks",
-            cover_image_url: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
+            cover_image_url:
+              "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
             is_public: false,
             track_count: 15,
             created_at: new Date().toISOString(),
@@ -141,16 +151,22 @@ export default function Library() {
 
       // Load liked songs with Firebase user ID
       try {
-        const likedResponse = await fetch(`/api/v1/users/${firebaseUser.uid}/liked-tracks`, {
-          headers: {
-            "user-id": firebaseUser.uid,
-            "Content-Type": "application/json",
+        const likedResponse = await fetch(
+          `/api/v1/users/${firebaseUser.uid}/liked-tracks`,
+          {
+            headers: {
+              "user-id": firebaseUser.uid,
+              "Content-Type": "application/json",
+            },
           },
-        });
+        );
         if (likedResponse.ok) {
           const likedData = await likedResponse.json();
           setLikedSongs(likedData.liked_tracks || []);
-          console.log("✅ Loaded liked songs from backend:", likedData.liked_tracks?.length || 0);
+          console.log(
+            "✅ Loaded liked songs from backend:",
+            likedData.liked_tracks?.length || 0,
+          );
         }
       } catch (error) {
         console.error("⚠️ Error loading liked songs:", error);
@@ -161,7 +177,8 @@ export default function Library() {
             title: "Midnight Dreams",
             artist_name: "Alex Johnson",
             duration: 234,
-            cover_image_url: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
+            cover_image_url:
+              "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
             genre: "Electronic",
             play_count: 1240,
           },
@@ -182,7 +199,10 @@ export default function Library() {
         if (historyResponse.ok) {
           const historyData = await historyResponse.json();
           setRecentlyPlayed(historyData.play_history || []);
-          console.log("✅ Loaded play history from backend:", historyData.play_history?.length || 0);
+          console.log(
+            "✅ Loaded play history from backend:",
+            historyData.play_history?.length || 0,
+          );
         }
       } catch (error) {
         console.error("⚠️ Error loading play history:", error);
@@ -193,7 +213,8 @@ export default function Library() {
             title: "Summer Vibes",
             artist_name: "Beach Boys Redux",
             duration: 198,
-            cover_image_url: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
+            cover_image_url:
+              "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
             genre: "Pop",
             play_count: 890,
           },
@@ -600,7 +621,7 @@ export default function Library() {
           animate={{ opacity: 1, y: 0 }}
           className="flex items-center justify-between p-4 md:p-6 bg-black/60 backdrop-blur-sm sticky top-0 z-20"
         >
-          <button onClick={() => navigate("/home")}>
+          <button onClick={() => navigate(-1)}>
             <ArrowLeft className="w-6 h-6 text-white" />
           </button>
           <div className="flex items-center space-x-2">
