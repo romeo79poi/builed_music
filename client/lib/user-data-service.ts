@@ -71,7 +71,6 @@ export class UserDataService {
     const localData = this.loadFromLocalStorage(firebaseUser.uid);
     if (localData) {
       userData = { ...userData, ...localData, dataSource: 'localStorage' };
-      console.log('✅ Enhanced with localStorage data');
     }
 
     // 2. Try MongoDB backend
@@ -79,16 +78,13 @@ export class UserDataService {
       const mongoData = await this.loadFromMongoDB(firebaseUser.uid);
       if (mongoData) {
         userData = { ...userData, ...mongoData, dataSource: userData.dataSource === 'localStorage' ? 'mixed' : 'mongodb' };
-        console.log('✅ Enhanced with MongoDB data');
       }
     } catch (error) {
-      console.warn('⚠️ MongoDB fetch failed:', error);
+      // MongoDB fetch failed, continue with available data
     }
 
     // 3. Save enhanced data to localStorage for caching
     this.saveToLocalStorage(userData);
-
-    console.log('✅ Final enhanced user data:', userData);
     return userData;
   }
 
