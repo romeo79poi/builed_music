@@ -483,11 +483,6 @@ export default function EditAccount() {
                     <p className="text-sm text-purple-primary">
                       Member since {accountData.memberSince}
                     </p>
-                    {accountData.dataSource && (
-                      <p className="text-xs text-gray-500 mt-1">
-                        Data source: {accountData.dataSource}
-                      </p>
-                    )}
                   </div>
                 </div>
               )}
