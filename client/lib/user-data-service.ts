@@ -146,7 +146,6 @@ export class UserDataService {
         if (data) {
           const userData = JSON.parse(data);
           if (userData && (userData.uid === uid || userData.id === uid)) {
-            console.log(`💾 Found localStorage data in "${key}":`, userData);
             
             return {
               name: userData.name || userData.displayName || userData.fullName,
