@@ -308,7 +308,7 @@ export default function EditAccount() {
           return;
         }
 
-        console.log("�� Uploading profile image for Firebase user:", firebaseUser.uid);
+        console.log("🔥 Uploading profile image for Firebase user:", firebaseUser.uid);
 
         const reader = new FileReader();
         reader.onload = async (e) => {
@@ -344,13 +344,14 @@ export default function EditAccount() {
               console.warn("⚠️ Backend image update failed:", backendError);
             }
 
-            // Save to localStorage
-            const userDataKey = `firebase_account_${firebaseUser.uid}`;
-            const currentData = JSON.parse(localStorage.getItem(userDataKey) || '{}');
-            localStorage.setItem(userDataKey, JSON.stringify({
-              ...currentData,
-              profileImage: newImage,
-            }));
+            // Use the enhanced user data service to save
+            if (accountData) {
+              await userDataService.updateUserData(firebaseUser.uid, {
+                ...accountData,
+                avatar: newImage,
+                profileImageURL: newImage,
+              });
+            }
 
             toast({
               title: "Profile Image Updated",
