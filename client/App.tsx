@@ -12,6 +12,7 @@ import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
 import { FirebaseProvider } from "./context/FirebaseContext";
 import { SocialProvider } from "./context/SocialContext";
+import "./lib/error-handler"; // Setup global error handling for Firebase permissions
 // import { SocketProvider } from "./context/SocketContext";
 import AuthRouter from "./components/AuthRouter";
 import Splash from "./pages/Splash";
