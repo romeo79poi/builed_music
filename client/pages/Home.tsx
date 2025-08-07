@@ -342,6 +342,13 @@ export default function Home() {
 
     if (!firebaseLoading) {
       loadUserData();
+
+      // Run integration test in development
+      if (process.env.NODE_ENV === 'development') {
+        setTimeout(() => {
+          testUserDataIntegration();
+        }, 3000);
+      }
     }
   }, [fbUser, firebaseLoading]); // Add Firebase dependencies back
 
