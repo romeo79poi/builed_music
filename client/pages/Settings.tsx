@@ -969,11 +969,6 @@ export default function Settings() {
                       <p className="text-sm text-purple-primary">
                         Member since {userProfile.memberSince}
                       </p>
-                      {userProfile.dataSource && (
-                        <p className="text-xs text-gray-500 mt-1">
-                          Data source: {userProfile.dataSource}
-                        </p>
-                      )}
                     </div>
                   </>
                 )}
