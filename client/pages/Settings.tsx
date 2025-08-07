@@ -489,7 +489,7 @@ export default function Settings() {
           description: "Edit detailed account information",
         },
         // Only show subscription section if user has premium
-        ...(userProfile.premium
+        ...(userProfile?.isPremium
           ? [
               {
                 key: "subscription",
