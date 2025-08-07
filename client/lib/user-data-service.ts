@@ -61,11 +61,8 @@ export class UserDataService {
    */
   async fetchUserData(firebaseUser: User): Promise<EnhancedUserData | null> {
     if (!firebaseUser) {
-      console.log('❌ No Firebase user provided');
       return null;
     }
-
-    console.log('🔄 Fetching comprehensive user data for:', firebaseUser.email);
 
     // Start with Firebase base data
     let userData: EnhancedUserData = this.createBaseUserData(firebaseUser);
