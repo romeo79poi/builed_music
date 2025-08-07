@@ -930,32 +930,56 @@ export default function Settings() {
           >
             <div className="bg-gradient-to-r from-purple-dark/40 to-purple-primary/20 backdrop-blur-sm rounded-2xl p-6 border border-purple-primary/30">
               <div className="flex items-center space-x-4">
-                <div className="relative">
-                  <img
-                    src={userProfile.profileImage}
-                    alt={userProfile.name}
-                    className="w-16 h-16 rounded-full object-cover border-2 border-neon-green/50"
-                  />
-                  {userProfile.premium && (
-                    <motion.div
-                      animate={{ scale: [1, 1.1, 1] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                      className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center"
-                    >
-                      <Star className="w-3 h-3 text-white fill-current" />
-                    </motion.div>
-                  )}
-                </div>
+                {userProfile && (
+                  <>
+                    <div className="relative">
+                      <img
+                        src={userProfile.avatar || userProfile.profileImageURL || `https://ui-avatars.io/api/?name=${encodeURIComponent(userProfile.name)}&background=6366f1&color=fff&size=64`}
+                        alt={userProfile.name}
+                        className="w-16 h-16 rounded-full object-cover border-2 border-neon-green/50"
+                      />
+                      {userProfile.isPremium && (
+                        <motion.div
+                          animate={{ scale: [1, 1.1, 1] }}
+                          transition={{ duration: 2, repeat: Infinity }}
+                          className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full flex items-center justify-center"
+                        >
+                          <Star className="w-3 h-3 text-white fill-current" />
+                        </motion.div>
+                      )}
+                      {userProfile.isVerified && (
+                        <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center border-2 border-background">
+                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
 
-                <div className="flex-1">
-                  <h2 className="text-xl font-bold text-white">
-                    {loading ? "Loading..." : userProfile.name}
-                  </h2>
-                  <p className="text-gray-400">{userProfile.email}</p>
-                  <p className="text-sm text-purple-primary">
-                    Member since {userProfile.joinDate}
-                  </p>
-                </div>
+                    <div className="flex-1">
+                      <div className="flex items-center space-x-2 mb-1">
+                        <h2 className="text-xl font-bold text-white">
+                          {loading ? "Loading..." : userProfile.name}
+                        </h2>
+                        {userProfile.isPremium && (
+                          <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-yellow-400 to-orange-500 text-black">
+                            PREMIUM
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-gray-400">@{userProfile.username}</p>
+                      <p className="text-gray-400">{userProfile.email}</p>
+                      <p className="text-sm text-purple-primary">
+                        Member since {userProfile.memberSince}
+                      </p>
+                      {userProfile.dataSource && (
+                        <p className="text-xs text-gray-500 mt-1">
+                          Data source: {userProfile.dataSource}
+                        </p>
+                      )}
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </motion.section>
