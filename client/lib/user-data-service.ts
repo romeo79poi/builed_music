@@ -360,7 +360,7 @@ export class UserDataService {
         }
       });
 
-      console.log('🗑️ User data cleared');
+      // User data cleared
     } catch (error) {
       console.warn('⚠️ Failed to clear user data:', error);
     }
