@@ -813,7 +813,7 @@ export default function Settings() {
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            onClick={() => navigate("/home")}
+            onClick={() => navigate(-1)}
             className="w-10 h-10 rounded-full bg-purple-dark/50 backdrop-blur-sm flex items-center justify-center border border-purple-primary/30 hover:bg-purple-primary/20 transition-colors"
           >
             <ArrowLeft className="w-5 h-5 text-white" />
