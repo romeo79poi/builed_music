@@ -308,14 +308,14 @@ export default function EditAccount() {
           return;
         }
 
-        console.log("🔥 Uploading profile image for Firebase user:", firebaseUser.uid);
+        console.log("�� Uploading profile image for Firebase user:", firebaseUser.uid);
 
         const reader = new FileReader();
         reader.onload = async (e) => {
           const newImage = e.target?.result as string;
 
           // Update local state immediately for better UX
-          setAccountData((prev) => ({ ...prev, profileImage: newImage }));
+          setAccountData((prev) => prev ? ({ ...prev, avatar: newImage, profileImageURL: newImage }) : null);
 
           try {
             // Update Firebase profile
