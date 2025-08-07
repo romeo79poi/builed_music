@@ -578,12 +578,12 @@ export default function EditAccount() {
                           Gender
                         </label>
                         <select
-                          value={accountData.gender}
+                          value={accountData?.gender || ''}
                           onChange={(e) =>
-                            setAccountData((prev) => ({
+                            setAccountData((prev) => prev ? ({
                               ...prev,
                               gender: e.target.value,
-                            }))
+                            }) : null)
                           }
                           className="w-full px-4 py-3 bg-purple-dark/50 border border-purple-primary/30 rounded-xl text-white focus:outline-none focus:border-purple-primary/60"
                         >
