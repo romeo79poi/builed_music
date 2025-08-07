@@ -54,14 +54,12 @@ import { api } from "../lib/api";
 import { useFirebase } from "../context/FirebaseContext";
 import { useMusic } from "../context/MusicContextSupabase";
 import { useSocial } from "../context/SocialContext";
+import { userDataService, EnhancedUserData } from "../lib/user-data-service";
 
-// Use Firebase user with backend profile extension
-type UserProfile = BackendUserProfile & {
-  avatar: string;
+// Use enhanced user data type
+type UserProfile = EnhancedUserData & {
   coverImage: string;
   location: string;
-  website: string;
-  isArtist: boolean;
   joinedDate: Date;
   stats: {
     followers: number;
@@ -72,10 +70,6 @@ type UserProfile = BackendUserProfile & {
     monthlyListeners: number;
   };
   badges: string[];
-  // Additional signup data fields
-  dateOfBirth?: string;
-  gender?: string;
-  phone?: string;
 };
 
 interface Track {
@@ -241,13 +235,10 @@ export default function Profile() {
     }
   };
 
-  // Fetch profile data using Firebase user
+  // Fetch profile data using enhanced user data service
   const fetchProfile = async () => {
     try {
       setLoading(true);
-
-      // First, try to repair localStorage data if needed
-      repairLocalStorageData();
 
       if (!firebaseUser) {
         console.log("❌ No Firebase user found");
@@ -260,183 +251,109 @@ export default function Profile() {
         return;
       }
 
-      console.log("🔥 Fetching profile for Firebase user:", firebaseUser.email);
+      console.log("🔥 Fetching comprehensive profile for Firebase user:", firebaseUser.email);
 
-      // First, try to load complete data from localStorage (signup data)
-      const localUserData = localStorage.getItem('currentUser');
-      if (localUserData) {
-        try {
-          const userData = JSON.parse(localUserData);
-          console.log("💾 Found localStorage user data:", userData);
-          console.log("🖼️ Profile image fields in localStorage:", {
-            profileImageURL: userData.profileImageURL,
-            avatar: userData.avatar,
-            profileImage: userData.profileImage,
-            photoURL: userData.photoURL
-          });
+      // Use the enhanced user data service
+      const enhancedUserData = await userDataService.fetchUserData(firebaseUser);
 
-          if (userData.uid === firebaseUser.uid) {
-            // Use complete signup data from localStorage
-            const completeProfile: UserProfile = {
-              id: firebaseUser.uid,
-              displayName: userData.name || firebaseUser.displayName || "User",
-              username: userData.username || firebaseUser.email?.split("@")[0] || "user",
-              email: userData.email || firebaseUser.email || "",
-              bio: userData.bio || "Music lover 🎵",
-              avatar: userData.profileImageURL || userData.avatar || userData.profileImage || firebaseUser.photoURL || "",
-              coverImage: "",
-              location: "",
-              website: "",
-              isVerified: firebaseUser.emailVerified || false,
-              isArtist: false,
-              joinedDate: firebaseUser.metadata.creationTime
-                ? new Date(firebaseUser.metadata.creationTime)
-                : new Date(),
-              socialLinks: {
-                instagram: "",
-                twitter: "",
-                youtube: "",
-              },
-              stats: {
-                followers: 0,
-                following: 0,
-                totalPlays: 0,
-                totalTracks: 0,
-                totalPlaylists: 0,
-                monthlyListeners: 0,
-              },
-              badges: [],
-              // Additional signup data
-              dateOfBirth: userData.dateOfBirth,
-              gender: userData.gender,
-              phone: userData.phone,
-            };
+      if (enhancedUserData) {
+        // Convert enhanced user data to profile format
+        const enhancedProfile: UserProfile = {
+          ...enhancedUserData,
+          id: enhancedUserData.uid,
+          displayName: enhancedUserData.name,
+          isVerified: enhancedUserData.isVerified,
+          isArtist: enhancedUserData.isArtist,
+          avatar: enhancedUserData.avatar || enhancedUserData.profileImageURL,
+          coverImage: "",
+          location: enhancedUserData.city && enhancedUserData.country
+            ? `${enhancedUserData.city}, ${enhancedUserData.country}`
+            : enhancedUserData.city || enhancedUserData.country || "",
+          joinedDate: new Date(enhancedUserData.creationTime),
+          socialLinks: {
+            instagram: "",
+            twitter: "",
+            youtube: "",
+          },
+          stats: {
+            followers: enhancedUserData.followersCount,
+            following: enhancedUserData.followingCount,
+            totalPlays: 0,
+            totalTracks: 0,
+            totalPlaylists: 0,
+            monthlyListeners: 0,
+          },
+          badges: enhancedUserData.isPremium ? ["premium"] : [],
+        };
 
-            setProfile(completeProfile);
-            console.log("✅ Profile loaded from localStorage signup data:", completeProfile);
+        setProfile(enhancedProfile);
+        console.log("✅ Enhanced profile loaded:", enhancedProfile);
 
-            // Update edit form with complete data
-            setEditForm({
-              displayName: completeProfile.displayName,
-              username: completeProfile.username,
-              bio: completeProfile.bio,
-              location: completeProfile.location,
-              socialLinks: completeProfile.socialLinks,
-            });
+        // Update edit form with enhanced data
+        setEditForm({
+          displayName: enhancedProfile.displayName,
+          username: enhancedProfile.username,
+          bio: enhancedProfile.bio || "",
+          location: enhancedProfile.location,
+          socialLinks: enhancedProfile.socialLinks,
+        });
+      } else {
+        // Fallback to basic Firebase profile
+        const firebaseProfile: UserProfile = {
+          uid: firebaseUser.uid,
+          id: firebaseUser.uid,
+          displayName: firebaseUser.displayName || "User",
+          name: firebaseUser.displayName || "User",
+          username: firebaseUser.email?.split("@")[0] || "user",
+          email: firebaseUser.email || "",
+          emailVerified: firebaseUser.emailVerified,
+          bio: "Music lover 🎵",
+          avatar: firebaseUser.photoURL || "",
+          profileImageURL: firebaseUser.photoURL || "",
+          photoURL: firebaseUser.photoURL || "",
+          coverImage: "",
+          location: "",
+          website: "",
+          isVerified: firebaseUser.emailVerified,
+          isArtist: false,
+          isPremium: false,
+          accountType: "Free" as const,
+          memberSince: "",
+          followersCount: 0,
+          followingCount: 0,
+          isPublic: true,
+          joinedDate: new Date(),
+          creationTime: firebaseUser.metadata.creationTime || new Date().toISOString(),
+          lastSignInTime: firebaseUser.metadata.lastSignInTime || new Date().toISOString(),
+          socialLinks: {
+            instagram: "",
+            twitter: "",
+            youtube: "",
+          },
+          stats: {
+            followers: 0,
+            following: 0,
+            totalPlays: 0,
+            totalTracks: 0,
+            totalPlaylists: 0,
+            monthlyListeners: 0,
+          },
+          badges: [],
+          dataSource: "firebase" as const,
+        };
 
-            setLoading(false);
-            return;
-          }
-        } catch (parseError) {
-          console.warn("⚠️ Failed to parse localStorage user data:", parseError);
-        }
+        setProfile(firebaseProfile);
+        console.log("✅ Basic Firebase profile created:", firebaseProfile);
+
+        // Update edit form with Firebase data
+        setEditForm({
+          displayName: firebaseProfile.displayName,
+          username: firebaseProfile.username,
+          bio: firebaseProfile.bio,
+          location: firebaseProfile.location,
+          socialLinks: firebaseProfile.socialLinks,
+        });
       }
-
-      // Skip backend API calls - using Firebase/Firestore only
-      console.log("⚠️ Skipping backend API - using Firebase/Firestore data only");
-
-      // Try to fetch from Firestore as secondary fallback
-      try {
-        const firestoreResult = await fetchUserData(firebaseUser.uid);
-        if (firestoreResult.success && firestoreResult.userData) {
-          const firestoreData = firestoreResult.userData;
-          console.log("✅ Firestore data found:", firestoreData);
-
-          const firestoreProfile: UserProfile = {
-            id: firebaseUser.uid,
-            displayName: firestoreData.name || firebaseUser.displayName || "User",
-            username: firestoreData.username || firebaseUser.email?.split("@")[0] || "user",
-            email: firestoreData.email || firebaseUser.email || "",
-            bio: firestoreData.bio || "Music lover 🎵",
-            avatar: firestoreData.profileImageURL || firestoreData.avatar || firestoreData.profileImage || firebaseUser.photoURL || "",
-            coverImage: "",
-            location: "",
-            website: "",
-            isVerified: firestoreData.verified || firebaseUser.emailVerified || false,
-            isArtist: false,
-            joinedDate: firestoreData.createdAt
-              ? new Date(firestoreData.createdAt.seconds * 1000)
-              : new Date(),
-            socialLinks: {
-              instagram: "",
-              twitter: "",
-              youtube: "",
-            },
-            stats: {
-              followers: 0,
-              following: 0,
-              totalPlays: 0,
-              totalTracks: 0,
-              totalPlaylists: 0,
-              monthlyListeners: 0,
-            },
-            badges: [],
-            // Additional signup data from Firestore
-            dateOfBirth: firestoreData.dob,
-            gender: firestoreData.gender,
-            phone: firestoreData.phone,
-          };
-
-          setProfile(firestoreProfile);
-          console.log("✅ Profile loaded from Firestore:", firestoreProfile);
-
-          // Update edit form
-          setEditForm({
-            displayName: firestoreProfile.displayName,
-            username: firestoreProfile.username,
-            bio: firestoreProfile.bio,
-            location: firestoreProfile.location,
-            socialLinks: firestoreProfile.socialLinks,
-          });
-
-          setLoading(false);
-          return;
-        }
-      } catch (firestoreError) {
-        console.warn("⚠️ Firestore fetch failed:", firestoreError);
-      }
-
-      // If all data sources fail, create basic profile from Firebase user data
-      const firebaseProfile: UserProfile = {
-        id: firebaseUser.uid,
-        displayName: firebaseUser.displayName || "User",
-        username: firebaseUser.email?.split("@")[0] || "user",
-        email: firebaseUser.email || "",
-        bio: "Music lover using Firebase authentication 🎵",
-        avatar: firebaseUser.photoURL || "",
-        coverImage: "",
-        location: "",
-        website: "",
-        isVerified: firebaseUser.emailVerified || false,
-        isArtist: false,
-        joinedDate: new Date(),
-        socialLinks: {
-          instagram: "",
-          twitter: "",
-          youtube: "",
-        },
-        stats: {
-          followers: 0,
-          following: 0,
-          totalPlays: 0,
-          totalTracks: 0,
-          totalPlaylists: 0,
-          monthlyListeners: 0,
-        },
-        badges: [],
-      };
-
-      setProfile(firebaseProfile);
-      console.log("✅ Profile created from Firebase user:", firebaseProfile);
-
-      // Update edit form with Firebase data
-      setEditForm({
-        displayName: firebaseProfile.displayName,
-        username: firebaseProfile.username,
-        bio: firebaseProfile.bio,
-        location: firebaseProfile.location,
-        socialLinks: firebaseProfile.socialLinks,
-      });
 
     } catch (error) {
       console.error("❌ Error fetching profile:", error);
@@ -599,22 +516,23 @@ export default function Profile() {
         return;
       }
 
-      // Use Firebase updateUserProfile function with all required parameters
-      const result = await updateUserProfile(firebaseUser.uid, {
+      // Use enhanced user data service to update
+      const updateData = {
         name: editForm.displayName,
         username: editForm.username,
         bio: editForm.bio,
-        email: firebaseUser.email || "",
-        phone: firebaseUser.phoneNumber || "",
         profileImageURL: profile.avatar,
-        verified: firebaseUser.emailVerified,
-      });
+        avatar: profile.avatar,
+      };
+
+      const result = await userDataService.updateUserData(firebaseUser.uid, updateData);
 
       if (result.success) {
         // Update local state with saved data
         const updatedProfile = {
           ...profile,
           displayName: editForm.displayName,
+          name: editForm.displayName,
           username: editForm.username,
           bio: editForm.bio,
           location: editForm.location,
@@ -626,32 +544,14 @@ export default function Profile() {
         };
 
         setProfile(updatedProfile);
-
-        // Update localStorage with new profile data
-        const localUserData = localStorage.getItem('currentUser');
-        if (localUserData) {
-          try {
-            const userData = JSON.parse(localUserData);
-            const updatedUserData = {
-              ...userData,
-              name: editForm.displayName,
-              username: editForm.username,
-              bio: editForm.bio,
-            };
-            localStorage.setItem('currentUser', JSON.stringify(updatedUserData));
-            console.log('💾 Updated localStorage with new profile data');
-          } catch (error) {
-            console.warn('⚠️ Failed to update localStorage:', error);
-          }
-        }
-
         setIsEditing(false);
+
         toast({
           title: "Profile Updated",
-          description: "Your profile has been successfully updated",
+          description: "Your profile has been successfully updated across all platforms",
         });
 
-        console.log("✅ Profile updated successfully");
+        console.log("✅ Profile updated successfully using enhanced service");
       } else {
         toast({
           title: "Update Failed",
