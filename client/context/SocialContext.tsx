@@ -115,8 +115,13 @@ export const SocialProvider: React.FC<SocialProviderProps> = ({ children }) => {
   // Load user's social data when Firebase user changes
   useEffect(() => {
     if (firebaseUser && db) {
-      loadSocialData();
-      setupRealtimeListeners();
+      // Add a small delay to prevent immediate errors during startup
+      const timer = setTimeout(() => {
+        loadSocialData();
+        setupRealtimeListeners();
+      }, 1000);
+
+      return () => clearTimeout(timer);
     } else {
       // Clear data when user logs out
       setFollowers([]);
@@ -251,7 +256,7 @@ export const SocialProvider: React.FC<SocialProviderProps> = ({ children }) => {
           setFollowing(followingData);
         },
         (error) => {
-          console.warn('��️ Firestore following listener error, ignoring:', error.message);
+          console.warn('⚠️ Firestore following listener error, ignoring:', error.message);
         }
       );
       unsubscribers.push(unsubscribeFollowing);
