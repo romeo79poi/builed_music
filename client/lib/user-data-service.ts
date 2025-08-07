@@ -233,7 +233,6 @@ export class UserDataService {
             }
           }
         } catch (endpointError) {
-          console.warn(`⚠️ Failed to fetch from ${endpoint}:`, endpointError);
           continue;
         }
       }
