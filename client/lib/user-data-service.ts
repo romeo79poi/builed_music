@@ -322,12 +322,12 @@ export class UserDataService {
         });
 
         if (response.ok) {
-          console.log('✅ MongoDB update successful');
+          // MongoDB update successful
         } else {
-          console.warn('⚠️ MongoDB update failed, continuing with local updates');
+          // MongoDB update failed, continuing with local updates
         }
       } catch (mongoError) {
-        console.warn('⚠️ MongoDB update error:', mongoError);
+        // MongoDB update error, continuing with local updates
       }
 
       return { success: true };
