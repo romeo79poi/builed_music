@@ -293,7 +293,6 @@ export default function Home() {
 
         // Check if we have a Firebase user
         if (fbUser) {
-          console.log("🔥 Loading comprehensive user data for Home:", fbUser.email);
 
           // Use enhanced user data service
           const enhancedUserData = await userDataService.fetchUserData(fbUser);
