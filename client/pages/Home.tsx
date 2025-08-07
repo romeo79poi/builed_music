@@ -400,12 +400,21 @@ export default function Home() {
       } catch (error) {
         console.error("Error loading API data:", error);
 
-        // Show error toast
+        // Fallback to sample data to keep UI working
+        if (albums.length === 0) {
+          setAlbums(sampleAlbums);
+        }
+        if (tracks.length === 0) {
+          setTracks(sampleSongs);
+        }
+
+        // Show warning toast instead of error
         toast({
-          title: "Failed to load content",
-          description: "Please check your connection and refresh the page.",
-          variant: "destructive",
+          title: "Using offline content",
+          description: "Some content may be limited while offline",
+          variant: "default",
         });
+        setApiDataLoaded(true);
       }
     };
 
@@ -632,7 +641,7 @@ export default function Home() {
                   </p>
                   <div className="flex items-center space-x-3 text-xs text-gray-300">
                     <span>{featuredContent.genre}</span>
-                    <span>��</span>
+                    <span>•</span>
                     <span>{featuredContent.releaseYear}</span>
                   </div>
                 </div>
