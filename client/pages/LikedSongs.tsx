@@ -188,7 +188,7 @@ export default function LikedSongs() {
           className="flex items-center justify-between p-6 pt-12"
         >
           <button
-            onClick={() => navigate("/profile")}
+            onClick={() => navigate(-1)}
             className="w-10 h-10 bg-white/10 rounded-full flex items-center justify-center backdrop-blur-sm"
           >
             <ArrowLeft className="w-5 h-5" />
