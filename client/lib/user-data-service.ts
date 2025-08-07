@@ -275,12 +275,10 @@ export class UserDataService {
       // Save to multiple keys for compatibility
       localStorage.setItem('currentUser', JSON.stringify(cacheData));
       localStorage.setItem(`firebase_account_${userData.uid}`, JSON.stringify(cacheData));
-      
+
       if (userData.avatar) {
         localStorage.setItem('userAvatar', userData.avatar);
       }
-
-      console.log('💾 User data cached to localStorage');
     } catch (error) {
       console.warn('⚠️ Failed to save to localStorage:', error);
     }
