@@ -57,7 +57,7 @@ export class UserDataService {
   }
 
   /**
-   * Fetch comprehensive user data from all available sources
+   * Fetch comprehensive user data from all available sources with optimized flow
    */
   async fetchUserData(firebaseUser: User): Promise<EnhancedUserData | null> {
     if (!firebaseUser) {
@@ -71,20 +71,32 @@ export class UserDataService {
     const localData = this.loadFromLocalStorage(firebaseUser.uid);
     if (localData) {
       userData = { ...userData, ...localData, dataSource: 'localStorage' };
+
+      // If we have fresh cached data, return immediately
+      if (!this.isDataStale(firebaseUser.uid, 10)) { // 10 minutes cache
+        return userData;
+      }
     }
 
-    // 2. Try MongoDB backend
+    // 2. Try MongoDB backend with timeout and fast fallback
     try {
-      const mongoData = await this.loadFromMongoDB(firebaseUser.uid);
+      const mongoDataPromise = this.loadFromMongoDB(firebaseUser.uid);
+      const timeoutPromise = new Promise<null>((resolve) => {
+        setTimeout(() => resolve(null), 3000); // 3 second timeout
+      });
+
+      const mongoData = await Promise.race([mongoDataPromise, timeoutPromise]);
+
       if (mongoData) {
         userData = { ...userData, ...mongoData, dataSource: userData.dataSource === 'localStorage' ? 'mixed' : 'mongodb' };
+        // Save successful fetch to cache
+        this.saveToLocalStorage(userData);
       }
     } catch (error) {
-      // MongoDB fetch failed, continue with available data
+      // MongoDB fetch failed, continue with cached data
+      console.warn('⚠️ MongoDB fetch failed, using cached data');
     }
 
-    // 3. Save enhanced data to localStorage for caching
-    this.saveToLocalStorage(userData);
     return userData;
   }
 
@@ -182,64 +194,67 @@ export class UserDataService {
   }
 
   /**
-   * Load user data from MongoDB backend
+   * Load user data from MongoDB backend with optimized error handling
    */
   private async loadFromMongoDB(uid: string): Promise<Partial<EnhancedUserData> | null> {
     try {
-      // Try multiple MongoDB endpoints
-      const endpoints = [
-        `/api/v1/users/${uid}`,
-        `/api/users/${uid}`,
-        `/api/profile/${uid}`
-      ];
+      // Try primary endpoint first with faster timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 2000); // 2 second timeout
 
-      for (const endpoint of endpoints) {
-        try {
-          const response = await fetch(endpoint, {
-            headers: {
-              'user-id': uid,
-              'Content-Type': 'application/json',
-            },
-          });
+      try {
+        const response = await fetch(`/api/v1/users/${uid}`, {
+          headers: {
+            'user-id': uid,
+            'Content-Type': 'application/json',
+          },
+          signal: controller.signal
+        });
 
-          if (response.ok) {
-            const result = await response.json();
-            if (result.success && result.data) {
-              const mongoData = result.data;
-              
-              return {
-                name: mongoData.display_name || mongoData.name || mongoData.full_name,
-                username: mongoData.username,
-                bio: mongoData.bio,
-                phone: mongoData.phone,
-                dateOfBirth: mongoData.date_of_birth || mongoData.dob,
-                gender: mongoData.gender,
-                country: mongoData.country,
-                city: mongoData.city,
-                address: mongoData.address,
-                zipCode: mongoData.zip_code,
-                website: mongoData.website,
-                profileImageURL: mongoData.profile_image_url,
-                avatar: mongoData.profile_image_url,
-                isVerified: mongoData.is_verified || mongoData.verified,
-                isPremium: mongoData.is_premium || mongoData.premium,
-                accountType: mongoData.is_premium || mongoData.premium ? 'Premium' : 'Free',
-                followersCount: mongoData.follower_count || mongoData.followers_count || 0,
-                followingCount: mongoData.following_count || 0,
-                isArtist: mongoData.is_artist || false,
-                isPublic: mongoData.is_public !== false, // Default to true
-                memberSince: mongoData.created_at ? this.formatDate(mongoData.created_at) : undefined,
-              };
-            }
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success && result.data) {
+            const mongoData = result.data;
+
+            return {
+              name: mongoData.display_name || mongoData.name || mongoData.full_name,
+              username: mongoData.username,
+              bio: mongoData.bio,
+              phone: mongoData.phone,
+              dateOfBirth: mongoData.date_of_birth || mongoData.dob,
+              gender: mongoData.gender,
+              country: mongoData.country,
+              city: mongoData.city,
+              address: mongoData.address,
+              zipCode: mongoData.zip_code,
+              website: mongoData.website,
+              profileImageURL: mongoData.profile_image_url,
+              avatar: mongoData.profile_image_url,
+              isVerified: mongoData.is_verified || mongoData.verified,
+              isPremium: mongoData.is_premium || mongoData.premium,
+              accountType: mongoData.is_premium || mongoData.premium ? 'Premium' : 'Free',
+              followersCount: mongoData.follower_count || mongoData.followers_count || 0,
+              followingCount: mongoData.following_count || 0,
+              isArtist: mongoData.is_artist || false,
+              isPublic: mongoData.is_public !== false, // Default to true
+              memberSince: mongoData.created_at ? this.formatDate(mongoData.created_at) : undefined,
+            };
           }
-        } catch (endpointError) {
-          continue;
+        } else if (response.status === 404) {
+          // User not found in MongoDB, that's ok - use Firebase/local data
+          return null;
         }
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        // Network error or timeout, fallback to cached data
+        return null;
       }
 
       return null;
     } catch (error) {
-      console.error('❌ MongoDB fetch error:', error);
+      // Silent fallback - don't log 404s as errors
       return null;
     }
   }
@@ -400,7 +415,7 @@ export class UserDataService {
       if (!data) return true;
 
       const userData = JSON.parse(data);
-      if (!userData.lastUpdated) return true;
+      if (!userData.lastUpdated || userData.uid !== uid) return true;
 
       const lastUpdated = new Date(userData.lastUpdated);
       const now = new Date();
