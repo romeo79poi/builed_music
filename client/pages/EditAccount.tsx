@@ -854,12 +854,12 @@ export default function EditAccount() {
                         </label>
                         <input
                           type="text"
-                          value={accountData.country}
+                          value={accountData?.country || ''}
                           onChange={(e) =>
-                            setAccountData((prev) => ({
+                            setAccountData((prev) => prev ? ({
                               ...prev,
                               country: e.target.value,
-                            }))
+                            }) : null)
                           }
                           className="w-full px-4 py-3 bg-purple-dark/50 border border-purple-primary/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-primary/60"
                         />
@@ -870,12 +870,12 @@ export default function EditAccount() {
                         </label>
                         <input
                           type="text"
-                          value={accountData.city}
+                          value={accountData?.city || ''}
                           onChange={(e) =>
-                            setAccountData((prev) => ({
+                            setAccountData((prev) => prev ? ({
                               ...prev,
                               city: e.target.value,
-                            }))
+                            }) : null)
                           }
                           className="w-full px-4 py-3 bg-purple-dark/50 border border-purple-primary/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-primary/60"
                         />
@@ -886,12 +886,12 @@ export default function EditAccount() {
                         </label>
                         <input
                           type="text"
-                          value={accountData.address}
+                          value={accountData?.address || ''}
                           onChange={(e) =>
-                            setAccountData((prev) => ({
+                            setAccountData((prev) => prev ? ({
                               ...prev,
                               address: e.target.value,
-                            }))
+                            }) : null)
                           }
                           className="w-full px-4 py-3 bg-purple-dark/50 border border-purple-primary/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-primary/60"
                         />
@@ -902,12 +902,12 @@ export default function EditAccount() {
                         </label>
                         <input
                           type="text"
-                          value={accountData.zipCode}
+                          value={accountData?.zipCode || ''}
                           onChange={(e) =>
-                            setAccountData((prev) => ({
+                            setAccountData((prev) => prev ? ({
                               ...prev,
                               zipCode: e.target.value,
-                            }))
+                            }) : null)
                           }
                           className="w-full px-4 py-3 bg-purple-dark/50 border border-purple-primary/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-primary/60"
                         />
@@ -945,25 +945,25 @@ export default function EditAccount() {
                     <div>
                       <p className="text-sm text-gray-400">Country</p>
                       <p className="text-white font-medium">
-                        {accountData.country}
+                        {accountData?.country || 'Not set'}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-400">City</p>
                       <p className="text-white font-medium">
-                        {accountData.city}
+                        {accountData?.city || 'Not set'}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-400">Address</p>
                       <p className="text-white font-medium">
-                        {accountData.address}
+                        {accountData?.address || 'Not set'}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-400">ZIP Code</p>
                       <p className="text-white font-medium">
-                        {accountData.zipCode}
+                        {accountData?.zipCode || 'Not set'}
                       </p>
                     </div>
                   </div>
@@ -1255,13 +1255,13 @@ export default function EditAccount() {
                     <div>
                       <p className="text-gray-400">Member Since</p>
                       <p className="text-white font-medium">
-                        {accountData.memberSince}
+                        {accountData?.memberSince || 'Unknown'}
                       </p>
                     </div>
                     <div>
                       <p className="text-gray-400">Account Type</p>
                       <p className="text-white font-medium">
-                        {accountData.accountType}
+                        {accountData?.accountType || 'Free'}
                       </p>
                     </div>
                   </div>
