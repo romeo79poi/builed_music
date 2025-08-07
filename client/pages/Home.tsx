@@ -24,6 +24,7 @@ import { api } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
 import { useFirebase } from "../context/FirebaseContext";
 import { useMusic } from "../context/MusicContextSupabase";
+import { userDataService, EnhancedUserData } from "../lib/user-data-service";
 
 // Featured Artist/Album of the Day
 const featuredContent = {
@@ -272,7 +273,7 @@ export default function Home() {
   const [likedSongs, setLikedSongs] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
   const [userAvatar, setUserAvatar] = useState<string | null>(null);
-  const [userData, setUserData] = useState<any>(null);
+  const [userData, setUserData] = useState<EnhancedUserData | null>(null);
   const [userDataLoading, setUserDataLoading] = useState(false);
   const [albums, setAlbums] = useState<any[]>([]);
   const [tracks, setTracks] = useState<any[]>([]);
@@ -284,54 +285,53 @@ export default function Home() {
     return () => clearInterval(timer);
   }, []);
 
-  // Load user data from new backend authentication
+  // Load user data from comprehensive user data service
   useEffect(() => {
     const loadUserData = async () => {
       try {
         setUserDataLoading(true);
 
-        // Check if user is logged in with new backend
-        const token = localStorage.getItem("token");
-        const savedUserData = localStorage.getItem("currentUser");
+        // Check if we have a Firebase user
+        if (fbUser) {
+          console.log("🔥 Loading comprehensive user data for Home:", fbUser.email);
 
-        if (token && savedUserData) {
-          try {
-            const parsedUserData = JSON.parse(savedUserData);
-            console.log("✅ Loaded user data from backend:", parsedUserData);
+          // Use enhanced user data service
+          const enhancedUserData = await userDataService.fetchUserData(fbUser);
 
-            // Debug profile image fields
-            console.log("🖼️ Home profile image fields:", {
-              profileImageURL: parsedUserData.profileImageURL,
-              avatar: parsedUserData.avatar,
-              profileImage: parsedUserData.profileImage,
-              avatar_url: parsedUserData.avatar_url
-            });
-
-            setUserData(parsedUserData);
-
-            const avatarURL = parsedUserData.profileImageURL ||
-              parsedUserData.avatar ||
-              parsedUserData.profileImage ||
-              parsedUserData.avatar_url ||
-              null;
-
-            console.log("🖼️ Selected avatar URL for Home:", avatarURL);
-            setUserAvatar(avatarURL);
-          } catch (error) {
-            console.error("Error parsing user data:", error);
-            // Clear invalid data
-            localStorage.removeItem("currentUser");
-            localStorage.removeItem("token");
-            setUserData(null);
-            setUserAvatar(null);
+          if (enhancedUserData) {
+            setUserData(enhancedUserData);
+            setUserAvatar(enhancedUserData.avatar || enhancedUserData.profileImageURL);
+            console.log("✅ Enhanced user data loaded for Home:", enhancedUserData);
+          } else {
+            // Fallback to cached data
+            const cachedData = userDataService.getCachedUserData(fbUser.uid);
+            if (cachedData) {
+              setUserData(cachedData);
+              setUserAvatar(cachedData.avatar || cachedData.profileImageURL);
+              console.log("✅ Cached user data loaded for Home:", cachedData);
+            }
           }
         } else {
-          // No authentication, clear data
-          setUserData(null);
-          setUserAvatar(null);
+          // Try to load from localStorage if no Firebase user
+          const savedUserData = localStorage.getItem("currentUser");
+          if (savedUserData) {
+            try {
+              const parsedUserData = JSON.parse(savedUserData);
+              console.log("💾 Loaded localStorage user data for Home:", parsedUserData);
+
+              // Convert to enhanced user data format if needed
+              if (parsedUserData.uid || parsedUserData.id) {
+                setUserData(parsedUserData);
+                setUserAvatar(parsedUserData.avatar || parsedUserData.profileImageURL);
+              }
+            } catch (error) {
+              console.error("Error parsing localStorage user data:", error);
+              localStorage.removeItem("currentUser");
+            }
+          }
         }
       } catch (error) {
-        console.error("❌ Error loading user data:", error);
+        console.error("❌ Error loading user data for Home:", error);
         setUserData(null);
         setUserAvatar(null);
       } finally {
@@ -339,8 +339,10 @@ export default function Home() {
       }
     };
 
-    loadUserData();
-  }, []); // Remove Firebase dependencies
+    if (!firebaseLoading) {
+      loadUserData();
+    }
+  }, [fbUser, firebaseLoading]); // Add Firebase dependencies back
 
   // Additional fallback for avatar only
   useEffect(() => {
@@ -668,7 +670,7 @@ export default function Home() {
                         </div>
                       )}
                     </div>
-                    {userData.emailVerified && (
+                    {userData.isVerified && (
                       <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center border-2 border-background">
                         <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
@@ -683,9 +685,14 @@ export default function Home() {
                       <h3 className="text-lg font-bold text-white truncate">
                         {userData.name || userData.displayName || 'User'}
                       </h3>
-                      {userData.emailVerified && (
+                      {userData.isVerified && (
                         <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-green-500/20 text-green-400 border border-green-500/30">
                           Verified
+                        </span>
+                      )}
+                      {userData.isPremium && (
+                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-gradient-to-r from-yellow-400 to-orange-500 text-black">
+                          PREMIUM
                         </span>
                       )}
                     </div>
@@ -715,6 +722,11 @@ export default function Home() {
                       {userData.phone && (
                         <span className="px-2 py-1 rounded-full bg-purple-primary/20 text-purple-accent border border-purple-primary/30">
                           {userData.phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-****')}
+                        </span>
+                      )}
+                      {userData.dataSource && (
+                        <span className="px-2 py-1 rounded-full bg-gray-500/20 text-gray-400 border border-gray-500/30">
+                          {userData.dataSource}
                         </span>
                       )}
                     </div>
