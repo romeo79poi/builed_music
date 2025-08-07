@@ -602,12 +602,12 @@ export default function EditAccount() {
                       </label>
                       <textarea
                         rows={3}
-                        value={accountData.bio}
-                        onChange={(e) =>
-                          setAccountData((prev) => ({
-                            ...prev,
-                            bio: e.target.value,
-                          }))
+                        value={accountData?.bio || ''}
+                      onChange={(e) =>
+                        setAccountData((prev) => prev ? ({
+                          ...prev,
+                          bio: e.target.value,
+                        }) : null)
                         }
                         className="w-full px-4 py-3 bg-purple-dark/50 border border-purple-primary/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-primary/60"
                         placeholder="Tell us about yourself..."
@@ -645,31 +645,31 @@ export default function EditAccount() {
                     <div>
                       <p className="text-sm text-gray-400">Full Name</p>
                       <p className="text-white font-medium">
-                        {accountData.fullName}
+                        {accountData?.name || ''}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-400">Username</p>
                       <p className="text-white font-medium">
-                        @{accountData.username}
+                        @{accountData?.username || ''}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-400">Date of Birth</p>
                       <p className="text-white font-medium">
-                        {new Date(accountData.dateOfBirth).toLocaleDateString()}
+                        {accountData?.dateOfBirth ? new Date(accountData.dateOfBirth).toLocaleDateString() : 'Not set'}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-400">Gender</p>
                       <p className="text-white font-medium">
-                        {accountData.gender}
+                        {accountData?.gender || 'Not set'}
                       </p>
                     </div>
                     <div className="md:col-span-2">
                       <p className="text-sm text-gray-400">Bio</p>
                       <p className="text-white font-medium">
-                        {accountData.bio}
+                        {accountData?.bio || 'No bio set'}
                       </p>
                     </div>
                   </div>
@@ -715,12 +715,12 @@ export default function EditAccount() {
                           <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                           <input
                             type="email"
-                            value={accountData.email}
+                            value={accountData?.email || ''}
                             onChange={(e) =>
-                              setAccountData((prev) => ({
+                              setAccountData((prev) => prev ? ({
                                 ...prev,
                                 email: e.target.value,
-                              }))
+                              }) : null)
                             }
                             className="w-full pl-10 pr-4 py-3 bg-purple-dark/50 border border-purple-primary/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-primary/60"
                           />
@@ -734,12 +734,12 @@ export default function EditAccount() {
                           <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                           <input
                             type="tel"
-                            value={accountData.phone}
+                            value={accountData?.phone || ''}
                             onChange={(e) =>
-                              setAccountData((prev) => ({
+                              setAccountData((prev) => prev ? ({
                                 ...prev,
                                 phone: e.target.value,
-                              }))
+                              }) : null)
                             }
                             className="w-full pl-10 pr-4 py-3 bg-purple-dark/50 border border-purple-primary/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-primary/60"
                           />
@@ -753,12 +753,12 @@ export default function EditAccount() {
                           <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                           <input
                             type="url"
-                            value={accountData.website}
+                            value={accountData?.website || ''}
                             onChange={(e) =>
-                              setAccountData((prev) => ({
+                              setAccountData((prev) => prev ? ({
                                 ...prev,
                                 website: e.target.value,
-                              }))
+                              }) : null)
                             }
                             className="w-full pl-10 pr-4 py-3 bg-purple-dark/50 border border-purple-primary/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-primary/60"
                             placeholder="https://"
@@ -798,19 +798,19 @@ export default function EditAccount() {
                     <div>
                       <p className="text-sm text-gray-400">Email Address</p>
                       <p className="text-white font-medium">
-                        {accountData.email}
+                        {accountData?.email || ''}
                       </p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-400">Phone Number</p>
                       <p className="text-white font-medium">
-                        {accountData.phone}
+                        {accountData?.phone || 'Not set'}
                       </p>
                     </div>
                     <div className="md:col-span-2">
                       <p className="text-sm text-gray-400">Website</p>
                       <p className="text-white font-medium">
-                        {accountData.website}
+                        {accountData?.website || 'Not set'}
                       </p>
                     </div>
                   </div>
