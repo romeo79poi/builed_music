@@ -306,7 +306,6 @@ export default function Home() {
             if (cachedData) {
               setUserData(cachedData);
               setUserAvatar(cachedData.avatar || cachedData.profileImageURL);
-              console.log("✅ Cached user data loaded for Home:", cachedData);
             }
           }
         } else {
