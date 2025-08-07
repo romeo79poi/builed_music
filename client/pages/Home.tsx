@@ -288,16 +288,28 @@ export default function Home() {
   // Load user data from comprehensive user data service
   useEffect(() => {
     const loadUserData = async () => {
+      // Don't run if already loading or if we have fresh data
+      if (userDataLoading) return;
+
       try {
         setUserDataLoading(true);
 
         // Check if we have a Firebase user
         if (fbUser) {
+          // First try to get cached data immediately for fast UI
+          const cachedData = userDataService.getCachedUserData(fbUser.uid);
+          if (cachedData && !userDataService.isDataStale(fbUser.uid, 5)) {
+            // Use fresh cached data
+            setUserData(cachedData);
+            setUserAvatar(cachedData.avatar || cachedData.profileImageURL);
+            setUserDataLoading(false);
+            return;
+          }
 
-          // Use enhanced user data service with timeout
+          // If no cache or stale, fetch new data with timeout
           const dataPromise = userDataService.fetchUserData(fbUser);
           const timeoutPromise = new Promise<null>((resolve) => {
-            setTimeout(() => resolve(null), 3000); // 3 second timeout for Home page
+            setTimeout(() => resolve(null), 2000); // 2 second timeout for Home page
           });
 
           const enhancedUserData = await Promise.race([dataPromise, timeoutPromise]);
@@ -305,13 +317,10 @@ export default function Home() {
           if (enhancedUserData) {
             setUserData(enhancedUserData);
             setUserAvatar(enhancedUserData.avatar || enhancedUserData.profileImageURL);
-          } else {
-            // Fallback to cached data
-            const cachedData = userDataService.getCachedUserData(fbUser.uid);
-            if (cachedData) {
-              setUserData(cachedData);
-              setUserAvatar(cachedData.avatar || cachedData.profileImageURL);
-            }
+          } else if (cachedData) {
+            // Use stale cached data as fallback
+            setUserData(cachedData);
+            setUserAvatar(cachedData.avatar || cachedData.profileImageURL);
           }
         } else {
           // Try to load from localStorage if no Firebase user
@@ -319,8 +328,6 @@ export default function Home() {
           if (savedUserData) {
             try {
               const parsedUserData = JSON.parse(savedUserData);
-
-              // Convert to enhanced user data format if needed
               if (parsedUserData.uid || parsedUserData.id) {
                 setUserData(parsedUserData);
                 setUserAvatar(parsedUserData.avatar || parsedUserData.profileImageURL);
@@ -333,16 +340,14 @@ export default function Home() {
         }
       } catch (error) {
         console.error("❌ Error loading user data for Home:", error);
-        setUserData(null);
-        setUserAvatar(null);
+        // Don't clear existing data on error
       } finally {
         setUserDataLoading(false);
       }
     };
 
-    if (!firebaseLoading) {
+    if (!firebaseLoading && fbUser !== undefined) {
       loadUserData();
-
     }
   }, [fbUser, firebaseLoading]); // Add Firebase dependencies back
 
