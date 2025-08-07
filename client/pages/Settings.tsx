@@ -762,13 +762,10 @@ export default function Settings() {
       // Sign out from Firebase
       await signOut(auth);
 
-      // Clear any remaining local storage
-      localStorage.removeItem("token");
-      localStorage.removeItem("refreshToken");
-      localStorage.removeItem("currentUser");
-      localStorage.removeItem("userAvatar");
+      // Clear all user data using the service
+      userDataService.clearUserData();
 
-      console.log("✅ User logged out successfully from Firebase");
+      console.log("✅ User logged out successfully from Firebase and all data cleared");
 
       toast({
         title: "Logged Out",
