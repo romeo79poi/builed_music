@@ -28,7 +28,14 @@ import { useSocial } from "../context/SocialContext";
 
 interface Notification {
   id: string;
-  type: "like" | "follow" | "release" | "comment" | "achievement" | "playlist" | "system";
+  type:
+    | "like"
+    | "follow"
+    | "release"
+    | "comment"
+    | "achievement"
+    | "playlist"
+    | "system";
   title: string;
   description: string;
   timestamp: Date;
@@ -46,7 +53,8 @@ const sampleNotifications: Notification[] = [
     description: "Your song 'Midnight Dreams' received 25 new likes",
     timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
     isRead: false,
-    imageUrl: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=60&h=60&fit=crop",
+    imageUrl:
+      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=60&h=60&fit=crop",
     actionable: true,
   },
   {
@@ -56,7 +64,8 @@ const sampleNotifications: Notification[] = [
     description: "Sarah Johnson started following you",
     timestamp: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
     isRead: false,
-    imageUrl: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop",
+    imageUrl:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=60&h=60&fit=crop",
     actionable: true,
   },
   {
@@ -66,7 +75,8 @@ const sampleNotifications: Notification[] = [
     description: "The Weeknd just dropped a new album 'Dawn FM'",
     timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
     isRead: false,
-    imageUrl: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=60&h=60&fit=crop",
+    imageUrl:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=60&h=60&fit=crop",
     actionable: true,
   },
   {
@@ -76,7 +86,8 @@ const sampleNotifications: Notification[] = [
     description: "Alex commented on your playlist 'Summer Vibes'",
     timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000), // 4 hours ago
     isRead: true,
-    imageUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=60&h=60&fit=crop",
+    imageUrl:
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=60&h=60&fit=crop",
     actionable: true,
   },
   {
@@ -86,7 +97,8 @@ const sampleNotifications: Notification[] = [
     description: "Your song reached 10K plays! 🎉",
     timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000), // 1 day ago
     isRead: true,
-    imageUrl: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=60&h=60&fit=crop",
+    imageUrl:
+      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=60&h=60&fit=crop",
     actionable: false,
   },
   {
@@ -117,10 +129,11 @@ export default function Notifications() {
     notifications: socialNotifications,
     unreadNotifications,
     markNotificationAsRead,
-    markAllNotificationsAsRead
+    markAllNotificationsAsRead,
   } = useSocial();
 
-  const [notifications, setNotifications] = useState<Notification[]>(sampleNotifications);
+  const [notifications, setNotifications] =
+    useState<Notification[]>(sampleNotifications);
   const [selectedTab, setSelectedTab] = useState("all");
   const [showSettings, setShowSettings] = useState(false);
   const [notificationSettings, setNotificationSettings] = useState({
@@ -150,59 +163,75 @@ export default function Notifications() {
 
   const getNotificationIcon = (type: string) => {
     switch (type) {
-      case "like": return Heart;
-      case "follow": return UserPlus;
-      case "release": return Music;
-      case "comment": return MessageCircle;
-      case "achievement": return Star;
-      case "playlist": return Radio;
-      case "system": return Bell;
-      default: return Bell;
+      case "like":
+        return Heart;
+      case "follow":
+        return UserPlus;
+      case "release":
+        return Music;
+      case "comment":
+        return MessageCircle;
+      case "achievement":
+        return Star;
+      case "playlist":
+        return Radio;
+      case "system":
+        return Bell;
+      default:
+        return Bell;
     }
   };
 
   const getNotificationColor = (type: string) => {
     switch (type) {
-      case "like": return "text-red-400";
-      case "follow": return "text-blue-400";
-      case "release": return "text-purple-400";
-      case "comment": return "text-green-400";
-      case "achievement": return "text-yellow-400";
-      case "playlist": return "text-pink-400";
-      case "system": return "text-gray-400";
-      default: return "text-gray-400";
+      case "like":
+        return "text-red-400";
+      case "follow":
+        return "text-blue-400";
+      case "release":
+        return "text-purple-400";
+      case "comment":
+        return "text-green-400";
+      case "achievement":
+        return "text-yellow-400";
+      case "playlist":
+        return "text-pink-400";
+      case "system":
+        return "text-gray-400";
+      default:
+        return "text-gray-400";
     }
   };
 
   const markAsRead = (id: string) => {
-    setNotifications(prev => 
-      prev.map(notif => 
-        notif.id === id ? { ...notif, isRead: true } : notif
-      )
+    setNotifications((prev) =>
+      prev.map((notif) =>
+        notif.id === id ? { ...notif, isRead: true } : notif,
+      ),
     );
   };
 
   const markAllAsRead = () => {
-    setNotifications(prev => 
-      prev.map(notif => ({ ...notif, isRead: true }))
+    setNotifications((prev) =>
+      prev.map((notif) => ({ ...notif, isRead: true })),
     );
   };
 
   const deleteNotification = (id: string) => {
-    setNotifications(prev => prev.filter(notif => notif.id !== id));
+    setNotifications((prev) => prev.filter((notif) => notif.id !== id));
     toast({
       title: "Notification deleted",
       description: "The notification has been removed",
     });
   };
 
-  const filteredNotifications = notifications.filter(notif => {
+  const filteredNotifications = notifications.filter((notif) => {
     if (selectedTab === "all") return true;
     if (selectedTab === "unread") return !notif.isRead;
     return notif.type === selectedTab;
   });
 
-  const unreadCount = notifications.filter(n => !n.isRead).length;
+  const unreadCount = notifications.filter((n) => !n.isRead).length;
 
   const tabs = [
     { id: "all", label: "All", count: notifications.length },
@@ -233,7 +262,7 @@ export default function Notifications() {
             >
               <ArrowLeft className="w-5 h-5 text-white" />
             </motion.button>
-            
+
             <div>
               <h1 className="text-xl font-bold text-white">Notifications</h1>
               {unreadCount > 0 && (
@@ -253,7 +282,7 @@ export default function Notifications() {
                 Mark all read
               </motion.button>
             )}
-            
+
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -289,9 +318,13 @@ export default function Notifications() {
                 {Icon && <Icon className="w-4 h-4" />}
                 <span className="text-sm font-medium">{tab.label}</span>
                 {tab.count !== undefined && (
-                  <span className={`px-2 py-0.5 rounded-full text-xs ${
-                    selectedTab === tab.id ? "bg-white/20" : "bg-purple-primary/20"
-                  }`}>
+                  <span
+                    className={`px-2 py-0.5 rounded-full text-xs ${
+                      selectedTab === tab.id
+                        ? "bg-white/20"
+                        : "bg-purple-primary/20"
+                    }`}
+                  >
                     {tab.count}
                   </span>
                 )}
@@ -315,10 +348,9 @@ export default function Notifications() {
                   No notifications
                 </h3>
                 <p className="text-gray-400">
-                  {selectedTab === "unread" 
+                  {selectedTab === "unread"
                     ? "You're all caught up!"
-                    : "You'll see notifications here when you get them"
-                  }
+                    : "You'll see notifications here when you get them"}
                 </p>
               </motion.div>
             ) : (
@@ -326,7 +358,7 @@ export default function Notifications() {
                 {filteredNotifications.map((notification, index) => {
                   const Icon = getNotificationIcon(notification.type);
                   const iconColor = getNotificationColor(notification.type);
-                  
+
                   return (
                     <motion.div
                       key={notification.id}
@@ -338,7 +370,9 @@ export default function Notifications() {
                           ? "bg-purple-dark/20 border-purple-primary/10"
                           : "bg-purple-primary/10 border-purple-primary/30"
                       }`}
-                      onClick={() => !notification.isRead && markAsRead(notification.id)}
+                      onClick={() =>
+                        !notification.isRead && markAsRead(notification.id)
+                      }
                     >
                       <div className="flex items-start space-x-3">
                         {/* Icon/Image */}
@@ -350,12 +384,16 @@ export default function Notifications() {
                                 alt=""
                                 className="w-12 h-12 rounded-full object-cover"
                               />
-                              <div className={`absolute -bottom-1 -right-1 w-6 h-6 bg-purple-dark rounded-full flex items-center justify-center border-2 border-purple-dark`}>
+                              <div
+                                className={`absolute -bottom-1 -right-1 w-6 h-6 bg-purple-dark rounded-full flex items-center justify-center border-2 border-purple-dark`}
+                              >
                                 <Icon className={`w-3 h-3 ${iconColor}`} />
                               </div>
                             </div>
                           ) : (
-                            <div className={`w-12 h-12 rounded-full bg-purple-dark/50 flex items-center justify-center`}>
+                            <div
+                              className={`w-12 h-12 rounded-full bg-purple-dark/50 flex items-center justify-center`}
+                            >
                               <Icon className={`w-6 h-6 ${iconColor}`} />
                             </div>
                           )}
@@ -393,7 +431,7 @@ export default function Notifications() {
                                   <Play className="w-3 h-3" />
                                 </motion.button>
                               )}
-                              
+
                               <motion.button
                                 whileHover={{ scale: 1.1 }}
                                 whileTap={{ scale: 0.9 }}
@@ -434,18 +472,26 @@ export default function Notifications() {
                 onClick={(e) => e.stopPropagation()}
                 className="bg-purple-dark rounded-2xl p-6 w-full max-w-md border border-purple-primary/30"
               >
-                <h2 className="text-xl font-bold text-white mb-6">Notification Settings</h2>
-                
+                <h2 className="text-xl font-bold text-white mb-6">
+                  Notification Settings
+                </h2>
+
                 <div className="space-y-4">
                   {Object.entries(notificationSettings).map(([key, value]) => (
-                    <div key={key} className="flex items-center justify-between">
+                    <div
+                      key={key}
+                      className="flex items-center justify-between"
+                    >
                       <span className="text-white capitalize">
-                        {key.replace(/([A-Z])/g, ' $1').trim()}
+                        {key.replace(/([A-Z])/g, " $1").trim()}
                       </span>
                       <motion.button
                         whileTap={{ scale: 0.95 }}
-                        onClick={() => 
-                          setNotificationSettings(prev => ({ ...prev, [key]: !value }))
+                        onClick={() =>
+                          setNotificationSettings((prev) => ({
+                            ...prev,
+                            [key]: !value,
+                          }))
                         }
                         className={`w-12 h-6 rounded-full transition-colors ${
                           value ? "bg-purple-primary" : "bg-gray-600"
@@ -476,7 +522,8 @@ export default function Notifications() {
                       setShowSettings(false);
                       toast({
                         title: "Settings saved",
-                        description: "Your notification preferences have been updated",
+                        description:
+                          "Your notification preferences have been updated",
                       });
                     }}
                     className="flex-1 py-3 bg-purple-primary rounded-xl text-white font-medium"

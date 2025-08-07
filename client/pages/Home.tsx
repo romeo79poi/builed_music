@@ -312,11 +312,16 @@ export default function Home() {
             setTimeout(() => resolve(null), 2000); // 2 second timeout for Home page
           });
 
-          const enhancedUserData = await Promise.race([dataPromise, timeoutPromise]);
+          const enhancedUserData = await Promise.race([
+            dataPromise,
+            timeoutPromise,
+          ]);
 
           if (enhancedUserData) {
             setUserData(enhancedUserData);
-            setUserAvatar(enhancedUserData.avatar || enhancedUserData.profileImageURL);
+            setUserAvatar(
+              enhancedUserData.avatar || enhancedUserData.profileImageURL,
+            );
           } else if (cachedData) {
             // Use stale cached data as fallback
             setUserData(cachedData);
@@ -330,7 +335,9 @@ export default function Home() {
               const parsedUserData = JSON.parse(savedUserData);
               if (parsedUserData.uid || parsedUserData.id) {
                 setUserData(parsedUserData);
-                setUserAvatar(parsedUserData.avatar || parsedUserData.profileImageURL);
+                setUserAvatar(
+                  parsedUserData.avatar || parsedUserData.profileImageURL,
+                );
               }
             } catch (error) {
               console.error("Error parsing localStorage user data:", error);
@@ -369,12 +376,16 @@ export default function Home() {
       try {
         // Load home feed data using homeApi with timeout
         const apiTimeout = new Promise((_, reject) => {
-          setTimeout(() => reject(new Error('API timeout')), 5000); // 5 second timeout
+          setTimeout(() => reject(new Error("API timeout")), 5000); // 5 second timeout
         });
 
         const [newReleases, trending] = await Promise.all([
-          Promise.race([api.home.getNewReleases(10), apiTimeout]).catch(() => ({ data: [] })),
-          Promise.race([api.home.getTrending(10), apiTimeout]).catch(() => ({ data: [] })),
+          Promise.race([api.home.getNewReleases(10), apiTimeout]).catch(() => ({
+            data: [],
+          })),
+          Promise.race([api.home.getTrending(10), apiTimeout]).catch(() => ({
+            data: [],
+          })),
         ]);
 
         // Update albums with new releases

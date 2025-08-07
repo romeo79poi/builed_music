@@ -171,7 +171,7 @@ export default function Profile() {
     followUser,
     unfollowUser,
     followersCount: socialFollowersCount,
-    followingCount: socialFollowingCount
+    followingCount: socialFollowingCount,
   } = useSocial();
 
   // State management
@@ -180,9 +180,8 @@ export default function Profile() {
   const [uploading, setUploading] = useState(false);
   const [tracks, setTracks] = useState<Track[]>(sampleTracks);
   const [playlists, setPlaylists] = useState<Playlist[]>(samplePlaylists);
-  const [recentlyPlayed, setRecentlyPlayed] = useState<RecentlyPlayedTrack[]>(
-    sampleRecentlyPlayed,
-  );
+  const [recentlyPlayed, setRecentlyPlayed] =
+    useState<RecentlyPlayedTrack[]>(sampleRecentlyPlayed);
   const [selectedTab, setSelectedTab] = useState("tracks");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [isFollowing, setIsFollowing] = useState(false);
@@ -209,8 +208,8 @@ export default function Profile() {
   // Helper function to repair localStorage data if needed
   const repairLocalStorageData = () => {
     try {
-      const localUserData = localStorage.getItem('currentUser');
-      const userAvatar = localStorage.getItem('userAvatar');
+      const localUserData = localStorage.getItem("currentUser");
+      const userAvatar = localStorage.getItem("userAvatar");
 
       if (localUserData) {
         const userData = JSON.parse(localUserData);
@@ -219,17 +218,16 @@ export default function Profile() {
         if (userAvatar && !userData.profileImageURL && !userData.avatar) {
           userData.profileImageURL = userAvatar;
           userData.avatar = userAvatar;
-          localStorage.setItem('currentUser', JSON.stringify(userData));
+          localStorage.setItem("currentUser", JSON.stringify(userData));
         }
 
         // If userData has profileImageURL but userAvatar is missing, sync them
         if ((userData.profileImageURL || userData.avatar) && !userAvatar) {
           const imageURL = userData.profileImageURL || userData.avatar;
-          localStorage.setItem('userAvatar', imageURL);
+          localStorage.setItem("userAvatar", imageURL);
         }
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   // Fetch profile data using enhanced user data service
@@ -247,17 +245,21 @@ export default function Profile() {
         return;
       }
 
-
       // Use the enhanced user data service with timeout to prevent hanging
       const dataFetchPromise = userDataService.fetchUserData(firebaseUser);
       const timeoutPromise = new Promise<null>((resolve) => {
         setTimeout(() => {
-          console.warn('⚠️ Profile data fetch timeout, using Firebase fallback');
+          console.warn(
+            "⚠️ Profile data fetch timeout, using Firebase fallback",
+          );
           resolve(null);
         }, 4000); // 4 second timeout
       });
 
-      const enhancedUserData = await Promise.race([dataFetchPromise, timeoutPromise]);
+      const enhancedUserData = await Promise.race([
+        dataFetchPromise,
+        timeoutPromise,
+      ]);
 
       if (enhancedUserData) {
         // Convert enhanced user data to profile format
@@ -269,9 +271,10 @@ export default function Profile() {
           isArtist: enhancedUserData.isArtist,
           avatar: enhancedUserData.avatar || enhancedUserData.profileImageURL,
           coverImage: "",
-          location: enhancedUserData.city && enhancedUserData.country
-            ? `${enhancedUserData.city}, ${enhancedUserData.country}`
-            : enhancedUserData.city || enhancedUserData.country || "",
+          location:
+            enhancedUserData.city && enhancedUserData.country
+              ? `${enhancedUserData.city}, ${enhancedUserData.country}`
+              : enhancedUserData.city || enhancedUserData.country || "",
           joinedDate: new Date(enhancedUserData.creationTime),
           socialLinks: {
             instagram: "",
@@ -325,8 +328,10 @@ export default function Profile() {
           followingCount: 0,
           isPublic: true,
           joinedDate: new Date(),
-          creationTime: firebaseUser.metadata.creationTime || new Date().toISOString(),
-          lastSignInTime: firebaseUser.metadata.lastSignInTime || new Date().toISOString(),
+          creationTime:
+            firebaseUser.metadata.creationTime || new Date().toISOString(),
+          lastSignInTime:
+            firebaseUser.metadata.lastSignInTime || new Date().toISOString(),
           socialLinks: {
             instagram: "",
             twitter: "",
@@ -355,7 +360,6 @@ export default function Profile() {
           socialLinks: firebaseProfile.socialLinks,
         });
       }
-
     } catch (error) {
       console.error("❌ Error fetching profile:", error);
       toast({
@@ -421,13 +425,17 @@ export default function Profile() {
       if (currentlyFollowing) {
         const success = await unfollowUser(profile.id);
         if (success) {
-          setProfile(prev => prev ? {
-            ...prev,
-            stats: {
-              ...prev.stats,
-              followers: Math.max(0, prev.stats.followers - 1)
-            }
-          } : null);
+          setProfile((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  stats: {
+                    ...prev.stats,
+                    followers: Math.max(0, prev.stats.followers - 1),
+                  },
+                }
+              : null,
+          );
           toast({
             title: "Unfollowed",
             description: `You unfollowed ${profile.displayName}`,
@@ -447,13 +455,17 @@ export default function Profile() {
 
         const success = await followUser(profile.id, socialUser);
         if (success) {
-          setProfile(prev => prev ? {
-            ...prev,
-            stats: {
-              ...prev.stats,
-              followers: prev.stats.followers + 1
-            }
-          } : null);
+          setProfile((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  stats: {
+                    ...prev.stats,
+                    followers: prev.stats.followers + 1,
+                  },
+                }
+              : null,
+          );
           toast({
             title: "Following",
             description: `You're now following ${profile.displayName}`,
@@ -461,7 +473,7 @@ export default function Profile() {
         }
       }
     } catch (error) {
-      console.error('Error following/unfollowing user:', error);
+      console.error("Error following/unfollowing user:", error);
       toast({
         title: "Error",
         description: "Failed to update follow status. Please try again.",
@@ -526,7 +538,10 @@ export default function Profile() {
         avatar: profile.avatar,
       };
 
-      const result = await userDataService.updateUserData(firebaseUser.uid, updateData);
+      const result = await userDataService.updateUserData(
+        firebaseUser.uid,
+        updateData,
+      );
 
       if (result.success) {
         // Update local state with saved data
@@ -549,9 +564,9 @@ export default function Profile() {
 
         toast({
           title: "Profile Updated",
-          description: "Your profile has been successfully updated across all platforms",
+          description:
+            "Your profile has been successfully updated across all platforms",
         });
-
       } else {
         toast({
           title: "Update Failed",
@@ -605,7 +620,7 @@ export default function Profile() {
       }
 
       // Validate file type
-      if (!file.type.startsWith('image/')) {
+      if (!file.type.startsWith("image/")) {
         toast({
           title: "Invalid file type",
           description: "Please select an image file",
@@ -623,7 +638,7 @@ export default function Profile() {
         setProfile((prev) => (prev ? { ...prev, avatar: newAvatar } : null));
 
         // Update localStorage with new image
-        const localUserData = localStorage.getItem('currentUser');
+        const localUserData = localStorage.getItem("currentUser");
         if (localUserData) {
           try {
             const userData = JSON.parse(localUserData);
@@ -632,10 +647,12 @@ export default function Profile() {
               profileImageURL: newAvatar,
               avatar: newAvatar,
             };
-            localStorage.setItem('currentUser', JSON.stringify(updatedUserData));
-            localStorage.setItem('userAvatar', newAvatar);
-          } catch (error) {
-          }
+            localStorage.setItem(
+              "currentUser",
+              JSON.stringify(updatedUserData),
+            );
+            localStorage.setItem("userAvatar", newAvatar);
+          } catch (error) {}
         }
 
         setUploading(false);
@@ -719,9 +736,13 @@ export default function Profile() {
                 <div className="text-xs text-muted-foreground mt-2 space-y-1">
                   <p>🔥 Signed in as {firebaseUser.email}</p>
                   <p>User ID: {firebaseUser.uid}</p>
-                  <p>Email verified: {firebaseUser.emailVerified ? 'Yes' : 'No'}</p>
-                  {localStorage.getItem('currentUser') && (
-                    <p className="text-green-400">✓ Signup data found in localStorage</p>
+                  <p>
+                    Email verified: {firebaseUser.emailVerified ? "Yes" : "No"}
+                  </p>
+                  {localStorage.getItem("currentUser") && (
+                    <p className="text-green-400">
+                      ✓ Signup data found in localStorage
+                    </p>
                   )}
                 </div>
               )}
@@ -785,7 +806,10 @@ export default function Profile() {
             <div className="flex items-end justify-between mb-2">
               <div className="relative">
                 <img
-                  src={profile.avatar || `https://via.placeholder.com/64?text=${profile.displayName.charAt(0)}`}
+                  src={
+                    profile.avatar ||
+                    `https://via.placeholder.com/64?text=${profile.displayName.charAt(0)}`
+                  }
                   alt={profile.displayName}
                   className="w-16 h-16 rounded-full object-cover border-2 border-background shadow-md cursor-pointer"
                   onClick={() =>
@@ -839,23 +863,27 @@ export default function Profile() {
                       ) : (
                         <UserPlus className="w-4 h-4" />
                       )}
-                      <span>{isFollowingUser(profile.id) ? "Following" : "Follow"}</span>
+                      <span>
+                        {isFollowingUser(profile.id) ? "Following" : "Follow"}
+                      </span>
                     </div>
                   </motion.button>
 
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    onClick={() => navigate('/messages', {
-                      state: {
-                        profileUser: {
-                          id: profile.id,
-                          displayName: profile.displayName,
-                          username: profile.username,
-                          avatar: profile.avatar,
-                        }
-                      }
-                    })}
+                    onClick={() =>
+                      navigate("/messages", {
+                        state: {
+                          profileUser: {
+                            id: profile.id,
+                            displayName: profile.displayName,
+                            username: profile.username,
+                            avatar: profile.avatar,
+                          },
+                        },
+                      })
+                    }
                     className="px-4 py-2 bg-muted hover:bg-muted/80 rounded-lg font-medium transition-all border border-border text-foreground"
                   >
                     <MessageCircle className="w-4 h-4" />
@@ -993,23 +1021,35 @@ export default function Profile() {
                       <div className="space-y-1">
                         {profile.gender && (
                           <div className="flex items-center justify-between">
-                            <span className="text-[10px] text-muted-foreground">Gender:</span>
-                            <span className="text-[10px] text-foreground">{profile.gender}</span>
+                            <span className="text-[10px] text-muted-foreground">
+                              Gender:
+                            </span>
+                            <span className="text-[10px] text-foreground">
+                              {profile.gender}
+                            </span>
                           </div>
                         )}
                         {profile.dateOfBirth && (
                           <div className="flex items-center justify-between">
-                            <span className="text-[10px] text-muted-foreground">Age:</span>
+                            <span className="text-[10px] text-muted-foreground">
+                              Age:
+                            </span>
                             <span className="text-[10px] text-foreground">
-                              {new Date().getFullYear() - new Date(profile.dateOfBirth).getFullYear()}
+                              {new Date().getFullYear() -
+                                new Date(profile.dateOfBirth).getFullYear()}
                             </span>
                           </div>
                         )}
                         {profile.phone && (
                           <div className="flex items-center justify-between">
-                            <span className="text-[10px] text-muted-foreground">Phone:</span>
+                            <span className="text-[10px] text-muted-foreground">
+                              Phone:
+                            </span>
                             <span className="text-[10px] text-foreground">
-                              {profile.phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3')}
+                              {profile.phone.replace(
+                                /(\d{3})(\d{3})(\d{4})/,
+                                "($1) $2-$3",
+                              )}
                             </span>
                           </div>
                         )}

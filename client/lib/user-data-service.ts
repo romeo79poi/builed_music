@@ -1,4 +1,4 @@
-import { User } from 'firebase/auth';
+import { User } from "firebase/auth";
 
 // Enhanced user interface that combines Firebase + MongoDB + localStorage data
 export interface EnhancedUserData {
@@ -10,7 +10,7 @@ export interface EnhancedUserData {
   photoURL: string;
   creationTime: string;
   lastSignInTime: string;
-  
+
   // MongoDB/Signup fields
   username: string;
   name: string;
@@ -23,32 +23,32 @@ export interface EnhancedUserData {
   address?: string;
   zipCode?: string;
   website?: string;
-  
+
   // Profile data
   profileImageURL: string;
   avatar: string;
-  
+
   // Account status
   isVerified: boolean;
   isPremium: boolean;
-  accountType: 'Free' | 'Premium';
+  accountType: "Free" | "Premium";
   memberSince: string;
-  
+
   // Social stats
   followersCount: number;
   followingCount: number;
-  
+
   // Settings
   isArtist: boolean;
   isPublic: boolean;
-  
+
   // Source tracking
-  dataSource: 'localStorage' | 'firebase' | 'mongodb' | 'mixed';
+  dataSource: "localStorage" | "firebase" | "mongodb" | "mixed";
 }
 
 export class UserDataService {
   private static instance: UserDataService;
-  
+
   static getInstance(): UserDataService {
     if (!UserDataService.instance) {
       UserDataService.instance = new UserDataService();
@@ -70,10 +70,11 @@ export class UserDataService {
     // 1. Try localStorage first (fastest)
     const localData = this.loadFromLocalStorage(firebaseUser.uid);
     if (localData) {
-      userData = { ...userData, ...localData, dataSource: 'localStorage' };
+      userData = { ...userData, ...localData, dataSource: "localStorage" };
 
       // If we have fresh cached data, return immediately
-      if (!this.isDataStale(firebaseUser.uid, 10)) { // 10 minutes cache
+      if (!this.isDataStale(firebaseUser.uid, 10)) {
+        // 10 minutes cache
         return userData;
       }
     }
@@ -88,13 +89,18 @@ export class UserDataService {
       const mongoData = await Promise.race([mongoDataPromise, timeoutPromise]);
 
       if (mongoData) {
-        userData = { ...userData, ...mongoData, dataSource: userData.dataSource === 'localStorage' ? 'mixed' : 'mongodb' };
+        userData = {
+          ...userData,
+          ...mongoData,
+          dataSource:
+            userData.dataSource === "localStorage" ? "mixed" : "mongodb",
+        };
         // Save successful fetch to cache
         this.saveToLocalStorage(userData);
       }
     } catch (error) {
       // MongoDB fetch failed, continue with cached data
-      console.warn('⚠️ MongoDB fetch failed, using cached data');
+      console.warn("⚠️ MongoDB fetch failed, using cached data");
     }
 
     return userData;
@@ -106,42 +112,46 @@ export class UserDataService {
   private createBaseUserData(firebaseUser: User): EnhancedUserData {
     return {
       uid: firebaseUser.uid,
-      email: firebaseUser.email || '',
+      email: firebaseUser.email || "",
       emailVerified: firebaseUser.emailVerified,
-      displayName: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
-      photoURL: firebaseUser.photoURL || '',
-      creationTime: firebaseUser.metadata.creationTime || new Date().toISOString(),
-      lastSignInTime: firebaseUser.metadata.lastSignInTime || new Date().toISOString(),
-      
+      displayName:
+        firebaseUser.displayName || firebaseUser.email?.split("@")[0] || "User",
+      photoURL: firebaseUser.photoURL || "",
+      creationTime:
+        firebaseUser.metadata.creationTime || new Date().toISOString(),
+      lastSignInTime:
+        firebaseUser.metadata.lastSignInTime || new Date().toISOString(),
+
       // Derived fields
-      username: firebaseUser.email?.split('@')[0] || 'user',
-      name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
-      profileImageURL: firebaseUser.photoURL || '',
-      avatar: firebaseUser.photoURL || '',
-      
+      username: firebaseUser.email?.split("@")[0] || "user",
+      name:
+        firebaseUser.displayName || firebaseUser.email?.split("@")[0] || "User",
+      profileImageURL: firebaseUser.photoURL || "",
+      avatar: firebaseUser.photoURL || "",
+
       // Default values
-      bio: '',
-      phone: firebaseUser.phoneNumber || '',
-      dateOfBirth: '',
-      gender: '',
-      country: '',
-      city: '',
-      address: '',
-      zipCode: '',
-      website: '',
-      
+      bio: "",
+      phone: firebaseUser.phoneNumber || "",
+      dateOfBirth: "",
+      gender: "",
+      country: "",
+      city: "",
+      address: "",
+      zipCode: "",
+      website: "",
+
       isVerified: firebaseUser.emailVerified,
       isPremium: false,
-      accountType: 'Free',
+      accountType: "Free",
       memberSince: this.formatDate(firebaseUser.metadata.creationTime),
-      
+
       followersCount: 0,
       followingCount: 0,
-      
+
       isArtist: false,
       isPublic: true,
-      
-      dataSource: 'firebase'
+
+      dataSource: "firebase",
     };
   }
 
@@ -151,14 +161,13 @@ export class UserDataService {
   private loadFromLocalStorage(uid: string): Partial<EnhancedUserData> | null {
     try {
       // Check multiple localStorage keys for user data
-      const keys = ['currentUser', `firebase_account_${uid}`, 'userProfile'];
-      
+      const keys = ["currentUser", `firebase_account_${uid}`, "userProfile"];
+
       for (const key of keys) {
         const data = localStorage.getItem(key);
         if (data) {
           const userData = JSON.parse(data);
           if (userData && (userData.uid === uid || userData.id === uid)) {
-            
             return {
               name: userData.name || userData.displayName || userData.fullName,
               username: userData.username,
@@ -171,24 +180,31 @@ export class UserDataService {
               address: userData.address,
               zipCode: userData.zipCode || userData.zip_code,
               website: userData.website,
-              profileImageURL: userData.profileImageURL || userData.avatar || userData.profileImage,
-              avatar: userData.profileImageURL || userData.avatar || userData.profileImage,
+              profileImageURL:
+                userData.profileImageURL ||
+                userData.avatar ||
+                userData.profileImage,
+              avatar:
+                userData.profileImageURL ||
+                userData.avatar ||
+                userData.profileImage,
               isPremium: userData.premium || userData.isPremium || false,
-              accountType: userData.premium || userData.isPremium ? 'Premium' : 'Free',
+              accountType:
+                userData.premium || userData.isPremium ? "Premium" : "Free",
             };
           }
         }
       }
 
       // Also check userAvatar separately
-      const avatarData = localStorage.getItem('userAvatar');
+      const avatarData = localStorage.getItem("userAvatar");
       if (avatarData) {
         return { avatar: avatarData, profileImageURL: avatarData };
       }
 
       return null;
     } catch (error) {
-      console.warn('⚠️ Failed to load localStorage data:', error);
+      console.warn("⚠️ Failed to load localStorage data:", error);
       return null;
     }
   }
@@ -196,7 +212,9 @@ export class UserDataService {
   /**
    * Load user data from MongoDB backend with optimized error handling
    */
-  private async loadFromMongoDB(uid: string): Promise<Partial<EnhancedUserData> | null> {
+  private async loadFromMongoDB(
+    uid: string,
+  ): Promise<Partial<EnhancedUserData> | null> {
     try {
       // Try primary endpoint first with faster timeout
       const controller = new AbortController();
@@ -205,10 +223,10 @@ export class UserDataService {
       try {
         const response = await fetch(`/api/v1/users/${uid}`, {
           headers: {
-            'user-id': uid,
-            'Content-Type': 'application/json',
+            "user-id": uid,
+            "Content-Type": "application/json",
           },
-          signal: controller.signal
+          signal: controller.signal,
         });
 
         clearTimeout(timeoutId);
@@ -219,7 +237,8 @@ export class UserDataService {
             const mongoData = result.data;
 
             return {
-              name: mongoData.display_name || mongoData.name || mongoData.full_name,
+              name:
+                mongoData.display_name || mongoData.name || mongoData.full_name,
               username: mongoData.username,
               bio: mongoData.bio,
               phone: mongoData.phone,
@@ -234,12 +253,16 @@ export class UserDataService {
               avatar: mongoData.profile_image_url,
               isVerified: mongoData.is_verified || mongoData.verified,
               isPremium: mongoData.is_premium || mongoData.premium,
-              accountType: mongoData.is_premium || mongoData.premium ? 'Premium' : 'Free',
-              followersCount: mongoData.follower_count || mongoData.followers_count || 0,
+              accountType:
+                mongoData.is_premium || mongoData.premium ? "Premium" : "Free",
+              followersCount:
+                mongoData.follower_count || mongoData.followers_count || 0,
               followingCount: mongoData.following_count || 0,
               isArtist: mongoData.is_artist || false,
               isPublic: mongoData.is_public !== false, // Default to true
-              memberSince: mongoData.created_at ? this.formatDate(mongoData.created_at) : undefined,
+              memberSince: mongoData.created_at
+                ? this.formatDate(mongoData.created_at)
+                : undefined,
             };
           }
         } else if (response.status === 404) {
@@ -288,23 +311,28 @@ export class UserDataService {
       };
 
       // Save to multiple keys for compatibility
-      localStorage.setItem('currentUser', JSON.stringify(cacheData));
-      localStorage.setItem(`firebase_account_${userData.uid}`, JSON.stringify(cacheData));
+      localStorage.setItem("currentUser", JSON.stringify(cacheData));
+      localStorage.setItem(
+        `firebase_account_${userData.uid}`,
+        JSON.stringify(cacheData),
+      );
 
       if (userData.avatar) {
-        localStorage.setItem('userAvatar', userData.avatar);
+        localStorage.setItem("userAvatar", userData.avatar);
       }
     } catch (error) {
-      console.warn('⚠️ Failed to save to localStorage:', error);
+      console.warn("⚠️ Failed to save to localStorage:", error);
     }
   }
 
   /**
    * Update user data (saves to all available backends)
    */
-  async updateUserData(uid: string, updates: Partial<EnhancedUserData>): Promise<{ success: boolean; error?: string }> {
+  async updateUserData(
+    uid: string,
+    updates: Partial<EnhancedUserData>,
+  ): Promise<{ success: boolean; error?: string }> {
     try {
-
       // Update localStorage immediately for responsiveness
       const localData = this.loadFromLocalStorage(uid);
       if (localData) {
@@ -315,10 +343,10 @@ export class UserDataService {
       // Try to update MongoDB backend
       try {
         const response = await fetch(`/api/v1/users/${uid}`, {
-          method: 'PUT',
+          method: "PUT",
           headers: {
-            'user-id': uid,
-            'Content-Type': 'application/json',
+            "user-id": uid,
+            "Content-Type": "application/json",
           },
           body: JSON.stringify({
             display_name: updates.name,
@@ -347,8 +375,11 @@ export class UserDataService {
 
       return { success: true };
     } catch (error) {
-      console.error('❌ Update user data error:', error);
-      return { success: false, error: error instanceof Error ? error.message : 'Update failed' };
+      console.error("❌ Update user data error:", error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Update failed",
+      };
     }
   }
 
@@ -358,26 +389,26 @@ export class UserDataService {
   clearUserData(): void {
     try {
       const keysToRemove = [
-        'currentUser',
-        'userAvatar',
-        'token',
-        'refreshToken',
+        "currentUser",
+        "userAvatar",
+        "token",
+        "refreshToken",
       ];
 
-      keysToRemove.forEach(key => {
+      keysToRemove.forEach((key) => {
         localStorage.removeItem(key);
       });
 
       // Remove Firebase-specific keys
-      Object.keys(localStorage).forEach(key => {
-        if (key.startsWith('firebase_account_')) {
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith("firebase_account_")) {
           localStorage.removeItem(key);
         }
       });
 
       // User data cleared
     } catch (error) {
-      console.warn('⚠️ Failed to clear user data:', error);
+      console.warn("⚠️ Failed to clear user data:", error);
     }
   }
 
@@ -385,16 +416,16 @@ export class UserDataService {
    * Format date for display
    */
   private formatDate(dateInput: string | undefined): string {
-    if (!dateInput) return 'Unknown';
-    
+    if (!dateInput) return "Unknown";
+
     try {
       const date = new Date(dateInput);
-      return date.toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'long'
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
       });
     } catch {
-      return 'Unknown';
+      return "Unknown";
     }
   }
 
@@ -411,7 +442,7 @@ export class UserDataService {
    */
   isDataStale(uid: string, maxAgeMinutes: number = 30): boolean {
     try {
-      const data = localStorage.getItem('currentUser');
+      const data = localStorage.getItem("currentUser");
       if (!data) return true;
 
       const userData = JSON.parse(data);

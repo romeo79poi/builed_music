@@ -261,7 +261,6 @@ export default function Settings() {
         return;
       }
 
-
       // Try to load from localStorage first (for email signup users)
       const localUserData = localStorage.getItem("currentUser");
       if (localUserData) {
@@ -272,22 +271,26 @@ export default function Settings() {
             const localProfile = {
               name: userData.name || firebaseUser.displayName || "User",
               email: userData.email || firebaseUser.email || "No email",
-              profileImage: userData.profileImageURL || firebaseUser.photoURL || `https://ui-avatars.io/api/?name=${encodeURIComponent(userData.name || "User")}&background=6366f1&color=fff&size=64`,
+              profileImage:
+                userData.profileImageURL ||
+                firebaseUser.photoURL ||
+                `https://ui-avatars.io/api/?name=${encodeURIComponent(userData.name || "User")}&background=6366f1&color=fff&size=64`,
               joinDate: firebaseUser.metadata.creationTime
-                ? new Date(firebaseUser.metadata.creationTime).toLocaleDateString(
-                    "en-US",
-                    {
-                      year: "numeric",
-                      month: "short",
-                      day: "numeric",
-                    },
-                  )
+                ? new Date(
+                    firebaseUser.metadata.creationTime,
+                  ).toLocaleDateString("en-US", {
+                    year: "numeric",
+                    month: "short",
+                    day: "numeric",
+                  })
                 : "Unknown",
               premium: false,
               firebaseUid: firebaseUser.uid,
               emailVerified: firebaseUser.emailVerified,
               lastSignIn: firebaseUser.metadata.lastSignInTime
-                ? new Date(firebaseUser.metadata.lastSignInTime).toLocaleDateString()
+                ? new Date(
+                    firebaseUser.metadata.lastSignInTime,
+                  ).toLocaleDateString()
                 : "Unknown",
               // Additional profile data from signup
               username: userData.username,
@@ -757,7 +760,9 @@ export default function Settings() {
       // Clear all user data using the service
       userDataService.clearUserData();
 
-      console.log("✅ User logged out successfully from Firebase and all data cleared");
+      console.log(
+        "✅ User logged out successfully from Firebase and all data cleared",
+      );
 
       toast({
         title: "Logged Out",
@@ -923,7 +928,11 @@ export default function Settings() {
                   <>
                     <div className="relative">
                       <img
-                        src={userProfile.avatar || userProfile.profileImageURL || `https://ui-avatars.io/api/?name=${encodeURIComponent(userProfile.name)}&background=6366f1&color=fff&size=64`}
+                        src={
+                          userProfile.avatar ||
+                          userProfile.profileImageURL ||
+                          `https://ui-avatars.io/api/?name=${encodeURIComponent(userProfile.name)}&background=6366f1&color=fff&size=64`
+                        }
                         alt={userProfile.name}
                         className="w-16 h-16 rounded-full object-cover border-2 border-neon-green/50"
                       />
@@ -938,8 +947,16 @@ export default function Settings() {
                       )}
                       {userProfile.isVerified && (
                         <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-blue-500 rounded-full flex items-center justify-center border-2 border-background">
-                          <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                          <svg
+                            className="w-3 h-3 text-white"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
+                              clipRule="evenodd"
+                            />
                           </svg>
                         </div>
                       )}

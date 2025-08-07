@@ -415,12 +415,9 @@ export const messagesApi = {
 export const searchApi = {
   // Search all content
   searchAll: (query: string, limit = 20): Promise<any> => {
-    return apiRequest(
-      `/search?q=${encodeURIComponent(query)}&limit=${limit}`,
-      {
-        headers: getAuthHeaders(),
-      },
-    );
+    return apiRequest(`/search?q=${encodeURIComponent(query)}&limit=${limit}`, {
+      headers: getAuthHeaders(),
+    });
   },
 
   // Search songs
@@ -684,7 +681,9 @@ export const authApi = {
 
   // Check availability
   checkAvailability: (field: string, value: string): Promise<any> => {
-    return apiRequest(`/auth/check-availability?${field}=${encodeURIComponent(value)}`);
+    return apiRequest(
+      `/auth/check-availability?${field}=${encodeURIComponent(value)}`,
+    );
   },
 };
 

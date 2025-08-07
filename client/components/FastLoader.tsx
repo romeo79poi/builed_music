@@ -1,5 +1,5 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React from "react";
+import { motion } from "framer-motion";
 
 interface FastLoaderProps {
   message?: string;
@@ -7,10 +7,10 @@ interface FastLoaderProps {
   onTimeout?: () => void;
 }
 
-export const FastLoader: React.FC<FastLoaderProps> = ({ 
-  message = "Loading...", 
+export const FastLoader: React.FC<FastLoaderProps> = ({
+  message = "Loading...",
   timeout = 3000,
-  onTimeout 
+  onTimeout,
 }) => {
   React.useEffect(() => {
     if (timeout && onTimeout) {
