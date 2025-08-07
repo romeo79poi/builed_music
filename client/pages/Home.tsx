@@ -314,7 +314,6 @@ export default function Home() {
           if (savedUserData) {
             try {
               const parsedUserData = JSON.parse(savedUserData);
-              console.log("💾 Loaded localStorage user data for Home:", parsedUserData);
 
               // Convert to enhanced user data format if needed
               if (parsedUserData.uid || parsedUserData.id) {
