@@ -25,7 +25,6 @@ import { useAuth } from "../context/AuthContext";
 import { useFirebase } from "../context/FirebaseContext";
 import { useMusic } from "../context/MusicContextSupabase";
 import { userDataService, EnhancedUserData } from "../lib/user-data-service";
-import { testUserDataIntegration } from "../lib/test-user-data";
 
 // Featured Artist/Album of the Day
 const featuredContent = {
@@ -343,12 +342,6 @@ export default function Home() {
     if (!firebaseLoading) {
       loadUserData();
 
-      // Run integration test in development
-      if (process.env.NODE_ENV === 'development') {
-        setTimeout(() => {
-          testUserDataIntegration();
-        }, 3000);
-      }
     }
   }, [fbUser, firebaseLoading]); // Add Firebase dependencies back
 
@@ -730,11 +723,6 @@ export default function Home() {
                       {userData.phone && (
                         <span className="px-2 py-1 rounded-full bg-purple-primary/20 text-purple-accent border border-purple-primary/30">
                           {userData.phone.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-****')}
-                        </span>
-                      )}
-                      {userData.dataSource && (
-                        <span className="px-2 py-1 rounded-full bg-gray-500/20 text-gray-400 border border-gray-500/30">
-                          {userData.dataSource}
                         </span>
                       )}
                     </div>
