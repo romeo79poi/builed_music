@@ -82,18 +82,15 @@ export default function EditAccount() {
       setDataLoading(true);
 
       if (!firebaseUser) {
-        console.log("❌ No Firebase user found");
         return;
       }
 
-      console.log("🔥 Loading comprehensive account data for Firebase user:", firebaseUser.email);
 
       // Use enhanced user data service
       const enhancedUserData = await userDataService.fetchUserData(firebaseUser);
 
       if (enhancedUserData) {
         setAccountData(enhancedUserData);
-        console.log("✅ Enhanced account data loaded:", enhancedUserData);
       } else {
         // Fallback to basic Firebase data
         const basicAccountData: EnhancedUserData = {
@@ -125,7 +122,6 @@ export default function EditAccount() {
         };
 
         setAccountData(basicAccountData);
-        console.log("✅ Basic Firebase account data created:", basicAccountData);
       }
     } catch (error) {
       console.error("❌ Error loading account data:", error);
@@ -152,7 +148,6 @@ export default function EditAccount() {
     setIsLoading(true);
 
     try {
-      console.log("🔥 Saving section:", section, "for user:", firebaseUser.uid);
 
       // Update Firebase profile if it's basic info
       if (section === 'basic' && (accountData.name !== firebaseUser.displayName)) {
@@ -161,7 +156,6 @@ export default function EditAccount() {
             displayName: accountData.name,
             photoURL: accountData.avatar || accountData.profileImageURL,
           });
-          console.log("✅ Firebase profile updated");
         } catch (firebaseError) {
           console.error("⚠️ Firebase profile update failed:", firebaseError);
         }
@@ -177,7 +171,6 @@ export default function EditAccount() {
           title: "Changes Saved",
           description: `Your ${section} information has been updated successfully across all platforms`,
         });
-        console.log("✅ Section saved successfully using enhanced service");
       } else {
         toast({
           title: "Save Failed",
@@ -237,7 +230,6 @@ export default function EditAccount() {
     setIsLoading(true);
 
     try {
-      console.log("🔥 Updating password for Firebase user:", firebaseUser.email);
 
       // Re-authenticate user with current password
       const credential = EmailAuthProvider.credential(
@@ -246,11 +238,9 @@ export default function EditAccount() {
       );
 
       await reauthenticateWithCredential(firebaseUser, credential);
-      console.log("✅ User re-authenticated successfully");
 
       // Update password in Firebase
       await updatePassword(firebaseUser, passwords.new);
-      console.log("✅ Password updated in Firebase");
 
       setPasswords({ current: "", new: "", confirm: "" });
       setEditMode((prev) => ({ ...prev, security: false }));
@@ -308,7 +298,6 @@ export default function EditAccount() {
           return;
         }
 
-        console.log("🔥 Uploading profile image for Firebase user:", firebaseUser.uid);
 
         const reader = new FileReader();
         reader.onload = async (e) => {
@@ -322,7 +311,6 @@ export default function EditAccount() {
             await updateProfile(firebaseUser, {
               photoURL: newImage,
             });
-            console.log("✅ Firebase profile image updated");
 
             // Try to update backend
             try {
@@ -338,10 +326,8 @@ export default function EditAccount() {
               });
 
               if (response.ok) {
-                console.log("✅ Backend profile image updated");
               }
             } catch (backendError) {
-              console.warn("⚠️ Backend image update failed:", backendError);
             }
 
             // Use the enhanced user data service to save
