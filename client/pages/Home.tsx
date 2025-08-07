@@ -25,6 +25,7 @@ import { useAuth } from "../context/AuthContext";
 import { useFirebase } from "../context/FirebaseContext";
 import { useMusic } from "../context/MusicContextSupabase";
 import { userDataService, EnhancedUserData } from "../lib/user-data-service";
+import { testUserDataIntegration } from "../lib/test-user-data";
 
 // Featured Artist/Album of the Day
 const featuredContent = {
