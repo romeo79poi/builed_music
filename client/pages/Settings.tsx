@@ -267,7 +267,6 @@ export default function Settings() {
       if (localUserData) {
         try {
           const userData = JSON.parse(localUserData);
-          console.log("💾 Found localStorage user data:", userData);
 
           if (userData.uid === firebaseUser.uid) {
             const localProfile = {
