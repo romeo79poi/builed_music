@@ -31,39 +31,15 @@ import MobileFooter from "../components/MobileFooter";
 import { useFirebase } from "../context/FirebaseContext";
 import { updatePassword, updateProfile, EmailAuthProvider, reauthenticateWithCredential } from "firebase/auth";
 import { auth } from "../lib/firebase";
+import { userDataService, EnhancedUserData } from "../lib/user-data-service";
 
 export default function EditAccount() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user: firebaseUser, loading: firebaseLoading } = useFirebase();
 
-  // User account data - will be loaded from Firebase and backend
-  const [accountData, setAccountData] = useState({
-    // Basic Info
-    fullName: "",
-    username: "",
-    email: "",
-    phone: "",
-    dateOfBirth: "",
-    gender: "",
-
-    // Address Info
-    country: "",
-    city: "",
-    address: "",
-    zipCode: "",
-
-    // Account Info
-    accountType: "Free",
-    memberSince: "",
-    isVerified: false,
-    twoFactorEnabled: false,
-
-    // Profile
-    profileImage: "",
-    bio: "",
-    website: "",
-  });
+  // User account data - will be loaded from comprehensive service
+  const [accountData, setAccountData] = useState<EnhancedUserData | null>(null);
 
   const [dataLoading, setDataLoading] = useState(true);
 
@@ -110,74 +86,46 @@ export default function EditAccount() {
         return;
       }
 
-      console.log("🔥 Loading account data for Firebase user:", firebaseUser.email);
+      console.log("🔥 Loading comprehensive account data for Firebase user:", firebaseUser.email);
 
-      // Set initial Firebase data
-      const firebaseData = {
-        fullName: firebaseUser.displayName || "",
-        username: firebaseUser.email?.split('@')[0] || "",
-        email: firebaseUser.email || "",
-        phone: firebaseUser.phoneNumber || "",
-        dateOfBirth: "",
-        gender: "",
-        country: "",
-        city: "",
-        address: "",
-        zipCode: "",
-        accountType: "Free",
-        memberSince: firebaseUser.metadata.creationTime
-          ? new Date(firebaseUser.metadata.creationTime).toLocaleDateString('en-US', {
-              year: 'numeric',
-              month: 'long'
-            })
-          : "Unknown",
-        isVerified: firebaseUser.emailVerified,
-        twoFactorEnabled: false,
-        profileImage: firebaseUser.photoURL || `https://ui-avatars.io/api/?name=${encodeURIComponent(firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User')}&background=6366f1&color=fff&size=150`,
-        bio: "",
-        website: "",
-      };
+      // Use enhanced user data service
+      const enhancedUserData = await userDataService.fetchUserData(firebaseUser);
 
-      setAccountData(firebaseData);
-      console.log("✅ Firebase account data loaded:", firebaseData);
+      if (enhancedUserData) {
+        setAccountData(enhancedUserData);
+        console.log("✅ Enhanced account data loaded:", enhancedUserData);
+      } else {
+        // Fallback to basic Firebase data
+        const basicAccountData: EnhancedUserData = {
+          uid: firebaseUser.uid,
+          email: firebaseUser.email || "",
+          emailVerified: firebaseUser.emailVerified,
+          displayName: firebaseUser.displayName || "User",
+          photoURL: firebaseUser.photoURL || "",
+          creationTime: firebaseUser.metadata.creationTime || new Date().toISOString(),
+          lastSignInTime: firebaseUser.metadata.lastSignInTime || new Date().toISOString(),
+          username: firebaseUser.email?.split('@')[0] || "user",
+          name: firebaseUser.displayName || "User",
+          profileImageURL: firebaseUser.photoURL || "",
+          avatar: firebaseUser.photoURL || "",
+          isVerified: firebaseUser.emailVerified,
+          isPremium: false,
+          accountType: "Free",
+          memberSince: firebaseUser.metadata.creationTime
+            ? new Date(firebaseUser.metadata.creationTime).toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'long'
+              })
+            : "Unknown",
+          followersCount: 0,
+          followingCount: 0,
+          isArtist: false,
+          isPublic: true,
+          dataSource: "firebase"
+        };
 
-      // Try to fetch additional data from backend
-      try {
-        const response = await fetch(`/api/v1/users/${firebaseUser.uid}`, {
-          headers: {
-            "user-id": firebaseUser.uid,
-            "Content-Type": "application/json",
-          },
-        });
-
-        if (response.ok) {
-          const result = await response.json();
-          if (result.success && result.data) {
-            const backendData = result.data;
-            const enhancedData = {
-              ...firebaseData,
-              fullName: backendData.display_name || backendData.full_name || firebaseData.fullName,
-              username: backendData.username || firebaseData.username,
-              phone: backendData.phone || firebaseData.phone,
-              dateOfBirth: backendData.date_of_birth || "",
-              gender: backendData.gender || "",
-              country: backendData.country || "",
-              city: backendData.city || "",
-              address: backendData.address || "",
-              zipCode: backendData.zip_code || "",
-              accountType: backendData.premium ? "Premium" : "Free",
-              bio: backendData.bio || "",
-              website: backendData.website || "",
-              profileImage: backendData.profile_image_url || firebaseData.profileImage,
-            };
-            setAccountData(enhancedData);
-            console.log("✅ Enhanced account data from backend:", enhancedData);
-          }
-        } else {
-          console.warn("⚠️ Backend user fetch returned:", response.status);
-        }
-      } catch (backendError) {
-        console.warn("⚠️ Backend fetch failed, using Firebase data only:", backendError);
+        setAccountData(basicAccountData);
+        console.log("✅ Basic Firebase account data created:", basicAccountData);
       }
     } catch (error) {
       console.error("❌ Error loading account data:", error);
@@ -192,10 +140,10 @@ export default function EditAccount() {
   };
 
   const handleSaveSection = async (section: string) => {
-    if (!firebaseUser) {
+    if (!firebaseUser || !accountData) {
       toast({
         title: "Error",
-        description: "User not authenticated",
+        description: "User not authenticated or account data not loaded",
         variant: "destructive",
       });
       return;
@@ -207,11 +155,11 @@ export default function EditAccount() {
       console.log("🔥 Saving section:", section, "for user:", firebaseUser.uid);
 
       // Update Firebase profile if it's basic info
-      if (section === 'basic' && (accountData.fullName !== firebaseUser.displayName)) {
+      if (section === 'basic' && (accountData.name !== firebaseUser.displayName)) {
         try {
           await updateProfile(firebaseUser, {
-            displayName: accountData.fullName,
-            photoURL: accountData.profileImage,
+            displayName: accountData.name,
+            photoURL: accountData.avatar || accountData.profileImageURL,
           });
           console.log("✅ Firebase profile updated");
         } catch (firebaseError) {
@@ -219,54 +167,24 @@ export default function EditAccount() {
         }
       }
 
-      // Try to save to backend
-      try {
-        const updateData = {
-          display_name: accountData.fullName,
-          username: accountData.username,
-          phone: accountData.phone,
-          date_of_birth: accountData.dateOfBirth,
-          gender: accountData.gender,
-          country: accountData.country,
-          city: accountData.city,
-          address: accountData.address,
-          zip_code: accountData.zipCode,
-          bio: accountData.bio,
-          website: accountData.website,
-          profile_image_url: accountData.profileImage,
-        };
+      // Use enhanced user data service to update
+      const result = await userDataService.updateUserData(firebaseUser.uid, accountData);
 
-        const response = await fetch(`/api/v1/users/${firebaseUser.uid}`, {
-          method: 'PUT',
-          headers: {
-            "user-id": firebaseUser.uid,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(updateData),
+      if (result.success) {
+        setEditMode((prev) => ({ ...prev, [section]: false }));
+
+        toast({
+          title: "Changes Saved",
+          description: `Your ${section} information has been updated successfully across all platforms`,
         });
-
-        if (response.ok) {
-          const result = await response.json();
-          console.log("✅ Backend update successful:", result);
-        } else {
-          console.warn("⚠️ Backend update failed:", response.status);
-          // Continue anyway since Firebase data is updated
-        }
-      } catch (backendError) {
-        console.warn("⚠️ Backend update failed:", backendError);
-        // Continue anyway since Firebase data is updated
+        console.log("✅ Section saved successfully using enhanced service");
+      } else {
+        toast({
+          title: "Save Failed",
+          description: result.error || "Failed to save changes. Please try again.",
+          variant: "destructive",
+        });
       }
-
-      // Save to localStorage as backup
-      const userDataKey = `firebase_account_${firebaseUser.uid}`;
-      localStorage.setItem(userDataKey, JSON.stringify(accountData));
-
-      setEditMode((prev) => ({ ...prev, [section]: false }));
-
-      toast({
-        title: "Changes Saved",
-        description: `Your ${section} information has been updated successfully`,
-      });
     } catch (error) {
       console.error("❌ Error saving section:", error);
       toast({
