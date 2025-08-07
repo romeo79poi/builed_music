@@ -547,12 +547,12 @@ export default function EditAccount() {
                         </label>
                         <input
                           type="text"
-                          value={accountData.username}
+                          value={accountData?.username || ''}
                           onChange={(e) =>
-                            setAccountData((prev) => ({
+                            setAccountData((prev) => prev ? ({
                               ...prev,
                               username: e.target.value,
-                            }))
+                            }) : null)
                           }
                           className="w-full px-4 py-3 bg-purple-dark/50 border border-purple-primary/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-primary/60"
                         />
