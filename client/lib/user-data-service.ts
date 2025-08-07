@@ -206,7 +206,6 @@ export class UserDataService {
             const result = await response.json();
             if (result.success && result.data) {
               const mongoData = result.data;
-              console.log('✅ MongoDB data fetched:', mongoData);
               
               return {
                 name: mongoData.display_name || mongoData.name || mongoData.full_name,
