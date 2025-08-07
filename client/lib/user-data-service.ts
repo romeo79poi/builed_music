@@ -289,7 +289,6 @@ export class UserDataService {
    */
   async updateUserData(uid: string, updates: Partial<EnhancedUserData>): Promise<{ success: boolean; error?: string }> {
     try {
-      console.log('🔄 Updating user data:', updates);
 
       // Update localStorage immediately for responsiveness
       const localData = this.loadFromLocalStorage(uid);
