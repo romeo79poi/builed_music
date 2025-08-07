@@ -248,8 +248,16 @@ export default function Profile() {
       }
 
 
-      // Use the enhanced user data service
-      const enhancedUserData = await userDataService.fetchUserData(firebaseUser);
+      // Use the enhanced user data service with timeout to prevent hanging
+      const dataFetchPromise = userDataService.fetchUserData(firebaseUser);
+      const timeoutPromise = new Promise<null>((resolve) => {
+        setTimeout(() => {
+          console.warn('⚠️ Profile data fetch timeout, using Firebase fallback');
+          resolve(null);
+        }, 4000); // 4 second timeout
+      });
+
+      const enhancedUserData = await Promise.race([dataFetchPromise, timeoutPromise]);
 
       if (enhancedUserData) {
         // Convert enhanced user data to profile format
