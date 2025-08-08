@@ -886,18 +886,6 @@ export default function Home() {
                       />
 
                       <div className="relative z-10 flex items-center gap-6">
-                        {/* Rank Badge */}
-                        <div className="relative">
-                          <motion.div
-                            animate={{ rotate: 360 }}
-                            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                            className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 rounded-full p-1"
-                          />
-                          <div className="relative bg-black rounded-full w-16 h-16 flex items-center justify-center">
-                            <span className="text-2xl font-bold text-yellow-400">#{song.rank}</span>
-                          </div>
-                        </div>
-
                         {/* Album Cover */}
                         <div className="relative">
                           <motion.img
@@ -1172,7 +1160,7 @@ export default function Home() {
                         navigate("/player");
 
                         toast({
-                          title: "🎵 Now Playing",
+                          title: "���� Now Playing",
                           description: `${item.title} by ${item.artist}`,
                         });
                       }}
@@ -1222,7 +1210,7 @@ export default function Home() {
                         : item.type === "album"
                           ? `Album • ${item.artist} • ${item.year}`
                           : item.type === "playlist"
-                            ? `Playlist • ${item.tracks}`
+                            ? `Playlist ��� ${item.tracks}`
                             : `Artist �� ${item.artist}`}
                     </p>
                     {item.verified && (
