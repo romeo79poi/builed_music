@@ -51,7 +51,7 @@ export const getUserByIdentifier = (identifier: string) => {
 
 // Function to create new user in both systems
 export const createUser = (userData: any) => {
-  const userId = `user${Date.now()}`;
+  const userId = userData.id || `user${Date.now()}`;
   const user = {
     id: userId,
     ...userData,
