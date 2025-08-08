@@ -1229,6 +1229,7 @@ export default function Home() {
                           explicit: false,
                         };
                         enhancedMusic.playSong(enhancedSong);
+                        navigate("/player");
                       }}
                       className="absolute inset-0 bg-black/50 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
                     >
