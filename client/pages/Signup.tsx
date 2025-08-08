@@ -1479,7 +1479,7 @@ export default function Signup() {
               </div>
 
               {/* Loading State Reset */}
-              {isLoading && (
+              {(isGoogleLoading || isFacebookLoading) && (
                 <div className="bg-yellow-500/10 border border-yellow-500 rounded-lg p-4 mb-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
