@@ -1032,6 +1032,7 @@ export default function Signup() {
           uid: verificationUser.uid,
           email: formData.email,
           name: formData.name,
+          username: formData.username,
           profileImageURL: formData.profileImageURL,
           dateOfBirth: formData.dateOfBirth,
           gender: formData.gender,
