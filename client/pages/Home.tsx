@@ -741,64 +741,6 @@ export default function Home() {
 
           {/* Top 10 Today - Sliding Section */}
           <motion.section variants={itemVariants} className="mb-8">
-            <div className="flex items-center justify-between mb-6">
-              <motion.h2
-                whileHover={{ scale: 1.02 }}
-                className="text-2xl font-bold text-white flex items-center space-x-2"
-              >
-                <span>Top 10 Today</span>
-                <motion.span
-                  animate={{ scale: [1, 1.1, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                  className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold"
-                >
-                  LIVE
-                </motion.span>
-              </motion.h2>
-              <div className="flex items-center space-x-3">
-                <div className="flex space-x-1">
-                  {top10Today.map((_, index) => (
-                    <button
-                      key={index}
-                      onClick={() => {
-                        setCurrentSlideIndex(index);
-                        setIsAutoSliding(false);
-                        setTimeout(() => setIsAutoSliding(true), 10000);
-                      }}
-                      className={`w-2 h-2 rounded-full transition-all ${
-                        index === currentSlideIndex
-                          ? 'bg-purple-primary w-6'
-                          : 'bg-gray-600 hover:bg-gray-400'
-                      }`}
-                    />
-                  ))}
-                </div>
-                <button
-                  onClick={() => {
-                    setCurrentSlideIndex(prev =>
-                      prev === 0 ? top10Today.length - 1 : prev - 1
-                    );
-                    setIsAutoSliding(false);
-                    setTimeout(() => setIsAutoSliding(true), 10000);
-                  }}
-                  className="p-2 bg-gray-800 hover:bg-gray-700 rounded-full transition-colors"
-                >
-                  <ChevronLeft className="w-4 h-4 text-white" />
-                </button>
-                <button
-                  onClick={() => {
-                    setCurrentSlideIndex(prev =>
-                      prev === top10Today.length - 1 ? 0 : prev + 1
-                    );
-                    setIsAutoSliding(false);
-                    setTimeout(() => setIsAutoSliding(true), 10000);
-                  }}
-                  className="p-2 bg-gray-800 hover:bg-gray-700 rounded-full transition-colors"
-                >
-                  <ChevronRight className="w-4 h-4 text-white" />
-                </button>
-              </div>
-            </div>
 
             <div className="relative overflow-hidden rounded-lg">
               <motion.div
