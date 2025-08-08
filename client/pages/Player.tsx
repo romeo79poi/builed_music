@@ -1,30 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { useNavigate, useLocation } from "react-router-dom";
-import {
-  Play,
-  Pause,
-  SkipBack,
-  SkipForward,
-  Shuffle,
-  Repeat,
-  Heart,
-  MoreHorizontal,
-  ChevronDown,
-  Volume2,
-  VolumeX,
-  Share,
-  Plus,
-  Download,
-  Music,
-  Clock,
-  Mic2,
-  Headphones,
-  Radio,
-} from "lucide-react";
-import { useToast } from "../hooks/use-toast";
-import MobileFooter from "../components/MobileFooter";
-import { useFirebase } from "../context/FirebaseContext";
+import React from "react";
+import { useNavigate } from "react-router-dom";
+import SpotifyPlayer from "../components/SpotifyPlayer";
+import { useEnhancedMusic } from "../context/EnhancedMusicContext";
 
 export default function Player() {
   const navigate = useNavigate();
