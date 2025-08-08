@@ -500,6 +500,13 @@ export function EnhancedMusicProvider({ children }: { children: ReactNode }) {
       isMuted: !prev.isMuted,
       volume: prev.isMuted ? prev.previousVolume : prev.volume,
     }));
+
+    // Apply mute to fast C++ engine
+    const newMuted = !audioState.isMuted;
+    fastAudioEngine.setMuted(newMuted);
+    if (!newMuted) {
+      fastAudioEngine.setVolume(audioState.previousVolume);
+    }
   };
 
   // Playback settings
