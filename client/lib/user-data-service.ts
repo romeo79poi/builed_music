@@ -97,6 +97,10 @@ export class UserDataService {
         };
         // Save successful fetch to cache
         this.saveToLocalStorage(userData);
+      } else {
+        // User doesn't exist in backend, try to create it
+        console.log("🔥 User not found in backend, creating...");
+        await this.createUserInBackend(firebaseUser, userData);
       }
     } catch (error) {
       // MongoDB fetch failed, continue with cached data
