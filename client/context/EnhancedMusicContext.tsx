@@ -285,10 +285,17 @@ export function EnhancedMusicProvider({ children }: { children: ReactNode }) {
   const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(false);
   const [isLoadingTrending, setIsLoadingTrending] = useState(false);
 
-  // Audio element setup
+  // Audio element setup with C++ fast engine
   useEffect(() => {
     const audio = new Audio();
     audioRef.current = audio;
+
+    // Initialize fast C++ audio engine
+    fastAudioEngine.initialize().then(() => {
+      console.log('Fast C++ audio engine initialized successfully');
+    }).catch(error => {
+      console.warn('Fast audio engine failed to initialize, using fallback:', error);
+    });
 
     const handleTimeUpdate = () => {
       setAudioState(prev => ({ ...prev, currentTime: audio.currentTime }));
