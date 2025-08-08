@@ -25,6 +25,7 @@ import {
   Headphones,
 } from "lucide-react";
 import { useEnhancedMusic } from "../context/EnhancedMusicContext";
+import { CompactAudioPerformanceIndicator } from "./AudioPerformanceMonitor";
 
 export default function EnhancedMiniPlayer() {
   const {
