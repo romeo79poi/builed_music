@@ -174,8 +174,8 @@ export const registerUser: RequestHandler = async (req, res) => {
       });
     }
 
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 12);
+    // Hash password (use temp password for social signups)
+    const hashedPassword = password ? await bcrypt.hash(password, 12) : await bcrypt.hash("social_temp_password", 12);
 
     // Create new user
     const { data: newUser, error } = await mockSupabase.createUser({
