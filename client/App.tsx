@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { MusicProvider } from "./context/MusicContextSupabase";
+import { EnhancedMusicProvider } from "./context/EnhancedMusicContext";
 import { ProfileProvider } from "./context/ProfileContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
