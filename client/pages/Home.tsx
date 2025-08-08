@@ -728,7 +728,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, type: "spring", damping: 15 }}
-              className="text-gray-400 dark:text-gray-400 light:text-gray-600 text-lg flex items-center justify-center space-x-3 max-w-md mx-auto"
+              className="text-gray-400 dark:text-gray-400 light:text-gray-600 text-lg flex items-center justify-center space-x-3 max-w-md mx-auto mb-4"
             >
               <Sparkles className="w-5 h-5 text-purple-primary animate-pulse" />
               <span className="font-medium">
@@ -736,6 +736,21 @@ export default function Home() {
               </span>
               <Sparkles className="w-5 h-5 text-purple-primary animate-pulse" />
             </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
+              className="text-center"
+            >
+              <Link
+                to="/music-demo"
+                className="inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-full font-semibold hover:scale-105 transition-all shadow-lg"
+              >
+                <Music className="w-5 h-5" />
+                <span>Try Spotify Player</span>
+              </Link>
+            </motion.div>
           </motion.div>
 
           {/* Top 10 Today - Sliding Section */}
