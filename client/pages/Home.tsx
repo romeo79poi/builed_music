@@ -882,58 +882,6 @@ export default function Home() {
                               });
                             }}
                           />
-                          <motion.button
-                            whileHover={{ scale: 1.2 }}
-                            whileTap={{ scale: 0.9 }}
-                            onClick={(e) => {
-                              e.stopPropagation(); // Prevent card click
-                              const enhancedSong = {
-                                id: song.id,
-                                title: song.title,
-                                artist: song.artist,
-                                album: "Top Hits",
-                                coverImageURL: song.coverImageURL,
-                                duration: 180,
-                                url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${song.rank}.mp3`,
-                                genre: "Pop",
-                                year: 2024,
-                                explicit: false,
-                              };
-
-                              const topHitsPlaylist = {
-                                id: "top-hits-today",
-                                name: "Top 10 Today",
-                                description: "The most listened songs today",
-                                songs: top10Today.map((s, i) => ({
-                                  id: s.id,
-                                  title: s.title,
-                                  artist: s.artist,
-                                  album: "Top Hits",
-                                  coverImageURL: s.coverImageURL,
-                                  duration: 180,
-                                  url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${i + 1}.mp3`,
-                                  genre: "Pop",
-                                  year: 2024,
-                                  explicit: false,
-                                })),
-                                isPublic: true,
-                                createdBy: "catch-charts",
-                                createdAt: new Date(),
-                                updatedAt: new Date(),
-                              };
-
-                              enhancedMusic.playSong(enhancedSong, topHitsPlaylist, song.rank - 1);
-                              navigate("/player");
-
-                              toast({
-                                title: "🎵 Now Playing",
-                                description: `${song.title} by ${song.artist}`,
-                              });
-                            }}
-                            className="absolute -bottom-2 -right-2 w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg"
-                          >
-                            <Play className="w-4 h-4 text-white ml-0.5" />
-                          </motion.button>
                         </div>
 
                         {/* Song Info */}
