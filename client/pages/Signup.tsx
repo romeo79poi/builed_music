@@ -1431,10 +1431,10 @@ export default function Signup() {
 
             <button
               onClick={handleFacebookSignup}
-              disabled={isLoading}
+              disabled={isGoogleLoading || isFacebookLoading}
               className="w-full h-12 sm:h-14 bg-purple-dark/50 hover:bg-purple-dark/70 rounded-xl flex items-center justify-center text-white font-medium transition-all duration-200 border border-purple-secondary/30 hover:border-purple-secondary/50 disabled:opacity-50 hover:shadow-lg hover:shadow-purple-secondary/20"
             >
-              {isLoading ? (
+              {isFacebookLoading ? (
                 <div className="flex items-center space-x-2">
                   <Loader2 className="w-5 h-5 animate-spin" />
                   <span>Connecting to Facebook...</span>
