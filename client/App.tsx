@@ -38,6 +38,7 @@ import Discover from "./pages/Discover";
 import VerifyEmail from "./pages/VerifyEmail";
 import ResetPassword from "./pages/ResetPassword";
 import CodeGenerator from "./pages/CodeGenerator";
+import MusicDemo from "./pages/MusicDemo";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
