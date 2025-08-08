@@ -155,23 +155,35 @@ export const registerUser: RequestHandler = async (req, res) => {
       });
     }
 
-    // Check if user already exists
-    const { data: existingUserByEmail } =
-      await mockSupabase.getUserByEmail(email);
-    if (existingUserByEmail) {
-      return res.status(400).json({
-        success: false,
-        message: "Email already registered",
-      });
-    }
+    // Check if user already exists (skip for social signups with provided ID)
+    if (!socialSignup || !id) {
+      const { data: existingUserByEmail } =
+        await mockSupabase.getUserByEmail(email);
+      if (existingUserByEmail) {
+        return res.status(400).json({
+          success: false,
+          message: "Email already registered",
+        });
+      }
 
-    const { data: existingUserByUsername } =
-      await mockSupabase.getUserByUsername(username);
-    if (existingUserByUsername) {
-      return res.status(400).json({
-        success: false,
-        message: "Username already taken",
-      });
+      const { data: existingUserByUsername } =
+        await mockSupabase.getUserByUsername(username);
+      if (existingUserByUsername) {
+        return res.status(400).json({
+          success: false,
+          message: "Username already taken",
+        });
+      }
+    } else {
+      // For social signups, check if user with this ID already exists
+      const existingUser = profileUsers.get(id);
+      if (existingUser) {
+        return res.json({
+          success: true,
+          message: "User already exists",
+          user: existingUser,
+        });
+      }
     }
 
     // Hash password (use temp password for social signups)
