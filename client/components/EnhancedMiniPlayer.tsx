@@ -15,7 +15,7 @@ import {
   MoreHorizontal,
   Maximize2,
   ChevronUp,
-  Queue,
+  ListMusic,
   Mic2,
   Cast,
   PictureInPicture,
@@ -245,7 +245,7 @@ export default function EnhancedMiniPlayer() {
               whileTap={{ scale: 0.9 }}
               className="p-2 text-gray-400 hover:text-white transition-colors hidden lg:block"
             >
-              <Queue className="w-4 h-4" />
+              <ListMusic className="w-4 h-4" />
             </motion.button>
 
             <motion.button
@@ -382,7 +382,7 @@ export default function EnhancedMiniPlayer() {
                   whileTap={{ scale: 0.9 }}
                   className="p-3 text-gray-400 hover:text-white"
                 >
-                  <Queue className="w-5 h-5" />
+                  <ListMusic className="w-5 h-5" />
                 </motion.button>
 
                 <motion.button
