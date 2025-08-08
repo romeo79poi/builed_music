@@ -90,7 +90,6 @@ const App = () => {
                           path="/code-generator"
                           element={<CodeGenerator />}
                         />
-                        <Route path="/music-demo" element={<MusicDemo />} />
 
                         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                         <Route path="*" element={<NotFound />} />
