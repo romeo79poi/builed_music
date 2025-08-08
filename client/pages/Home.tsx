@@ -455,7 +455,7 @@ export default function Home() {
           }
         }
       } catch (error) {
-        console.error("❌ Error loading user data for Home:", error);
+        console.error("�� Error loading user data for Home:", error);
         // Don't clear existing data on error
       } finally {
         setUserDataLoading(false);
@@ -1566,12 +1566,34 @@ export default function Home() {
                     <motion.img
                       src={album.coverImageURL}
                       alt={album.name}
-                      className="w-full h-44 rounded-lg object-cover"
+                      className="w-full h-44 rounded-lg object-cover cursor-pointer"
                       whileHover={{ scale: 1.05 }}
                       transition={{
                         type: "spring",
                         stiffness: 400,
                         damping: 25,
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const enhancedSong = {
+                          id: album.id,
+                          title: album.name,
+                          artist: album.artist,
+                          album: album.name,
+                          coverImageURL: album.coverImageURL,
+                          duration: 180,
+                          url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${Math.floor(Math.random() * 5) + 1}.mp3`,
+                          genre: "Pop",
+                          year: 2024,
+                          explicit: false,
+                        };
+                        enhancedMusic.playSong(enhancedSong);
+                        navigate("/player");
+
+                        toast({
+                          title: "🎵 Now Playing",
+                          description: `${album.name} by ${album.artist}`,
+                        });
                       }}
                     />
                     {album.isNew && (
