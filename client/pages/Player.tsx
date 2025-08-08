@@ -5,9 +5,7 @@ import { useEnhancedMusic } from "../context/EnhancedMusicContext";
 
 export default function Player() {
   const navigate = useNavigate();
-  const location = useLocation();
-  const { user: firebaseUser } = useFirebase();
-  const { toast } = useToast();
+  const { audioState, playlists } = useEnhancedMusic();
 
   // Sample song data (replace with actual data from props/context)
   const [currentSong] = useState({
