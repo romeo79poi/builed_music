@@ -904,7 +904,52 @@ export default function Home() {
                             whileHover={{ scale: 1.1, rotate: 5 }}
                             src={song.coverImageURL}
                             alt={song.title}
-                            className="w-20 h-20 rounded-xl object-cover shadow-2xl"
+                            className="w-20 h-20 rounded-xl object-cover shadow-2xl cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation(); // Prevent card click
+                              const enhancedSong = {
+                                id: song.id,
+                                title: song.title,
+                                artist: song.artist,
+                                album: "Top Hits",
+                                coverImageURL: song.coverImageURL,
+                                duration: 180,
+                                url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${song.rank}.mp3`,
+                                genre: "Pop",
+                                year: 2024,
+                                explicit: false,
+                              };
+
+                              const topHitsPlaylist = {
+                                id: "top-hits-today",
+                                name: "Top 10 Today",
+                                description: "The most listened songs today",
+                                songs: top10Today.map((s, i) => ({
+                                  id: s.id,
+                                  title: s.title,
+                                  artist: s.artist,
+                                  album: "Top Hits",
+                                  coverImageURL: s.coverImageURL,
+                                  duration: 180,
+                                  url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${i + 1}.mp3`,
+                                  genre: "Pop",
+                                  year: 2024,
+                                  explicit: false,
+                                })),
+                                isPublic: true,
+                                createdBy: "catch-charts",
+                                createdAt: new Date(),
+                                updatedAt: new Date(),
+                              };
+
+                              enhancedMusic.playSong(enhancedSong, topHitsPlaylist, song.rank - 1);
+                              navigate("/player");
+
+                              toast({
+                                title: "🎵 Now Playing",
+                                description: `${song.title} by ${song.artist}`,
+                              });
+                            }}
                           />
                           <motion.button
                             whileHover={{ scale: 1.2 }}
