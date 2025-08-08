@@ -744,7 +744,10 @@ export default function Signup() {
     setIsLoading(false);
 
     if (availability.username !== false) {
-      if (signupMethod === "phone") {
+      if (isSocialSignup) {
+        // For social signups, proceed to DOB step (skip password)
+        setCurrentStep("dob");
+      } else if (signupMethod === "phone") {
         // Complete phone signup
         await handlePasswordStep();
       } else {
