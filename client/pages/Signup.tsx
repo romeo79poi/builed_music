@@ -608,8 +608,8 @@ export default function Signup() {
           description: `Please complete your profile setup`,
         });
 
-        // Redirect to DOB step to collect additional information
-        setCurrentStep("dob");
+        // Redirect to profile step to collect username, then DOB, gender, bio
+        setCurrentStep("profile");
       } else {
         setErrorAlert(result.error || "Facebook sign-in failed");
         toast({
