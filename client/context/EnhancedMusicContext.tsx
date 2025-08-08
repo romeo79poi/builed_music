@@ -489,6 +489,9 @@ export function EnhancedMusicProvider({ children }: { children: ReactNode }) {
       isMuted: volume === 0,
       previousVolume: volume > 0 ? volume : prev.previousVolume,
     }));
+
+    // Apply volume to fast C++ engine
+    fastAudioEngine.setVolume(volume);
   };
 
   const toggleMute = () => {
