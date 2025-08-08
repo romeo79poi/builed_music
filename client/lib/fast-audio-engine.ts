@@ -62,9 +62,18 @@ class FastAudioEngine {
 
   async initialize(): Promise<void> {
     try {
-      // Load WebAssembly module
-      const FastAudioModule = await import('/wasm/fast_audio.js');
-      this.wasmModule = await FastAudioModule.default();
+      // Load WebAssembly module - use dynamic import that works with Vite
+      const FastAudioModule = await import('/wasm/fast_audio.js?url').then(
+        (module) => import(module.default)
+      ).catch(() => {
+        // Fallback: try direct path
+        return import('../public/wasm/fast_audio.js');
+      }).catch(() => {
+        // Final fallback: use fetch + eval for dynamic loading
+        return this.loadWasmModuleFallback();
+      });
+
+      this.wasmModule = await (typeof FastAudioModule.default === 'function' ? FastAudioModule.default() : FastAudioModule);
       
       // Initialize audio processor
       this.audioProcessor = new this.wasmModule.AudioProcessor();
