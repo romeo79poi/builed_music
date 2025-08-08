@@ -1643,7 +1643,7 @@ export default function Home() {
                     backgroundColor: "rgba(158, 64, 252, 0.15)",
                     transition: { type: "spring", stiffness: 400, damping: 25 },
                   }}
-                  onClick={() => handlePlaySong(song.id)}
+                  onClick={() => handlePlayEnhancedSong(song)}
                   className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-900 transition-all cursor-pointer group bg-black"
                   style={{
                     boxShadow: `
