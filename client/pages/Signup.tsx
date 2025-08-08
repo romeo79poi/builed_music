@@ -636,6 +636,8 @@ export default function Signup() {
     setSignupMethod(method);
     setErrorAlert(null); // Clear any errors when switching methods
     setIsLoading(false); // Reset loading state
+    setIsGoogleLoading(false); // Reset Google loading state
+    setIsFacebookLoading(false); // Reset Facebook loading state
 
     if (method === "email") {
       setCurrentStep("email");
