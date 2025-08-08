@@ -176,7 +176,7 @@ class FastAudioEngine {
     try {
       // Register custom audio worklet processor
       await this.audioContext.audioWorklet.addModule('/js/fast-audio-worklet.js');
-      
+
       // Create worklet node
       this.audioWorklet = new AudioWorkletNode(this.audioContext, 'fast-audio-processor', {
         numberOfInputs: 1,
@@ -188,8 +188,8 @@ class FastAudioEngine {
       });
 
     } catch (error) {
-      console.warn('AudioWorklet not supported, falling back to ScriptProcessor');
-      // Fallback for browsers without AudioWorklet support
+      console.warn('AudioWorklet not supported or files missing, continuing without worklet:', error);
+      // Continue without worklet - the main processing will still work
     }
   }
 
