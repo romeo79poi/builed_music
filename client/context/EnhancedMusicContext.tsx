@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
 import { useToast } from "../hooks/use-toast";
+import { fastAudioEngine } from "../lib/fast-audio-engine";
 
 export interface Song {
   id: string;
