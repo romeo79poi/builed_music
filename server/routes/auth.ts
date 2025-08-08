@@ -131,7 +131,7 @@ export const registerUser: RequestHandler = async (req, res) => {
     } = req.body;
 
     // Validation
-    if (!email || !username || !password) {
+    if (!email || !username || (!password && !socialSignup)) {
       return res.status(400).json({
         success: false,
         message: "Email, username, and password are required",
@@ -147,8 +147,8 @@ export const registerUser: RequestHandler = async (req, res) => {
       });
     }
 
-    // Password validation
-    if (password.length < 8) {
+    // Password validation (skip for social signups)
+    if (!socialSignup && password && password.length < 8) {
       return res.status(400).json({
         success: false,
         message: "Password must be at least 8 characters long",
