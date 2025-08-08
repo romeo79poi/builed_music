@@ -160,6 +160,45 @@ export class UserDataService {
   }
 
   /**
+   * Create user in backend when they don't exist
+   */
+  private async createUserInBackend(
+    firebaseUser: User,
+    userData: EnhancedUserData,
+  ): Promise<void> {
+    try {
+      const response = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: firebaseUser.uid,
+          email: firebaseUser.email,
+          username: userData.username,
+          name: userData.name,
+          password: "firebase_user_temp_password_" + Math.random().toString(36),
+          profileImageURL: userData.profileImageURL,
+          dateOfBirth: userData.dateOfBirth,
+          gender: userData.gender,
+          bio: userData.bio,
+          provider: "firebase",
+          socialSignup: true,
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log("✅ User created in backend via user data service:", result);
+      } else {
+        console.warn("⚠️ Failed to create user in backend:", response.status);
+      }
+    } catch (error) {
+      console.warn("⚠️ Error creating user in backend:", error);
+    }
+  }
+
+  /**
    * Load user data from localStorage
    */
   private loadFromLocalStorage(uid: string): Partial<EnhancedUserData> | null {
