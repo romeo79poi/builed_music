@@ -53,7 +53,8 @@ export default function Player() {
   const [showDevices, setShowDevices] = useState(false);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
 
-  const { currentSong, isPlaying, currentTime, duration, volume, isMuted } = audioState;
+  const { currentSong, isPlaying, currentTime, duration, volume, isMuted } =
+    audioState;
   const { isShuffle, repeatMode } = playbackSettings;
 
   if (!currentSong) {
@@ -66,7 +67,9 @@ export default function Player() {
             className="w-16 h-16 mx-auto mb-4 border-2 border-white/20 border-t-white rounded-full"
           />
           <h2 className="text-xl font-semibold mb-2">No song selected</h2>
-          <p className="text-gray-400 mb-6">Choose a song from the library to start playing</p>
+          <p className="text-gray-400 mb-6">
+            Choose a song from the library to start playing
+          </p>
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -105,19 +108,29 @@ export default function Player() {
   const VolumeIcon = getVolumeIcon();
 
   const devices = [
-    { id: 'computer', name: 'This Computer', type: 'computer', active: true },
-    { id: 'phone', name: 'Your Phone', type: 'smartphone', active: false },
-    { id: 'speaker', name: 'Living Room', type: 'speaker', active: false },
-    { id: 'headphones', name: 'AirPods Pro', type: 'headphones', active: false },
+    { id: "computer", name: "This Computer", type: "computer", active: true },
+    { id: "phone", name: "Your Phone", type: "smartphone", active: false },
+    { id: "speaker", name: "Living Room", type: "speaker", active: false },
+    {
+      id: "headphones",
+      name: "AirPods Pro",
+      type: "headphones",
+      active: false,
+    },
   ];
 
   const getDeviceIcon = (type: string) => {
     switch (type) {
-      case 'computer': return Monitor;
-      case 'smartphone': return Smartphone;
-      case 'speaker': return Speaker;
-      case 'headphones': return Headphones;
-      default: return Speaker;
+      case "computer":
+        return Monitor;
+      case "smartphone":
+        return Smartphone;
+      case "speaker":
+        return Speaker;
+      case "headphones":
+        return Headphones;
+      default:
+        return Speaker;
     }
   };
 
@@ -147,7 +160,7 @@ export default function Player() {
     <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white relative overflow-hidden">
       {/* Background Effects */}
       <div className="fixed inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/10 to-green-900/20" />
-      
+
       {/* Header */}
       <motion.header
         initial={{ y: -50, opacity: 0 }}
@@ -164,7 +177,9 @@ export default function Player() {
         </motion.button>
 
         <div className="text-center">
-          <p className="text-xs text-gray-400 uppercase tracking-wide">Playing from</p>
+          <p className="text-xs text-gray-400 uppercase tracking-wide">
+            Playing from
+          </p>
           <h1 className="text-sm font-semibold">CATCH Music</h1>
         </div>
 
@@ -188,13 +203,17 @@ export default function Player() {
         >
           <div className="relative">
             <motion.img
-              animate={{ 
+              animate={{
                 rotate: isPlaying ? 360 : 0,
-                scale: isPlaying ? 1.02 : 1
+                scale: isPlaying ? 1.02 : 1,
               }}
               transition={{
-                rotate: { duration: 20, repeat: isPlaying ? Infinity : 0, ease: "linear" },
-                scale: { duration: 0.3 }
+                rotate: {
+                  duration: 20,
+                  repeat: isPlaying ? Infinity : 0,
+                  ease: "linear",
+                },
+                scale: { duration: 0.3 },
               }}
               src={currentSong.coverImageURL}
               alt={currentSong.title}
@@ -230,13 +249,15 @@ export default function Player() {
         >
           <div className="flex items-center justify-center space-x-2 mb-2">
             {currentSong.explicit && (
-              <span className="bg-gray-500 text-white text-xs px-1.5 py-0.5 rounded">E</span>
+              <span className="bg-gray-500 text-white text-xs px-1.5 py-0.5 rounded">
+                E
+              </span>
             )}
             <span className="text-xs text-gray-400 uppercase tracking-wide">
               {currentSong.genre} • {currentSong.year}
             </span>
           </div>
-          
+
           <h2 className="text-2xl md:text-3xl font-bold mb-2 text-white">
             {currentSong.title}
           </h2>
@@ -267,10 +288,12 @@ export default function Player() {
                   : "bg-white/10 text-gray-400 hover:text-white"
               }`}
             >
-              <Heart 
+              <Heart
                 className={`w-6 h-6 ${
-                  userPreferences.likedSongs.has(currentSong.id) ? "fill-current" : ""
-                }`} 
+                  userPreferences.likedSongs.has(currentSong.id)
+                    ? "fill-current"
+                    : ""
+                }`}
               />
             </motion.button>
 
@@ -340,8 +363,8 @@ export default function Player() {
             whileTap={{ scale: 0.9 }}
             onClick={toggleShuffle}
             className={`p-3 rounded-full transition-all ${
-              isShuffle 
-                ? "bg-green-500/20 text-green-500" 
+              isShuffle
+                ? "bg-green-500/20 text-green-500"
                 : "text-gray-400 hover:text-white"
             }`}
           >
@@ -388,13 +411,13 @@ export default function Player() {
             whileTap={{ scale: 0.9 }}
             onClick={toggleRepeat}
             className={`p-3 rounded-full transition-all relative ${
-              repeatMode !== 'off'
+              repeatMode !== "off"
                 ? "bg-green-500/20 text-green-500"
                 : "text-gray-400 hover:text-white"
             }`}
           >
             <Repeat className="w-5 h-5" />
-            {repeatMode === 'one' && (
+            {repeatMode === "one" && (
               <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full text-xs font-bold flex items-center justify-center text-white">
                 1
               </span>
@@ -416,8 +439,8 @@ export default function Player() {
               whileTap={{ scale: 0.9 }}
               onClick={() => setShowLyrics(!showLyrics)}
               className={`p-2 rounded-full transition-all ${
-                showLyrics 
-                  ? "bg-green-500/20 text-green-500" 
+                showLyrics
+                  ? "bg-green-500/20 text-green-500"
                   : "text-gray-400 hover:text-white"
               }`}
             >
@@ -429,8 +452,8 @@ export default function Player() {
               whileTap={{ scale: 0.9 }}
               onClick={() => setShowQueue(!showQueue)}
               className={`p-2 rounded-full transition-all ${
-                showQueue 
-                  ? "bg-blue-500/20 text-blue-500" 
+                showQueue
+                  ? "bg-blue-500/20 text-blue-500"
                   : "text-gray-400 hover:text-white"
               }`}
             >
@@ -442,8 +465,8 @@ export default function Player() {
               whileTap={{ scale: 0.9 }}
               onClick={() => setShowDevices(!showDevices)}
               className={`p-2 rounded-full transition-all ${
-                showDevices 
-                  ? "bg-purple-500/20 text-purple-500" 
+                showDevices
+                  ? "bg-purple-500/20 text-purple-500"
                   : "text-gray-400 hover:text-white"
               }`}
             >
@@ -452,7 +475,7 @@ export default function Player() {
           </div>
 
           {/* Volume control */}
-          <div 
+          <div
             className="flex items-center space-x-3"
             onMouseEnter={() => setShowVolumeSlider(true)}
             onMouseLeave={() => setShowVolumeSlider(false)}
@@ -519,22 +542,34 @@ export default function Player() {
                   return (
                     <motion.div
                       key={device.id}
-                      whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
+                      whileHover={{
+                        backgroundColor: "rgba(255, 255, 255, 0.05)",
+                      }}
                       className={`flex items-center justify-between p-4 rounded-lg cursor-pointer transition-colors ${
-                        device.active ? "bg-green-500/20 border border-green-500/50" : "bg-white/5"
+                        device.active
+                          ? "bg-green-500/20 border border-green-500/50"
+                          : "bg-white/5"
                       }`}
                     >
                       <div className="flex items-center space-x-4">
-                        <DeviceIcon className={`w-6 h-6 ${device.active ? "text-green-500" : "text-gray-400"}`} />
+                        <DeviceIcon
+                          className={`w-6 h-6 ${device.active ? "text-green-500" : "text-gray-400"}`}
+                        />
                         <div>
-                          <p className="font-medium text-white">{device.name}</p>
-                          <p className="text-sm text-gray-400 capitalize">{device.type}</p>
+                          <p className="font-medium text-white">
+                            {device.name}
+                          </p>
+                          <p className="text-sm text-gray-400 capitalize">
+                            {device.type}
+                          </p>
                         </div>
                       </div>
                       {device.active && (
                         <div className="flex items-center space-x-2">
                           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                          <span className="text-sm text-green-500">Playing</span>
+                          <span className="text-sm text-green-500">
+                            Playing
+                          </span>
                         </div>
                       )}
                     </motion.div>

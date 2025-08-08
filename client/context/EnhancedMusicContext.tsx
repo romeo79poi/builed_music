@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useRef,
+  ReactNode,
+} from "react";
 import { useToast } from "../hooks/use-toast";
 import { fastAudioEngine } from "../lib/fast-audio-engine";
 
@@ -64,7 +71,7 @@ interface AudioState {
 
 interface PlaybackSettings {
   isShuffle: boolean;
-  repeatMode: 'off' | 'all' | 'one';
+  repeatMode: "off" | "all" | "one";
   crossfade: number;
   autoplay: boolean;
   highQuality: boolean;
@@ -87,7 +94,7 @@ interface EnhancedMusicContextType {
   audioState: AudioState;
   playbackSettings: PlaybackSettings;
   userPreferences: UserPreferences;
-  
+
   // Audio controls
   playSong: (song: Song, playlist?: Playlist, index?: number) => void;
   pauseSong: () => void;
@@ -98,45 +105,47 @@ interface EnhancedMusicContextType {
   seekTo: (time: number) => void;
   setVolume: (volume: number) => void;
   toggleMute: () => void;
-  
+
   // Playback settings
   toggleShuffle: () => void;
   toggleRepeat: () => void;
   setCrossfade: (seconds: number) => void;
   setAutoplay: (enabled: boolean) => void;
   setHighQuality: (enabled: boolean) => void;
-  
+
   // Playlist management
   createPlaylist: (name: string, description?: string) => Playlist;
   addToPlaylist: (playlistId: string, song: Song) => void;
   removeFromPlaylist: (playlistId: string, songId: string) => void;
   deletePlaylist: (playlistId: string) => void;
-  
+
   // User actions
   toggleLikeSong: (songId: string) => void;
   followArtist: (artistId: string) => void;
   unfollowArtist: (artistId: string) => void;
   savePlaylist: (playlistId: string) => void;
-  
+
   // Search and discovery
   searchSongs: (query: string) => Promise<Song[]>;
   getRecommendations: (seedSong?: Song) => Promise<Song[]>;
   getTrendingSongs: () => Promise<Song[]>;
   getNewReleases: () => Promise<Album[]>;
-  
+
   // Data
   playlists: Playlist[];
   artists: Artist[];
   albums: Album[];
   trendingSongs: Song[];
-  
+
   // Loading states
   isSearching: boolean;
   isLoadingRecommendations: boolean;
   isLoadingTrending: boolean;
 }
 
-const EnhancedMusicContext = createContext<EnhancedMusicContextType | undefined>(undefined);
+const EnhancedMusicContext = createContext<
+  EnhancedMusicContextType | undefined
+>(undefined);
 
 // Sample data
 const sampleSongs: Song[] = [
@@ -145,71 +154,76 @@ const sampleSongs: Song[] = [
     title: "Blinding Lights",
     artist: "The Weeknd",
     album: "After Hours",
-    coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop",
     duration: 200,
     url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
     genre: "Synthwave",
     year: 2020,
     explicit: false,
     likes: 1200000,
-    plays: 89000000
+    plays: 89000000,
   },
   {
     id: "2",
     title: "Watermelon Sugar",
     artist: "Harry Styles",
     album: "Fine Line",
-    coverImageURL: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop",
     duration: 174,
     url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
     genre: "Pop",
     year: 2020,
     explicit: false,
     likes: 890000,
-    plays: 67000000
+    plays: 67000000,
   },
   {
     id: "3",
     title: "Levitating",
     artist: "Dua Lipa",
     album: "Future Nostalgia",
-    coverImageURL: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop",
     duration: 203,
     url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
     genre: "Pop",
     year: 2020,
     explicit: false,
     likes: 750000,
-    plays: 45000000
+    plays: 45000000,
   },
   {
     id: "4",
     title: "Good 4 U",
     artist: "Olivia Rodrigo",
     album: "Sour",
-    coverImageURL: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=400&h=400&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=400&h=400&fit=crop",
     duration: 178,
     url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
     genre: "Pop Rock",
     year: 2021,
     explicit: false,
     likes: 920000,
-    plays: 78000000
+    plays: 78000000,
   },
   {
     id: "5",
     title: "Stay",
     artist: "The Kid LAROI, Justin Bieber",
     album: "F*ck Love 3",
-    coverImageURL: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&h=400&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=400&h=400&fit=crop",
     duration: 141,
     url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-5.mp3",
     genre: "Pop",
     year: 2021,
     explicit: true,
     likes: 680000,
-    plays: 56000000
-  }
+    plays: 56000000,
+  },
 ];
 
 const samplePlaylists: Playlist[] = [
@@ -217,30 +231,32 @@ const samplePlaylists: Playlist[] = [
     id: "1",
     name: "My Favorites",
     description: "All my favorite songs in one place",
-    coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop",
     songs: sampleSongs.slice(0, 3),
     isPublic: false,
     createdBy: "user123",
     createdAt: new Date(),
-    updatedAt: new Date()
+    updatedAt: new Date(),
   },
   {
     id: "2",
     name: "Workout Hits",
     description: "High energy songs for working out",
-    coverImageURL: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=400&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=400&fit=crop",
     songs: sampleSongs.slice(2, 5),
     isPublic: true,
     createdBy: "user123",
     createdAt: new Date(),
-    updatedAt: new Date()
-  }
+    updatedAt: new Date(),
+  },
 ];
 
 export function EnhancedMusicProvider({ children }: { children: ReactNode }) {
   const { toast } = useToast();
   const audioRef = useRef<HTMLAudioElement>(null);
-  
+
   // Audio state
   const [audioState, setAudioState] = useState<AudioState>({
     currentSong: null,
@@ -259,7 +275,7 @@ export function EnhancedMusicProvider({ children }: { children: ReactNode }) {
   // Playback settings
   const [playbackSettings, setPlaybackSettings] = useState<PlaybackSettings>({
     isShuffle: false,
-    repeatMode: 'off',
+    repeatMode: "off",
     crossfade: 0,
     autoplay: true,
     highQuality: false,
@@ -282,7 +298,8 @@ export function EnhancedMusicProvider({ children }: { children: ReactNode }) {
 
   // Loading states
   const [isSearching, setIsSearching] = useState(false);
-  const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(false);
+  const [isLoadingRecommendations, setIsLoadingRecommendations] =
+    useState(false);
   const [isLoadingTrending, setIsLoadingTrending] = useState(false);
 
   // Audio element setup with C++ fast engine
@@ -291,30 +308,36 @@ export function EnhancedMusicProvider({ children }: { children: ReactNode }) {
     audioRef.current = audio;
 
     // Initialize fast C++ audio engine
-    fastAudioEngine.initialize().then(() => {
-      console.log('Fast C++ audio engine initialized successfully');
-    }).catch(error => {
-      console.warn('Fast audio engine failed to initialize, using fallback:', error);
-    });
+    fastAudioEngine
+      .initialize()
+      .then(() => {
+        console.log("Fast C++ audio engine initialized successfully");
+      })
+      .catch((error) => {
+        console.warn(
+          "Fast audio engine failed to initialize, using fallback:",
+          error,
+        );
+      });
 
     const handleTimeUpdate = () => {
-      setAudioState(prev => ({ ...prev, currentTime: audio.currentTime }));
+      setAudioState((prev) => ({ ...prev, currentTime: audio.currentTime }));
     };
 
     const handleDurationChange = () => {
-      setAudioState(prev => ({ ...prev, duration: audio.duration }));
+      setAudioState((prev) => ({ ...prev, duration: audio.duration }));
     };
 
     const handleLoadStart = () => {
-      setAudioState(prev => ({ ...prev, isLoading: true }));
+      setAudioState((prev) => ({ ...prev, isLoading: true }));
     };
 
     const handleLoadedData = () => {
-      setAudioState(prev => ({ ...prev, isLoading: false }));
+      setAudioState((prev) => ({ ...prev, isLoading: false }));
     };
 
     const handleEnded = () => {
-      if (playbackSettings.repeatMode === 'one') {
+      if (playbackSettings.repeatMode === "one") {
         audio.currentTime = 0;
         audio.play();
       } else {
@@ -328,23 +351,27 @@ export function EnhancedMusicProvider({ children }: { children: ReactNode }) {
         description: "Failed to load the audio track",
         variant: "destructive",
       });
-      setAudioState(prev => ({ ...prev, isLoading: false, isPlaying: false }));
+      setAudioState((prev) => ({
+        ...prev,
+        isLoading: false,
+        isPlaying: false,
+      }));
     };
 
-    audio.addEventListener('timeupdate', handleTimeUpdate);
-    audio.addEventListener('durationchange', handleDurationChange);
-    audio.addEventListener('loadstart', handleLoadStart);
-    audio.addEventListener('loadeddata', handleLoadedData);
-    audio.addEventListener('ended', handleEnded);
-    audio.addEventListener('error', handleError);
+    audio.addEventListener("timeupdate", handleTimeUpdate);
+    audio.addEventListener("durationchange", handleDurationChange);
+    audio.addEventListener("loadstart", handleLoadStart);
+    audio.addEventListener("loadeddata", handleLoadedData);
+    audio.addEventListener("ended", handleEnded);
+    audio.addEventListener("error", handleError);
 
     return () => {
-      audio.removeEventListener('timeupdate', handleTimeUpdate);
-      audio.removeEventListener('durationchange', handleDurationChange);
-      audio.removeEventListener('loadstart', handleLoadStart);
-      audio.removeEventListener('loadeddata', handleLoadedData);
-      audio.removeEventListener('ended', handleEnded);
-      audio.removeEventListener('error', handleError);
+      audio.removeEventListener("timeupdate", handleTimeUpdate);
+      audio.removeEventListener("durationchange", handleDurationChange);
+      audio.removeEventListener("loadstart", handleLoadStart);
+      audio.removeEventListener("loadeddata", handleLoadedData);
+      audio.removeEventListener("ended", handleEnded);
+      audio.removeEventListener("error", handleError);
       audio.pause();
     };
   }, [playbackSettings.repeatMode, toast]);
@@ -361,13 +388,16 @@ export function EnhancedMusicProvider({ children }: { children: ReactNode }) {
     if (!audioRef.current) return;
 
     // Add to recently played
-    setUserPreferences(prev => ({
+    setUserPreferences((prev) => ({
       ...prev,
-      recentlyPlayed: [song, ...prev.recentlyPlayed.filter(s => s.id !== song.id)].slice(0, 50)
+      recentlyPlayed: [
+        song,
+        ...prev.recentlyPlayed.filter((s) => s.id !== song.id),
+      ].slice(0, 50),
     }));
 
     // Update audio state
-    setAudioState(prev => ({
+    setAudioState((prev) => ({
       ...prev,
       currentSong: song,
       currentPlaylist: playlist || prev.currentPlaylist,
@@ -396,14 +426,14 @@ export function EnhancedMusicProvider({ children }: { children: ReactNode }) {
   const pauseSong = () => {
     if (audioRef.current) {
       audioRef.current.pause();
-      setAudioState(prev => ({ ...prev, isPlaying: false, isPaused: true }));
+      setAudioState((prev) => ({ ...prev, isPlaying: false, isPaused: true }));
     }
   };
 
   const resumeSong = () => {
     if (audioRef.current) {
       audioRef.current.play();
-      setAudioState(prev => ({ ...prev, isPlaying: true, isPaused: false }));
+      setAudioState((prev) => ({ ...prev, isPlaying: true, isPaused: false }));
     }
   };
 
@@ -411,7 +441,7 @@ export function EnhancedMusicProvider({ children }: { children: ReactNode }) {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
-      setAudioState(prev => ({
+      setAudioState((prev) => ({
         ...prev,
         isPlaying: false,
         isPaused: false,
@@ -430,7 +460,7 @@ export function EnhancedMusicProvider({ children }: { children: ReactNode }) {
     } else {
       nextIndex = currentIndex + 1;
       if (nextIndex >= currentPlaylist.songs.length) {
-        if (playbackSettings.repeatMode === 'all') {
+        if (playbackSettings.repeatMode === "all") {
           nextIndex = 0;
         } else {
           stopSong();
@@ -461,7 +491,7 @@ export function EnhancedMusicProvider({ children }: { children: ReactNode }) {
     } else {
       prevIndex = currentIndex - 1;
       if (prevIndex < 0) {
-        if (playbackSettings.repeatMode === 'all') {
+        if (playbackSettings.repeatMode === "all") {
           prevIndex = currentPlaylist.songs.length - 1;
         } else {
           return;
@@ -478,12 +508,12 @@ export function EnhancedMusicProvider({ children }: { children: ReactNode }) {
   const seekTo = (time: number) => {
     if (audioRef.current) {
       audioRef.current.currentTime = time;
-      setAudioState(prev => ({ ...prev, currentTime: time }));
+      setAudioState((prev) => ({ ...prev, currentTime: time }));
     }
   };
 
   const setVolume = (volume: number) => {
-    setAudioState(prev => ({
+    setAudioState((prev) => ({
       ...prev,
       volume,
       isMuted: volume === 0,
@@ -495,7 +525,7 @@ export function EnhancedMusicProvider({ children }: { children: ReactNode }) {
   };
 
   const toggleMute = () => {
-    setAudioState(prev => ({
+    setAudioState((prev) => ({
       ...prev,
       isMuted: !prev.isMuted,
       volume: prev.isMuted ? prev.previousVolume : prev.volume,
@@ -511,38 +541,45 @@ export function EnhancedMusicProvider({ children }: { children: ReactNode }) {
 
   // Playback settings
   const toggleShuffle = () => {
-    setPlaybackSettings(prev => ({ ...prev, isShuffle: !prev.isShuffle }));
+    setPlaybackSettings((prev) => ({ ...prev, isShuffle: !prev.isShuffle }));
     toast({
-      title: playbackSettings.isShuffle ? "Shuffle disabled" : "Shuffle enabled",
-      description: playbackSettings.isShuffle ? "Playing in order" : "Playing randomly",
+      title: playbackSettings.isShuffle
+        ? "Shuffle disabled"
+        : "Shuffle enabled",
+      description: playbackSettings.isShuffle
+        ? "Playing in order"
+        : "Playing randomly",
     });
   };
 
   const toggleRepeat = () => {
-    const modes: ('off' | 'all' | 'one')[] = ['off', 'all', 'one'];
+    const modes: ("off" | "all" | "one")[] = ["off", "all", "one"];
     const currentIndex = modes.indexOf(playbackSettings.repeatMode);
     const nextMode = modes[(currentIndex + 1) % modes.length];
-    
-    setPlaybackSettings(prev => ({ ...prev, repeatMode: nextMode }));
-    
+
+    setPlaybackSettings((prev) => ({ ...prev, repeatMode: nextMode }));
+
     toast({
-      title: `Repeat ${nextMode === 'off' ? 'disabled' : nextMode === 'all' ? 'playlist' : 'track'}`,
-      description: nextMode === 'off' ? 'Repeat turned off' : 
-                   nextMode === 'all' ? 'Repeating playlist' : 
-                   'Repeating current track',
+      title: `Repeat ${nextMode === "off" ? "disabled" : nextMode === "all" ? "playlist" : "track"}`,
+      description:
+        nextMode === "off"
+          ? "Repeat turned off"
+          : nextMode === "all"
+            ? "Repeating playlist"
+            : "Repeating current track",
     });
   };
 
   const setCrossfade = (seconds: number) => {
-    setPlaybackSettings(prev => ({ ...prev, crossfade: seconds }));
+    setPlaybackSettings((prev) => ({ ...prev, crossfade: seconds }));
   };
 
   const setAutoplay = (enabled: boolean) => {
-    setPlaybackSettings(prev => ({ ...prev, autoplay: enabled }));
+    setPlaybackSettings((prev) => ({ ...prev, autoplay: enabled }));
   };
 
   const setHighQuality = (enabled: boolean) => {
-    setPlaybackSettings(prev => ({ ...prev, highQuality: enabled }));
+    setPlaybackSettings((prev) => ({ ...prev, highQuality: enabled }));
   };
 
   // Playlist management
@@ -592,7 +629,7 @@ export function EnhancedMusicProvider({ children }: { children: ReactNode }) {
 
   // User actions
   const toggleLikeSong = (songId: string) => {
-    setUserPreferences(prev => {
+    setUserPreferences((prev) => {
       const newLikedSongs = new Set(prev.likedSongs);
       if (newLikedSongs.has(songId)) {
         newLikedSongs.delete(songId);
@@ -612,14 +649,14 @@ export function EnhancedMusicProvider({ children }: { children: ReactNode }) {
   };
 
   const followArtist = (artistId: string) => {
-    setUserPreferences(prev => ({
+    setUserPreferences((prev) => ({
       ...prev,
-      followedArtists: new Set([...prev.followedArtists, artistId])
+      followedArtists: new Set([...prev.followedArtists, artistId]),
     }));
   };
 
   const unfollowArtist = (artistId: string) => {
-    setUserPreferences(prev => {
+    setUserPreferences((prev) => {
       const newFollowedArtists = new Set(prev.followedArtists);
       newFollowedArtists.delete(artistId);
       return { ...prev, followedArtists: newFollowedArtists };
@@ -627,9 +664,9 @@ export function EnhancedMusicProvider({ children }: { children: ReactNode }) {
   };
 
   const savePlaylist = (playlistId: string) => {
-    setUserPreferences(prev => ({
+    setUserPreferences((prev) => ({
       ...prev,
-      savedPlaylists: new Set([...prev.savedPlaylists, playlistId])
+      savedPlaylists: new Set([...prev.savedPlaylists, playlistId]),
     }));
   };
 
@@ -638,10 +675,11 @@ export function EnhancedMusicProvider({ children }: { children: ReactNode }) {
     setIsSearching(true);
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      const results = sampleSongs.filter(song => 
-        song.title.toLowerCase().includes(query.toLowerCase()) ||
-        song.artist.toLowerCase().includes(query.toLowerCase())
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      const results = sampleSongs.filter(
+        (song) =>
+          song.title.toLowerCase().includes(query.toLowerCase()) ||
+          song.artist.toLowerCase().includes(query.toLowerCase()),
       );
       return results;
     } finally {
@@ -653,7 +691,7 @@ export function EnhancedMusicProvider({ children }: { children: ReactNode }) {
     setIsLoadingRecommendations(true);
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, 1000));
       return sampleSongs.slice(0, 5);
     } finally {
       setIsLoadingRecommendations(false);
@@ -664,7 +702,7 @@ export function EnhancedMusicProvider({ children }: { children: ReactNode }) {
     setIsLoadingTrending(true);
     try {
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 500));
       return sampleSongs;
     } finally {
       setIsLoadingTrending(false);
@@ -673,7 +711,7 @@ export function EnhancedMusicProvider({ children }: { children: ReactNode }) {
 
   const getNewReleases = async (): Promise<Album[]> => {
     // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 500));
     return [];
   };
 
@@ -682,7 +720,7 @@ export function EnhancedMusicProvider({ children }: { children: ReactNode }) {
     audioState,
     playbackSettings,
     userPreferences,
-    
+
     // Audio controls
     playSong,
     pauseSong,
@@ -693,38 +731,38 @@ export function EnhancedMusicProvider({ children }: { children: ReactNode }) {
     seekTo,
     setVolume,
     toggleMute,
-    
+
     // Playback settings
     toggleShuffle,
     toggleRepeat,
     setCrossfade,
     setAutoplay,
     setHighQuality,
-    
+
     // Playlist management
     createPlaylist,
     addToPlaylist,
     removeFromPlaylist,
     deletePlaylist,
-    
+
     // User actions
     toggleLikeSong,
     followArtist,
     unfollowArtist,
     savePlaylist,
-    
+
     // Search and discovery
     searchSongs,
     getRecommendations,
     getTrendingSongs,
     getNewReleases,
-    
+
     // Data
     playlists,
     artists,
     albums,
     trendingSongs,
-    
+
     // Loading states
     isSearching,
     isLoadingRecommendations,
@@ -741,7 +779,9 @@ export function EnhancedMusicProvider({ children }: { children: ReactNode }) {
 export function useEnhancedMusic() {
   const context = useContext(EnhancedMusicContext);
   if (context === undefined) {
-    throw new Error("useEnhancedMusic must be used within an EnhancedMusicProvider");
+    throw new Error(
+      "useEnhancedMusic must be used within an EnhancedMusicProvider",
+    );
   }
   return context;
 }

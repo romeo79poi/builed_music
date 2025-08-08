@@ -5,12 +5,14 @@ This directory contains the C++ streaming service and WebAssembly audio processi
 ## Features
 
 ### 🚀 High-Performance Audio Processing
+
 - **C++ Speed**: Native C++ processing with SIMD optimizations
 - **WebAssembly Integration**: Seamless browser integration with near-native performance
 - **Multi-threaded**: Utilizes all CPU cores for maximum throughput
 - **Real-time Processing**: Sub-millisecond audio processing latency
 
 ### 🎵 Advanced Audio Features
+
 - **8-Band Equalizer**: Professional-grade frequency adjustment
 - **Crossfading**: Ultra-smooth track transitions
 - **Pitch Shifting**: Real-time pitch adjustment without artifacts
@@ -18,6 +20,7 @@ This directory contains the C++ streaming service and WebAssembly audio processi
 - **Dynamic Compression**: Smart audio compression for streaming
 
 ### 📊 Performance Monitoring
+
 - **Real-time Metrics**: Live performance monitoring
 - **Buffer Management**: Intelligent buffer underrun prevention
 - **Efficiency Tracking**: Processing efficiency measurement
@@ -48,6 +51,7 @@ This directory contains the C++ streaming service and WebAssembly audio processi
 ## Build Instructions
 
 ### Prerequisites
+
 - **Emscripten SDK** (for WebAssembly)
 - **CMake** (3.16+)
 - **Boost Libraries** (1.70+)
@@ -57,6 +61,7 @@ This directory contains the C++ streaming service and WebAssembly audio processi
 ### Quick Start
 
 1. **Install Emscripten**:
+
    ```bash
    git clone https://github.com/emscripten-core/emsdk.git
    cd emsdk
@@ -66,11 +71,13 @@ This directory contains the C++ streaming service and WebAssembly audio processi
    ```
 
 2. **Build WebAssembly Module**:
+
    ```bash
    npm run build:cpp
    ```
 
 3. **Build Native C++ Server**:
+
    ```bash
    npm run build:cpp-native
    ```
@@ -99,27 +106,27 @@ make -j$(nproc)
 
 ### WebAssembly vs JavaScript
 
-| Operation | JavaScript | WebAssembly | Speedup |
-|-----------|------------|-------------|---------|
-| Audio Processing | 12.5ms | 2.1ms | **6x faster** |
-| Crossfading | 8.3ms | 1.4ms | **6x faster** |
-| Equalizer | 15.2ms | 2.8ms | **5.4x faster** |
-| Spectrum Analysis | 22.1ms | 4.2ms | **5.3x faster** |
+| Operation         | JavaScript | WebAssembly | Speedup         |
+| ----------------- | ---------- | ----------- | --------------- |
+| Audio Processing  | 12.5ms     | 2.1ms       | **6x faster**   |
+| Crossfading       | 8.3ms      | 1.4ms       | **6x faster**   |
+| Equalizer         | 15.2ms     | 2.8ms       | **5.4x faster** |
+| Spectrum Analysis | 22.1ms     | 4.2ms       | **5.3x faster** |
 
 ### Native C++ vs Browser
 
-| Metric | Browser (WASM) | Native C++ | Improvement |
-|--------|----------------|------------|-------------|
-| Latency | 2-5ms | 0.5-1ms | **4-5x lower** |
-| Throughput | 200MB/s | 800MB/s | **4x higher** |
-| CPU Usage | 25% | 8% | **3x more efficient** |
+| Metric     | Browser (WASM) | Native C++ | Improvement           |
+| ---------- | -------------- | ---------- | --------------------- |
+| Latency    | 2-5ms          | 0.5-1ms    | **4-5x lower**        |
+| Throughput | 200MB/s        | 800MB/s    | **4x higher**         |
+| CPU Usage  | 25%            | 8%         | **3x more efficient** |
 
 ## Usage Examples
 
 ### Basic Audio Processing
 
 ```typescript
-import { fastAudioEngine } from '../lib/fast-audio-engine';
+import { fastAudioEngine } from "../lib/fast-audio-engine";
 
 // Initialize the engine
 await fastAudioEngine.initialize();
@@ -182,8 +189,9 @@ function PerformanceDisplay() {
 ### Compiler Optimizations
 
 The build system uses aggressive optimizations:
+
 - **-O3**: Maximum optimization
-- **-march=native**: CPU-specific optimizations  
+- **-march=native**: CPU-specific optimizations
 - **-ffast-math**: Fast floating-point operations
 - **--closure 1**: Advanced JavaScript minification
 - **--llvm-lto 3**: Link-time optimization
@@ -193,12 +201,12 @@ The build system uses aggressive optimizations:
 ```javascript
 // Optimized WASM configuration
 const EMCC_FLAGS = [
-  "-O3",                      // Maximum optimization
-  "-s WASM=1",               // WebAssembly output
+  "-O3", // Maximum optimization
+  "-s WASM=1", // WebAssembly output
   "-s ALLOW_MEMORY_GROWTH=1", // Dynamic memory
-  "-s MODULARIZE=1",         // ES6 module
-  "-msimd128",               // SIMD instructions
-  "--closure 1"              // Advanced minification
+  "-s MODULARIZE=1", // ES6 module
+  "-msimd128", // SIMD instructions
+  "--closure 1", // Advanced minification
 ];
 ```
 
@@ -210,16 +218,16 @@ const EMCC_FLAGS = [
 class AudioProcessor {
 public:
   void processAudioChunk(VectorFloat& input, VectorFloat& output);
-  void crossfadeTracks(VectorFloat& track1, VectorFloat& track2, 
+  void crossfadeTracks(VectorFloat& track1, VectorFloat& track2,
                       VectorFloat& output, float fadeRatio);
   void pitchShift(VectorFloat& input, VectorFloat& output, float factor);
   VectorFloat getSpectrumData(VectorFloat& samples, size_t fftSize);
-  
+
   void setVolume(float volume);
   void setSpeed(float speed);
   void setMuted(bool muted);
   void setEqualizerBand(size_t band, float gain);
-  
+
   double getPerformanceMetrics();
 };
 ```
@@ -239,6 +247,7 @@ public:
 ### Common Issues
 
 1. **WASM Module Not Loading**:
+
    ```bash
    # Check if files exist
    ls -la client/public/wasm/
@@ -248,16 +257,18 @@ public:
    ```
 
 2. **Poor Performance**:
+
    ```javascript
    // Check if engine is initialized
    console.log(fastAudioEngine.isInitialized);
-   
+
    // Monitor performance
    const metrics = fastAudioEngine.getPerformanceMetrics();
-   console.log('Efficiency:', metrics.efficiency);
+   console.log("Efficiency:", metrics.efficiency);
    ```
 
 3. **Build Errors**:
+
    ```bash
    # Update Emscripten
    cd emsdk && ./emsdk update-tags && ./emsdk install latest

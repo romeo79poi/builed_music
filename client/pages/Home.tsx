@@ -38,7 +38,8 @@ const top10Today = [
     artist: "Harry Styles",
     rank: 1,
     views: "2.4M",
-    coverImageURL: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
     isRising: true,
     playCount: "142.8M",
   },
@@ -48,7 +49,8 @@ const top10Today = [
     artist: "Glass Animals",
     rank: 2,
     views: "2.1M",
-    coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
     isRising: false,
     playCount: "189.3M",
   },
@@ -58,7 +60,8 @@ const top10Today = [
     artist: "The Kid LAROI, Justin Bieber",
     rank: 3,
     views: "1.9M",
-    coverImageURL: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=200&h=200&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=200&h=200&fit=crop",
     isRising: true,
     playCount: "156.7M",
   },
@@ -68,7 +71,8 @@ const top10Today = [
     artist: "Lil Nas X, Jack Harlow",
     rank: 4,
     views: "1.7M",
-    coverImageURL: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=200&h=200&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=200&h=200&fit=crop",
     isRising: false,
     playCount: "143.2M",
   },
@@ -78,7 +82,8 @@ const top10Today = [
     artist: "Olivia Rodrigo",
     rank: 5,
     views: "1.5M",
-    coverImageURL: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=200&h=200&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=200&h=200&fit=crop",
     isRising: true,
     playCount: "134.9M",
   },
@@ -88,7 +93,8 @@ const top10Today = [
     artist: "Dua Lipa",
     rank: 6,
     views: "1.3M",
-    coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
     isRising: false,
     playCount: "128.5M",
   },
@@ -98,7 +104,8 @@ const top10Today = [
     artist: "Miley Cyrus",
     rank: 7,
     views: "1.2M",
-    coverImageURL: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
     isRising: true,
     playCount: "121.8M",
   },
@@ -108,7 +115,8 @@ const top10Today = [
     artist: "Taylor Swift",
     rank: 8,
     views: "1.1M",
-    coverImageURL: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=200&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=200&fit=crop",
     isRising: false,
     playCount: "118.4M",
   },
@@ -118,7 +126,8 @@ const top10Today = [
     artist: "Sam Smith, Kim Petras",
     rank: 9,
     views: "1.0M",
-    coverImageURL: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=200&h=200&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=200&h=200&fit=crop",
     isRising: true,
     playCount: "115.2M",
   },
@@ -128,7 +137,8 @@ const top10Today = [
     artist: "Metro Boomin, The Weeknd, 21 Savage",
     rank: 10,
     views: "950K",
-    coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
     isRising: false,
     playCount: "112.7M",
   },
@@ -381,7 +391,7 @@ export default function Home() {
 
     const interval = setInterval(() => {
       setCurrentSlideIndex((prevIndex) =>
-        prevIndex === top10Today.length - 1 ? 0 : prevIndex + 1
+        prevIndex === top10Today.length - 1 ? 0 : prevIndex + 1,
       );
     }, 4000); // Change slide every 4 seconds
 
@@ -586,7 +596,10 @@ export default function Home() {
     artist: sampleSong.artist,
     album: sampleSong.album || "Unknown Album",
     coverImageURL: sampleSong.coverImageURL,
-    duration: typeof sampleSong.duration === 'string' ? 180 : sampleSong.duration || 180,
+    duration:
+      typeof sampleSong.duration === "string"
+        ? 180
+        : sampleSong.duration || 180,
     url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${sampleSong.id}.mp3`,
     genre: "Pop",
     year: 2023,
@@ -741,7 +754,6 @@ export default function Home() {
 
           {/* Top 10 Today - Sliding Section */}
           <motion.section variants={itemVariants} className="mb-8">
-
             <div className="relative overflow-hidden rounded-lg">
               <motion.div
                 animate={{
@@ -750,7 +762,7 @@ export default function Home() {
                 transition={{
                   type: "spring",
                   stiffness: 300,
-                  damping: 30
+                  damping: 30,
                 }}
                 className="flex"
               >
@@ -805,7 +817,11 @@ export default function Home() {
                           updatedAt: new Date(),
                         };
 
-                        enhancedMusic.playSong(enhancedSong, topHitsPlaylist, song.rank - 1);
+                        enhancedMusic.playSong(
+                          enhancedSong,
+                          topHitsPlaylist,
+                          song.rank - 1,
+                        );
                         navigate("/player");
 
                         toast({
@@ -823,7 +839,11 @@ export default function Home() {
                             "linear-gradient(45deg, rgba(59, 130, 246, 0.1), rgba(236, 72, 153, 0.1))",
                           ],
                         }}
-                        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                        transition={{
+                          duration: 6,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }}
                         className="absolute inset-0 opacity-50"
                       />
 
@@ -835,7 +855,7 @@ export default function Home() {
                             src={song.coverImageURL}
                             alt={song.title}
                             className="rounded-xl object-cover shadow-2xl cursor-pointer"
-                            style={{ width: '110px', height: '110px' }}
+                            style={{ width: "110px", height: "110px" }}
                             onClick={(e) => {
                               e.stopPropagation(); // Prevent card click
                               const enhancedSong = {
@@ -873,7 +893,11 @@ export default function Home() {
                                 updatedAt: new Date(),
                               };
 
-                              enhancedMusic.playSong(enhancedSong, topHitsPlaylist, song.rank - 1);
+                              enhancedMusic.playSong(
+                                enhancedSong,
+                                topHitsPlaylist,
+                                song.rank - 1,
+                              );
                               navigate("/player");
 
                               toast({
@@ -915,7 +939,9 @@ export default function Home() {
                           <div className="flex items-center space-x-4 text-sm text-gray-300">
                             <div className="flex items-center space-x-1">
                               <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                              <span className="font-semibold">{song.views} views today</span>
+                              <span className="font-semibold">
+                                {song.views} views today
+                              </span>
                             </div>
                             <span>{song.playCount} total plays</span>
                           </div>
@@ -925,7 +951,11 @@ export default function Home() {
                         <div className="text-center">
                           <motion.div
                             animate={{ scale: [1, 1.1, 1] }}
-                            transition={{ duration: 2, repeat: Infinity, delay: index * 0.2 }}
+                            transition={{
+                              duration: 2,
+                              repeat: Infinity,
+                              delay: index * 0.2,
+                            }}
                             className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-pink-500 mb-1"
                           >
                             #{song.rank}
@@ -938,7 +968,6 @@ export default function Home() {
                 ))}
               </motion.div>
             </div>
-
           </motion.section>
 
           <section />

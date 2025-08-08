@@ -55,11 +55,11 @@ interface SpotifyPlayerProps {
   className?: string;
 }
 
-export default function SpotifyPlayer({ 
-  currentSong: propCurrentSong, 
-  playlist = [], 
+export default function SpotifyPlayer({
+  currentSong: propCurrentSong,
+  playlist = [],
   onClose,
-  className = ""
+  className = "",
 }: SpotifyPlayerProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -72,16 +72,19 @@ export default function SpotifyPlayer({
     title: "Blinding Lights",
     artist: "The Weeknd",
     album: "After Hours",
-    coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop",
     duration: 200,
     url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
     genre: "Synthwave",
     year: 2020,
-    explicit: false
+    explicit: false,
   };
 
   // Player state
-  const [currentSong, setCurrentSong] = useState<Song>(propCurrentSong || defaultSong);
+  const [currentSong, setCurrentSong] = useState<Song>(
+    propCurrentSong || defaultSong,
+  );
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -89,11 +92,11 @@ export default function SpotifyPlayer({
   const [previousVolume, setPreviousVolume] = useState(0.7);
   const [isMuted, setIsMuted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   // Playback modes
   const [isShuffle, setIsShuffle] = useState(false);
-  const [repeatMode, setRepeatMode] = useState<'off' | 'all' | 'one'>('off');
-  
+  const [repeatMode, setRepeatMode] = useState<"off" | "all" | "one">("off");
+
   // UI states
   const [isLiked, setIsLiked] = useState(false);
   const [showLyrics, setShowLyrics] = useState(false);
@@ -102,7 +105,7 @@ export default function SpotifyPlayer({
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isPictureInPicture, setIsPictureInPicture] = useState(false);
-  
+
   // Queue management
   const [currentIndex, setCurrentIndex] = useState(0);
   const [queueHistory, setQueueHistory] = useState<Song[]>([]);
@@ -110,10 +113,34 @@ export default function SpotifyPlayer({
 
   // Available devices
   const [devices] = useState([
-    { id: 'computer', name: 'This Computer', type: 'computer', active: true, volume: 70 },
-    { id: 'phone', name: 'John\'s iPhone', type: 'smartphone', active: false, volume: 0 },
-    { id: 'speaker', name: 'Living Room Speaker', type: 'speaker', active: false, volume: 0 },
-    { id: 'headphones', name: 'AirPods Pro', type: 'headphones', active: false, volume: 0 },
+    {
+      id: "computer",
+      name: "This Computer",
+      type: "computer",
+      active: true,
+      volume: 70,
+    },
+    {
+      id: "phone",
+      name: "John's iPhone",
+      type: "smartphone",
+      active: false,
+      volume: 0,
+    },
+    {
+      id: "speaker",
+      name: "Living Room Speaker",
+      type: "speaker",
+      active: false,
+      volume: 0,
+    },
+    {
+      id: "headphones",
+      name: "AirPods Pro",
+      type: "headphones",
+      active: false,
+      volume: 0,
+    },
   ]);
 
   // Sample lyrics
@@ -122,7 +149,10 @@ export default function SpotifyPlayer({
     { time: 8, text: "I've been tryna call" },
     { time: 12, text: "I've been on my own for long enough" },
     { time: 16, text: "Maybe you can show me how to love, maybe" },
-    { time: 24, text: "I feel like I'm just missing something when you're gone" },
+    {
+      time: 24,
+      text: "I feel like I'm just missing something when you're gone",
+    },
     { time: 32, text: "Something in the way you move" },
     { time: 36, text: "Makes me feel like I can't live without you" },
     { time: 40, text: "It takes me all the way" },
@@ -140,18 +170,18 @@ export default function SpotifyPlayer({
     const handleLoadedData = () => setIsLoading(false);
     const handleEnded = () => handleNext();
 
-    audio.addEventListener('timeupdate', updateTime);
-    audio.addEventListener('loadedmetadata', updateDuration);
-    audio.addEventListener('loadstart', handleLoadStart);
-    audio.addEventListener('loadeddata', handleLoadedData);
-    audio.addEventListener('ended', handleEnded);
+    audio.addEventListener("timeupdate", updateTime);
+    audio.addEventListener("loadedmetadata", updateDuration);
+    audio.addEventListener("loadstart", handleLoadStart);
+    audio.addEventListener("loadeddata", handleLoadedData);
+    audio.addEventListener("ended", handleEnded);
 
     return () => {
-      audio.removeEventListener('timeupdate', updateTime);
-      audio.removeEventListener('loadedmetadata', updateDuration);
-      audio.removeEventListener('loadstart', handleLoadStart);
-      audio.removeEventListener('loadeddata', handleLoadedData);
-      audio.removeEventListener('ended', handleEnded);
+      audio.removeEventListener("timeupdate", updateTime);
+      audio.removeEventListener("loadedmetadata", updateDuration);
+      audio.removeEventListener("loadstart", handleLoadStart);
+      audio.removeEventListener("loadeddata", handleLoadedData);
+      audio.removeEventListener("ended", handleEnded);
     };
   }, []);
 
@@ -199,22 +229,22 @@ export default function SpotifyPlayer({
       }
     } else {
       // Go to previous song
-      const prevIndex = isShuffle 
+      const prevIndex = isShuffle
         ? Math.floor(Math.random() * playlist.length)
         : Math.max(0, currentIndex - 1);
-      
+
       if (playlist[prevIndex]) {
         setCurrentSong(playlist[prevIndex]);
         setCurrentIndex(prevIndex);
         if (queueHistory.length > 0) {
-          setQueueHistory(prev => prev.slice(0, -1));
+          setQueueHistory((prev) => prev.slice(0, -1));
         }
       }
     }
   };
 
   const handleNext = () => {
-    if (repeatMode === 'one') {
+    if (repeatMode === "one") {
       // Repeat current song
       if (audioRef.current) {
         audioRef.current.currentTime = 0;
@@ -229,7 +259,7 @@ export default function SpotifyPlayer({
     } else {
       nextIndex = currentIndex + 1;
       if (nextIndex >= playlist.length) {
-        if (repeatMode === 'all') {
+        if (repeatMode === "all") {
           nextIndex = 0;
         } else {
           setIsPlaying(false);
@@ -239,7 +269,7 @@ export default function SpotifyPlayer({
     }
 
     if (playlist[nextIndex]) {
-      setQueueHistory(prev => [...prev, currentSong]);
+      setQueueHistory((prev) => [...prev, currentSong]);
       setCurrentSong(playlist[nextIndex]);
       setCurrentIndex(nextIndex);
       setUpNext(playlist.slice(nextIndex + 1, nextIndex + 6));
@@ -248,11 +278,11 @@ export default function SpotifyPlayer({
 
   const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!progressBarRef.current || !audioRef.current) return;
-    
+
     const rect = progressBarRef.current.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
     const newTime = (clickX / rect.width) * duration;
-    
+
     audioRef.current.currentTime = newTime;
     setCurrentTime(newTime);
   };
@@ -276,16 +306,19 @@ export default function SpotifyPlayer({
   };
 
   const toggleRepeat = () => {
-    const modes: ('off' | 'all' | 'one')[] = ['off', 'all', 'one'];
+    const modes: ("off" | "all" | "one")[] = ["off", "all", "one"];
     const currentModeIndex = modes.indexOf(repeatMode);
     const nextMode = modes[(currentModeIndex + 1) % modes.length];
     setRepeatMode(nextMode);
-    
+
     toast({
-      title: `Repeat ${nextMode === 'off' ? 'disabled' : nextMode === 'all' ? 'playlist' : 'track'}`,
-      description: nextMode === 'off' ? 'Repeat turned off' : 
-                   nextMode === 'all' ? 'Repeating playlist' : 
-                   'Repeating current track',
+      title: `Repeat ${nextMode === "off" ? "disabled" : nextMode === "all" ? "playlist" : "track"}`,
+      description:
+        nextMode === "off"
+          ? "Repeat turned off"
+          : nextMode === "all"
+            ? "Repeating playlist"
+            : "Repeating current track",
     });
   };
 
@@ -305,12 +338,18 @@ export default function SpotifyPlayer({
 
   const getDeviceIcon = (type: string) => {
     switch (type) {
-      case 'computer': return Monitor;
-      case 'smartphone': return Smartphone;
-      case 'speaker': return Speaker;
-      case 'headphones': return Headphones;
-      case 'laptop': return Laptop;
-      default: return Speaker;
+      case "computer":
+        return Monitor;
+      case "smartphone":
+        return Smartphone;
+      case "speaker":
+        return Speaker;
+      case "headphones":
+        return Headphones;
+      case "laptop":
+        return Laptop;
+      default:
+        return Speaker;
     }
   };
 
@@ -318,13 +357,15 @@ export default function SpotifyPlayer({
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white ${className}`}>
+    <div
+      className={`min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white ${className}`}
+    >
       {/* Audio element */}
       <audio ref={audioRef} />
-      
+
       {/* Background gradient overlay */}
       <div className="fixed inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/10 to-green-900/20" />
-      
+
       {/* Header */}
       <motion.header
         initial={{ y: -50, opacity: 0 }}
@@ -337,11 +378,17 @@ export default function SpotifyPlayer({
           onClick={() => setIsFullscreen(!isFullscreen)}
           className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
         >
-          {isFullscreen ? <Minimize2 className="w-5 h-5" /> : <Maximize2 className="w-5 h-5" />}
+          {isFullscreen ? (
+            <Minimize2 className="w-5 h-5" />
+          ) : (
+            <Maximize2 className="w-5 h-5" />
+          )}
         </motion.button>
 
         <div className="text-center">
-          <p className="text-xs text-gray-400 uppercase tracking-wide">Playing from playlist</p>
+          <p className="text-xs text-gray-400 uppercase tracking-wide">
+            Playing from playlist
+          </p>
           <h1 className="text-sm font-semibold">My Playlist #1</h1>
         </div>
 
@@ -354,7 +401,7 @@ export default function SpotifyPlayer({
           >
             <PictureInPicture className="w-5 h-5" />
           </motion.button>
-          
+
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
@@ -377,13 +424,17 @@ export default function SpotifyPlayer({
         >
           <div className="relative">
             <motion.img
-              animate={{ 
+              animate={{
                 rotate: isPlaying ? 360 : 0,
-                scale: isPlaying ? 1.02 : 1
+                scale: isPlaying ? 1.02 : 1,
               }}
               transition={{
-                rotate: { duration: 20, repeat: isPlaying ? Infinity : 0, ease: "linear" },
-                scale: { duration: 0.3 }
+                rotate: {
+                  duration: 20,
+                  repeat: isPlaying ? Infinity : 0,
+                  ease: "linear",
+                },
+                scale: { duration: 0.3 },
               }}
               src={currentSong.coverImageURL}
               alt={currentSong.title}
@@ -392,7 +443,7 @@ export default function SpotifyPlayer({
 
             {/* Vinyl effect */}
             <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/5 via-transparent to-black/20" />
-            
+
             {/* Loading overlay */}
             {isLoading && (
               <div className="absolute inset-0 rounded-2xl bg-black/50 flex items-center justify-center">
@@ -430,13 +481,15 @@ export default function SpotifyPlayer({
         >
           <div className="flex items-center justify-center space-x-2 mb-2">
             {currentSong.explicit && (
-              <span className="bg-gray-500 text-white text-xs px-1.5 py-0.5 rounded">E</span>
+              <span className="bg-gray-500 text-white text-xs px-1.5 py-0.5 rounded">
+                E
+              </span>
             )}
             <span className="text-xs text-gray-400 uppercase tracking-wide">
               {currentSong.genre} • {currentSong.year}
             </span>
           </div>
-          
+
           <h2 className="text-2xl md:text-3xl font-bold mb-2 text-white">
             {currentSong.title}
           </h2>
@@ -524,8 +577,8 @@ export default function SpotifyPlayer({
             whileTap={{ scale: 0.9 }}
             onClick={toggleShuffle}
             className={`p-3 rounded-full transition-all ${
-              isShuffle 
-                ? "bg-green-500/20 text-green-500" 
+              isShuffle
+                ? "bg-green-500/20 text-green-500"
                 : "text-gray-400 hover:text-white"
             }`}
           >
@@ -572,13 +625,13 @@ export default function SpotifyPlayer({
             whileTap={{ scale: 0.9 }}
             onClick={toggleRepeat}
             className={`p-3 rounded-full transition-all relative ${
-              repeatMode !== 'off'
+              repeatMode !== "off"
                 ? "bg-green-500/20 text-green-500"
                 : "text-gray-400 hover:text-white"
             }`}
           >
             <Repeat className="w-5 h-5" />
-            {repeatMode === 'one' && (
+            {repeatMode === "one" && (
               <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full text-xs font-bold flex items-center justify-center text-white">
                 1
               </span>
@@ -600,8 +653,8 @@ export default function SpotifyPlayer({
               whileTap={{ scale: 0.9 }}
               onClick={() => setShowLyrics(!showLyrics)}
               className={`p-2 rounded-full transition-all ${
-                showLyrics 
-                  ? "bg-green-500/20 text-green-500" 
+                showLyrics
+                  ? "bg-green-500/20 text-green-500"
                   : "text-gray-400 hover:text-white"
               }`}
             >
@@ -613,8 +666,8 @@ export default function SpotifyPlayer({
               whileTap={{ scale: 0.9 }}
               onClick={() => setShowQueue(!showQueue)}
               className={`p-2 rounded-full transition-all ${
-                showQueue 
-                  ? "bg-blue-500/20 text-blue-500" 
+                showQueue
+                  ? "bg-blue-500/20 text-blue-500"
                   : "text-gray-400 hover:text-white"
               }`}
             >
@@ -626,8 +679,8 @@ export default function SpotifyPlayer({
               whileTap={{ scale: 0.9 }}
               onClick={() => setShowDevices(!showDevices)}
               className={`p-2 rounded-full transition-all ${
-                showDevices 
-                  ? "bg-purple-500/20 text-purple-500" 
+                showDevices
+                  ? "bg-purple-500/20 text-purple-500"
                   : "text-gray-400 hover:text-white"
               }`}
             >
@@ -636,7 +689,7 @@ export default function SpotifyPlayer({
           </div>
 
           {/* Volume control */}
-          <div 
+          <div
             className="flex items-center space-x-3"
             onMouseEnter={() => setShowVolumeSlider(true)}
             onMouseLeave={() => setShowVolumeSlider(false)}
@@ -664,7 +717,9 @@ export default function SpotifyPlayer({
                     max="1"
                     step="0.01"
                     value={volume}
-                    onChange={(e) => handleVolumeChange(parseFloat(e.target.value))}
+                    onChange={(e) =>
+                      handleVolumeChange(parseFloat(e.target.value))
+                    }
                     className="w-full h-1 bg-white/20 rounded-full appearance-none cursor-pointer slider"
                   />
                 </motion.div>
@@ -697,14 +752,15 @@ export default function SpotifyPlayer({
                   <Minus className="w-4 h-4" />
                 </motion.button>
               </div>
-              
+
               <div className="space-y-4">
                 {lyrics.map((lyric, index) => (
                   <motion.p
                     key={index}
                     className={`text-lg transition-all duration-300 ${
                       currentTime >= lyric.time &&
-                      (index === lyrics.length - 1 || currentTime < lyrics[index + 1]?.time)
+                      (index === lyrics.length - 1 ||
+                        currentTime < lyrics[index + 1]?.time)
                         ? "text-green-400 font-semibold scale-105"
                         : "text-gray-400"
                     }`}
@@ -741,7 +797,9 @@ export default function SpotifyPlayer({
 
               {/* Now Playing */}
               <div className="mb-6">
-                <h4 className="text-sm font-semibold text-gray-400 mb-3">NOW PLAYING</h4>
+                <h4 className="text-sm font-semibold text-gray-400 mb-3">
+                  NOW PLAYING
+                </h4>
                 <div className="flex items-center space-x-3 p-3 bg-green-500/10 rounded-lg border border-green-500/20">
                   <img
                     src={currentSong.coverImageURL}
@@ -749,20 +807,28 @@ export default function SpotifyPlayer({
                     className="w-12 h-12 rounded-lg object-cover"
                   />
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-white truncate">{currentSong.title}</p>
-                    <p className="text-sm text-gray-400 truncate">{currentSong.artist}</p>
+                    <p className="font-medium text-white truncate">
+                      {currentSong.title}
+                    </p>
+                    <p className="text-sm text-gray-400 truncate">
+                      {currentSong.artist}
+                    </p>
                   </div>
                 </div>
               </div>
 
               {/* Up Next */}
               <div>
-                <h4 className="text-sm font-semibold text-gray-400 mb-3">UP NEXT</h4>
+                <h4 className="text-sm font-semibold text-gray-400 mb-3">
+                  UP NEXT
+                </h4>
                 <div className="space-y-2">
                   {upNext.map((song, index) => (
                     <motion.div
                       key={song.id}
-                      whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
+                      whileHover={{
+                        backgroundColor: "rgba(255, 255, 255, 0.05)",
+                      }}
                       className="flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition-colors"
                       onClick={() => {
                         setCurrentSong(song);
@@ -775,10 +841,16 @@ export default function SpotifyPlayer({
                         className="w-10 h-10 rounded-lg object-cover"
                       />
                       <div className="flex-1 min-w-0">
-                        <p className="font-medium text-white truncate">{song.title}</p>
-                        <p className="text-sm text-gray-400 truncate">{song.artist}</p>
+                        <p className="font-medium text-white truncate">
+                          {song.title}
+                        </p>
+                        <p className="text-sm text-gray-400 truncate">
+                          {song.artist}
+                        </p>
                       </div>
-                      <p className="text-xs text-gray-500">{formatTime(song.duration)}</p>
+                      <p className="text-xs text-gray-500">
+                        {formatTime(song.duration)}
+                      </p>
                     </motion.div>
                   ))}
                 </div>
@@ -815,22 +887,34 @@ export default function SpotifyPlayer({
                   return (
                     <motion.div
                       key={device.id}
-                      whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
+                      whileHover={{
+                        backgroundColor: "rgba(255, 255, 255, 0.05)",
+                      }}
                       className={`flex items-center justify-between p-4 rounded-lg cursor-pointer transition-colors ${
-                        device.active ? "bg-green-500/20 border border-green-500/50" : "bg-white/5"
+                        device.active
+                          ? "bg-green-500/20 border border-green-500/50"
+                          : "bg-white/5"
                       }`}
                     >
                       <div className="flex items-center space-x-4">
-                        <DeviceIcon className={`w-6 h-6 ${device.active ? "text-green-500" : "text-gray-400"}`} />
+                        <DeviceIcon
+                          className={`w-6 h-6 ${device.active ? "text-green-500" : "text-gray-400"}`}
+                        />
                         <div>
-                          <p className="font-medium text-white">{device.name}</p>
-                          <p className="text-sm text-gray-400 capitalize">{device.type}</p>
+                          <p className="font-medium text-white">
+                            {device.name}
+                          </p>
+                          <p className="text-sm text-gray-400 capitalize">
+                            {device.type}
+                          </p>
                         </div>
                       </div>
                       {device.active && (
                         <div className="flex items-center space-x-2">
                           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                          <span className="text-sm text-green-500">Connected</span>
+                          <span className="text-sm text-green-500">
+                            Connected
+                          </span>
                         </div>
                       )}
                     </motion.div>

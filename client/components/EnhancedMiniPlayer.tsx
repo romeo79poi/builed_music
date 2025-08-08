@@ -48,7 +48,8 @@ export default function EnhancedMiniPlayer() {
   const [showDevices, setShowDevices] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const { currentSong, isPlaying, currentTime, duration, volume, isMuted } = audioState;
+  const { currentSong, isPlaying, currentTime, duration, volume, isMuted } =
+    audioState;
   const { isShuffle, repeatMode } = playbackSettings;
 
   if (!currentSong) return null;
@@ -78,19 +79,29 @@ export default function EnhancedMiniPlayer() {
   const VolumeIcon = getVolumeIcon();
 
   const devices = [
-    { id: 'computer', name: 'This Computer', type: 'computer', active: true },
-    { id: 'phone', name: 'Your Phone', type: 'smartphone', active: false },
-    { id: 'speaker', name: 'Living Room', type: 'speaker', active: false },
-    { id: 'headphones', name: 'AirPods Pro', type: 'headphones', active: false },
+    { id: "computer", name: "This Computer", type: "computer", active: true },
+    { id: "phone", name: "Your Phone", type: "smartphone", active: false },
+    { id: "speaker", name: "Living Room", type: "speaker", active: false },
+    {
+      id: "headphones",
+      name: "AirPods Pro",
+      type: "headphones",
+      active: false,
+    },
   ];
 
   const getDeviceIcon = (type: string) => {
     switch (type) {
-      case 'computer': return Monitor;
-      case 'smartphone': return Smartphone;
-      case 'speaker': return Speaker;
-      case 'headphones': return Headphones;
-      default: return Speaker;
+      case "computer":
+        return Monitor;
+      case "smartphone":
+        return Smartphone;
+      case "speaker":
+        return Speaker;
+      case "headphones":
+        return Headphones;
+      default:
+        return Speaker;
     }
   };
 
@@ -117,7 +128,10 @@ export default function EnhancedMiniPlayer() {
         <div className="flex items-center justify-between px-4 py-3">
           {/* Left: Song Info */}
           <div className="flex items-center space-x-4 flex-1 min-w-0">
-            <Link to="/player" className="flex items-center space-x-3 min-w-0 group">
+            <Link
+              to="/player"
+              className="flex items-center space-x-3 min-w-0 group"
+            >
               <div className="relative">
                 <img
                   src={currentSong.coverImageURL}
@@ -128,7 +142,7 @@ export default function EnhancedMiniPlayer() {
                   <Maximize2 className="w-5 h-5 text-white" />
                 </div>
               </div>
-              
+
               <div className="min-w-0">
                 <h3 className="text-white font-medium text-sm truncate hover:underline">
                   {currentSong.title}
@@ -149,10 +163,12 @@ export default function EnhancedMiniPlayer() {
                   : "text-gray-400 hover:text-white"
               }`}
             >
-              <Heart 
+              <Heart
                 className={`w-4 h-4 ${
-                  userPreferences.likedSongs.has(currentSong.id) ? "fill-current" : ""
-                }`} 
+                  userPreferences.likedSongs.has(currentSong.id)
+                    ? "fill-current"
+                    : ""
+                }`}
               />
             </motion.button>
 
@@ -173,8 +189,8 @@ export default function EnhancedMiniPlayer() {
               whileTap={{ scale: 0.9 }}
               onClick={toggleShuffle}
               className={`p-2 rounded-full transition-all hidden md:flex ${
-                isShuffle 
-                  ? "text-green-500 bg-green-500/20" 
+                isShuffle
+                  ? "text-green-500 bg-green-500/20"
                   : "text-gray-400 hover:text-white"
               }`}
             >
@@ -217,13 +233,13 @@ export default function EnhancedMiniPlayer() {
               whileTap={{ scale: 0.9 }}
               onClick={toggleRepeat}
               className={`p-2 rounded-full transition-all hidden md:flex relative ${
-                repeatMode !== 'off'
+                repeatMode !== "off"
                   ? "text-green-500 bg-green-500/20"
                   : "text-gray-400 hover:text-white"
               }`}
             >
               <Repeat className="w-4 h-4" />
-              {repeatMode === 'one' && (
+              {repeatMode === "one" && (
                 <span className="absolute -top-1 -right-1 w-3 h-3 bg-green-500 rounded-full text-xs font-bold flex items-center justify-center text-white">
                   1
                 </span>
@@ -368,13 +384,13 @@ export default function EnhancedMiniPlayer() {
                   whileTap={{ scale: 0.9 }}
                   onClick={toggleRepeat}
                   className={`p-3 rounded-full transition-all relative ${
-                    repeatMode !== 'off'
+                    repeatMode !== "off"
                       ? "bg-green-500/20 text-green-500"
                       : "text-gray-400 hover:text-white"
                   }`}
                 >
                   <Repeat className="w-5 h-5" />
-                  {repeatMode === 'one' && (
+                  {repeatMode === "one" && (
                     <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full text-xs font-bold flex items-center justify-center text-white">
                       1
                     </span>
@@ -422,7 +438,9 @@ export default function EnhancedMiniPlayer() {
           >
             <div className="p-4">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-white">Connect to a device</h3>
+                <h3 className="text-lg font-semibold text-white">
+                  Connect to a device
+                </h3>
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
@@ -439,22 +457,34 @@ export default function EnhancedMiniPlayer() {
                   return (
                     <motion.div
                       key={device.id}
-                      whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
+                      whileHover={{
+                        backgroundColor: "rgba(255, 255, 255, 0.05)",
+                      }}
                       className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors ${
-                        device.active ? "bg-green-500/20 border border-green-500/50" : "bg-white/5"
+                        device.active
+                          ? "bg-green-500/20 border border-green-500/50"
+                          : "bg-white/5"
                       }`}
                     >
                       <div className="flex items-center space-x-3">
-                        <DeviceIcon className={`w-6 h-6 ${device.active ? "text-green-500" : "text-gray-400"}`} />
+                        <DeviceIcon
+                          className={`w-6 h-6 ${device.active ? "text-green-500" : "text-gray-400"}`}
+                        />
                         <div>
-                          <p className="font-medium text-white">{device.name}</p>
-                          <p className="text-sm text-gray-400 capitalize">{device.type}</p>
+                          <p className="font-medium text-white">
+                            {device.name}
+                          </p>
+                          <p className="text-sm text-gray-400 capitalize">
+                            {device.type}
+                          </p>
                         </div>
                       </div>
                       {device.active && (
                         <div className="flex items-center space-x-2">
                           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                          <span className="text-sm text-green-500">Playing</span>
+                          <span className="text-sm text-green-500">
+                            Playing
+                          </span>
                         </div>
                       )}
                     </motion.div>
@@ -489,13 +519,21 @@ export default function EnhancedMiniPlayer() {
         }
 
         .slider::-webkit-slider-track {
-          background: linear-gradient(to right, #22c55e, rgba(255, 255, 255, 0.2));
+          background: linear-gradient(
+            to right,
+            #22c55e,
+            rgba(255, 255, 255, 0.2)
+          );
           height: 4px;
           border-radius: 2px;
         }
 
         .slider::-moz-range-track {
-          background: linear-gradient(to right, #22c55e, rgba(255, 255, 255, 0.2));
+          background: linear-gradient(
+            to right,
+            #22c55e,
+            rgba(255, 255, 255, 0.2)
+          );
           height: 4px;
           border-radius: 2px;
         }
