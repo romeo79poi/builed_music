@@ -827,6 +827,43 @@ export default function Home() {
                         `,
                       }}
                       onClick={() => {
+                        const enhancedSong = {
+                          id: song.id,
+                          title: song.title,
+                          artist: song.artist,
+                          album: "Top Hits",
+                          coverImageURL: song.coverImageURL,
+                          duration: 180,
+                          url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${song.rank}.mp3`,
+                          genre: "Pop",
+                          year: 2024,
+                          explicit: false,
+                        };
+
+                        const topHitsPlaylist = {
+                          id: "top-10-today",
+                          name: "Top 10 Today",
+                          description: "The hottest tracks today",
+                          songs: top10Today.map((s, i) => ({
+                            id: s.id,
+                            title: s.title,
+                            artist: s.artist,
+                            album: "Top Hits",
+                            coverImageURL: s.coverImageURL,
+                            duration: 180,
+                            url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${i + 1}.mp3`,
+                            genre: "Pop",
+                            year: 2024,
+                            explicit: false,
+                          })),
+                          isPublic: true,
+                          createdBy: "catch-charts",
+                          createdAt: new Date(),
+                          updatedAt: new Date(),
+                        };
+
+                        enhancedMusic.playSong(enhancedSong, topHitsPlaylist, song.rank - 1);
+
                         toast({
                           title: "Playing Top Hit",
                           description: `Now playing: ${song.title} by ${song.artist}`,
