@@ -1153,7 +1153,29 @@ export default function Home() {
                       whileHover={{ scale: 1.05 }}
                       src={item.coverImageURL}
                       alt={item.title}
-                      className={`w-full h-44 object-cover ${item.type === "artist" ? "rounded-full" : "rounded-lg"}`}
+                      className={`w-full h-44 object-cover cursor-pointer ${item.type === "artist" ? "rounded-full" : "rounded-lg"}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const enhancedSong = {
+                          id: item.id,
+                          title: item.title,
+                          artist: item.artist,
+                          album: item.type === "album" ? item.title : "Single",
+                          coverImageURL: item.coverImageURL,
+                          duration: 180,
+                          url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${Math.floor(Math.random() * 5) + 1}.mp3`,
+                          genre: "Pop",
+                          year: 2024,
+                          explicit: false,
+                        };
+                        enhancedMusic.playSong(enhancedSong);
+                        navigate("/player");
+
+                        toast({
+                          title: "🎵 Now Playing",
+                          description: `${item.title} by ${item.artist}`,
+                        });
+                      }}
                     />
                     <motion.button
                       initial={{ opacity: 0, scale: 0.8 }}
