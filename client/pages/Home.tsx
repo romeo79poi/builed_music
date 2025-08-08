@@ -660,56 +660,236 @@ export default function Home() {
           <section />
           {/* Removed user profile section */}
 
-          {/* New Releases Section */}
+          {/* YouTube Music-like Listen Again Section */}
           <motion.section variants={itemVariants} className="mb-8">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-6">
               <motion.h2
                 whileHover={{ scale: 1.02 }}
-                className="text-xl font-bold flex items-center space-x-2"
+                className="text-2xl font-bold text-white"
               >
-                <Sparkles className="w-5 h-5 text-foreground" />
-                <span>New Releases</span>
+                Listen again
               </motion.h2>
               <motion.button
                 whileHover={{ scale: 1.05 }}
-                className="text-gray-400 dark:text-gray-400 light:text-gray-600 hover:text-white dark:hover:text-white light:hover:text-black text-sm font-medium transition-colors"
+                className="text-gray-400 hover:text-white text-sm font-medium transition-colors"
               >
-                See all
+                Show all
               </motion.button>
             </div>
 
             <div className="flex space-x-4 overflow-x-auto scrollbar-hide pb-4">
-              {newReleases.map((release, index) => (
+              {[
+                {
+                  id: "recent1",
+                  title: "Blinding Lights",
+                  artist: "The Weeknd",
+                  type: "song",
+                  coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
+                  duration: "3:20"
+                },
+                {
+                  id: "recent2",
+                  title: "After Hours",
+                  artist: "The Weeknd",
+                  type: "album",
+                  coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
+                  year: "2020"
+                },
+                {
+                  id: "recent3",
+                  title: "Watermelon Sugar",
+                  artist: "Harry Styles",
+                  type: "song",
+                  coverImageURL: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
+                  duration: "2:54"
+                },
+                {
+                  id: "recent4",
+                  title: "Chill Vibes",
+                  artist: "Various Artists",
+                  type: "playlist",
+                  coverImageURL: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=200&h=200&fit=crop",
+                  tracks: "45 songs"
+                },
+                {
+                  id: "recent5",
+                  title: "Good 4 U",
+                  artist: "Olivia Rodrigo",
+                  type: "song",
+                  coverImageURL: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=200&h=200&fit=crop",
+                  duration: "2:58"
+                },
+                {
+                  id: "recent6",
+                  title: "Harry Styles",
+                  artist: "2.1M subscribers",
+                  type: "artist",
+                  coverImageURL: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop&crop=face",
+                  verified: true
+                }
+              ].map((item, index) => (
                 <motion.div
-                  key={release.id}
+                  key={item.id}
                   initial={{ opacity: 0, x: 50 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.3 + index * 0.1 }}
-                  whileHover={{ scale: 1.05, y: -5 }}
-                  className="flex-shrink-0 w-40 bg-black rounded-lg p-4 hover:bg-gray-900 transition-all cursor-pointer relative overflow-hidden"
-                  style={{
-                    boxShadow: `
-                      0 0 0 1px rgba(236, 72, 153, 0.6),
-                      inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                    `,
-                  }}
+                  whileHover={{ y: -4 }}
+                  className="flex-shrink-0 w-44 cursor-pointer group"
                 >
                   <div className="relative mb-3">
-                    <img
-                      src={release.coverImageURL}
-                      alt={release.title}
-                      className="w-24 h-24 rounded-lg object-cover"
+                    <motion.img
+                      whileHover={{ scale: 1.05 }}
+                      src={item.coverImageURL}
+                      alt={item.title}
+                      className={`w-full h-44 object-cover ${item.type === 'artist' ? 'rounded-full' : 'rounded-lg'}`}
                     />
-                    <div className="absolute top-2 left-2 bg-neon-green text-black px-2 py-1 rounded-md text-xs font-bold">
-                      NEW
-                    </div>
+                    <motion.button
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      whileHover={{ opacity: 1, scale: 1 }}
+                      className="absolute bottom-3 right-3 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg transition-all group-hover:opacity-100 opacity-0"
+                    >
+                      <Play className="w-5 h-5 text-black ml-0.5" />
+                    </motion.button>
+                    {item.type === 'album' && (
+                      <div className="absolute top-3 left-3 bg-black/70 text-white px-2 py-1 rounded text-xs">
+                        Album
+                      </div>
+                    )}
+                    {item.type === 'playlist' && (
+                      <div className="absolute top-3 left-3 bg-black/70 text-white px-2 py-1 rounded text-xs">
+                        Playlist
+                      </div>
+                    )}
                   </div>
-                  <h3 className="font-medium text-sm mb-1 truncate">
-                    {release.title}
+                  <h3 className="font-medium text-white text-sm mb-1 truncate leading-tight">
+                    {item.title}
                   </h3>
-                  <p className="text-gray-400 text-xs truncate">
-                    {release.artist}
-                  </p>
+                  <div className="flex items-center space-x-1">
+                    <p className="text-gray-400 text-xs truncate leading-tight">
+                      {item.type === 'song' ? `Song • ${item.artist}` :
+                       item.type === 'album' ? `Album • ${item.artist} • ${item.year}` :
+                       item.type === 'playlist' ? `Playlist • ${item.tracks}` :
+                       `Artist • ${item.artist}`}
+                    </p>
+                    {item.verified && (
+                      <div className="w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center">
+                        <Check className="w-2 h-2 text-white" />
+                      </div>
+                    )}
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.section>
+
+          {/* Quick Picks Section */}
+          <motion.section variants={itemVariants} className="mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <motion.h2
+                whileHover={{ scale: 1.02 }}
+                className="text-2xl font-bold text-white"
+              >
+                Quick picks
+              </motion.h2>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                className="text-gray-400 hover:text-white text-sm font-medium transition-colors"
+              >
+                Show all
+              </motion.button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {[
+                {
+                  id: "quick1",
+                  title: "As It Was",
+                  artist: "Harry Styles",
+                  coverImageURL: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop",
+                  duration: "2:47",
+                  plays: "1.2B"
+                },
+                {
+                  id: "quick2",
+                  title: "Heat Waves",
+                  artist: "Glass Animals",
+                  coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100&h=100&fit=crop",
+                  duration: "3:58",
+                  plays: "2.1B"
+                },
+                {
+                  id: "quick3",
+                  title: "Stay",
+                  artist: "The Kid LAROI, Justin Bieber",
+                  coverImageURL: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=100&h=100&fit=crop",
+                  duration: "2:21",
+                  plays: "1.8B"
+                },
+                {
+                  id: "quick4",
+                  title: "Industry Baby",
+                  artist: "Lil Nas X, Jack Harlow",
+                  coverImageURL: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=100&h=100&fit=crop",
+                  duration: "3:32",
+                  plays: "1.4B"
+                },
+                {
+                  id: "quick5",
+                  title: "Good 4 U",
+                  artist: "Olivia Rodrigo",
+                  coverImageURL: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=100&h=100&fit=crop",
+                  duration: "2:58",
+                  plays: "1.1B"
+                },
+                {
+                  id: "quick6",
+                  title: "Levitating",
+                  artist: "Dua Lipa",
+                  coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100&h=100&fit=crop",
+                  duration: "3:23",
+                  plays: "1.5B"
+                }
+              ].map((song, index) => (
+                <motion.div
+                  key={song.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.4 + index * 0.1 }}
+                  whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.1)" }}
+                  className="flex items-center space-x-3 p-2 rounded-lg cursor-pointer group transition-all"
+                >
+                  <div className="relative">
+                    <img
+                      src={song.coverImageURL}
+                      alt={song.title}
+                      className="w-12 h-12 rounded object-cover"
+                    />
+                    <motion.button
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      whileHover={{ opacity: 1, scale: 1 }}
+                      className="absolute inset-0 bg-black/50 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
+                    >
+                      <Play className="w-4 h-4 text-white ml-0.5" />
+                    </motion.button>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-medium text-white text-sm truncate">
+                      {song.title}
+                    </h3>
+                    <p className="text-gray-400 text-xs truncate">
+                      {song.artist} • {song.plays} plays
+                    </p>
+                  </div>
+                  <div className="text-gray-400 text-xs">
+                    {song.duration}
+                  </div>
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    className="opacity-0 group-hover:opacity-100 transition-opacity p-1"
+                  >
+                    <MoreVertical className="w-4 h-4 text-gray-400" />
+                  </motion.button>
                 </motion.div>
               ))}
             </div>
