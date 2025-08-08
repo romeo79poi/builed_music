@@ -1322,7 +1322,29 @@ export default function Home() {
                     <img
                       src={song.coverImageURL}
                       alt={song.title}
-                      className="w-12 h-12 rounded object-cover"
+                      className="w-12 h-12 rounded object-cover cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const enhancedSong = {
+                          id: song.id,
+                          title: song.title,
+                          artist: song.artist,
+                          album: "Top Hits",
+                          coverImageURL: song.coverImageURL,
+                          duration: 180,
+                          url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${Math.floor(Math.random() * 5) + 1}.mp3`,
+                          genre: "Pop",
+                          year: 2024,
+                          explicit: false,
+                        };
+                        enhancedMusic.playSong(enhancedSong);
+                        navigate("/player");
+
+                        toast({
+                          title: "🎵 Now Playing",
+                          description: `${song.title} by ${song.artist}`,
+                        });
+                      }}
                     />
                     <motion.button
                       initial={{ opacity: 0, scale: 0.8 }}
