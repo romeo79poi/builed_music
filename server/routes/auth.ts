@@ -179,12 +179,18 @@ export const registerUser: RequestHandler = async (req, res) => {
 
     // Create new user
     const { data: newUser, error } = await mockSupabase.createUser({
+      id: id || undefined, // Use provided ID for social signups
       email,
       username,
       name,
       password: hashedPassword,
-      is_verified: provider === "google", // Google users are pre-verified
-      email_verified: provider === "google",
+      is_verified: provider === "google" || provider === "social" || socialSignup,
+      email_verified: provider === "google" || provider === "social" || socialSignup,
+      date_of_birth: dateOfBirth,
+      gender,
+      bio,
+      profile_image_url: profileImageURL,
+      provider,
     });
 
     if (error) {
