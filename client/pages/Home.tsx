@@ -991,48 +991,21 @@ export default function Home() {
             </div>
           </motion.section>
 
-          {/* Enhanced Albums Section */}
+          {/* New Albums & Singles Section */}
           <motion.section variants={itemVariants} className="mb-8">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-6">
               <motion.h2
                 whileHover={{ scale: 1.02 }}
-                className="text-xl font-bold flex items-center space-x-2"
+                className="text-2xl font-bold text-white"
               >
-                <TrendingUp className="w-5 h-5 text-neon-green" />
-                <span>Featured Albums</span>
+                New albums & singles
               </motion.h2>
-              <div className="flex space-x-2">
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="p-2 bg-black rounded-full transition-all duration-300 hover:shadow-lg relative"
-                  style={{
-                    boxShadow: `
-                      0 0 0 1px rgba(236, 72, 153, 0.6),
-                      inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                    `,
-                  }}
-                >
-                  <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center">
-                    <ChevronLeft className="w-3 h-3 text-white" />
-                  </div>
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="p-2 bg-black rounded-full transition-all duration-300 hover:shadow-lg relative"
-                  style={{
-                    boxShadow: `
-                      0 0 0 1px rgba(236, 72, 153, 0.6),
-                      inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                    `,
-                  }}
-                >
-                  <div className="w-6 h-6 bg-black rounded-full flex items-center justify-center">
-                    <ChevronRight className="w-3 h-3 text-white" />
-                  </div>
-                </motion.button>
-              </div>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                className="text-gray-400 hover:text-white text-sm font-medium transition-colors"
+              >
+                Show all
+              </motion.button>
             </div>
 
             <div className="flex space-x-4 overflow-x-auto scrollbar-hide pb-4">
@@ -1041,27 +1014,17 @@ export default function Home() {
                   key={album.id}
                   initial={{ opacity: 0, x: 50 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.5 + index * 0.1 }}
-                  whileHover={{
-                    scale: 1.05,
-                    y: -5,
-                    transition: { type: "spring", stiffness: 400, damping: 25 },
-                  }}
+                  transition={{ delay: 0.6 + index * 0.1 }}
+                  whileHover={{ y: -4 }}
                   onHoverStart={() => setHoveredAlbum(album.id)}
                   onHoverEnd={() => setHoveredAlbum(null)}
-                  className="flex-shrink-0 w-32 sm:w-36 bg-black rounded-lg p-3 hover:bg-gray-900 transition-all cursor-pointer group relative overflow-hidden"
-                  style={{
-                    boxShadow: `
-                      0 0 0 1px rgba(236, 72, 153, 0.6),
-                      inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                    `,
-                  }}
+                  className="flex-shrink-0 w-44 cursor-pointer group"
                 >
                   <div className="relative mb-3">
                     <motion.img
                       src={album.coverImageURL}
                       alt={album.name}
-                      className="w-24 h-24 rounded-lg object-cover shadow-md"
+                      className="w-full h-44 rounded-lg object-cover"
                       whileHover={{ scale: 1.05 }}
                       transition={{
                         type: "spring",
@@ -1070,33 +1033,118 @@ export default function Home() {
                       }}
                     />
                     {album.isNew && (
-                      <div className="absolute top-1 left-1 bg-neon-green text-black px-1.5 py-0.5 rounded text-xs font-bold">
+                      <div className="absolute top-3 left-3 bg-green-500 text-white px-2 py-1 rounded text-xs font-medium">
                         NEW
                       </div>
                     )}
-                    <AnimatePresence>
-                      {hoveredAlbum === album.id && (
-                        <motion.button
-                          initial={{ opacity: 0, scale: 0.5, y: 10 }}
-                          animate={{ opacity: 1, scale: 1, y: 0 }}
-                          exit={{ opacity: 0, scale: 0.5, y: 10 }}
-                          transition={{
-                            type: "spring",
-                            stiffness: 400,
-                            damping: 25,
-                          }}
-                          className="absolute bottom-2 right-2 w-8 h-8 bg-primary hover:bg-primary/90 rounded-full flex items-center justify-center shadow-lg transition-all"
-                        >
-                          <Play className="w-4 h-4 text-white ml-0.5" />
-                        </motion.button>
-                      )}
-                    </AnimatePresence>
+                    <motion.button
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      whileHover={{ opacity: 1, scale: 1 }}
+                      className="absolute bottom-3 right-3 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg transition-all group-hover:opacity-100 opacity-0"
+                    >
+                      <Play className="w-5 h-5 text-black ml-0.5" />
+                    </motion.button>
                   </div>
-                  <h3 className="font-medium text-sm mb-1 truncate leading-tight">
+                  <h3 className="font-medium text-white text-sm mb-1 truncate leading-tight">
                     {album.name}
                   </h3>
-                  <p className="text-gray-400 dark:text-gray-400 light:text-gray-600 text-xs truncate leading-tight">
-                    {album.artist}
+                  <p className="text-gray-400 text-xs truncate leading-tight">
+                    Album • {album.artist} • 2024
+                  </p>
+                </motion.div>
+              ))}
+            </div>
+          </motion.section>
+
+          {/* Trending Music Section */}
+          <motion.section variants={itemVariants} className="mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <motion.h2
+                whileHover={{ scale: 1.02 }}
+                className="text-2xl font-bold text-white"
+              >
+                Trending music
+              </motion.h2>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                className="text-gray-400 hover:text-white text-sm font-medium transition-colors"
+              >
+                Show all
+              </motion.button>
+            </div>
+
+            <div className="flex space-x-4 overflow-x-auto scrollbar-hide pb-4">
+              {[
+                {
+                  id: "trending1",
+                  title: "Flowers",
+                  artist: "Miley Cyrus",
+                  coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
+                  trend: "↗ #1 in trending"
+                },
+                {
+                  id: "trending2",
+                  title: "Kill Bill",
+                  artist: "SZA",
+                  coverImageURL: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
+                  trend: "↗ #2 in trending"
+                },
+                {
+                  id: "trending3",
+                  title: "Anti-Hero",
+                  artist: "Taylor Swift",
+                  coverImageURL: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=200&h=200&fit=crop",
+                  trend: "↗ #3 in trending"
+                },
+                {
+                  id: "trending4",
+                  title: "Unholy",
+                  artist: "Sam Smith, Kim Petras",
+                  coverImageURL: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=200&h=200&fit=crop",
+                  trend: "↗ #4 in trending"
+                },
+                {
+                  id: "trending5",
+                  title: "Creepin'",
+                  artist: "Metro Boomin, The Weeknd, 21 Savage",
+                  coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
+                  trend: "↗ #5 in trending"
+                }
+              ].map((track, index) => (
+                <motion.div
+                  key={track.id}
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.7 + index * 0.1 }}
+                  whileHover={{ y: -4 }}
+                  className="flex-shrink-0 w-44 cursor-pointer group"
+                >
+                  <div className="relative mb-3">
+                    <motion.img
+                      whileHover={{ scale: 1.05 }}
+                      src={track.coverImageURL}
+                      alt={track.title}
+                      className="w-full h-44 rounded-lg object-cover"
+                    />
+                    <div className="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
+                      🔥 TRENDING
+                    </div>
+                    <motion.button
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      whileHover={{ opacity: 1, scale: 1 }}
+                      className="absolute bottom-3 right-3 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg transition-all group-hover:opacity-100 opacity-0"
+                    >
+                      <Play className="w-5 h-5 text-black ml-0.5" />
+                    </motion.button>
+                  </div>
+                  <h3 className="font-medium text-white text-sm mb-1 truncate leading-tight">
+                    {track.title}
+                  </h3>
+                  <p className="text-gray-400 text-xs truncate leading-tight mb-1">
+                    Song • {track.artist}
+                  </p>
+                  <p className="text-green-400 text-xs font-medium">
+                    {track.trend}
                   </p>
                 </motion.div>
               ))}
