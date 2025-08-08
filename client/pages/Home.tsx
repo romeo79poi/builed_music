@@ -895,45 +895,97 @@ export default function Home() {
             </div>
           </motion.section>
 
-          {/* Mood-Based Playlists */}
+          {/* YouTube Music-like Made for You Section */}
           <motion.section variants={itemVariants} className="mb-8">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-6">
               <motion.h2
                 whileHover={{ scale: 1.02 }}
-                className="text-xl font-bold flex items-center space-x-2"
+                className="text-2xl font-bold text-white"
               >
-                <Heart className="w-5 h-5 text-purple-secondary" />
-                <span>Playlists for You</span>
+                Made for you
               </motion.h2>
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                className="text-gray-400 hover:text-white text-sm font-medium transition-colors"
+              >
+                Show all
+              </motion.button>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              {moodPlaylists.map((playlist, index) => (
+            <div className="flex space-x-4 overflow-x-auto scrollbar-hide pb-4">
+              {[
+                {
+                  id: "discover1",
+                  title: "Discover Weekly",
+                  description: "Your weekly mixtape of fresh music",
+                  coverImageURL: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=200&h=200&fit=crop",
+                  gradient: "from-purple-600 to-purple-800"
+                },
+                {
+                  id: "discover2",
+                  title: "Release Radar",
+                  description: "New music from artists you follow",
+                  coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
+                  gradient: "from-green-600 to-green-800"
+                },
+                {
+                  id: "discover3",
+                  title: "Daily Mix 1",
+                  description: "Harry Styles, The Weeknd, Dua Lipa and more",
+                  coverImageURL: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
+                  gradient: "from-blue-600 to-blue-800"
+                },
+                {
+                  id: "discover4",
+                  title: "Daily Mix 2",
+                  description: "Olivia Rodrigo, Taylor Swift, Billie Eilish and more",
+                  coverImageURL: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=200&h=200&fit=crop",
+                  gradient: "from-pink-600 to-pink-800"
+                },
+                {
+                  id: "discover5",
+                  title: "Liked Songs",
+                  description: "Your favorite tracks all in one place",
+                  coverImageURL: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=200&h=200&fit=crop",
+                  gradient: "from-purple-600 to-pink-600",
+                  isLiked: true
+                }
+              ].map((playlist, index) => (
                 <motion.div
                   key={playlist.id}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: 0.4 + index * 0.1 }}
-                  whileHover={{ scale: 1.02 }}
-                  className="relative bg-black rounded-lg p-4 h-24 cursor-pointer overflow-hidden"
-                  style={{
-                    boxShadow: `
-                      0 0 0 1px rgba(236, 72, 153, 0.6),
-                      inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                    `,
-                  }}
+                  initial={{ opacity: 0, x: 50 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: 0.5 + index * 0.1 }}
+                  whileHover={{ y: -4 }}
+                  className="flex-shrink-0 w-44 cursor-pointer group"
                 >
-                  <div className="relative z-10">
-                    <h3 className="font-bold text-white text-sm mb-1">
-                      {playlist.name}
-                    </h3>
-                    <p className="text-white/80 text-xs">
-                      {playlist.description}
-                    </p>
+                  <div className="relative mb-3">
+                    <div className={`absolute inset-0 bg-gradient-to-br ${playlist.gradient} rounded-lg opacity-80`}></div>
+                    <motion.img
+                      whileHover={{ scale: 1.05 }}
+                      src={playlist.coverImageURL}
+                      alt={playlist.title}
+                      className="w-full h-44 object-cover rounded-lg relative z-10 mix-blend-overlay"
+                    />
+                    {playlist.isLiked && (
+                      <div className="absolute top-3 left-3 z-20">
+                        <Heart className="w-8 h-8 text-white fill-current" />
+                      </div>
+                    )}
+                    <motion.button
+                      initial={{ opacity: 0, scale: 0.8 }}
+                      whileHover={{ opacity: 1, scale: 1 }}
+                      className="absolute bottom-3 right-3 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center shadow-lg transition-all group-hover:opacity-100 opacity-0 z-20"
+                    >
+                      <Play className="w-5 h-5 text-black ml-0.5" />
+                    </motion.button>
                   </div>
-                  <div className="absolute top-2 right-2 w-8 h-8 bg-white/20 rounded-lg flex items-center justify-center">
-                    <Music className="w-4 h-4 text-white" />
-                  </div>
+                  <h3 className="font-medium text-white text-sm mb-1 truncate leading-tight">
+                    {playlist.title}
+                  </h3>
+                  <p className="text-gray-400 text-xs leading-tight line-clamp-2">
+                    {playlist.description}
+                  </p>
                 </motion.div>
               ))}
             </div>
