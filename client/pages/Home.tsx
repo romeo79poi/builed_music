@@ -1710,7 +1710,29 @@ export default function Home() {
                       whileHover={{ scale: 1.05 }}
                       src={track.coverImageURL}
                       alt={track.title}
-                      className="w-full h-44 rounded-lg object-cover"
+                      className="w-full h-44 rounded-lg object-cover cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const enhancedSong = {
+                          id: track.id,
+                          title: track.title,
+                          artist: track.artist,
+                          album: "Trending Hits",
+                          coverImageURL: track.coverImageURL,
+                          duration: 180,
+                          url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${Math.floor(Math.random() * 5) + 1}.mp3`,
+                          genre: "Pop",
+                          year: 2024,
+                          explicit: false,
+                        };
+                        enhancedMusic.playSong(enhancedSong);
+                        navigate("/player");
+
+                        toast({
+                          title: "🔥 Now Playing",
+                          description: `${track.title} by ${track.artist} (Trending)`,
+                        });
+                      }}
                     />
                     <div className="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
                       🔥 TRENDING
