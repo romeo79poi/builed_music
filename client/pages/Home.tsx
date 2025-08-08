@@ -686,49 +686,55 @@ export default function Home() {
                   title: "Blinding Lights",
                   artist: "The Weeknd",
                   type: "song",
-                  coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
-                  duration: "3:20"
+                  coverImageURL:
+                    "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
+                  duration: "3:20",
                 },
                 {
                   id: "recent2",
                   title: "After Hours",
                   artist: "The Weeknd",
                   type: "album",
-                  coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
-                  year: "2020"
+                  coverImageURL:
+                    "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
+                  year: "2020",
                 },
                 {
                   id: "recent3",
                   title: "Watermelon Sugar",
                   artist: "Harry Styles",
                   type: "song",
-                  coverImageURL: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
-                  duration: "2:54"
+                  coverImageURL:
+                    "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
+                  duration: "2:54",
                 },
                 {
                   id: "recent4",
                   title: "Chill Vibes",
                   artist: "Various Artists",
                   type: "playlist",
-                  coverImageURL: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=200&h=200&fit=crop",
-                  tracks: "45 songs"
+                  coverImageURL:
+                    "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=200&h=200&fit=crop",
+                  tracks: "45 songs",
                 },
                 {
                   id: "recent5",
                   title: "Good 4 U",
                   artist: "Olivia Rodrigo",
                   type: "song",
-                  coverImageURL: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=200&h=200&fit=crop",
-                  duration: "2:58"
+                  coverImageURL:
+                    "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=200&h=200&fit=crop",
+                  duration: "2:58",
                 },
                 {
                   id: "recent6",
                   title: "Harry Styles",
                   artist: "2.1M subscribers",
                   type: "artist",
-                  coverImageURL: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop&crop=face",
-                  verified: true
-                }
+                  coverImageURL:
+                    "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop&crop=face",
+                  verified: true,
+                },
               ].map((item, index) => (
                 <motion.div
                   key={item.id}
@@ -743,7 +749,7 @@ export default function Home() {
                       whileHover={{ scale: 1.05 }}
                       src={item.coverImageURL}
                       alt={item.title}
-                      className={`w-full h-44 object-cover ${item.type === 'artist' ? 'rounded-full' : 'rounded-lg'}`}
+                      className={`w-full h-44 object-cover ${item.type === "artist" ? "rounded-full" : "rounded-lg"}`}
                     />
                     <motion.button
                       initial={{ opacity: 0, scale: 0.8 }}
@@ -752,12 +758,12 @@ export default function Home() {
                     >
                       <Play className="w-5 h-5 text-black ml-0.5" />
                     </motion.button>
-                    {item.type === 'album' && (
+                    {item.type === "album" && (
                       <div className="absolute top-3 left-3 bg-black/70 text-white px-2 py-1 rounded text-xs">
                         Album
                       </div>
                     )}
-                    {item.type === 'playlist' && (
+                    {item.type === "playlist" && (
                       <div className="absolute top-3 left-3 bg-black/70 text-white px-2 py-1 rounded text-xs">
                         Playlist
                       </div>
@@ -768,10 +774,13 @@ export default function Home() {
                   </h3>
                   <div className="flex items-center space-x-1">
                     <p className="text-gray-400 text-xs truncate leading-tight">
-                      {item.type === 'song' ? `Song • ${item.artist}` :
-                       item.type === 'album' ? `Album • ${item.artist} • ${item.year}` :
-                       item.type === 'playlist' ? `Playlist • ${item.tracks}` :
-                       `Artist • ${item.artist}`}
+                      {item.type === "song"
+                        ? `Song • ${item.artist}`
+                        : item.type === "album"
+                          ? `Album • ${item.artist} • ${item.year}`
+                          : item.type === "playlist"
+                            ? `Playlist • ${item.tracks}`
+                            : `Artist • ${item.artist}`}
                     </p>
                     {item.verified && (
                       <div className="w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center">
@@ -807,50 +816,56 @@ export default function Home() {
                   id: "quick1",
                   title: "As It Was",
                   artist: "Harry Styles",
-                  coverImageURL: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop",
+                  coverImageURL:
+                    "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop",
                   duration: "2:47",
-                  plays: "1.2B"
+                  plays: "1.2B",
                 },
                 {
                   id: "quick2",
                   title: "Heat Waves",
                   artist: "Glass Animals",
-                  coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100&h=100&fit=crop",
+                  coverImageURL:
+                    "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100&h=100&fit=crop",
                   duration: "3:58",
-                  plays: "2.1B"
+                  plays: "2.1B",
                 },
                 {
                   id: "quick3",
                   title: "Stay",
                   artist: "The Kid LAROI, Justin Bieber",
-                  coverImageURL: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=100&h=100&fit=crop",
+                  coverImageURL:
+                    "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=100&h=100&fit=crop",
                   duration: "2:21",
-                  plays: "1.8B"
+                  plays: "1.8B",
                 },
                 {
                   id: "quick4",
                   title: "Industry Baby",
                   artist: "Lil Nas X, Jack Harlow",
-                  coverImageURL: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=100&h=100&fit=crop",
+                  coverImageURL:
+                    "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=100&h=100&fit=crop",
                   duration: "3:32",
-                  plays: "1.4B"
+                  plays: "1.4B",
                 },
                 {
                   id: "quick5",
                   title: "Good 4 U",
                   artist: "Olivia Rodrigo",
-                  coverImageURL: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=100&h=100&fit=crop",
+                  coverImageURL:
+                    "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=100&h=100&fit=crop",
                   duration: "2:58",
-                  plays: "1.1B"
+                  plays: "1.1B",
                 },
                 {
                   id: "quick6",
                   title: "Levitating",
                   artist: "Dua Lipa",
-                  coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100&h=100&fit=crop",
+                  coverImageURL:
+                    "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=100&h=100&fit=crop",
                   duration: "3:23",
-                  plays: "1.5B"
-                }
+                  plays: "1.5B",
+                },
               ].map((song, index) => (
                 <motion.div
                   key={song.id}
@@ -880,9 +895,7 @@ export default function Home() {
                   <p className="text-gray-400 text-xs truncate">
                     {song.artist} • {song.plays} plays
                   </p>
-                  <div className="text-gray-400 text-xs">
-                    {song.duration}
-                  </div>
+                  <div className="text-gray-400 text-xs">{song.duration}</div>
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
@@ -918,38 +931,44 @@ export default function Home() {
                   id: "discover1",
                   title: "Discover Weekly",
                   description: "Your weekly mixtape of fresh music",
-                  coverImageURL: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=200&h=200&fit=crop",
-                  gradient: "from-purple-600 to-purple-800"
+                  coverImageURL:
+                    "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=200&h=200&fit=crop",
+                  gradient: "from-purple-600 to-purple-800",
                 },
                 {
                   id: "discover2",
                   title: "Release Radar",
                   description: "New music from artists you follow",
-                  coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
-                  gradient: "from-green-600 to-green-800"
+                  coverImageURL:
+                    "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
+                  gradient: "from-green-600 to-green-800",
                 },
                 {
                   id: "discover3",
                   title: "Daily Mix 1",
                   description: "Harry Styles, The Weeknd, Dua Lipa and more",
-                  coverImageURL: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
-                  gradient: "from-blue-600 to-blue-800"
+                  coverImageURL:
+                    "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
+                  gradient: "from-blue-600 to-blue-800",
                 },
                 {
                   id: "discover4",
                   title: "Daily Mix 2",
-                  description: "Olivia Rodrigo, Taylor Swift, Billie Eilish and more",
-                  coverImageURL: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=200&h=200&fit=crop",
-                  gradient: "from-pink-600 to-pink-800"
+                  description:
+                    "Olivia Rodrigo, Taylor Swift, Billie Eilish and more",
+                  coverImageURL:
+                    "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=200&h=200&fit=crop",
+                  gradient: "from-pink-600 to-pink-800",
                 },
                 {
                   id: "discover5",
                   title: "Liked Songs",
                   description: "Your favorite tracks all in one place",
-                  coverImageURL: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=200&h=200&fit=crop",
+                  coverImageURL:
+                    "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=200&h=200&fit=crop",
                   gradient: "from-purple-600 to-pink-600",
-                  isLiked: true
-                }
+                  isLiked: true,
+                },
               ].map((playlist, index) => (
                 <motion.div
                   key={playlist.id}
@@ -960,7 +979,9 @@ export default function Home() {
                   className="flex-shrink-0 w-44 cursor-pointer group"
                 >
                   <div className="relative mb-3">
-                    <div className={`absolute inset-0 bg-gradient-to-br ${playlist.gradient} rounded-lg opacity-80`}></div>
+                    <div
+                      className={`absolute inset-0 bg-gradient-to-br ${playlist.gradient} rounded-lg opacity-80`}
+                    ></div>
                     <motion.img
                       whileHover={{ scale: 1.05 }}
                       src={playlist.coverImageURL}
@@ -1079,37 +1100,42 @@ export default function Home() {
                   id: "trending1",
                   title: "Flowers",
                   artist: "Miley Cyrus",
-                  coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
-                  trend: "↗ #1 in trending"
+                  coverImageURL:
+                    "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
+                  trend: "↗ #1 in trending",
                 },
                 {
                   id: "trending2",
                   title: "Kill Bill",
                   artist: "SZA",
-                  coverImageURL: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
-                  trend: "↗ #2 in trending"
+                  coverImageURL:
+                    "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
+                  trend: "↗ #2 in trending",
                 },
                 {
                   id: "trending3",
                   title: "Anti-Hero",
                   artist: "Taylor Swift",
-                  coverImageURL: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=200&h=200&fit=crop",
-                  trend: "↗ #3 in trending"
+                  coverImageURL:
+                    "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=200&h=200&fit=crop",
+                  trend: "↗ #3 in trending",
                 },
                 {
                   id: "trending4",
                   title: "Unholy",
                   artist: "Sam Smith, Kim Petras",
-                  coverImageURL: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=200&h=200&fit=crop",
-                  trend: "↗ #4 in trending"
+                  coverImageURL:
+                    "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=200&h=200&fit=crop",
+                  trend: "↗ #4 in trending",
                 },
                 {
                   id: "trending5",
                   title: "Creepin'",
                   artist: "Metro Boomin, The Weeknd, 21 Savage",
-                  coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
-                  trend: "↗ #5 in trending"
-                }
+                  coverImageURL:
+                    "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
+                  trend: "↗ #5 in trending",
+                },
               ].map((track, index) => (
                 <motion.div
                   key={track.id}
