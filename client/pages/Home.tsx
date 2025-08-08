@@ -9,12 +9,14 @@ import {
   MessageCircle,
   Heart,
   MoreHorizontal,
+  MoreVertical,
   ChevronLeft,
   ChevronRight,
   Sparkles,
   TrendingUp,
   Music,
   Star,
+  Check,
 } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useToast } from "../hooks/use-toast";
