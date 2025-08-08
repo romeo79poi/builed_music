@@ -946,7 +946,7 @@ export default function Home() {
                               <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
                               <span className="font-semibold">{song.views} views today</span>
                             </div>
-                            <span>•</span>
+                            <span>��</span>
                             <span>{song.playCount} total plays</span>
                           </div>
                         </div>
@@ -1212,6 +1212,22 @@ export default function Home() {
                     <motion.button
                       initial={{ opacity: 0, scale: 0.8 }}
                       whileHover={{ opacity: 1, scale: 1 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const enhancedSong = {
+                          id: song.id,
+                          title: song.title,
+                          artist: song.artist,
+                          album: "Top Hits",
+                          coverImageURL: song.coverImageURL,
+                          duration: 180,
+                          url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${Math.floor(Math.random() * 5) + 1}.mp3`,
+                          genre: "Pop",
+                          year: 2024,
+                          explicit: false,
+                        };
+                        enhancedMusic.playSong(enhancedSong);
+                      }}
                       className="absolute inset-0 bg-black/50 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
                     >
                       <Play className="w-4 h-4 text-white ml-0.5" />
