@@ -874,14 +874,12 @@ export default function Home() {
                       <Play className="w-4 h-4 text-white ml-0.5" />
                     </motion.button>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="font-medium text-white text-sm truncate">
-                      {song.title}
-                    </h3>
-                    <p className="text-gray-400 text-xs truncate">
-                      {song.artist} • {song.plays} plays
-                    </p>
+                  <div className="flex-1 min-w-0 font-medium text-white text-sm truncate">
+                    {song.title}
                   </div>
+                  <p className="text-gray-400 text-xs truncate">
+                    {song.artist} • {song.plays} plays
+                  </p>
                   <div className="text-gray-400 text-xs">
                     {song.duration}
                   </div>
