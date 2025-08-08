@@ -1495,9 +1495,10 @@ export default function Signup() {
                     </div>
                     <button
                       onClick={() => {
-                        setIsLoading(false);
+                        setIsGoogleLoading(false);
+                        setIsFacebookLoading(false);
                         setErrorAlert(
-                          "Google sign-in cancelled. Please try again or use email signup.",
+                          "Social sign-in cancelled. Please try again or use email signup.",
                         );
                       }}
                       className="text-yellow-500 hover:text-yellow-400 text-xs bg-yellow-500/20 px-2 py-1 rounded"
