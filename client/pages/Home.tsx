@@ -359,6 +359,8 @@ export default function Home() {
     unlikeSong,
   } = useMusic();
 
+  const enhancedMusic = useEnhancedMusic();
+
   const [hoveredAlbum, setHoveredAlbum] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isSearchFocused, setIsSearchFocused] = useState(false);
