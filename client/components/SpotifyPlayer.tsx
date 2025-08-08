@@ -13,7 +13,7 @@ import {
   VolumeX,
   Volume1,
   Mic2,
-  Queue,
+  ListMusic,
   Maximize2,
   Minimize2,
   ChevronDown,
@@ -618,7 +618,7 @@ export default function SpotifyPlayer({
                   : "text-gray-400 hover:text-white"
               }`}
             >
-              <Queue className="w-5 h-5" />
+              <ListMusic className="w-5 h-5" />
             </motion.button>
 
             <motion.button
