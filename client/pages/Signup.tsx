@@ -1486,7 +1486,7 @@ export default function Signup() {
                       <Loader2 className="w-5 h-5 text-yellow-500 mr-3 animate-spin" />
                       <div>
                         <p className="text-yellow-500 text-sm font-medium">
-                          Google sign-in in progress...
+                          {isGoogleLoading ? "Google" : "Facebook"} sign-in in progress...
                         </p>
                         <p className="text-yellow-400 text-xs">
                           If this takes too long, try the reset button
