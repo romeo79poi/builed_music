@@ -27,6 +27,7 @@ import { api } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
 import { useFirebase } from "../context/FirebaseContext";
 import { useMusic } from "../context/MusicContextSupabase";
+import { useEnhancedMusic, type Song } from "../context/EnhancedMusicContext";
 import { userDataService, EnhancedUserData } from "../lib/user-data-service";
 
 // Top 10 Most Viewed Songs Today
