@@ -1,6 +1,13 @@
 // High-performance audio engine using WebAssembly
 // Integrates C++ audio processing for ultra-fast performance
 
+declare global {
+  interface Window {
+    FastAudioModule: any;
+    FastAudioModuleInit: () => Promise<any>;
+  }
+}
+
 export interface AudioProcessorModule {
   AudioProcessor: new () => AudioProcessor;
   StreamOptimizer: new () => StreamOptimizer;
