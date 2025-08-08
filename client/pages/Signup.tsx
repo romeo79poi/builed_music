@@ -627,7 +627,7 @@ export default function Signup() {
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setIsFacebookLoading(false);
     }
   };
 
