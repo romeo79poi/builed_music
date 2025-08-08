@@ -610,6 +610,7 @@ export default function Home() {
     };
 
     enhancedMusic.playSong(enhancedSong, samplePlaylist, 0);
+    navigate("/player");
   };
 
   return (
