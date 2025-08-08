@@ -788,30 +788,6 @@ export default function EditAccount() {
                             />
                           </div>
                         </div>
-                        <div className="md:col-span-2">
-                          <label className="block text-sm font-medium text-gray-300 mb-2">
-                            Website
-                          </label>
-                          <div className="relative">
-                            <Globe className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                            <input
-                              type="url"
-                              value={accountData?.website || ""}
-                              onChange={(e) =>
-                                setAccountData((prev) =>
-                                  prev
-                                    ? {
-                                        ...prev,
-                                        website: e.target.value,
-                                      }
-                                    : null,
-                                )
-                              }
-                              className="w-full pl-10 pr-4 py-3 bg-purple-dark/50 border border-purple-primary/30 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:border-purple-primary/60"
-                              placeholder="https://"
-                            />
-                          </div>
-                        </div>
                       </div>
                       <div className="flex space-x-3">
                         <motion.button
