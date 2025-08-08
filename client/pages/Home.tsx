@@ -708,7 +708,6 @@ export default function Home() {
                 whileHover={{ scale: 1.02 }}
                 className="text-2xl font-bold text-white flex items-center space-x-2"
               >
-                <TrendingUp className="w-6 h-6 text-yellow-500" />
                 <span>Top 10 Today</span>
                 <motion.span
                   animate={{ scale: [1, 1.1, 1] }}
@@ -896,57 +895,6 @@ export default function Home() {
               </motion.div>
             </div>
 
-            {/* Top 10 Quick View */}
-            <div className="mt-6 grid grid-cols-2 sm:grid-cols-5 gap-3">
-              {top10Today.slice(0, 10).map((song, index) => (
-                <motion.div
-                  key={song.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.1 * index }}
-                  whileHover={{ y: -5, scale: 1.05 }}
-                  onClick={() => setCurrentSlideIndex(index)}
-                  className={`relative cursor-pointer group ${
-                    currentSlideIndex === index
-                      ? 'ring-2 ring-purple-primary ring-offset-2 ring-offset-black'
-                      : ''
-                  }`}
-                >
-                  <div className="relative overflow-hidden rounded-lg">
-                    <img
-                      src={song.coverImageURL}
-                      alt={song.title}
-                      className="w-full aspect-square object-cover transition-transform group-hover:scale-110"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-                    <div className="absolute top-2 left-2">
-                      <div className="bg-yellow-500 text-black w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">
-                        #{song.rank}
-                      </div>
-                    </div>
-                    {song.isRising && (
-                      <div className="absolute top-2 right-2">
-                        <motion.div
-                          animate={{ y: [-2, 2, -2] }}
-                          transition={{ duration: 1, repeat: Infinity }}
-                          className="bg-green-500 p-1 rounded-full"
-                        >
-                          <TrendingUp className="w-3 h-3 text-white" />
-                        </motion.div>
-                      </div>
-                    )}
-                    <div className="absolute bottom-2 left-2 right-2">
-                      <h4 className="text-white text-xs font-semibold truncate">
-                        {song.title}
-                      </h4>
-                      <p className="text-gray-300 text-xs truncate">
-                        {song.artist}
-                      </p>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
           </motion.section>
 
           <section />
