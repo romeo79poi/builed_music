@@ -116,10 +116,22 @@ const mockSupabase = {
 // User registration endpoint
 export const registerUser: RequestHandler = async (req, res) => {
   try {
-    const { email, username, name, password, provider = "email" } = req.body;
+    const {
+      email,
+      username,
+      name,
+      password,
+      provider = "email",
+      dateOfBirth,
+      gender,
+      bio,
+      profileImageURL,
+      id,
+      socialSignup
+    } = req.body;
 
     // Validation
-    if (!email || !username || !password) {
+    if (!email || !username || (!password && !socialSignup)) {
       return res.status(400).json({
         success: false,
         message: "Email, username, and password are required",
@@ -135,44 +147,62 @@ export const registerUser: RequestHandler = async (req, res) => {
       });
     }
 
-    // Password validation
-    if (password.length < 8) {
+    // Password validation (skip for social signups)
+    if (!socialSignup && password && password.length < 8) {
       return res.status(400).json({
         success: false,
         message: "Password must be at least 8 characters long",
       });
     }
 
-    // Check if user already exists
-    const { data: existingUserByEmail } =
-      await mockSupabase.getUserByEmail(email);
-    if (existingUserByEmail) {
-      return res.status(400).json({
-        success: false,
-        message: "Email already registered",
-      });
+    // Check if user already exists (skip for social signups with provided ID)
+    if (!socialSignup || !id) {
+      const { data: existingUserByEmail } =
+        await mockSupabase.getUserByEmail(email);
+      if (existingUserByEmail) {
+        return res.status(400).json({
+          success: false,
+          message: "Email already registered",
+        });
+      }
+
+      const { data: existingUserByUsername } =
+        await mockSupabase.getUserByUsername(username);
+      if (existingUserByUsername) {
+        return res.status(400).json({
+          success: false,
+          message: "Username already taken",
+        });
+      }
+    } else {
+      // For social signups, check if user with this ID already exists
+      const existingUser = profileUsers.get(id);
+      if (existingUser) {
+        return res.json({
+          success: true,
+          message: "User already exists",
+          user: existingUser,
+        });
+      }
     }
 
-    const { data: existingUserByUsername } =
-      await mockSupabase.getUserByUsername(username);
-    if (existingUserByUsername) {
-      return res.status(400).json({
-        success: false,
-        message: "Username already taken",
-      });
-    }
-
-    // Hash password
-    const hashedPassword = await bcrypt.hash(password, 12);
+    // Hash password (use temp password for social signups)
+    const hashedPassword = password ? await bcrypt.hash(password, 12) : await bcrypt.hash("social_temp_password", 12);
 
     // Create new user
     const { data: newUser, error } = await mockSupabase.createUser({
+      id: id || undefined, // Use provided ID for social signups
       email,
       username,
       name,
       password: hashedPassword,
-      is_verified: provider === "google", // Google users are pre-verified
-      email_verified: provider === "google",
+      is_verified: provider === "google" || provider === "social" || socialSignup,
+      email_verified: provider === "google" || provider === "social" || socialSignup,
+      date_of_birth: dateOfBirth,
+      gender,
+      bio,
+      profile_image_url: profileImageURL,
+      provider,
     });
 
     if (error) {

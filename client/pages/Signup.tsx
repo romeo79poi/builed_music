@@ -123,6 +123,8 @@ export default function Signup() {
 
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isFacebookLoading, setIsFacebookLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [availability, setAvailability] = useState<{
@@ -525,7 +527,7 @@ export default function Signup() {
 
   // Google signup handler with Firebase
   const handleGoogleSignup = async () => {
-    setIsLoading(true);
+    setIsGoogleLoading(true);
     setErrorAlert(null);
 
     try {
@@ -553,8 +555,8 @@ export default function Signup() {
           description: `Please complete your profile setup`,
         });
 
-        // Redirect to DOB step to collect additional information
-        setCurrentStep("dob");
+        // Redirect to profile step to collect username, then DOB, gender, bio
+        setCurrentStep("profile");
       } else {
         setErrorAlert(result.error || "Google sign-in failed");
         toast({
@@ -572,13 +574,13 @@ export default function Signup() {
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setIsGoogleLoading(false);
     }
   };
 
   // Facebook signup handler with Firebase
   const handleFacebookSignup = async () => {
-    setIsLoading(true);
+    setIsFacebookLoading(true);
     setErrorAlert(null);
 
     try {
@@ -606,8 +608,8 @@ export default function Signup() {
           description: `Please complete your profile setup`,
         });
 
-        // Redirect to DOB step to collect additional information
-        setCurrentStep("dob");
+        // Redirect to profile step to collect username, then DOB, gender, bio
+        setCurrentStep("profile");
       } else {
         setErrorAlert(result.error || "Facebook sign-in failed");
         toast({
@@ -625,7 +627,7 @@ export default function Signup() {
         variant: "destructive",
       });
     } finally {
-      setIsLoading(false);
+      setIsFacebookLoading(false);
     }
   };
 
@@ -634,6 +636,8 @@ export default function Signup() {
     setSignupMethod(method);
     setErrorAlert(null); // Clear any errors when switching methods
     setIsLoading(false); // Reset loading state
+    setIsGoogleLoading(false); // Reset Google loading state
+    setIsFacebookLoading(false); // Reset Facebook loading state
 
     if (method === "email") {
       setCurrentStep("email");
@@ -740,7 +744,10 @@ export default function Signup() {
     setIsLoading(false);
 
     if (availability.username !== false) {
-      if (signupMethod === "phone") {
+      if (isSocialSignup) {
+        // For social signups, proceed to DOB step (skip password)
+        setCurrentStep("dob");
+      } else if (signupMethod === "phone") {
         // Complete phone signup
         await handlePasswordStep();
       } else {
@@ -1028,6 +1035,7 @@ export default function Signup() {
           uid: verificationUser.uid,
           email: formData.email,
           name: formData.name,
+          username: formData.username,
           profileImageURL: formData.profileImageURL,
           dateOfBirth: formData.dateOfBirth,
           gender: formData.gender,
@@ -1044,6 +1052,38 @@ export default function Signup() {
           title: "Profile completed successfully! 🎉",
           description: `Welcome to Music Catch, ${formData.name}!`,
         });
+
+        // Sync with backend API to create user in backend store
+        try {
+          const backendSyncResponse = await fetch("/api/auth/register", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              id: verificationUser.uid,
+              email: formData.email,
+              name: formData.name,
+              username: formData.username,
+              password: "social_signup_temp_password_" + Math.random().toString(36),
+              dateOfBirth: formData.dateOfBirth,
+              gender: formData.gender,
+              bio: formData.bio,
+              profileImageURL: formData.profileImageURL,
+              provider: "social",
+              socialSignup: true,
+            }),
+          });
+
+          if (backendSyncResponse.ok) {
+            const backendResult = await backendSyncResponse.json();
+            console.log("✅ Social signup data synced with backend:", backendResult);
+          } else {
+            console.warn("⚠️ Backend sync failed for social signup, continuing with Firebase-only data");
+          }
+        } catch (backendError) {
+          console.warn("⚠️ Backend sync error for social signup:", backendError);
+        }
 
         setTimeout(() => {
           navigate("/home");
@@ -1394,10 +1434,10 @@ export default function Signup() {
           >
             <button
               onClick={handleGoogleSignup}
-              disabled={isLoading}
+              disabled={isGoogleLoading || isFacebookLoading}
               className="w-full h-12 sm:h-14 bg-purple-dark/50 hover:bg-purple-dark/70 rounded-xl flex items-center justify-center text-white font-medium transition-all duration-200 border border-purple-primary/30 hover:border-purple-primary/50 disabled:opacity-50 hover:shadow-lg hover:shadow-purple-primary/20"
             >
-              {isLoading ? (
+              {isGoogleLoading ? (
                 <div className="flex items-center space-x-2">
                   <Loader2 className="w-5 h-5 animate-spin" />
                   <span>Connecting to Google...</span>
@@ -1429,10 +1469,10 @@ export default function Signup() {
 
             <button
               onClick={handleFacebookSignup}
-              disabled={isLoading}
+              disabled={isGoogleLoading || isFacebookLoading}
               className="w-full h-12 sm:h-14 bg-purple-dark/50 hover:bg-purple-dark/70 rounded-xl flex items-center justify-center text-white font-medium transition-all duration-200 border border-purple-secondary/30 hover:border-purple-secondary/50 disabled:opacity-50 hover:shadow-lg hover:shadow-purple-secondary/20"
             >
-              {isLoading ? (
+              {isFacebookLoading ? (
                 <div className="flex items-center space-x-2">
                   <Loader2 className="w-5 h-5 animate-spin" />
                   <span>Connecting to Facebook...</span>
@@ -1475,14 +1515,14 @@ export default function Signup() {
               </div>
 
               {/* Loading State Reset */}
-              {isLoading && (
+              {(isGoogleLoading || isFacebookLoading) && (
                 <div className="bg-yellow-500/10 border border-yellow-500 rounded-lg p-4 mb-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
                       <Loader2 className="w-5 h-5 text-yellow-500 mr-3 animate-spin" />
                       <div>
                         <p className="text-yellow-500 text-sm font-medium">
-                          Google sign-in in progress...
+                          {isGoogleLoading ? "Google" : "Facebook"} sign-in in progress...
                         </p>
                         <p className="text-yellow-400 text-xs">
                           If this takes too long, try the reset button
@@ -1491,9 +1531,10 @@ export default function Signup() {
                     </div>
                     <button
                       onClick={() => {
-                        setIsLoading(false);
+                        setIsGoogleLoading(false);
+                        setIsFacebookLoading(false);
                         setErrorAlert(
-                          "Google sign-in cancelled. Please try again or use email signup.",
+                          "Social sign-in cancelled. Please try again or use email signup.",
                         );
                       }}
                       className="text-yellow-500 hover:text-yellow-400 text-xs bg-yellow-500/20 px-2 py-1 rounded"

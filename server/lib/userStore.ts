@@ -26,11 +26,11 @@ export const syncUserData = (userId: string, authData: any, profileData?: any) =
       email: authData.email,
       username: authData.username,
       display_name: authData.name || authData.username,
-      profile_image_url: "",
-      bio: "New to Music Catch! 🎵",
-      country: "",
-      date_of_birth: "",
-      gender: "",
+      profile_image_url: authData.profile_image_url || "",
+      bio: authData.bio || "New to Music Catch! 🎵",
+      country: authData.country || "",
+      date_of_birth: authData.date_of_birth || "",
+      gender: authData.gender || "",
       is_verified: authData.is_verified || false,
       is_artist: false,
       is_active: true,
@@ -51,7 +51,7 @@ export const getUserByIdentifier = (identifier: string) => {
 
 // Function to create new user in both systems
 export const createUser = (userData: any) => {
-  const userId = `user${Date.now()}`;
+  const userId = userData.id || `user${Date.now()}`;
   const user = {
     id: userId,
     ...userData,
