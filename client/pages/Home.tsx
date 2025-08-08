@@ -1066,6 +1066,22 @@ export default function Home() {
                     <motion.button
                       initial={{ opacity: 0, scale: 0.8 }}
                       whileHover={{ opacity: 1, scale: 1 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const enhancedSong = {
+                          id: item.id,
+                          title: item.title,
+                          artist: item.artist,
+                          album: item.type === "album" ? item.title : "Single",
+                          coverImageURL: item.coverImageURL,
+                          duration: 180,
+                          url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${Math.floor(Math.random() * 5) + 1}.mp3`,
+                          genre: "Pop",
+                          year: 2024,
+                          explicit: false,
+                        };
+                        enhancedMusic.playSong(enhancedSong);
+                      }}
                       className="absolute bottom-3 right-3 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg transition-all group-hover:opacity-100 opacity-0"
                     >
                       <Play className="w-5 h-5 text-black ml-0.5" />
@@ -1430,7 +1446,7 @@ export default function Home() {
                   artist: "Taylor Swift",
                   coverImageURL:
                     "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=200&h=200&fit=crop",
-                  trend: "↗ #3 in trending",
+                  trend: "��� #3 in trending",
                 },
                 {
                   id: "trending4",
