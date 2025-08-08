@@ -385,26 +385,54 @@ export default function Settings() {
           }
         }
 
-        // If backend fetch fails or user doesn't exist, try to create/sync user
-        console.log("🔥 Creating/syncing user profile with backend...");
-        const syncResponse = await fetch("/api/v1/users/sync", {
+        // If backend fetch fails or user doesn't exist, try to create user
+        console.log("🔥 Creating user profile in backend...");
+        const createResponse = await fetch("/api/auth/register", {
           method: "POST",
           headers: {
-            "user-id": firebaseUser.uid,
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            firebase_uid: firebaseUser.uid,
+            id: firebaseUser.uid,
             email: firebaseUser.email,
-            display_name: firebaseUser.displayName,
-            profile_image_url: firebaseUser.photoURL,
-            email_verified: firebaseUser.emailVerified,
+            username: firebaseUser.email?.split("@")[0] || "user",
+            name: firebaseUser.displayName || firebaseUser.email?.split("@")[0] || "User",
+            password: "firebase_user_temp_password_" + Math.random().toString(36),
+            profileImageURL: firebaseUser.photoURL,
+            provider: "firebase",
+            socialSignup: true,
+            bio: "Music lover 🎵",
           }),
         });
 
-        if (syncResponse.ok) {
-          const syncResult = await syncResponse.json();
-          console.log("✅ User synced with backend:", syncResult);
+        if (createResponse.ok) {
+          const createResult = await createResponse.json();
+          console.log("✅ User created in backend:", createResult);
+
+          // Try to fetch the user data again after creation
+          const retryResponse = await fetch(`/api/v1/users/${firebaseUser.uid}`, {
+            headers: {
+              "user-id": firebaseUser.uid,
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (retryResponse.ok) {
+            const retryResult = await retryResponse.json();
+            if (retryResult.success && retryResult.data) {
+              const backendData = retryResult.data;
+              const enhancedProfile = {
+                ...firebaseProfile,
+                username: backendData.username || firebaseProfile.username,
+                bio: backendData.bio || firebaseProfile.bio,
+                dateOfBirth: backendData.date_of_birth || "",
+                gender: backendData.gender || "",
+              };
+              setUserProfile(enhancedProfile);
+              console.log("✅ Enhanced profile after backend creation:", enhancedProfile);
+              return;
+            }
+          }
         }
       } catch (error) {
         console.error(
