@@ -310,13 +310,14 @@ export default function Settings() {
         }
       }
 
-      // Enhanced Firebase user data
+      // Enhanced Firebase user data with complete profile fields
       const firebaseProfile = {
         name:
           firebaseUser.displayName ||
           firebaseUser.email?.split("@")[0] ||
           "User",
         email: firebaseUser.email || "No email",
+        username: firebaseUser.email?.split("@")[0] || "user", // Generate username from email
         profileImage:
           firebaseUser.photoURL ||
           `https://ui-avatars.io/api/?name=${encodeURIComponent(firebaseUser.displayName || firebaseUser.email?.split("@")[0] || "User")}&background=6366f1&color=fff&size=64`,
@@ -336,6 +337,11 @@ export default function Settings() {
         lastSignIn: firebaseUser.metadata.lastSignInTime
           ? new Date(firebaseUser.metadata.lastSignInTime).toLocaleDateString()
           : "Unknown",
+        // Additional fields for completeness
+        dateOfBirth: "",
+        gender: "",
+        bio: "Music lover 🎵",
+        phone: "",
       };
 
       // Set Firebase profile immediately for better UX
