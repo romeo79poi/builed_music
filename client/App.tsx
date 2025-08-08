@@ -52,7 +52,8 @@ const App = () => {
             <AuthProvider>
               <SocialProvider>
                 <MusicProvider>
-                  <ProfileProvider>
+                  <EnhancedMusicProvider>
+                    <ProfileProvider>
                     <Toaster />
                     <Sonner />
                     <BrowserRouter>
@@ -94,7 +95,8 @@ const App = () => {
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                     </BrowserRouter>
-                  </ProfileProvider>
+                    </ProfileProvider>
+                  </EnhancedMusicProvider>
                 </MusicProvider>
               </SocialProvider>
             </AuthProvider>
