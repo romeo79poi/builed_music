@@ -28,21 +28,109 @@ import { useFirebase } from "../context/FirebaseContext";
 import { useMusic } from "../context/MusicContextSupabase";
 import { userDataService, EnhancedUserData } from "../lib/user-data-service";
 
-// Featured Artist/Album of the Day
-const featuredContent = {
-  id: "featured-1",
-  type: "album",
-  title: "Midnight Memories",
-  artist: "One Direction",
-  description:
-    "The perfect soundtrack for late-night vibes and nostalgic moments.",
-  coverImageURL:
-    "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&h=400&fit=crop",
-  genre: "Pop",
-  releaseYear: "2013",
-  totalTracks: 18,
-  isNew: true,
-};
+// Top 10 Most Viewed Songs Today
+const top10Today = [
+  {
+    id: "top1",
+    title: "As It Was",
+    artist: "Harry Styles",
+    rank: 1,
+    views: "2.4M",
+    coverImageURL: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
+    isRising: true,
+    playCount: "142.8M",
+  },
+  {
+    id: "top2",
+    title: "Heat Waves",
+    artist: "Glass Animals",
+    rank: 2,
+    views: "2.1M",
+    coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
+    isRising: false,
+    playCount: "189.3M",
+  },
+  {
+    id: "top3",
+    title: "Stay",
+    artist: "The Kid LAROI, Justin Bieber",
+    rank: 3,
+    views: "1.9M",
+    coverImageURL: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=200&h=200&fit=crop",
+    isRising: true,
+    playCount: "156.7M",
+  },
+  {
+    id: "top4",
+    title: "Industry Baby",
+    artist: "Lil Nas X, Jack Harlow",
+    rank: 4,
+    views: "1.7M",
+    coverImageURL: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=200&h=200&fit=crop",
+    isRising: false,
+    playCount: "143.2M",
+  },
+  {
+    id: "top5",
+    title: "Good 4 U",
+    artist: "Olivia Rodrigo",
+    rank: 5,
+    views: "1.5M",
+    coverImageURL: "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=200&h=200&fit=crop",
+    isRising: true,
+    playCount: "134.9M",
+  },
+  {
+    id: "top6",
+    title: "Levitating",
+    artist: "Dua Lipa",
+    rank: 6,
+    views: "1.3M",
+    coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
+    isRising: false,
+    playCount: "128.5M",
+  },
+  {
+    id: "top7",
+    title: "Flowers",
+    artist: "Miley Cyrus",
+    rank: 7,
+    views: "1.2M",
+    coverImageURL: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
+    isRising: true,
+    playCount: "121.8M",
+  },
+  {
+    id: "top8",
+    title: "Anti-Hero",
+    artist: "Taylor Swift",
+    rank: 8,
+    views: "1.1M",
+    coverImageURL: "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=200&fit=crop",
+    isRising: false,
+    playCount: "118.4M",
+  },
+  {
+    id: "top9",
+    title: "Unholy",
+    artist: "Sam Smith, Kim Petras",
+    rank: 9,
+    views: "1.0M",
+    coverImageURL: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=200&h=200&fit=crop",
+    isRising: true,
+    playCount: "115.2M",
+  },
+  {
+    id: "top10",
+    title: "Creepin'",
+    artist: "Metro Boomin, The Weeknd, 21 Savage",
+    rank: 10,
+    views: "950K",
+    coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
+    isRising: false,
+    playCount: "112.7M",
+  },
+];
 
 // Sample data for the layout - will be replaced with API data
 let sampleAlbums = [
@@ -280,6 +368,21 @@ export default function Home() {
   const [albums, setAlbums] = useState<any[]>([]);
   const [tracks, setTracks] = useState<any[]>([]);
   const [apiDataLoaded, setApiDataLoaded] = useState(false);
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [isAutoSliding, setIsAutoSliding] = useState(true);
+
+  // Auto-slide effect for Top 10 Today
+  useEffect(() => {
+    if (!isAutoSliding) return;
+
+    const interval = setInterval(() => {
+      setCurrentSlideIndex((prevIndex) =>
+        prevIndex === top10Today.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 4000); // Change slide every 4 seconds
+
+    return () => clearInterval(interval);
+  }, [isAutoSliding]);
 
   // Update time for greeting
   useEffect(() => {
@@ -598,65 +701,252 @@ export default function Home() {
             </motion.p>
           </motion.div>
 
-          {/* Hero Section - Featured Content */}
-          <motion.section variants={itemVariants} className="mb-6">
-            <motion.div
-              whileHover={{ scale: 1.01 }}
-              className="relative bg-black rounded-lg p-4 overflow-hidden cursor-pointer"
-              style={{
-                boxShadow: `
-                  0 0 0 1px rgba(236, 72, 153, 0.6),
-                  inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                `,
-              }}
-              onClick={() => {
-                toast({
-                  title: "Playing Featured Album",
-                  description: `Now playing: ${featuredContent.title} by ${featuredContent.artist}`,
-                });
-              }}
-            >
-              <div className="relative z-10 flex flex-row items-center gap-4">
-                <div className="relative">
-                  <motion.img
-                    whileHover={{ scale: 1.05 }}
-                    src={featuredContent.coverImageURL}
-                    alt={featuredContent.title}
-                    className="w-24 h-24 rounded-xl object-cover shadow-lg shadow-purple-primary/30"
-                  />
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    className="absolute bottom-1 right-1 w-6 h-6 bg-white text-purple-primary rounded-full flex items-center justify-center shadow-lg transition-all"
-                  >
-                    <Play className="w-3 h-3 ml-0.5" />
-                  </motion.button>
+          {/* Top 10 Today - Sliding Section */}
+          <motion.section variants={itemVariants} className="mb-8">
+            <div className="flex items-center justify-between mb-6">
+              <motion.h2
+                whileHover={{ scale: 1.02 }}
+                className="text-2xl font-bold text-white flex items-center space-x-2"
+              >
+                <TrendingUp className="w-6 h-6 text-yellow-500" />
+                <span>Top 10 Today</span>
+                <motion.span
+                  animate={{ scale: [1, 1.1, 1] }}
+                  transition={{ duration: 2, repeat: Infinity }}
+                  className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold"
+                >
+                  LIVE
+                </motion.span>
+              </motion.h2>
+              <div className="flex items-center space-x-3">
+                <div className="flex space-x-1">
+                  {top10Today.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => {
+                        setCurrentSlideIndex(index);
+                        setIsAutoSliding(false);
+                        setTimeout(() => setIsAutoSliding(true), 10000);
+                      }}
+                      className={`w-2 h-2 rounded-full transition-all ${
+                        index === currentSlideIndex
+                          ? 'bg-purple-primary w-6'
+                          : 'bg-gray-600 hover:bg-gray-400'
+                      }`}
+                    />
+                  ))}
                 </div>
-
-                <div className="flex-1 min-w-0">
-                  {featuredContent.isNew && (
-                    <motion.span
-                      animate={{ scale: [1, 1.05, 1] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                      className="inline-block px-2 py-1 rounded-full text-xs font-bold mb-2 bg-gradient-to-r from-purple-primary to-purple-secondary text-white shadow-sm"
-                    >
-                      NEW
-                    </motion.span>
-                  )}
-                  <h3 className="text-lg sm:text-xl font-bold text-white mb-1 leading-tight truncate">
-                    {featuredContent.title}
-                  </h3>
-                  <p className="text-purple-accent text-sm font-medium mb-2 truncate">
-                    {featuredContent.artist}
-                  </p>
-                  <div className="flex items-center space-x-3 text-xs text-gray-300">
-                    <span>{featuredContent.genre}</span>
-                    <span>•</span>
-                    <span>{featuredContent.releaseYear}</span>
-                  </div>
-                </div>
+                <button
+                  onClick={() => {
+                    setCurrentSlideIndex(prev =>
+                      prev === 0 ? top10Today.length - 1 : prev - 1
+                    );
+                    setIsAutoSliding(false);
+                    setTimeout(() => setIsAutoSliding(true), 10000);
+                  }}
+                  className="p-2 bg-gray-800 hover:bg-gray-700 rounded-full transition-colors"
+                >
+                  <ChevronLeft className="w-4 h-4 text-white" />
+                </button>
+                <button
+                  onClick={() => {
+                    setCurrentSlideIndex(prev =>
+                      prev === top10Today.length - 1 ? 0 : prev + 1
+                    );
+                    setIsAutoSliding(false);
+                    setTimeout(() => setIsAutoSliding(true), 10000);
+                  }}
+                  className="p-2 bg-gray-800 hover:bg-gray-700 rounded-full transition-colors"
+                >
+                  <ChevronRight className="w-4 h-4 text-white" />
+                </button>
               </div>
-            </motion.div>
+            </div>
+
+            <div className="relative overflow-hidden rounded-lg">
+              <motion.div
+                animate={{
+                  x: `-${currentSlideIndex * 100}%`,
+                }}
+                transition={{
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 30
+                }}
+                className="flex"
+              >
+                {top10Today.map((song, index) => (
+                  <motion.div
+                    key={song.id}
+                    className="w-full flex-shrink-0 relative"
+                    whileHover={{ scale: 1.02 }}
+                  >
+                    <div
+                      className="relative bg-gradient-to-br from-black via-gray-900 to-black rounded-lg p-6 overflow-hidden cursor-pointer"
+                      style={{
+                        boxShadow: `
+                          0 0 0 2px rgba(236, 72, 153, 0.8),
+                          inset 0 0 0 1px rgba(236, 72, 153, 0.3),
+                          0 10px 30px rgba(236, 72, 153, 0.2)
+                        `,
+                      }}
+                      onClick={() => {
+                        toast({
+                          title: "Playing Top Hit",
+                          description: `Now playing: ${song.title} by ${song.artist}`,
+                        });
+                      }}
+                    >
+                      {/* Animated background gradient */}
+                      <motion.div
+                        animate={{
+                          background: [
+                            "linear-gradient(45deg, rgba(236, 72, 153, 0.1), rgba(168, 85, 247, 0.1))",
+                            "linear-gradient(45deg, rgba(168, 85, 247, 0.1), rgba(59, 130, 246, 0.1))",
+                            "linear-gradient(45deg, rgba(59, 130, 246, 0.1), rgba(236, 72, 153, 0.1))",
+                          ],
+                        }}
+                        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+                        className="absolute inset-0 opacity-50"
+                      />
+
+                      <div className="relative z-10 flex items-center gap-6">
+                        {/* Rank Badge */}
+                        <div className="relative">
+                          <motion.div
+                            animate={{ rotate: 360 }}
+                            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                            className="absolute inset-0 bg-gradient-to-r from-yellow-400 via-pink-500 to-purple-600 rounded-full p-1"
+                          />
+                          <div className="relative bg-black rounded-full w-16 h-16 flex items-center justify-center">
+                            <span className="text-2xl font-bold text-yellow-400">#{song.rank}</span>
+                          </div>
+                        </div>
+
+                        {/* Album Cover */}
+                        <div className="relative">
+                          <motion.img
+                            whileHover={{ scale: 1.1, rotate: 5 }}
+                            src={song.coverImageURL}
+                            alt={song.title}
+                            className="w-20 h-20 rounded-xl object-cover shadow-2xl"
+                          />
+                          <motion.button
+                            whileHover={{ scale: 1.2 }}
+                            whileTap={{ scale: 0.9 }}
+                            className="absolute -bottom-2 -right-2 w-8 h-8 bg-gradient-to-r from-pink-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg"
+                          >
+                            <Play className="w-4 h-4 text-white ml-0.5" />
+                          </motion.button>
+                        </div>
+
+                        {/* Song Info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <motion.span
+                              animate={{ opacity: [0.5, 1, 0.5] }}
+                              transition={{ duration: 2, repeat: Infinity }}
+                              className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center space-x-1"
+                            >
+                              <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                              <span>LIVE</span>
+                            </motion.span>
+                            {song.isRising && (
+                              <motion.span
+                                animate={{ y: [-2, 2, -2] }}
+                                transition={{ duration: 1.5, repeat: Infinity }}
+                                className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center space-x-1"
+                              >
+                                <TrendingUp className="w-3 h-3" />
+                                <span>RISING</span>
+                              </motion.span>
+                            )}
+                          </div>
+                          <h3 className="text-2xl font-bold text-white mb-1 leading-tight">
+                            {song.title}
+                          </h3>
+                          <p className="text-purple-accent text-lg font-medium mb-3">
+                            {song.artist}
+                          </p>
+                          <div className="flex items-center space-x-4 text-sm text-gray-300">
+                            <div className="flex items-center space-x-1">
+                              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                              <span className="font-semibold">{song.views} views today</span>
+                            </div>
+                            <span>•</span>
+                            <span>{song.playCount} total plays</span>
+                          </div>
+                        </div>
+
+                        {/* Stats */}
+                        <div className="text-center">
+                          <motion.div
+                            animate={{ scale: [1, 1.1, 1] }}
+                            transition={{ duration: 2, repeat: Infinity, delay: index * 0.2 }}
+                            className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-pink-500 mb-1"
+                          >
+                            #{song.rank}
+                          </motion.div>
+                          <div className="text-xs text-gray-400">TODAY</div>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </div>
+
+            {/* Top 10 Quick View */}
+            <div className="mt-6 grid grid-cols-2 sm:grid-cols-5 gap-3">
+              {top10Today.slice(0, 10).map((song, index) => (
+                <motion.div
+                  key={song.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 * index }}
+                  whileHover={{ y: -5, scale: 1.05 }}
+                  onClick={() => setCurrentSlideIndex(index)}
+                  className={`relative cursor-pointer group ${
+                    currentSlideIndex === index
+                      ? 'ring-2 ring-purple-primary ring-offset-2 ring-offset-black'
+                      : ''
+                  }`}
+                >
+                  <div className="relative overflow-hidden rounded-lg">
+                    <img
+                      src={song.coverImageURL}
+                      alt={song.title}
+                      className="w-full aspect-square object-cover transition-transform group-hover:scale-110"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
+                    <div className="absolute top-2 left-2">
+                      <div className="bg-yellow-500 text-black w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold">
+                        #{song.rank}
+                      </div>
+                    </div>
+                    {song.isRising && (
+                      <div className="absolute top-2 right-2">
+                        <motion.div
+                          animate={{ y: [-2, 2, -2] }}
+                          transition={{ duration: 1, repeat: Infinity }}
+                          className="bg-green-500 p-1 rounded-full"
+                        >
+                          <TrendingUp className="w-3 h-3 text-white" />
+                        </motion.div>
+                      </div>
+                    )}
+                    <div className="absolute bottom-2 left-2 right-2">
+                      <h4 className="text-white text-xs font-semibold truncate">
+                        {song.title}
+                      </h4>
+                      <p className="text-gray-300 text-xs truncate">
+                        {song.artist}
+                      </p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </motion.section>
 
           <section />
