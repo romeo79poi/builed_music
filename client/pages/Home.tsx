@@ -529,14 +529,6 @@ export default function Home() {
             <div>
               <MusicCatchLogo className="w-12 h-12" animated={false} />
             </div>
-            <motion.span
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.5 }}
-              className="font-bold text-lg purple-gradient-text dark:purple-gradient-text light:text-foreground hidden sm:block"
-            >
-              MusicCatch
-            </motion.span>
           </motion.div>
 
           {/* Static Message Icon */}
