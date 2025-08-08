@@ -22,6 +22,7 @@ import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
 import ActivityFeed from "../components/ActivityFeed";
+import EnhancedMiniPlayer from "../components/EnhancedMiniPlayer";
 import { api } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
 import { useFirebase } from "../context/FirebaseContext";
