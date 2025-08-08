@@ -1223,7 +1223,7 @@ export default function Home() {
                           ? `Album • ${item.artist} • ${item.year}`
                           : item.type === "playlist"
                             ? `Playlist • ${item.tracks}`
-                            : `Artist • ${item.artist}`}
+                            : `Artist �� ${item.artist}`}
                     </p>
                     {item.verified && (
                       <div className="w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center">
@@ -1468,7 +1468,29 @@ export default function Home() {
                       whileHover={{ scale: 1.05 }}
                       src={playlist.coverImageURL}
                       alt={playlist.title}
-                      className="w-full h-44 object-cover rounded-lg relative z-10 mix-blend-overlay"
+                      className="w-full h-44 object-cover rounded-lg relative z-10 mix-blend-overlay cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const enhancedSong = {
+                          id: `playlist-${playlist.id}`,
+                          title: playlist.title,
+                          artist: "CATCH",
+                          album: playlist.title,
+                          coverImageURL: playlist.coverImageURL,
+                          duration: 180,
+                          url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${Math.floor(Math.random() * 5) + 1}.mp3`,
+                          genre: "Playlist",
+                          year: 2024,
+                          explicit: false,
+                        };
+                        enhancedMusic.playSong(enhancedSong);
+                        navigate("/player");
+
+                        toast({
+                          title: "🎵 Now Playing",
+                          description: `${playlist.title} playlist`,
+                        });
+                      }}
                     />
                     {playlist.isLiked && (
                       <div className="absolute top-3 left-3 z-20">
