@@ -155,8 +155,10 @@ class FastAudioEngine {
         sampleRate: 48000, // High quality sample rate
       });
 
-      // Load and register audio worklet for background processing
-      await this.initializeAudioWorklet();
+      // Load and register audio worklet for background processing (optional)
+      this.initializeAudioWorklet().catch(() => {
+        // Ignore worklet errors - not required for core functionality
+      });
       
       this.isInitialized = true;
       console.log('FastAudioEngine initialized successfully');
