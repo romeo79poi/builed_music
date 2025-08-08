@@ -527,7 +527,7 @@ export default function Signup() {
 
   // Google signup handler with Firebase
   const handleGoogleSignup = async () => {
-    setIsLoading(true);
+    setIsGoogleLoading(true);
     setErrorAlert(null);
 
     try {
