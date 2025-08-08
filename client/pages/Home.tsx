@@ -1674,6 +1674,9 @@ export default function Home() {
           )}
         </main>
 
+        {/* Enhanced Music Player */}
+        <EnhancedMiniPlayer />
+
         {/* Mobile Footer */}
         <MobileFooter />
       </motion.div>
