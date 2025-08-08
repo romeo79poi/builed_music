@@ -579,6 +579,39 @@ export default function Home() {
     setLikedSongs(newLikedSongs);
   };
 
+  // Helper function to convert sample song data to Enhanced format
+  const convertToEnhancedSong = (sampleSong: any): Song => ({
+    id: sampleSong.id,
+    title: sampleSong.title,
+    artist: sampleSong.artist,
+    album: sampleSong.album || "Unknown Album",
+    coverImageURL: sampleSong.coverImageURL,
+    duration: typeof sampleSong.duration === 'string' ? 180 : sampleSong.duration || 180,
+    url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${sampleSong.id}.mp3`,
+    genre: "Pop",
+    year: 2023,
+    explicit: false,
+  });
+
+  // Function to handle playing songs with the enhanced player
+  const handlePlayEnhancedSong = (sampleSong: any) => {
+    const enhancedSong = convertToEnhancedSong(sampleSong);
+
+    // Create a sample playlist from the current context
+    const samplePlaylist = {
+      id: "sample-playlist-1",
+      name: "CATCH Radio",
+      description: "The best hits on CATCH",
+      songs: tracks.slice(0, 10).map(convertToEnhancedSong),
+      isPublic: true,
+      createdBy: "catch-radio",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    enhancedMusic.playSong(enhancedSong, samplePlaylist, 0);
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground relative overflow-hidden theme-transition">
       {/* Main Container */}
