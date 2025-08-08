@@ -12,10 +12,13 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "npm run build:client && npm run build:server",
+    "build": "npm run build:cpp && npm run build:client && npm run build:server",
     "build:client": "vite build",
     "build:server": "vite build --config vite.config.server.ts",
+    "build:cpp": "cd backend/cpp-streaming-service && bash build_wasm.sh",
+    "build:cpp-native": "cd backend/cpp-streaming-service && mkdir -p build && cd build && cmake .. && make",
     "start": "node dist/server/node-build.mjs",
+    "start:cpp": "cd backend/cpp-streaming-service/build && ./streaming_server",
     "test": "vitest --run",
     "format.fix": "prettier --write .",
     "typecheck": "tsc"

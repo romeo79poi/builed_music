@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import {
@@ -12,79 +12,195 @@ import {
   Volume2,
   VolumeX,
   Volume1,
+  Mic2,
+  ListMusic,
+  Maximize2,
+  Minimize2,
   ChevronDown,
   MoreHorizontal,
   Share,
   Download,
   Plus,
-  Mic2,
-  ListMusic,
-  Cast,
+  Minus,
   PictureInPicture,
+  Settings,
+  Radio,
+  Cast,
+  Bluetooth,
+  Headphones,
   Monitor,
   Smartphone,
+  Laptop,
   Speaker,
-  Headphones,
 } from "lucide-react";
-import { useEnhancedMusic } from "../context/EnhancedMusicContext";
 import { useToast } from "../hooks/use-toast";
 
-export default function Player() {
+interface Song {
+  id: string;
+  title: string;
+  artist: string;
+  album: string;
+  coverImageURL: string;
+  duration: number;
+  url: string;
+  genre?: string;
+  year?: number;
+  explicit?: boolean;
+}
+
+interface SpotifyPlayerProps {
+  currentSong?: Song;
+  playlist?: Song[];
+  onClose?: () => void;
+  className?: string;
+}
+
+export default function SpotifyPlayer({
+  currentSong: propCurrentSong,
+  playlist = [],
+  onClose,
+  className = "",
+}: SpotifyPlayerProps) {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const {
-    audioState,
-    playbackSettings,
-    userPreferences,
-    pauseSong,
-    resumeSong,
-    nextSong,
-    previousSong,
-    setVolume,
-    toggleMute,
-    toggleShuffle,
-    toggleRepeat,
-    toggleLikeSong,
-    seekTo,
-  } = useEnhancedMusic();
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const progressBarRef = useRef<HTMLDivElement>(null);
 
+  // Default song if none provided
+  const defaultSong: Song = {
+    id: "1",
+    title: "Blinding Lights",
+    artist: "The Weeknd",
+    album: "After Hours",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop",
+    duration: 200,
+    url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+    genre: "Synthwave",
+    year: 2020,
+    explicit: false,
+  };
+
+  // Player state
+  const [currentSong, setCurrentSong] = useState<Song>(
+    propCurrentSong || defaultSong,
+  );
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(0.7);
+  const [previousVolume, setPreviousVolume] = useState(0.7);
+  const [isMuted, setIsMuted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Playback modes
+  const [isShuffle, setIsShuffle] = useState(false);
+  const [repeatMode, setRepeatMode] = useState<"off" | "all" | "one">("off");
+
+  // UI states
+  const [isLiked, setIsLiked] = useState(false);
   const [showLyrics, setShowLyrics] = useState(false);
   const [showQueue, setShowQueue] = useState(false);
   const [showDevices, setShowDevices] = useState(false);
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [isPictureInPicture, setIsPictureInPicture] = useState(false);
 
-  const { currentSong, isPlaying, currentTime, duration, volume, isMuted } =
-    audioState;
-  const { isShuffle, repeatMode } = playbackSettings;
+  // Queue management
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [queueHistory, setQueueHistory] = useState<Song[]>([]);
+  const [upNext, setUpNext] = useState<Song[]>(playlist.slice(1, 6));
 
-  if (!currentSong) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white flex items-center justify-center">
-        <div className="text-center">
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-            className="w-16 h-16 mx-auto mb-4 border-2 border-white/20 border-t-white rounded-full"
-          />
-          <h2 className="text-xl font-semibold mb-2">No song selected</h2>
-          <p className="text-gray-400 mb-6">
-            Choose a song from the library to start playing
-          </p>
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => navigate("/home")}
-            className="px-6 py-3 bg-green-500 text-white rounded-full font-semibold hover:bg-green-600 transition-colors"
-          >
-            Browse Music
-          </motion.button>
-        </div>
-      </div>
-    );
-  }
+  // Available devices
+  const [devices] = useState([
+    {
+      id: "computer",
+      name: "This Computer",
+      type: "computer",
+      active: true,
+      volume: 70,
+    },
+    {
+      id: "phone",
+      name: "John's iPhone",
+      type: "smartphone",
+      active: false,
+      volume: 0,
+    },
+    {
+      id: "speaker",
+      name: "Living Room Speaker",
+      type: "speaker",
+      active: false,
+      volume: 0,
+    },
+    {
+      id: "headphones",
+      name: "AirPods Pro",
+      type: "headphones",
+      active: false,
+      volume: 0,
+    },
+  ]);
 
-  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
+  // Sample lyrics
+  const [lyrics] = useState([
+    { time: 0, text: "Yeah" },
+    { time: 8, text: "I've been tryna call" },
+    { time: 12, text: "I've been on my own for long enough" },
+    { time: 16, text: "Maybe you can show me how to love, maybe" },
+    {
+      time: 24,
+      text: "I feel like I'm just missing something when you're gone",
+    },
+    { time: 32, text: "Something in the way you move" },
+    { time: 36, text: "Makes me feel like I can't live without you" },
+    { time: 40, text: "It takes me all the way" },
+    { time: 44, text: "I want you to stay" },
+  ]);
 
+  // Audio setup and event handlers
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    const updateTime = () => setCurrentTime(audio.currentTime);
+    const updateDuration = () => setDuration(audio.duration);
+    const handleLoadStart = () => setIsLoading(true);
+    const handleLoadedData = () => setIsLoading(false);
+    const handleEnded = () => handleNext();
+
+    audio.addEventListener("timeupdate", updateTime);
+    audio.addEventListener("loadedmetadata", updateDuration);
+    audio.addEventListener("loadstart", handleLoadStart);
+    audio.addEventListener("loadeddata", handleLoadedData);
+    audio.addEventListener("ended", handleEnded);
+
+    return () => {
+      audio.removeEventListener("timeupdate", updateTime);
+      audio.removeEventListener("loadedmetadata", updateDuration);
+      audio.removeEventListener("loadstart", handleLoadStart);
+      audio.removeEventListener("loadeddata", handleLoadedData);
+      audio.removeEventListener("ended", handleEnded);
+    };
+  }, []);
+
+  // Volume control
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = isMuted ? 0 : volume;
+    }
+  }, [volume, isMuted]);
+
+  // Load song
+  useEffect(() => {
+    if (audioRef.current && currentSong.url) {
+      audioRef.current.src = currentSong.url;
+      audioRef.current.load();
+    }
+  }, [currentSong.url]);
+
+  // Format time helper
   const formatTime = (seconds: number) => {
     if (isNaN(seconds)) return "0:00";
     const minutes = Math.floor(seconds / 60);
@@ -92,11 +208,126 @@ export default function Player() {
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
 
+  // Player controls
+  const togglePlayPause = () => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (isPlaying) {
+      audio.pause();
+    } else {
+      audio.play();
+    }
+    setIsPlaying(!isPlaying);
+  };
+
+  const handlePrevious = () => {
+    if (currentTime > 5) {
+      // If more than 5 seconds in, restart current song
+      if (audioRef.current) {
+        audioRef.current.currentTime = 0;
+      }
+    } else {
+      // Go to previous song
+      const prevIndex = isShuffle
+        ? Math.floor(Math.random() * playlist.length)
+        : Math.max(0, currentIndex - 1);
+
+      if (playlist[prevIndex]) {
+        setCurrentSong(playlist[prevIndex]);
+        setCurrentIndex(prevIndex);
+        if (queueHistory.length > 0) {
+          setQueueHistory((prev) => prev.slice(0, -1));
+        }
+      }
+    }
+  };
+
+  const handleNext = () => {
+    if (repeatMode === "one") {
+      // Repeat current song
+      if (audioRef.current) {
+        audioRef.current.currentTime = 0;
+        audioRef.current.play();
+      }
+      return;
+    }
+
+    let nextIndex;
+    if (isShuffle) {
+      nextIndex = Math.floor(Math.random() * playlist.length);
+    } else {
+      nextIndex = currentIndex + 1;
+      if (nextIndex >= playlist.length) {
+        if (repeatMode === "all") {
+          nextIndex = 0;
+        } else {
+          setIsPlaying(false);
+          return;
+        }
+      }
+    }
+
+    if (playlist[nextIndex]) {
+      setQueueHistory((prev) => [...prev, currentSong]);
+      setCurrentSong(playlist[nextIndex]);
+      setCurrentIndex(nextIndex);
+      setUpNext(playlist.slice(nextIndex + 1, nextIndex + 6));
+    }
+  };
+
   const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
+    if (!progressBarRef.current || !audioRef.current) return;
+
+    const rect = progressBarRef.current.getBoundingClientRect();
     const clickX = e.clientX - rect.left;
     const newTime = (clickX / rect.width) * duration;
-    seekTo(newTime);
+
+    audioRef.current.currentTime = newTime;
+    setCurrentTime(newTime);
+  };
+
+  const toggleMute = () => {
+    if (isMuted) {
+      setVolume(previousVolume);
+      setIsMuted(false);
+    } else {
+      setPreviousVolume(volume);
+      setIsMuted(true);
+    }
+  };
+
+  const handleVolumeChange = (newVolume: number) => {
+    setVolume(newVolume);
+    setIsMuted(newVolume === 0);
+    if (newVolume > 0) {
+      setPreviousVolume(newVolume);
+    }
+  };
+
+  const toggleRepeat = () => {
+    const modes: ("off" | "all" | "one")[] = ["off", "all", "one"];
+    const currentModeIndex = modes.indexOf(repeatMode);
+    const nextMode = modes[(currentModeIndex + 1) % modes.length];
+    setRepeatMode(nextMode);
+
+    toast({
+      title: `Repeat ${nextMode === "off" ? "disabled" : nextMode === "all" ? "playlist" : "track"}`,
+      description:
+        nextMode === "off"
+          ? "Repeat turned off"
+          : nextMode === "all"
+            ? "Repeating playlist"
+            : "Repeating current track",
+    });
+  };
+
+  const toggleShuffle = () => {
+    setIsShuffle(!isShuffle);
+    toast({
+      title: isShuffle ? "Shuffle disabled" : "Shuffle enabled",
+      description: isShuffle ? "Playing in order" : "Playing randomly",
+    });
   };
 
   const getVolumeIcon = () => {
@@ -104,20 +335,6 @@ export default function Player() {
     if (volume < 0.3) return Volume1;
     return Volume2;
   };
-
-  const VolumeIcon = getVolumeIcon();
-
-  const devices = [
-    { id: "computer", name: "This Computer", type: "computer", active: true },
-    { id: "phone", name: "Your Phone", type: "smartphone", active: false },
-    { id: "speaker", name: "Living Room", type: "speaker", active: false },
-    {
-      id: "headphones",
-      name: "AirPods Pro",
-      type: "headphones",
-      active: false,
-    },
-  ];
 
   const getDeviceIcon = (type: string) => {
     switch (type) {
@@ -129,36 +346,24 @@ export default function Player() {
         return Speaker;
       case "headphones":
         return Headphones;
+      case "laptop":
+        return Laptop;
       default:
         return Speaker;
     }
   };
 
-  // Sample lyrics for demonstration
-  const lyrics = [
-    { time: 0, text: "🎵 Music is playing..." },
-    { time: 10, text: "Feel the rhythm in your heart" },
-    { time: 20, text: "Let the melody take you away" },
-    { time: 30, text: "Dance to the beat of life" },
-    { time: 40, text: "Music connects us all" },
-    { time: 50, text: "🎵 Instrumental break" },
-    { time: 60, text: "The power of sound and emotion" },
-    { time: 70, text: "Creating memories through music" },
-    { time: 80, text: "Every note tells a story" },
-    { time: 90, text: "🎵 Fade out..." },
-  ];
-
-  const getCurrentLyric = () => {
-    const currentLyric = lyrics
-      .slice()
-      .reverse()
-      .find((lyric) => currentTime >= lyric.time);
-    return currentLyric?.text || "🎵 Music is playing...";
-  };
+  const VolumeIcon = getVolumeIcon();
+  const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white relative overflow-hidden">
-      {/* Background Effects */}
+    <div
+      className={`min-h-screen bg-gradient-to-br from-black via-gray-900 to-black text-white ${className}`}
+    >
+      {/* Audio element */}
+      <audio ref={audioRef} />
+
+      {/* Background gradient overlay */}
       <div className="fixed inset-0 bg-gradient-to-br from-purple-900/20 via-blue-900/10 to-green-900/20" />
 
       {/* Header */}
@@ -170,26 +375,42 @@ export default function Player() {
         <motion.button
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => navigate(-1)}
+          onClick={() => setIsFullscreen(!isFullscreen)}
           className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
         >
-          <ChevronDown className="w-5 h-5" />
+          {isFullscreen ? (
+            <Minimize2 className="w-5 h-5" />
+          ) : (
+            <Maximize2 className="w-5 h-5" />
+          )}
         </motion.button>
 
         <div className="text-center">
           <p className="text-xs text-gray-400 uppercase tracking-wide">
-            Playing from
+            Playing from playlist
           </p>
-          <h1 className="text-sm font-semibold">CATCH Music</h1>
+          <h1 className="text-sm font-semibold">My Playlist #1</h1>
         </div>
 
-        <motion.button
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
-        >
-          <MoreHorizontal className="w-5 h-5" />
-        </motion.button>
+        <div className="flex items-center space-x-2">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setIsPictureInPicture(!isPictureInPicture)}
+            className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+          >
+            <PictureInPicture className="w-5 h-5" />
+          </motion.button>
+
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={onClose || (() => navigate(-1))}
+            className="p-2 rounded-full bg-white/10 hover:bg-white/20 transition-colors"
+          >
+            <ChevronDown className="w-5 h-5" />
+          </motion.button>
+        </div>
       </motion.header>
 
       {/* Main Content */}
@@ -223,16 +444,27 @@ export default function Player() {
             {/* Vinyl effect */}
             <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/5 via-transparent to-black/20" />
 
+            {/* Loading overlay */}
+            {isLoading && (
+              <div className="absolute inset-0 rounded-2xl bg-black/50 flex items-center justify-center">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                  className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full"
+                />
+              </div>
+            )}
+
             {/* Glow effect */}
             <motion.div
               animate={{
                 boxShadow: isPlaying
                   ? [
-                      "0 0 20px rgba(34, 197, 94, 0.3)",
-                      "0 0 40px rgba(34, 197, 94, 0.6)",
-                      "0 0 20px rgba(34, 197, 94, 0.3)",
+                      "0 0 20px rgba(59, 130, 246, 0.3)",
+                      "0 0 40px rgba(59, 130, 246, 0.6)",
+                      "0 0 20px rgba(59, 130, 246, 0.3)",
                     ]
-                  : "0 0 20px rgba(34, 197, 94, 0.3)",
+                  : "0 0 20px rgba(59, 130, 246, 0.3)",
               }}
               transition={{ duration: 2, repeat: isPlaying ? Infinity : 0 }}
               className="absolute inset-0 rounded-2xl"
@@ -263,38 +495,19 @@ export default function Player() {
           </h2>
           <p className="text-lg text-gray-300 mb-4">{currentSong.artist}</p>
 
-          {/* Current Lyric */}
-          {showLyrics && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="bg-black/40 backdrop-blur-sm rounded-lg p-4 mb-4"
-            >
-              <p className="text-green-400 text-lg font-medium">
-                {getCurrentLyric()}
-              </p>
-            </motion.div>
-          )}
-
           {/* Action Buttons */}
           <div className="flex items-center justify-center space-x-4">
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
-              onClick={() => toggleLikeSong(currentSong.id)}
+              onClick={() => setIsLiked(!isLiked)}
               className={`p-3 rounded-full transition-all ${
-                userPreferences.likedSongs.has(currentSong.id)
+                isLiked
                   ? "bg-green-500/20 text-green-500"
                   : "bg-white/10 text-gray-400 hover:text-white"
               }`}
             >
-              <Heart
-                className={`w-6 h-6 ${
-                  userPreferences.likedSongs.has(currentSong.id)
-                    ? "fill-current"
-                    : ""
-                }`}
-              />
+              <Heart className={`w-6 h-6 ${isLiked ? "fill-current" : ""}`} />
             </motion.button>
 
             <motion.button
@@ -331,11 +544,12 @@ export default function Player() {
           className="w-full max-w-2xl mb-8"
         >
           <div
+            ref={progressBarRef}
             onClick={handleSeek}
             className="relative h-2 bg-white/20 rounded-full cursor-pointer group mb-2"
           >
             <motion.div
-              className="absolute top-0 left-0 h-full bg-gradient-to-r from-green-400 to-green-600 rounded-full"
+              className="absolute top-0 left-0 h-full bg-gradient-to-r from-green-400 to-blue-500 rounded-full"
               style={{ width: `${progress}%` }}
             />
             <motion.div
@@ -375,7 +589,7 @@ export default function Player() {
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
-            onClick={previousSong}
+            onClick={handlePrevious}
             className="p-3 rounded-full text-white hover:bg-white/20 transition-all"
           >
             <SkipBack className="w-6 h-6" />
@@ -383,10 +597,10 @@ export default function Player() {
 
           {/* Play/Pause */}
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={isPlaying ? pauseSong : resumeSong}
-            className="w-16 h-16 bg-white text-black rounded-full flex items-center justify-center shadow-xl hover:scale-105 transition-all"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+            onClick={togglePlayPause}
+            className="w-16 h-16 rounded-full bg-white text-black flex items-center justify-center shadow-xl hover:scale-105 transition-all"
           >
             {isPlaying ? (
               <Pause className="w-8 h-8" />
@@ -399,7 +613,7 @@ export default function Player() {
           <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
-            onClick={nextSong}
+            onClick={handleNext}
             className="p-3 rounded-full text-white hover:bg-white/20 transition-all"
           >
             <SkipForward className="w-6 h-6" />
@@ -503,7 +717,9 @@ export default function Player() {
                     max="1"
                     step="0.01"
                     value={volume}
-                    onChange={(e) => setVolume(parseFloat(e.target.value))}
+                    onChange={(e) =>
+                      handleVolumeChange(parseFloat(e.target.value))
+                    }
                     className="w-full h-1 bg-white/20 rounded-full appearance-none cursor-pointer slider"
                   />
                 </motion.div>
@@ -513,8 +729,137 @@ export default function Player() {
         </motion.div>
       </main>
 
-      {/* Devices Overlay */}
+      {/* Overlays */}
       <AnimatePresence>
+        {/* Lyrics Overlay */}
+        {showLyrics && (
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed inset-y-0 right-0 w-full md:w-96 bg-black/95 backdrop-blur-xl border-l border-white/10 z-50 overflow-y-auto"
+          >
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold">Lyrics</h3>
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setShowLyrics(false)}
+                  className="p-2 rounded-full bg-white/10 hover:bg-white/20"
+                >
+                  <Minus className="w-4 h-4" />
+                </motion.button>
+              </div>
+
+              <div className="space-y-4">
+                {lyrics.map((lyric, index) => (
+                  <motion.p
+                    key={index}
+                    className={`text-lg transition-all duration-300 ${
+                      currentTime >= lyric.time &&
+                      (index === lyrics.length - 1 ||
+                        currentTime < lyrics[index + 1]?.time)
+                        ? "text-green-400 font-semibold scale-105"
+                        : "text-gray-400"
+                    }`}
+                  >
+                    {lyric.text}
+                  </motion.p>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Queue Overlay */}
+        {showQueue && (
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 30, stiffness: 300 }}
+            className="fixed inset-y-0 right-0 w-full md:w-96 bg-black/95 backdrop-blur-xl border-l border-white/10 z-50 overflow-y-auto"
+          >
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-xl font-bold">Queue</h3>
+                <motion.button
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setShowQueue(false)}
+                  className="p-2 rounded-full bg-white/10 hover:bg-white/20"
+                >
+                  <Minus className="w-4 h-4" />
+                </motion.button>
+              </div>
+
+              {/* Now Playing */}
+              <div className="mb-6">
+                <h4 className="text-sm font-semibold text-gray-400 mb-3">
+                  NOW PLAYING
+                </h4>
+                <div className="flex items-center space-x-3 p-3 bg-green-500/10 rounded-lg border border-green-500/20">
+                  <img
+                    src={currentSong.coverImageURL}
+                    alt={currentSong.title}
+                    className="w-12 h-12 rounded-lg object-cover"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <p className="font-medium text-white truncate">
+                      {currentSong.title}
+                    </p>
+                    <p className="text-sm text-gray-400 truncate">
+                      {currentSong.artist}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Up Next */}
+              <div>
+                <h4 className="text-sm font-semibold text-gray-400 mb-3">
+                  UP NEXT
+                </h4>
+                <div className="space-y-2">
+                  {upNext.map((song, index) => (
+                    <motion.div
+                      key={song.id}
+                      whileHover={{
+                        backgroundColor: "rgba(255, 255, 255, 0.05)",
+                      }}
+                      className="flex items-center space-x-3 p-3 rounded-lg cursor-pointer transition-colors"
+                      onClick={() => {
+                        setCurrentSong(song);
+                        setCurrentIndex(currentIndex + index + 1);
+                      }}
+                    >
+                      <img
+                        src={song.coverImageURL}
+                        alt={song.title}
+                        className="w-10 h-10 rounded-lg object-cover"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-white truncate">
+                          {song.title}
+                        </p>
+                        <p className="text-sm text-gray-400 truncate">
+                          {song.artist}
+                        </p>
+                      </div>
+                      <p className="text-xs text-gray-500">
+                        {formatTime(song.duration)}
+                      </p>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Devices Overlay */}
         {showDevices && (
           <motion.div
             initial={{ y: "100%" }}
@@ -532,7 +877,7 @@ export default function Player() {
                   onClick={() => setShowDevices(false)}
                   className="p-2 rounded-full bg-white/10 hover:bg-white/20"
                 >
-                  <ChevronDown className="w-4 h-4" />
+                  <Minus className="w-4 h-4" />
                 </motion.button>
               </div>
 
@@ -568,7 +913,7 @@ export default function Player() {
                         <div className="flex items-center space-x-2">
                           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
                           <span className="text-sm text-green-500">
-                            Playing
+                            Connected
                           </span>
                         </div>
                       )}

@@ -442,7 +442,8 @@
 
   /* Animated pink border glow for albums */
   @keyframes borderGlow {
-    0%, 100% {
+    0%,
+    100% {
       box-shadow:
         0 0 0 1px rgba(236, 72, 153, 0.6),
         inset 0 0 0 1px rgba(236, 72, 153, 0.3);

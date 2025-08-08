@@ -22,27 +22,127 @@ import { MusicCatchLogo } from "../components/MusicCatchLogo";
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
 import ActivityFeed from "../components/ActivityFeed";
+import EnhancedMiniPlayer from "../components/EnhancedMiniPlayer";
 import { api } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
 import { useFirebase } from "../context/FirebaseContext";
 import { useMusic } from "../context/MusicContextSupabase";
+import { useEnhancedMusic, type Song } from "../context/EnhancedMusicContext";
 import { userDataService, EnhancedUserData } from "../lib/user-data-service";
 
-// Featured Artist/Album of the Day
-const featuredContent = {
-  id: "featured-1",
-  type: "album",
-  title: "Midnight Memories",
-  artist: "One Direction",
-  description:
-    "The perfect soundtrack for late-night vibes and nostalgic moments.",
-  coverImageURL:
-    "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=600&h=400&fit=crop",
-  genre: "Pop",
-  releaseYear: "2013",
-  totalTracks: 18,
-  isNew: true,
-};
+// Top 10 Most Viewed Songs Today
+const top10Today = [
+  {
+    id: "top1",
+    title: "As It Was",
+    artist: "Harry Styles",
+    rank: 1,
+    views: "2.4M",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
+    isRising: true,
+    playCount: "142.8M",
+  },
+  {
+    id: "top2",
+    title: "Heat Waves",
+    artist: "Glass Animals",
+    rank: 2,
+    views: "2.1M",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
+    isRising: false,
+    playCount: "189.3M",
+  },
+  {
+    id: "top3",
+    title: "Stay",
+    artist: "The Kid LAROI, Justin Bieber",
+    rank: 3,
+    views: "1.9M",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=200&h=200&fit=crop",
+    isRising: true,
+    playCount: "156.7M",
+  },
+  {
+    id: "top4",
+    title: "Industry Baby",
+    artist: "Lil Nas X, Jack Harlow",
+    rank: 4,
+    views: "1.7M",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=200&h=200&fit=crop",
+    isRising: false,
+    playCount: "143.2M",
+  },
+  {
+    id: "top5",
+    title: "Good 4 U",
+    artist: "Olivia Rodrigo",
+    rank: 5,
+    views: "1.5M",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=200&h=200&fit=crop",
+    isRising: true,
+    playCount: "134.9M",
+  },
+  {
+    id: "top6",
+    title: "Levitating",
+    artist: "Dua Lipa",
+    rank: 6,
+    views: "1.3M",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
+    isRising: false,
+    playCount: "128.5M",
+  },
+  {
+    id: "top7",
+    title: "Flowers",
+    artist: "Miley Cyrus",
+    rank: 7,
+    views: "1.2M",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
+    isRising: true,
+    playCount: "121.8M",
+  },
+  {
+    id: "top8",
+    title: "Anti-Hero",
+    artist: "Taylor Swift",
+    rank: 8,
+    views: "1.1M",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=200&fit=crop",
+    isRising: false,
+    playCount: "118.4M",
+  },
+  {
+    id: "top9",
+    title: "Unholy",
+    artist: "Sam Smith, Kim Petras",
+    rank: 9,
+    views: "1.0M",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=200&h=200&fit=crop",
+    isRising: true,
+    playCount: "115.2M",
+  },
+  {
+    id: "top10",
+    title: "Creepin'",
+    artist: "Metro Boomin, The Weeknd, 21 Savage",
+    rank: 10,
+    views: "950K",
+    coverImageURL:
+      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
+    isRising: false,
+    playCount: "112.7M",
+  },
+];
 
 // Sample data for the layout - will be replaced with API data
 let sampleAlbums = [
@@ -269,6 +369,8 @@ export default function Home() {
     unlikeSong,
   } = useMusic();
 
+  const enhancedMusic = useEnhancedMusic();
+
   const [hoveredAlbum, setHoveredAlbum] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -280,6 +382,21 @@ export default function Home() {
   const [albums, setAlbums] = useState<any[]>([]);
   const [tracks, setTracks] = useState<any[]>([]);
   const [apiDataLoaded, setApiDataLoaded] = useState(false);
+  const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [isAutoSliding, setIsAutoSliding] = useState(true);
+
+  // Auto-slide effect for Top 10 Today
+  useEffect(() => {
+    if (!isAutoSliding) return;
+
+    const interval = setInterval(() => {
+      setCurrentSlideIndex((prevIndex) =>
+        prevIndex === top10Today.length - 1 ? 0 : prevIndex + 1,
+      );
+    }, 4000); // Change slide every 4 seconds
+
+    return () => clearInterval(interval);
+  }, [isAutoSliding]);
 
   // Update time for greeting
   useEffect(() => {
@@ -348,7 +465,7 @@ export default function Home() {
           }
         }
       } catch (error) {
-        console.error("❌ Error loading user data for Home:", error);
+        console.error("�� Error loading user data for Home:", error);
         // Don't clear existing data on error
       } finally {
         setUserDataLoading(false);
@@ -470,6 +587,43 @@ export default function Home() {
       newLikedSongs.add(songId);
     }
     setLikedSongs(newLikedSongs);
+  };
+
+  // Helper function to convert sample song data to Enhanced format
+  const convertToEnhancedSong = (sampleSong: any): Song => ({
+    id: sampleSong.id,
+    title: sampleSong.title,
+    artist: sampleSong.artist,
+    album: sampleSong.album || "Unknown Album",
+    coverImageURL: sampleSong.coverImageURL,
+    duration:
+      typeof sampleSong.duration === "string"
+        ? 180
+        : sampleSong.duration || 180,
+    url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${sampleSong.id}.mp3`,
+    genre: "Pop",
+    year: 2023,
+    explicit: false,
+  });
+
+  // Function to handle playing songs with the enhanced player
+  const handlePlayEnhancedSong = (sampleSong: any) => {
+    const enhancedSong = convertToEnhancedSong(sampleSong);
+
+    // Create a sample playlist from the current context
+    const samplePlaylist = {
+      id: "sample-playlist-1",
+      name: "CATCH Radio",
+      description: "The best hits on CATCH",
+      songs: tracks.slice(0, 10).map(convertToEnhancedSong),
+      isPublic: true,
+      createdBy: "catch-radio",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+
+    enhancedMusic.playSong(enhancedSong, samplePlaylist, 0);
+    navigate("/player");
   };
 
   return (
@@ -598,65 +752,222 @@ export default function Home() {
             </motion.p>
           </motion.div>
 
-          {/* Hero Section - Featured Content */}
-          <motion.section variants={itemVariants} className="mb-6">
-            <motion.div
-              whileHover={{ scale: 1.01 }}
-              className="relative bg-black rounded-lg p-4 overflow-hidden cursor-pointer"
-              style={{
-                boxShadow: `
-                  0 0 0 1px rgba(236, 72, 153, 0.6),
-                  inset 0 0 0 1px rgba(236, 72, 153, 0.3)
-                `,
-              }}
-              onClick={() => {
-                toast({
-                  title: "Playing Featured Album",
-                  description: `Now playing: ${featuredContent.title} by ${featuredContent.artist}`,
-                });
-              }}
-            >
-              <div className="relative z-10 flex flex-row items-center gap-4">
-                <div className="relative">
-                  <motion.img
-                    whileHover={{ scale: 1.05 }}
-                    src={featuredContent.coverImageURL}
-                    alt={featuredContent.title}
-                    className="w-24 h-24 rounded-xl object-cover shadow-lg shadow-purple-primary/30"
-                  />
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    className="absolute bottom-1 right-1 w-6 h-6 bg-white text-purple-primary rounded-full flex items-center justify-center shadow-lg transition-all"
+          {/* Top 10 Today - Sliding Section */}
+          <motion.section variants={itemVariants} className="mb-8">
+            <div className="relative overflow-hidden rounded-lg">
+              <motion.div
+                animate={{
+                  x: `-${currentSlideIndex * 100}%`,
+                }}
+                transition={{
+                  type: "spring",
+                  stiffness: 300,
+                  damping: 30,
+                }}
+                className="flex"
+              >
+                {top10Today.map((song, index) => (
+                  <motion.div
+                    key={song.id}
+                    className="w-full flex-shrink-0 relative"
+                    whileHover={{ scale: 1.02 }}
                   >
-                    <Play className="w-3 h-3 ml-0.5" />
-                  </motion.button>
-                </div>
+                    <div
+                      className="relative bg-gradient-to-br from-black via-gray-900 to-black rounded-lg p-6 overflow-hidden cursor-pointer"
+                      style={{
+                        boxShadow: `
+                          0 0 0 2px rgba(236, 72, 153, 0.8),
+                          inset 0 0 0 1px rgba(236, 72, 153, 0.3),
+                          0 10px 30px rgba(236, 72, 153, 0.2)
+                        `,
+                      }}
+                      onClick={() => {
+                        const enhancedSong = {
+                          id: song.id,
+                          title: song.title,
+                          artist: song.artist,
+                          album: "Top Hits",
+                          coverImageURL: song.coverImageURL,
+                          duration: 180,
+                          url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${song.rank}.mp3`,
+                          genre: "Pop",
+                          year: 2024,
+                          explicit: false,
+                        };
 
-                <div className="flex-1 min-w-0">
-                  {featuredContent.isNew && (
-                    <motion.span
-                      animate={{ scale: [1, 1.05, 1] }}
-                      transition={{ duration: 2, repeat: Infinity }}
-                      className="inline-block px-2 py-1 rounded-full text-xs font-bold mb-2 bg-gradient-to-r from-purple-primary to-purple-secondary text-white shadow-sm"
+                        const topHitsPlaylist = {
+                          id: "top-10-today",
+                          name: "Top 10 Today",
+                          description: "The hottest tracks today",
+                          songs: top10Today.map((s, i) => ({
+                            id: s.id,
+                            title: s.title,
+                            artist: s.artist,
+                            album: "Top Hits",
+                            coverImageURL: s.coverImageURL,
+                            duration: 180,
+                            url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${i + 1}.mp3`,
+                            genre: "Pop",
+                            year: 2024,
+                            explicit: false,
+                          })),
+                          isPublic: true,
+                          createdBy: "catch-charts",
+                          createdAt: new Date(),
+                          updatedAt: new Date(),
+                        };
+
+                        enhancedMusic.playSong(
+                          enhancedSong,
+                          topHitsPlaylist,
+                          song.rank - 1,
+                        );
+                        navigate("/player");
+
+                        toast({
+                          title: "Playing Top Hit",
+                          description: `Now playing: ${song.title} by ${song.artist}`,
+                        });
+                      }}
                     >
-                      NEW
-                    </motion.span>
-                  )}
-                  <h3 className="text-lg sm:text-xl font-bold text-white mb-1 leading-tight truncate">
-                    {featuredContent.title}
-                  </h3>
-                  <p className="text-purple-accent text-sm font-medium mb-2 truncate">
-                    {featuredContent.artist}
-                  </p>
-                  <div className="flex items-center space-x-3 text-xs text-gray-300">
-                    <span>{featuredContent.genre}</span>
-                    <span>•</span>
-                    <span>{featuredContent.releaseYear}</span>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
+                      {/* Animated background gradient */}
+                      <motion.div
+                        animate={{
+                          background: [
+                            "linear-gradient(45deg, rgba(236, 72, 153, 0.1), rgba(168, 85, 247, 0.1))",
+                            "linear-gradient(45deg, rgba(168, 85, 247, 0.1), rgba(59, 130, 246, 0.1))",
+                            "linear-gradient(45deg, rgba(59, 130, 246, 0.1), rgba(236, 72, 153, 0.1))",
+                          ],
+                        }}
+                        transition={{
+                          duration: 6,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }}
+                        className="absolute inset-0 opacity-50"
+                      />
+
+                      <div className="relative z-10 flex items-center gap-6">
+                        {/* Album Cover */}
+                        <div className="relative">
+                          <motion.img
+                            whileHover={{ scale: 1.1, rotate: 5 }}
+                            src={song.coverImageURL}
+                            alt={song.title}
+                            className="rounded-xl object-cover shadow-2xl cursor-pointer"
+                            style={{ width: "110px", height: "110px" }}
+                            onClick={(e) => {
+                              e.stopPropagation(); // Prevent card click
+                              const enhancedSong = {
+                                id: song.id,
+                                title: song.title,
+                                artist: song.artist,
+                                album: "Top Hits",
+                                coverImageURL: song.coverImageURL,
+                                duration: 180,
+                                url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${song.rank}.mp3`,
+                                genre: "Pop",
+                                year: 2024,
+                                explicit: false,
+                              };
+
+                              const topHitsPlaylist = {
+                                id: "top-hits-today",
+                                name: "Top 10 Today",
+                                description: "The most listened songs today",
+                                songs: top10Today.map((s, i) => ({
+                                  id: s.id,
+                                  title: s.title,
+                                  artist: s.artist,
+                                  album: "Top Hits",
+                                  coverImageURL: s.coverImageURL,
+                                  duration: 180,
+                                  url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${i + 1}.mp3`,
+                                  genre: "Pop",
+                                  year: 2024,
+                                  explicit: false,
+                                })),
+                                isPublic: true,
+                                createdBy: "catch-charts",
+                                createdAt: new Date(),
+                                updatedAt: new Date(),
+                              };
+
+                              enhancedMusic.playSong(
+                                enhancedSong,
+                                topHitsPlaylist,
+                                song.rank - 1,
+                              );
+                              navigate("/player");
+
+                              toast({
+                                title: "���� Now Playing",
+                                description: `${song.title} by ${song.artist}`,
+                              });
+                            }}
+                          />
+                        </div>
+
+                        {/* Song Info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <motion.span
+                              animate={{ opacity: [0.5, 1, 0.5] }}
+                              transition={{ duration: 2, repeat: Infinity }}
+                              className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center space-x-1"
+                            >
+                              <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                              <span>LIVE</span>
+                            </motion.span>
+                            {song.isRising && (
+                              <motion.span
+                                animate={{ y: [-2, 2, -2] }}
+                                transition={{ duration: 1.5, repeat: Infinity }}
+                                className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center space-x-1"
+                              >
+                                <TrendingUp className="w-3 h-3" />
+                                <span>RISING</span>
+                              </motion.span>
+                            )}
+                          </div>
+                          <h3 className="text-2xl font-bold text-white mb-1 leading-tight">
+                            {song.title}
+                          </h3>
+                          <p className="text-purple-accent text-lg font-medium mb-3">
+                            {song.artist}
+                          </p>
+                          <div className="flex items-center space-x-4 text-sm text-gray-300">
+                            <div className="flex items-center space-x-1">
+                              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                              <span className="font-semibold">
+                                {song.views} views today
+                              </span>
+                            </div>
+                            <span>{song.playCount} total plays</span>
+                          </div>
+                        </div>
+
+                        {/* Stats */}
+                        <div className="text-center">
+                          <motion.div
+                            animate={{ scale: [1, 1.1, 1] }}
+                            transition={{
+                              duration: 2,
+                              repeat: Infinity,
+                              delay: index * 0.2,
+                            }}
+                            className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-pink-500 mb-1"
+                          >
+                            #{song.rank}
+                          </motion.div>
+                          <div className="text-xs text-gray-400">TODAY</div>
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))}
+              </motion.div>
+            </div>
           </motion.section>
 
           <section />
@@ -749,11 +1060,50 @@ export default function Home() {
                       whileHover={{ scale: 1.05 }}
                       src={item.coverImageURL}
                       alt={item.title}
-                      className={`w-full h-44 object-cover ${item.type === "artist" ? "rounded-full" : "rounded-lg"}`}
+                      className={`w-full h-44 object-cover cursor-pointer ${item.type === "artist" ? "rounded-full" : "rounded-lg"}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const enhancedSong = {
+                          id: item.id,
+                          title: item.title,
+                          artist: item.artist,
+                          album: item.type === "album" ? item.title : "Single",
+                          coverImageURL: item.coverImageURL,
+                          duration: 180,
+                          url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${Math.floor(Math.random() * 5) + 1}.mp3`,
+                          genre: "Pop",
+                          year: 2024,
+                          explicit: false,
+                        };
+                        enhancedMusic.playSong(enhancedSong);
+                        navigate("/player");
+
+                        toast({
+                          title: "🎵 Now Playing",
+                          description: `${item.title} by ${item.artist}`,
+                        });
+                      }}
                     />
                     <motion.button
                       initial={{ opacity: 0, scale: 0.8 }}
                       whileHover={{ opacity: 1, scale: 1 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const enhancedSong = {
+                          id: item.id,
+                          title: item.title,
+                          artist: item.artist,
+                          album: item.type === "album" ? item.title : "Single",
+                          coverImageURL: item.coverImageURL,
+                          duration: 180,
+                          url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${Math.floor(Math.random() * 5) + 1}.mp3`,
+                          genre: "Pop",
+                          year: 2024,
+                          explicit: false,
+                        };
+                        enhancedMusic.playSong(enhancedSong);
+                        navigate("/player");
+                      }}
                       className="absolute bottom-3 right-3 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg transition-all group-hover:opacity-100 opacity-0"
                     >
                       <Play className="w-5 h-5 text-black ml-0.5" />
@@ -780,7 +1130,7 @@ export default function Home() {
                           ? `Album • ${item.artist} • ${item.year}`
                           : item.type === "playlist"
                             ? `Playlist • ${item.tracks}`
-                            : `Artist • ${item.artist}`}
+                            : `Artist �� ${item.artist}`}
                     </p>
                     {item.verified && (
                       <div className="w-3 h-3 bg-blue-500 rounded-full flex items-center justify-center">
@@ -879,11 +1229,50 @@ export default function Home() {
                     <img
                       src={song.coverImageURL}
                       alt={song.title}
-                      className="w-12 h-12 rounded object-cover"
+                      className="w-12 h-12 rounded object-cover cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const enhancedSong = {
+                          id: song.id,
+                          title: song.title,
+                          artist: song.artist,
+                          album: "Top Hits",
+                          coverImageURL: song.coverImageURL,
+                          duration: 180,
+                          url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${Math.floor(Math.random() * 5) + 1}.mp3`,
+                          genre: "Pop",
+                          year: 2024,
+                          explicit: false,
+                        };
+                        enhancedMusic.playSong(enhancedSong);
+                        navigate("/player");
+
+                        toast({
+                          title: "🎵 Now Playing",
+                          description: `${song.title} by ${song.artist}`,
+                        });
+                      }}
                     />
                     <motion.button
                       initial={{ opacity: 0, scale: 0.8 }}
                       whileHover={{ opacity: 1, scale: 1 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const enhancedSong = {
+                          id: song.id,
+                          title: song.title,
+                          artist: song.artist,
+                          album: "Top Hits",
+                          coverImageURL: song.coverImageURL,
+                          duration: 180,
+                          url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${Math.floor(Math.random() * 5) + 1}.mp3`,
+                          genre: "Pop",
+                          year: 2024,
+                          explicit: false,
+                        };
+                        enhancedMusic.playSong(enhancedSong);
+                        navigate("/player");
+                      }}
                       className="absolute inset-0 bg-black/50 rounded flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
                     >
                       <Play className="w-4 h-4 text-white ml-0.5" />
@@ -986,7 +1375,29 @@ export default function Home() {
                       whileHover={{ scale: 1.05 }}
                       src={playlist.coverImageURL}
                       alt={playlist.title}
-                      className="w-full h-44 object-cover rounded-lg relative z-10 mix-blend-overlay"
+                      className="w-full h-44 object-cover rounded-lg relative z-10 mix-blend-overlay cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const enhancedSong = {
+                          id: `playlist-${playlist.id}`,
+                          title: playlist.title,
+                          artist: "CATCH",
+                          album: playlist.title,
+                          coverImageURL: playlist.coverImageURL,
+                          duration: 180,
+                          url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${Math.floor(Math.random() * 5) + 1}.mp3`,
+                          genre: "Playlist",
+                          year: 2024,
+                          explicit: false,
+                        };
+                        enhancedMusic.playSong(enhancedSong);
+                        navigate("/player");
+
+                        toast({
+                          title: "🎵 Now Playing",
+                          description: `${playlist.title} playlist`,
+                        });
+                      }}
                     />
                     {playlist.isLiked && (
                       <div className="absolute top-3 left-3 z-20">
@@ -996,6 +1407,23 @@ export default function Home() {
                     <motion.button
                       initial={{ opacity: 0, scale: 0.8 }}
                       whileHover={{ opacity: 1, scale: 1 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const enhancedSong = {
+                          id: `playlist-${playlist.id}`,
+                          title: playlist.title,
+                          artist: "CATCH",
+                          album: playlist.title,
+                          coverImageURL: playlist.coverImageURL,
+                          duration: 180,
+                          url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${Math.floor(Math.random() * 5) + 1}.mp3`,
+                          genre: "Playlist",
+                          year: 2024,
+                          explicit: false,
+                        };
+                        enhancedMusic.playSong(enhancedSong);
+                        navigate("/player");
+                      }}
                       className="absolute bottom-3 right-3 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center shadow-lg transition-all group-hover:opacity-100 opacity-0 z-20"
                     >
                       <Play className="w-5 h-5 text-black ml-0.5" />
@@ -1045,12 +1473,34 @@ export default function Home() {
                     <motion.img
                       src={album.coverImageURL}
                       alt={album.name}
-                      className="w-full h-44 rounded-lg object-cover"
+                      className="w-full h-44 rounded-lg object-cover cursor-pointer"
                       whileHover={{ scale: 1.05 }}
                       transition={{
                         type: "spring",
                         stiffness: 400,
                         damping: 25,
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const enhancedSong = {
+                          id: album.id,
+                          title: album.name,
+                          artist: album.artist,
+                          album: album.name,
+                          coverImageURL: album.coverImageURL,
+                          duration: 180,
+                          url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${Math.floor(Math.random() * 5) + 1}.mp3`,
+                          genre: "Pop",
+                          year: 2024,
+                          explicit: false,
+                        };
+                        enhancedMusic.playSong(enhancedSong);
+                        navigate("/player");
+
+                        toast({
+                          title: "🎵 Now Playing",
+                          description: `${album.name} by ${album.artist}`,
+                        });
                       }}
                     />
                     {album.isNew && (
@@ -1061,6 +1511,23 @@ export default function Home() {
                     <motion.button
                       initial={{ opacity: 0, scale: 0.8 }}
                       whileHover={{ opacity: 1, scale: 1 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const enhancedSong = {
+                          id: album.id,
+                          title: album.name,
+                          artist: album.artist,
+                          album: album.name,
+                          coverImageURL: album.coverImageURL,
+                          duration: 180,
+                          url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${Math.floor(Math.random() * 5) + 1}.mp3`,
+                          genre: "Pop",
+                          year: 2024,
+                          explicit: false,
+                        };
+                        enhancedMusic.playSong(enhancedSong);
+                        navigate("/player");
+                      }}
                       className="absolute bottom-3 right-3 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg transition-all group-hover:opacity-100 opacity-0"
                     >
                       <Play className="w-5 h-5 text-black ml-0.5" />
@@ -1118,7 +1585,7 @@ export default function Home() {
                   artist: "Taylor Swift",
                   coverImageURL:
                     "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=200&h=200&fit=crop",
-                  trend: "↗ #3 in trending",
+                  trend: "��� #3 in trending",
                 },
                 {
                   id: "trending4",
@@ -1150,7 +1617,29 @@ export default function Home() {
                       whileHover={{ scale: 1.05 }}
                       src={track.coverImageURL}
                       alt={track.title}
-                      className="w-full h-44 rounded-lg object-cover"
+                      className="w-full h-44 rounded-lg object-cover cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const enhancedSong = {
+                          id: track.id,
+                          title: track.title,
+                          artist: track.artist,
+                          album: "Trending Hits",
+                          coverImageURL: track.coverImageURL,
+                          duration: 180,
+                          url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${Math.floor(Math.random() * 5) + 1}.mp3`,
+                          genre: "Pop",
+                          year: 2024,
+                          explicit: false,
+                        };
+                        enhancedMusic.playSong(enhancedSong);
+                        navigate("/player");
+
+                        toast({
+                          title: "🔥 Now Playing",
+                          description: `${track.title} by ${track.artist} (Trending)`,
+                        });
+                      }}
                     />
                     <div className="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 rounded text-xs font-medium">
                       🔥 TRENDING
@@ -1158,6 +1647,23 @@ export default function Home() {
                     <motion.button
                       initial={{ opacity: 0, scale: 0.8 }}
                       whileHover={{ opacity: 1, scale: 1 }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const enhancedSong = {
+                          id: track.id,
+                          title: track.title,
+                          artist: track.artist,
+                          album: "Trending Hits",
+                          coverImageURL: track.coverImageURL,
+                          duration: 180,
+                          url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${Math.floor(Math.random() * 5) + 1}.mp3`,
+                          genre: "Pop",
+                          year: 2024,
+                          explicit: false,
+                        };
+                        enhancedMusic.playSong(enhancedSong);
+                        navigate("/player");
+                      }}
                       className="absolute bottom-3 right-3 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg transition-all group-hover:opacity-100 opacity-0"
                     >
                       <Play className="w-5 h-5 text-black ml-0.5" />
@@ -1331,7 +1837,7 @@ export default function Home() {
                     backgroundColor: "rgba(158, 64, 252, 0.15)",
                     transition: { type: "spring", stiffness: 400, damping: 25 },
                   }}
-                  onClick={() => handlePlaySong(song.id)}
+                  onClick={() => handlePlayEnhancedSong(song)}
                   className="flex items-center space-x-4 p-3 rounded-lg hover:bg-gray-900 transition-all cursor-pointer group bg-black"
                   style={{
                     boxShadow: `
@@ -1434,6 +1940,9 @@ export default function Home() {
             </motion.section>
           )}
         </main>
+
+        {/* Enhanced Music Player */}
+        <EnhancedMiniPlayer />
 
         {/* Mobile Footer */}
         <MobileFooter />
