@@ -892,7 +892,7 @@ export default function Home() {
                             whileHover={{ scale: 1.1, rotate: 5 }}
                             src={song.coverImageURL}
                             alt={song.title}
-                            className="w-20 h-20 rounded-xl object-cover shadow-2xl cursor-pointer"
+                            className="w-30 h-30 rounded-xl object-cover shadow-2xl cursor-pointer"
                             onClick={(e) => {
                               e.stopPropagation(); // Prevent card click
                               const enhancedSong = {
@@ -1160,7 +1160,7 @@ export default function Home() {
                         navigate("/player");
 
                         toast({
-                          title: "���� Now Playing",
+                          title: "🎵 Now Playing",
                           description: `${item.title} by ${item.artist}`,
                         });
                       }}
@@ -1210,7 +1210,7 @@ export default function Home() {
                         : item.type === "album"
                           ? `Album • ${item.artist} • ${item.year}`
                           : item.type === "playlist"
-                            ? `Playlist ��� ${item.tracks}`
+                            ? `Playlist • ${item.tracks}`
                             : `Artist �� ${item.artist}`}
                     </p>
                     {item.verified && (
