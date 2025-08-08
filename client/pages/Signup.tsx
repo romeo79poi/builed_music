@@ -1053,6 +1053,38 @@ export default function Signup() {
           description: `Welcome to Music Catch, ${formData.name}!`,
         });
 
+        // Sync with backend API to create user in backend store
+        try {
+          const backendSyncResponse = await fetch("/api/auth/register", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              id: verificationUser.uid,
+              email: formData.email,
+              name: formData.name,
+              username: formData.username,
+              password: "social_signup_temp_password_" + Math.random().toString(36),
+              dateOfBirth: formData.dateOfBirth,
+              gender: formData.gender,
+              bio: formData.bio,
+              profileImageURL: formData.profileImageURL,
+              provider: "social",
+              socialSignup: true,
+            }),
+          });
+
+          if (backendSyncResponse.ok) {
+            const backendResult = await backendSyncResponse.json();
+            console.log("✅ Social signup data synced with backend:", backendResult);
+          } else {
+            console.warn("⚠️ Backend sync failed for social signup, continuing with Firebase-only data");
+          }
+        } catch (backendError) {
+          console.warn("⚠️ Backend sync error for social signup:", backendError);
+        }
+
         setTimeout(() => {
           navigate("/home");
         }, 2000);
