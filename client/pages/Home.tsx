@@ -934,7 +934,7 @@ export default function Home() {
                               navigate("/player");
 
                               toast({
-                                title: "🎵 Now Playing",
+                                title: "���� Now Playing",
                                 description: `${song.title} by ${song.artist}`,
                               });
                             }}
@@ -1026,7 +1026,6 @@ export default function Home() {
                               <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
                               <span className="font-semibold">{song.views} views today</span>
                             </div>
-                            <span>��</span>
                             <span>{song.playCount} total plays</span>
                           </div>
                         </div>
