@@ -864,6 +864,7 @@ export default function Home() {
                         };
 
                         enhancedMusic.playSong(enhancedSong, topHitsPlaylist, song.rank - 1);
+                        navigate("/player");
 
                         toast({
                           title: "Playing Top Hit",
