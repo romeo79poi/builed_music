@@ -233,6 +233,9 @@ export default function EnhancedMiniPlayer() {
 
           {/* Right: Volume & Additional Controls */}
           <div className="flex items-center space-x-4 flex-1 justify-end">
+            {/* C++ Performance Indicator */}
+            <CompactAudioPerformanceIndicator className="hidden xl:flex" />
+
             <motion.button
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.9 }}
