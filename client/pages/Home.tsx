@@ -834,7 +834,8 @@ export default function Home() {
                             whileHover={{ scale: 1.1, rotate: 5 }}
                             src={song.coverImageURL}
                             alt={song.title}
-                            className="w-30 h-30 rounded-xl object-cover shadow-2xl cursor-pointer"
+                            className="rounded-xl object-cover shadow-2xl cursor-pointer"
+                            style={{ width: '110px', height: '110px' }}
                             onClick={(e) => {
                               e.stopPropagation(); // Prevent card click
                               const enhancedSong = {
