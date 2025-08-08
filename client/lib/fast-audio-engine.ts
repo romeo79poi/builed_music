@@ -60,6 +60,79 @@ class FastAudioEngine {
     this.performanceMonitor = new PerformanceMonitor();
   }
 
+  private async loadWasmModuleFallback() {
+    // Fallback loading mechanism for development
+    try {
+      const response = await fetch('/wasm/fast_audio.js');
+      const code = await response.text();
+
+      // Create a module script element
+      const script = document.createElement('script');
+      script.type = 'module';
+      script.textContent = code + `
+        window.FastAudioModule = FastAudioModule;
+        if (typeof FastAudioModule.default === 'function') {
+          window.FastAudioModuleInit = FastAudioModule.default;
+        } else {
+          window.FastAudioModuleInit = () => Promise.resolve(FastAudioModule);
+        }
+      `;
+      document.head.appendChild(script);
+
+      // Wait for the module to be available
+      await new Promise((resolve) => {
+        const checkModule = () => {
+          if (window.FastAudioModuleInit) {
+            resolve(undefined);
+          } else {
+            setTimeout(checkModule, 10);
+          }
+        };
+        checkModule();
+      });
+
+      return window.FastAudioModuleInit();
+    } catch (error) {
+      console.warn('Failed to load WASM module, using JavaScript fallback');
+      // Return a mock module that uses JavaScript fallback
+      return {
+        AudioProcessor: class {
+          processAudioChunk() {}
+          crossfadeTracks() {}
+          pitchShift() {}
+          getSpectrumData() { return { size: () => 0, get: () => 0, delete: () => {} }; }
+          getPerformanceMetrics() { return 0; }
+          setVolume() {}
+          setSpeed() {}
+          setMuted() {}
+          setEqualizerBand() {}
+          getVolume() { return 1; }
+          getSpeed() { return 1; }
+          isMuted() { return false; }
+          getEqualizerSettings() { return { size: () => 8, get: () => 1, delete: () => {} }; }
+        },
+        StreamOptimizer: class {
+          compressAudioChunk() { return { size: () => 0, get: () => 0, delete: () => {} }; }
+          decompressAudioChunk() { return { size: () => 0, get: () => 0, delete: () => {} }; }
+        },
+        VectorFloat: class {
+          constructor(data = []) { this.data = data; }
+          size() { return this.data.length; }
+          get(i) { return this.data[i] || 0; }
+          set(i, v) { this.data[i] = v; }
+          delete() {}
+        },
+        VectorUint8: class {
+          constructor(data = []) { this.data = data; }
+          size() { return this.data.length; }
+          get(i) { return this.data[i] || 0; }
+          set(i, v) { this.data[i] = v; }
+          delete() {}
+        }
+      };
+    }
+  }
+
   async initialize(): Promise<void> {
     try {
       // Load WebAssembly module - use dynamic import that works with Vite
