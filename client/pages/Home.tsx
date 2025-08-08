@@ -1083,6 +1083,7 @@ export default function Home() {
                           explicit: false,
                         };
                         enhancedMusic.playSong(enhancedSong);
+                        navigate("/player");
                       }}
                       className="absolute bottom-3 right-3 w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-lg transition-all group-hover:opacity-100 opacity-0"
                     >
@@ -1358,6 +1359,7 @@ export default function Home() {
                           explicit: false,
                         };
                         enhancedMusic.playSong(enhancedSong);
+                        navigate("/player");
                       }}
                       className="absolute bottom-3 right-3 w-12 h-12 bg-green-500 rounded-full flex items-center justify-center shadow-lg transition-all group-hover:opacity-100 opacity-0 z-20"
                     >
