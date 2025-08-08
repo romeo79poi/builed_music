@@ -580,7 +580,7 @@ export default function Signup() {
 
   // Facebook signup handler with Firebase
   const handleFacebookSignup = async () => {
-    setIsLoading(true);
+    setIsFacebookLoading(true);
     setErrorAlert(null);
 
     try {
