@@ -162,14 +162,13 @@ export default function SpotifyMiniPlayer() {
 
       {/* Mini Player */}
       <motion.div
-        animate={controls}
+        animate={isExpanded ? "expanded" : "collapsed"}
         drag="y"
         dragConstraints={{ top: 0, bottom: 0 }}
         dragElastic={0.2}
         onDrag={handleDrag}
         onDragEnd={handleDragEnd}
         variants={expandedVariants}
-        animate={isExpanded ? "expanded" : "collapsed"}
         transition={{ type: "spring", damping: 30, stiffness: 300 }}
         className={`fixed left-0 right-0 z-50 overflow-hidden ${
           isExpanded ? "top-0 bottom-0" : "bottom-0"
