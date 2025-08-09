@@ -844,7 +844,8 @@ export default function Home() {
                           repeat: Infinity,
                           ease: "easeInOut",
                         }}
-                        className="absolute inset-0 opacity-50"
+                        className="absolute opacity-50"
+                        style={{ left: '80px', top: '80px', right: 0, bottom: 0 }}
                       />
 
                       <div className="relative z-10 flex items-center gap-6">
