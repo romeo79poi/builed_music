@@ -47,8 +47,6 @@ export default function SpotifyMiniPlayer() {
   const [showDevices, setShowDevices] = useState(false);
   const [dragOffset, setDragOffset] = useState(0);
 
-  const dragConstraintsRef = useRef(null);
-
   const { currentSong, isPlaying, currentTime, duration, volume, isMuted } =
     audioState;
   const { isShuffle, repeatMode } = playbackSettings;
