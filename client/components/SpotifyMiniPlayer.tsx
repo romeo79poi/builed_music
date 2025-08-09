@@ -113,7 +113,6 @@ export default function SpotifyMiniPlayer() {
     }
     
     // Reset position
-    controls.start({ y: 0 });
     setDragOffset(0);
   };
 
