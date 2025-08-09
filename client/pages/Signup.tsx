@@ -1065,7 +1065,8 @@ export default function Signup() {
               email: formData.email,
               name: formData.name,
               username: formData.username,
-              password: "social_signup_temp_password_" + Math.random().toString(36),
+              password:
+                "social_signup_temp_password_" + Math.random().toString(36),
               dateOfBirth: formData.dateOfBirth,
               gender: formData.gender,
               bio: formData.bio,
@@ -1077,12 +1078,20 @@ export default function Signup() {
 
           if (backendSyncResponse.ok) {
             const backendResult = await backendSyncResponse.json();
-            console.log("✅ Social signup data synced with backend:", backendResult);
+            console.log(
+              "✅ Social signup data synced with backend:",
+              backendResult,
+            );
           } else {
-            console.warn("⚠️ Backend sync failed for social signup, continuing with Firebase-only data");
+            console.warn(
+              "⚠️ Backend sync failed for social signup, continuing with Firebase-only data",
+            );
           }
         } catch (backendError) {
-          console.warn("⚠️ Backend sync error for social signup:", backendError);
+          console.warn(
+            "⚠️ Backend sync error for social signup:",
+            backendError,
+          );
         }
 
         setTimeout(() => {
@@ -1522,7 +1531,8 @@ export default function Signup() {
                       <Loader2 className="w-5 h-5 text-yellow-500 mr-3 animate-spin" />
                       <div>
                         <p className="text-yellow-500 text-sm font-medium">
-                          {isGoogleLoading ? "Google" : "Facebook"} sign-in in progress...
+                          {isGoogleLoading ? "Google" : "Facebook"} sign-in in
+                          progress...
                         </p>
                         <p className="text-yellow-400 text-xs">
                           If this takes too long, try the reset button

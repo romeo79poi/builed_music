@@ -644,7 +644,8 @@ export default function Home() {
                 title: "Test Song - Blinding Lights",
                 artist: "The Weeknd",
                 album: "After Hours",
-                coverImageURL: "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop",
+                coverImageURL:
+                  "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop",
                 duration: 200,
                 url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
                 genre: "Synthwave",
@@ -871,7 +872,12 @@ export default function Home() {
                           ease: "easeInOut",
                         }}
                         className="absolute opacity-50"
-                        style={{ left: '80px', top: '80px', right: 0, bottom: 0 }}
+                        style={{
+                          left: "80px",
+                          top: "80px",
+                          right: 0,
+                          bottom: 0,
+                        }}
                       />
 
                       <div className="relative z-10 flex items-center gap-6">

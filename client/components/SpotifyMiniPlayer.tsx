@@ -80,8 +80,18 @@ export default function SpotifyMiniPlayer() {
   const devices = [
     { id: "computer", name: "This Computer", type: "computer", active: true },
     { id: "phone", name: "iPhone", type: "smartphone", active: false },
-    { id: "speaker", name: "Living Room Speaker", type: "speaker", active: false },
-    { id: "headphones", name: "AirPods Pro", type: "headphones", active: false },
+    {
+      id: "speaker",
+      name: "Living Room Speaker",
+      type: "speaker",
+      active: false,
+    },
+    {
+      id: "headphones",
+      name: "AirPods Pro",
+      type: "headphones",
+      active: false,
+    },
   ];
 
   const getDeviceIcon = (type: string) => {
@@ -101,7 +111,7 @@ export default function SpotifyMiniPlayer() {
 
   const handleDragEnd = (event: any, info: PanInfo) => {
     const threshold = 50;
-    
+
     if (info.offset.y < -threshold) {
       // Swiped up - expand player
       setIsExpanded(true);
@@ -109,7 +119,7 @@ export default function SpotifyMiniPlayer() {
       // Swiped down - collapse player
       setIsExpanded(false);
     }
-    
+
     // Reset position
     setDragOffset(0);
   };
@@ -120,25 +130,26 @@ export default function SpotifyMiniPlayer() {
 
   // Expanded player variants
   const expandedVariants = {
-    collapsed: { 
-      height: "auto", 
+    collapsed: {
+      height: "auto",
       borderRadius: "0px",
       scale: 1,
     },
-    expanded: { 
-      height: "100vh", 
+    expanded: {
+      height: "100vh",
       borderRadius: "0px",
       scale: 1,
-    }
+    },
   };
 
   const backgroundVariants = {
     collapsed: {
-      background: "linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(20,20,20,0.95) 100%)",
+      background:
+        "linear-gradient(135deg, rgba(0,0,0,0.95) 0%, rgba(20,20,20,0.95) 100%)",
     },
     expanded: {
       background: `linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(20,20,20,0.9) 100%)`,
-    }
+    },
   };
 
   return (
@@ -217,7 +228,7 @@ export default function SpotifyMiniPlayer() {
                         {currentSong.artist}
                       </p>
                     </div>
-                    
+
                     <motion.button
                       whileHover={{ scale: 1.1 }}
                       whileTap={{ scale: 0.9 }}
@@ -308,7 +319,7 @@ export default function SpotifyMiniPlayer() {
                   >
                     <ChevronDown className="w-6 h-6" />
                   </motion.button>
-                  
+
                   <div className="text-center">
                     <p className="text-xs text-gray-400 uppercase tracking-wide">
                       Playing from playlist
@@ -421,7 +432,9 @@ export default function SpotifyMiniPlayer() {
                       whileTap={{ scale: 0.9 }}
                       onClick={toggleRepeat}
                       className={`p-3 relative ${
-                        repeatMode !== "off" ? "text-green-500" : "text-gray-400"
+                        repeatMode !== "off"
+                          ? "text-green-500"
+                          : "text-gray-400"
                       }`}
                     >
                       <Repeat className="w-6 h-6" />
@@ -472,7 +485,7 @@ export default function SpotifyMiniPlayer() {
                       >
                         <VolumeIcon className="w-6 h-6" />
                       </motion.button>
-                      
+
                       <div className="w-24">
                         <input
                           type="range"
@@ -480,7 +493,9 @@ export default function SpotifyMiniPlayer() {
                           max="1"
                           step="0.01"
                           value={volume}
-                          onChange={(e) => setVolume(parseFloat(e.target.value))}
+                          onChange={(e) =>
+                            setVolume(parseFloat(e.target.value))
+                          }
                           className="w-full h-1 bg-white/20 rounded-full appearance-none cursor-pointer slider"
                         />
                       </div>
@@ -524,7 +539,9 @@ export default function SpotifyMiniPlayer() {
                   return (
                     <motion.div
                       key={device.id}
-                      whileHover={{ backgroundColor: "rgba(255, 255, 255, 0.05)" }}
+                      whileHover={{
+                        backgroundColor: "rgba(255, 255, 255, 0.05)",
+                      }}
                       className={`flex items-center justify-between p-3 rounded-lg cursor-pointer transition-colors ${
                         device.active
                           ? "bg-green-500/20 border border-green-500/50"
@@ -538,7 +555,9 @@ export default function SpotifyMiniPlayer() {
                           }`}
                         />
                         <div>
-                          <p className="font-medium text-white">{device.name}</p>
+                          <p className="font-medium text-white">
+                            {device.name}
+                          </p>
                           <p className="text-sm text-gray-400 capitalize">
                             {device.type}
                           </p>
@@ -547,7 +566,9 @@ export default function SpotifyMiniPlayer() {
                       {device.active && (
                         <div className="flex items-center space-x-2">
                           <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                          <span className="text-sm text-green-500">Playing</span>
+                          <span className="text-sm text-green-500">
+                            Playing
+                          </span>
                         </div>
                       )}
                     </motion.div>
