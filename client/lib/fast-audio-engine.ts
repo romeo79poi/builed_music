@@ -218,7 +218,7 @@ class FastAudioEngine {
     try {
       // Register custom audio worklet processor
       await this.audioContext.audioWorklet.addModule(
-        "/js/fast-audio-worklet.js",
+        "/fast-audio-worklet.js",
       );
 
       // Create worklet node
