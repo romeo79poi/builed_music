@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence, PanInfo, useAnimation } from "framer-motion";
+import { motion, AnimatePresence, PanInfo } from "framer-motion";
 import { Link } from "react-router-dom";
 import {
   Play,
