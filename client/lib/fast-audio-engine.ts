@@ -230,7 +230,7 @@ class FastAudioEngine {
           numberOfOutputs: 1,
           channelCount: 2,
           processorOptions: {
-            wasmModulePath: "/wasm/fast_audio_worker.js",
+            wasmModulePath: "/fast_audio_worker.js",
           },
         },
       );
