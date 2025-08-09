@@ -104,6 +104,9 @@ const App = () => {
                           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                           <Route path="*" element={<NotFound />} />
                         </Routes>
+
+                        {/* Global Spotify Mini Player */}
+                        <SpotifyMiniPlayer />
                       </BrowserRouter>
                     </ProfileProvider>
                   </EnhancedMusicProvider>
