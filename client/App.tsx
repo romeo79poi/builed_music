@@ -16,6 +16,7 @@ import { SocialProvider } from "./context/SocialContext";
 import "./lib/error-handler"; // Setup global error handling for Firebase permissions
 // import { SocketProvider } from "./context/SocketContext";
 import AuthRouter from "./components/AuthRouter";
+import SpotifyMiniPlayer from "./components/SpotifyMiniPlayer";
 import Splash from "./pages/Splash";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -103,6 +104,9 @@ const App = () => {
                           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                           <Route path="*" element={<NotFound />} />
                         </Routes>
+
+                        {/* Global Spotify Mini Player */}
+                        <SpotifyMiniPlayer />
                       </BrowserRouter>
                     </ProfileProvider>
                   </EnhancedMusicProvider>

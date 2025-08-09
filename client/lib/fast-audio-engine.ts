@@ -79,7 +79,7 @@ class FastAudioEngine {
   private async loadWasmModuleFallback() {
     // Fallback loading mechanism for development
     try {
-      const response = await fetch("/wasm/fast_audio.js");
+      const response = await fetch("/fast_audio.js");
       const code = await response.text();
 
       // Create a module script element
@@ -218,7 +218,7 @@ class FastAudioEngine {
     try {
       // Register custom audio worklet processor
       await this.audioContext.audioWorklet.addModule(
-        "/js/fast-audio-worklet.js",
+        "/fast-audio-worklet.js",
       );
 
       // Create worklet node
@@ -230,7 +230,7 @@ class FastAudioEngine {
           numberOfOutputs: 1,
           channelCount: 2,
           processorOptions: {
-            wasmModulePath: "/wasm/fast_audio_worker.js",
+            wasmModulePath: "/fast_audio_worker.js",
           },
         },
       );
