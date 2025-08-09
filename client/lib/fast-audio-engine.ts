@@ -79,7 +79,7 @@ class FastAudioEngine {
   private async loadWasmModuleFallback() {
     // Fallback loading mechanism for development
     try {
-      const response = await fetch("/wasm/fast_audio.js");
+      const response = await fetch("/fast_audio.js");
       const code = await response.text();
 
       // Create a module script element
