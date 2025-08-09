@@ -497,7 +497,7 @@ export default function EnhancedMiniPlayer() {
       </AnimatePresence>
 
       {/* Custom Styles */}
-      <style jsx>{`
+      <style>{`
         .slider::-webkit-slider-thumb {
           appearance: none;
           width: 12px;
