@@ -565,7 +565,7 @@ export default function SpotifyMiniPlayer() {
       </AnimatePresence>
 
       {/* Custom Styles */}
-      <style jsx>{`
+      <style>{`
         .slider::-webkit-slider-thumb {
           appearance: none;
           width: 14px;
