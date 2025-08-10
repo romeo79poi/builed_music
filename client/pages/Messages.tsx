@@ -40,8 +40,8 @@ interface Message {
   senderAvatar: string;
   content: string;
   timestamp: Date;
-  type: 'text' | 'image' | 'voice' | 'emoji';
-  status: 'sending' | 'sent' | 'delivered' | 'read';
+  type: "text" | "image" | "voice" | "emoji";
+  status: "sending" | "sent" | "delivered" | "read";
   replyTo?: string;
   edited?: boolean;
   reactions?: { emoji: string; userId: string; userName: string }[];
@@ -71,7 +71,8 @@ const sampleConversations: Conversation[] = [
     id: "conv1",
     participantId: "user1",
     participantName: "Emma Watson",
-    participantAvatar: "https://images.unsplash.com/photo-1494790108755-2616b612b1bb?w=150&h=150&fit=crop&crop=face",
+    participantAvatar:
+      "https://images.unsplash.com/photo-1494790108755-2616b612b1bb?w=150&h=150&fit=crop&crop=face",
     participantUsername: "emmawatson",
     lastMessage: "Hey! How are you doing? 😊",
     lastMessageTime: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
@@ -82,7 +83,8 @@ const sampleConversations: Conversation[] = [
     id: "conv2",
     participantId: "user2",
     participantName: "John Doe",
-    participantAvatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
+    participantAvatar:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face",
     participantUsername: "johndoe",
     lastMessage: "Thanks for the music recommendation!",
     lastMessageTime: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
@@ -94,7 +96,8 @@ const sampleConversations: Conversation[] = [
     id: "conv3",
     participantId: "user3",
     participantName: "Sarah Johnson",
-    participantAvatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
+    participantAvatar:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face",
     participantUsername: "sarahjohnson",
     lastMessage: "Can't wait for the concert! 🎵",
     lastMessageTime: new Date(Date.now() - 2 * 60 * 60 * 1000), // 2 hours ago
@@ -109,31 +112,34 @@ const sampleMessages: Message[] = [
     id: "msg1",
     senderId: "user1",
     senderName: "Emma Watson",
-    senderAvatar: "https://images.unsplash.com/photo-1494790108755-2616b612b1bb?w=150&h=150&fit=crop&crop=face",
+    senderAvatar:
+      "https://images.unsplash.com/photo-1494790108755-2616b612b1bb?w=150&h=150&fit=crop&crop=face",
     content: "Hey! How are you doing? 😊",
     timestamp: new Date(Date.now() - 5 * 60 * 1000),
-    type: 'text',
-    status: 'read',
+    type: "text",
+    status: "read",
   },
   {
     id: "msg2",
     senderId: "currentUser",
     senderName: "You",
     senderAvatar: "",
-    content: "Hi Emma! I'm good, thanks for asking. Just listening to some new music 🎵",
+    content:
+      "Hi Emma! I'm good, thanks for asking. Just listening to some new music 🎵",
     timestamp: new Date(Date.now() - 3 * 60 * 1000),
-    type: 'text',
-    status: 'read',
+    type: "text",
+    status: "read",
   },
   {
     id: "msg3",
     senderId: "user1",
     senderName: "Emma Watson",
-    senderAvatar: "https://images.unsplash.com/photo-1494790108755-2616b612b1bb?w=150&h=150&fit=crop&crop=face",
+    senderAvatar:
+      "https://images.unsplash.com/photo-1494790108755-2616b612b1bb?w=150&h=150&fit=crop&crop=face",
     content: "That's awesome! What genre are you into lately?",
     timestamp: new Date(Date.now() - 2 * 60 * 1000),
-    type: 'text',
-    status: 'delivered',
+    type: "text",
+    status: "delivered",
   },
 ];
 
@@ -145,8 +151,10 @@ export default function Messages() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // State management
-  const [conversations, setConversations] = useState<Conversation[]>(sampleConversations);
-  const [activeConversation, setActiveConversation] = useState<Conversation | null>(null);
+  const [conversations, setConversations] =
+    useState<Conversation[]>(sampleConversations);
+  const [activeConversation, setActiveConversation] =
+    useState<Conversation | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -160,7 +168,7 @@ export default function Messages() {
   useEffect(() => {
     // Load current user data
     const loadUserData = async () => {
-      const localUserData = localStorage.getItem('currentUser');
+      const localUserData = localStorage.getItem("currentUser");
       if (localUserData) {
         try {
           const userData = JSON.parse(localUserData);
@@ -175,7 +183,9 @@ export default function Messages() {
 
     // If coming from profile, start conversation with that user
     if (profileUser) {
-      const existingConv = conversations.find(conv => conv.participantId === profileUser.id);
+      const existingConv = conversations.find(
+        (conv) => conv.participantId === profileUser.id,
+      );
       if (existingConv) {
         setActiveConversation(existingConv);
         setMessages(sampleMessages);
@@ -192,7 +202,7 @@ export default function Messages() {
           unreadCount: 0,
           isOnline: Math.random() > 0.5, // Random online status
         };
-        setConversations(prev => [newConv, ...prev]);
+        setConversations((prev) => [newConv, ...prev]);
         setActiveConversation(newConv);
         setMessages([]);
       }
@@ -214,56 +224,52 @@ export default function Messages() {
       senderAvatar: currentUserData?.profileImageURL || "",
       content: newMessage,
       timestamp: new Date(),
-      type: 'text',
-      status: 'sending',
+      type: "text",
+      status: "sending",
     };
 
-    setMessages(prev => [...prev, message]);
-    
+    setMessages((prev) => [...prev, message]);
+
     // Update conversation last message
-    setConversations(prev => 
-      prev.map(conv => 
+    setConversations((prev) =>
+      prev.map((conv) =>
         conv.id === activeConversation.id
           ? { ...conv, lastMessage: newMessage, lastMessageTime: new Date() }
-          : conv
-      )
+          : conv,
+      ),
     );
 
     setNewMessage("");
 
     // Simulate message sent
     setTimeout(() => {
-      setMessages(prev => 
-        prev.map(msg => 
-          msg.id === message.id 
-            ? { ...msg, status: 'sent' as const }
-            : msg
-        )
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === message.id ? { ...msg, status: "sent" as const } : msg,
+        ),
       );
     }, 1000);
 
     // Simulate delivery
     setTimeout(() => {
-      setMessages(prev => 
-        prev.map(msg => 
-          msg.id === message.id 
-            ? { ...msg, status: 'delivered' as const }
-            : msg
-        )
+      setMessages((prev) =>
+        prev.map((msg) =>
+          msg.id === message.id
+            ? { ...msg, status: "delivered" as const }
+            : msg,
+        ),
       );
     }, 2000);
   };
 
   const handleConversationSelect = (conversation: Conversation) => {
     setActiveConversation(conversation);
-    
+
     // Mark conversation as read
-    setConversations(prev => 
-      prev.map(conv => 
-        conv.id === conversation.id 
-          ? { ...conv, unreadCount: 0 }
-          : conv
-      )
+    setConversations((prev) =>
+      prev.map((conv) =>
+        conv.id === conversation.id ? { ...conv, unreadCount: 0 } : conv,
+      ),
     );
 
     // Load messages for this conversation
@@ -275,9 +281,9 @@ export default function Messages() {
   };
 
   const formatTime = (date: Date) => {
-    return date.toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
       hour12: true,
     });
   };
@@ -287,31 +293,34 @@ export default function Messages() {
     const diff = now.getTime() - date.getTime();
     const minutes = Math.floor(diff / (1000 * 60));
     const hours = Math.floor(diff / (1000 * 60 * 60));
-    
+
     if (minutes < 1) return "just now";
     if (minutes < 60) return `${minutes}m ago`;
     if (hours < 24) return `${hours}h ago`;
     return date.toLocaleDateString();
   };
 
-  const getMessageStatusIcon = (status: Message['status']) => {
+  const getMessageStatusIcon = (status: Message["status"]) => {
     switch (status) {
-      case 'sending':
+      case "sending":
         return <Circle className="w-3 h-3 text-gray-400" />;
-      case 'sent':
+      case "sent":
         return <Check className="w-3 h-3 text-gray-400" />;
-      case 'delivered':
+      case "delivered":
         return <CheckCheck className="w-3 h-3 text-gray-400" />;
-      case 'read':
+      case "read":
         return <CheckCheck className="w-3 h-3 text-blue-500" />;
       default:
         return null;
     }
   };
 
-  const filteredConversations = conversations.filter(conv =>
-    conv.participantName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    conv.participantUsername.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredConversations = conversations.filter(
+    (conv) =>
+      conv.participantName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      conv.participantUsername
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase()),
   );
 
   // Show conversation list if no active conversation
@@ -319,7 +328,7 @@ export default function Messages() {
     return (
       <div className="h-screen bg-background text-foreground relative overflow-hidden theme-transition max-w-sm mx-auto">
         <div className="fixed inset-0 bg-gradient-to-b from-background to-secondary/30 theme-transition"></div>
-        
+
         <div className="relative z-10 flex flex-col h-screen">
           {/* Header */}
           <motion.header
@@ -341,7 +350,7 @@ export default function Messages() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => navigate('/discover')}
+              onClick={() => navigate("/discover")}
               className="w-10 h-10 rounded-full bg-primary hover:bg-primary/90 flex items-center justify-center transition-colors"
             >
               <Plus className="w-5 h-5 text-primary-foreground" />
@@ -380,7 +389,10 @@ export default function Messages() {
                   {/* Avatar */}
                   <div className="relative flex-shrink-0">
                     <img
-                      src={conversation.participantAvatar || `https://via.placeholder.com/48?text=${conversation.participantName.charAt(0)}`}
+                      src={
+                        conversation.participantAvatar ||
+                        `https://via.placeholder.com/48?text=${conversation.participantName.charAt(0)}`
+                      }
                       alt={conversation.participantName}
                       className="w-12 h-12 rounded-full object-cover border-2 border-background"
                     />
@@ -390,7 +402,9 @@ export default function Messages() {
                     {conversation.unreadCount > 0 && (
                       <div className="absolute -top-1 -right-1 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
                         <span className="text-xs font-bold text-primary-foreground">
-                          {conversation.unreadCount > 9 ? '9+' : conversation.unreadCount}
+                          {conversation.unreadCount > 9
+                            ? "9+"
+                            : conversation.unreadCount}
                         </span>
                       </div>
                     )}
@@ -430,15 +444,14 @@ export default function Messages() {
                   {searchQuery ? "No conversations found" : "No messages yet"}
                 </h3>
                 <p className="text-muted-foreground mb-4">
-                  {searchQuery 
+                  {searchQuery
                     ? "Try searching for a different name or username"
-                    : "Start a conversation with someone new"
-                  }
+                    : "Start a conversation with someone new"}
                 </p>
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => navigate('/discover')}
+                  onClick={() => navigate("/discover")}
                   className="px-6 py-3 bg-primary text-primary-foreground rounded-full font-medium"
                 >
                   Discover People
@@ -457,7 +470,7 @@ export default function Messages() {
   return (
     <div className="h-screen bg-background text-foreground relative overflow-hidden theme-transition max-w-sm mx-auto">
       <div className="fixed inset-0 bg-gradient-to-b from-background to-secondary/30 theme-transition"></div>
-      
+
       <div className="relative z-10 flex flex-col h-screen">
         {/* Chat Header */}
         <motion.header
@@ -478,7 +491,10 @@ export default function Messages() {
             <div className="flex items-center space-x-3">
               <div className="relative">
                 <img
-                  src={activeConversation.participantAvatar || `https://via.placeholder.com/40?text=${activeConversation.participantName.charAt(0)}`}
+                  src={
+                    activeConversation.participantAvatar ||
+                    `https://via.placeholder.com/40?text=${activeConversation.participantName.charAt(0)}`
+                  }
                   alt={activeConversation.participantName}
                   className="w-10 h-10 rounded-full object-cover border border-border"
                 />
@@ -486,16 +502,17 @@ export default function Messages() {
                   <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border border-background"></div>
                 )}
               </div>
-              
+
               <div>
                 <h2 className="font-semibold text-foreground">
                   {activeConversation.participantName}
                 </h2>
                 <p className="text-xs text-muted-foreground">
-                  {activeConversation.isOnline 
-                    ? (activeConversation.isTyping ? "typing..." : "online")
-                    : `last seen ${formatLastSeen(activeConversation.lastSeen || new Date())}`
-                  }
+                  {activeConversation.isOnline
+                    ? activeConversation.isTyping
+                      ? "typing..."
+                      : "online"
+                    : `last seen ${formatLastSeen(activeConversation.lastSeen || new Date())}`}
                 </p>
               </div>
             </div>
@@ -509,7 +526,7 @@ export default function Messages() {
             >
               <Phone className="w-4 h-4 text-foreground" />
             </motion.button>
-            
+
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -533,8 +550,11 @@ export default function Messages() {
           <AnimatePresence>
             {messages.map((message, index) => {
               const isCurrentUser = message.senderId === "currentUser";
-              const showAvatar = !isCurrentUser && (index === 0 || messages[index - 1].senderId !== message.senderId);
-              
+              const showAvatar =
+                !isCurrentUser &&
+                (index === 0 ||
+                  messages[index - 1].senderId !== message.senderId);
+
               return (
                 <motion.div
                   key={message.id}
@@ -551,7 +571,10 @@ export default function Messages() {
                     <div className="w-8 h-8 flex-shrink-0">
                       {showAvatar && (
                         <img
-                          src={message.senderAvatar || `https://via.placeholder.com/32?text=${message.senderName.charAt(0)}`}
+                          src={
+                            message.senderAvatar ||
+                            `https://via.placeholder.com/32?text=${message.senderName.charAt(0)}`
+                          }
                           alt={message.senderName}
                           className="w-8 h-8 rounded-full object-cover border border-border"
                         />
@@ -568,14 +591,20 @@ export default function Messages() {
                     } rounded-2xl px-4 py-2 relative`}
                   >
                     <p className="text-sm leading-relaxed">{message.content}</p>
-                    
+
                     {/* Message info */}
-                    <div className={`flex items-center space-x-1 mt-1 ${
-                      isCurrentUser ? "justify-end" : "justify-start"
-                    }`}>
-                      <span className={`text-xs ${
-                        isCurrentUser ? "text-primary-foreground/70" : "text-muted-foreground"
-                      }`}>
+                    <div
+                      className={`flex items-center space-x-1 mt-1 ${
+                        isCurrentUser ? "justify-end" : "justify-start"
+                      }`}
+                    >
+                      <span
+                        className={`text-xs ${
+                          isCurrentUser
+                            ? "text-primary-foreground/70"
+                            : "text-muted-foreground"
+                        }`}
+                      >
                         {formatTime(message.timestamp)}
                       </span>
                       {isCurrentUser && (
@@ -605,7 +634,7 @@ export default function Messages() {
                   onKeyPress={(e) => e.key === "Enter" && handleSendMessage()}
                   className="flex-1 bg-transparent text-foreground placeholder-muted-foreground focus:outline-none"
                 />
-                
+
                 <div className="flex items-center space-x-2">
                   <motion.button
                     whileHover={{ scale: 1.1 }}
@@ -614,7 +643,7 @@ export default function Messages() {
                   >
                     <Paperclip className="w-4 h-4" />
                   </motion.button>
-                  
+
                   <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
