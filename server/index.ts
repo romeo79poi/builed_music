@@ -225,6 +225,26 @@ export function createServer() {
     res.json({ message: "Hello from Express server v2!" });
   });
 
+  // Test endpoint to verify database connectivity
+  app.get("/api/test-db", async (_req, res) => {
+    try {
+      const User = require("./models/User").default;
+      const userCount = await User.countDocuments();
+      res.json({
+        success: true,
+        message: "Database connected",
+        userCount: userCount,
+        mongoConnected: require("./lib/mongodb").isMongoConnected()
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: "Database error",
+        error: error.message
+      });
+    }
+  });
+
   // Authentication API routes
   app.post("/api/auth/register", registerUser);
   app.get("/api/auth/check-availability", checkAvailability);
