@@ -28,14 +28,7 @@ import {
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
-import { useFirebase } from "../context/FirebaseContext";
-import {
-  updatePassword,
-  updateProfile,
-  EmailAuthProvider,
-  reauthenticateWithCredential,
-} from "firebase/auth";
-import { auth } from "../lib/firebase";
+import { useAuth } from "../context/AuthContext";
 import { userDataService, EnhancedUserData } from "../lib/user-data-service";
 
 export default function EditAccount() {
