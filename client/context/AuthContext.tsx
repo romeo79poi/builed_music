@@ -44,6 +44,34 @@ interface AuthContextType {
     email?: string,
     username?: string,
   ) => Promise<{ available: boolean; message: string }>;
+
+  // OTP Authentication methods
+  requestSignupOTP: (
+    email: string,
+    password: string,
+    name: string,
+    username: string,
+  ) => Promise<{ success: boolean; message: string }>;
+  verifySignupOTP: (
+    email: string,
+    otp: string,
+  ) => Promise<{ success: boolean; message: string }>;
+  requestLoginOTP: (
+    email: string,
+  ) => Promise<{ success: boolean; message: string }>;
+  verifyLoginOTP: (
+    email: string,
+    otp: string,
+  ) => Promise<{ success: boolean; message: string }>;
+
+  // OAuth methods
+  signInWithGoogle: (
+    token: string,
+  ) => Promise<{ success: boolean; message: string }>;
+  signInWithFacebook: (
+    token: string,
+  ) => Promise<{ success: boolean; message: string }>;
+
   isAuthenticated: boolean;
 
   // Legacy methods for backward compatibility
