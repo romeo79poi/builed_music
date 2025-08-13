@@ -428,15 +428,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // OAuth methods
   const signInWithGoogle = async (token: string) => {
     try {
-      const response = await fetch('/api/auth/google', {
+      const result = await safeFetch('/api/auth/google', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ token }),
       });
-
-      const result = await response.json();
 
       if (result.success) {
         if (result.token) {
