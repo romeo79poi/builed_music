@@ -5,12 +5,6 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-import { User } from "firebase/auth";
-import { useFirebase } from "./FirebaseContext";
-import {
-  signInWithGoogle as firebaseGoogleSignIn,
-  signInWithFacebook as firebaseFacebookSignIn,
-} from "../lib/auth";
 
 // Local user interface for backend profile data
 interface UserProfile {
@@ -32,7 +26,6 @@ interface UserProfile {
 
 interface AuthContextType {
   user: UserProfile | null;
-  firebaseUser: User | null;
   loading: boolean;
   signUp: (
     email: string,
@@ -43,8 +36,6 @@ interface AuthContextType {
     email: string,
     password: string,
   ) => Promise<{ success: boolean; message: string }>;
-  signInWithGoogle: () => Promise<{ success: boolean; message: string }>;
-  signInWithFacebook: () => Promise<{ success: boolean; message: string }>;
   signOut: () => Promise<void>;
   updateProfile: (
     updates: Partial<UserProfile>,
@@ -63,27 +54,20 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const {
-    user: firebaseUser,
-    loading: firebaseLoading,
-    signOut: firebaseSignOut,
-  } = useFirebase();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!firebaseLoading) {
-      initializeAuth();
-    }
-  }, [firebaseUser, firebaseLoading]);
+    initializeAuth();
+  }, []);
 
   const initializeAuth = async () => {
     try {
-      if (firebaseUser) {
-        console.log("🔥 Firebase user detected:", firebaseUser.email);
-        await loadUserProfile(firebaseUser);
+      // Check for stored token or session
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        await loadUserProfile(token);
       } else {
-        console.log("🔥 No Firebase user found");
         setUser(null);
       }
     } catch (error) {
@@ -94,165 +78,87 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const loadUserProfile = async (firebaseUser: User) => {
+  const loadUserProfile = async (token: string) => {
     try {
-      // Try to fetch user profile from backend
-      const response = await fetch(`/api/v1/users/${firebaseUser.uid}`, {
+      const response = await fetch('/api/auth/me', {
         headers: {
-          "user-id": firebaseUser.uid,
-          "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
       });
 
       if (response.ok) {
         const result = await response.json();
         if (result.success && result.data) {
-          // Transform backend data to UserProfile interface
-          const backendData = result.data;
-          const userProfile: UserProfile = {
-            id: firebaseUser.uid,
-            email: firebaseUser.email || "",
-            username:
-              backendData.username ||
-              firebaseUser.email?.split("@")[0] ||
-              "user",
-            name: backendData.name || firebaseUser.displayName || "User",
-            avatar_url:
-              backendData.profile_image_url || firebaseUser.photoURL || "",
-            bio: backendData.bio || "",
-            location: backendData.location || "",
-            website: backendData.website || "",
-            verified:
-              backendData.is_verified || firebaseUser.emailVerified || false,
-            premium: backendData.is_premium || false,
-            followers_count: backendData.follower_count || 0,
-            following_count: backendData.following_count || 0,
-            created_at: backendData.created_at || new Date().toISOString(),
-            updated_at: backendData.updated_at || new Date().toISOString(),
-          };
-
-          setUser(userProfile);
-          console.log("✅ User profile loaded from backend:", userProfile);
-          return;
+          setUser(result.data);
+          console.log("✅ User profile loaded:", result.data);
         }
+      } else {
+        localStorage.removeItem('authToken');
+        setUser(null);
       }
-
-      // If backend doesn't have profile, create from Firebase user
-      const firebaseProfile: UserProfile = {
-        id: firebaseUser.uid,
-        email: firebaseUser.email || "",
-        username: firebaseUser.email?.split("@")[0] || "user",
-        name: firebaseUser.displayName || "User",
-        avatar_url: firebaseUser.photoURL || "",
-        bio: "",
-        location: "",
-        website: "",
-        verified: firebaseUser.emailVerified || false,
-        premium: false,
-        followers_count: 0,
-        following_count: 0,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-
-      setUser(firebaseProfile);
-      console.log("✅ User profile created from Firebase:", firebaseProfile);
     } catch (error) {
       console.error("Error loading user profile:", error);
-
-      // Fallback: create minimal profile from Firebase user
-      if (firebaseUser) {
-        const minimalProfile: UserProfile = {
-          id: firebaseUser.uid,
-          email: firebaseUser.email || "",
-          username: firebaseUser.email?.split("@")[0] || "user",
-          name: firebaseUser.displayName || "User",
-          avatar_url: firebaseUser.photoURL || "",
-          bio: "",
-          location: "",
-          website: "",
-          verified: firebaseUser.emailVerified || false,
-          premium: false,
-          followers_count: 0,
-          following_count: 0,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        };
-
-        setUser(minimalProfile);
-        console.log("✅ Minimal user profile created:", minimalProfile);
-      }
+      localStorage.removeItem('authToken');
+      setUser(null);
     }
   };
 
   const signUp = async (email: string, password: string, userData: any) => {
-    console.log("📝 Sign up - Firebase authentication required first");
-
-    // Note: Actual signup should be handled through Firebase first,
-    // then user profile can be created/updated in backend
-    return {
-      success: false,
-      message: "Please use Firebase signup flow - see Signup page",
-    };
-  };
-
-  const signIn = async (email: string, password: string) => {
-    console.log("🔑 Sign in - using Firebase authentication");
-
-    // Note: Actual signin should be handled through Firebase
-    return {
-      success: false,
-      message: "Please use Firebase signin flow - see Login page",
-    };
-  };
-
-  const signInWithGoogle = async () => {
-    console.log("🔑 Google sign in using Firebase");
-
     try {
-      const result = await firebaseGoogleSignIn();
+      const response = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password, ...userData }),
+      });
+
+      const result = await response.json();
+      
       if (result.success) {
-        return { success: true, message: "Google sign-in successful!" };
+        if (result.token) {
+          localStorage.setItem('authToken', result.token);
+          await loadUserProfile(result.token);
+        }
+        return { success: true, message: result.message || 'Account created successfully!' };
       } else {
-        return {
-          success: false,
-          message: result.error || "Google sign-in failed",
-        };
+        return { success: false, message: result.message || 'Signup failed' };
       }
     } catch (error: any) {
-      return {
-        success: false,
-        message: error.message || "Google sign-in failed",
-      };
+      return { success: false, message: error.message || 'Signup failed' };
     }
   };
 
-  const signInWithFacebook = async () => {
-    console.log("🔑 Facebook sign in using Firebase");
-
+  const signIn = async (email: string, password: string) => {
     try {
-      const result = await firebaseFacebookSignIn();
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const result = await response.json();
+      
       if (result.success) {
-        return { success: true, message: "Facebook sign-in successful!" };
+        if (result.token) {
+          localStorage.setItem('authToken', result.token);
+          await loadUserProfile(result.token);
+        }
+        return { success: true, message: result.message || 'Login successful!' };
       } else {
-        return {
-          success: false,
-          message: result.error || "Facebook sign-in failed",
-        };
+        return { success: false, message: result.message || 'Login failed' };
       }
     } catch (error: any) {
-      return {
-        success: false,
-        message: error.message || "Facebook sign-in failed",
-      };
+      return { success: false, message: error.message || 'Login failed' };
     }
   };
 
   const signOut = async () => {
-    console.log("👋 Sign out using Firebase");
-
     try {
-      await firebaseSignOut();
+      localStorage.removeItem('authToken');
       setUser(null);
       console.log("✅ Successfully signed out");
     } catch (error) {
@@ -261,19 +167,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const updateProfile = async (updates: Partial<UserProfile>) => {
-    console.log("👤 Update profile:", updates);
-
-    if (!user || !firebaseUser) {
+    if (!user) {
       return { success: false, message: "Not authenticated" };
     }
 
     try {
-      // Update profile in backend
-      const response = await fetch(`/api/v1/users/${firebaseUser.uid}`, {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        return { success: false, message: "No authentication token" };
+      }
+
+      const response = await fetch(`/api/users/${user.id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "user-id": firebaseUser.uid,
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify(updates),
       });
@@ -281,7 +189,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (response.ok) {
         const result = await response.json();
         if (result.success) {
-          // Update local state
           const updatedUser = {
             ...user,
             ...updates,
@@ -292,17 +199,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      // If backend update fails, still update local state
-      const updatedUser = {
-        ...user,
-        ...updates,
-        updated_at: new Date().toISOString(),
-      };
-      setUser(updatedUser);
-      return {
-        success: true,
-        message: "Profile updated locally (backend sync pending)",
-      };
+      return { success: false, message: "Update failed" };
     } catch (error: any) {
       console.error("Profile update error:", error);
       return { success: false, message: error.message || "Update failed" };
@@ -323,20 +220,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const checkAuthState = async () => {
-    // Firebase handles auth state automatically
-    console.log("🔥 Auth state managed by Firebase");
+    await initializeAuth();
   };
 
-  const isAuthenticated = !!firebaseUser && !!user;
+  const isAuthenticated = !!user;
 
   const value: AuthContextType = {
     user,
-    firebaseUser,
-    loading: loading || firebaseLoading,
+    loading,
     signUp,
     signIn,
-    signInWithGoogle,
-    signInWithFacebook,
     signOut,
     updateProfile,
     isAuthenticated,
