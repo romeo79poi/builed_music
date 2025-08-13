@@ -164,11 +164,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signOut = async () => {
     try {
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        // Call logout endpoint
+        await fetch('/api/auth/logout', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+      }
+
       localStorage.removeItem('authToken');
       setUser(null);
       console.log("✅ Successfully signed out");
     } catch (error) {
       console.error("Sign out error:", error);
+      // Still remove token even if endpoint fails
+      localStorage.removeItem('authToken');
+      setUser(null);
     }
   };
 
