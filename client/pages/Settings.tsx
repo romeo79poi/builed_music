@@ -41,10 +41,7 @@ import MobileFooter from "../components/MobileFooter";
 import ThemeToggle from "../components/ThemeToggle";
 import { useTheme } from "../context/ThemeContext";
 import { settingsApi } from "../lib/api";
-import { useFirebase } from "../context/FirebaseContext";
-import { signOut } from "firebase/auth";
-import { auth } from "../lib/firebase";
-import firebaseSettingsService from "../lib/firebase-settings";
+import { useAuth } from "../context/AuthContext";
 
 export default function Settings() {
   const navigate = useNavigate();
@@ -764,7 +761,7 @@ export default function Settings() {
             title: "Setting Updated",
             description: `${friendlyName} has been ${newValue ? "enabled" : "disabled"}`,
           });
-          console.log("✅ Setting updated successfully:", key, newValue);
+          console.log("��� Setting updated successfully:", key, newValue);
         } else {
           throw new Error("Firebase settings service failed");
         }
