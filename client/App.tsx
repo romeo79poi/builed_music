@@ -96,6 +96,10 @@ const App = () => {
                             path="/code-generator"
                             element={<CodeGenerator />}
                           />
+                          <Route
+                            path="/auth-test"
+                            element={<AuthTest />}
+                          />
 
                           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                           <Route path="*" element={<NotFound />} />
