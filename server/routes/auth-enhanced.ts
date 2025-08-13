@@ -48,7 +48,7 @@ const sendOTPEmail = async (email: string, otp: string): Promise<boolean> => {
 };
 
 // Step 1: Request OTP for signup
-export const requestSignupOTP: RequestHandler = async (req, res) => {
+const requestSignupOTP: RequestHandler = async (req, res) => {
   try {
     if (!isMongoConnected()) {
       return res.status(503).json({
