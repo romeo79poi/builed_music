@@ -228,13 +228,11 @@ export function createServer() {
   // Test endpoint to verify database connectivity
   app.get("/api/test-db", async (_req, res) => {
     try {
-      const User = require("./models/User").default;
-      const userCount = await User.countDocuments();
+      const { isMongoConnected } = require("./lib/mongodb");
       res.json({
         success: true,
         message: "Database connected",
-        userCount: userCount,
-        mongoConnected: require("./lib/mongodb").isMongoConnected()
+        mongoConnected: isMongoConnected()
       });
     } catch (error: any) {
       res.status(500).json({
