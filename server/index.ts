@@ -279,8 +279,8 @@ export function createServer() {
   // JWT EMAIL VERIFICATION SYSTEM (v4) - NODEMAILER + JWT
   // ===============================================
 
-  // Mount enhanced JWT email auth router
-  app.use("/api/v4/auth", authV4Router);
+  // Mount enhanced JWT email auth router - Temporarily disabled
+  // app.use("/api/v4/auth", authV4Router);
 
   // Social Authentication routes
   app.post("/api/auth/google", googleAuth);
