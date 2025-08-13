@@ -244,6 +244,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await signOut();
   };
 
+  const checkAvailability = async (email?: string, username?: string) => {
+    try {
+      const params = new URLSearchParams();
+      if (email) params.append('email', email);
+      if (username) params.append('username', username);
+
+      const response = await fetch(`/api/auth/check-availability?${params.toString()}`);
+      const result = await response.json();
+
+      return {
+        available: result.available || false,
+        message: result.message || 'Unknown error'
+      };
+    } catch (error: any) {
+      return {
+        available: false,
+        message: error.message || 'Failed to check availability'
+      };
+    }
+  };
+
   const checkAuthState = async () => {
     await initializeAuth();
   };
@@ -257,6 +278,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signIn,
     signOut,
     updateProfile,
+    checkAvailability,
     isAuthenticated,
     login,
     logout,
