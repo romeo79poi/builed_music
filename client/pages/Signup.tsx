@@ -520,38 +520,12 @@ export default function Signup() {
     try {
       console.log("🔥 Attempting Firebase Google sign-in...");
 
-      const result = await firebaseHelpers.googleSignIn();
-
-      if (result.success && result.user) {
-        console.log("✅ Firebase Google sign-in successful:", result.user);
-
-        // Store the user data from Google
-        setFormData((prev) => ({
-          ...prev,
-          email: result.user.email || "",
-          name: result.user.displayName || "",
-          profileImageURL: result.user.photoURL || "",
-        }));
-
-        // Store the authenticated user
-        setVerificationUser(result.user);
-        setIsSocialSignup(true);
-
-        toast({
-          title: "Welcome to CATCH! 🎉",
-          description: `Please complete your profile setup`,
-        });
-
-        // Redirect to profile step to collect username, then DOB, gender, bio
-        setCurrentStep("profile");
-      } else {
-        setErrorAlert(result.error || "Google sign-in failed");
-        toast({
-          title: "Google sign-in failed",
-          description: result.error || "Please try again",
-          variant: "destructive",
-        });
-      }
+      // TODO: Implement Google OAuth with backend
+      toast({
+        title: "Coming Soon",
+        description: "Google signup will be available soon. Please use email signup for now.",
+        variant: "default",
+      });
     } catch (error: any) {
       console.error("❌ Google sign-in error:", error);
       setErrorAlert(error.message || "Google sign-in failed");
