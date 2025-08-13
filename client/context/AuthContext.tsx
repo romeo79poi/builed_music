@@ -293,6 +293,170 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // OTP Authentication methods
+  const requestSignupOTP = async (email: string, password: string, name: string, username: string) => {
+    try {
+      const response = await fetch('/api/auth/signup/request-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password, name, username }),
+      });
+
+      const result = await response.json();
+      return {
+        success: result.success,
+        message: result.message || (result.success ? 'OTP sent successfully' : 'Failed to send OTP')
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message || 'Failed to send OTP'
+      };
+    }
+  };
+
+  const verifySignupOTP = async (email: string, otp: string) => {
+    try {
+      const response = await fetch('/api/auth/signup/verify-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, otp }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        if (result.token) {
+          localStorage.setItem('authToken', result.token);
+          setUser(result.data);
+        }
+        return { success: true, message: result.message || 'Account created successfully!' };
+      } else {
+        return { success: false, message: result.message || 'OTP verification failed' };
+      }
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message || 'OTP verification failed'
+      };
+    }
+  };
+
+  const requestLoginOTP = async (email: string) => {
+    try {
+      const response = await fetch('/api/auth/login/request-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      const result = await response.json();
+      return {
+        success: result.success,
+        message: result.message || (result.success ? 'OTP sent successfully' : 'Failed to send OTP')
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message || 'Failed to send OTP'
+      };
+    }
+  };
+
+  const verifyLoginOTP = async (email: string, otp: string) => {
+    try {
+      const response = await fetch('/api/auth/login/verify-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, otp }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        if (result.token) {
+          localStorage.setItem('authToken', result.token);
+          setUser(result.data);
+        }
+        return { success: true, message: result.message || 'Login successful!' };
+      } else {
+        return { success: false, message: result.message || 'OTP verification failed' };
+      }
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message || 'OTP verification failed'
+      };
+    }
+  };
+
+  // OAuth methods
+  const signInWithGoogle = async (token: string) => {
+    try {
+      const response = await fetch('/api/auth/google', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        if (result.token) {
+          localStorage.setItem('authToken', result.token);
+          setUser(result.data);
+        }
+        return { success: true, message: result.message || 'Google authentication successful!' };
+      } else {
+        return { success: false, message: result.message || 'Google authentication failed' };
+      }
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message || 'Google authentication failed'
+      };
+    }
+  };
+
+  const signInWithFacebook = async (token: string) => {
+    try {
+      const response = await fetch('/api/auth/facebook', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),
+      });
+
+      const result = await response.json();
+
+      if (result.success) {
+        if (result.token) {
+          localStorage.setItem('authToken', result.token);
+          setUser(result.data);
+        }
+        return { success: true, message: result.message || 'Facebook authentication successful!' };
+      } else {
+        return { success: false, message: result.message || 'Facebook authentication failed' };
+      }
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message || 'Facebook authentication failed'
+      };
+    }
+  };
+
   const checkAuthState = async () => {
     await initializeAuth();
   };
@@ -307,6 +471,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signOut,
     updateProfile,
     checkAvailability,
+    requestSignupOTP,
+    verifySignupOTP,
+    requestLoginOTP,
+    verifyLoginOTP,
+    signInWithGoogle,
+    signInWithFacebook,
     isAuthenticated,
     login,
     logout,
