@@ -117,7 +117,7 @@ const requestSignupOTP: RequestHandler = async (req, res) => {
 };
 
 // Step 2: Verify OTP and create account
-export const verifySignupOTP: RequestHandler = async (req, res) => {
+const verifySignupOTP: RequestHandler = async (req, res) => {
   try {
     if (!isMongoConnected()) {
       return res.status(503).json({
