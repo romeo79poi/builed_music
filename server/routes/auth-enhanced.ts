@@ -618,10 +618,26 @@ export const facebookAuth: RequestHandler = async (req, res) => {
   }
 };
 
-// Apply rate limiting
-export const requestSignupOTPWithRateLimit = [rateLimit(3, 15 * 60 * 1000), requestSignupOTP];
-export const verifySignupOTPWithRateLimit = [rateLimit(5, 15 * 60 * 1000), verifySignupOTP];
-export const requestLoginOTPWithRateLimit = [rateLimit(3, 15 * 60 * 1000), requestLoginOTP];
-export const verifyLoginOTPWithRateLimit = [rateLimit(5, 15 * 60 * 1000), verifyLoginOTP];
-export const googleAuthWithRateLimit = [rateLimit(10, 15 * 60 * 1000), googleAuth];
-export const facebookAuthWithRateLimit = [rateLimit(10, 15 * 60 * 1000), facebookAuth];
+// Apply rate limiting and export using CommonJS
+const requestSignupOTPWithRateLimit = [rateLimit(3, 15 * 60 * 1000), requestSignupOTP];
+const verifySignupOTPWithRateLimit = [rateLimit(5, 15 * 60 * 1000), verifySignupOTP];
+const requestLoginOTPWithRateLimit = [rateLimit(3, 15 * 60 * 1000), requestLoginOTP];
+const verifyLoginOTPWithRateLimit = [rateLimit(5, 15 * 60 * 1000), verifyLoginOTP];
+const googleAuthWithRateLimit = [rateLimit(10, 15 * 60 * 1000), googleAuth];
+const facebookAuthWithRateLimit = [rateLimit(10, 15 * 60 * 1000), facebookAuth];
+
+// CommonJS exports
+module.exports = {
+  requestSignupOTP,
+  verifySignupOTP,
+  requestLoginOTP,
+  verifyLoginOTP,
+  googleAuth,
+  facebookAuth,
+  requestSignupOTPWithRateLimit,
+  verifySignupOTPWithRateLimit,
+  requestLoginOTPWithRateLimit,
+  verifyLoginOTPWithRateLimit,
+  googleAuthWithRateLimit,
+  facebookAuthWithRateLimit,
+};
