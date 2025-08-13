@@ -547,7 +547,8 @@ export default function Signup() {
     try {
       console.log("🔥 Attempting Firebase Facebook sign-in...");
 
-      const result = await firebaseHelpers.facebookSignIn();
+      // TODO: Implement Facebook OAuth with backend
+      const result = { success: false, error: "Facebook OAuth not yet implemented" };
 
       if (result.success && result.user) {
         console.log("✅ Firebase Facebook sign-in successful:", result.user);
