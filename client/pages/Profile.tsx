@@ -49,11 +49,9 @@ import {
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
 import { UserProfile as BackendUserProfile, Song } from "@shared/api";
-import { fetchUserData, updateUserProfile } from "../lib/auth";
 import { api } from "../lib/api";
-import { useFirebase } from "../context/FirebaseContext";
+import { useAuth } from "../context/AuthContext";
 import { useMusic } from "../context/MusicContextSupabase";
-import { useSocial } from "../context/SocialContext";
 import { userDataService, EnhancedUserData } from "../lib/user-data-service";
 
 // Use enhanced user data type
