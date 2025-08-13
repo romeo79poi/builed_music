@@ -106,20 +106,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signUp = async (email: string, password: string, userData: any) => {
     try {
+      const { name, username } = userData;
       const response = await fetch('/api/auth/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password, ...userData }),
+        body: JSON.stringify({
+          email,
+          password,
+          name: name || userData.displayName || 'User',
+          username: username || userData.username || email.split('@')[0]
+        }),
       });
 
       const result = await response.json();
-      
+
       if (result.success) {
         if (result.token) {
           localStorage.setItem('authToken', result.token);
-          await loadUserProfile(result.token);
+          setUser(result.data);
         }
         return { success: true, message: result.message || 'Account created successfully!' };
       } else {
@@ -141,11 +147,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       const result = await response.json();
-      
+
       if (result.success) {
         if (result.token) {
           localStorage.setItem('authToken', result.token);
-          await loadUserProfile(result.token);
+          setUser(result.data);
         }
         return { success: true, message: result.message || 'Login successful!' };
       } else {
