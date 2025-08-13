@@ -89,6 +89,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Safe fetch utility to prevent JSON parsing errors
+  const safeFetch = async (url: string, options?: RequestInit) => {
+    try {
+      const response = await fetch(url, options);
+
+      if (!response.ok) {
+        // Try to get error message from response if it's JSON
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch {
+          // If JSON parsing fails, use status message
+        }
+        throw new Error(errorMessage);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error("Fetch error:", error);
+      throw error;
+    }
+  };
+
   useEffect(() => {
     initializeAuth();
   }, []);
