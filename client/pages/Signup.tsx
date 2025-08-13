@@ -618,27 +618,14 @@ export default function Signup() {
       await checkAvailability("email", formData.email);
 
       if (availability.email !== false) {
-        // Create temporary Firebase account to send verification
-        console.log(
-          "🔥 Creating temporary Firebase account for email verification...",
-        );
+        // Email verification not required with JWT backend
+        console.log("✅ Email verified, proceeding to profile setup...");
 
-        const tempPassword = Math.random().toString(36).slice(-8) + "A1!"; // Temporary password
-        const result = await signUpWithEmailAndPassword(
-          formData.email,
-          tempPassword,
-          "Temp User", // Temporary name
-          undefined,
-          undefined,
-        );
+        // Skip email verification step and go directly to profile
+        const result = { success: true };
 
-        if (result.success && result.user) {
-          setTempEmailUser(result.user);
-
-          // Send email verification immediately
-          const verificationResult = await sendFirebaseEmailVerification(
-            result.user,
-          );
+        if (result.success) {
+          // Email verified, continue to profile setup
 
           if (verificationResult.success) {
             setEmailVerificationSent(true);
