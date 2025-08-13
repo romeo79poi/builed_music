@@ -510,7 +510,13 @@ export default function Signup() {
     }
   };
 
-  const { signInWithGoogle, signInWithFacebook, signUp } = useAuth();
+  const {
+    signInWithGoogle,
+    signInWithFacebook,
+    signUp,
+    requestSignupOTP,
+    verifySignupOTP,
+  } = useAuth();
 
   // Google signup handler with Firebase
   const handleGoogleSignup = async () => {
