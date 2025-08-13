@@ -852,33 +852,59 @@ export default function Signup() {
         setErrorAlert(null);
 
         try {
-          // Use JWT backend signup
-          const result = await signUp(
-            formData.email,
-            formData.password,
-            {
-              name: formData.name,
-              username: formData.username,
-            }
-          );
+          // Option 1: Direct JWT signup (current default)
+          // Option 2: OTP verification signup (set useOTPVerification = true)
+          const useOTPVerification = false;
 
-          if (result.success) {
-            // Account created successfully with JWT
-            toast({
-              title: "Account Created! 🎉",
-              description: `Welcome to Catch, ${formData.name}! Your account has been created successfully.`,
-            });
-
-            console.log("✅ User created with JWT backend");
-
-            // Redirect to home page after successful signup
-            setTimeout(() => {
-              navigate("/home");
-            }, 1500);
-          } else {
-            setErrorAlert(
-              result.message || "Registration failed. Please try again.",
+          if (useOTPVerification) {
+            // Use OTP verification signup
+            const result = await requestSignupOTP(
+              formData.email,
+              formData.password,
+              formData.name,
+              formData.username
             );
+
+            if (result.success) {
+              toast({
+                title: "Verification Code Sent! 📧",
+                description: "Please check your email and enter the verification code.",
+              });
+
+              // Move to OTP verification step
+              setCurrentStep("email-verify");
+            } else {
+              setErrorAlert(result.message);
+            }
+          } else {
+            // Use direct JWT signup (no email verification required)
+            const result = await signUp(
+              formData.email,
+              formData.password,
+              {
+                name: formData.name,
+                username: formData.username,
+              }
+            );
+
+            if (result.success) {
+              // Account created successfully with JWT
+              toast({
+                title: "Account Created! 🎉",
+                description: `Welcome to Catch, ${formData.name}! Your account has been created successfully.`,
+              });
+
+              console.log("✅ User created with JWT backend");
+
+              // Redirect to home page after successful signup
+              setTimeout(() => {
+                navigate("/home");
+              }, 1500);
+            } else {
+              setErrorAlert(
+                result.message || "Registration failed. Please try again.",
+              );
+            }
           }
         } catch (error: any) {
           console.error("Registration error:", error);
