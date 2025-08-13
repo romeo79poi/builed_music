@@ -287,7 +287,7 @@ const requestLoginOTP: RequestHandler = async (req, res) => {
 };
 
 // Step 2: Verify OTP and login
-export const verifyLoginOTP: RequestHandler = async (req, res) => {
+const verifyLoginOTP: RequestHandler = async (req, res) => {
   try {
     if (!isMongoConnected()) {
       return res.status(503).json({
