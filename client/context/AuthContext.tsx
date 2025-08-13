@@ -344,15 +344,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const verifySignupOTP = async (email: string, otp: string) => {
     try {
-      const response = await fetch('/api/auth/signup/verify-otp', {
+      const result = await safeFetch('/api/auth/signup/verify-otp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, otp }),
       });
-
-      const result = await response.json();
 
       if (result.success) {
         if (result.token) {
@@ -373,15 +371,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const requestLoginOTP = async (email: string) => {
     try {
-      const response = await fetch('/api/auth/login/request-otp', {
+      const result = await safeFetch('/api/auth/login/request-otp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email }),
       });
-
-      const result = await response.json();
       return {
         success: result.success,
         message: result.message || (result.success ? 'OTP sent successfully' : 'Failed to send OTP')
@@ -396,15 +392,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const verifyLoginOTP = async (email: string, otp: string) => {
     try {
-      const response = await fetch('/api/auth/login/verify-otp', {
+      const result = await safeFetch('/api/auth/login/verify-otp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, otp }),
       });
-
-      const result = await response.json();
 
       if (result.success) {
         if (result.token) {
