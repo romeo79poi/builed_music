@@ -305,8 +305,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (email) params.append('email', email);
       if (username) params.append('username', username);
 
-      const response = await fetch(`/api/auth/check-availability?${params.toString()}`);
-      const result = await response.json();
+      const result = await safeFetch(`/api/auth/check-availability?${params.toString()}`);
 
       return {
         available: result.available || false,
