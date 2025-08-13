@@ -209,6 +209,16 @@ import {
 // Code generator routes
 import { generateCode } from "./routes/code-generator";
 
+// Enhanced auth routes
+import {
+  requestSignupOTPWithRateLimit,
+  verifySignupOTPWithRateLimit,
+  requestLoginOTPWithRateLimit,
+  verifyLoginOTPWithRateLimit,
+  googleAuthWithRateLimit,
+  facebookAuthWithRateLimit,
+} from "./routes/auth-enhanced";
+
 export function createServer() {
   const app = express();
 
