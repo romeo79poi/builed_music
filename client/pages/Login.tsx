@@ -3,17 +3,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Loader2, Mail, Phone, AlertCircle } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
-import { useFirebase } from "../context/FirebaseContext";
 import { useToast } from "../hooks/use-toast";
-import { firebaseHelpers } from "../lib/firebase-simple";
-import {
-  loginWithEmailAndPassword,
-  saveUserData,
-  fetchUserData,
-  sendFirebaseEmailVerification,
-} from "../lib/auth";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../lib/firebase";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
