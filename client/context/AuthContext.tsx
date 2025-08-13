@@ -120,12 +120,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (response.ok) {
-        const result = await response.json();
-        if (result.success && result.data) {
-          setUser(result.data);
-          console.log("✅ User profile loaded:", result.data);
+        try {
+          const result = await response.json();
+          if (result.success && result.data) {
+            setUser(result.data);
+            console.log("✅ User profile loaded:", result.data);
+          }
+        } catch (jsonError) {
+          console.error("Failed to parse JSON response:", jsonError);
+          localStorage.removeItem('authToken');
+          setUser(null);
         }
       } else {
+        console.error("Auth endpoint returned error:", response.status);
         localStorage.removeItem('authToken');
         setUser(null);
       }
