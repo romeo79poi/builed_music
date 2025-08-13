@@ -9,7 +9,15 @@ import { useAuth } from "../context/AuthContext";
 export default function Login() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user: firebaseUser, signIn: firebaseSignIn, loading } = useFirebase();
+  const {
+    user,
+    signIn,
+    signInWithGoogle,
+    signInWithFacebook,
+    requestLoginOTP,
+    verifyLoginOTP,
+    loading
+  } = useAuth();
 
   const [loginMethod, setLoginMethod] = useState<"social" | "email" | "phone">(
     "social",
