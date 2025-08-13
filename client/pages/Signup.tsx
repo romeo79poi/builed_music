@@ -841,13 +841,14 @@ export default function Signup() {
         setErrorAlert(null);
 
         try {
-          // Use Firebase email signup with verification
-          const result = await signUpWithEmailAndPasswordWithVerification(
+          // Use JWT backend signup
+          const result = await signUp(
             formData.email,
             formData.password,
-            formData.name,
-            formData.username,
-            formData.phone,
+            {
+              name: formData.name,
+              username: formData.username,
+            }
           );
 
           if (result.success) {
