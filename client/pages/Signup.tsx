@@ -524,14 +524,30 @@ export default function Signup() {
     setErrorAlert(null);
 
     try {
-      console.log("🔥 Attempting Firebase Google sign-in...");
+      console.log("🔥 Attempting Google OAuth sign-in...");
 
-      // TODO: Implement Google OAuth with backend
-      toast({
-        title: "Coming Soon",
-        description: "Google signup will be available soon. Please use email signup for now.",
-        variant: "default",
-      });
+      // For development, simulate Google OAuth token
+      const mockGoogleToken = "mock_google_token_" + Date.now();
+
+      const result = await signInWithGoogle(mockGoogleToken);
+
+      if (result.success) {
+        toast({
+          title: "Welcome to CATCH! 🎉",
+          description: "Google signup successful! Redirecting to home...",
+        });
+
+        setTimeout(() => {
+          navigate("/home");
+        }, 1500);
+      } else {
+        setErrorAlert(result.message);
+        toast({
+          title: "Google signup failed",
+          description: result.message,
+          variant: "destructive",
+        });
+      }
     } catch (error: any) {
       console.error("❌ Google sign-in error:", error);
       setErrorAlert(error.message || "Google sign-in failed");
