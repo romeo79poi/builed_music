@@ -445,5 +445,27 @@ export function createServer() {
   // Code Generator API routes
   app.post("/api/code-generator/generate", generateCode);
 
+  // ===============================================
+  // SIMPLE JWT AUTHENTICATION (for frontend)
+  // ===============================================
+
+  // Import JWT auth routes
+  const {
+    signupWithRateLimit,
+    loginWithRateLimit,
+    me,
+    checkAvailability: jwtCheckAvailability,
+    refreshToken: jwtRefreshToken,
+    logout
+  } = require("./routes/auth-jwt");
+
+  // JWT Authentication endpoints
+  app.post("/api/auth/signup", signupWithRateLimit);
+  app.post("/api/auth/login", loginWithRateLimit);
+  app.get("/api/auth/me", authenticateJWT, me);
+  app.get("/api/auth/check-availability", jwtCheckAvailability);
+  app.post("/api/auth/refresh", authenticateJWT, jwtRefreshToken);
+  app.post("/api/auth/logout", logout);
+
   return app;
 }
