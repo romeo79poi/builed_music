@@ -385,7 +385,7 @@ const verifyLoginOTP: RequestHandler = async (req, res) => {
 };
 
 // Google OAuth
-export const googleAuth: RequestHandler = async (req, res) => {
+const googleAuth: RequestHandler = async (req, res) => {
   try {
     if (!isMongoConnected()) {
       return res.status(503).json({
