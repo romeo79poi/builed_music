@@ -323,15 +323,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // OTP Authentication methods
   const requestSignupOTP = async (email: string, password: string, name: string, username: string) => {
     try {
-      const response = await fetch('/api/auth/signup/request-otp', {
+      const result = await safeFetch('/api/auth/signup/request-otp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ email, password, name, username }),
       });
-
-      const result = await response.json();
       return {
         success: result.success,
         message: result.message || (result.success ? 'OTP sent successfully' : 'Failed to send OTP')
