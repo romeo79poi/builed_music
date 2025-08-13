@@ -36,6 +36,7 @@ import Discover from "./pages/Discover";
 import VerifyEmail from "./pages/VerifyEmail";
 import ResetPassword from "./pages/ResetPassword";
 import CodeGenerator from "./pages/CodeGenerator";
+import AuthTest from "./pages/AuthTest";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
