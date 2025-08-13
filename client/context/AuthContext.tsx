@@ -40,6 +40,10 @@ interface AuthContextType {
   updateProfile: (
     updates: Partial<UserProfile>,
   ) => Promise<{ success: boolean; message: string }>;
+  checkAvailability: (
+    email?: string,
+    username?: string,
+  ) => Promise<{ available: boolean; message: string }>;
   isAuthenticated: boolean;
 
   // Legacy methods for backward compatibility
