@@ -467,5 +467,29 @@ export function createServer() {
   app.post("/api/auth/refresh", authenticateJWT, jwtRefreshToken);
   app.post("/api/auth/logout", logout);
 
+  // ===============================================
+  // ENHANCED JWT AUTHENTICATION (OTP + OAuth)
+  // ===============================================
+
+  // Import enhanced auth routes
+  const {
+    requestSignupOTPWithRateLimit,
+    verifySignupOTPWithRateLimit,
+    requestLoginOTPWithRateLimit,
+    verifyLoginOTPWithRateLimit,
+    googleAuthWithRateLimit,
+    facebookAuthWithRateLimit,
+  } = require("./routes/auth-enhanced");
+
+  // OTP Authentication endpoints
+  app.post("/api/auth/signup/request-otp", requestSignupOTPWithRateLimit);
+  app.post("/api/auth/signup/verify-otp", verifySignupOTPWithRateLimit);
+  app.post("/api/auth/login/request-otp", requestLoginOTPWithRateLimit);
+  app.post("/api/auth/login/verify-otp", verifyLoginOTPWithRateLimit);
+
+  // OAuth endpoints
+  app.post("/api/auth/google", googleAuthWithRateLimit);
+  app.post("/api/auth/facebook", facebookAuthWithRateLimit);
+
   return app;
 }
