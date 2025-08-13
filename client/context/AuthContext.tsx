@@ -225,14 +225,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const token = localStorage.getItem('authToken');
       if (token) {
-        // Call logout endpoint
-        await fetch('/api/auth/logout', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
+        // Call logout endpoint (don't throw errors on logout)
+        try {
+          await safeFetch('/api/auth/logout', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+        } catch (error) {
+          console.log("Logout endpoint error (non-critical):", error);
+        }
       }
 
       localStorage.removeItem('authToken');
