@@ -387,6 +387,13 @@ export const verifyLoginOTP: RequestHandler = async (req, res) => {
 // Google OAuth
 export const googleAuth: RequestHandler = async (req, res) => {
   try {
+    if (!isMongoConnected()) {
+      return res.status(503).json({
+        success: false,
+        message: "Database connection unavailable",
+      });
+    }
+
     const { token } = req.body;
 
     if (!token) {
@@ -398,39 +405,56 @@ export const googleAuth: RequestHandler = async (req, res) => {
 
     // TODO: Verify Google token with Google API
     // For now, accepting any token for development
-    console.log("🔍 Verifying Google token...");
+    console.log("🔍 Verifying Google token:", token);
 
-    // Mock Google user data (replace with actual Google API verification)
+    // Generate unique mock data based on token to avoid conflicts
+    const uniqueId = token.slice(-6); // Use last 6 chars of token for uniqueness
     const googleUser = {
-      id: "google_user_123",
-      email: "user@gmail.com",
-      name: "Google User",
+      id: `google_user_${uniqueId}`,
+      email: `user_${uniqueId}@gmail.com`,
+      name: `Google User ${uniqueId}`,
       picture: "https://example.com/avatar.jpg",
     };
 
+    console.log("📝 Generated Google user data:", googleUser);
+
+    // Validate required fields
+    if (!googleUser.email || !googleUser.id || !googleUser.name) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Google user data - missing required fields",
+      });
+    }
+
     // Check if user exists
-    let user = await User.findOne({ 
+    let user = await User.findOne({
       $or: [
         { email: googleUser.email },
         { google_id: googleUser.id }
       ]
     });
 
+    console.log("🔍 Existing user found:", user ? "Yes" : "No");
+
     if (!user) {
-      // Create new user
-      user = new User({
+      // Create new user with validation
+      const userData = {
         email: googleUser.email,
-        username: googleUser.email.split('@')[0],
+        username: `google_${googleUser.email.split('@')[0]}_${uniqueId}`,
         name: googleUser.name,
         display_name: googleUser.name,
-        profile_image_url: googleUser.picture,
+        profile_image_url: googleUser.picture || "",
         provider: "google",
         google_id: googleUser.id,
         is_verified: true,
         email_verified: true,
-      });
+      };
 
+      console.log("👤 Creating new user with data:", userData);
+
+      user = new User(userData);
       await user.save();
+      console.log("✅ New Google user created:", user._id);
     } else {
       // Update existing user
       user.last_login = new Date();
@@ -438,6 +462,7 @@ export const googleAuth: RequestHandler = async (req, res) => {
         user.google_id = googleUser.id;
       }
       await user.save();
+      console.log("✅ Existing Google user updated:", user._id);
     }
 
     // Generate JWT token
