@@ -25,20 +25,7 @@ import {
   formatPhoneDisplay,
   phoneAPI,
 } from "../lib/phone";
-import {
-  signUpWithEmailAndPassword,
-  signInWithGoogle,
-  signInWithFacebook,
-  signUpWithEmailAndPasswordWithVerification,
-  initializeRecaptcha,
-  sendPhoneOTP,
-  verifyPhoneOTP,
-  sendFirebaseEmailVerification,
-  saveUserData,
-  uploadProfileImage,
-  uploadProfileImageForSignup,
-} from "../lib/auth";
-import { firebaseHelpers } from "../lib/firebase-simple";
+// Removed Firebase imports - using backend auth now
 
 type SignupStep =
   | "method"
