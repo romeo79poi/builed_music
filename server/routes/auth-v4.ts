@@ -1,14 +1,6 @@
 import express from "express";
-import {
-  sendEmailVerificationWithJWT,
-  verifyEmailWithJWT,
-  verifyEmailWithCode,
-  sendPasswordResetWithJWT,
-  resetPasswordWithJWT,
-  registerWithEmailVerification,
-  loginWithEnhancedFeatures,
-  resendVerificationEmail,
-} from "./auth-enhanced";
+// Temporarily disabled conflicting imports - using auth-enhanced.ts instead
+// TODO: Merge or separate these auth systems properly
 
 import {
   authenticateJWT,
