@@ -159,6 +159,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }),
       });
 
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
       const result = await response.json();
 
       if (result.success) {
