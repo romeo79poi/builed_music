@@ -567,10 +567,12 @@ export default function Signup() {
     setErrorAlert(null);
 
     try {
-      console.log("🔥 Attempting Firebase Facebook sign-in...");
+      console.log("🔥 Attempting Facebook OAuth sign-in...");
 
-      // TODO: Implement Facebook OAuth with backend
-      const result = { success: false, error: "Facebook OAuth not yet implemented" };
+      // For development, simulate Facebook OAuth token
+      const mockFacebookToken = "mock_facebook_token_" + Date.now();
+
+      const result = await signInWithFacebook(mockFacebookToken);
 
       if (result.success && result.user) {
         console.log("✅ Firebase Facebook sign-in successful:", result.user);
@@ -2378,7 +2380,7 @@ export default function Signup() {
                   onClick={handleProfileImageStep}
                   className="absolute top-4 right-4 text-purple-primary hover:text-purple-secondary transition-colors text-sm font-medium"
                 >
-                  Skip →
+                  Skip ���
                 </button>
               </div>
 
