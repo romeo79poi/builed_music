@@ -92,6 +92,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Safe fetch utility to prevent JSON parsing errors
   const safeFetch = async (url: string, options?: RequestInit) => {
     try {
+      console.log(`🌐 Making request to: ${url}`, options?.method || 'GET');
       const response = await fetch(url, options);
 
       if (!response.ok) {
@@ -99,16 +100,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         let errorMessage = `HTTP error! status: ${response.status}`;
         try {
           const errorData = await response.json();
+          console.error(`❌ HTTP error for url: ${url}: ${response.status}`, errorData);
           errorMessage = errorData.message || errorMessage;
-        } catch {
+        } catch (parseError) {
           // If JSON parsing fails, use status message
+          console.error(`❌ HTTP error for url: ${url}: ${response.status} (could not parse JSON)`);
         }
         throw new Error(errorMessage);
       }
 
-      return await response.json();
+      const result = await response.json();
+      console.log(`✅ Success response from ${url}:`, result);
+      return result;
     } catch (error) {
-      console.error("Fetch error:", error);
+      console.error(`🚨 Fetch error for ${url}:`, error);
       throw error;
     }
   };
