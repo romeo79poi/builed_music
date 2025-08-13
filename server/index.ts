@@ -506,8 +506,25 @@ export function createServer() {
   app.post("/api/auth/login/verify-otp", verifyLoginOTPWithRateLimit);
 
   // OAuth endpoints
-  app.post("/api/auth/google", googleAuthWithRateLimit);
+  app.post("/api/auth/google", (req, res, next) => {
+    console.log("🔥 Google auth endpoint hit:", req.body);
+    next();
+  }, googleAuthWithRateLimit);
   app.post("/api/auth/facebook", facebookAuthWithRateLimit);
+
+  // Debug endpoint to list all routes
+  app.get("/api/debug-routes", (req, res) => {
+    const routes: any[] = [];
+    app._router.stack.forEach((middleware: any) => {
+      if (middleware.route) {
+        routes.push({
+          path: middleware.route.path,
+          methods: Object.keys(middleware.route.methods)
+        });
+      }
+    });
+    res.json({ routes: routes.filter(r => r.path.includes('/api/auth')) });
+  });
 
   return app;
 }
