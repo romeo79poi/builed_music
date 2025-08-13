@@ -84,8 +84,8 @@ import { authenticateJWT, optionalAuth } from "./middleware/auth";
 // Complete Auth System
 import authMainRouter from "./routes/auth-main";
 
-// Enhanced JWT Email Auth System
-import authV4Router from "./routes/auth-v4";
+// Enhanced JWT Email Auth System - Temporarily disabled
+// import authV4Router from "./routes/auth-v4";
 
 // Social Authentication
 import {
