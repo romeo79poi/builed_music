@@ -170,7 +170,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signUp = async (email: string, password: string, userData: any) => {
     try {
       const { name, username } = userData;
-      const response = await fetch('/api/auth/signup', {
+      const result = await safeFetch('/api/auth/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -182,12 +182,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           username: username || userData.username || email.split('@')[0]
         }),
       });
-
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const result = await response.json();
 
       if (result.success) {
         if (result.token) {
