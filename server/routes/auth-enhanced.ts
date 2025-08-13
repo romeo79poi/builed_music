@@ -502,6 +502,13 @@ export const googleAuth: RequestHandler = async (req, res) => {
 // Facebook OAuth
 export const facebookAuth: RequestHandler = async (req, res) => {
   try {
+    if (!isMongoConnected()) {
+      return res.status(503).json({
+        success: false,
+        message: "Database connection unavailable",
+      });
+    }
+
     const { token } = req.body;
 
     if (!token) {
@@ -513,13 +520,14 @@ export const facebookAuth: RequestHandler = async (req, res) => {
 
     // TODO: Verify Facebook token with Facebook API
     // For now, accepting any token for development
-    console.log("🔍 Verifying Facebook token...");
+    console.log("🔍 Verifying Facebook token:", token);
 
-    // Mock Facebook user data (replace with actual Facebook API verification)
+    // Generate unique mock data based on token to avoid conflicts
+    const uniqueId = token.slice(-6); // Use last 6 chars of token for uniqueness
     const facebookUser = {
-      id: "facebook_user_123",
-      email: "user@facebook.com",
-      name: "Facebook User",
+      id: `facebook_user_${uniqueId}`,
+      email: `user_${uniqueId}@facebook.com`,
+      name: `Facebook User ${uniqueId}`,
       picture: {
         data: {
           url: "https://example.com/fb-avatar.jpg"
@@ -527,29 +535,45 @@ export const facebookAuth: RequestHandler = async (req, res) => {
       },
     };
 
+    console.log("📝 Generated Facebook user data:", facebookUser);
+
+    // Validate required fields
+    if (!facebookUser.email || !facebookUser.id || !facebookUser.name) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid Facebook user data - missing required fields",
+      });
+    }
+
     // Check if user exists
-    let user = await User.findOne({ 
+    let user = await User.findOne({
       $or: [
         { email: facebookUser.email },
         { facebook_id: facebookUser.id }
       ]
     });
 
+    console.log("🔍 Existing user found:", user ? "Yes" : "No");
+
     if (!user) {
-      // Create new user
-      user = new User({
+      // Create new user with validation
+      const userData = {
         email: facebookUser.email,
-        username: facebookUser.email.split('@')[0],
+        username: `facebook_${facebookUser.email.split('@')[0]}_${uniqueId}`,
         name: facebookUser.name,
         display_name: facebookUser.name,
-        profile_image_url: facebookUser.picture.data.url,
+        profile_image_url: facebookUser.picture.data.url || "",
         provider: "facebook",
         facebook_id: facebookUser.id,
         is_verified: true,
         email_verified: true,
-      });
+      };
 
+      console.log("👤 Creating new user with data:", userData);
+
+      user = new User(userData);
       await user.save();
+      console.log("✅ New Facebook user created:", user._id);
     } else {
       // Update existing user
       user.last_login = new Date();
@@ -557,6 +581,7 @@ export const facebookAuth: RequestHandler = async (req, res) => {
         user.facebook_id = facebookUser.id;
       }
       await user.save();
+      console.log("✅ Existing Facebook user updated:", user._id);
     }
 
     // Generate JWT token
