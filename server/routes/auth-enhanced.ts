@@ -500,7 +500,7 @@ const googleAuth: RequestHandler = async (req, res) => {
 };
 
 // Facebook OAuth
-export const facebookAuth: RequestHandler = async (req, res) => {
+const facebookAuth: RequestHandler = async (req, res) => {
   try {
     if (!isMongoConnected()) {
       return res.status(503).json({
