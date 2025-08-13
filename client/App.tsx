@@ -11,9 +11,6 @@ import { EnhancedMusicProvider } from "./context/EnhancedMusicContext";
 import { ProfileProvider } from "./context/ProfileContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
-import { FirebaseProvider } from "./context/FirebaseContext";
-import { SocialProvider } from "./context/SocialContext";
-import "./lib/error-handler"; // Setup global error handling for Firebase permissions
 // import { SocketProvider } from "./context/SocketContext";
 import AuthRouter from "./components/AuthRouter";
 import SpotifyMiniPlayer from "./components/SpotifyMiniPlayer";
@@ -49,10 +46,8 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <TooltipProvider>
-          <FirebaseProvider>
-            <AuthProvider>
-              <SocialProvider>
-                <MusicProvider>
+          <AuthProvider>
+            <MusicProvider>
                   <EnhancedMusicProvider>
                     <ProfileProvider>
                       <Toaster />
@@ -110,10 +105,8 @@ const App = () => {
                       </BrowserRouter>
                     </ProfileProvider>
                   </EnhancedMusicProvider>
-                </MusicProvider>
-              </SocialProvider>
-            </AuthProvider>
-          </FirebaseProvider>
+            </MusicProvider>
+          </AuthProvider>
         </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>
