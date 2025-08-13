@@ -852,52 +852,21 @@ export default function Signup() {
           );
 
           if (result.success) {
-            // Store user for email verification
-            if (result.user) {
-              setVerificationUser(result.user);
-              setEmailVerificationSent(true);
-
-              // Save user data to localStorage for immediate access
-              const completeUserData = {
-                uid: result.user.uid,
-                email: formData.email,
-                name: formData.name,
-                username: formData.username,
-                profileImageURL:
-                  formData.profileImageURL || result.user.photoURL || "",
-                dateOfBirth: formData.dateOfBirth,
-                gender: formData.gender,
-                bio: formData.bio,
-              };
-
-              localStorage.setItem(
-                "currentUser",
-                JSON.stringify(completeUserData),
-              );
-              localStorage.setItem(
-                "userAvatar",
-                formData.profileImageURL || result.user.photoURL || "",
-              );
-
-              console.log(
-                "💾 Saved Firebase user data to localStorage:",
-                completeUserData,
-              );
-            }
-
+            // Account created successfully with JWT
             toast({
-              title: "Account created successfully! 🎉",
-              description: `Welcome to Music Catch, ${formData.name}! Please check your email for verification.`,
+              title: "Account Created! 🎉",
+              description: `Welcome to Catch, ${formData.name}! Your account has been created successfully.`,
             });
 
-            console.log("✅ User created with Firebase:", result.user);
+            console.log("✅ User created with JWT backend");
 
+            // Redirect to home page after successful signup
             setTimeout(() => {
               navigate("/home");
-            }, 2000);
+            }, 1500);
           } else {
             setErrorAlert(
-              result.error || "Registration failed. Please try again.",
+              result.message || "Registration failed. Please try again.",
             );
           }
         } catch (error: any) {
