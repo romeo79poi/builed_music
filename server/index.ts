@@ -497,7 +497,7 @@ export function createServer() {
     verifyLoginOTPWithRateLimit,
     googleAuthWithRateLimit,
     facebookAuthWithRateLimit,
-  } = require("./routes/auth-enhanced");
+  } = await import("./routes/auth-enhanced");
 
   // OTP Authentication endpoints
   app.post("/api/auth/signup/request-otp", requestSignupOTPWithRateLimit);
