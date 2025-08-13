@@ -499,16 +499,6 @@ export function createServer() {
   // ENHANCED JWT AUTHENTICATION (OTP + OAuth)
   // ===============================================
 
-  // Import enhanced auth routes
-  const {
-    requestSignupOTPWithRateLimit,
-    verifySignupOTPWithRateLimit,
-    requestLoginOTPWithRateLimit,
-    verifyLoginOTPWithRateLimit,
-    googleAuthWithRateLimit,
-    facebookAuthWithRateLimit,
-  } = await import("./routes/auth-enhanced");
-
   // OTP Authentication endpoints
   app.post("/api/auth/signup/request-otp", requestSignupOTPWithRateLimit);
   app.post("/api/auth/signup/verify-otp", verifySignupOTPWithRateLimit);
