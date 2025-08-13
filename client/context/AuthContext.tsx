@@ -455,15 +455,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const signInWithFacebook = async (token: string) => {
     try {
-      const response = await fetch('/api/auth/facebook', {
+      const result = await safeFetch('/api/auth/facebook', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ token }),
       });
-
-      const result = await response.json();
 
       if (result.success) {
         if (result.token) {
