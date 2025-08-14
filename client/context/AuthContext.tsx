@@ -40,6 +40,10 @@ interface AuthContextType {
   updateProfile: (
     updates: Partial<UserProfile>,
   ) => Promise<{ success: boolean; message: string }>;
+  getSettings: () => Promise<{ success: boolean; data?: any; message: string }>;
+  updateSettings: (
+    settings: any,
+  ) => Promise<{ success: boolean; message: string }>;
   checkAvailability: (
     email?: string,
     username?: string,
