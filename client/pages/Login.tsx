@@ -58,11 +58,11 @@ export default function Login() {
 
   // Redirect if already authenticated
   useEffect(() => {
-    if (firebaseUser && !loading) {
-      console.log("🔥 User already authenticated, redirecting to home");
+    if (user && !loading) {
+      console.log("✅ User already authenticated, redirecting to home");
       navigate("/home");
     }
-  }, [firebaseUser, loading, navigate]);
+  }, [user, loading, navigate]);
 
   const checkUserExists = async (email: string) => {
     try {
