@@ -517,17 +517,14 @@ export function createServer() {
   app.post("/api/auth/login/request-otp", requestLoginOTPWithRateLimit);
   app.post("/api/auth/login/verify-otp", verifyLoginOTPWithRateLimit);
 
-  // OAuth endpoints (temporarily without rate limiting for debugging)
-  console.log("📋 Registering Google auth endpoint...");
-  app.post("/api/auth/google", (req, res, next) => {
-    console.log("🔥 Google auth middleware hit:", req.body);
-    next();
-  }, googleAuth);
+  // Real OAuth endpoints with token verification
+  console.log("📋 Registering real Google OAuth endpoint...");
+  app.post("/api/auth/google", googleAuthWithRateLimit);
 
-  console.log("📋 Registering Facebook auth endpoint...");
-  app.post("/api/auth/facebook", facebookAuth);
+  console.log("📋 Registering real Facebook OAuth endpoint...");
+  app.post("/api/auth/facebook", facebookAuthWithRateLimit);
 
-  console.log("✅ OAuth endpoints registered successfully");
+  console.log("✅ Real OAuth endpoints registered successfully");
 
   // Simple test endpoint
   app.post("/api/test-google", (req, res) => {
