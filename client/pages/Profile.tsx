@@ -132,18 +132,93 @@ export default function Profile() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [showStats, setShowStats] = useState(false);
 
-  // Social functions (placeholder implementation)
+  // Real data fetching functions
+  const fetchUserTracks = async (userId: string) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) return;
+
+      const response = await fetch(`/api/v1/users/${userId}/tracks`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setTracks(data.tracks || []);
+      }
+    } catch (error) {
+      console.error("Error fetching user tracks:", error);
+    }
+  };
+
+  const fetchUserPlaylists = async (userId: string) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) return;
+
+      const response = await fetch(`/api/v1/users/${userId}/playlists`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setPlaylists(data.playlists || []);
+      }
+    } catch (error) {
+      console.error("Error fetching user playlists:", error);
+    }
+  };
+
+  const fetchRecentlyPlayed = async (userId: string) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) return;
+
+      const response = await fetch(`/api/profile/${userId}/recently-played`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setRecentlyPlayed(data.recently_played || []);
+      }
+    } catch (error) {
+      console.error("Error fetching recently played:", error);
+    }
+  };
+
+  // Real social functions
   const isFollowingUser = (userId: string) => {
-    // Placeholder implementation - would check if current user follows the given user
     return isFollowing;
   };
 
   const followUser = async (userId: string, userProfile: any) => {
     try {
-      // Placeholder implementation - would call backend follow API
-      console.log("Following user:", userId);
-      setIsFollowing(true);
-      return true;
+      const token = localStorage.getItem('authToken');
+      if (!token) return false;
+
+      const response = await fetch(`/api/v1/users/${userId}/follow`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        setIsFollowing(true);
+        return true;
+      }
+      return false;
     } catch (error) {
       console.error("Error following user:", error);
       return false;
@@ -152,10 +227,22 @@ export default function Profile() {
 
   const unfollowUser = async (userId: string) => {
     try {
-      // Placeholder implementation - would call backend unfollow API
-      console.log("Unfollowing user:", userId);
-      setIsFollowing(false);
-      return true;
+      const token = localStorage.getItem('authToken');
+      if (!token) return false;
+
+      const response = await fetch(`/api/v1/users/${userId}/follow`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        setIsFollowing(false);
+        return true;
+      }
+      return false;
     } catch (error) {
       console.error("Error unfollowing user:", error);
       return false;
