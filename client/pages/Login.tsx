@@ -326,15 +326,25 @@ export default function Login() {
     setAuthError(null);
 
     try {
-      console.log("🔥 Attempting backend Google login...");
+      console.log("🔥 Attempting real Google OAuth login...");
 
-      // Generate a mock Google token for demo purposes
-      const mockGoogleToken = `google_demo_token_${Date.now()}`;
+      // Import OAuth service dynamically
+      const { oauthService } = await import("../lib/oauth-service");
 
-      const result = await signInWithGoogle(mockGoogleToken);
+      // Use Google Sign-In with ID Token (recommended by Google)
+      const oauthResult = await oauthService.signInWithGoogleIdToken();
+
+      if (!oauthResult.success || !oauthResult.idToken) {
+        throw new Error(oauthResult.error || "Google sign-in failed");
+      }
+
+      console.log("✅ Google OAuth successful, authenticating with backend...");
+
+      // Send ID token to backend for verification
+      const result = await signInWithGoogle(oauthResult.idToken);
 
       if (result.success) {
-        console.log("✅ Backend Google login successful");
+        console.log("✅ Backend Google authentication successful");
 
         toast({
           title: "Welcome back to CATCH! 🎉",
