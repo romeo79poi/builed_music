@@ -386,13 +386,20 @@ const verifyLoginOTP: RequestHandler = async (req, res) => {
 
 // Google OAuth
 const googleAuth: RequestHandler = async (req, res) => {
+  console.log("🔥 Google auth endpoint hit!");
+  console.log("📝 Request body:", req.body);
+  console.log("📝 Request headers:", req.headers);
+
   try {
+    console.log("🔍 Checking database connection...");
     if (!isMongoConnected()) {
+      console.log("❌ Database not connected");
       return res.status(503).json({
         success: false,
         message: "Database connection unavailable",
       });
     }
+    console.log("✅ Database is connected");
 
     const { token } = req.body;
 
