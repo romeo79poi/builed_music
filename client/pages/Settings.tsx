@@ -377,27 +377,49 @@ export default function Settings() {
 
       console.log("🔥 Loading settings for backend user:", authUser.id);
 
-      // Load settings from backend or use defaults
-      const defaultSettings = {
-        darkTheme: true,
-        notifications: true,
-        autoDownload: false,
-        highQuality: true,
-        offlineMode: false,
-        publicProfile: true,
-        showActivity: true,
-        autoPlay: true,
-        crossfade: false,
-        normalization: true,
-        language: "English",
-        region: "United States",
-      };
+      // Try to load settings from backend
+      const result = await getSettings();
 
-      setSettings(defaultSettings);
-      console.log(
-        "✅ Settings loaded for backend user:",
-        defaultSettings,
-      );
+      if (result.success && result.data) {
+        // Map backend settings to component settings format
+        const backendSettings = result.data;
+        const componentSettings = {
+          darkTheme: backendSettings.preferences?.theme === "dark",
+          notifications: backendSettings.notifications?.email || true,
+          autoDownload: backendSettings.preferences?.autoDownload || false,
+          highQuality: backendSettings.preferences?.highQuality || true,
+          offlineMode: backendSettings.preferences?.offlineMode || false,
+          publicProfile: backendSettings.privacy?.publicProfile || true,
+          showActivity: backendSettings.privacy?.showActivity || true,
+          autoPlay: backendSettings.preferences?.autoplay || true,
+          crossfade: backendSettings.preferences?.crossfade || false,
+          normalization: backendSettings.preferences?.normalization || true,
+          language: backendSettings.preferences?.language || "English",
+          region: backendSettings.preferences?.region || "United States",
+        };
+
+        setSettings(componentSettings);
+        console.log("✅ Settings loaded from backend:", componentSettings);
+      } else {
+        // Use default settings if backend fails
+        const defaultSettings = {
+          darkTheme: true,
+          notifications: true,
+          autoDownload: false,
+          highQuality: true,
+          offlineMode: false,
+          publicProfile: true,
+          showActivity: true,
+          autoPlay: true,
+          crossfade: false,
+          normalization: true,
+          language: "English",
+          region: "United States",
+        };
+
+        setSettings(defaultSettings);
+        console.log("✅ Using default settings:", defaultSettings);
+      }
     } catch (error) {
       console.error("❌ Error loading settings:", error);
       // Set default settings on error
