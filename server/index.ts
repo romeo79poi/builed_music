@@ -217,6 +217,8 @@ import {
   verifyLoginOTPWithRateLimit,
   googleAuthWithRateLimit,
   facebookAuthWithRateLimit,
+  googleAuth,
+  facebookAuth,
 } from "./routes/auth-enhanced";
 
 export function createServer() {
