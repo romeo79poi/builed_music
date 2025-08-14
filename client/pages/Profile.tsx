@@ -106,18 +106,7 @@ interface RecentlyPlayedTrack {
   isCurrentlyPlaying?: boolean;
 }
 
-const sampleRecentlyPlayed: RecentlyPlayedTrack[] = [
-  {
-    id: "recent1",
-    title: "Midnight Dreams",
-    artist: "Alex Johnson",
-    coverUrl:
-      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
-    playedAt: "2 minutes ago",
-    duration: 234,
-    isCurrentlyPlaying: true,
-  },
-];
+// No more sample data - all data will be fetched from backend
 
 export default function Profile() {
   const navigate = useNavigate();
