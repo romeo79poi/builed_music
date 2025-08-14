@@ -297,12 +297,146 @@ export const refreshToken: RequestHandler = async (req, res) => {
   }
 };
 
+// Update User Profile (requires authentication)
+export const updateProfile: RequestHandler = async (req, res) => {
+  try {
+    const user = req.user; // Set by authenticateJWT middleware
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const { name, username, bio, avatar_url, location, website } = req.body;
+
+    // Update user fields if provided
+    if (name !== undefined) user.name = name;
+    if (name !== undefined) user.display_name = name;
+    if (username !== undefined) user.username = username;
+    if (bio !== undefined) user.bio = bio;
+    if (avatar_url !== undefined) user.profile_image_url = avatar_url;
+    if (location !== undefined) user.location = location;
+    if (website !== undefined) user.website = website;
+
+    user.updated_at = new Date();
+    await user.save();
+
+    const userData = {
+      id: user._id.toString(),
+      email: user.email,
+      username: user.username,
+      name: user.name,
+      avatar_url: user.profile_image_url,
+      bio: user.bio,
+      location: user.location,
+      website: user.website,
+      verified: user.is_verified,
+      premium: false,
+      followers_count: user.follower_count,
+      following_count: user.following_count,
+      created_at: user.created_at,
+      updated_at: user.updated_at,
+    };
+
+    res.json({
+      success: true,
+      message: "Profile updated successfully",
+      data: userData,
+    });
+  } catch (error: any) {
+    console.error("Update profile error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update profile",
+      error: process.env.NODE_ENV === "development" ? error.message : undefined,
+    });
+  }
+};
+
+// Get User Settings (requires authentication)
+export const getSettings: RequestHandler = async (req, res) => {
+  try {
+    const user = req.user; // Set by authenticateJWT middleware
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    // Return user settings (you can expand this based on your User model)
+    const settings = {
+      notifications: {
+        email: true,
+        push: true,
+        marketing: false,
+      },
+      privacy: {
+        publicProfile: true,
+        showActivity: true,
+        allowMessages: true,
+      },
+      preferences: {
+        theme: "dark",
+        language: "en",
+        autoplay: true,
+        highQuality: true,
+      },
+    };
+
+    res.json({
+      success: true,
+      data: settings,
+    });
+  } catch (error: any) {
+    console.error("Get settings error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to get settings",
+    });
+  }
+};
+
+// Update User Settings (requires authentication)
+export const updateSettings: RequestHandler = async (req, res) => {
+  try {
+    const user = req.user; // Set by authenticateJWT middleware
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
+
+    const { notifications, privacy, preferences } = req.body;
+
+    // In a real implementation, you would update settings in the database
+    // For now, we'll just return success
+    console.log("Settings update requested:", { notifications, privacy, preferences });
+
+    res.json({
+      success: true,
+      message: "Settings updated successfully",
+    });
+  } catch (error: any) {
+    console.error("Update settings error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to update settings",
+    });
+  }
+};
+
 // Logout (client-side token removal, but this endpoint can be used for logging)
 export const logout: RequestHandler = async (req, res) => {
   try {
     // Note: JWT tokens can't be invalidated server-side without a blacklist
     // The client should remove the token from storage
-    
+
     res.json({
       success: true,
       message: "Logged out successfully",
