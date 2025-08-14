@@ -83,7 +83,7 @@ export default function Login() {
       }
 
       // For now, assume user exists if we reach here
-      // The actual Firebase login will handle user-not-found errors
+      // The actual backend login will handle user-not-found errors
       console.log("🔍 User existence check completed");
       return { exists: true, source: "assumed", data: null };
     } catch (error) {
@@ -203,107 +203,9 @@ export default function Login() {
     try {
       console.log("💾 Loading complete user profile for:", user.email);
 
-      // Try to get complete profile data from Firestore
-      if (db) {
-        try {
-          const userDoc = await getDoc(doc(db, "users", user.uid));
-          if (userDoc.exists()) {
-            const firestoreData = userDoc.data();
-            console.log("✅ Firestore profile data found:", firestoreData);
-
-            // Combine Firebase auth data with Firestore profile data
-            const completeProfile = {
-              uid: user.uid,
-              email: user.email,
-              name: firestoreData.name || user.displayName || "User",
-              username:
-                firestoreData.username || user.email?.split("@")[0] || "user",
-              profileImageURL:
-                firestoreData.profileImageURL || user.photoURL || "",
-              dateOfBirth: firestoreData.dob || "",
-              gender: firestoreData.gender || "",
-              bio: firestoreData.bio || "",
-              phone: firestoreData.phone || user.phoneNumber || "",
-              emailVerified: user.emailVerified,
-              verified: firestoreData.verified || user.emailVerified,
-              createdAt: firestoreData.createdAt,
-              lastLoginAt: new Date().toISOString(),
-            };
-
-            // Save to localStorage for immediate access
-            localStorage.setItem(
-              "currentUser",
-              JSON.stringify(completeProfile),
-            );
-            localStorage.setItem(
-              "userAvatar",
-              completeProfile.profileImageURL || "",
-            );
-
-            console.log(
-              "💾 Complete profile saved to localStorage:",
-              completeProfile,
-            );
-
-            // Fetch user activity data
-            await loadUserActivityData(user.uid, completeProfile);
-
-            // Try to sync with backend API if available
-            try {
-              const backendSyncResponse = await fetch("/api/v1/users/sync", {
-                method: "POST",
-                headers: {
-                  "user-id": user.uid,
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  firebase_uid: user.uid,
-                  email: user.email,
-                  display_name: completeProfile.name,
-                  username: completeProfile.username,
-                  profile_image_url: completeProfile.profileImageURL,
-                  date_of_birth: completeProfile.dateOfBirth,
-                  gender: completeProfile.gender,
-                  bio: completeProfile.bio,
-                  phone: completeProfile.phone,
-                  email_verified: user.emailVerified,
-                }),
-              });
-
-              if (backendSyncResponse.ok) {
-                const syncResult = await backendSyncResponse.json();
-                console.log("✅ Profile synced with backend:", syncResult);
-              }
-            } catch (backendError) {
-              console.warn(
-                "⚠️ Backend sync failed (continuing with Firebase data):",
-                backendError,
-              );
-            }
-
-            return completeProfile;
-          }
-        } catch (firestoreError) {
-          console.warn("⚠️ Firestore fetch failed:", firestoreError);
-        }
-      }
-
-      // Fallback: create basic profile from Firebase auth data
-      const basicProfile = {
-        uid: user.uid,
-        email: user.email,
-        name: user.displayName || user.email?.split("@")[0] || "User",
-        username: user.email?.split("@")[0] || "user",
-        profileImageURL: user.photoURL || "",
-        emailVerified: user.emailVerified,
-        lastLoginAt: new Date().toISOString(),
-      };
-
-      localStorage.setItem("currentUser", JSON.stringify(basicProfile));
-      localStorage.setItem("userAvatar", basicProfile.profileImageURL || "");
-
-      console.log("💾 Basic profile saved to localStorage:", basicProfile);
-      return basicProfile;
+      // User profile loading is now handled by backend JWT authentication in AuthContext
+      console.log("✅ Backend authentication handles user profile loading automatically");
+      return null;
     } catch (error) {
       console.error("❌ Error loading user profile:", error);
       return null;
@@ -394,17 +296,17 @@ export default function Login() {
 
       let errorMessage = error.message || "Login failed";
 
-      // Handle Firebase error codes
-      if (error.code === "auth/user-not-found") {
+      // Handle backend error cases
+      if (errorMessage.includes("User not found")) {
         errorMessage = "Account not found. Redirecting to signup...";
         setTimeout(() => {
           navigate("/signup", { state: { email: email } });
         }, 2000);
-      } else if (error.code === "auth/wrong-password") {
+      } else if (errorMessage.includes("Invalid credentials")) {
         errorMessage = "Incorrect password. Please try again.";
-      } else if (error.code === "auth/invalid-email") {
+      } else if (errorMessage.includes("Invalid email")) {
         errorMessage = "Invalid email format.";
-      } else if (error.code === "auth/user-disabled") {
+      } else if (errorMessage.includes("Account disabled")) {
         errorMessage = "This account has been disabled.";
       }
 
@@ -424,27 +326,27 @@ export default function Login() {
     setAuthError(null);
 
     try {
-      console.log("🔥 Attempting Firebase Google login...");
+      console.log("🔥 Attempting backend Google login...");
 
-      const result = await firebaseHelpers.googleSignIn();
+      // Generate a mock Google token for demo purposes
+      const mockGoogleToken = `google_demo_token_${Date.now()}`;
 
-      if (result.success && result.user) {
-        console.log("✅ Firebase Google login successful:", result.user);
+      const result = await signInWithGoogle(mockGoogleToken);
+
+      if (result.success) {
+        console.log("✅ Backend Google login successful");
 
         toast({
           title: "Welcome back to CATCH! 🎉",
-          description: `Signed in as ${result.user.displayName || result.user.email}`,
+          description: "Successfully signed in with Google",
         });
 
-        // Navigate to home
-        setTimeout(() => {
-          navigate("/home");
-        }, 1500);
+        navigate("/home");
       } else {
-        setAuthError(result.error || "Google login failed");
+        setAuthError(result.message || "Google login failed");
         toast({
           title: "Google login failed",
-          description: result.error || "Please try again",
+          description: result.message || "Please try again",
           variant: "destructive",
         });
       }
@@ -466,27 +368,27 @@ export default function Login() {
     setAuthError(null);
 
     try {
-      console.log("🔥 Attempting Firebase Facebook login...");
+      console.log("🔥 Attempting backend Facebook login...");
 
-      const result = await firebaseHelpers.facebookSignIn();
+      // Generate a mock Facebook token for demo purposes
+      const mockFacebookToken = `facebook_demo_token_${Date.now()}`;
 
-      if (result.success && result.user) {
-        console.log("✅ Firebase Facebook login successful:", result.user);
+      const result = await signInWithFacebook(mockFacebookToken);
+
+      if (result.success) {
+        console.log("✅ Backend Facebook login successful");
 
         toast({
           title: "Welcome back to CATCH! 🎉",
-          description: `Signed in as ${result.user.displayName || result.user.email}`,
+          description: "Successfully signed in with Facebook",
         });
 
-        // Navigate to home
-        setTimeout(() => {
-          navigate("/home");
-        }, 1500);
+        navigate("/home");
       } else {
-        setAuthError(result.error || "Facebook login failed");
+        setAuthError(result.message || "Facebook login failed");
         toast({
           title: "Facebook login failed",
-          description: result.error || "Please try again",
+          description: result.message || "Please try again",
           variant: "destructive",
         });
       }
@@ -510,13 +412,13 @@ export default function Login() {
     });
   };
 
-  // Show loading if Firebase is still initializing
+  // Show loading if authentication is still initializing
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-darker via-background to-purple-dark flex flex-col items-center justify-center p-6">
         <div className="flex items-center space-x-2">
           <Loader2 className="w-6 h-6 animate-spin text-purple-primary" />
-          <span className="text-white">Initializing Firebase...</span>
+          <span className="text-white">Initializing authentication...</span>
         </div>
       </div>
     );
