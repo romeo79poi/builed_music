@@ -284,7 +284,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return { success: false, message: "No authentication token" };
       }
 
-      const response = await fetch(`/api/users/${user.id}`, {
+      const result = await safeFetch('/api/auth/profile', {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -293,20 +293,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         body: JSON.stringify(updates),
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        if (result.success) {
-          const updatedUser = {
-            ...user,
-            ...updates,
-            updated_at: new Date().toISOString(),
-          };
-          setUser(updatedUser);
-          return { success: true, message: "Profile updated successfully!" };
-        }
+      if (result.success) {
+        // Update user state with the returned data
+        setUser(result.data);
+        return { success: true, message: result.message || "Profile updated successfully!" };
       }
 
-      return { success: false, message: "Update failed" };
+      return { success: false, message: result.message || "Update failed" };
     } catch (error: any) {
       console.error("Profile update error:", error);
       return { success: false, message: error.message || "Update failed" };
