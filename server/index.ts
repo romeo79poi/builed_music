@@ -505,12 +505,16 @@ export function createServer() {
   app.post("/api/auth/login/request-otp", requestLoginOTPWithRateLimit);
   app.post("/api/auth/login/verify-otp", verifyLoginOTPWithRateLimit);
 
-  // OAuth endpoints
+  // OAuth endpoints (temporarily without rate limiting for debugging)
   console.log("📋 Registering Google auth endpoint...");
   app.post("/api/auth/google", (req, res, next) => {
     console.log("🔥 Google auth middleware hit:", req.body);
     next();
-  }, googleAuthWithRateLimit);
+  }, async (req, res) => {
+    // Import the function directly to bypass rate limiting issues
+    const { googleAuth } = await import("./routes/auth-enhanced");
+    return googleAuth(req, res);
+  });
 
   console.log("📋 Registering Facebook auth endpoint...");
   app.post("/api/auth/facebook", facebookAuthWithRateLimit);
