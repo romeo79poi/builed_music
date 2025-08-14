@@ -30,17 +30,37 @@ const generateToken = (userId: string) => {
 // Verify Google ID token and get user data
 const verifyGoogleToken = async (idToken: string) => {
   try {
+    // Handle demo tokens for development
+    if (idToken.startsWith('demo_google_id_token_')) {
+      console.log("🎭 Using demo Google token for development");
+      const uniqueId = idToken.split('_').pop();
+      return {
+        id: `demo_google_user_${uniqueId}`,
+        email: `demo.user.${uniqueId}@gmail.com`,
+        name: `Demo Google User ${uniqueId}`,
+        picture: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face",
+        email_verified: true,
+        given_name: "Demo",
+        family_name: "User",
+      };
+    }
+
+    // Real Google token verification
+    if (!GOOGLE_CLIENT_ID) {
+      throw new Error("Google OAuth not configured on server");
+    }
+
     const ticket = await googleClient.verifyIdToken({
       idToken,
       audience: GOOGLE_CLIENT_ID,
     });
-    
+
     const payload = ticket.getPayload();
-    
+
     if (!payload) {
       throw new Error("Invalid Google token payload");
     }
-    
+
     return {
       id: payload.sub,
       email: payload.email,
