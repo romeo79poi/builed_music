@@ -649,9 +649,14 @@ export default function Settings() {
       if (authUser) {
         console.log("🔥 Updating setting for backend user:", key, newValue);
 
-        // Map component state key to Firebase settings structure
-        let settingPath = key;
-        if (
+        // Create settings object based on the key being updated
+        let settingsUpdate: any = {};
+
+        if (key === "darkTheme") {
+          settingsUpdate = {
+            preferences: { theme: newValue ? "dark" : "light" }
+          };
+        } else if (
           [
             "autoDownload",
             "highQuality",
@@ -661,32 +666,25 @@ export default function Settings() {
             "normalization",
           ].includes(key)
         ) {
-          settingPath = `playback.${key}`;
+          settingsUpdate = {
+            preferences: { [key]: newValue }
+          };
         } else if (["publicProfile", "showActivity"].includes(key)) {
-          settingPath = `privacy.${key}`;
+          settingsUpdate = {
+            privacy: { [key]: newValue }
+          };
         } else if (key === "notifications") {
-          settingPath = "notifications.email";
-        } else if (key === "darkTheme") {
-          // Special handling for theme
-          const success = await firebaseSettingsService.updateSetting(
-            firebaseUser.uid,
-            "theme",
-            newValue ? "dark" : "light",
-          );
-
-          if (success) {
-            toast({
-              title: "Theme Updated",
-              description: `Switched to ${newValue ? "dark" : "light"} theme`,
-            });
-          } else {
-            throw new Error("Failed to update theme");
-          }
-          return;
+          settingsUpdate = {
+            notifications: { email: newValue }
+          };
+        } else {
+          settingsUpdate = {
+            preferences: { [key]: newValue }
+          };
         }
 
-        // Update the setting using backend API (placeholder)
-        const success = true; // Backend settings API would be implemented here
+        // Update the setting using backend JWT API
+        const result = await updateSettings(settingsUpdate);
 
         if (success) {
           const friendlyName = key
