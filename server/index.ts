@@ -506,11 +506,16 @@ export function createServer() {
   app.post("/api/auth/login/verify-otp", verifyLoginOTPWithRateLimit);
 
   // OAuth endpoints
+  console.log("📋 Registering Google auth endpoint...");
   app.post("/api/auth/google", (req, res, next) => {
-    console.log("🔥 Google auth endpoint hit:", req.body);
+    console.log("🔥 Google auth middleware hit:", req.body);
     next();
   }, googleAuthWithRateLimit);
+
+  console.log("📋 Registering Facebook auth endpoint...");
   app.post("/api/auth/facebook", facebookAuthWithRateLimit);
+
+  console.log("✅ OAuth endpoints registered successfully");
 
   // Debug endpoint to list all routes
   app.get("/api/debug-routes", (req, res) => {
