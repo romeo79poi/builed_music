@@ -404,6 +404,13 @@ export default function Profile() {
 
         setProfile(backendProfile);
 
+        // Load user content data
+        await Promise.all([
+          fetchUserTracks(backendProfile.id),
+          fetchUserPlaylists(backendProfile.id),
+          fetchRecentlyPlayed(backendProfile.id)
+        ]);
+
         // Update edit form with backend data
         setEditForm({
           displayName: backendProfile.displayName,
