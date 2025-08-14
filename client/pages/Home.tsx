@@ -443,10 +443,10 @@ export default function Home() {
       }
     };
 
-    if (!firebaseLoading && fbUser !== undefined) {
+    if (!authLoading) {
       loadUserData();
     }
-  }, [fbUser, firebaseLoading]); // Add Firebase dependencies back
+  }, [user, authLoading]);
 
   // Additional fallback for avatar only
   useEffect(() => {
