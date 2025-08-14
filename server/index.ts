@@ -484,6 +484,9 @@ export function createServer() {
     signupWithRateLimit,
     loginWithRateLimit,
     me,
+    updateProfile,
+    getSettings,
+    updateSettings,
     checkAvailability: jwtCheckAvailability,
     refreshToken: jwtRefreshToken,
     logout
