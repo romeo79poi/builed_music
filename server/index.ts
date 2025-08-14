@@ -515,7 +515,7 @@ export function createServer() {
   }, googleAuth);
 
   console.log("📋 Registering Facebook auth endpoint...");
-  app.post("/api/auth/facebook", facebookAuthWithRateLimit);
+  app.post("/api/auth/facebook", facebookAuth);
 
   console.log("✅ OAuth endpoints registered successfully");
 
