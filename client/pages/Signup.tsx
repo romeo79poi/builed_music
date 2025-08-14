@@ -575,10 +575,16 @@ export default function Signup() {
     try {
       console.log("🔥 Attempting Facebook OAuth sign-in...");
 
-      // For development, simulate Facebook OAuth token
-      const mockFacebookToken = "mock_facebook_token_" + Date.now();
+      // Use real Facebook OAuth
+      const { oauthService } = await import("../lib/oauth-service");
 
-      const result = await signInWithFacebook(mockFacebookToken);
+      const oauthResult = await oauthService.signInWithFacebook();
+
+      if (!oauthResult.success || !oauthResult.token) {
+        throw new Error(oauthResult.error || "Facebook sign-in failed");
+      }
+
+      const result = await signInWithFacebook(oauthResult.token);
 
       if (result.success && result.user) {
         console.log("✅ Firebase Facebook sign-in successful:", result.user);
@@ -839,7 +845,7 @@ export default function Signup() {
 
         if (data.success) {
           toast({
-            title: "Account created successfully! ����",
+            title: "Account created successfully! �����",
             description: `Welcome to Music Catch, ${data.user.name}!`,
           });
 
