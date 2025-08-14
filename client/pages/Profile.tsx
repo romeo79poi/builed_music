@@ -164,13 +164,9 @@ export default function Profile() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user: authUser, loading: authLoading } = useAuth();
-  const {
-    isFollowing: isFollowingUser,
-    followUser,
-    unfollowUser,
-    followersCount: socialFollowersCount,
-    followingCount: socialFollowingCount,
-  } = useSocial();
+  // Social features will be implemented with backend later
+  const socialFollowersCount = 0;
+  const socialFollowingCount = 0;
 
   // State management
   const [profile, setProfile] = useState<UserProfile | null>(null);
