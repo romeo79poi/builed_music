@@ -342,6 +342,13 @@ export default function Profile() {
 
         setProfile(enhancedProfile);
 
+        // Load user content data
+        await Promise.all([
+          fetchUserTracks(enhancedProfile.id),
+          fetchUserPlaylists(enhancedProfile.id),
+          fetchRecentlyPlayed(enhancedProfile.id)
+        ]);
+
         // Update edit form with enhanced data
         setEditForm({
           displayName: enhancedProfile.displayName,
