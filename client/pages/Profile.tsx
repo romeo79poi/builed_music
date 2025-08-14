@@ -185,6 +185,36 @@ export default function Profile() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [showStats, setShowStats] = useState(false);
 
+  // Social functions (placeholder implementation)
+  const isFollowingUser = (userId: string) => {
+    // Placeholder implementation - would check if current user follows the given user
+    return isFollowing;
+  };
+
+  const followUser = async (userId: string, userProfile: any) => {
+    try {
+      // Placeholder implementation - would call backend follow API
+      console.log("Following user:", userId);
+      setIsFollowing(true);
+      return true;
+    } catch (error) {
+      console.error("Error following user:", error);
+      return false;
+    }
+  };
+
+  const unfollowUser = async (userId: string) => {
+    try {
+      // Placeholder implementation - would call backend unfollow API
+      console.log("Unfollowing user:", userId);
+      setIsFollowing(false);
+      return true;
+    } catch (error) {
+      console.error("Error unfollowing user:", error);
+      return false;
+    }
+  };
+
   // Edit states
   const [isEditing, setIsEditing] = useState(false);
   const [editForm, setEditForm] = useState({
