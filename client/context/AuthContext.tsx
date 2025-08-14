@@ -169,27 +169,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loadUserProfile = async (token: string) => {
     try {
-      const response = await fetch('/api/auth/me', {
+      const result = await safeFetch('/api/auth/me', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
 
-      if (response.ok) {
-        try {
-          const result = await response.json();
-          if (result.success && result.data) {
-            setUser(result.data);
-            console.log("✅ User profile loaded:", result.data);
-          }
-        } catch (jsonError) {
-          console.error("Failed to parse JSON response:", jsonError);
-          localStorage.removeItem('authToken');
-          setUser(null);
-        }
+      if (result.success && result.data) {
+        setUser(result.data);
+        console.log("✅ User profile loaded:", result.data);
       } else {
-        console.error("Auth endpoint returned error:", response.status);
+        console.error("Auth endpoint returned error:", result);
         localStorage.removeItem('authToken');
         setUser(null);
       }
