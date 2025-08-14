@@ -224,28 +224,21 @@ class OAuthService {
     });
   }
 
-  // Alternative Google Sign-In using ID Token (recommended)
+  // Real Google Sign-In using ID Token
   async signInWithGoogleIdToken(): Promise<{ success: boolean; idToken?: string; error?: string }> {
     try {
-      // For development/demo purposes, create a mock ID token if Google isn't configured
       if (!GOOGLE_CLIENT_ID) {
-        console.warn("⚠️ Google Client ID not configured, using demo token");
-        const mockIdToken = `demo_google_id_token_${Date.now()}`;
-        return { success: true, idToken: mockIdToken };
+        return { success: false, error: "Google Client ID not configured. Please configure VITE_GOOGLE_CLIENT_ID environment variable." };
       }
 
       const initialized = await this.initializeGoogle();
       if (!initialized) {
-        console.warn("⚠️ Google Sign-In initialization failed, using demo token");
-        const mockIdToken = `demo_google_id_token_${Date.now()}`;
-        return { success: true, idToken: mockIdToken };
+        return { success: false, error: "Failed to initialize Google Sign-In. Please check your internet connection." };
       }
 
       return new Promise((resolve) => {
         if (!window.google?.accounts?.id) {
-          console.warn("⚠️ Google Identity Services not available, using demo token");
-          const mockIdToken = `demo_google_id_token_${Date.now()}`;
-          resolve({ success: true, idToken: mockIdToken });
+          resolve({ success: false, error: "Google Identity Services not available. Please refresh the page and try again." });
           return;
         }
 
@@ -256,7 +249,7 @@ class OAuthService {
             if (response.credential) {
               resolve({ success: true, idToken: response.credential });
             } else {
-              resolve({ success: false, error: "No credential received" });
+              resolve({ success: false, error: "No credential received from Google" });
             }
           },
         });
@@ -264,19 +257,38 @@ class OAuthService {
         // Try to prompt for sign-in
         window.google.accounts.id.prompt((notification: any) => {
           if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-            // Fallback to demo token if prompt fails
-            console.warn("⚠️ Google prompt failed, using demo token");
-            const mockIdToken = `demo_google_id_token_${Date.now()}`;
-            resolve({ success: true, idToken: mockIdToken });
+            // Show manual sign-in button
+            this.showGoogleSignInButton(resolve);
           }
         });
       });
     } catch (error: any) {
       console.error("❌ Google ID token sign-in error:", error);
-      // Return demo token as fallback
-      const mockIdToken = `demo_google_id_token_${Date.now()}`;
-      return { success: true, idToken: mockIdToken };
+      return { success: false, error: error.message || "Google sign-in failed" };
     }
+  }
+
+  // Show Google Sign-In button as fallback
+  private showGoogleSignInButton(resolve: (value: { success: boolean; idToken?: string; error?: string }) => void) {
+    const buttonContainer = document.getElementById('google-signin-button') || document.createElement('div');
+    if (!document.getElementById('google-signin-button')) {
+      buttonContainer.id = 'google-signin-button';
+      document.body.appendChild(buttonContainer);
+    }
+
+    window.google!.accounts.id.renderButton(buttonContainer, {
+      theme: 'outline',
+      size: 'large',
+      text: 'continue_with',
+      callback: (response: any) => {
+        if (response.credential) {
+          resolve({ success: true, idToken: response.credential });
+        } else {
+          resolve({ success: false, error: "No credential received from Google" });
+        }
+        buttonContainer.remove();
+      }
+    });
   }
 }
 
