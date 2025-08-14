@@ -215,11 +215,15 @@ import {
   verifySignupOTPWithRateLimit,
   requestLoginOTPWithRateLimit,
   verifyLoginOTPWithRateLimit,
-  googleAuthWithRateLimit,
-  facebookAuthWithRateLimit,
+} from "./routes/auth-enhanced";
+
+// Real OAuth authentication
+import {
   googleAuth,
   facebookAuth,
-} from "./routes/auth-enhanced";
+  googleAuthWithRateLimit,
+  facebookAuthWithRateLimit,
+} from "./routes/auth-oauth";
 
 export function createServer() {
   const app = express();
