@@ -496,7 +496,7 @@ export function createServer() {
   app.post("/api/auth/signup", signupWithRateLimit);
   app.post("/api/auth/login", loginWithRateLimit);
   app.get("/api/auth/me", authenticateJWT, me);
-  app.put("/api/auth/profile", authenticateJWT, updateProfile);
+  app.put("/api/auth/profile", authenticateJWT, updateJWTProfile);
   app.get("/api/auth/settings", authenticateJWT, getSettings);
   app.put("/api/auth/settings", authenticateJWT, updateSettings);
   app.get("/api/auth/check-availability", jwtCheckAvailability);
