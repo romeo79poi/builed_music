@@ -368,40 +368,18 @@ export default function Login() {
         console.log("✅ User found in cache, proceeding with login");
       }
 
-      console.log("🔑 User exists, attempting Firebase email login...");
+      console.log("🔑 User exists, attempting backend JWT login...");
 
-      // Use Firebase authentication
-      const result = await loginWithEmailAndPassword(email, password);
+      // Use backend JWT authentication
+      const result = await signIn(email, password);
 
-      if (result.success && result.user) {
-        // Check email verification status for signup users
-        if (!result.user.emailVerified) {
-          console.log("⚠️ User email not verified");
-
-          toast({
-            title: "Email verification required 📬",
-            description:
-              "Please check your email and verify your account before logging in",
-            variant: "destructive",
-          });
-
-          setAuthError(
-            "Please verify your email address before logging in. Check your inbox for the verification link.",
-          );
-          setShowResendVerification(true);
-          setUnverifiedUser(result.user);
-          return;
-        }
-
-        // Fetch complete user profile data
-        await loadCompleteUserProfile(result.user);
-
+      if (result.success) {
         toast({
           title: "Welcome back! 🎉",
           description: "Successfully logged in",
         });
 
-        console.log("✅ Firebase email login successful");
+        console.log("✅ Backend JWT login successful");
         navigate("/home");
       } else {
         // Handle specific error cases
