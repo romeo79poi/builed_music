@@ -411,49 +411,22 @@ export default function Home() {
       try {
         setUserDataLoading(true);
 
-        // Check if we have a Firebase user
-        if (fbUser) {
-          // First try to get cached data immediately for fast UI
-          const cachedData = userDataService.getCachedUserData(fbUser.uid);
-          if (cachedData && !userDataService.isDataStale(fbUser.uid, 5)) {
-            // Use fresh cached data
-            setUserData(cachedData);
-            setUserAvatar(cachedData.avatar || cachedData.profileImageURL);
-            setUserDataLoading(false);
-            return;
-          }
-
-          // If no cache or stale, fetch new data with timeout
-          const dataPromise = userDataService.fetchUserData(fbUser);
-          const timeoutPromise = new Promise<null>((resolve) => {
-            setTimeout(() => resolve(null), 2000); // 2 second timeout for Home page
-          });
-
-          const enhancedUserData = await Promise.race([
-            dataPromise,
-            timeoutPromise,
-          ]);
-
-          if (enhancedUserData) {
-            setUserData(enhancedUserData);
-            setUserAvatar(
-              enhancedUserData.avatar || enhancedUserData.profileImageURL,
-            );
-          } else if (cachedData) {
-            // Use stale cached data as fallback
-            setUserData(cachedData);
-            setUserAvatar(cachedData.avatar || cachedData.profileImageURL);
-          }
+        // Check if we have a backend authenticated user
+        if (user) {
+          // Use the user data from AuthContext
+          setUserData(user);
+          setUserAvatar(user.avatar_url);
+          setUserDataLoading(false);
         } else {
-          // Try to load from localStorage if no Firebase user
+          // Try to load from localStorage as fallback
           const savedUserData = localStorage.getItem("currentUser");
           if (savedUserData) {
             try {
               const parsedUserData = JSON.parse(savedUserData);
-              if (parsedUserData.uid || parsedUserData.id) {
+              if (parsedUserData.id) {
                 setUserData(parsedUserData);
                 setUserAvatar(
-                  parsedUserData.avatar || parsedUserData.profileImageURL,
+                  parsedUserData.avatar_url || parsedUserData.profileImageURL,
                 );
               }
             } catch (error) {
