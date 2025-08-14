@@ -34,18 +34,40 @@ class OAuthService {
   // Initialize Google Sign-In
   async initializeGoogle(): Promise<boolean> {
     if (this.googleLoaded) return true;
-    
+
     if (!GOOGLE_CLIENT_ID) {
       console.warn("⚠️ Google Client ID not configured");
       return false;
     }
 
     try {
-      // Load Google Sign-In script
+      console.log("🔄 Loading Google Identity Services...");
+
+      // Load Google Sign-In script with retry mechanism
       await this.loadScript('https://accounts.google.com/gsi/client');
-      
-      // Initialize Google Identity Services
-      if (window.google?.accounts?.id) {
+
+      // Wait for Google services to be available with timeout
+      const waitForGoogle = new Promise<boolean>((resolve) => {
+        let attempts = 0;
+        const maxAttempts = 20; // 2 seconds total
+
+        const checkGoogle = () => {
+          attempts++;
+          if (window.google?.accounts?.id) {
+            resolve(true);
+          } else if (attempts < maxAttempts) {
+            setTimeout(checkGoogle, 100);
+          } else {
+            resolve(false);
+          }
+        };
+
+        checkGoogle();
+      });
+
+      const googleAvailable = await waitForGoogle;
+
+      if (googleAvailable) {
         window.google.accounts.id.initialize({
           client_id: GOOGLE_CLIENT_ID,
           callback: (response: any) => {
@@ -53,16 +75,18 @@ class OAuthService {
           },
           auto_select: false,
         });
-        
+
         this.googleLoaded = true;
-        console.log("✅ Google Sign-In initialized");
+        console.log("✅ Google Sign-In initialized successfully");
         return true;
+      } else {
+        console.error("❌ Google Identity Services not available after timeout");
+        return false;
       }
     } catch (error) {
       console.error("❌ Failed to initialize Google Sign-In:", error);
+      return false;
     }
-    
-    return false;
   }
 
   // Initialize Facebook SDK
