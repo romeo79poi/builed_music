@@ -310,6 +310,64 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  const getSettings = async () => {
+    if (!user) {
+      return { success: false, message: "Not authenticated" };
+    }
+
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        return { success: false, message: "No authentication token" };
+      }
+
+      const result = await safeFetch('/api/auth/settings', {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      return {
+        success: result.success,
+        data: result.data,
+        message: result.message || "Settings retrieved successfully"
+      };
+    } catch (error: any) {
+      console.error("Get settings error:", error);
+      return { success: false, message: error.message || "Failed to get settings" };
+    }
+  };
+
+  const updateSettings = async (settings: any) => {
+    if (!user) {
+      return { success: false, message: "Not authenticated" };
+    }
+
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        return { success: false, message: "No authentication token" };
+      }
+
+      const result = await safeFetch('/api/auth/settings', {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(settings),
+      });
+
+      return {
+        success: result.success,
+        message: result.message || "Settings updated successfully"
+      };
+    } catch (error: any) {
+      console.error("Update settings error:", error);
+      return { success: false, message: error.message || "Failed to update settings" };
+    }
+  };
+
   // Legacy method compatibility
   const login = async (email: string, password: string) => {
     const result = await signIn(email, password);
