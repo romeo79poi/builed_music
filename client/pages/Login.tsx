@@ -382,27 +382,24 @@ export default function Login() {
         console.log("✅ Backend JWT login successful");
         navigate("/home");
       } else {
-        // Handle specific error cases
-        let errorMessage = result.error || "Login failed";
+        // Handle backend error cases
+        let errorMessage = result.message || "Login failed";
         let shouldRedirectToSignup = false;
 
         if (
-          errorMessage.includes("user-not-found") ||
-          errorMessage.includes("auth/user-not-found")
+          errorMessage.includes("User not found") ||
+          errorMessage.includes("not found")
         ) {
           errorMessage = "Account not found. Redirecting to signup...";
           shouldRedirectToSignup = true;
         } else if (
-          errorMessage.includes("wrong-password") ||
-          errorMessage.includes("auth/wrong-password")
+          errorMessage.includes("Invalid credentials") ||
+          errorMessage.includes("password")
         ) {
           errorMessage = "Incorrect password. Please try again.";
-        } else if (
-          errorMessage.includes("invalid-email") ||
-          errorMessage.includes("auth/invalid-email")
-        ) {
+        } else if (errorMessage.includes("Invalid email")) {
           errorMessage = "Invalid email format.";
-        } else if (errorMessage.includes("too-many-requests")) {
+        } else if (errorMessage.includes("Too many")) {
           errorMessage = "Too many failed attempts. Please try again later.";
         }
 
