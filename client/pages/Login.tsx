@@ -93,38 +93,11 @@ export default function Login() {
   };
 
   const handleResendVerification = async () => {
-    if (!unverifiedUser) return;
-
-    setIsLoading(true);
-
-    try {
-      const result = await sendFirebaseEmailVerification(unverifiedUser);
-
-      if (result.success) {
-        toast({
-          title: "Verification email sent! 📬",
-          description:
-            "Please check your email and click the verification link",
-        });
-
-        setShowResendVerification(false);
-      } else {
-        toast({
-          title: "Failed to send verification email",
-          description: result.error || "Please try again",
-          variant: "destructive",
-        });
-      }
-    } catch (error: any) {
-      console.error("Resend verification error:", error);
-      toast({
-        title: "Error",
-        description: "Failed to send verification email",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    toast({
+      title: "Email verification",
+      description: "Email verification is handled automatically with backend authentication",
+    });
+    setShowResendVerification(false);
   };
 
   const loadUserActivityData = async (userId: string, userProfile: any) => {
