@@ -25,279 +25,19 @@ import ActivityFeed from "../components/ActivityFeed";
 import EnhancedMiniPlayer from "../components/EnhancedMiniPlayer";
 import { api } from "../lib/api";
 import { useAuth } from "../context/AuthContext";
-import { useFirebase } from "../context/FirebaseContext";
 import { useMusic } from "../context/MusicContextSupabase";
 import { useEnhancedMusic, type Song } from "../context/EnhancedMusicContext";
 import { userDataService, EnhancedUserData } from "../lib/user-data-service";
 
-// Top 10 Most Viewed Songs Today
-const top10Today = [
-  {
-    id: "top1",
-    title: "As It Was",
-    artist: "Harry Styles",
-    rank: 1,
-    views: "2.4M",
-    coverImageURL:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
-    isRising: true,
-    playCount: "142.8M",
-  },
-  {
-    id: "top2",
-    title: "Heat Waves",
-    artist: "Glass Animals",
-    rank: 2,
-    views: "2.1M",
-    coverImageURL:
-      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
-    isRising: false,
-    playCount: "189.3M",
-  },
-  {
-    id: "top3",
-    title: "Stay",
-    artist: "The Kid LAROI, Justin Bieber",
-    rank: 3,
-    views: "1.9M",
-    coverImageURL:
-      "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=200&h=200&fit=crop",
-    isRising: true,
-    playCount: "156.7M",
-  },
-  {
-    id: "top4",
-    title: "Industry Baby",
-    artist: "Lil Nas X, Jack Harlow",
-    rank: 4,
-    views: "1.7M",
-    coverImageURL:
-      "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=200&h=200&fit=crop",
-    isRising: false,
-    playCount: "143.2M",
-  },
-  {
-    id: "top5",
-    title: "Good 4 U",
-    artist: "Olivia Rodrigo",
-    rank: 5,
-    views: "1.5M",
-    coverImageURL:
-      "https://images.unsplash.com/photo-1516280440614-37939bbacd81?w=200&h=200&fit=crop",
-    isRising: true,
-    playCount: "134.9M",
-  },
-  {
-    id: "top6",
-    title: "Levitating",
-    artist: "Dua Lipa",
-    rank: 6,
-    views: "1.3M",
-    coverImageURL:
-      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
-    isRising: false,
-    playCount: "128.5M",
-  },
-  {
-    id: "top7",
-    title: "Flowers",
-    artist: "Miley Cyrus",
-    rank: 7,
-    views: "1.2M",
-    coverImageURL:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
-    isRising: true,
-    playCount: "121.8M",
-  },
-  {
-    id: "top8",
-    title: "Anti-Hero",
-    artist: "Taylor Swift",
-    rank: 8,
-    views: "1.1M",
-    coverImageURL:
-      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=200&fit=crop",
-    isRising: false,
-    playCount: "118.4M",
-  },
-  {
-    id: "top9",
-    title: "Unholy",
-    artist: "Sam Smith, Kim Petras",
-    rank: 9,
-    views: "1.0M",
-    coverImageURL:
-      "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=200&h=200&fit=crop",
-    isRising: true,
-    playCount: "115.2M",
-  },
-  {
-    id: "top10",
-    title: "Creepin'",
-    artist: "Metro Boomin, The Weeknd, 21 Savage",
-    rank: 10,
-    views: "950K",
-    coverImageURL:
-      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
-    isRising: false,
-    playCount: "112.7M",
-  },
-];
+// Real data will be fetched from backend APIs - no more mock data
 
-// Sample data for the layout - will be replaced with API data
-let sampleAlbums = [
-  {
-    id: "1",
-    name: "After Hours",
-    artist: "The Weeknd",
-    coverImageURL:
-      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
-    isNew: true,
-  },
-  {
-    id: "2",
-    name: "Fine Line",
-    artist: "Harry Styles",
-    coverImageURL:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
-    isNew: false,
-  },
-  {
-    id: "3",
-    name: "Future Nostalgia",
-    artist: "Dua Lipa",
-    coverImageURL:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
-    isNew: true,
-  },
-  {
-    id: "4",
-    name: "Positions",
-    artist: "Ariana Grande",
-    coverImageURL:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop",
-    isNew: false,
-  },
-  {
-    id: "5",
-    name: "Folklore",
-    artist: "Taylor Swift",
-    coverImageURL:
-      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=200&fit=crop",
-    isNew: true,
-  },
-];
+// Sample albums removed - will be fetched from backend
 
-// New Releases
-const newReleases = [
-  {
-    id: "nr1",
-    title: "As It Was",
-    artist: "Harry Styles",
-    coverImageURL:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
-    releaseDate: "2024-01-15",
-  },
-  {
-    id: "nr2",
-    title: "Anti-Hero",
-    artist: "Taylor Swift",
-    coverImageURL:
-      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=200&h=200&fit=crop",
-    releaseDate: "2024-01-12",
-  },
-  {
-    id: "nr3",
-    title: "Unholy",
-    artist: "Sam Smith",
-    coverImageURL:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
-    releaseDate: "2024-01-10",
-  },
-];
+// New releases removed - will be fetched from backend
 
-// Mood-based playlists
-const moodPlaylists = [
-  {
-    id: "mood1",
-    name: "Chill Vibes",
-    description: "Relax and unwind",
-    coverImageURL:
-      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
-    mood: "chill",
-    color: "from-blue-400 to-purple-400",
-  },
-  {
-    id: "mood2",
-    name: "Workout Beats",
-    description: "Get pumped up",
-    coverImageURL:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
-    mood: "energetic",
-    color: "from-red-400 to-orange-400",
-  },
-  {
-    id: "mood3",
-    name: "Party Mix",
-    description: "Dance the night away",
-    coverImageURL:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&h=200&fit=crop",
-    mood: "party",
-    color: "from-pink-400 to-purple-400",
-  },
-  {
-    id: "mood4",
-    name: "Focus Flow",
-    description: "Stay concentrated",
-    coverImageURL:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&h=200&fit=crop",
-    mood: "focus",
-    color: "from-green-400 to-teal-400",
-  },
-];
+// Mood playlists removed - will be fetched from backend
 
-let sampleSongs = [
-  {
-    id: "1",
-    title: "Blinding Lights",
-    artist: "The Weeknd",
-    coverImageURL:
-      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=80&h=80&fit=crop",
-    duration: "3:20",
-  },
-  {
-    id: "2",
-    title: "Watermelon Sugar",
-    artist: "Harry Styles",
-    coverImageURL:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop",
-    duration: "2:54",
-  },
-  {
-    id: "3",
-    title: "Levitating",
-    artist: "Dua Lipa",
-    coverImageURL:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop",
-    duration: "3:23",
-  },
-  {
-    id: "4",
-    title: "positions",
-    artist: "Ariana Grande",
-    coverImageURL:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=80&h=80&fit=crop",
-    duration: "2:52",
-  },
-  {
-    id: "5",
-    title: "cardigan",
-    artist: "Taylor Swift",
-    coverImageURL:
-      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=80&h=80&fit=crop",
-    duration: "3:59",
-  },
-];
+// Sample songs removed - will be fetched from backend
 
 // Animation variants
 const containerVariants = {
@@ -354,8 +94,7 @@ const glowVariants = {
 export default function Home() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user, firebaseUser } = useAuth();
-  const { user: fbUser, loading: firebaseLoading } = useFirebase();
+  const { user, loading: authLoading } = useAuth();
   const {
     trendingSongs,
     trendingAlbums,
@@ -413,49 +152,22 @@ export default function Home() {
       try {
         setUserDataLoading(true);
 
-        // Check if we have a Firebase user
-        if (fbUser) {
-          // First try to get cached data immediately for fast UI
-          const cachedData = userDataService.getCachedUserData(fbUser.uid);
-          if (cachedData && !userDataService.isDataStale(fbUser.uid, 5)) {
-            // Use fresh cached data
-            setUserData(cachedData);
-            setUserAvatar(cachedData.avatar || cachedData.profileImageURL);
-            setUserDataLoading(false);
-            return;
-          }
-
-          // If no cache or stale, fetch new data with timeout
-          const dataPromise = userDataService.fetchUserData(fbUser);
-          const timeoutPromise = new Promise<null>((resolve) => {
-            setTimeout(() => resolve(null), 2000); // 2 second timeout for Home page
-          });
-
-          const enhancedUserData = await Promise.race([
-            dataPromise,
-            timeoutPromise,
-          ]);
-
-          if (enhancedUserData) {
-            setUserData(enhancedUserData);
-            setUserAvatar(
-              enhancedUserData.avatar || enhancedUserData.profileImageURL,
-            );
-          } else if (cachedData) {
-            // Use stale cached data as fallback
-            setUserData(cachedData);
-            setUserAvatar(cachedData.avatar || cachedData.profileImageURL);
-          }
+        // Check if we have a backend authenticated user
+        if (user) {
+          // Use the user data from AuthContext
+          setUserData(user);
+          setUserAvatar(user.avatar_url);
+          setUserDataLoading(false);
         } else {
-          // Try to load from localStorage if no Firebase user
+          // Try to load from localStorage as fallback
           const savedUserData = localStorage.getItem("currentUser");
           if (savedUserData) {
             try {
               const parsedUserData = JSON.parse(savedUserData);
-              if (parsedUserData.uid || parsedUserData.id) {
+              if (parsedUserData.id) {
                 setUserData(parsedUserData);
                 setUserAvatar(
-                  parsedUserData.avatar || parsedUserData.profileImageURL,
+                  parsedUserData.avatar_url || parsedUserData.profileImageURL,
                 );
               }
             } catch (error) {
@@ -472,10 +184,10 @@ export default function Home() {
       }
     };
 
-    if (!firebaseLoading && fbUser !== undefined) {
+    if (!authLoading) {
       loadUserData();
     }
-  }, [fbUser, firebaseLoading]); // Add Firebase dependencies back
+  }, [user, authLoading]);
 
   // Additional fallback for avatar only
   useEffect(() => {

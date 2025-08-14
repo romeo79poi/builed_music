@@ -49,11 +49,9 @@ import {
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
 import { UserProfile as BackendUserProfile, Song } from "@shared/api";
-import { fetchUserData, updateUserProfile } from "../lib/auth";
 import { api } from "../lib/api";
-import { useFirebase } from "../context/FirebaseContext";
+import { useAuth } from "../context/AuthContext";
 import { useMusic } from "../context/MusicContextSupabase";
-import { useSocial } from "../context/SocialContext";
 import { userDataService, EnhancedUserData } from "../lib/user-data-service";
 
 // Use enhanced user data type
@@ -96,48 +94,7 @@ interface Playlist {
   plays: number;
 }
 
-const sampleTracks: Track[] = [
-  {
-    id: "1",
-    title: "Midnight Dreams",
-    coverUrl:
-      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
-    duration: 234,
-    plays: 2340000,
-    likes: 45600,
-    comments: 1230,
-    uploadDate: new Date("2024-01-15"),
-    isPublic: true,
-    genre: "Electronic",
-  },
-  {
-    id: "2",
-    title: "Summer Vibes",
-    coverUrl:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
-    duration: 198,
-    plays: 1890000,
-    likes: 38200,
-    comments: 892,
-    uploadDate: new Date("2024-01-10"),
-    isPublic: true,
-    genre: "Pop",
-  },
-];
-
-const samplePlaylists: Playlist[] = [
-  {
-    id: "1",
-    name: "Best of Alex",
-    description: "My top tracks handpicked for you",
-    coverUrl:
-      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
-    trackCount: 25,
-    isPublic: true,
-    createdDate: new Date("2024-01-01"),
-    plays: 567000,
-  },
-];
+// No more sample data - all data will be fetched from backend
 
 interface RecentlyPlayedTrack {
   id: string;
@@ -149,39 +106,23 @@ interface RecentlyPlayedTrack {
   isCurrentlyPlaying?: boolean;
 }
 
-const sampleRecentlyPlayed: RecentlyPlayedTrack[] = [
-  {
-    id: "recent1",
-    title: "Midnight Dreams",
-    artist: "Alex Johnson",
-    coverUrl:
-      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop",
-    playedAt: "2 minutes ago",
-    duration: 234,
-    isCurrentlyPlaying: true,
-  },
-];
+// No more sample data - all data will be fetched from backend
 
 export default function Profile() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user: firebaseUser, loading: firebaseLoading } = useFirebase();
-  const {
-    isFollowing: isFollowingUser,
-    followUser,
-    unfollowUser,
-    followersCount: socialFollowersCount,
-    followingCount: socialFollowingCount,
-  } = useSocial();
+  const { user: authUser, loading: authLoading } = useAuth();
+  // Social features will be implemented with backend later
+  const socialFollowersCount = 0;
+  const socialFollowingCount = 0;
 
   // State management
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
-  const [tracks, setTracks] = useState<Track[]>(sampleTracks);
-  const [playlists, setPlaylists] = useState<Playlist[]>(samplePlaylists);
-  const [recentlyPlayed, setRecentlyPlayed] =
-    useState<RecentlyPlayedTrack[]>(sampleRecentlyPlayed);
+  const [tracks, setTracks] = useState<Track[]>([]);
+  const [playlists, setPlaylists] = useState<Playlist[]>([]);
+  const [recentlyPlayed, setRecentlyPlayed] = useState<RecentlyPlayedTrack[]>([]);
   const [selectedTab, setSelectedTab] = useState("tracks");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [isFollowing, setIsFollowing] = useState(false);
@@ -190,6 +131,123 @@ export default function Profile() {
   );
   const [isPlaying, setIsPlaying] = useState(false);
   const [showStats, setShowStats] = useState(false);
+
+  // Real data fetching functions
+  const fetchUserTracks = async (userId: string) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) return;
+
+      const response = await fetch(`/api/v1/users/${userId}/tracks`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setTracks(data.tracks || []);
+      }
+    } catch (error) {
+      console.error("Error fetching user tracks:", error);
+    }
+  };
+
+  const fetchUserPlaylists = async (userId: string) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) return;
+
+      const response = await fetch(`/api/v1/users/${userId}/playlists`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setPlaylists(data.playlists || []);
+      }
+    } catch (error) {
+      console.error("Error fetching user playlists:", error);
+    }
+  };
+
+  const fetchRecentlyPlayed = async (userId: string) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) return;
+
+      const response = await fetch(`/api/profile/${userId}/recently-played`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setRecentlyPlayed(data.recently_played || []);
+      }
+    } catch (error) {
+      console.error("Error fetching recently played:", error);
+    }
+  };
+
+  // Real social functions
+  const isFollowingUser = (userId: string) => {
+    return isFollowing;
+  };
+
+  const followUser = async (userId: string, userProfile: any) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) return false;
+
+      const response = await fetch(`/api/v1/users/${userId}/follow`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        setIsFollowing(true);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error following user:", error);
+      return false;
+    }
+  };
+
+  const unfollowUser = async (userId: string) => {
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) return false;
+
+      const response = await fetch(`/api/v1/users/${userId}/follow`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        setIsFollowing(false);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error("Error unfollowing user:", error);
+      return false;
+    }
+  };
 
   // Edit states
   const [isEditing, setIsEditing] = useState(false);
@@ -235,7 +293,7 @@ export default function Profile() {
     try {
       setLoading(true);
 
-      if (!firebaseUser) {
+      if (!authUser) {
         toast({
           title: "Authentication required",
           description: "Please sign in to view your profile",
@@ -245,21 +303,11 @@ export default function Profile() {
         return;
       }
 
-      // Use the enhanced user data service with timeout to prevent hanging
-      const dataFetchPromise = userDataService.fetchUserData(firebaseUser);
-      const timeoutPromise = new Promise<null>((resolve) => {
-        setTimeout(() => {
-          console.warn(
-            "⚠️ Profile data fetch timeout, using Firebase fallback",
-          );
-          resolve(null);
-        }, 4000); // 4 second timeout
-      });
+      // Load user data from backend JWT authentication
+      console.log("🔄 Loading user profile from backend...");
 
-      const enhancedUserData = await Promise.race([
-        dataFetchPromise,
-        timeoutPromise,
-      ]);
+      // User data is already available from AuthContext
+      const enhancedUserData = authUser;
 
       if (enhancedUserData) {
         // Convert enhanced user data to profile format
@@ -294,6 +342,13 @@ export default function Profile() {
 
         setProfile(enhancedProfile);
 
+        // Load user content data
+        await Promise.all([
+          fetchUserTracks(enhancedProfile.id),
+          fetchUserPlaylists(enhancedProfile.id),
+          fetchRecentlyPlayed(enhancedProfile.id)
+        ]);
+
         // Update edit form with enhanced data
         setEditForm({
           displayName: enhancedProfile.displayName,
@@ -303,61 +358,66 @@ export default function Profile() {
           socialLinks: enhancedProfile.socialLinks,
         });
       } else {
-        // Fallback to basic Firebase profile
-        const firebaseProfile: UserProfile = {
-          uid: firebaseUser.uid,
-          id: firebaseUser.uid,
-          displayName: firebaseUser.displayName || "User",
-          name: firebaseUser.displayName || "User",
-          username: firebaseUser.email?.split("@")[0] || "user",
-          email: firebaseUser.email || "",
-          emailVerified: firebaseUser.emailVerified,
-          bio: "Music lover 🎵",
-          avatar: firebaseUser.photoURL || "",
-          profileImageURL: firebaseUser.photoURL || "",
-          photoURL: firebaseUser.photoURL || "",
+        // Fallback to basic user profile from backend auth
+        const backendProfile: UserProfile = {
+          uid: authUser.id,
+          id: authUser.id,
+          displayName: authUser.name || "User",
+          name: authUser.name || "User",
+          username: authUser.username || "user",
+          email: authUser.email || "",
+          emailVerified: authUser.verified || false,
+          bio: authUser.bio || "Music lover 🎵",
+          avatar: authUser.avatar_url || "",
+          profileImageURL: authUser.avatar_url || "",
+          photoURL: authUser.avatar_url || "",
           coverImage: "",
-          location: "",
-          website: "",
-          isVerified: firebaseUser.emailVerified,
+          location: authUser.location || "",
+          website: authUser.website || "",
+          isVerified: authUser.verified || false,
           isArtist: false,
-          isPremium: false,
-          accountType: "Free" as const,
-          memberSince: "",
-          followersCount: 0,
-          followingCount: 0,
+          isPremium: authUser.premium || false,
+          accountType: authUser.premium ? "Premium" : "Free" as const,
+          memberSince: authUser.created_at || "",
+          followersCount: authUser.followers_count || 0,
+          followingCount: authUser.following_count || 0,
           isPublic: true,
-          joinedDate: new Date(),
-          creationTime:
-            firebaseUser.metadata.creationTime || new Date().toISOString(),
-          lastSignInTime:
-            firebaseUser.metadata.lastSignInTime || new Date().toISOString(),
+          joinedDate: new Date(authUser.created_at || Date.now()),
+          creationTime: authUser.created_at || new Date().toISOString(),
+          lastSignInTime: authUser.updated_at || new Date().toISOString(),
           socialLinks: {
             instagram: "",
             twitter: "",
             youtube: "",
           },
           stats: {
-            followers: 0,
-            following: 0,
+            followers: authUser.followers_count || 0,
+            following: authUser.following_count || 0,
             totalPlays: 0,
             totalTracks: 0,
             totalPlaylists: 0,
             monthlyListeners: 0,
           },
-          badges: [],
-          dataSource: "firebase" as const,
+          badges: authUser.premium ? ["premium"] : [],
+          dataSource: "backend" as const,
         };
 
-        setProfile(firebaseProfile);
+        setProfile(backendProfile);
 
-        // Update edit form with Firebase data
+        // Load user content data
+        await Promise.all([
+          fetchUserTracks(backendProfile.id),
+          fetchUserPlaylists(backendProfile.id),
+          fetchRecentlyPlayed(backendProfile.id)
+        ]);
+
+        // Update edit form with backend data
         setEditForm({
-          displayName: firebaseProfile.displayName,
-          username: firebaseProfile.username,
-          bio: firebaseProfile.bio,
-          location: firebaseProfile.location,
-          socialLinks: firebaseProfile.socialLinks,
+          displayName: backendProfile.displayName,
+          username: backendProfile.username,
+          bio: backendProfile.bio,
+          location: backendProfile.location,
+          socialLinks: backendProfile.socialLinks,
         });
       }
     } catch (error) {
@@ -373,12 +433,12 @@ export default function Profile() {
     }
   };
 
-  // Load data when Firebase user is available
+  // Load data when backend auth user is available
   useEffect(() => {
-    if (!firebaseLoading) {
+    if (!authLoading) {
       fetchProfile();
     }
-  }, [firebaseUser, firebaseLoading]);
+  }, [authUser, authLoading]);
 
   const formatNumber = (num: number | undefined | null) => {
     if (num == null || isNaN(num)) {
@@ -503,7 +563,7 @@ export default function Profile() {
   };
 
   const handleSaveProfile = async () => {
-    if (!profile || !firebaseUser) return;
+    if (!profile || !authUser) return;
 
     try {
       setUploading(true);
@@ -529,19 +589,15 @@ export default function Profile() {
         return;
       }
 
-      // Use enhanced user data service to update
+      // Use backend authentication to update profile
       const updateData = {
         name: editForm.displayName,
         username: editForm.username,
         bio: editForm.bio,
-        profileImageURL: profile.avatar,
-        avatar: profile.avatar,
+        avatar_url: profile.avatar,
       };
 
-      const result = await userDataService.updateUserData(
-        firebaseUser.uid,
-        updateData,
-      );
+      const result = await updateProfile(updateData);
 
       if (result.success) {
         // Update local state with saved data
@@ -631,28 +687,17 @@ export default function Profile() {
       }
 
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
         const newAvatar = e.target?.result as string;
 
         // Update profile state
         setProfile((prev) => (prev ? { ...prev, avatar: newAvatar } : null));
 
-        // Update localStorage with new image
-        const localUserData = localStorage.getItem("currentUser");
-        if (localUserData) {
-          try {
-            const userData = JSON.parse(localUserData);
-            const updatedUserData = {
-              ...userData,
-              profileImageURL: newAvatar,
-              avatar: newAvatar,
-            };
-            localStorage.setItem(
-              "currentUser",
-              JSON.stringify(updatedUserData),
-            );
-            localStorage.setItem("userAvatar", newAvatar);
-          } catch (error) {}
+        // Update profile via backend API
+        try {
+          await updateProfile({ avatar_url: newAvatar });
+        } catch (error) {
+          console.warn("⚠️ Failed to update avatar in backend:", error);
         }
 
         setUploading(false);
@@ -704,7 +749,7 @@ export default function Profile() {
   };
 
   // Show loading state
-  if (firebaseLoading || loading || !profile) {
+  if (authLoading || loading || !profile) {
     return (
       <div className="h-screen bg-background text-foreground relative overflow-hidden theme-transition max-w-sm mx-auto">
         <div className="fixed inset-0 bg-gradient-to-b from-background to-secondary/30 theme-transition"></div>
@@ -732,18 +777,16 @@ export default function Profile() {
             <div className="text-center">
               <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-4" />
               <p className="text-muted-foreground">Loading profile...</p>
-              {firebaseUser && (
+              {authUser && (
                 <div className="text-xs text-muted-foreground mt-2 space-y-1">
-                  <p>🔥 Signed in as {firebaseUser.email}</p>
-                  <p>User ID: {firebaseUser.uid}</p>
+                  <p>🔥 Signed in as {authUser.email}</p>
+                  <p>User ID: {authUser.id}</p>
                   <p>
-                    Email verified: {firebaseUser.emailVerified ? "Yes" : "No"}
+                    Email verified: {authUser.verified ? "Yes" : "No"}
                   </p>
-                  {localStorage.getItem("currentUser") && (
-                    <p className="text-green-400">
-                      ✓ Signup data found in localStorage
-                    </p>
-                  )}
+                  <p className="text-green-400">
+                    ✓ Backend JWT authentication active
+                  </p>
                 </div>
               )}
             </div>

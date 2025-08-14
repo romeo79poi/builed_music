@@ -18,7 +18,7 @@ import { songApi } from "../lib/api";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
 import LikeButton from "../components/LikeButton";
-import { useFirebase } from "../context/FirebaseContext";
+import { useAuth } from "../context/AuthContext";
 import { useToast } from "../hooks/use-toast";
 
 interface Song {
@@ -36,7 +36,7 @@ export default function LikedSongs() {
   const { profile, toggleLikedSong } = useProfileContext();
   const { currentSong, isPlaying, setCurrentSong, togglePlay } =
     useMusicContext();
-  const { user: firebaseUser, loading: firebaseLoading } = useFirebase();
+  const { user: authUser, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -44,8 +44,8 @@ export default function LikedSongs() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (!firebaseLoading) {
-      if (firebaseUser) {
+    if (!authLoading) {
+      if (authUser) {
         loadLikedSongs();
       } else {
         navigate("/login");

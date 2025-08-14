@@ -5,12 +5,6 @@ import {
   useEffect,
   ReactNode,
 } from "react";
-import { User } from "firebase/auth";
-import { useFirebase } from "./FirebaseContext";
-import {
-  signInWithGoogle as firebaseGoogleSignIn,
-  signInWithFacebook as firebaseFacebookSignIn,
-} from "../lib/auth";
 
 // Local user interface for backend profile data
 interface UserProfile {
@@ -32,7 +26,6 @@ interface UserProfile {
 
 interface AuthContextType {
   user: UserProfile | null;
-  firebaseUser: User | null;
   loading: boolean;
   signUp: (
     email: string,
@@ -43,12 +36,46 @@ interface AuthContextType {
     email: string,
     password: string,
   ) => Promise<{ success: boolean; message: string }>;
-  signInWithGoogle: () => Promise<{ success: boolean; message: string }>;
-  signInWithFacebook: () => Promise<{ success: boolean; message: string }>;
   signOut: () => Promise<void>;
   updateProfile: (
     updates: Partial<UserProfile>,
   ) => Promise<{ success: boolean; message: string }>;
+  getSettings: () => Promise<{ success: boolean; data?: any; message: string }>;
+  updateSettings: (
+    settings: any,
+  ) => Promise<{ success: boolean; message: string }>;
+  checkAvailability: (
+    email?: string,
+    username?: string,
+  ) => Promise<{ available: boolean; message: string }>;
+
+  // OTP Authentication methods
+  requestSignupOTP: (
+    email: string,
+    password: string,
+    name: string,
+    username: string,
+  ) => Promise<{ success: boolean; message: string }>;
+  verifySignupOTP: (
+    email: string,
+    otp: string,
+  ) => Promise<{ success: boolean; message: string }>;
+  requestLoginOTP: (
+    email: string,
+  ) => Promise<{ success: boolean; message: string }>;
+  verifyLoginOTP: (
+    email: string,
+    otp: string,
+  ) => Promise<{ success: boolean; message: string }>;
+
+  // OAuth methods
+  signInWithGoogle: (
+    token: string,
+  ) => Promise<{ success: boolean; message: string }>;
+  signInWithFacebook: (
+    token: string,
+  ) => Promise<{ success: boolean; message: string }>;
+
   isAuthenticated: boolean;
 
   // Legacy methods for backward compatibility
@@ -63,27 +90,90 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const {
-    user: firebaseUser,
-    loading: firebaseLoading,
-    signOut: firebaseSignOut,
-  } = useFirebase();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!firebaseLoading) {
-      initializeAuth();
+  // Safe fetch utility to prevent JSON parsing errors
+  const safeFetch = async (url: string, options?: RequestInit) => {
+    let response: Response;
+
+    try {
+      console.log(`🌐 Making request to: ${url}`, {
+        method: options?.method || 'GET',
+        headers: options?.headers,
+        body: options?.body
+      });
+
+      response = await fetch(url, options);
+
+      console.log(`📊 Response received:`, {
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries()),
+        url: response.url
+      });
+
+      // Clone the response to avoid "body stream already read" issues
+      const responseClone = response.clone();
+
+      if (!response.ok) {
+        console.error(`❌ HTTP error for url: ${url}: ${response.status} ${response.statusText}`);
+
+        // Use the cloned response to read the error body
+        let errorMessage = `HTTP error! status: ${response.status}`;
+        try {
+          const errorText = await responseClone.text();
+          console.error(`❌ Response body:`, errorText);
+
+          if (errorText) {
+            try {
+              const errorData = JSON.parse(errorText);
+              errorMessage = errorData.message || errorMessage;
+            } catch (parseError) {
+              errorMessage = errorText || errorMessage;
+            }
+          }
+        } catch (readError) {
+          console.warn(`⚠️ Could not read error response body:`, readError);
+        }
+
+        throw new Error(errorMessage);
+      }
+
+      // Parse the successful response as JSON
+      const result = await response.json();
+      console.log(`✅ Success response from ${url}:`, result);
+      return result;
+
+    } catch (error: any) {
+      console.error(`🚨 Fetch error for ${url}:`, error);
+
+      // If it's a JSON parsing error and we have a response, try to handle it gracefully
+      if (error.name === 'SyntaxError' && response) {
+        try {
+          const textBody = await response.clone().text();
+          console.error(`❌ Invalid JSON response body:`, textBody);
+          throw new Error('Server returned invalid JSON response');
+        } catch (readError) {
+          console.error(`❌ Could not read response body for error analysis:`, readError);
+        }
+      }
+
+      throw error;
     }
-  }, [firebaseUser, firebaseLoading]);
+  };
+
+  useEffect(() => {
+    initializeAuth();
+  }, []);
 
   const initializeAuth = async () => {
     try {
-      if (firebaseUser) {
-        console.log("🔥 Firebase user detected:", firebaseUser.email);
-        await loadUserProfile(firebaseUser);
+      // Check for stored token or session
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        await loadUserProfile(token);
       } else {
-        console.log("🔥 No Firebase user found");
         setUser(null);
       }
     } catch (error) {
@@ -94,218 +184,201 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const loadUserProfile = async (firebaseUser: User) => {
+  const loadUserProfile = async (token: string) => {
     try {
-      // Try to fetch user profile from backend
-      const response = await fetch(`/api/v1/users/${firebaseUser.uid}`, {
+      const result = await safeFetch('/api/auth/me', {
         headers: {
-          "user-id": firebaseUser.uid,
-          "Content-Type": "application/json",
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
         },
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        if (result.success && result.data) {
-          // Transform backend data to UserProfile interface
-          const backendData = result.data;
-          const userProfile: UserProfile = {
-            id: firebaseUser.uid,
-            email: firebaseUser.email || "",
-            username:
-              backendData.username ||
-              firebaseUser.email?.split("@")[0] ||
-              "user",
-            name: backendData.name || firebaseUser.displayName || "User",
-            avatar_url:
-              backendData.profile_image_url || firebaseUser.photoURL || "",
-            bio: backendData.bio || "",
-            location: backendData.location || "",
-            website: backendData.website || "",
-            verified:
-              backendData.is_verified || firebaseUser.emailVerified || false,
-            premium: backendData.is_premium || false,
-            followers_count: backendData.follower_count || 0,
-            following_count: backendData.following_count || 0,
-            created_at: backendData.created_at || new Date().toISOString(),
-            updated_at: backendData.updated_at || new Date().toISOString(),
-          };
-
-          setUser(userProfile);
-          console.log("✅ User profile loaded from backend:", userProfile);
-          return;
-        }
+      if (result.success && result.data) {
+        setUser(result.data);
+        console.log("✅ User profile loaded:", result.data);
+      } else {
+        console.error("Auth endpoint returned error:", result);
+        localStorage.removeItem('authToken');
+        setUser(null);
       }
-
-      // If backend doesn't have profile, create from Firebase user
-      const firebaseProfile: UserProfile = {
-        id: firebaseUser.uid,
-        email: firebaseUser.email || "",
-        username: firebaseUser.email?.split("@")[0] || "user",
-        name: firebaseUser.displayName || "User",
-        avatar_url: firebaseUser.photoURL || "",
-        bio: "",
-        location: "",
-        website: "",
-        verified: firebaseUser.emailVerified || false,
-        premium: false,
-        followers_count: 0,
-        following_count: 0,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      };
-
-      setUser(firebaseProfile);
-      console.log("✅ User profile created from Firebase:", firebaseProfile);
     } catch (error) {
       console.error("Error loading user profile:", error);
-
-      // Fallback: create minimal profile from Firebase user
-      if (firebaseUser) {
-        const minimalProfile: UserProfile = {
-          id: firebaseUser.uid,
-          email: firebaseUser.email || "",
-          username: firebaseUser.email?.split("@")[0] || "user",
-          name: firebaseUser.displayName || "User",
-          avatar_url: firebaseUser.photoURL || "",
-          bio: "",
-          location: "",
-          website: "",
-          verified: firebaseUser.emailVerified || false,
-          premium: false,
-          followers_count: 0,
-          following_count: 0,
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-        };
-
-        setUser(minimalProfile);
-        console.log("✅ Minimal user profile created:", minimalProfile);
-      }
+      localStorage.removeItem('authToken');
+      setUser(null);
     }
   };
 
   const signUp = async (email: string, password: string, userData: any) => {
-    console.log("📝 Sign up - Firebase authentication required first");
-
-    // Note: Actual signup should be handled through Firebase first,
-    // then user profile can be created/updated in backend
-    return {
-      success: false,
-      message: "Please use Firebase signup flow - see Signup page",
-    };
-  };
-
-  const signIn = async (email: string, password: string) => {
-    console.log("🔑 Sign in - using Firebase authentication");
-
-    // Note: Actual signin should be handled through Firebase
-    return {
-      success: false,
-      message: "Please use Firebase signin flow - see Login page",
-    };
-  };
-
-  const signInWithGoogle = async () => {
-    console.log("🔑 Google sign in using Firebase");
-
     try {
-      const result = await firebaseGoogleSignIn();
+      const { name, username } = userData;
+      const result = await safeFetch('/api/auth/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          name: name || userData.displayName || 'User',
+          username: username || userData.username || email.split('@')[0]
+        }),
+      });
+
       if (result.success) {
-        return { success: true, message: "Google sign-in successful!" };
+        if (result.token) {
+          localStorage.setItem('authToken', result.token);
+          setUser(result.data);
+        }
+        return { success: true, message: result.message || 'Account created successfully!' };
       } else {
-        return {
-          success: false,
-          message: result.error || "Google sign-in failed",
-        };
+        return { success: false, message: result.message || 'Signup failed' };
       }
     } catch (error: any) {
-      return {
-        success: false,
-        message: error.message || "Google sign-in failed",
-      };
+      return { success: false, message: error.message || 'Signup failed' };
     }
   };
 
-  const signInWithFacebook = async () => {
-    console.log("🔑 Facebook sign in using Firebase");
-
+  const signIn = async (email: string, password: string) => {
     try {
-      const result = await firebaseFacebookSignIn();
+      const result = await safeFetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
       if (result.success) {
-        return { success: true, message: "Facebook sign-in successful!" };
+        if (result.token) {
+          localStorage.setItem('authToken', result.token);
+          setUser(result.data);
+        }
+        return { success: true, message: result.message || 'Login successful!' };
       } else {
-        return {
-          success: false,
-          message: result.error || "Facebook sign-in failed",
-        };
+        return { success: false, message: result.message || 'Login failed' };
       }
     } catch (error: any) {
-      return {
-        success: false,
-        message: error.message || "Facebook sign-in failed",
-      };
+      return { success: false, message: error.message || 'Login failed' };
     }
   };
 
   const signOut = async () => {
-    console.log("👋 Sign out using Firebase");
-
     try {
-      await firebaseSignOut();
+      const token = localStorage.getItem('authToken');
+      if (token) {
+        // Call logout endpoint (don't throw errors on logout)
+        try {
+          await safeFetch('/api/auth/logout', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+          });
+        } catch (error) {
+          console.log("Logout endpoint error (non-critical):", error);
+        }
+      }
+
+      localStorage.removeItem('authToken');
       setUser(null);
       console.log("✅ Successfully signed out");
     } catch (error) {
       console.error("Sign out error:", error);
+      // Still remove token even if endpoint fails
+      localStorage.removeItem('authToken');
+      setUser(null);
     }
   };
 
   const updateProfile = async (updates: Partial<UserProfile>) => {
-    console.log("👤 Update profile:", updates);
-
-    if (!user || !firebaseUser) {
+    if (!user) {
       return { success: false, message: "Not authenticated" };
     }
 
     try {
-      // Update profile in backend
-      const response = await fetch(`/api/v1/users/${firebaseUser.uid}`, {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        return { success: false, message: "No authentication token" };
+      }
+
+      const result = await safeFetch('/api/auth/profile', {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "user-id": firebaseUser.uid,
+          "Authorization": `Bearer ${token}`,
         },
         body: JSON.stringify(updates),
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        if (result.success) {
-          // Update local state
-          const updatedUser = {
-            ...user,
-            ...updates,
-            updated_at: new Date().toISOString(),
-          };
-          setUser(updatedUser);
-          return { success: true, message: "Profile updated successfully!" };
-        }
+      if (result.success) {
+        // Update user state with the returned data
+        setUser(result.data);
+        return { success: true, message: result.message || "Profile updated successfully!" };
       }
 
-      // If backend update fails, still update local state
-      const updatedUser = {
-        ...user,
-        ...updates,
-        updated_at: new Date().toISOString(),
-      };
-      setUser(updatedUser);
-      return {
-        success: true,
-        message: "Profile updated locally (backend sync pending)",
-      };
+      return { success: false, message: result.message || "Update failed" };
     } catch (error: any) {
       console.error("Profile update error:", error);
       return { success: false, message: error.message || "Update failed" };
+    }
+  };
+
+  const getSettings = async () => {
+    if (!user) {
+      return { success: false, message: "Not authenticated" };
+    }
+
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        return { success: false, message: "No authentication token" };
+      }
+
+      const result = await safeFetch('/api/auth/settings', {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
+      return {
+        success: result.success,
+        data: result.data,
+        message: result.message || "Settings retrieved successfully"
+      };
+    } catch (error: any) {
+      console.error("Get settings error:", error);
+      return { success: false, message: error.message || "Failed to get settings" };
+    }
+  };
+
+  const updateSettings = async (settings: any) => {
+    if (!user) {
+      return { success: false, message: "Not authenticated" };
+    }
+
+    try {
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        return { success: false, message: "No authentication token" };
+      }
+
+      const result = await safeFetch('/api/auth/settings', {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+        body: JSON.stringify(settings),
+      });
+
+      return {
+        success: result.success,
+        message: result.message || "Settings updated successfully"
+      };
+    } catch (error: any) {
+      console.error("Update settings error:", error);
+      return { success: false, message: error.message || "Failed to update settings" };
     }
   };
 
@@ -322,23 +395,200 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await signOut();
   };
 
-  const checkAuthState = async () => {
-    // Firebase handles auth state automatically
-    console.log("🔥 Auth state managed by Firebase");
+  const checkAvailability = async (email?: string, username?: string) => {
+    try {
+      const params = new URLSearchParams();
+      if (email) params.append('email', email);
+      if (username) params.append('username', username);
+
+      const result = await safeFetch(`/api/auth/check-availability?${params.toString()}`);
+
+      return {
+        available: result.available || false,
+        message: result.message || 'Unknown error'
+      };
+    } catch (error: any) {
+      return {
+        available: false,
+        message: error.message || 'Failed to check availability'
+      };
+    }
   };
 
-  const isAuthenticated = !!firebaseUser && !!user;
+  // OTP Authentication methods
+  const requestSignupOTP = async (email: string, password: string, name: string, username: string) => {
+    try {
+      const result = await safeFetch('/api/auth/signup/request-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password, name, username }),
+      });
+      return {
+        success: result.success,
+        message: result.message || (result.success ? 'OTP sent successfully' : 'Failed to send OTP')
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message || 'Failed to send OTP'
+      };
+    }
+  };
+
+  const verifySignupOTP = async (email: string, otp: string) => {
+    try {
+      const result = await safeFetch('/api/auth/signup/verify-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, otp }),
+      });
+
+      if (result.success) {
+        if (result.token) {
+          localStorage.setItem('authToken', result.token);
+          setUser(result.data);
+        }
+        return { success: true, message: result.message || 'Account created successfully!' };
+      } else {
+        return { success: false, message: result.message || 'OTP verification failed' };
+      }
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message || 'OTP verification failed'
+      };
+    }
+  };
+
+  const requestLoginOTP = async (email: string) => {
+    try {
+      const result = await safeFetch('/api/auth/login/request-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+      return {
+        success: result.success,
+        message: result.message || (result.success ? 'OTP sent successfully' : 'Failed to send OTP')
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message || 'Failed to send OTP'
+      };
+    }
+  };
+
+  const verifyLoginOTP = async (email: string, otp: string) => {
+    try {
+      const result = await safeFetch('/api/auth/login/verify-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, otp }),
+      });
+
+      if (result.success) {
+        if (result.token) {
+          localStorage.setItem('authToken', result.token);
+          setUser(result.data);
+        }
+        return { success: true, message: result.message || 'Login successful!' };
+      } else {
+        return { success: false, message: result.message || 'OTP verification failed' };
+      }
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message || 'OTP verification failed'
+      };
+    }
+  };
+
+  // OAuth methods
+  const signInWithGoogle = async (token: string) => {
+    try {
+      const result = await safeFetch('/api/auth/google', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),
+      });
+
+      if (result.success) {
+        if (result.token) {
+          localStorage.setItem('authToken', result.token);
+          setUser(result.data);
+        }
+        return { success: true, message: result.message || 'Google authentication successful!' };
+      } else {
+        return { success: false, message: result.message || 'Google authentication failed' };
+      }
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message || 'Google authentication failed'
+      };
+    }
+  };
+
+  const signInWithFacebook = async (token: string) => {
+    try {
+      const result = await safeFetch('/api/auth/facebook', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ token }),
+      });
+
+      if (result.success) {
+        if (result.token) {
+          localStorage.setItem('authToken', result.token);
+          setUser(result.data);
+        }
+        return { success: true, message: result.message || 'Facebook authentication successful!' };
+      } else {
+        return { success: false, message: result.message || 'Facebook authentication failed' };
+      }
+    } catch (error: any) {
+      return {
+        success: false,
+        message: error.message || 'Facebook authentication failed'
+      };
+    }
+  };
+
+  const checkAuthState = async () => {
+    await initializeAuth();
+  };
+
+  const isAuthenticated = !!user;
 
   const value: AuthContextType = {
     user,
-    firebaseUser,
-    loading: loading || firebaseLoading,
+    loading,
     signUp,
     signIn,
-    signInWithGoogle,
-    signInWithFacebook,
     signOut,
     updateProfile,
+    getSettings,
+    updateSettings,
+    checkAvailability,
+    requestSignupOTP,
+    verifySignupOTP,
+    requestLoginOTP,
+    verifyLoginOTP,
+    signInWithGoogle,
+    signInWithFacebook,
     isAuthenticated,
     login,
     logout,

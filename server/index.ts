@@ -84,8 +84,8 @@ import { authenticateJWT, optionalAuth } from "./middleware/auth";
 // Complete Auth System
 import authMainRouter from "./routes/auth-main";
 
-// Enhanced JWT Email Auth System
-import authV4Router from "./routes/auth-v4";
+// Enhanced JWT Email Auth System - Temporarily disabled
+// import authV4Router from "./routes/auth-v4";
 
 // Social Authentication
 import {
@@ -209,6 +209,22 @@ import {
 // Code generator routes
 import { generateCode } from "./routes/code-generator";
 
+// Enhanced auth routes
+import {
+  requestSignupOTPWithRateLimit,
+  verifySignupOTPWithRateLimit,
+  requestLoginOTPWithRateLimit,
+  verifyLoginOTPWithRateLimit,
+} from "./routes/auth-enhanced";
+
+// Real OAuth authentication
+import {
+  googleAuth,
+  facebookAuth,
+  googleAuthWithRateLimit,
+  facebookAuthWithRateLimit,
+} from "./routes/auth-oauth";
+
 export function createServer() {
   const app = express();
 
@@ -223,6 +239,24 @@ export function createServer() {
   // Basic API routes
   app.get("/api/ping", (_req, res) => {
     res.json({ message: "Hello from Express server v2!" });
+  });
+
+  // Test endpoint to verify database connectivity
+  app.get("/api/test-db", async (_req, res) => {
+    try {
+      const { isMongoConnected } = require("./lib/mongodb");
+      res.json({
+        success: true,
+        message: "Database connected",
+        mongoConnected: isMongoConnected()
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: "Database error",
+        error: error.message
+      });
+    }
   });
 
   // Authentication API routes
@@ -279,8 +313,8 @@ export function createServer() {
   // JWT EMAIL VERIFICATION SYSTEM (v4) - NODEMAILER + JWT
   // ===============================================
 
-  // Mount enhanced JWT email auth router
-  app.use("/api/v4/auth", authV4Router);
+  // Mount enhanced JWT email auth router - Temporarily disabled
+  // app.use("/api/v4/auth", authV4Router);
 
   // Social Authentication routes
   app.post("/api/auth/google", googleAuth);
@@ -444,6 +478,77 @@ export function createServer() {
 
   // Code Generator API routes
   app.post("/api/code-generator/generate", generateCode);
+
+  // ===============================================
+  // SIMPLE JWT AUTHENTICATION (for frontend)
+  // ===============================================
+
+  // Import JWT auth routes
+  const {
+    signupWithRateLimit,
+    loginWithRateLimit,
+    me,
+    updateProfile: updateJWTProfile,
+    getSettings,
+    updateSettings,
+    checkAvailability: jwtCheckAvailability,
+    refreshToken: jwtRefreshToken,
+    logout
+  } = require("./routes/auth-jwt");
+
+  // JWT Authentication endpoints
+  app.post("/api/auth/signup", signupWithRateLimit);
+  app.post("/api/auth/login", loginWithRateLimit);
+  app.get("/api/auth/me", authenticateJWT, me);
+  app.put("/api/auth/profile", authenticateJWT, updateJWTProfile);
+  app.get("/api/auth/settings", authenticateJWT, getSettings);
+  app.put("/api/auth/settings", authenticateJWT, updateSettings);
+  app.get("/api/auth/check-availability", jwtCheckAvailability);
+  app.post("/api/auth/refresh", authenticateJWT, jwtRefreshToken);
+  app.post("/api/auth/logout", logout);
+
+  // ===============================================
+  // ENHANCED JWT AUTHENTICATION (OTP + OAuth)
+  // ===============================================
+
+  // OTP Authentication endpoints
+  app.post("/api/auth/signup/request-otp", requestSignupOTPWithRateLimit);
+  app.post("/api/auth/signup/verify-otp", verifySignupOTPWithRateLimit);
+  app.post("/api/auth/login/request-otp", requestLoginOTPWithRateLimit);
+  app.post("/api/auth/login/verify-otp", verifyLoginOTPWithRateLimit);
+
+  // Real OAuth endpoints with token verification
+  console.log("📋 Registering real Google OAuth endpoint...");
+  app.post("/api/auth/google", googleAuthWithRateLimit);
+
+  console.log("📋 Registering real Facebook OAuth endpoint...");
+  app.post("/api/auth/facebook", facebookAuthWithRateLimit);
+
+  console.log("✅ Real OAuth endpoints registered successfully");
+
+  // Simple test endpoint
+  app.post("/api/test-google", (req, res) => {
+    console.log("🧪 Test endpoint hit:", req.body);
+    res.json({
+      success: true,
+      message: "Test endpoint working",
+      body: req.body
+    });
+  });
+
+  // Debug endpoint to list all routes
+  app.get("/api/debug-routes", (req, res) => {
+    const routes: any[] = [];
+    app._router.stack.forEach((middleware: any) => {
+      if (middleware.route) {
+        routes.push({
+          path: middleware.route.path,
+          methods: Object.keys(middleware.route.methods)
+        });
+      }
+    });
+    res.json({ routes: routes.filter(r => r.path.includes('/api/auth')) });
+  });
 
   return app;
 }

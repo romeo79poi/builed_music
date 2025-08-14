@@ -11,9 +11,6 @@ import { EnhancedMusicProvider } from "./context/EnhancedMusicContext";
 import { ProfileProvider } from "./context/ProfileContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
-import { FirebaseProvider } from "./context/FirebaseContext";
-import { SocialProvider } from "./context/SocialContext";
-import "./lib/error-handler"; // Setup global error handling for Firebase permissions
 // import { SocketProvider } from "./context/SocketContext";
 import AuthRouter from "./components/AuthRouter";
 import SpotifyMiniPlayer from "./components/SpotifyMiniPlayer";
@@ -39,6 +36,7 @@ import Discover from "./pages/Discover";
 import VerifyEmail from "./pages/VerifyEmail";
 import ResetPassword from "./pages/ResetPassword";
 import CodeGenerator from "./pages/CodeGenerator";
+import AuthTest from "./pages/AuthTest";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -49,10 +47,8 @@ const App = () => {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
         <TooltipProvider>
-          <FirebaseProvider>
-            <AuthProvider>
-              <SocialProvider>
-                <MusicProvider>
+          <AuthProvider>
+            <MusicProvider>
                   <EnhancedMusicProvider>
                     <ProfileProvider>
                       <Toaster />
@@ -100,6 +96,10 @@ const App = () => {
                             path="/code-generator"
                             element={<CodeGenerator />}
                           />
+                          <Route
+                            path="/auth-test"
+                            element={<AuthTest />}
+                          />
 
                           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                           <Route path="*" element={<NotFound />} />
@@ -110,10 +110,8 @@ const App = () => {
                       </BrowserRouter>
                     </ProfileProvider>
                   </EnhancedMusicProvider>
-                </MusicProvider>
-              </SocialProvider>
-            </AuthProvider>
-          </FirebaseProvider>
+            </MusicProvider>
+          </AuthProvider>
         </TooltipProvider>
       </ThemeProvider>
     </QueryClientProvider>

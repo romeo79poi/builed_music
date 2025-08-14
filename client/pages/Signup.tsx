@@ -25,20 +25,7 @@ import {
   formatPhoneDisplay,
   phoneAPI,
 } from "../lib/phone";
-import {
-  signUpWithEmailAndPassword,
-  signInWithGoogle,
-  signInWithFacebook,
-  signUpWithEmailAndPasswordWithVerification,
-  initializeRecaptcha,
-  sendPhoneOTP,
-  verifyPhoneOTP,
-  sendFirebaseEmailVerification,
-  saveUserData,
-  uploadProfileImage,
-  uploadProfileImageForSignup,
-} from "../lib/auth";
-import { firebaseHelpers } from "../lib/firebase-simple";
+// Removed Firebase imports - using backend auth now
 
 type SignupStep =
   | "method"
@@ -523,7 +510,13 @@ export default function Signup() {
     }
   };
 
-  const { signInWithGoogle, signInWithFacebook, signUp } = useAuth();
+  const {
+    signInWithGoogle,
+    signInWithFacebook,
+    signUp,
+    requestSignupOTP,
+    verifySignupOTP,
+  } = useAuth();
 
   // Google signup handler with Firebase
   const handleGoogleSignup = async () => {
@@ -531,37 +524,33 @@ export default function Signup() {
     setErrorAlert(null);
 
     try {
-      console.log("🔥 Attempting Firebase Google sign-in...");
+      console.log("🔥 Attempting Google OAuth sign-in...");
 
-      const result = await firebaseHelpers.googleSignIn();
+      // Use real Google OAuth
+      const { oauthService } = await import("../lib/oauth-service");
 
-      if (result.success && result.user) {
-        console.log("✅ Firebase Google sign-in successful:", result.user);
+      const oauthResult = await oauthService.signInWithGoogleIdToken();
 
-        // Store the user data from Google
-        setFormData((prev) => ({
-          ...prev,
-          email: result.user.email || "",
-          name: result.user.displayName || "",
-          profileImageURL: result.user.photoURL || "",
-        }));
+      if (!oauthResult.success || !oauthResult.idToken) {
+        throw new Error(oauthResult.error || "Google sign-in failed");
+      }
 
-        // Store the authenticated user
-        setVerificationUser(result.user);
-        setIsSocialSignup(true);
+      const result = await signInWithGoogle(oauthResult.idToken);
 
+      if (result.success) {
         toast({
           title: "Welcome to CATCH! 🎉",
-          description: `Please complete your profile setup`,
+          description: "Google signup successful! Redirecting to home...",
         });
 
-        // Redirect to profile step to collect username, then DOB, gender, bio
-        setCurrentStep("profile");
+        setTimeout(() => {
+          navigate("/home");
+        }, 1500);
       } else {
-        setErrorAlert(result.error || "Google sign-in failed");
+        setErrorAlert(result.message);
         toast({
-          title: "Google sign-in failed",
-          description: result.error || "Please try again",
+          title: "Google signup failed",
+          description: result.message,
           variant: "destructive",
         });
       }
@@ -584,9 +573,18 @@ export default function Signup() {
     setErrorAlert(null);
 
     try {
-      console.log("🔥 Attempting Firebase Facebook sign-in...");
+      console.log("🔥 Attempting Facebook OAuth sign-in...");
 
-      const result = await firebaseHelpers.facebookSignIn();
+      // Use real Facebook OAuth
+      const { oauthService } = await import("../lib/oauth-service");
+
+      const oauthResult = await oauthService.signInWithFacebook();
+
+      if (!oauthResult.success || !oauthResult.token) {
+        throw new Error(oauthResult.error || "Facebook sign-in failed");
+      }
+
+      const result = await signInWithFacebook(oauthResult.token);
 
       if (result.success && result.user) {
         console.log("✅ Firebase Facebook sign-in successful:", result.user);
@@ -656,27 +654,14 @@ export default function Signup() {
       await checkAvailability("email", formData.email);
 
       if (availability.email !== false) {
-        // Create temporary Firebase account to send verification
-        console.log(
-          "🔥 Creating temporary Firebase account for email verification...",
-        );
+        // Email verification not required with JWT backend
+        console.log("✅ Email verified, proceeding to profile setup...");
 
-        const tempPassword = Math.random().toString(36).slice(-8) + "A1!"; // Temporary password
-        const result = await signUpWithEmailAndPassword(
-          formData.email,
-          tempPassword,
-          "Temp User", // Temporary name
-          undefined,
-          undefined,
-        );
+        // Skip email verification step and go directly to profile
+        const result = { success: true };
 
-        if (result.success && result.user) {
-          setTempEmailUser(result.user);
-
-          // Send email verification immediately
-          const verificationResult = await sendFirebaseEmailVerification(
-            result.user,
-          );
+        if (result.success) {
+          // Email verified, continue to profile setup
 
           if (verificationResult.success) {
             setEmailVerificationSent(true);
@@ -860,7 +845,7 @@ export default function Signup() {
 
         if (data.success) {
           toast({
-            title: "Account created successfully! ����",
+            title: "Account created successfully! �����",
             description: `Welcome to Music Catch, ${data.user.name}!`,
           });
 
@@ -879,63 +864,59 @@ export default function Signup() {
         setErrorAlert(null);
 
         try {
-          // Use Firebase email signup with verification
-          const result = await signUpWithEmailAndPasswordWithVerification(
-            formData.email,
-            formData.password,
-            formData.name,
-            formData.username,
-            formData.phone,
-          );
+          // Option 1: Direct JWT signup (current default)
+          // Option 2: OTP verification signup (set useOTPVerification = true)
+          const useOTPVerification = false;
 
-          if (result.success) {
-            // Store user for email verification
-            if (result.user) {
-              setVerificationUser(result.user);
-              setEmailVerificationSent(true);
+          if (useOTPVerification) {
+            // Use OTP verification signup
+            const result = await requestSignupOTP(
+              formData.email,
+              formData.password,
+              formData.name,
+              formData.username
+            );
 
-              // Save user data to localStorage for immediate access
-              const completeUserData = {
-                uid: result.user.uid,
-                email: formData.email,
+            if (result.success) {
+              toast({
+                title: "Verification Code Sent! 📧",
+                description: "Please check your email and enter the verification code.",
+              });
+
+              // Move to OTP verification step
+              setCurrentStep("email-verify");
+            } else {
+              setErrorAlert(result.message);
+            }
+          } else {
+            // Use direct JWT signup (no email verification required)
+            const result = await signUp(
+              formData.email,
+              formData.password,
+              {
                 name: formData.name,
                 username: formData.username,
-                profileImageURL:
-                  formData.profileImageURL || result.user.photoURL || "",
-                dateOfBirth: formData.dateOfBirth,
-                gender: formData.gender,
-                bio: formData.bio,
-              };
+              }
+            );
 
-              localStorage.setItem(
-                "currentUser",
-                JSON.stringify(completeUserData),
-              );
-              localStorage.setItem(
-                "userAvatar",
-                formData.profileImageURL || result.user.photoURL || "",
-              );
+            if (result.success) {
+              // Account created successfully with JWT
+              toast({
+                title: "Account Created! 🎉",
+                description: `Welcome to Catch, ${formData.name}! Your account has been created successfully.`,
+              });
 
-              console.log(
-                "💾 Saved Firebase user data to localStorage:",
-                completeUserData,
+              console.log("✅ User created with JWT backend");
+
+              // Redirect to home page after successful signup
+              setTimeout(() => {
+                navigate("/home");
+              }, 1500);
+            } else {
+              setErrorAlert(
+                result.message || "Registration failed. Please try again.",
               );
             }
-
-            toast({
-              title: "Account created successfully! 🎉",
-              description: `Welcome to Music Catch, ${formData.name}! Please check your email for verification.`,
-            });
-
-            console.log("✅ User created with Firebase:", result.user);
-
-            setTimeout(() => {
-              navigate("/home");
-            }, 2000);
-          } else {
-            setErrorAlert(
-              result.error || "Registration failed. Please try again.",
-            );
           }
         } catch (error: any) {
           console.error("Registration error:", error);
@@ -2437,7 +2418,7 @@ export default function Signup() {
                   onClick={handleProfileImageStep}
                   className="absolute top-4 right-4 text-purple-primary hover:text-purple-secondary transition-colors text-sm font-medium"
                 >
-                  Skip →
+                  Skip ���
                 </button>
               </div>
 

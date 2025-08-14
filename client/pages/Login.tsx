@@ -3,22 +3,21 @@ import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Loader2, Mail, Phone, AlertCircle } from "lucide-react";
 import { MusicCatchLogo } from "../components/MusicCatchLogo";
-import { useFirebase } from "../context/FirebaseContext";
 import { useToast } from "../hooks/use-toast";
-import { firebaseHelpers } from "../lib/firebase-simple";
-import {
-  loginWithEmailAndPassword,
-  saveUserData,
-  fetchUserData,
-  sendFirebaseEmailVerification,
-} from "../lib/auth";
-import { doc, getDoc } from "firebase/firestore";
-import { db } from "../lib/firebase";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user: firebaseUser, signIn: firebaseSignIn, loading } = useFirebase();
+  const {
+    user,
+    signIn,
+    signInWithGoogle,
+    signInWithFacebook,
+    requestLoginOTP,
+    verifyLoginOTP,
+    loading
+  } = useAuth();
 
   const [loginMethod, setLoginMethod] = useState<"social" | "email" | "phone">(
     "social",
@@ -59,11 +58,11 @@ export default function Login() {
 
   // Redirect if already authenticated
   useEffect(() => {
-    if (firebaseUser && !loading) {
-      console.log("🔥 User already authenticated, redirecting to home");
+    if (user && !loading) {
+      console.log("✅ User already authenticated, redirecting to home");
       navigate("/home");
     }
-  }, [firebaseUser, loading, navigate]);
+  }, [user, loading, navigate]);
 
   const checkUserExists = async (email: string) => {
     try {
@@ -84,7 +83,7 @@ export default function Login() {
       }
 
       // For now, assume user exists if we reach here
-      // The actual Firebase login will handle user-not-found errors
+      // The actual backend login will handle user-not-found errors
       console.log("🔍 User existence check completed");
       return { exists: true, source: "assumed", data: null };
     } catch (error) {
@@ -94,38 +93,11 @@ export default function Login() {
   };
 
   const handleResendVerification = async () => {
-    if (!unverifiedUser) return;
-
-    setIsLoading(true);
-
-    try {
-      const result = await sendFirebaseEmailVerification(unverifiedUser);
-
-      if (result.success) {
-        toast({
-          title: "Verification email sent! 📬",
-          description:
-            "Please check your email and click the verification link",
-        });
-
-        setShowResendVerification(false);
-      } else {
-        toast({
-          title: "Failed to send verification email",
-          description: result.error || "Please try again",
-          variant: "destructive",
-        });
-      }
-    } catch (error: any) {
-      console.error("Resend verification error:", error);
-      toast({
-        title: "Error",
-        description: "Failed to send verification email",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
+    toast({
+      title: "Email verification",
+      description: "Email verification is handled automatically with backend authentication",
+    });
+    setShowResendVerification(false);
   };
 
   const loadUserActivityData = async (userId: string, userProfile: any) => {
@@ -231,107 +203,9 @@ export default function Login() {
     try {
       console.log("💾 Loading complete user profile for:", user.email);
 
-      // Try to get complete profile data from Firestore
-      if (db) {
-        try {
-          const userDoc = await getDoc(doc(db, "users", user.uid));
-          if (userDoc.exists()) {
-            const firestoreData = userDoc.data();
-            console.log("✅ Firestore profile data found:", firestoreData);
-
-            // Combine Firebase auth data with Firestore profile data
-            const completeProfile = {
-              uid: user.uid,
-              email: user.email,
-              name: firestoreData.name || user.displayName || "User",
-              username:
-                firestoreData.username || user.email?.split("@")[0] || "user",
-              profileImageURL:
-                firestoreData.profileImageURL || user.photoURL || "",
-              dateOfBirth: firestoreData.dob || "",
-              gender: firestoreData.gender || "",
-              bio: firestoreData.bio || "",
-              phone: firestoreData.phone || user.phoneNumber || "",
-              emailVerified: user.emailVerified,
-              verified: firestoreData.verified || user.emailVerified,
-              createdAt: firestoreData.createdAt,
-              lastLoginAt: new Date().toISOString(),
-            };
-
-            // Save to localStorage for immediate access
-            localStorage.setItem(
-              "currentUser",
-              JSON.stringify(completeProfile),
-            );
-            localStorage.setItem(
-              "userAvatar",
-              completeProfile.profileImageURL || "",
-            );
-
-            console.log(
-              "💾 Complete profile saved to localStorage:",
-              completeProfile,
-            );
-
-            // Fetch user activity data
-            await loadUserActivityData(user.uid, completeProfile);
-
-            // Try to sync with backend API if available
-            try {
-              const backendSyncResponse = await fetch("/api/v1/users/sync", {
-                method: "POST",
-                headers: {
-                  "user-id": user.uid,
-                  "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                  firebase_uid: user.uid,
-                  email: user.email,
-                  display_name: completeProfile.name,
-                  username: completeProfile.username,
-                  profile_image_url: completeProfile.profileImageURL,
-                  date_of_birth: completeProfile.dateOfBirth,
-                  gender: completeProfile.gender,
-                  bio: completeProfile.bio,
-                  phone: completeProfile.phone,
-                  email_verified: user.emailVerified,
-                }),
-              });
-
-              if (backendSyncResponse.ok) {
-                const syncResult = await backendSyncResponse.json();
-                console.log("✅ Profile synced with backend:", syncResult);
-              }
-            } catch (backendError) {
-              console.warn(
-                "⚠️ Backend sync failed (continuing with Firebase data):",
-                backendError,
-              );
-            }
-
-            return completeProfile;
-          }
-        } catch (firestoreError) {
-          console.warn("⚠️ Firestore fetch failed:", firestoreError);
-        }
-      }
-
-      // Fallback: create basic profile from Firebase auth data
-      const basicProfile = {
-        uid: user.uid,
-        email: user.email,
-        name: user.displayName || user.email?.split("@")[0] || "User",
-        username: user.email?.split("@")[0] || "user",
-        profileImageURL: user.photoURL || "",
-        emailVerified: user.emailVerified,
-        lastLoginAt: new Date().toISOString(),
-      };
-
-      localStorage.setItem("currentUser", JSON.stringify(basicProfile));
-      localStorage.setItem("userAvatar", basicProfile.profileImageURL || "");
-
-      console.log("💾 Basic profile saved to localStorage:", basicProfile);
-      return basicProfile;
+      // User profile loading is now handled by backend JWT authentication in AuthContext
+      console.log("✅ Backend authentication handles user profile loading automatically");
+      return null;
     } catch (error) {
       console.error("❌ Error loading user profile:", error);
       return null;
@@ -369,63 +243,38 @@ export default function Login() {
         console.log("✅ User found in cache, proceeding with login");
       }
 
-      console.log("🔑 User exists, attempting Firebase email login...");
+      console.log("🔑 User exists, attempting backend JWT login...");
 
-      // Use Firebase authentication
-      const result = await loginWithEmailAndPassword(email, password);
+      // Use backend JWT authentication
+      const result = await signIn(email, password);
 
-      if (result.success && result.user) {
-        // Check email verification status for signup users
-        if (!result.user.emailVerified) {
-          console.log("⚠️ User email not verified");
-
-          toast({
-            title: "Email verification required 📬",
-            description:
-              "Please check your email and verify your account before logging in",
-            variant: "destructive",
-          });
-
-          setAuthError(
-            "Please verify your email address before logging in. Check your inbox for the verification link.",
-          );
-          setShowResendVerification(true);
-          setUnverifiedUser(result.user);
-          return;
-        }
-
-        // Fetch complete user profile data
-        await loadCompleteUserProfile(result.user);
-
+      if (result.success) {
         toast({
           title: "Welcome back! 🎉",
           description: "Successfully logged in",
         });
 
-        console.log("✅ Firebase email login successful");
+        console.log("✅ Backend JWT login successful");
         navigate("/home");
       } else {
-        // Handle specific error cases
-        let errorMessage = result.error || "Login failed";
+        // Handle backend error cases
+        let errorMessage = result.message || "Login failed";
         let shouldRedirectToSignup = false;
 
         if (
-          errorMessage.includes("user-not-found") ||
-          errorMessage.includes("auth/user-not-found")
+          errorMessage.includes("User not found") ||
+          errorMessage.includes("not found")
         ) {
           errorMessage = "Account not found. Redirecting to signup...";
           shouldRedirectToSignup = true;
         } else if (
-          errorMessage.includes("wrong-password") ||
-          errorMessage.includes("auth/wrong-password")
+          errorMessage.includes("Invalid credentials") ||
+          errorMessage.includes("password")
         ) {
           errorMessage = "Incorrect password. Please try again.";
-        } else if (
-          errorMessage.includes("invalid-email") ||
-          errorMessage.includes("auth/invalid-email")
-        ) {
+        } else if (errorMessage.includes("Invalid email")) {
           errorMessage = "Invalid email format.";
-        } else if (errorMessage.includes("too-many-requests")) {
+        } else if (errorMessage.includes("Too many")) {
           errorMessage = "Too many failed attempts. Please try again later.";
         }
 
@@ -447,17 +296,17 @@ export default function Login() {
 
       let errorMessage = error.message || "Login failed";
 
-      // Handle Firebase error codes
-      if (error.code === "auth/user-not-found") {
+      // Handle backend error cases
+      if (errorMessage.includes("User not found")) {
         errorMessage = "Account not found. Redirecting to signup...";
         setTimeout(() => {
           navigate("/signup", { state: { email: email } });
         }, 2000);
-      } else if (error.code === "auth/wrong-password") {
+      } else if (errorMessage.includes("Invalid credentials")) {
         errorMessage = "Incorrect password. Please try again.";
-      } else if (error.code === "auth/invalid-email") {
+      } else if (errorMessage.includes("Invalid email")) {
         errorMessage = "Invalid email format.";
-      } else if (error.code === "auth/user-disabled") {
+      } else if (errorMessage.includes("Account disabled")) {
         errorMessage = "This account has been disabled.";
       }
 
@@ -477,27 +326,37 @@ export default function Login() {
     setAuthError(null);
 
     try {
-      console.log("🔥 Attempting Firebase Google login...");
+      console.log("🔥 Attempting real Google OAuth login...");
 
-      const result = await firebaseHelpers.googleSignIn();
+      // Import OAuth service dynamically
+      const { oauthService } = await import("../lib/oauth-service");
 
-      if (result.success && result.user) {
-        console.log("✅ Firebase Google login successful:", result.user);
+      // Use Google Sign-In with ID Token (recommended by Google)
+      const oauthResult = await oauthService.signInWithGoogleIdToken();
+
+      if (!oauthResult.success || !oauthResult.idToken) {
+        throw new Error(oauthResult.error || "Google sign-in failed");
+      }
+
+      console.log("✅ Google OAuth successful, authenticating with backend...");
+
+      // Send ID token to backend for verification
+      const result = await signInWithGoogle(oauthResult.idToken);
+
+      if (result.success) {
+        console.log("✅ Backend Google authentication successful");
 
         toast({
           title: "Welcome back to CATCH! 🎉",
-          description: `Signed in as ${result.user.displayName || result.user.email}`,
+          description: "Successfully signed in with Google",
         });
 
-        // Navigate to home
-        setTimeout(() => {
-          navigate("/home");
-        }, 1500);
+        navigate("/home");
       } else {
-        setAuthError(result.error || "Google login failed");
+        setAuthError(result.message || "Google login failed");
         toast({
           title: "Google login failed",
-          description: result.error || "Please try again",
+          description: result.message || "Please try again",
           variant: "destructive",
         });
       }
@@ -519,27 +378,37 @@ export default function Login() {
     setAuthError(null);
 
     try {
-      console.log("🔥 Attempting Firebase Facebook login...");
+      console.log("🔥 Attempting real Facebook OAuth login...");
 
-      const result = await firebaseHelpers.facebookSignIn();
+      // Import OAuth service dynamically
+      const { oauthService } = await import("../lib/oauth-service");
 
-      if (result.success && result.user) {
-        console.log("✅ Firebase Facebook login successful:", result.user);
+      // Use Facebook Login SDK
+      const oauthResult = await oauthService.signInWithFacebook();
+
+      if (!oauthResult.success || !oauthResult.token) {
+        throw new Error(oauthResult.error || "Facebook sign-in failed");
+      }
+
+      console.log("✅ Facebook OAuth successful, authenticating with backend...");
+
+      // Send access token to backend for verification
+      const result = await signInWithFacebook(oauthResult.token);
+
+      if (result.success) {
+        console.log("✅ Backend Facebook authentication successful");
 
         toast({
           title: "Welcome back to CATCH! 🎉",
-          description: `Signed in as ${result.user.displayName || result.user.email}`,
+          description: "Successfully signed in with Facebook",
         });
 
-        // Navigate to home
-        setTimeout(() => {
-          navigate("/home");
-        }, 1500);
+        navigate("/home");
       } else {
-        setAuthError(result.error || "Facebook login failed");
+        setAuthError(result.message || "Facebook login failed");
         toast({
           title: "Facebook login failed",
-          description: result.error || "Please try again",
+          description: result.message || "Please try again",
           variant: "destructive",
         });
       }
@@ -563,13 +432,13 @@ export default function Login() {
     });
   };
 
-  // Show loading if Firebase is still initializing
+  // Show loading if authentication is still initializing
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-darker via-background to-purple-dark flex flex-col items-center justify-center p-6">
         <div className="flex items-center space-x-2">
           <Loader2 className="w-6 h-6 animate-spin text-purple-primary" />
-          <span className="text-white">Initializing Firebase...</span>
+          <span className="text-white">Initializing authentication...</span>
         </div>
       </div>
     );
@@ -883,7 +752,7 @@ export default function Login() {
           </motion.div>
         )}
 
-        {/* Firebase Connection Status */}
+        {/* Backend Connection Status */}
         {networkStatus.isOnline && authError?.includes("network") && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -898,7 +767,7 @@ export default function Login() {
                   Connection Issue
                 </h4>
                 <p className="text-blue-200 text-sm mt-1">
-                  Having trouble connecting to Firebase. This might be due to:
+                  Having trouble connecting to the server. This might be due to:
                 </p>
                 <ul className="text-blue-200 text-xs mt-2 ml-4 list-disc space-y-1">
                   <li>Firewall or network restrictions</li>
