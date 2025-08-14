@@ -217,23 +217,43 @@ class OAuthService {
     });
   }
 
-  // Load external script
+  // Load external script with retry mechanism
   private loadScript(src: string): Promise<void> {
     return new Promise((resolve, reject) => {
       // Check if script is already loaded
-      if (document.querySelector(`script[src="${src}"]`)) {
+      const existingScript = document.querySelector(`script[src="${src}"]`);
+      if (existingScript) {
+        console.log(`✅ Script already loaded: ${src}`);
         resolve();
         return;
       }
+
+      console.log(`🔄 Loading script: ${src}`);
 
       const script = document.createElement('script');
       script.src = src;
       script.async = true;
       script.defer = true;
-      
-      script.onload = () => resolve();
-      script.onerror = () => reject(new Error(`Failed to load script: ${src}`));
-      
+
+      // Add timeout for script loading
+      const timeout = setTimeout(() => {
+        script.remove();
+        reject(new Error(`Script loading timeout: ${src}`));
+      }, 10000); // 10 second timeout
+
+      script.onload = () => {
+        clearTimeout(timeout);
+        console.log(`✅ Script loaded successfully: ${src}`);
+        resolve();
+      };
+
+      script.onerror = (error) => {
+        clearTimeout(timeout);
+        script.remove();
+        console.error(`❌ Script loading failed: ${src}`, error);
+        reject(new Error(`Failed to load script: ${src}`));
+      };
+
       document.head.appendChild(script);
     });
   }
