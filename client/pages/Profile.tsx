@@ -609,7 +609,7 @@ export default function Profile() {
       }
 
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
         const newAvatar = e.target?.result as string;
 
         // Update profile state
