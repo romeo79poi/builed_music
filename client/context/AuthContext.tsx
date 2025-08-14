@@ -92,20 +92,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // Safe fetch utility to prevent JSON parsing errors
   const safeFetch = async (url: string, options?: RequestInit) => {
     try {
-      console.log(`🌐 Making request to: ${url}`, options?.method || 'GET');
+      console.log(`🌐 Making request to: ${url}`, {
+        method: options?.method || 'GET',
+        headers: options?.headers,
+        body: options?.body
+      });
+
       const response = await fetch(url, options);
+      console.log(`📊 Response received:`, {
+        status: response.status,
+        statusText: response.statusText,
+        headers: Object.fromEntries(response.headers.entries()),
+        url: response.url
+      });
 
       if (!response.ok) {
-        // Try to get error message from response if it's JSON
+        console.error(`❌ HTTP error for url: ${url}: ${response.status} ${response.statusText}`);
+
+        // Get the response body as text first to see what we're dealing with
+        const responseText = await response.text();
+        console.error(`❌ Response body:`, responseText);
+
+        // Try to parse as JSON
         let errorMessage = `HTTP error! status: ${response.status}`;
         try {
-          const errorData = await response.json();
-          console.error(`❌ HTTP error for url: ${url}: ${response.status}`, errorData);
+          const errorData = JSON.parse(responseText);
+          console.error(`❌ Parsed error data:`, errorData);
           errorMessage = errorData.message || errorMessage;
         } catch (parseError) {
-          // If JSON parsing fails, use status message
-          console.error(`❌ HTTP error for url: ${url}: ${response.status} (could not parse JSON)`);
+          console.error(`❌ Could not parse response as JSON:`, parseError.message);
+          errorMessage = responseText || errorMessage;
         }
+
         throw new Error(errorMessage);
       }
 
