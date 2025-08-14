@@ -353,8 +353,7 @@ const glowVariants = {
 export default function Home() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user, firebaseUser } = useAuth();
-  const { user: fbUser, loading: firebaseLoading } = useFirebase();
+  const { user, loading: authLoading } = useAuth();
   const {
     trendingSongs,
     trendingAlbums,
