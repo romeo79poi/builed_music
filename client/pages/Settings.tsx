@@ -696,7 +696,7 @@ export default function Settings() {
           });
           console.log("��� Setting updated successfully:", key, newValue);
         } else {
-          throw new Error("Backend settings service failed");
+          throw new Error(result.message || "Backend settings service failed");
         }
       }
     } catch (error) {
