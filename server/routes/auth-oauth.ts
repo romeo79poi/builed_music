@@ -67,23 +67,8 @@ const verifyGoogleToken = async (idToken: string) => {
 // Verify Facebook access token and get user data
 const verifyFacebookToken = async (accessToken: string) => {
   try {
-    // Handle demo tokens for development
-    if (accessToken.startsWith('demo_facebook_access_token_')) {
-      console.log("🎭 Using demo Facebook token for development");
-      const uniqueId = accessToken.split('_').pop();
-      return {
-        id: `demo_facebook_user_${uniqueId}`,
-        email: `demo.user.${uniqueId}@facebook.com`,
-        name: `Demo Facebook User ${uniqueId}`,
-        picture: "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=150&h=150&fit=crop&crop=face",
-        first_name: "Demo",
-        last_name: "User",
-      };
-    }
-
-    // Real Facebook token verification
     if (!FACEBOOK_APP_ID || !FACEBOOK_APP_SECRET) {
-      throw new Error("Facebook OAuth not configured on server");
+      throw new Error("Facebook OAuth not configured on server. Please set FACEBOOK_APP_ID and FACEBOOK_APP_SECRET environment variables.");
     }
 
     // Verify token with Facebook's debug endpoint
@@ -99,6 +84,10 @@ const verifyFacebookToken = async (accessToken: string) => {
     const userResponse = await axios.get(
       `https://graph.facebook.com/me?fields=id,name,email,picture.type(large),first_name,last_name&access_token=${accessToken}`
     );
+
+    if (!userResponse.data.email) {
+      throw new Error("Facebook account must have an email address");
+    }
 
     return {
       id: userResponse.data.id,
