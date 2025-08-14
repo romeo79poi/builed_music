@@ -566,6 +566,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signIn,
     signOut,
     updateProfile,
+    getSettings,
+    updateSettings,
     checkAvailability,
     requestSignupOTP,
     verifySignupOTP,
