@@ -34,7 +34,7 @@ import { userDataService, EnhancedUserData } from "../lib/user-data-service";
 export default function EditAccount() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user: firebaseUser, loading: firebaseLoading } = useFirebase();
+  const { user: authUser, updateProfile, loading: authLoading } = useAuth();
 
   // User account data - will be loaded from comprehensive service
   const [accountData, setAccountData] = useState<EnhancedUserData | null>(null);
