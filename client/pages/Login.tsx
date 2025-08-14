@@ -830,7 +830,7 @@ export default function Login() {
           </motion.div>
         )}
 
-        {/* Firebase Connection Status */}
+        {/* Backend Connection Status */}
         {networkStatus.isOnline && authError?.includes("network") && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -845,7 +845,7 @@ export default function Login() {
                   Connection Issue
                 </h4>
                 <p className="text-blue-200 text-sm mt-1">
-                  Having trouble connecting to Firebase. This might be due to:
+                  Having trouble connecting to the server. This might be due to:
                 </p>
                 <ul className="text-blue-200 text-xs mt-2 ml-4 list-disc space-y-1">
                   <li>Firewall or network restrictions</li>
