@@ -143,21 +143,16 @@ class OAuthService {
     }
   }
 
-  // Facebook Sign-In method
+  // Real Facebook Sign-In method
   async signInWithFacebook(): Promise<{ success: boolean; token?: string; error?: string }> {
     try {
-      // For development/demo purposes, create a mock access token if Facebook isn't configured
       if (!FACEBOOK_APP_ID) {
-        console.warn("⚠️ Facebook App ID not configured, using demo token");
-        const mockAccessToken = `demo_facebook_access_token_${Date.now()}`;
-        return { success: true, token: mockAccessToken };
+        return { success: false, error: "Facebook App ID not configured. Please configure VITE_FACEBOOK_APP_ID environment variable." };
       }
 
       const initialized = await this.initializeFacebook();
       if (!initialized) {
-        console.warn("⚠️ Facebook SDK initialization failed, using demo token");
-        const mockAccessToken = `demo_facebook_access_token_${Date.now()}`;
-        return { success: true, token: mockAccessToken };
+        return { success: false, error: "Failed to initialize Facebook SDK. Please check your internet connection." };
       }
 
       return new Promise((resolve) => {
@@ -166,18 +161,13 @@ class OAuthService {
             const accessToken = response.authResponse.accessToken;
             resolve({ success: true, token: accessToken });
           } else {
-            // Fallback to demo token if login fails
-            console.warn("⚠️ Facebook login failed, using demo token");
-            const mockAccessToken = `demo_facebook_access_token_${Date.now()}`;
-            resolve({ success: true, token: mockAccessToken });
+            resolve({ success: false, error: "Facebook login was cancelled or failed" });
           }
         }, { scope: 'email,public_profile' });
       });
     } catch (error: any) {
       console.error("❌ Facebook sign-in error:", error);
-      // Return demo token as fallback
-      const mockAccessToken = `demo_facebook_access_token_${Date.now()}`;
-      return { success: true, token: mockAccessToken };
+      return { success: false, error: error.message || "Facebook sign-in failed" };
     }
   }
 
