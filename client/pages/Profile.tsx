@@ -94,48 +94,7 @@ interface Playlist {
   plays: number;
 }
 
-const sampleTracks: Track[] = [
-  {
-    id: "1",
-    title: "Midnight Dreams",
-    coverUrl:
-      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
-    duration: 234,
-    plays: 2340000,
-    likes: 45600,
-    comments: 1230,
-    uploadDate: new Date("2024-01-15"),
-    isPublic: true,
-    genre: "Electronic",
-  },
-  {
-    id: "2",
-    title: "Summer Vibes",
-    coverUrl:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=200&h=200&fit=crop",
-    duration: 198,
-    plays: 1890000,
-    likes: 38200,
-    comments: 892,
-    uploadDate: new Date("2024-01-10"),
-    isPublic: true,
-    genre: "Pop",
-  },
-];
-
-const samplePlaylists: Playlist[] = [
-  {
-    id: "1",
-    name: "Best of Alex",
-    description: "My top tracks handpicked for you",
-    coverUrl:
-      "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=200&h=200&fit=crop",
-    trackCount: 25,
-    isPublic: true,
-    createdDate: new Date("2024-01-01"),
-    plays: 567000,
-  },
-];
+// No more sample data - all data will be fetched from backend
 
 interface RecentlyPlayedTrack {
   id: string;
