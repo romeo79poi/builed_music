@@ -120,10 +120,9 @@ export default function Profile() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
-  const [tracks, setTracks] = useState<Track[]>(sampleTracks);
-  const [playlists, setPlaylists] = useState<Playlist[]>(samplePlaylists);
-  const [recentlyPlayed, setRecentlyPlayed] =
-    useState<RecentlyPlayedTrack[]>(sampleRecentlyPlayed);
+  const [tracks, setTracks] = useState<Track[]>([]);
+  const [playlists, setPlaylists] = useState<Playlist[]>([]);
+  const [recentlyPlayed, setRecentlyPlayed] = useState<RecentlyPlayedTrack[]>([]);
   const [selectedTab, setSelectedTab] = useState("tracks");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [isFollowing, setIsFollowing] = useState(false);
