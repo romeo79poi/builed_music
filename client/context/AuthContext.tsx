@@ -110,14 +110,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         url: response.url
       });
 
+      // Read the response body only once
+      const responseText = await response.text();
+      console.log(`📄 Response body:`, responseText);
+
       if (!response.ok) {
         console.error(`❌ HTTP error for url: ${url}: ${response.status} ${response.statusText}`);
 
-        // Get the response body as text first to see what we're dealing with
-        const responseText = await response.text();
-        console.error(`❌ Response body:`, responseText);
-
-        // Try to parse as JSON
+        // Try to parse as JSON for better error message
         let errorMessage = `HTTP error! status: ${response.status}`;
         try {
           const errorData = JSON.parse(responseText);
@@ -131,9 +131,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error(errorMessage);
       }
 
-      const result = await response.json();
-      console.log(`✅ Success response from ${url}:`, result);
-      return result;
+      // Parse the response text as JSON
+      try {
+        const result = JSON.parse(responseText);
+        console.log(`✅ Success response from ${url}:`, result);
+        return result;
+      } catch (parseError) {
+        console.error(`❌ Failed to parse success response as JSON:`, parseError);
+        throw new Error("Invalid JSON response from server");
+      }
     } catch (error) {
       console.error(`🚨 Fetch error for ${url}:`, error);
       throw error;
