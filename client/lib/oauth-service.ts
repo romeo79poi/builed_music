@@ -265,10 +265,18 @@ class OAuthService {
         return { success: false, error: "Google Client ID not configured. Please configure VITE_GOOGLE_CLIENT_ID environment variable." };
       }
 
+      console.log("🔄 Attempting Google Sign-In initialization...");
       const initialized = await this.initializeGoogle();
+
       if (!initialized) {
-        return { success: false, error: "Failed to initialize Google Sign-In. Please check your internet connection." };
+        console.error("❌ Google Sign-In initialization failed");
+        return {
+          success: false,
+          error: "Failed to initialize Google Sign-In. This could be due to:\n• Network connectivity issues\n• Browser blocking third-party scripts\n• Google services being temporarily unavailable\n\nPlease try refreshing the page or check your internet connection."
+        };
       }
+
+      console.log("✅ Google Sign-In initialized, proceeding with authentication...");
 
       return new Promise((resolve) => {
         if (!window.google?.accounts?.id) {
