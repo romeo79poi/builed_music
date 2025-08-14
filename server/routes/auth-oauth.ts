@@ -147,12 +147,7 @@ export const googleAuth: RequestHandler = async (req, res) => {
       });
     }
 
-    if (!GOOGLE_CLIENT_ID) {
-      return res.status(500).json({
-        success: false,
-        message: "Google OAuth not configured on server",
-      });
-    }
+    // Note: GOOGLE_CLIENT_ID check removed since we support demo tokens
 
     // Verify Google token and get real user data
     console.log("🔍 Verifying Google ID token...");
