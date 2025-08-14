@@ -47,7 +47,7 @@ export default function Settings() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { theme, actualTheme, setTheme } = useTheme();
-  const { user: authUser, signOut, loading: authLoading } = useAuth();
+  const { user: authUser, signOut, getSettings, updateSettings, loading: authLoading } = useAuth();
 
   // User data state - will be loaded from backend
   const [userProfile, setUserProfile] = useState({
