@@ -163,7 +163,7 @@ const sampleRecentlyPlayed: RecentlyPlayedTrack[] = [
 export default function Profile() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { user: firebaseUser, loading: firebaseLoading } = useFirebase();
+  const { user: authUser, loading: authLoading } = useAuth();
   const {
     isFollowing: isFollowingUser,
     followUser,
