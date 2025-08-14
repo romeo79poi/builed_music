@@ -526,10 +526,16 @@ export default function Signup() {
     try {
       console.log("🔥 Attempting Google OAuth sign-in...");
 
-      // For development, simulate Google OAuth token
-      const mockGoogleToken = "mock_google_token_" + Date.now();
+      // Use real Google OAuth
+      const { oauthService } = await import("../lib/oauth-service");
 
-      const result = await signInWithGoogle(mockGoogleToken);
+      const oauthResult = await oauthService.signInWithGoogleIdToken();
+
+      if (!oauthResult.success || !oauthResult.idToken) {
+        throw new Error(oauthResult.error || "Google sign-in failed");
+      }
+
+      const result = await signInWithGoogle(oauthResult.idToken);
 
       if (result.success) {
         toast({
