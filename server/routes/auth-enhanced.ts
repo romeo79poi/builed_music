@@ -498,11 +498,17 @@ const googleAuth: RequestHandler = async (req, res) => {
       data: userData,
     });
   } catch (error: any) {
-    console.error("Google auth error:", error);
-    res.status(500).json({
-      success: false,
-      message: "Google authentication failed",
-    });
+    console.error("❌ Google auth error:", error);
+    console.error("❌ Error stack:", error.stack);
+
+    // Make sure we always send a JSON response
+    if (!res.headersSent) {
+      res.status(500).json({
+        success: false,
+        message: "Google authentication failed",
+        error: process.env.NODE_ENV === "development" ? error.message : undefined,
+      });
+    }
   }
 };
 
