@@ -519,6 +519,16 @@ export function createServer() {
 
   console.log("✅ OAuth endpoints registered successfully");
 
+  // Simple test endpoint
+  app.post("/api/test-google", (req, res) => {
+    console.log("🧪 Test endpoint hit:", req.body);
+    res.json({
+      success: true,
+      message: "Test endpoint working",
+      body: req.body
+    });
+  });
+
   // Debug endpoint to list all routes
   app.get("/api/debug-routes", (req, res) => {
     const routes: any[] = [];
