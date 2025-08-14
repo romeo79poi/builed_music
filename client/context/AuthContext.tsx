@@ -95,6 +95,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Safe fetch utility to prevent JSON parsing errors
   const safeFetch = async (url: string, options?: RequestInit) => {
+    let response: Response;
+
     try {
       console.log(`🌐 Making request to: ${url}`, {
         method: options?.method || 'GET',
@@ -102,7 +104,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         body: options?.body
       });
 
-      const response = await fetch(url, options);
+      response = await fetch(url, options);
+
       console.log(`📊 Response received:`, {
         status: response.status,
         statusText: response.statusText,
@@ -110,38 +113,52 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         url: response.url
       });
 
-      // Read the response body only once
-      const responseText = await response.text();
-      console.log(`📄 Response body:`, responseText);
+      // Clone the response to avoid "body stream already read" issues
+      const responseClone = response.clone();
 
       if (!response.ok) {
         console.error(`❌ HTTP error for url: ${url}: ${response.status} ${response.statusText}`);
 
-        // Try to parse as JSON for better error message
+        // Use the cloned response to read the error body
         let errorMessage = `HTTP error! status: ${response.status}`;
         try {
-          const errorData = JSON.parse(responseText);
-          console.error(`❌ Parsed error data:`, errorData);
-          errorMessage = errorData.message || errorMessage;
-        } catch (parseError) {
-          console.error(`❌ Could not parse response as JSON:`, parseError.message);
-          errorMessage = responseText || errorMessage;
+          const errorText = await responseClone.text();
+          console.error(`❌ Response body:`, errorText);
+
+          if (errorText) {
+            try {
+              const errorData = JSON.parse(errorText);
+              errorMessage = errorData.message || errorMessage;
+            } catch (parseError) {
+              errorMessage = errorText || errorMessage;
+            }
+          }
+        } catch (readError) {
+          console.warn(`⚠️ Could not read error response body:`, readError);
         }
 
         throw new Error(errorMessage);
       }
 
-      // Parse the response text as JSON
-      try {
-        const result = JSON.parse(responseText);
-        console.log(`✅ Success response from ${url}:`, result);
-        return result;
-      } catch (parseError) {
-        console.error(`❌ Failed to parse success response as JSON:`, parseError);
-        throw new Error("Invalid JSON response from server");
-      }
-    } catch (error) {
+      // Parse the successful response as JSON
+      const result = await response.json();
+      console.log(`✅ Success response from ${url}:`, result);
+      return result;
+
+    } catch (error: any) {
       console.error(`🚨 Fetch error for ${url}:`, error);
+
+      // If it's a JSON parsing error and we have a response, try to handle it gracefully
+      if (error.name === 'SyntaxError' && response) {
+        try {
+          const textBody = await response.clone().text();
+          console.error(`❌ Invalid JSON response body:`, textBody);
+          throw new Error('Server returned invalid JSON response');
+        } catch (readError) {
+          console.error(`❌ Could not read response body for error analysis:`, readError);
+        }
+      }
+
       throw error;
     }
   };
