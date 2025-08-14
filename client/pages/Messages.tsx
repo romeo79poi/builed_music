@@ -30,7 +30,7 @@ import {
 } from "lucide-react";
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
-import { useFirebase } from "../context/FirebaseContext";
+import { useAuth } from "../context/AuthContext";
 import { fetchUserData } from "../lib/auth";
 
 interface Message {
