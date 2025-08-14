@@ -378,15 +378,25 @@ export default function Login() {
     setAuthError(null);
 
     try {
-      console.log("🔥 Attempting backend Facebook login...");
+      console.log("🔥 Attempting real Facebook OAuth login...");
 
-      // Generate a mock Facebook token for demo purposes
-      const mockFacebookToken = `facebook_demo_token_${Date.now()}`;
+      // Import OAuth service dynamically
+      const { oauthService } = await import("../lib/oauth-service");
 
-      const result = await signInWithFacebook(mockFacebookToken);
+      // Use Facebook Login SDK
+      const oauthResult = await oauthService.signInWithFacebook();
+
+      if (!oauthResult.success || !oauthResult.token) {
+        throw new Error(oauthResult.error || "Facebook sign-in failed");
+      }
+
+      console.log("✅ Facebook OAuth successful, authenticating with backend...");
+
+      // Send access token to backend for verification
+      const result = await signInWithFacebook(oauthResult.token);
 
       if (result.success) {
-        console.log("✅ Backend Facebook login successful");
+        console.log("✅ Backend Facebook authentication successful");
 
         toast({
           title: "Welcome back to CATCH! 🎉",
