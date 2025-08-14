@@ -267,12 +267,7 @@ export const facebookAuth: RequestHandler = async (req, res) => {
       });
     }
 
-    if (!FACEBOOK_APP_ID || !FACEBOOK_APP_SECRET) {
-      return res.status(500).json({
-        success: false,
-        message: "Facebook OAuth not configured on server",
-      });
-    }
+    // Note: Facebook config check removed since we support demo tokens
 
     // Verify Facebook token and get real user data
     console.log("🔍 Verifying Facebook access token...");
