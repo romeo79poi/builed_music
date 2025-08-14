@@ -337,10 +337,17 @@ class OAuthService {
 // Create singleton instance
 export const oauthService = new OAuthService();
 
-// Initialize services when module loads
+// Initialize services when module loads (with error handling)
 if (typeof window !== 'undefined') {
-  oauthService.initializeGoogle();
-  oauthService.initializeFacebook();
+  // Pre-load Google Sign-In when the module loads
+  oauthService.initializeGoogle().catch(error => {
+    console.warn("⚠️ Pre-loading Google Sign-In failed:", error.message);
+  });
+
+  // Pre-load Facebook SDK when the module loads
+  oauthService.initializeFacebook().catch(error => {
+    console.warn("⚠️ Pre-loading Facebook SDK failed:", error.message);
+  });
 }
 
 // Type declarations for window objects
