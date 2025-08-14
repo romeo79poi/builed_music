@@ -23,7 +23,6 @@ import {
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
 import { api } from "../lib/api";
-import { useFirebase } from "../context/FirebaseContext";
 import { useAuth } from "../context/AuthContext";
 
 interface Track {
