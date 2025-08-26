@@ -11,7 +11,6 @@ import {
   Music,
   Globe,
   Lock,
-  Instagram,
   Twitter,
   Loader2,
   Plus,
