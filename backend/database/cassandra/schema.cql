@@ -1,5 +1,5 @@
 -- CATCH Music Streaming - Cassandra Schema
--- For distributed and scalable data storage similar to Spotify's architecture
+-- For distributed and scalable data storage optimized for music streaming
 -- Handles time-series data, user activity logs, and high-volume analytics
 
 -- Create keyspace with replication strategy
