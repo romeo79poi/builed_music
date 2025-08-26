@@ -112,7 +112,7 @@ Your Catch music platform backend is now fully implemented with all requested fe
 - `message:reaction` / `message:read`
 - `chat:join` / `chat:leave`
 
-## 🎤 Voice Streaming (Amino-style)
+## 🎤 Voice Streaming System
 
 ### ✅ Complete Voice Room System
 
