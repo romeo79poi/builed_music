@@ -1,9 +1,22 @@
 import path from "path";
-import { createServer } from "./index";
+import http from "http";
 import * as express from "express";
+import { createServer } from "./index";
+import { SocketManager } from "./lib/socket";
+import { initializeDatabase } from "./lib/database-init";
 
 const app = createServer();
 const port = process.env.PORT || 3000;
+
+// Create HTTP server for Socket.IO
+const server = http.createServer(app);
+
+// Initialize Socket.IO server
+const socketManager = new SocketManager(server);
+console.log("🔌 Socket.IO server initialized");
+
+// Initialize database on startup
+initializeDatabase().catch(console.error);
 
 // In production, serve the built SPA files
 const __dirname = import.meta.dirname;
@@ -22,10 +35,15 @@ app.get("*", (req, res) => {
   res.sendFile(path.join(distPath, "index.html"));
 });
 
-app.listen(port, () => {
+// Export socket manager for use in other modules
+export { socketManager };
+
+// Start server with Socket.IO support
+server.listen(port, () => {
   console.log(`🚀 Fusion Starter server running on port ${port}`);
   console.log(`📱 Frontend: http://localhost:${port}`);
   console.log(`🔧 API: http://localhost:${port}/api`);
+  console.log(`🔌 WebSocket: Connected and ready for real-time features`);
 });
 
 // Graceful shutdown
