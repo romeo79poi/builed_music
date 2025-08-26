@@ -467,7 +467,7 @@ export function createServer() {
   app.post("/api/messages/chats", createChat);
   app.delete("/api/messages/message/:messageId", deleteMessage);
 
-  // Voice Rooms API routes (Amino-style voice streaming)
+  // Voice Rooms API routes (real-time voice streaming)
   app.get("/api/voice-rooms", getVoiceRooms);
   app.post("/api/voice-rooms", authenticateJWT, createVoiceRoom);
   app.get("/api/voice-rooms/:roomId", getVoiceRoom);
