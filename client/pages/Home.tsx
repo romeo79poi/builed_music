@@ -508,7 +508,7 @@ export default function Home() {
                 }}
                 className="flex"
               >
-                {top10Today.map((song, index) => (
+                {top10Today.length > 0 && top10Today.map((song, index) => (
                   <motion.div
                     key={song.id}
                     className="w-full flex-shrink-0 relative"
