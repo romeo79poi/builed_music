@@ -138,12 +138,10 @@ export default function Profile() {
       const token = localStorage.getItem('authToken');
       if (!token) return;
 
-      // Use the existing liked-tracks endpoint instead of non-existent user tracks endpoint
-      const response = await fetch(`/api/v1/users/liked-tracks`, {
+      const response = await fetch(`/api/v1/users/${userId}/tracks`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
-          'user-id': userId,
         },
       });
 
