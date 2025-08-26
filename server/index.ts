@@ -253,13 +253,13 @@ import {
   facebookAuthWithRateLimit,
 } from "./routes/auth-enhanced";
 
-// Real OAuth authentication
-import {
-  googleAuth,
-  facebookAuth,
-  googleAuthWithRateLimit,
-  facebookAuthWithRateLimit,
-} from "./routes/auth-oauth";
+// Real OAuth authentication (using auth-enhanced version)
+// import {
+//   googleAuth,
+//   facebookAuth,
+//   googleAuthWithRateLimit,
+//   facebookAuthWithRateLimit,
+// } from "./routes/auth-oauth";
 
 export function createServer() {
   const app = express();
