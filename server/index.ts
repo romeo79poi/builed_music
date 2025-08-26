@@ -353,7 +353,6 @@ export function createServer() {
   // app.use("/api/v4/auth", authV4Router);
 
   // Social Authentication routes
-  app.post("/api/auth/google", googleAuth);
   app.post("/api/auth/facebook", facebookAuth);
   app.post("/api/auth/google/signin", googleSignin);
   app.post("/api/auth/facebook/signin", facebookSignin);
