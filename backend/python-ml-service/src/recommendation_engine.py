@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 class MusicRecommendationEngine:
     """
     Advanced music recommendation engine using collaborative filtering,
-    content-based filtering, and hybrid approaches similar to Spotify's architecture.
+    content-based filtering, and hybrid approaches for music streaming platforms.
     """
     
     def __init__(self, redis_client: redis.Redis, db_config: Dict[str, str]):
