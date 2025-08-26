@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useProfileContext } from "../context/ProfileContext";
-import { useMusicContext } from "../context/MusicContext";
+import { useEnhancedMusic } from "../context/EnhancedMusicContext";
 import { songApi } from "../lib/api";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
@@ -34,8 +34,19 @@ interface Song {
 export default function LikedSongs() {
   const navigate = useNavigate();
   const { profile, toggleLikedSong } = useProfileContext();
-  const { currentSong, isPlaying, setCurrentSong, togglePlay } =
-    useMusicContext();
+  const { currentSong, isPlaying, playSong, pauseSong, resumeSong } = useEnhancedMusic();
+
+  const setCurrentSong = (song: any) => {
+    playSong(song);
+  };
+
+  const togglePlay = () => {
+    if (isPlaying) {
+      pauseSong();
+    } else {
+      resumeSong();
+    }
+  };
   const { user: authUser, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
