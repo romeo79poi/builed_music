@@ -34,6 +34,16 @@ import {
   getUploadConfig,
 } from "./routes/upload";
 
+// Enhanced upload routes
+import {
+  uploadMusic,
+  uploadCover,
+  uploadAvatar,
+  deleteUploadedFile,
+  getUploadConfig as getEnhancedUploadConfig,
+  getUploadProgress,
+} from "./routes/upload-enhanced";
+
 // Settings routes
 import {
   getUserSettings,
@@ -115,6 +125,18 @@ import {
   playSong,
 } from "./routes/music";
 
+// Music streaming routes
+import {
+  streamSong,
+  updatePlayProgress,
+  getTrendingSongs as getStreamingTrending,
+  searchMusic as searchStreamingMusic,
+  getRecommendations as getStreamingRecommendations,
+  toggleSongLike,
+  getLikedSongs,
+  getGenres as getStreamingGenres,
+} from "./routes/music-streaming";
+
 // Analytics routes
 import {
   getUserAnalytics,
@@ -137,6 +159,18 @@ import {
   createChat,
   deleteMessage,
 } from "./routes/messages";
+
+// Voice room routes
+import {
+  getVoiceRooms,
+  createVoiceRoom,
+  getVoiceRoom,
+  joinVoiceRoom,
+  leaveVoiceRoom,
+  toggleMute,
+  promoteToSpeaker,
+  endVoiceRoom,
+} from "./routes/voice-rooms";
 
 // New Backend API routes - Tracks
 import {
@@ -248,13 +282,13 @@ export function createServer() {
       res.json({
         success: true,
         message: "Database connected",
-        mongoConnected: isMongoConnected()
+        mongoConnected: isMongoConnected(),
       });
     } catch (error: any) {
       res.status(500).json({
         success: false,
         message: "Database error",
-        error: error.message
+        error: error.message,
       });
     }
   });
@@ -365,6 +399,18 @@ export function createServer() {
   app.post("/api/upload/playlist-cover", uploadPlaylistCover);
   app.get("/api/upload/config", getUploadConfig);
 
+  // Enhanced upload routes
+  app.post("/api/upload/music", authenticateJWT, ...uploadMusic);
+  app.post("/api/upload/cover", authenticateJWT, ...uploadCover);
+  app.post("/api/upload/avatar", authenticateJWT, ...uploadAvatar);
+  app.delete(
+    "/api/upload/delete/:bucket/:fileName",
+    authenticateJWT,
+    deleteUploadedFile,
+  );
+  app.get("/api/upload/enhanced-config", getEnhancedUploadConfig);
+  app.get("/api/upload/progress/:uploadId", getUploadProgress);
+
   // Settings API routes
   app.get("/api/settings/:userId?", getUserSettings);
   app.put("/api/settings/:userId?", updateUserSettings);
@@ -391,6 +437,17 @@ export function createServer() {
   app.get("/api/music/recently-played", getMusicRecentlyPlayed);
   app.post("/api/music/play/:songId", playSong);
 
+  // Enhanced Music Streaming API routes
+  app.get("/api/music/stream/:songId", streamSong);
+  app.post("/api/music/play-progress", authenticateJWT, updatePlayProgress);
+  app.get("/api/music/v2/trending", getStreamingTrending);
+  app.get("/api/music/v2/search", searchStreamingMusic);
+  app.get("/api/music/recommendations/:userId", getStreamingRecommendations);
+  app.post("/api/music/like/:songId", authenticateJWT, toggleSongLike);
+  app.delete("/api/music/like/:songId", authenticateJWT, toggleSongLike);
+  app.get("/api/music/liked/:userId", getLikedSongs);
+  app.get("/api/music/v2/genres", getStreamingGenres);
+
   // Analytics API routes
   app.get("/api/analytics/:userId", getUserAnalytics);
   app.get("/api/analytics/:userId/history", getListeningHistory);
@@ -409,6 +466,24 @@ export function createServer() {
   app.get("/api/messages/:chatId/typing", getTypingUsers);
   app.post("/api/messages/chats", createChat);
   app.delete("/api/messages/message/:messageId", deleteMessage);
+
+  // Voice Rooms API routes (Amino-style voice streaming)
+  app.get("/api/voice-rooms", getVoiceRooms);
+  app.post("/api/voice-rooms", authenticateJWT, createVoiceRoom);
+  app.get("/api/voice-rooms/:roomId", getVoiceRoom);
+  app.post("/api/voice-rooms/:roomId/join", authenticateJWT, joinVoiceRoom);
+  app.post("/api/voice-rooms/:roomId/leave", authenticateJWT, leaveVoiceRoom);
+  app.post(
+    "/api/voice-rooms/:roomId/mute/:userId",
+    authenticateJWT,
+    toggleMute,
+  );
+  app.post(
+    "/api/voice-rooms/:roomId/promote/:userId",
+    authenticateJWT,
+    promoteToSpeaker,
+  );
+  app.delete("/api/voice-rooms/:roomId", authenticateJWT, endVoiceRoom);
 
   // ===============================================
   // NEW BACKEND API ROUTES (C++/Java/Go/Python Style)
@@ -493,7 +568,7 @@ export function createServer() {
     updateSettings,
     checkAvailability: jwtCheckAvailability,
     refreshToken: jwtRefreshToken,
-    logout
+    logout,
   } = require("./routes/auth-jwt");
 
   // JWT Authentication endpoints
@@ -532,7 +607,7 @@ export function createServer() {
     res.json({
       success: true,
       message: "Test endpoint working",
-      body: req.body
+      body: req.body,
     });
   });
 
@@ -543,11 +618,11 @@ export function createServer() {
       if (middleware.route) {
         routes.push({
           path: middleware.route.path,
-          methods: Object.keys(middleware.route.methods)
+          methods: Object.keys(middleware.route.methods),
         });
       }
     });
-    res.json({ routes: routes.filter(r => r.path.includes('/api/auth')) });
+    res.json({ routes: routes.filter((r) => r.path.includes("/api/auth")) });
   });
 
   return app;
