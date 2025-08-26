@@ -551,6 +551,15 @@ export function createServer() {
   app.get("/api/v1/users/:id/followers", getUserFollowers);
   app.get("/api/v1/users/:id/following", getUserFollowing);
   app.get("/api/v1/users/:id/stats", getUserStatistics);
+  // Add user tracks endpoint - redirect to liked tracks for now
+  app.get("/api/v1/users/:id/tracks", (req, res) => {
+    // For now, redirect to liked tracks or return empty array
+    res.json({
+      success: true,
+      tracks: [],
+      message: "User tracks endpoint - currently returns empty. Use /api/v1/users/liked-tracks for liked tracks."
+    });
+  });
 
   // Code Generator API routes
   app.post("/api/code-generator/generate", generateCode);
