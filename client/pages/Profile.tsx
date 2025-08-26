@@ -138,19 +138,32 @@ export default function Profile() {
       const token = localStorage.getItem('authToken');
       if (!token) return;
 
-      const response = await fetch(`/api/v1/users/${userId}/tracks`, {
+      // Use the existing liked-tracks endpoint instead of non-existent user tracks endpoint
+      const response = await fetch(`/api/v1/users/liked-tracks`, {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
+          'user-id': userId,
         },
       });
 
       if (response.ok) {
         const data = await response.json();
         setTracks(data.tracks || []);
+      } else {
+        // Handle non-OK responses gracefully
+        console.warn(`Failed to fetch user tracks: ${response.status} ${response.statusText}`);
+        const text = await response.text();
+        if (text.startsWith('<!DOCTYPE') || text.startsWith('<html')) {
+          console.error("Server returned HTML instead of JSON - API endpoint might not exist");
+        } else {
+          console.error("Response body:", text);
+        }
+        setTracks([]); // Set empty array as fallback
       }
     } catch (error) {
       console.error("Error fetching user tracks:", error);
+      setTracks([]); // Set empty array as fallback
     }
   };
 
