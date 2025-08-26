@@ -91,7 +91,7 @@ Your Catch music platform backend is now fully implemented with all requested fe
 - **Cover Images**: Album art and playlist covers
 - **Profile Avatars**: User profile pictures
 
-## 💬 Real-time Messaging (Instagram-style)
+## 💬 Real-time Messaging System
 
 ### ✅ Complete Messaging System
 
