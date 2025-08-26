@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Search, Music, Play, Pause, Loader2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { useMusicContext } from "../context/MusicContext";
+import { useEnhancedMusic } from "../context/EnhancedMusicContext";
 import { songApi } from "../lib/api";
 import LikeButton from "./LikeButton";
 import { cn } from "../lib/utils";
@@ -34,8 +34,19 @@ export const QuickSongSearch: React.FC<QuickSongSearchProps> = ({
   const [results, setResults] = useState<Song[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
-  const { currentSong, isPlaying, setCurrentSong, togglePlay } =
-    useMusicContext();
+  const { currentSong, isPlaying, playSong, pauseSong, resumeSong } = useEnhancedMusic();
+
+  const setCurrentSong = (song: Song) => {
+    playSong(song);
+  };
+
+  const togglePlay = () => {
+    if (isPlaying) {
+      pauseSong();
+    } else {
+      resumeSong();
+    }
+  };
 
   const searchSongs = async (searchQuery: string) => {
     if (!searchQuery.trim()) {
