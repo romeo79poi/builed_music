@@ -125,6 +125,18 @@ import {
   playSong,
 } from "./routes/music";
 
+// Music streaming routes
+import {
+  streamSong,
+  updatePlayProgress,
+  getTrendingSongs as getStreamingTrending,
+  searchMusic as searchStreamingMusic,
+  getRecommendations as getStreamingRecommendations,
+  toggleSongLike,
+  getLikedSongs,
+  getGenres as getStreamingGenres,
+} from "./routes/music-streaming";
+
 // Analytics routes
 import {
   getUserAnalytics,
@@ -420,6 +432,17 @@ export function createServer() {
   app.get("/api/music/recommendations", getRecommendations);
   app.get("/api/music/recently-played", getMusicRecentlyPlayed);
   app.post("/api/music/play/:songId", playSong);
+
+  // Enhanced Music Streaming API routes
+  app.get("/api/music/stream/:songId", streamSong);
+  app.post("/api/music/play-progress", authenticateJWT, updatePlayProgress);
+  app.get("/api/music/v2/trending", getStreamingTrending);
+  app.get("/api/music/v2/search", searchStreamingMusic);
+  app.get("/api/music/recommendations/:userId", getStreamingRecommendations);
+  app.post("/api/music/like/:songId", authenticateJWT, toggleSongLike);
+  app.delete("/api/music/like/:songId", authenticateJWT, toggleSongLike);
+  app.get("/api/music/liked/:userId", getLikedSongs);
+  app.get("/api/music/v2/genres", getStreamingGenres);
 
   // Analytics API routes
   app.get("/api/analytics/:userId", getUserAnalytics);
