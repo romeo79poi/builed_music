@@ -34,6 +34,16 @@ import {
   getUploadConfig,
 } from "./routes/upload";
 
+// Enhanced upload routes
+import {
+  uploadMusic,
+  uploadCover,
+  uploadAvatar,
+  deleteUploadedFile,
+  getUploadConfig as getEnhancedUploadConfig,
+  getUploadProgress,
+} from "./routes/upload-enhanced";
+
 // Settings routes
 import {
   getUserSettings,
@@ -376,6 +386,14 @@ export function createServer() {
   app.delete("/api/upload/profile-picture/:fileName", deleteProfilePicture);
   app.post("/api/upload/playlist-cover", uploadPlaylistCover);
   app.get("/api/upload/config", getUploadConfig);
+
+  // Enhanced upload routes
+  app.post("/api/upload/music", authenticateJWT, ...uploadMusic);
+  app.post("/api/upload/cover", authenticateJWT, ...uploadCover);
+  app.post("/api/upload/avatar", authenticateJWT, ...uploadAvatar);
+  app.delete("/api/upload/delete/:bucket/:fileName", authenticateJWT, deleteUploadedFile);
+  app.get("/api/upload/enhanced-config", getEnhancedUploadConfig);
+  app.get("/api/upload/progress/:uploadId", getUploadProgress);
 
   // Settings API routes
   app.get("/api/settings/:userId?", getUserSettings);
