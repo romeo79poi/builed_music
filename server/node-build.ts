@@ -2,7 +2,7 @@ import path from "path";
 import http from "http";
 import * as express from "express";
 import { createServer } from "./index";
-import { SocketManager } from "./lib/socket";
+import { EnhancedSocketManager } from "./lib/socket-enhanced";
 import { initializeDatabase } from "./lib/database-init";
 
 const app = createServer();
@@ -11,9 +11,9 @@ const port = process.env.PORT || 3000;
 // Create HTTP server for Socket.IO
 const server = http.createServer(app);
 
-// Initialize Socket.IO server
-const socketManager = new SocketManager(server);
-console.log("🔌 Socket.IO server initialized");
+// Initialize Enhanced Socket.IO server
+const socketManager = new EnhancedSocketManager(server);
+console.log("🔌 Enhanced Socket.IO server initialized with voice streaming support");
 
 // Initialize database on startup
 initializeDatabase().catch(console.error);
