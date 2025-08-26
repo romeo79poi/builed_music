@@ -376,8 +376,8 @@ export const getSocialAnalytics: RequestHandler = async (req, res) => {
         total: 456,
         platforms: {
           twitter: 34,
-          instagram: 28,
-          facebook: 22,
+          social_platform_a: 28,
+          social_platform_b: 22,
           other: 16,
         },
         topSharedSongs: [

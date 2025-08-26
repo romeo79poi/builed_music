@@ -124,9 +124,12 @@ export default function Home() {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [isAutoSliding, setIsAutoSliding] = useState(true);
 
+  // Create top10Today from trendingSongs
+  const top10Today = trendingSongs ? trendingSongs.slice(0, 10) : [];
+
   // Auto-slide effect for Top 10 Today
   useEffect(() => {
-    if (!isAutoSliding) return;
+    if (!isAutoSliding || top10Today.length === 0) return;
 
     const interval = setInterval(() => {
       setCurrentSlideIndex((prevIndex) =>
@@ -135,7 +138,7 @@ export default function Home() {
     }, 4000); // Change slide every 4 seconds
 
     return () => clearInterval(interval);
-  }, [isAutoSliding]);
+  }, [isAutoSliding, top10Today.length]);
 
   // Update time for greeting
   useEffect(() => {
@@ -505,212 +508,235 @@ export default function Home() {
                 }}
                 className="flex"
               >
-                {top10Today.map((song, index) => (
-                  <motion.div
-                    key={song.id}
-                    className="w-full flex-shrink-0 relative"
-                    whileHover={{ scale: 1.02 }}
-                  >
-                    <div
-                      className="relative bg-gradient-to-br from-black via-gray-900 to-black rounded-lg p-6 overflow-hidden cursor-pointer"
-                      style={{
-                        boxShadow: `
+                {top10Today.length > 0 &&
+                  top10Today.map((song, index) => (
+                    <motion.div
+                      key={song.id}
+                      className="w-full flex-shrink-0 relative"
+                      whileHover={{ scale: 1.02 }}
+                    >
+                      <div
+                        className="relative bg-gradient-to-br from-black via-gray-900 to-black rounded-lg p-6 overflow-hidden cursor-pointer"
+                        style={{
+                          boxShadow: `
                           0 0 0 2px rgba(236, 72, 153, 0.8),
                           inset 0 0 0 1px rgba(236, 72, 153, 0.3),
                           0 10px 30px rgba(236, 72, 153, 0.2)
                         `,
-                      }}
-                      onClick={() => {
-                        const enhancedSong = {
-                          id: song.id,
-                          title: song.title,
-                          artist: song.artist,
-                          album: "Top Hits",
-                          coverImageURL: song.coverImageURL,
-                          duration: 180,
-                          url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${song.rank}.mp3`,
-                          genre: "Pop",
-                          year: 2024,
-                          explicit: false,
-                        };
-
-                        const topHitsPlaylist = {
-                          id: "top-10-today",
-                          name: "Top 10 Today",
-                          description: "The hottest tracks today",
-                          songs: top10Today.map((s, i) => ({
-                            id: s.id,
-                            title: s.title,
-                            artist: s.artist,
+                        }}
+                        onClick={() => {
+                          const enhancedSong = {
+                            id: song.id,
+                            title: song.title,
+                            artist: song.artist,
                             album: "Top Hits",
-                            coverImageURL: s.coverImageURL,
+                            coverImageURL: song.coverImageURL,
                             duration: 180,
-                            url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${i + 1}.mp3`,
+                            url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${song.rank}.mp3`,
                             genre: "Pop",
                             year: 2024,
                             explicit: false,
-                          })),
-                          isPublic: true,
-                          createdBy: "catch-charts",
-                          createdAt: new Date(),
-                          updatedAt: new Date(),
-                        };
+                          };
 
-                        enhancedMusic.playSong(
-                          enhancedSong,
-                          topHitsPlaylist,
-                          song.rank - 1,
-                        );
-                        navigate("/player");
+                          const topHitsPlaylist = {
+                            id: "top-10-today",
+                            name: "Top 10 Today",
+                            description: "The hottest tracks today",
+                            songs:
+                              top10Today.length > 0
+                                ? top10Today.map((s, i) => ({
+                                    id: s.id,
+                                    title: s.title,
+                                    artist: s.artist,
+                                    album: "Top Hits",
+                                    coverImageURL: s.coverImageURL,
+                                    duration: 180,
+                                    url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${i + 1}.mp3`,
+                                    genre: "Pop",
+                                    year: 2024,
+                                    explicit: false,
+                                  }))
+                                : [],
+                            isPublic: true,
+                            createdBy: "catch-charts",
+                            createdAt: new Date(),
+                            updatedAt: new Date(),
+                          };
 
-                        toast({
-                          title: "Playing Top Hit",
-                          description: `Now playing: ${song.title} by ${song.artist}`,
-                        });
-                      }}
-                    >
-                      {/* Animated background gradient */}
-                      <motion.div
-                        animate={{
-                          background: [
-                            "linear-gradient(45deg, rgba(236, 72, 153, 0.1), rgba(168, 85, 247, 0.1))",
-                            "linear-gradient(45deg, rgba(168, 85, 247, 0.1), rgba(59, 130, 246, 0.1))",
-                            "linear-gradient(45deg, rgba(59, 130, 246, 0.1), rgba(236, 72, 153, 0.1))",
-                          ],
+                          enhancedMusic.playSong(
+                            enhancedSong,
+                            topHitsPlaylist,
+                            song.rank - 1,
+                          );
+                          navigate("/player");
+
+                          toast({
+                            title: "Playing Top Hit",
+                            description: `Now playing: ${song.title} by ${song.artist}`,
+                          });
                         }}
-                        transition={{
-                          duration: 6,
-                          repeat: Infinity,
-                          ease: "easeInOut",
-                        }}
-                        className="absolute opacity-50"
-                        style={{
-                          left: "80px",
-                          top: "80px",
-                          right: 0,
-                          bottom: 0,
-                        }}
-                      />
+                      >
+                        {/* Animated background gradient */}
+                        <motion.div
+                          animate={{
+                            background: [
+                              "linear-gradient(45deg, rgba(236, 72, 153, 0.1), rgba(168, 85, 247, 0.1))",
+                              "linear-gradient(45deg, rgba(168, 85, 247, 0.1), rgba(59, 130, 246, 0.1))",
+                              "linear-gradient(45deg, rgba(59, 130, 246, 0.1), rgba(236, 72, 153, 0.1))",
+                            ],
+                          }}
+                          transition={{
+                            duration: 6,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                          }}
+                          className="absolute opacity-50"
+                          style={{
+                            left: "80px",
+                            top: "80px",
+                            right: 0,
+                            bottom: 0,
+                          }}
+                        />
 
-                      <div className="relative z-10 flex items-center gap-6">
-                        {/* Album Cover */}
-                        <div className="relative">
-                          <motion.img
-                            whileHover={{ scale: 1.1, rotate: 5 }}
-                            src={song.coverImageURL}
-                            alt={song.title}
-                            className="rounded-xl object-cover shadow-2xl cursor-pointer"
-                            style={{ width: "110px", height: "110px" }}
-                            onClick={(e) => {
-                              e.stopPropagation(); // Prevent card click
-                              const enhancedSong = {
-                                id: song.id,
-                                title: song.title,
-                                artist: song.artist,
-                                album: "Top Hits",
-                                coverImageURL: song.coverImageURL,
-                                duration: 180,
-                                url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${song.rank}.mp3`,
-                                genre: "Pop",
-                                year: 2024,
-                                explicit: false,
-                              };
-
-                              const topHitsPlaylist = {
-                                id: "top-hits-today",
-                                name: "Top 10 Today",
-                                description: "The most listened songs today",
-                                songs: top10Today.map((s, i) => ({
-                                  id: s.id,
-                                  title: s.title,
-                                  artist: s.artist,
+                        <div className="relative z-10 flex items-center gap-6">
+                          {/* Album Cover */}
+                          <div className="relative">
+                            <motion.img
+                              whileHover={{ scale: 1.1, rotate: 5 }}
+                              src={song.coverImageURL}
+                              alt={song.title}
+                              className="rounded-xl object-cover shadow-2xl cursor-pointer"
+                              style={{ width: "110px", height: "110px" }}
+                              onClick={(e) => {
+                                e.stopPropagation(); // Prevent card click
+                                const enhancedSong = {
+                                  id: song.id,
+                                  title: song.title,
+                                  artist: song.artist,
                                   album: "Top Hits",
-                                  coverImageURL: s.coverImageURL,
+                                  coverImageURL: song.coverImageURL,
                                   duration: 180,
-                                  url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${i + 1}.mp3`,
+                                  url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${song.rank}.mp3`,
                                   genre: "Pop",
                                   year: 2024,
                                   explicit: false,
-                                })),
-                                isPublic: true,
-                                createdBy: "catch-charts",
-                                createdAt: new Date(),
-                                updatedAt: new Date(),
-                              };
+                                };
 
-                              enhancedMusic.playSong(
-                                enhancedSong,
-                                topHitsPlaylist,
-                                song.rank - 1,
-                              );
-                              navigate("/player");
+                                const topHitsPlaylist = {
+                                  id: "top-hits-today",
+                                  name: "Top 10 Today",
+                                  description: "The most listened songs today",
+                                  songs:
+                                    top10Today.length > 0
+                                      ? top10Today.map((s, i) => ({
+                                          id: s.id,
+                                          title: s.title,
+                                          artist: s.artist,
+                                          album: "Top Hits",
+                                          coverImageURL: s.coverImageURL,
+                                          duration: 180,
+                                          url: `https://www.soundhelix.com/examples/mp3/SoundHelix-Song-${i + 1}.mp3`,
+                                          genre: "Pop",
+                                          year: 2024,
+                                          explicit: false,
+                                        }))
+                                      : [],
+                                  isPublic: true,
+                                  createdBy: "catch-charts",
+                                  createdAt: new Date(),
+                                  updatedAt: new Date(),
+                                };
 
-                              toast({
-                                title: "���� Now Playing",
-                                description: `${song.title} by ${song.artist}`,
-                              });
-                            }}
-                          />
-                        </div>
+                                enhancedMusic.playSong(
+                                  enhancedSong,
+                                  topHitsPlaylist,
+                                  song.rank - 1,
+                                );
+                                navigate("/player");
 
-                        {/* Song Info */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center space-x-2 mb-2">
-                            <motion.span
-                              animate={{ opacity: [0.5, 1, 0.5] }}
-                              transition={{ duration: 2, repeat: Infinity }}
-                              className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center space-x-1"
-                            >
-                              <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
-                              <span>LIVE</span>
-                            </motion.span>
-                            {song.isRising && (
+                                toast({
+                                  title: "���� Now Playing",
+                                  description: `${song.title} by ${song.artist}`,
+                                });
+                              }}
+                            />
+                          </div>
+
+                          {/* Song Info */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center space-x-2 mb-2">
                               <motion.span
-                                animate={{ y: [-2, 2, -2] }}
-                                transition={{ duration: 1.5, repeat: Infinity }}
-                                className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center space-x-1"
+                                animate={{ opacity: [0.5, 1, 0.5] }}
+                                transition={{ duration: 2, repeat: Infinity }}
+                                className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center space-x-1"
                               >
-                                <TrendingUp className="w-3 h-3" />
-                                <span>RISING</span>
+                                <div className="w-2 h-2 bg-white rounded-full animate-pulse" />
+                                <span>LIVE</span>
                               </motion.span>
-                            )}
-                          </div>
-                          <h3 className="text-2xl font-bold text-white mb-1 leading-tight">
-                            {song.title}
-                          </h3>
-                          <p className="text-purple-accent text-lg font-medium mb-3">
-                            {song.artist}
-                          </p>
-                          <div className="flex items-center space-x-4 text-sm text-gray-300">
-                            <div className="flex items-center space-x-1">
-                              <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                              <span className="font-semibold">
-                                {song.views} views today
-                              </span>
+                              {song.isRising && (
+                                <motion.span
+                                  animate={{ y: [-2, 2, -2] }}
+                                  transition={{
+                                    duration: 1.5,
+                                    repeat: Infinity,
+                                  }}
+                                  className="bg-green-500 text-white px-2 py-1 rounded-full text-xs font-bold flex items-center space-x-1"
+                                >
+                                  <TrendingUp className="w-3 h-3" />
+                                  <span>RISING</span>
+                                </motion.span>
+                              )}
                             </div>
-                            <span>{song.playCount} total plays</span>
+                            <h3 className="text-2xl font-bold text-white mb-1 leading-tight">
+                              {song.title}
+                            </h3>
+                            <p className="text-purple-accent text-lg font-medium mb-3">
+                              {song.artist}
+                            </p>
+                            <div className="flex items-center space-x-4 text-sm text-gray-300">
+                              <div className="flex items-center space-x-1">
+                                <div className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                                <span className="font-semibold">
+                                  {song.views} views today
+                                </span>
+                              </div>
+                              <span>{song.playCount} total plays</span>
+                            </div>
                           </div>
-                        </div>
 
-                        {/* Stats */}
-                        <div className="text-center">
-                          <motion.div
-                            animate={{ scale: [1, 1.1, 1] }}
-                            transition={{
-                              duration: 2,
-                              repeat: Infinity,
-                              delay: index * 0.2,
-                            }}
-                            className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-pink-500 mb-1"
-                          >
-                            #{song.rank}
-                          </motion.div>
-                          <div className="text-xs text-gray-400">TODAY</div>
+                          {/* Stats */}
+                          <div className="text-center">
+                            <motion.div
+                              animate={{ scale: [1, 1.1, 1] }}
+                              transition={{
+                                duration: 2,
+                                repeat: Infinity,
+                                delay: index * 0.2,
+                              }}
+                              className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-pink-500 mb-1"
+                            >
+                              #{song.rank}
+                            </motion.div>
+                            <div className="text-xs text-gray-400">TODAY</div>
+                          </div>
                         </div>
                       </div>
+                    </motion.div>
+                  ))}
+                {top10Today.length === 0 && (
+                  <div className="w-full flex-shrink-0 relative">
+                    <div className="relative bg-gradient-to-br from-gray-800 via-gray-700 to-gray-800 rounded-lg p-6 overflow-hidden">
+                      <div className="text-center text-gray-400">
+                        <Music className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                        <p className="text-lg">No trending songs available</p>
+                        <p className="text-sm mt-2">
+                          Check back later for the latest hits!
+                        </p>
+                      </div>
                     </div>
-                  </motion.div>
-                ))}
+                  </div>
+                )}
               </motion.div>
             </div>
           </motion.section>

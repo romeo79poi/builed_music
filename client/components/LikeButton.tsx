@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Heart } from "lucide-react";
-import { useMusicContext } from "../context/MusicContext";
+import { useEnhancedMusic } from "../context/EnhancedMusicContext";
 import { cn } from "../lib/utils";
 
 interface LikeButtonProps {
@@ -16,7 +16,10 @@ export const LikeButton: React.FC<LikeButtonProps> = ({
   size = "md",
   showLabel = false,
 }) => {
-  const { toggleLikeSong, isSongLiked } = useMusicContext();
+  const { toggleLikeSong } = useEnhancedMusic();
+
+  // Simple liked state - can be enhanced with actual user preferences
+  const isSongLiked = (songId: string) => false; // TODO: Implement actual like checking
   const [isLoading, setIsLoading] = useState(false);
 
   const isLiked = isSongLiked(songId);

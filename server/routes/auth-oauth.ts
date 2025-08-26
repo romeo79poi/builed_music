@@ -6,7 +6,8 @@ import User from "../models/User";
 import { isMongoConnected } from "../lib/mongodb";
 import { rateLimit } from "../middleware/auth";
 
-const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret_key_change_in_production";
+const JWT_SECRET =
+  process.env.JWT_SECRET || "your_jwt_secret_key_change_in_production";
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const FACEBOOK_APP_ID = process.env.FACEBOOK_APP_ID;
 const FACEBOOK_APP_SECRET = process.env.FACEBOOK_APP_SECRET;
@@ -16,22 +17,20 @@ const googleClient = new OAuth2Client(GOOGLE_CLIENT_ID);
 
 // Generate JWT token
 const generateToken = (userId: string) => {
-  return jwt.sign(
-    { userId },
-    JWT_SECRET,
-    {
-      expiresIn: "7d",
-      issuer: "music-catch-api",
-      audience: "music-catch-app",
-    }
-  );
+  return jwt.sign({ userId }, JWT_SECRET, {
+    expiresIn: "7d",
+    issuer: "music-catch-api",
+    audience: "music-catch-app",
+  });
 };
 
 // Verify Google ID token and get user data
 const verifyGoogleToken = async (idToken: string) => {
   try {
     if (!GOOGLE_CLIENT_ID) {
-      throw new Error("Google OAuth not configured on server. Please set GOOGLE_CLIENT_ID environment variable.");
+      throw new Error(
+        "Google OAuth not configured on server. Please set GOOGLE_CLIENT_ID environment variable.",
+      );
     }
 
     const ticket = await googleClient.verifyIdToken({
@@ -68,12 +67,14 @@ const verifyGoogleToken = async (idToken: string) => {
 const verifyFacebookToken = async (accessToken: string) => {
   try {
     if (!FACEBOOK_APP_ID || !FACEBOOK_APP_SECRET) {
-      throw new Error("Facebook OAuth not configured on server. Please set FACEBOOK_APP_ID and FACEBOOK_APP_SECRET environment variables.");
+      throw new Error(
+        "Facebook OAuth not configured on server. Please set FACEBOOK_APP_ID and FACEBOOK_APP_SECRET environment variables.",
+      );
     }
 
     // Verify token with Facebook's debug endpoint
     const debugResponse = await axios.get(
-      `https://graph.facebook.com/debug_token?input_token=${accessToken}&access_token=${FACEBOOK_APP_ID}|${FACEBOOK_APP_SECRET}`
+      `https://graph.facebook.com/debug_token?input_token=${accessToken}&access_token=${FACEBOOK_APP_ID}|${FACEBOOK_APP_SECRET}`,
     );
 
     if (!debugResponse.data.data.is_valid) {
@@ -82,7 +83,7 @@ const verifyFacebookToken = async (accessToken: string) => {
 
     // Get user data from Facebook Graph API
     const userResponse = await axios.get(
-      `https://graph.facebook.com/me?fields=id,name,email,picture.type(large),first_name,last_name&access_token=${accessToken}`
+      `https://graph.facebook.com/me?fields=id,name,email,picture.type(large),first_name,last_name&access_token=${accessToken}`,
     );
 
     if (!userResponse.data.email) {
@@ -106,7 +107,7 @@ const verifyFacebookToken = async (accessToken: string) => {
 // Google OAuth authentication
 export const googleAuth: RequestHandler = async (req, res) => {
   console.log("🔥 Real Google OAuth authentication started");
-  
+
   try {
     if (!isMongoConnected()) {
       return res.status(503).json({
@@ -134,11 +135,11 @@ export const googleAuth: RequestHandler = async (req, res) => {
     // Verify Google token and get real user data
     console.log("🔍 Verifying Google ID token...");
     const googleUser = await verifyGoogleToken(idToken);
-    
-    console.log("✅ Google user verified:", { 
-      email: googleUser.email, 
+
+    console.log("✅ Google user verified:", {
+      email: googleUser.email,
       name: googleUser.name,
-      verified: googleUser.email_verified 
+      verified: googleUser.email_verified,
     });
 
     if (!googleUser.email) {
@@ -150,21 +151,18 @@ export const googleAuth: RequestHandler = async (req, res) => {
 
     // Check if user exists
     let user = await User.findOne({
-      $or: [
-        { email: googleUser.email },
-        { google_id: googleUser.id }
-      ]
+      $or: [{ email: googleUser.email }, { google_id: googleUser.id }],
     });
 
     if (!user) {
       // Create new user
-      const username = `google_${googleUser.email.split('@')[0]}_${Date.now()}`;
-      
+      const username = `google_${googleUser.email.split("@")[0]}_${Date.now()}`;
+
       const userData = {
         email: googleUser.email,
         username,
-        name: googleUser.name || googleUser.email.split('@')[0],
-        display_name: googleUser.name || googleUser.email.split('@')[0],
+        name: googleUser.name || googleUser.email.split("@")[0],
+        display_name: googleUser.name || googleUser.email.split("@")[0],
         profile_image_url: googleUser.picture || "",
         provider: "google",
         google_id: googleUser.id,
@@ -231,7 +229,7 @@ export const googleAuth: RequestHandler = async (req, res) => {
 // Facebook OAuth authentication
 export const facebookAuth: RequestHandler = async (req, res) => {
   console.log("🔥 Real Facebook OAuth authentication started");
-  
+
   try {
     if (!isMongoConnected()) {
       return res.status(503).json({
@@ -259,10 +257,10 @@ export const facebookAuth: RequestHandler = async (req, res) => {
     // Verify Facebook token and get real user data
     console.log("🔍 Verifying Facebook access token...");
     const facebookUser = await verifyFacebookToken(accessToken);
-    
-    console.log("✅ Facebook user verified:", { 
-      email: facebookUser.email, 
-      name: facebookUser.name 
+
+    console.log("✅ Facebook user verified:", {
+      email: facebookUser.email,
+      name: facebookUser.name,
     });
 
     if (!facebookUser.email) {
@@ -274,21 +272,18 @@ export const facebookAuth: RequestHandler = async (req, res) => {
 
     // Check if user exists
     let user = await User.findOne({
-      $or: [
-        { email: facebookUser.email },
-        { facebook_id: facebookUser.id }
-      ]
+      $or: [{ email: facebookUser.email }, { facebook_id: facebookUser.id }],
     });
 
     if (!user) {
       // Create new user
-      const username = `facebook_${facebookUser.email.split('@')[0]}_${Date.now()}`;
-      
+      const username = `facebook_${facebookUser.email.split("@")[0]}_${Date.now()}`;
+
       const userData = {
         email: facebookUser.email,
         username,
-        name: facebookUser.name || facebookUser.email.split('@')[0],
-        display_name: facebookUser.name || facebookUser.email.split('@')[0],
+        name: facebookUser.name || facebookUser.email.split("@")[0],
+        display_name: facebookUser.name || facebookUser.email.split("@")[0],
         profile_image_url: facebookUser.picture || "",
         provider: "facebook",
         facebook_id: facebookUser.id,
@@ -353,5 +348,11 @@ export const facebookAuth: RequestHandler = async (req, res) => {
 };
 
 // Apply rate limiting and export
-export const googleAuthWithRateLimit = [rateLimit(10, 15 * 60 * 1000), googleAuth];
-export const facebookAuthWithRateLimit = [rateLimit(10, 15 * 60 * 1000), facebookAuth];
+export const googleAuthWithRateLimit = [
+  rateLimit(10, 15 * 60 * 1000),
+  googleAuth,
+];
+export const facebookAuthWithRateLimit = [
+  rateLimit(10, 15 * 60 * 1000),
+  facebookAuth,
+];

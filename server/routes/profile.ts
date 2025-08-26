@@ -139,9 +139,9 @@ function initializeMockData() {
       soundQuality: "high",
     },
     socialLinks: {
-      instagram: "@biospectra",
       twitter: "@biospectramusic",
-      spotify: "biospectra",
+      website: "biospectra.com",
+      musicPlatform: "biospectra",
     },
     subscription: {
       plan: "premium",

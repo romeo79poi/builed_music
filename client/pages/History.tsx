@@ -17,7 +17,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useProfileContext } from "../context/ProfileContext";
-import { useMusicContext } from "../context/MusicContext";
+import { useEnhancedMusic } from "../context/EnhancedMusicContext";
 import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
 import { api } from "../lib/api";
@@ -87,8 +87,19 @@ const getFirebaseMockArtists = (firebaseUser) => [
 
 export default function History() {
   const { profile } = useProfileContext();
-  const { currentSong, isPlaying, setCurrentSong, togglePlay } =
-    useMusicContext();
+  const { currentSong, isPlaying, playSong, pauseSong, resumeSong } = useEnhancedMusic();
+
+  const setCurrentSong = (song: any) => {
+    playSong(song);
+  };
+
+  const togglePlay = () => {
+    if (isPlaying) {
+      pauseSong();
+    } else {
+      resumeSong();
+    }
+  };
   const { toast } = useToast();
   const { user: firebaseUser, loading: firebaseLoading } = useFirebase();
   const navigate = useNavigate();

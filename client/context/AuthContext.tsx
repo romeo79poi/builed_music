@@ -95,70 +95,58 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Safe fetch utility to prevent JSON parsing errors
   const safeFetch = async (url: string, options?: RequestInit) => {
-    let response: Response;
-
     try {
       console.log(`🌐 Making request to: ${url}`, {
-        method: options?.method || 'GET',
+        method: options?.method || "GET",
         headers: options?.headers,
-        body: options?.body
+        body: options?.body,
       });
 
-      response = await fetch(url, options);
+      const response = await fetch(url, options);
 
       console.log(`📊 Response received:`, {
         status: response.status,
         statusText: response.statusText,
         headers: Object.fromEntries(response.headers.entries()),
-        url: response.url
+        url: response.url,
       });
 
-      // Clone the response to avoid "body stream already read" issues
-      const responseClone = response.clone();
+      // Read the response body as text first
+      const responseText = await response.text();
+      console.log(`📄 Response body:`, responseText);
 
       if (!response.ok) {
-        console.error(`❌ HTTP error for url: ${url}: ${response.status} ${response.statusText}`);
+        console.error(
+          `❌ HTTP error for url: ${url}: ${response.status} ${response.statusText}`,
+        );
 
-        // Use the cloned response to read the error body
+        // Try to parse error message from response text
         let errorMessage = `HTTP error! status: ${response.status}`;
-        try {
-          const errorText = await responseClone.text();
-          console.error(`❌ Response body:`, errorText);
-
-          if (errorText) {
-            try {
-              const errorData = JSON.parse(errorText);
-              errorMessage = errorData.message || errorMessage;
-            } catch (parseError) {
-              errorMessage = errorText || errorMessage;
-            }
+        if (responseText) {
+          try {
+            const errorData = JSON.parse(responseText);
+            errorMessage = errorData.message || errorMessage;
+          } catch (parseError) {
+            errorMessage = responseText || errorMessage;
           }
-        } catch (readError) {
-          console.warn(`⚠️ Could not read error response body:`, readError);
         }
 
         throw new Error(errorMessage);
       }
 
-      // Parse the successful response as JSON
-      const result = await response.json();
-      console.log(`✅ Success response from ${url}:`, result);
-      return result;
-
-    } catch (error: any) {
-      console.error(`🚨 Fetch error for ${url}:`, error);
-
-      // If it's a JSON parsing error and we have a response, try to handle it gracefully
-      if (error.name === 'SyntaxError' && response) {
-        try {
-          const textBody = await response.clone().text();
-          console.error(`❌ Invalid JSON response body:`, textBody);
-          throw new Error('Server returned invalid JSON response');
-        } catch (readError) {
-          console.error(`❌ Could not read response body for error analysis:`, readError);
-        }
+      // Parse the successful response text as JSON
+      let result;
+      try {
+        result = JSON.parse(responseText);
+      } catch (parseError) {
+        console.error(`❌ Failed to parse JSON response:`, parseError);
+        throw new Error("Server returned invalid JSON response");
       }
 
+      console.log(`✅ Success response from ${url}:`, result);
+      return result;
+    } catch (error: any) {
+      console.error(`🚨 Fetch error for ${url}:`, error);
       throw error;
     }
   };
@@ -170,7 +158,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const initializeAuth = async () => {
     try {
       // Check for stored token or session
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem("authToken");
       if (token) {
         await loadUserProfile(token);
       } else {
@@ -186,10 +174,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loadUserProfile = async (token: string) => {
     try {
-      const result = await safeFetch('/api/auth/me', {
+      const result = await safeFetch("/api/auth/me", {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       });
 
@@ -198,12 +186,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.log("✅ User profile loaded:", result.data);
       } else {
         console.error("Auth endpoint returned error:", result);
-        localStorage.removeItem('authToken');
+        localStorage.removeItem("authToken");
         setUser(null);
       }
     } catch (error) {
       console.error("Error loading user profile:", error);
-      localStorage.removeItem('authToken');
+      localStorage.removeItem("authToken");
       setUser(null);
     }
   };
@@ -211,68 +199,74 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const signUp = async (email: string, password: string, userData: any) => {
     try {
       const { name, username } = userData;
-      const result = await safeFetch('/api/auth/signup', {
-        method: 'POST',
+      const result = await safeFetch("/api/auth/signup", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           email,
           password,
-          name: name || userData.displayName || 'User',
-          username: username || userData.username || email.split('@')[0]
+          name: name || userData.displayName || "User",
+          username: username || userData.username || email.split("@")[0],
         }),
       });
 
       if (result.success) {
         if (result.token) {
-          localStorage.setItem('authToken', result.token);
+          localStorage.setItem("authToken", result.token);
           setUser(result.data);
         }
-        return { success: true, message: result.message || 'Account created successfully!' };
+        return {
+          success: true,
+          message: result.message || "Account created successfully!",
+        };
       } else {
-        return { success: false, message: result.message || 'Signup failed' };
+        return { success: false, message: result.message || "Signup failed" };
       }
     } catch (error: any) {
-      return { success: false, message: error.message || 'Signup failed' };
+      return { success: false, message: error.message || "Signup failed" };
     }
   };
 
   const signIn = async (email: string, password: string) => {
     try {
-      const result = await safeFetch('/api/auth/login', {
-        method: 'POST',
+      const result = await safeFetch("/api/auth/login", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password }),
       });
 
       if (result.success) {
         if (result.token) {
-          localStorage.setItem('authToken', result.token);
+          localStorage.setItem("authToken", result.token);
           setUser(result.data);
         }
-        return { success: true, message: result.message || 'Login successful!' };
+        return {
+          success: true,
+          message: result.message || "Login successful!",
+        };
       } else {
-        return { success: false, message: result.message || 'Login failed' };
+        return { success: false, message: result.message || "Login failed" };
       }
     } catch (error: any) {
-      return { success: false, message: error.message || 'Login failed' };
+      return { success: false, message: error.message || "Login failed" };
     }
   };
 
   const signOut = async () => {
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem("authToken");
       if (token) {
         // Call logout endpoint (don't throw errors on logout)
         try {
-          await safeFetch('/api/auth/logout', {
-            method: 'POST',
+          await safeFetch("/api/auth/logout", {
+            method: "POST",
             headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "application/json",
             },
           });
         } catch (error) {
@@ -280,13 +274,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      localStorage.removeItem('authToken');
+      localStorage.removeItem("authToken");
       setUser(null);
       console.log("✅ Successfully signed out");
     } catch (error) {
       console.error("Sign out error:", error);
       // Still remove token even if endpoint fails
-      localStorage.removeItem('authToken');
+      localStorage.removeItem("authToken");
       setUser(null);
     }
   };
@@ -297,16 +291,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem("authToken");
       if (!token) {
         return { success: false, message: "No authentication token" };
       }
 
-      const result = await safeFetch('/api/auth/profile', {
+      const result = await safeFetch("/api/auth/profile", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(updates),
       });
@@ -314,7 +308,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (result.success) {
         // Update user state with the returned data
         setUser(result.data);
-        return { success: true, message: result.message || "Profile updated successfully!" };
+        return {
+          success: true,
+          message: result.message || "Profile updated successfully!",
+        };
       }
 
       return { success: false, message: result.message || "Update failed" };
@@ -330,25 +327,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem("authToken");
       if (!token) {
         return { success: false, message: "No authentication token" };
       }
 
-      const result = await safeFetch('/api/auth/settings', {
+      const result = await safeFetch("/api/auth/settings", {
         headers: {
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
       return {
         success: result.success,
         data: result.data,
-        message: result.message || "Settings retrieved successfully"
+        message: result.message || "Settings retrieved successfully",
       };
     } catch (error: any) {
       console.error("Get settings error:", error);
-      return { success: false, message: error.message || "Failed to get settings" };
+      return {
+        success: false,
+        message: error.message || "Failed to get settings",
+      };
     }
   };
 
@@ -358,27 +358,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem("authToken");
       if (!token) {
         return { success: false, message: "No authentication token" };
       }
 
-      const result = await safeFetch('/api/auth/settings', {
+      const result = await safeFetch("/api/auth/settings", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(settings),
       });
 
       return {
         success: result.success,
-        message: result.message || "Settings updated successfully"
+        message: result.message || "Settings updated successfully",
       };
     } catch (error: any) {
       console.error("Update settings error:", error);
-      return { success: false, message: error.message || "Failed to update settings" };
+      return {
+        success: false,
+        message: error.message || "Failed to update settings",
+      };
     }
   };
 
@@ -398,116 +401,139 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const checkAvailability = async (email?: string, username?: string) => {
     try {
       const params = new URLSearchParams();
-      if (email) params.append('email', email);
-      if (username) params.append('username', username);
+      if (email) params.append("email", email);
+      if (username) params.append("username", username);
 
-      const result = await safeFetch(`/api/auth/check-availability?${params.toString()}`);
+      const result = await safeFetch(
+        `/api/auth/check-availability?${params.toString()}`,
+      );
 
       return {
         available: result.available || false,
-        message: result.message || 'Unknown error'
+        message: result.message || "Unknown error",
       };
     } catch (error: any) {
       return {
         available: false,
-        message: error.message || 'Failed to check availability'
+        message: error.message || "Failed to check availability",
       };
     }
   };
 
   // OTP Authentication methods
-  const requestSignupOTP = async (email: string, password: string, name: string, username: string) => {
+  const requestSignupOTP = async (
+    email: string,
+    password: string,
+    name: string,
+    username: string,
+  ) => {
     try {
-      const result = await safeFetch('/api/auth/signup/request-otp', {
-        method: 'POST',
+      const result = await safeFetch("/api/auth/signup/request-otp", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, password, name, username }),
       });
       return {
         success: result.success,
-        message: result.message || (result.success ? 'OTP sent successfully' : 'Failed to send OTP')
+        message:
+          result.message ||
+          (result.success ? "OTP sent successfully" : "Failed to send OTP"),
       };
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || 'Failed to send OTP'
+        message: error.message || "Failed to send OTP",
       };
     }
   };
 
   const verifySignupOTP = async (email: string, otp: string) => {
     try {
-      const result = await safeFetch('/api/auth/signup/verify-otp', {
-        method: 'POST',
+      const result = await safeFetch("/api/auth/signup/verify-otp", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, otp }),
       });
 
       if (result.success) {
         if (result.token) {
-          localStorage.setItem('authToken', result.token);
+          localStorage.setItem("authToken", result.token);
           setUser(result.data);
         }
-        return { success: true, message: result.message || 'Account created successfully!' };
+        return {
+          success: true,
+          message: result.message || "Account created successfully!",
+        };
       } else {
-        return { success: false, message: result.message || 'OTP verification failed' };
+        return {
+          success: false,
+          message: result.message || "OTP verification failed",
+        };
       }
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || 'OTP verification failed'
+        message: error.message || "OTP verification failed",
       };
     }
   };
 
   const requestLoginOTP = async (email: string) => {
     try {
-      const result = await safeFetch('/api/auth/login/request-otp', {
-        method: 'POST',
+      const result = await safeFetch("/api/auth/login/request-otp", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ email }),
       });
       return {
         success: result.success,
-        message: result.message || (result.success ? 'OTP sent successfully' : 'Failed to send OTP')
+        message:
+          result.message ||
+          (result.success ? "OTP sent successfully" : "Failed to send OTP"),
       };
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || 'Failed to send OTP'
+        message: error.message || "Failed to send OTP",
       };
     }
   };
 
   const verifyLoginOTP = async (email: string, otp: string) => {
     try {
-      const result = await safeFetch('/api/auth/login/verify-otp', {
-        method: 'POST',
+      const result = await safeFetch("/api/auth/login/verify-otp", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ email, otp }),
       });
 
       if (result.success) {
         if (result.token) {
-          localStorage.setItem('authToken', result.token);
+          localStorage.setItem("authToken", result.token);
           setUser(result.data);
         }
-        return { success: true, message: result.message || 'Login successful!' };
+        return {
+          success: true,
+          message: result.message || "Login successful!",
+        };
       } else {
-        return { success: false, message: result.message || 'OTP verification failed' };
+        return {
+          success: false,
+          message: result.message || "OTP verification failed",
+        };
       }
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || 'OTP verification failed'
+        message: error.message || "OTP verification failed",
       };
     }
   };
@@ -515,54 +541,66 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   // OAuth methods
   const signInWithGoogle = async (token: string) => {
     try {
-      const result = await safeFetch('/api/auth/google', {
-        method: 'POST',
+      const result = await safeFetch("/api/auth/google", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ token }),
       });
 
       if (result.success) {
         if (result.token) {
-          localStorage.setItem('authToken', result.token);
+          localStorage.setItem("authToken", result.token);
           setUser(result.data);
         }
-        return { success: true, message: result.message || 'Google authentication successful!' };
+        return {
+          success: true,
+          message: result.message || "Google authentication successful!",
+        };
       } else {
-        return { success: false, message: result.message || 'Google authentication failed' };
+        return {
+          success: false,
+          message: result.message || "Google authentication failed",
+        };
       }
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || 'Google authentication failed'
+        message: error.message || "Google authentication failed",
       };
     }
   };
 
   const signInWithFacebook = async (token: string) => {
     try {
-      const result = await safeFetch('/api/auth/facebook', {
-        method: 'POST',
+      const result = await safeFetch("/api/auth/facebook", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ token }),
       });
 
       if (result.success) {
         if (result.token) {
-          localStorage.setItem('authToken', result.token);
+          localStorage.setItem("authToken", result.token);
           setUser(result.data);
         }
-        return { success: true, message: result.message || 'Facebook authentication successful!' };
+        return {
+          success: true,
+          message: result.message || "Facebook authentication successful!",
+        };
       } else {
-        return { success: false, message: result.message || 'Facebook authentication failed' };
+        return {
+          success: false,
+          message: result.message || "Facebook authentication failed",
+        };
       }
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || 'Facebook authentication failed'
+        message: error.message || "Facebook authentication failed",
       };
     }
   };

@@ -36,12 +36,33 @@ class OAuthService {
     if (this.googleLoaded) return true;
 
     if (!GOOGLE_CLIENT_ID) {
-      console.warn("⚠️ Google Client ID not configured");
+      console.error("❌ Google Client ID not configured");
+      console.error("🔧 Please set VITE_GOOGLE_CLIENT_ID environment variable");
+      console.error("📝 See setup instructions in the console below:");
+      console.error(`
+🚀 GOOGLE OAUTH SETUP REQUIRED:
+
+1. Go to Google Cloud Console: https://console.cloud.google.com/
+2. Create a new project or select existing project
+3. Enable Google+ API and Google Sign-In API
+4. Go to 'Credentials' → 'Create Credentials' → 'OAuth 2.0 Client ID'
+5. Add these authorized origins:
+   - http://localhost:8080
+   - http://localhost:3000
+   - Your production domain (when deployed)
+6. Copy the Client ID and set it as environment variable:
+
+   For development, create a .env file in your project root:
+   VITE_GOOGLE_CLIENT_ID=your_google_client_id_here.apps.googleusercontent.com
+
+   Then restart your dev server: npm run dev
+      `);
       return false;
     }
 
     try {
       console.log("🔄 Loading Google Identity Services...");
+      console.log("🔑 Using Google Client ID:", GOOGLE_CLIENT_ID?.substring(0, 20) + "...");
 
       // Load Google Sign-In script with retry mechanism
       await this.loadScript("https://accounts.google.com/gsi/client");
@@ -74,6 +95,7 @@ class OAuthService {
             console.log("Google Sign-In callback:", response);
           },
           auto_select: false,
+          use_fedcm_for_prompt: false, // Disable FedCM to avoid permission issues
         });
 
         this.googleLoaded = true;
@@ -341,6 +363,7 @@ class OAuthService {
         // Set up callback for Google Sign-In
         window.google.accounts.id.initialize({
           client_id: GOOGLE_CLIENT_ID!,
+          use_fedcm_for_prompt: false, // Disable FedCM to avoid permission issues
           callback: (response: any) => {
             if (response.credential) {
               resolve({ success: true, idToken: response.credential });

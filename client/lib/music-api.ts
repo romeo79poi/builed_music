@@ -11,9 +11,9 @@ export interface ExternalSong {
   cover_image_url?: string
   preview_url?: string
   external_urls?: {
-    spotify?: string
+    streaming?: string
     youtube?: string
-    apple_music?: string
+    music?: string
   }
 }
 
@@ -58,7 +58,7 @@ class LastFmAPI {
         artist: track.artist,
         cover_image_url: track.image?.[2]?.['#text'] || 'https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=300&h=300&fit=crop',
         external_urls: {
-          spotify: track.url
+          streaming: track.url
         }
       }))
     } catch (error) {

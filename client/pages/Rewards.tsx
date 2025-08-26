@@ -211,8 +211,8 @@ const sampleAchievements: Achievement[] = [
 
 const sampleRewards: RewardItem[] = [
   {
-    id: "spotify_gift_card",
-    title: "Spotify Gift Card $25",
+    id: "music_gift_card",
+    title: "Music Gift Card $25",
     description: "Enjoy premium music streaming",
     cost: 1000,
     type: "gift_card",

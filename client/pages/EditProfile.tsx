@@ -11,7 +11,6 @@ import {
   Music,
   Globe,
   Lock,
-  Instagram,
   Twitter,
   Loader2,
   Plus,
@@ -535,21 +534,21 @@ export default function EditProfile() {
               >
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center">
-                    <Instagram className="w-4 h-4 mr-2 text-pink-500" />
-                    Instagram
+                    <Globe className="w-4 h-4 mr-2 text-blue-500" />
+                    Website
                   </label>
                   <Input
-                    value={currentProfile.socialLinks.instagram || ""}
+                    value={currentProfile.socialLinks.website || ""}
                     onChange={(e) =>
                       updateEditedProfile({
                         socialLinks: {
                           ...currentProfile.socialLinks,
-                          instagram: e.target.value,
+                          website: e.target.value,
                         },
                       })
                     }
                     className="bg-white/5 border-white/10 text-white"
-                    placeholder="@username"
+                    placeholder="https://yourwebsite.com"
                   />
                 </div>
 
@@ -575,16 +574,16 @@ export default function EditProfile() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2 flex items-center">
-                    <Music className="w-4 h-4 mr-2 text-green-500" />
-                    Spotify
+                    <Music className="w-4 h-4 mr-2 text-purple-500" />
+                    Music Platform
                   </label>
                   <Input
-                    value={currentProfile.socialLinks.spotify || ""}
+                    value={currentProfile.socialLinks.musicPlatform || ""}
                     onChange={(e) =>
                       updateEditedProfile({
                         socialLinks: {
                           ...currentProfile.socialLinks,
-                          spotify: e.target.value,
+                          musicPlatform: e.target.value,
                         },
                       })
                     }

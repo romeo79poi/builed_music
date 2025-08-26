@@ -1,6 +1,6 @@
 # CATCH Music Streaming Backend
 
-A production-ready, scalable music streaming backend built with Spotify's technology stack including C++, Java, Python, Go, PostgreSQL, Cassandra, Kafka, and more.
+A production-ready, scalable music streaming backend built with industry-standard technologies including C++, Java, Python, Go, PostgreSQL, Cassandra, Kafka, and more.
 
 ## 🏗️ Architecture Overview
 
@@ -258,7 +258,7 @@ docker-compose up -d --scale user-service=2
 - Input validation and SQL injection prevention
 - Rate limiting and request quotas
 
-## 🐛 Troubleshooting
+## ��� Troubleshooting
 
 ### Common Issues
 

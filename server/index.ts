@@ -249,15 +249,17 @@ import {
   verifySignupOTPWithRateLimit,
   requestLoginOTPWithRateLimit,
   verifyLoginOTPWithRateLimit,
-} from "./routes/auth-enhanced";
-
-// Real OAuth authentication
-import {
-  googleAuth,
-  facebookAuth,
   googleAuthWithRateLimit,
   facebookAuthWithRateLimit,
-} from "./routes/auth-oauth";
+} from "./routes/auth-enhanced";
+
+// Real OAuth authentication (using auth-enhanced version)
+// import {
+//   googleAuth,
+//   facebookAuth,
+//   googleAuthWithRateLimit,
+//   facebookAuthWithRateLimit,
+// } from "./routes/auth-oauth";
 
 export function createServer() {
   const app = express();
@@ -351,7 +353,6 @@ export function createServer() {
   // app.use("/api/v4/auth", authV4Router);
 
   // Social Authentication routes
-  app.post("/api/auth/google", googleAuth);
   app.post("/api/auth/facebook", facebookAuth);
   app.post("/api/auth/google/signin", googleSignin);
   app.post("/api/auth/facebook/signin", facebookSignin);
@@ -467,7 +468,7 @@ export function createServer() {
   app.post("/api/messages/chats", createChat);
   app.delete("/api/messages/message/:messageId", deleteMessage);
 
-  // Voice Rooms API routes (Amino-style voice streaming)
+  // Voice Rooms API routes (real-time voice streaming)
   app.get("/api/voice-rooms", getVoiceRooms);
   app.post("/api/voice-rooms", authenticateJWT, createVoiceRoom);
   app.get("/api/voice-rooms/:roomId", getVoiceRoom);
@@ -550,6 +551,16 @@ export function createServer() {
   app.get("/api/v1/users/:id/followers", getUserFollowers);
   app.get("/api/v1/users/:id/following", getUserFollowing);
   app.get("/api/v1/users/:id/stats", getUserStatistics);
+  // Add user tracks endpoint - redirect to liked tracks for now
+  app.get("/api/v1/users/:id/tracks", (req, res) => {
+    // For now, redirect to liked tracks or return empty array
+    res.json({
+      success: true,
+      tracks: [],
+      message:
+        "User tracks endpoint - currently returns empty. Use /api/v1/users/liked-tracks for liked tracks.",
+    });
+  });
 
   // Code Generator API routes
   app.post("/api/code-generator/generate", generateCode);

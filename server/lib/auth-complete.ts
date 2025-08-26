@@ -1,4 +1,4 @@
-import bcrypt from "bcryptjs";
+import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { OAuth2Client } from "google-auth-library";
 import nodemailer from "nodemailer";
@@ -365,7 +365,7 @@ export async function sendWelcomeEmail(
         <h3>Hi ${name}!</h3>
         <p>Thanks for joining Catch, your new social music platform where you can:</p>
         <ul>
-          <li>🎧 Discover and stream amazing music</li>
+          <li>��� Discover and stream amazing music</li>
           <li>💬 Chat with friends about your favorite tracks</li>
           <li>🎤 Join voice rooms and connect with other music lovers</li>
           <li>📱 Create and share playlists</li>

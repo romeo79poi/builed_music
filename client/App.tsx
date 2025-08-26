@@ -13,7 +13,7 @@ import { ThemeProvider } from "./context/ThemeContext";
 import { AuthProvider } from "./context/AuthContext";
 // import { SocketProvider } from "./context/SocketContext";
 import AuthRouter from "./components/AuthRouter";
-import SpotifyMiniPlayer from "./components/SpotifyMiniPlayer";
+import MiniPlayer from "./components/MiniPlayer";
 import Splash from "./pages/Splash";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
@@ -105,8 +105,8 @@ const App = () => {
                           <Route path="*" element={<NotFound />} />
                         </Routes>
 
-                        {/* Global Spotify Mini Player */}
-                        <SpotifyMiniPlayer />
+                        {/* Global Mini Player */}
+                        <MiniPlayer />
                       </BrowserRouter>
                     </ProfileProvider>
                   </EnhancedMusicProvider>

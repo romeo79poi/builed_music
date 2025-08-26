@@ -47,10 +47,10 @@ export interface MusicPreferences {
 }
 
 export interface SocialLinks {
-  instagram?: string;
   twitter?: string;
-  spotify?: string;
-  appleMusic?: string;
+  website?: string;
+  musicPlatform?: string;
+  socialPlatform?: string;
 }
 
 interface ProfileContextType {
@@ -113,9 +113,9 @@ export const ProfileProvider: React.FC<ProfileProviderProps> = ({
       soundQuality: "high" as "high",
     },
     socialLinks: {
-      instagram: "@biospectra",
       twitter: "@biospectramusic",
-      spotify: "biospectra",
+      website: "biospectra.com",
+      musicPlatform: "biospectra",
     },
   });
 
