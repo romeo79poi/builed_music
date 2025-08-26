@@ -18,7 +18,6 @@
     "build:cpp": "cd backend/cpp-streaming-service && bash build_wasm.sh",
     "build:cpp-native": "cd backend/cpp-streaming-service && mkdir -p build && cd build && cmake .. && make",
     "start": "node dist/server/node-build.mjs",
-    "start:cpp": "cd backend/cpp-streaming-service/build && ./streaming_server",
     "test": "vitest --run",
     "format.fix": "prettier --write .",
     "typecheck": "tsc"
