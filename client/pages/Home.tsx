@@ -124,9 +124,12 @@ export default function Home() {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [isAutoSliding, setIsAutoSliding] = useState(true);
 
+  // Create top10Today from trendingSongs
+  const top10Today = trendingSongs ? trendingSongs.slice(0, 10) : [];
+
   // Auto-slide effect for Top 10 Today
   useEffect(() => {
-    if (!isAutoSliding) return;
+    if (!isAutoSliding || top10Today.length === 0) return;
 
     const interval = setInterval(() => {
       setCurrentSlideIndex((prevIndex) =>
@@ -135,7 +138,7 @@ export default function Home() {
     }, 4000); // Change slide every 4 seconds
 
     return () => clearInterval(interval);
-  }, [isAutoSliding]);
+  }, [isAutoSliding, top10Today.length]);
 
   // Update time for greeting
   useEffect(() => {
