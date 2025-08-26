@@ -74,6 +74,7 @@ class OAuthService {
             console.log("Google Sign-In callback:", response);
           },
           auto_select: false,
+          use_fedcm_for_prompt: false, // Disable FedCM to avoid permission issues
         });
 
         this.googleLoaded = true;
@@ -341,6 +342,7 @@ class OAuthService {
         // Set up callback for Google Sign-In
         window.google.accounts.id.initialize({
           client_id: GOOGLE_CLIENT_ID!,
+          use_fedcm_for_prompt: false, // Disable FedCM to avoid permission issues
           callback: (response: any) => {
             if (response.credential) {
               resolve({ success: true, idToken: response.credential });
