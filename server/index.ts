@@ -557,7 +557,8 @@ export function createServer() {
     res.json({
       success: true,
       tracks: [],
-      message: "User tracks endpoint - currently returns empty. Use /api/v1/users/liked-tracks for liked tracks."
+      message:
+        "User tracks endpoint - currently returns empty. Use /api/v1/users/liked-tracks for liked tracks.",
     });
   });
 

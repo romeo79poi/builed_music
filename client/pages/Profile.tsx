@@ -122,7 +122,9 @@ export default function Profile() {
   const [uploading, setUploading] = useState(false);
   const [tracks, setTracks] = useState<Track[]>([]);
   const [playlists, setPlaylists] = useState<Playlist[]>([]);
-  const [recentlyPlayed, setRecentlyPlayed] = useState<RecentlyPlayedTrack[]>([]);
+  const [recentlyPlayed, setRecentlyPlayed] = useState<RecentlyPlayedTrack[]>(
+    [],
+  );
   const [selectedTab, setSelectedTab] = useState("tracks");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [isFollowing, setIsFollowing] = useState(false);
@@ -135,13 +137,13 @@ export default function Profile() {
   // Real data fetching functions
   const fetchUserTracks = async (userId: string) => {
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem("authToken");
       if (!token) return;
 
       const response = await fetch(`/api/v1/users/${userId}/tracks`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       });
 
@@ -150,10 +152,14 @@ export default function Profile() {
         setTracks(data.tracks || []);
       } else {
         // Handle non-OK responses gracefully
-        console.warn(`Failed to fetch user tracks: ${response.status} ${response.statusText}`);
+        console.warn(
+          `Failed to fetch user tracks: ${response.status} ${response.statusText}`,
+        );
         const text = await response.text();
-        if (text.startsWith('<!DOCTYPE') || text.startsWith('<html')) {
-          console.error("Server returned HTML instead of JSON - API endpoint might not exist");
+        if (text.startsWith("<!DOCTYPE") || text.startsWith("<html")) {
+          console.error(
+            "Server returned HTML instead of JSON - API endpoint might not exist",
+          );
         } else {
           console.error("Response body:", text);
         }
@@ -167,13 +173,13 @@ export default function Profile() {
 
   const fetchUserPlaylists = async (userId: string) => {
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem("authToken");
       if (!token) return;
 
       const response = await fetch(`/api/v1/users/${userId}/playlists`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       });
 
@@ -182,10 +188,14 @@ export default function Profile() {
         setPlaylists(data.playlists || []);
       } else {
         // Handle non-OK responses gracefully
-        console.warn(`Failed to fetch user playlists: ${response.status} ${response.statusText}`);
+        console.warn(
+          `Failed to fetch user playlists: ${response.status} ${response.statusText}`,
+        );
         const text = await response.text();
-        if (text.startsWith('<!DOCTYPE') || text.startsWith('<html')) {
-          console.error("Server returned HTML instead of JSON - API endpoint might not exist");
+        if (text.startsWith("<!DOCTYPE") || text.startsWith("<html")) {
+          console.error(
+            "Server returned HTML instead of JSON - API endpoint might not exist",
+          );
         } else {
           console.error("Response body:", text);
         }
@@ -199,13 +209,13 @@ export default function Profile() {
 
   const fetchRecentlyPlayed = async (userId: string) => {
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem("authToken");
       if (!token) return;
 
       const response = await fetch(`/api/profile/${userId}/recently-played`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       });
 
@@ -225,14 +235,14 @@ export default function Profile() {
 
   const followUser = async (userId: string, userProfile: any) => {
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem("authToken");
       if (!token) return false;
 
       const response = await fetch(`/api/v1/users/${userId}/follow`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       });
 
@@ -249,14 +259,14 @@ export default function Profile() {
 
   const unfollowUser = async (userId: string) => {
     try {
-      const token = localStorage.getItem('authToken');
+      const token = localStorage.getItem("authToken");
       if (!token) return false;
 
       const response = await fetch(`/api/v1/users/${userId}/follow`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       });
 
@@ -368,7 +378,7 @@ export default function Profile() {
         await Promise.all([
           fetchUserTracks(enhancedProfile.id),
           fetchUserPlaylists(enhancedProfile.id),
-          fetchRecentlyPlayed(enhancedProfile.id)
+          fetchRecentlyPlayed(enhancedProfile.id),
         ]);
 
         // Update edit form with enhanced data
@@ -399,7 +409,7 @@ export default function Profile() {
           isVerified: authUser.verified || false,
           isArtist: false,
           isPremium: authUser.premium || false,
-          accountType: authUser.premium ? "Premium" : "Free" as const,
+          accountType: authUser.premium ? "Premium" : ("Free" as const),
           memberSince: authUser.created_at || "",
           followersCount: authUser.followers_count || 0,
           followingCount: authUser.following_count || 0,
@@ -430,7 +440,7 @@ export default function Profile() {
         await Promise.all([
           fetchUserTracks(backendProfile.id),
           fetchUserPlaylists(backendProfile.id),
-          fetchRecentlyPlayed(backendProfile.id)
+          fetchRecentlyPlayed(backendProfile.id),
         ]);
 
         // Update edit form with backend data
@@ -803,9 +813,7 @@ export default function Profile() {
                 <div className="text-xs text-muted-foreground mt-2 space-y-1">
                   <p>🔥 Signed in as {authUser.email}</p>
                   <p>User ID: {authUser.id}</p>
-                  <p>
-                    Email verified: {authUser.verified ? "Yes" : "No"}
-                  </p>
+                  <p>Email verified: {authUser.verified ? "Yes" : "No"}</p>
                   <p className="text-green-400">
                     ✓ Backend JWT authentication active
                   </p>
