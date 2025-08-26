@@ -151,7 +151,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // If it's a JSON parsing error and we have a response, try to handle it gracefully
       if (error.name === 'SyntaxError' && response) {
         try {
-          const textBody = await response.clone().text();
+          // Create a fresh clone for error analysis
+          const freshClone = response.clone();
+          const textBody = await freshClone.text();
           console.error(`❌ Invalid JSON response body:`, textBody);
           throw new Error('Server returned invalid JSON response');
         } catch (readError) {
