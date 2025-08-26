@@ -67,7 +67,8 @@ export const uploadMusic = [
         });
       }
 
-      const { title, artist_name, album_title, genre, duration, is_explicit } = req.body;
+      const { title, artist_name, album_title, genre, duration, is_explicit } =
+        req.body;
 
       if (!title || !artist_name || !genre || !duration) {
         fs.unlinkSync(req.file.path);
@@ -109,7 +110,7 @@ export const uploadMusic = [
         const uploadResult = await uploadToSupabase(
           req.file,
           storageConfig.buckets.music,
-          fileName
+          fileName,
         );
 
         if (uploadResult.success && uploadResult.url) {
@@ -156,7 +157,7 @@ export const uploadMusic = [
       });
     } catch (error: any) {
       console.error("❌ Error uploading music:", error);
-      
+
       // Clean up file if it exists
       if (req.file && fs.existsSync(req.file.path)) {
         fs.unlinkSync(req.file.path);
@@ -209,7 +210,7 @@ export const uploadCover = [
         const uploadResult = await uploadToSupabase(
           req.file,
           storageConfig.buckets.covers,
-          fileName
+          fileName,
         );
 
         if (uploadResult.success && uploadResult.url) {
@@ -227,7 +228,7 @@ export const uploadCover = [
       });
     } catch (error: any) {
       console.error("❌ Error uploading cover:", error);
-      
+
       if (req.file && fs.existsSync(req.file.path)) {
         fs.unlinkSync(req.file.path);
       }
@@ -287,7 +288,7 @@ export const uploadAvatar = [
         const uploadResult = await uploadToSupabase(
           req.file,
           storageConfig.buckets.avatars,
-          fileName
+          fileName,
         );
 
         if (uploadResult.success && uploadResult.url) {
@@ -310,7 +311,7 @@ export const uploadAvatar = [
       });
     } catch (error: any) {
       console.error("❌ Error uploading avatar:", error);
-      
+
       if (req.file && fs.existsSync(req.file.path)) {
         fs.unlinkSync(req.file.path);
       }
@@ -408,7 +409,7 @@ export async function getUploadConfig(req: Request, res: Response) {
 export async function getUploadProgress(req: Request, res: Response) {
   try {
     const { uploadId } = req.params;
-    
+
     // This would typically query a Redis cache or database for upload progress
     // For now, return a mock response
     res.json({

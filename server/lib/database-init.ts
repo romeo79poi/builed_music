@@ -163,8 +163,9 @@ export async function initializeDatabase() {
     });
 
     console.log("✅ Database initialized successfully with sample data");
-    console.log(`📊 Created: ${songs.length} songs, 2 artists, 2 albums, 1 playlist`);
-
+    console.log(
+      `📊 Created: ${songs.length} songs, 2 artists, 2 albums, 1 playlist`,
+    );
   } catch (error: any) {
     console.error("❌ Error initializing database:", error.message);
   }

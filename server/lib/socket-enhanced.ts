@@ -48,7 +48,7 @@ export class EnhancedSocketManager {
           token,
           process.env.JWT_SECRET || "fallback-secret",
         ) as any;
-        
+
         socket.userId = decoded.userId;
         socket.username = decoded.username || decoded.email;
         next();
@@ -137,14 +137,17 @@ export class EnhancedSocketManager {
     );
 
     // Listen party feature
-    socket.on("music:join-party", (data: { partyId: string; songId?: string }) => {
-      socket.join(`party:${data.partyId}`);
-      socket.to(`party:${data.partyId}`).emit("party:user-joined", {
-        userId: socket.userId,
-        username: socket.username,
-        partyId: data.partyId,
-      });
-    });
+    socket.on(
+      "music:join-party",
+      (data: { partyId: string; songId?: string }) => {
+        socket.join(`party:${data.partyId}`);
+        socket.to(`party:${data.partyId}`).emit("party:user-joined", {
+          userId: socket.userId,
+          username: socket.username,
+          partyId: data.partyId,
+        });
+      },
+    );
 
     socket.on("music:leave-party", (data: { partyId: string }) => {
       socket.leave(`party:${data.partyId}`);
@@ -168,13 +171,16 @@ export class EnhancedSocketManager {
       socket.join(`playlist:${data.playlistId}`);
     });
 
-    socket.on("playlist:update", (data: { playlistId: string; action: string; songId?: string }) => {
-      socket.to(`playlist:${data.playlistId}`).emit("playlist:changed", {
-        ...data,
-        userId: socket.userId,
-        timestamp: new Date(),
-      });
-    });
+    socket.on(
+      "playlist:update",
+      (data: { playlistId: string; action: string; songId?: string }) => {
+        socket.to(`playlist:${data.playlistId}`).emit("playlist:changed", {
+          ...data,
+          userId: socket.userId,
+          timestamp: new Date(),
+        });
+      },
+    );
   }
 
   private setupMessagingEvents(socket: any) {
@@ -286,7 +292,7 @@ export class EnhancedSocketManager {
         }
 
         socket.join(`voice:${data.roomId}`);
-        
+
         // Add to voice room tracking
         if (!this.voiceRooms.has(data.roomId)) {
           this.voiceRooms.set(data.roomId, new Set());
@@ -339,14 +345,17 @@ export class EnhancedSocketManager {
     });
 
     // Audio data for real-time streaming
-    socket.on("voice:audio-data", (data: { roomId: string; audioData: ArrayBuffer }) => {
-      // Forward audio data to other participants
-      socket.to(`voice:${data.roomId}`).emit("voice:audio-stream", {
-        userId: socket.userId,
-        audioData: data.audioData,
-        timestamp: new Date(),
-      });
-    });
+    socket.on(
+      "voice:audio-data",
+      (data: { roomId: string; audioData: ArrayBuffer }) => {
+        // Forward audio data to other participants
+        socket.to(`voice:${data.roomId}`).emit("voice:audio-stream", {
+          userId: socket.userId,
+          audioData: data.audioData,
+          timestamp: new Date(),
+        });
+      },
+    );
 
     // Mute/unmute events
     socket.on("voice:mute", (data: { roomId: string; isMuted: boolean }) => {
@@ -373,31 +382,40 @@ export class EnhancedSocketManager {
     // Handle WebRTC signaling for peer-to-peer voice
     this.io.on("connection", (socket) => {
       // WebRTC offer
-      socket.on("webrtc:offer", (data: { roomId: string; targetUserId: string; offer: any }) => {
-        this.sendToUser(data.targetUserId, "webrtc:offer", {
-          fromUserId: socket.userId,
-          roomId: data.roomId,
-          offer: data.offer,
-        });
-      });
+      socket.on(
+        "webrtc:offer",
+        (data: { roomId: string; targetUserId: string; offer: any }) => {
+          this.sendToUser(data.targetUserId, "webrtc:offer", {
+            fromUserId: socket.userId,
+            roomId: data.roomId,
+            offer: data.offer,
+          });
+        },
+      );
 
       // WebRTC answer
-      socket.on("webrtc:answer", (data: { roomId: string; targetUserId: string; answer: any }) => {
-        this.sendToUser(data.targetUserId, "webrtc:answer", {
-          fromUserId: socket.userId,
-          roomId: data.roomId,
-          answer: data.answer,
-        });
-      });
+      socket.on(
+        "webrtc:answer",
+        (data: { roomId: string; targetUserId: string; answer: any }) => {
+          this.sendToUser(data.targetUserId, "webrtc:answer", {
+            fromUserId: socket.userId,
+            roomId: data.roomId,
+            answer: data.answer,
+          });
+        },
+      );
 
       // ICE candidates
-      socket.on("webrtc:ice-candidate", (data: { roomId: string; targetUserId: string; candidate: any }) => {
-        this.sendToUser(data.targetUserId, "webrtc:ice-candidate", {
-          fromUserId: socket.userId,
-          roomId: data.roomId,
-          candidate: data.candidate,
-        });
-      });
+      socket.on(
+        "webrtc:ice-candidate",
+        (data: { roomId: string; targetUserId: string; candidate: any }) => {
+          this.sendToUser(data.targetUserId, "webrtc:ice-candidate", {
+            fromUserId: socket.userId,
+            roomId: data.roomId,
+            candidate: data.candidate,
+          });
+        },
+      );
     });
   }
 
@@ -431,7 +449,7 @@ export class EnhancedSocketManager {
 
   private handleUserDisconnect(socket: any) {
     const user = this.connectedUsers.get(socket.id);
-    
+
     if (user) {
       // Leave voice room if in one
       if (user.voiceRoom) {
@@ -496,10 +514,12 @@ export class EnhancedSocketManager {
   public getRoomStats() {
     return {
       totalConnected: this.connectedUsers.size,
-      voiceRooms: Array.from(this.voiceRooms.entries()).map(([roomId, users]) => ({
-        roomId,
-        userCount: users.size,
-      })),
+      voiceRooms: Array.from(this.voiceRooms.entries()).map(
+        ([roomId, users]) => ({
+          roomId,
+          userCount: users.size,
+        }),
+      ),
     };
   }
 }

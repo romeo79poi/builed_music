@@ -13,7 +13,9 @@ const server = http.createServer(app);
 
 // Initialize Enhanced Socket.IO server
 const socketManager = new EnhancedSocketManager(server);
-console.log("🔌 Enhanced Socket.IO server initialized with voice streaming support");
+console.log(
+  "🔌 Enhanced Socket.IO server initialized with voice streaming support",
+);
 
 // Initialize database on startup
 initializeDatabase().catch(console.error);

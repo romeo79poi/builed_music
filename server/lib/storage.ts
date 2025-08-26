@@ -26,11 +26,11 @@ const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     const subDir = req.body.type || "general";
     const fullPath = path.join(uploadDir, subDir);
-    
+
     if (!fs.existsSync(fullPath)) {
       fs.mkdirSync(fullPath, { recursive: true });
     }
-    
+
     cb(null, fullPath);
   },
   filename: (req, file, cb) => {
@@ -45,14 +45,14 @@ const createFileFilter = (allowedTypes: string[]) => {
   return (req: any, file: any, cb: any) => {
     const fileType = file.mimetype.split("/")[0];
     const extension = path.extname(file.originalname).toLowerCase();
-    
-    const isAllowedType = allowedTypes.some(type => {
+
+    const isAllowedType = allowedTypes.some((type) => {
       if (type === "image") return file.mimetype.startsWith("image/");
       if (type === "audio") return file.mimetype.startsWith("audio/");
       if (type === "video") return file.mimetype.startsWith("video/");
       return file.mimetype === type;
     });
-    
+
     if (isAllowedType) {
       cb(null, true);
     } else {
@@ -99,7 +99,7 @@ export const uploadGeneral = multer({
 export async function uploadToSupabase(
   file: Express.Multer.File,
   bucket: string,
-  fileName?: string
+  fileName?: string,
 ): Promise<{ success: boolean; url?: string; error?: string }> {
   if (!supabaseClient) {
     return { success: false, error: "Supabase not configured" };
@@ -139,7 +139,7 @@ export async function uploadToSupabase(
  */
 export async function deleteFromSupabase(
   bucket: string,
-  fileName: string
+  fileName: string,
 ): Promise<{ success: boolean; error?: string }> {
   if (!supabaseClient) {
     return { success: false, error: "Supabase not configured" };
@@ -174,7 +174,7 @@ export function getLocalFileUrl(filePath: string): string {
 export async function generateSignedUrl(
   bucket: string,
   fileName: string,
-  expiresIn: number = 3600
+  expiresIn: number = 3600,
 ): Promise<{ success: boolean; url?: string; error?: string }> {
   if (!supabaseClient) {
     return { success: false, error: "Supabase not configured" };
@@ -223,7 +223,7 @@ export const storageConfig = {
  */
 export function validateFile(
   file: Express.Multer.File,
-  type: "image" | "audio" | "video"
+  type: "image" | "audio" | "video",
 ): { valid: boolean; error?: string } {
   const extension = path.extname(file.originalname).toLowerCase();
   const allowedFormats = storageConfig.allowedFormats[type];

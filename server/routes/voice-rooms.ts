@@ -42,11 +42,11 @@ export async function getVoiceRooms(req: Request, res: Response) {
     const isPublic = req.query.public === "true";
 
     let filter: any = { is_active: true };
-    
+
     if (roomType) {
       filter.room_type = roomType;
     }
-    
+
     if (isPublic !== undefined) {
       filter.is_public = isPublic;
     }
@@ -72,7 +72,7 @@ export async function getVoiceRooms(req: Request, res: Response) {
 
     res.json({
       success: true,
-      rooms: rooms.map(room => ({
+      rooms: rooms.map((room) => ({
         id: room._id,
         name: room.name,
         description: room.description,
@@ -162,12 +162,14 @@ export async function createVoiceRoom(req: Request, res: Response) {
         auto_approve_speakers: settings.auto_approve_speakers ?? false,
         max_speaking_time: settings.max_speaking_time ?? 300,
       },
-      participants: [{
-        user: userId,
-        role: "speaker",
-        is_muted: false,
-        joined_at: new Date(),
-      }],
+      participants: [
+        {
+          user: userId,
+          role: "speaker",
+          is_muted: false,
+          joined_at: new Date(),
+        },
+      ],
       peak_participants: 1,
     });
 
@@ -179,7 +181,7 @@ export async function createVoiceRoom(req: Request, res: Response) {
       {
         path: "participants.user",
         select: "username display_name profile_image_url",
-      }
+      },
     ]);
 
     // Broadcast room creation
@@ -264,11 +266,11 @@ export async function getVoiceRoom(req: Request, res: Response) {
     // Check access for private rooms
     if (!room.is_public && userId) {
       const isParticipant = room.participants.some(
-        (p: any) => p.user._id.toString() === userId
+        (p: any) => p.user._id.toString() === userId,
       );
       const isHost = room.host._id.toString() === userId;
       const isModerator = room.moderators.some(
-        (m: any) => m._id.toString() === userId
+        (m: any) => m._id.toString() === userId,
       );
 
       if (!isParticipant && !isHost && !isModerator) {
@@ -354,7 +356,7 @@ export async function joinVoiceRoom(req: Request, res: Response) {
 
     // Check if user is already in the room
     const existingParticipant = room.participants.find(
-      (p: any) => p.user.toString() === userId
+      (p: any) => p.user.toString() === userId,
     );
 
     if (existingParticipant) {
@@ -453,7 +455,7 @@ export async function leaveVoiceRoom(req: Request, res: Response) {
 
     // Remove user from participants
     const participantIndex = room.participants.findIndex(
-      (p: any) => p.user.toString() === userId
+      (p: any) => p.user.toString() === userId,
     );
 
     if (participantIndex === -1) {
@@ -542,7 +544,7 @@ export async function toggleMute(req: Request, res: Response) {
     // Check permissions: host, moderator, or self
     const isHost = room.host.toString() === currentUserId;
     const isModerator = room.moderators.some(
-      (m: any) => m.toString() === currentUserId
+      (m: any) => m.toString() === currentUserId,
     );
     const isSelf = targetUserId === currentUserId;
 
@@ -555,7 +557,7 @@ export async function toggleMute(req: Request, res: Response) {
 
     // Find and update participant
     const participant = room.participants.find(
-      (p: any) => p.user.toString() === targetUserId
+      (p: any) => p.user.toString() === targetUserId,
     );
 
     if (!participant) {
@@ -624,7 +626,7 @@ export async function promoteToSpeaker(req: Request, res: Response) {
     // Check permissions: host or moderator
     const isHost = room.host.toString() === currentUserId;
     const isModerator = room.moderators.some(
-      (m: any) => m.toString() === currentUserId
+      (m: any) => m.toString() === currentUserId,
     );
 
     if (!isHost && !isModerator) {
@@ -636,7 +638,7 @@ export async function promoteToSpeaker(req: Request, res: Response) {
 
     // Find and update participant
     const participant = room.participants.find(
-      (p: any) => p.user.toString() === targetUserId
+      (p: any) => p.user.toString() === targetUserId,
     );
 
     if (!participant) {
@@ -713,7 +715,9 @@ export async function endVoiceRoom(req: Request, res: Response) {
     // Calculate total duration
     const startTime = room.created_at;
     const endTime = new Date();
-    const duration = Math.floor((endTime.getTime() - startTime.getTime()) / 1000);
+    const duration = Math.floor(
+      (endTime.getTime() - startTime.getTime()) / 1000,
+    );
 
     room.is_active = false;
     room.ended_at = endTime;

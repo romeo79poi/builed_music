@@ -20,7 +20,10 @@ const emailTransporter = nodemailer.createTransporter({
 });
 
 // OTP storage (in production, use Redis)
-const otpStore = new Map<string, { code: string; expires: Date; purpose: string }>();
+const otpStore = new Map<
+  string,
+  { code: string; expires: Date; purpose: string }
+>();
 
 // Rate limiting storage (in production, use Redis)
 const rateLimitStore = new Map<string, { count: number; resetTime: Date }>();
@@ -28,7 +31,11 @@ const rateLimitStore = new Map<string, { count: number; resetTime: Date }>();
 /**
  * Generate JWT tokens
  */
-export function generateTokens(userId: string, email: string, username?: string) {
+export function generateTokens(
+  userId: string,
+  email: string,
+  username?: string,
+) {
   const payload = {
     userId,
     email,
@@ -39,13 +46,13 @@ export function generateTokens(userId: string, email: string, username?: string)
   const accessToken = jwt.sign(
     payload,
     process.env.JWT_SECRET || "fallback-secret",
-    { expiresIn: "15m" }
+    { expiresIn: "15m" },
   );
 
   const refreshToken = jwt.sign(
     { ...payload, type: "refresh" },
     process.env.JWT_REFRESH_SECRET || "fallback-refresh-secret",
-    { expiresIn: "7d" }
+    { expiresIn: "7d" },
   );
 
   return { accessToken, refreshToken };
@@ -54,10 +61,14 @@ export function generateTokens(userId: string, email: string, username?: string)
 /**
  * Verify JWT token
  */
-export function verifyToken(token: string, type: "access" | "refresh" = "access"): any {
-  const secret = type === "access" 
-    ? process.env.JWT_SECRET || "fallback-secret"
-    : process.env.JWT_REFRESH_SECRET || "fallback-refresh-secret";
+export function verifyToken(
+  token: string,
+  type: "access" | "refresh" = "access",
+): any {
+  const secret =
+    type === "access"
+      ? process.env.JWT_SECRET || "fallback-secret"
+      : process.env.JWT_REFRESH_SECRET || "fallback-refresh-secret";
 
   return jwt.verify(token, secret);
 }
@@ -72,7 +83,10 @@ export async function hashPassword(password: string): Promise<string> {
 /**
  * Verify password
  */
-export async function verifyPassword(password: string, hash: string): Promise<boolean> {
+export async function verifyPassword(
+  password: string,
+  hash: string,
+): Promise<boolean> {
   return await bcrypt.compare(password, hash);
 }
 
@@ -86,16 +100,23 @@ export function generateOTP(): string {
 /**
  * Store OTP with expiration
  */
-export function storeOTP(identifier: string, purpose: string, expirationMinutes: number = 10): string {
+export function storeOTP(
+  identifier: string,
+  purpose: string,
+  expirationMinutes: number = 10,
+): string {
   const code = generateOTP();
   const expires = new Date(Date.now() + expirationMinutes * 60 * 1000);
-  
+
   otpStore.set(`${identifier}:${purpose}`, { code, expires, purpose });
-  
+
   // Clean up expired OTPs
-  setTimeout(() => {
-    otpStore.delete(`${identifier}:${purpose}`);
-  }, expirationMinutes * 60 * 1000);
+  setTimeout(
+    () => {
+      otpStore.delete(`${identifier}:${purpose}`);
+    },
+    expirationMinutes * 60 * 1000,
+  );
 
   return code;
 }
@@ -103,7 +124,11 @@ export function storeOTP(identifier: string, purpose: string, expirationMinutes:
 /**
  * Verify OTP code
  */
-export function verifyOTP(identifier: string, purpose: string, code: string): boolean {
+export function verifyOTP(
+  identifier: string,
+  purpose: string,
+  code: string,
+): boolean {
   const key = `${identifier}:${purpose}`;
   const stored = otpStore.get(key);
 
@@ -128,7 +153,11 @@ export function verifyOTP(identifier: string, purpose: string, code: string): bo
 /**
  * Rate limiting check
  */
-export function checkRateLimit(identifier: string, maxRequests: number = 5, windowMinutes: number = 15): boolean {
+export function checkRateLimit(
+  identifier: string,
+  maxRequests: number = 5,
+  windowMinutes: number = 15,
+): boolean {
   const now = new Date();
   const stored = rateLimitStore.get(identifier);
 
@@ -152,14 +181,21 @@ export function checkRateLimit(identifier: string, maxRequests: number = 5, wind
 /**
  * Send OTP email
  */
-export async function sendOTPEmail(email: string, code: string, purpose: string): Promise<boolean> {
+export async function sendOTPEmail(
+  email: string,
+  code: string,
+  purpose: string,
+): Promise<boolean> {
   if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
     console.log(`⚠️ Email not configured, OTP code for ${email}: ${code}`);
     return true; // Return true in development
   }
 
   try {
-    const subject = purpose === "signup" ? "Welcome to Catch - Verify Your Email" : "Catch - Login Verification";
+    const subject =
+      purpose === "signup"
+        ? "Welcome to Catch - Verify Your Email"
+        : "Catch - Login Verification";
     const html = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #8B5CF6;">Catch Music</h2>
@@ -223,7 +259,7 @@ export async function verifyGoogleToken(idToken: string): Promise<any> {
 export async function verifyFacebookToken(accessToken: string): Promise<any> {
   try {
     const response = await fetch(
-      `https://graph.facebook.com/me?access_token=${accessToken}&fields=id,name,email,picture`
+      `https://graph.facebook.com/me?access_token=${accessToken}&fields=id,name,email,picture`,
     );
 
     if (!response.ok) {
@@ -251,7 +287,10 @@ export async function verifyFacebookToken(accessToken: string): Promise<any> {
 /**
  * Create or get user from social login
  */
-export async function handleSocialLogin(provider: "google" | "facebook", profile: any) {
+export async function handleSocialLogin(
+  provider: "google" | "facebook",
+  profile: any,
+) {
   await connectDB();
 
   const { id, email, name, picture } = profile;
@@ -276,8 +315,9 @@ export async function handleSocialLogin(provider: "google" | "facebook", profile
     }
   } else {
     // Create new user
-    const username = email.split("@")[0] + "_" + Math.random().toString(36).substr(2, 4);
-    
+    const username =
+      email.split("@")[0] + "_" + Math.random().toString(36).substr(2, 4);
+
     user = await User.create({
       email,
       username,
@@ -309,7 +349,10 @@ export async function ensureDBConnection() {
 /**
  * Send welcome email
  */
-export async function sendWelcomeEmail(email: string, name: string): Promise<boolean> {
+export async function sendWelcomeEmail(
+  email: string,
+  name: string,
+): Promise<boolean> {
   if (!process.env.SMTP_USER || !process.env.SMTP_PASS) {
     console.log(`⚠️ Email not configured, skipping welcome email for ${email}`);
     return true;
@@ -330,7 +373,7 @@ export async function sendWelcomeEmail(email: string, name: string): Promise<boo
         </ul>
         <p>Your musical journey starts now. Let's catch some great vibes!</p>
         <div style="text-align: center; margin: 30px 0;">
-          <a href="${process.env.FRONTEND_URL || 'http://localhost:8080'}" 
+          <a href="${process.env.FRONTEND_URL || "http://localhost:8080"}" 
              style="background: #8B5CF6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">
             Start Exploring
           </a>
@@ -358,7 +401,10 @@ export async function sendWelcomeEmail(email: string, name: string): Promise<boo
  * Generate username from email
  */
 export function generateUsername(email: string): string {
-  const baseUsername = email.split("@")[0].toLowerCase().replace(/[^a-z0-9]/g, "");
+  const baseUsername = email
+    .split("@")[0]
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
   const randomSuffix = Math.random().toString(36).substr(2, 4);
   return `${baseUsername}_${randomSuffix}`;
 }
@@ -374,21 +420,36 @@ export function isValidEmail(email: string): boolean {
 /**
  * Validate password strength
  */
-export function validatePassword(password: string): { valid: boolean; message?: string } {
+export function validatePassword(password: string): {
+  valid: boolean;
+  message?: string;
+} {
   if (password.length < 8) {
-    return { valid: false, message: "Password must be at least 8 characters long" };
+    return {
+      valid: false,
+      message: "Password must be at least 8 characters long",
+    };
   }
 
   if (!/(?=.*[a-z])/.test(password)) {
-    return { valid: false, message: "Password must contain at least one lowercase letter" };
+    return {
+      valid: false,
+      message: "Password must contain at least one lowercase letter",
+    };
   }
 
   if (!/(?=.*[A-Z])/.test(password)) {
-    return { valid: false, message: "Password must contain at least one uppercase letter" };
+    return {
+      valid: false,
+      message: "Password must contain at least one uppercase letter",
+    };
   }
 
   if (!/(?=.*\d)/.test(password)) {
-    return { valid: false, message: "Password must contain at least one number" };
+    return {
+      valid: false,
+      message: "Password must contain at least one number",
+    };
   }
 
   return { valid: true };

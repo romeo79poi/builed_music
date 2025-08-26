@@ -282,13 +282,13 @@ export function createServer() {
       res.json({
         success: true,
         message: "Database connected",
-        mongoConnected: isMongoConnected()
+        mongoConnected: isMongoConnected(),
       });
     } catch (error: any) {
       res.status(500).json({
         success: false,
         message: "Database error",
-        error: error.message
+        error: error.message,
       });
     }
   });
@@ -403,7 +403,11 @@ export function createServer() {
   app.post("/api/upload/music", authenticateJWT, ...uploadMusic);
   app.post("/api/upload/cover", authenticateJWT, ...uploadCover);
   app.post("/api/upload/avatar", authenticateJWT, ...uploadAvatar);
-  app.delete("/api/upload/delete/:bucket/:fileName", authenticateJWT, deleteUploadedFile);
+  app.delete(
+    "/api/upload/delete/:bucket/:fileName",
+    authenticateJWT,
+    deleteUploadedFile,
+  );
   app.get("/api/upload/enhanced-config", getEnhancedUploadConfig);
   app.get("/api/upload/progress/:uploadId", getUploadProgress);
 
@@ -469,8 +473,16 @@ export function createServer() {
   app.get("/api/voice-rooms/:roomId", getVoiceRoom);
   app.post("/api/voice-rooms/:roomId/join", authenticateJWT, joinVoiceRoom);
   app.post("/api/voice-rooms/:roomId/leave", authenticateJWT, leaveVoiceRoom);
-  app.post("/api/voice-rooms/:roomId/mute/:userId", authenticateJWT, toggleMute);
-  app.post("/api/voice-rooms/:roomId/promote/:userId", authenticateJWT, promoteToSpeaker);
+  app.post(
+    "/api/voice-rooms/:roomId/mute/:userId",
+    authenticateJWT,
+    toggleMute,
+  );
+  app.post(
+    "/api/voice-rooms/:roomId/promote/:userId",
+    authenticateJWT,
+    promoteToSpeaker,
+  );
   app.delete("/api/voice-rooms/:roomId", authenticateJWT, endVoiceRoom);
 
   // ===============================================
@@ -556,7 +568,7 @@ export function createServer() {
     updateSettings,
     checkAvailability: jwtCheckAvailability,
     refreshToken: jwtRefreshToken,
-    logout
+    logout,
   } = require("./routes/auth-jwt");
 
   // JWT Authentication endpoints
@@ -595,7 +607,7 @@ export function createServer() {
     res.json({
       success: true,
       message: "Test endpoint working",
-      body: req.body
+      body: req.body,
     });
   });
 
@@ -606,11 +618,11 @@ export function createServer() {
       if (middleware.route) {
         routes.push({
           path: middleware.route.path,
-          methods: Object.keys(middleware.route.methods)
+          methods: Object.keys(middleware.route.methods),
         });
       }
     });
-    res.json({ routes: routes.filter(r => r.path.includes('/api/auth')) });
+    res.json({ routes: routes.filter((r) => r.path.includes("/api/auth")) });
   });
 
   return app;

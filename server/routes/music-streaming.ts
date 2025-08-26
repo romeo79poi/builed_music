@@ -136,7 +136,7 @@ export async function updatePlayProgress(req: Request, res: Response) {
       });
     }
 
-    const completionPercentage = totalDuration 
+    const completionPercentage = totalDuration
       ? Math.round((playDuration / totalDuration) * 100)
       : 0;
 
@@ -153,7 +153,7 @@ export async function updatePlayProgress(req: Request, res: Response) {
       },
       {
         sort: { played_at: -1 },
-      }
+      },
     );
 
     res.json({
@@ -202,7 +202,7 @@ export async function getTrendingSongs(req: Request, res: Response) {
 
     res.json({
       success: true,
-      songs: songs.map(song => ({
+      songs: songs.map((song) => ({
         id: song._id,
         title: song.title,
         artist: song.artist,
@@ -245,7 +245,7 @@ export async function searchMusic(req: Request, res: Response) {
     }
 
     const query = req.query.q as string;
-    const type = req.query.type as string || "all";
+    const type = (req.query.type as string) || "all";
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
     const skip = (page - 1) * limit;
@@ -274,7 +274,7 @@ export async function searchMusic(req: Request, res: Response) {
         .sort({ play_count: -1 })
         .limit(type === "songs" ? limit : 10);
 
-      results.songs = songs.map(song => ({
+      results.songs = songs.map((song) => ({
         id: song._id,
         title: song.title,
         artist: song.artist,
@@ -293,7 +293,7 @@ export async function searchMusic(req: Request, res: Response) {
         .sort({ follower_count: -1 })
         .limit(type === "artists" ? limit : 10);
 
-      results.artists = artists.map(artist => ({
+      results.artists = artists.map((artist) => ({
         id: artist._id,
         name: artist.name,
         bio: artist.bio,
@@ -307,16 +307,13 @@ export async function searchMusic(req: Request, res: Response) {
     if (type === "all" || type === "albums") {
       const albums = await Album.find({
         status: "approved",
-        $or: [
-          { title: searchRegex },
-          { genre: searchRegex },
-        ],
+        $or: [{ title: searchRegex }, { genre: searchRegex }],
       })
         .populate("artist", "name verified")
         .sort({ play_count: -1 })
         .limit(type === "albums" ? limit : 10);
 
-      results.albums = albums.map(album => ({
+      results.albums = albums.map((album) => ({
         id: album._id,
         title: album.title,
         artist: album.artist,
@@ -340,7 +337,7 @@ export async function searchMusic(req: Request, res: Response) {
         .sort({ follower_count: -1 })
         .limit(type === "playlists" ? limit : 10);
 
-      results.playlists = playlists.map(playlist => ({
+      results.playlists = playlists.map((playlist) => ({
         id: playlist._id,
         name: playlist.name,
         description: playlist.description,
@@ -397,7 +394,7 @@ export async function getRecommendations(req: Request, res: Response) {
 
     // Get user's favorite genres
     const genreCounts = new Map<string, number>();
-    recentPlays.forEach(play => {
+    recentPlays.forEach((play) => {
       if (play.song && play.song.genre) {
         const current = genreCounts.get(play.song.genre) || 0;
         genreCounts.set(play.song.genre, current + 1);
@@ -407,7 +404,7 @@ export async function getRecommendations(req: Request, res: Response) {
     const topGenres = Array.from(genreCounts.entries())
       .sort((a, b) => b[1] - a[1])
       .slice(0, 3)
-      .map(entry => entry[0]);
+      .map((entry) => entry[0]);
 
     // Get liked songs to exclude from recommendations
     const likedSongs = await UserLikes.find({
@@ -415,8 +412,8 @@ export async function getRecommendations(req: Request, res: Response) {
       item_type: "song",
     }).select("item_id");
 
-    const likedSongIds = likedSongs.map(like => like.item_id);
-    const playedSongIds = recentPlays.map(play => play.song._id);
+    const likedSongIds = likedSongs.map((like) => like.item_id);
+    const playedSongIds = recentPlays.map((play) => play.song._id);
     const excludeIds = [...likedSongIds, ...playedSongIds];
 
     // Find recommendations based on genres
@@ -432,7 +429,7 @@ export async function getRecommendations(req: Request, res: Response) {
 
     res.json({
       success: true,
-      recommendations: recommendations.map(song => ({
+      recommendations: recommendations.map((song) => ({
         id: song._id,
         title: song.title,
         artist: song.artist,
@@ -562,8 +559,8 @@ export async function getLikedSongs(req: Request, res: Response) {
     });
 
     const songs = likes
-      .filter(like => like.item_id) // Filter out deleted songs
-      .map(like => {
+      .filter((like) => like.item_id) // Filter out deleted songs
+      .map((like) => {
         const song = like.item_id as any;
         return {
           id: song._id,
@@ -619,7 +616,7 @@ export async function getGenres(req: Request, res: Response) {
           status: "approved",
         });
         return { name: genre, song_count: count };
-      })
+      }),
     );
 
     res.json({
