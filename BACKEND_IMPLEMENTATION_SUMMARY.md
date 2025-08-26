@@ -401,7 +401,7 @@ The backend is fully functional and production-ready. All major features are imp
 ✅ **Authentication**: Email, Google, Facebook, Phone/OTP  
 ✅ **Music Streaming**: Upload, stream, search, recommendations  
 ✅ **Real-time Messaging**: Direct chat with typing indicators  
-✅ **Voice Rooms**: Amino-style voice streaming with C++ backend  
+✅ **Voice Rooms**: Real-time voice streaming with C++ backend  
 ✅ **Social Features**: Follow, like, share, profile management  
 ✅ **File Storage**: Supabase integration with local fallback  
 ✅ **Database**: Complete schema with analytics tracking  
