@@ -623,7 +623,7 @@ export default function Home() {
                                 id: "top-hits-today",
                                 name: "Top 10 Today",
                                 description: "The most listened songs today",
-                                songs: top10Today.map((s, i) => ({
+                                songs: top10Today.length > 0 ? top10Today.map((s, i) => ({
                                   id: s.id,
                                   title: s.title,
                                   artist: s.artist,
@@ -634,7 +634,7 @@ export default function Home() {
                                   genre: "Pop",
                                   year: 2024,
                                   explicit: false,
-                                })),
+                                })) : [],
                                 isPublic: true,
                                 createdBy: "catch-charts",
                                 createdAt: new Date(),
