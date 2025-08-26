@@ -70,7 +70,7 @@ Your Catch music platform backend is now fully implemented with all requested fe
 
 ## 🎵 Music Streaming Features
 
-### ✅ Spotify-like Core Features
+### ✅ Core Music Streaming Features
 
 - **Music Upload**: Multi-format support with validation
 - **Streaming**: Range request support, analytics tracking
