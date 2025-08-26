@@ -140,8 +140,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         throw new Error(errorMessage);
       }
 
-      // Parse the successful response as JSON
-      const result = await response.json();
+      // Parse the successful response as JSON using the cloned response
+      const result = await responseClone.json();
       console.log(`✅ Success response from ${url}:`, result);
       return result;
 
