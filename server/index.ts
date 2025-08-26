@@ -249,6 +249,8 @@ import {
   verifySignupOTPWithRateLimit,
   requestLoginOTPWithRateLimit,
   verifyLoginOTPWithRateLimit,
+  googleAuthWithRateLimit,
+  facebookAuthWithRateLimit,
 } from "./routes/auth-enhanced";
 
 // Real OAuth authentication
