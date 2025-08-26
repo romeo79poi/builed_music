@@ -182,9 +182,20 @@ export default function Profile() {
       if (response.ok) {
         const data = await response.json();
         setPlaylists(data.playlists || []);
+      } else {
+        // Handle non-OK responses gracefully
+        console.warn(`Failed to fetch user playlists: ${response.status} ${response.statusText}`);
+        const text = await response.text();
+        if (text.startsWith('<!DOCTYPE') || text.startsWith('<html')) {
+          console.error("Server returned HTML instead of JSON - API endpoint might not exist");
+        } else {
+          console.error("Response body:", text);
+        }
+        setPlaylists([]); // Set empty array as fallback
       }
     } catch (error) {
       console.error("Error fetching user playlists:", error);
+      setPlaylists([]); // Set empty array as fallback
     }
   };
 
