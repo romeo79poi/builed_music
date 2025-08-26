@@ -47,10 +47,10 @@ export interface MusicPreferences {
 }
 
 export interface SocialLinks {
-  instagram?: string;
   twitter?: string;
-  spotify?: string;
-  appleMusic?: string;
+  website?: string;
+  musicPlatform?: string;
+  socialPlatform?: string;
 }
 
 interface ProfileContextType {

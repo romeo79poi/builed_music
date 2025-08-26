@@ -52,12 +52,11 @@ export interface MusicPreferences {
 }
 
 export interface SocialLinks {
-  instagram?: string;
   twitter?: string;
-  spotify?: string;
-  appleMusic?: string;
   youtube?: string;
-  soundcloud?: string;
+  website?: string;
+  musicPlatform?: string;
+  socialPlatform?: string;
 }
 
 export interface SubscriptionInfo {

@@ -41,11 +41,11 @@ const artistSchema = new mongoose.Schema(
       required: false, // Some artists might not have user accounts
     },
     social_links: {
-      spotify: String,
-      instagram: String,
       twitter: String,
       youtube: String,
       website: String,
+      musicPlatform: String,
+      socialPlatform: String,
     },
     is_featured: {
       type: Boolean,
