@@ -138,6 +138,18 @@ import {
   deleteMessage,
 } from "./routes/messages";
 
+// Voice room routes
+import {
+  getVoiceRooms,
+  createVoiceRoom,
+  getVoiceRoom,
+  joinVoiceRoom,
+  leaveVoiceRoom,
+  toggleMute,
+  promoteToSpeaker,
+  endVoiceRoom,
+} from "./routes/voice-rooms";
+
 // New Backend API routes - Tracks
 import {
   getAllTracks,
@@ -409,6 +421,16 @@ export function createServer() {
   app.get("/api/messages/:chatId/typing", getTypingUsers);
   app.post("/api/messages/chats", createChat);
   app.delete("/api/messages/message/:messageId", deleteMessage);
+
+  // Voice Rooms API routes (Amino-style voice streaming)
+  app.get("/api/voice-rooms", getVoiceRooms);
+  app.post("/api/voice-rooms", authenticateJWT, createVoiceRoom);
+  app.get("/api/voice-rooms/:roomId", getVoiceRoom);
+  app.post("/api/voice-rooms/:roomId/join", authenticateJWT, joinVoiceRoom);
+  app.post("/api/voice-rooms/:roomId/leave", authenticateJWT, leaveVoiceRoom);
+  app.post("/api/voice-rooms/:roomId/mute/:userId", authenticateJWT, toggleMute);
+  app.post("/api/voice-rooms/:roomId/promote/:userId", authenticateJWT, promoteToSpeaker);
+  app.delete("/api/voice-rooms/:roomId", authenticateJWT, endVoiceRoom);
 
   // ===============================================
   // NEW BACKEND API ROUTES (C++/Java/Go/Python Style)
