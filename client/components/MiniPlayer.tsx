@@ -16,7 +16,7 @@ import {
   ChevronUp,
   List,
 } from "lucide-react";
-import { useMusicContext } from "../context/MusicContext";
+import { useEnhancedMusic } from "../context/EnhancedMusicContext";
 import LikeButton from "./LikeButton";
 import { useFirebase } from "../context/FirebaseContext";
 
@@ -24,7 +24,8 @@ export function MiniPlayer() {
   const {
     currentSong,
     isPlaying,
-    togglePlay,
+    pauseSong,
+    resumeSong,
     nextSong,
     previousSong,
     volume,
@@ -35,7 +36,15 @@ export function MiniPlayer() {
     isRepeat,
     toggleShuffle,
     toggleRepeat,
-  } = useMusicContext();
+  } = useEnhancedMusic();
+
+  const togglePlay = () => {
+    if (isPlaying) {
+      pauseSong();
+    } else {
+      resumeSong();
+    }
+  };
   const { user: firebaseUser } = useFirebase();
 
   const [showVolumeSlider, setShowVolumeSlider] = useState(false);
