@@ -714,6 +714,17 @@ export default function Home() {
                     </div>
                   </motion.div>
                 ))}
+                {top10Today.length === 0 && (
+                  <div className="w-full flex-shrink-0 relative">
+                    <div className="relative bg-gradient-to-br from-gray-800 via-gray-700 to-gray-800 rounded-lg p-6 overflow-hidden">
+                      <div className="text-center text-gray-400">
+                        <Music className="w-16 h-16 mx-auto mb-4 opacity-50" />
+                        <p className="text-lg">No trending songs available</p>
+                        <p className="text-sm mt-2">Check back later for the latest hits!</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </motion.div>
             </div>
           </motion.section>
