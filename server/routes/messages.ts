@@ -1,218 +1,125 @@
-import { RequestHandler } from "express";
-import { connectDB } from "../lib/mongodb";
-import Message from "../models/Message";
+import { Request, Response } from "express";
+import { connectDB, isMongoConnected } from "../lib/mongodb";
 import Chat from "../models/Chat";
+import Message from "../models/Message";
+import User from "../models/User";
 
-interface MessageType {
-  id: string;
-  chatId: string;
-  senderId: string;
-  content: string;
-  type: "text" | "image" | "voice" | "video" | "sticker" | "gif";
-  timestamp: Date;
-  isRead: boolean;
-  reactions?: Array<{
-    emoji: string;
-    userId: string;
-  }>;
-  replyTo?: string;
-  isForwarded?: boolean;
-  isDisappearing?: boolean;
-  metadata?: any; // For voice duration, image URLs, etc.
-}
+// In-memory storage for typing status (in production, use Redis)
+const typingUsers = new Map<string, Set<string>>();
 
-interface ChatType {
-  id: string;
-  participants: string[];
-  type: "direct" | "group" | "ai";
-  name?: string;
-  avatar?: string;
-  lastMessage?: MessageType;
-  updatedAt: Date;
-  isArchived: boolean;
-  isPinned: boolean;
+// Import socket manager (will be available after server starts)
+let socketManager: any = null;
+try {
+  // Dynamically import to avoid circular dependency
+  import("../node-build").then((module) => {
+    socketManager = module.socketManager;
+  });
+} catch (error) {
+  console.log("⚠️ SocketManager not available yet");
 }
 
 // Initialize MongoDB connection
-connectDB();
-
-// Store active typing users (in-memory for real-time features)
-let typingUsers: { [chatId: string]: { [userId: string]: Date } } = {};
-
-// Helper function to initialize default chats if they don't exist
-const initializeDefaultChats = async () => {
-  try {
-    const existingChats = await Chat.countDocuments();
-    if (existingChats === 0) {
-      // Create AI chat
-      const aiChat = new Chat({
-        _id: "ai-chat",
-        participants: ["user", "ai"],
-        type: "ai",
-        name: "AI Assistant",
-        avatar: "/placeholder.svg",
-        isArchived: false,
-        isPinned: true,
-      });
-      await aiChat.save();
-
-      // Create demo chat
-      const demoChat = new Chat({
-        _id: "chat-1",
-        participants: ["user", "priya"],
-        type: "direct",
-        name: "Priya Sharma",
-        avatar: "/placeholder.svg",
-        isArchived: false,
-        isPinned: false,
-      });
-      await demoChat.save();
-
-      // Create initial messages
-      const aiMessage = new Message({
-        chatId: "ai-chat",
-        senderId: "ai",
-        content:
-          "Hi! I'm your AI music assistant. I can help you discover new music, create playlists, and chat about anything music-related! What would you like to know?",
-        type: "text",
-        isRead: false,
-      });
-      await aiMessage.save();
-
-      const demoMessage = new Message({
-        chatId: "chat-1",
-        senderId: "priya",
-        content: "Hey! Did you listen to that new track?",
-        type: "text",
-        isRead: false,
-      });
-      await demoMessage.save();
-
-      // Update chats with last messages
-      await Chat.findByIdAndUpdate("ai-chat", { lastMessage: aiMessage._id });
-      await Chat.findByIdAndUpdate("chat-1", { lastMessage: demoMessage._id });
-
-      console.log("✅ Default chats and messages initialized");
+async function initConnection() {
+  if (!isMongoConnected()) {
+    const result = await connectDB();
+    if (!result.success) {
+      return false;
     }
-  } catch (error) {
-    console.error("Error initializing default chats:", error);
   }
-};
+  return true;
+}
 
-// Initialize default data
-initializeDefaultChats();
-
-// GET /api/messages/chats/:userId? - Get all chats for a user
-export const getChats: RequestHandler = async (req, res) => {
+// GET /api/messages/chats/:userId? - Get user's chat list
+export async function getChats(req: Request, res: Response) {
   try {
-    await connectDB();
+    const connected = await initConnection();
+    if (!connected) {
+      return res.status(503).json({
+        success: false,
+        message: "Database not available",
+      });
+    }
 
-    const userId = req.params.userId || "user"; // Default to "user" for demo
+    const userId = req.params.userId || (req as any).user?.userId;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID is required",
+      });
+    }
+
+    console.log(`📬 Getting chats for user: ${userId}`);
 
     const chats = await Chat.find({
       participants: userId,
     })
-      .populate("lastMessage")
-      .sort({ updated_at: -1 });
+      .populate({
+        path: "participants",
+        select: "username display_name profile_image_url last_login",
+      })
+      .populate({
+        path: "lastMessage",
+        select: "content type timestamp senderId",
+        populate: {
+          path: "senderId",
+          select: "username display_name",
+        },
+      })
+      .sort({ updatedAt: -1 })
+      .limit(50);
 
-    const formattedChats = chats.map((chat) => ({
-      id: chat._id.toString(),
-      participants: chat.participants,
-      type: chat.type,
-      name: chat.name,
-      avatar: chat.avatar,
-      lastMessage: chat.lastMessage
-        ? {
-            id: chat.lastMessage._id.toString(),
-            chatId: chat.lastMessage.chatId,
-            senderId: chat.lastMessage.senderId,
-            content: chat.lastMessage.content,
-            type: chat.lastMessage.type,
-            timestamp: chat.lastMessage.timestamp,
-            isRead: chat.lastMessage.isRead,
-            reactions: chat.lastMessage.reactions,
-            replyTo: chat.lastMessage.replyTo,
-            isForwarded: chat.lastMessage.isForwarded,
-            isDisappearing: chat.lastMessage.isDisappearing,
-            metadata: chat.lastMessage.metadata,
-          }
-        : undefined,
-      updatedAt: chat.updated_at,
-      isArchived: chat.isArchived,
-      isPinned: chat.isPinned,
-    }));
+    // Transform chats for frontend
+    const transformedChats = chats.map((chat) => {
+      const otherParticipants = chat.participants.filter(
+        (p: any) => p._id.toString() !== userId,
+      );
+
+      return {
+        id: chat._id,
+        type: chat.type,
+        participants: chat.participants,
+        otherParticipants,
+        lastMessage: chat.lastMessage,
+        unreadCount: 0, // TODO: Implement unread count
+        updatedAt: chat.updatedAt,
+        createdAt: chat.createdAt,
+      };
+    });
 
     res.json({
       success: true,
-      data: formattedChats,
+      chats: transformedChats,
     });
-  } catch (error) {
-    console.error("Error getting chats:", error);
+  } catch (error: any) {
+    console.error("❌ Error getting chats:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to get chats",
+      message: "Internal server error",
+      error: error.message,
     });
   }
-};
+}
 
-// GET /api/messages/:chatId - Get messages for a specific chat
-export const getChatMessages: RequestHandler = async (req, res) => {
+// GET /api/messages/:chatId - Get messages for a chat
+export async function getChatMessages(req: Request, res: Response) {
   try {
-    await connectDB();
-
-    const chatId = req.params.chatId;
-    const limit = parseInt(req.query.limit as string) || 50;
-    const offset = parseInt(req.query.offset as string) || 0;
-
-    const messages = await Message.find({ chatId })
-      .sort({ timestamp: -1 })
-      .limit(limit)
-      .skip(offset);
-
-    const formattedMessages = messages.reverse().map((msg) => ({
-      id: msg._id.toString(),
-      chatId: msg.chatId,
-      senderId: msg.senderId,
-      content: msg.content,
-      type: msg.type,
-      timestamp: msg.timestamp,
-      isRead: msg.isRead,
-      reactions: msg.reactions,
-      replyTo: msg.replyTo,
-      isForwarded: msg.isForwarded,
-      isDisappearing: msg.isDisappearing,
-      metadata: msg.metadata,
-    }));
-
-    res.json({
-      success: true,
-      data: formattedMessages,
-    });
-  } catch (error) {
-    console.error("Error getting messages:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to get messages",
-    });
-  }
-};
-
-// POST /api/messages/:chatId - Send a new message
-export const sendMessage: RequestHandler = async (req, res) => {
-  try {
-    await connectDB();
-
-    const chatId = req.params.chatId;
-    const { senderId, content, type = "text", replyTo, metadata } = req.body;
-
-    if (!senderId || !content) {
-      return res.status(400).json({
+    const connected = await initConnection();
+    if (!connected) {
+      return res.status(503).json({
         success: false,
-        message: "Sender ID and content are required",
+        message: "Database not available",
       });
     }
 
-    // Check if chat exists
+    const { chatId } = req.params;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 50;
+    const skip = (page - 1) * limit;
+
+    console.log(`💬 Getting messages for chat: ${chatId}`);
+
+    // Verify chat exists and user has access
     const chat = await Chat.findById(chatId);
     if (!chat) {
       return res.status(404).json({
@@ -221,129 +128,220 @@ export const sendMessage: RequestHandler = async (req, res) => {
       });
     }
 
-    // Create new message
-    const newMessage = new Message({
-      chatId,
-      senderId,
-      content,
-      type,
-      replyTo,
-      metadata,
-      isRead: false,
-    });
-
-    await newMessage.save();
-
-    // Update chat's last message and updated_at
-    await Chat.findByIdAndUpdate(chatId, {
-      lastMessage: newMessage._id,
-      updated_at: new Date(),
-    });
-
-    // Handle AI response for AI chats
-    if (chat.type === "ai" && senderId !== "ai") {
-      setTimeout(
-        async () => {
-          try {
-            const aiResponse = new Message({
-              chatId,
-              senderId: "ai",
-              content: generateAIResponse(content),
-              type: "text",
-              isRead: false,
-            });
-
-            await aiResponse.save();
-            await Chat.findByIdAndUpdate(chatId, {
-              lastMessage: aiResponse._id,
-              updated_at: new Date(),
-            });
-          } catch (error) {
-            console.error("Error sending AI response:", error);
-          }
-        },
-        1000 + Math.random() * 2000,
-      ); // 1-3 second delay
-    }
-
-    const responseMessage = {
-      id: newMessage._id.toString(),
-      chatId: newMessage.chatId,
-      senderId: newMessage.senderId,
-      content: newMessage.content,
-      type: newMessage.type,
-      timestamp: newMessage.timestamp,
-      isRead: newMessage.isRead,
-      reactions: newMessage.reactions,
-      replyTo: newMessage.replyTo,
-      isForwarded: newMessage.isForwarded,
-      isDisappearing: newMessage.isDisappearing,
-      metadata: newMessage.metadata,
-    };
-
-    res.json({
-      success: true,
-      data: responseMessage,
-    });
-  } catch (error) {
-    console.error("Error sending message:", error);
-    res.status(500).json({
-      success: false,
-      message: "Failed to send message",
-    });
-  }
-};
-
-// PUT /api/messages/:chatId/read - Mark messages as read
-export const markAsRead: RequestHandler = async (req, res) => {
-  try {
-    await connectDB();
-
-    const chatId = req.params.chatId;
-    const { userId } = req.body;
-
-    if (!userId) {
-      return res.status(400).json({
+    const userId = (req as any).user?.userId;
+    if (userId && !chat.participants.includes(userId)) {
+      return res.status(403).json({
         success: false,
-        message: "User ID is required",
+        message: "Access denied",
       });
     }
 
-    // Mark all messages in the chat as read for messages not sent by the user
-    await Message.updateMany(
-      {
-        chatId,
-        senderId: { $ne: userId },
-        isRead: false,
-      },
-      { isRead: true },
-    );
+    const messages = await Message.find({ chatId })
+      .populate({
+        path: "senderId",
+        select: "username display_name profile_image_url",
+      })
+      .sort({ timestamp: -1 })
+      .skip(skip)
+      .limit(limit);
 
+    const totalMessages = await Message.countDocuments({ chatId });
+
+    res.json({
+      success: true,
+      messages: messages.reverse(), // Reverse to show oldest first
+      pagination: {
+        page,
+        limit,
+        total: totalMessages,
+        pages: Math.ceil(totalMessages / limit),
+        hasMore: skip + messages.length < totalMessages,
+      },
+    });
+  } catch (error: any) {
+    console.error("❌ Error getting messages:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+}
+
+// POST /api/messages/:chatId - Send a message
+export async function sendMessage(req: Request, res: Response) {
+  try {
+    const connected = await initConnection();
+    if (!connected) {
+      return res.status(503).json({
+        success: false,
+        message: "Database not available",
+      });
+    }
+
+    const { chatId } = req.params;
+    const { content, type = "text", recipientId } = req.body;
+    const senderId = (req as any).user?.userId;
+
+    if (!senderId) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+    }
+
+    if (!content || !content.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "Message content is required",
+      });
+    }
+
+    console.log(`📤 Sending message to chat: ${chatId}`);
+
+    // Verify chat exists
+    let chat = await Chat.findById(chatId);
+    if (!chat) {
+      // Create new chat if it doesn't exist (for direct messages)
+      if (recipientId) {
+        chat = await Chat.create({
+          participants: [senderId, recipientId],
+          type: "direct",
+        });
+        console.log(`🆕 Created new chat: ${chat._id}`);
+      } else {
+        return res.status(404).json({
+          success: false,
+          message: "Chat not found",
+        });
+      }
+    }
+
+    // Verify user is participant
+    if (!chat.participants.includes(senderId)) {
+      return res.status(403).json({
+        success: false,
+        message: "Access denied",
+      });
+    }
+
+    // Create message
+    const message = await Message.create({
+      chatId: chat._id,
+      senderId,
+      content: content.trim(),
+      type,
+      timestamp: new Date(),
+    });
+
+    // Update chat's last message
+    chat.lastMessage = message._id;
+    chat.updatedAt = new Date();
+    await chat.save();
+
+    // Populate sender info
+    await message.populate({
+      path: "senderId",
+      select: "username display_name profile_image_url",
+    });
+
+    // Send real-time notification via Socket.IO
+    if (socketManager) {
+      const recipients = chat.participants.filter(
+        (participantId: string) => participantId !== senderId,
+      );
+
+      recipients.forEach((recipientId: string) => {
+        socketManager.sendToUser(recipientId, "message:receive", {
+          chatId: chat._id,
+          message: {
+            id: message._id,
+            content: message.content,
+            type: message.type,
+            senderId: message.senderId,
+            timestamp: message.timestamp,
+          },
+        });
+      });
+    }
+
+    res.status(201).json({
+      success: true,
+      message: {
+        id: message._id,
+        chatId: message.chatId,
+        content: message.content,
+        type: message.type,
+        senderId: message.senderId,
+        timestamp: message.timestamp,
+      },
+    });
+  } catch (error: any) {
+    console.error("❌ Error sending message:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error",
+      error: error.message,
+    });
+  }
+}
+
+// PUT /api/messages/:chatId/read - Mark messages as read
+export async function markAsRead(req: Request, res: Response) {
+  try {
+    const connected = await initConnection();
+    if (!connected) {
+      return res.status(503).json({
+        success: false,
+        message: "Database not available",
+      });
+    }
+
+    const { chatId } = req.params;
+    const userId = (req as any).user?.userId;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+    }
+
+    // TODO: Implement read receipts
+    // For now, just return success
     res.json({
       success: true,
       message: "Messages marked as read",
     });
-  } catch (error) {
-    console.error("Error marking messages as read:", error);
+  } catch (error: any) {
+    console.error("❌ Error marking as read:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to mark messages as read",
+      message: "Internal server error",
+      error: error.message,
     });
   }
-};
+}
 
 // POST /api/messages/reaction/:messageId - Add reaction to message
-export const addReaction: RequestHandler = async (req, res) => {
+export async function addReaction(req: Request, res: Response) {
   try {
-    await connectDB();
-
-    const messageId = req.params.messageId;
-    const { userId, emoji } = req.body;
-
-    if (!userId || !emoji) {
-      return res.status(400).json({
+    const connected = await initConnection();
+    if (!connected) {
+      return res.status(503).json({
         success: false,
-        message: "User ID and emoji are required",
+        message: "Database not available",
+      });
+    }
+
+    const { messageId } = req.params;
+    const { emoji } = req.body;
+    const userId = (req as any).user?.userId;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
       });
     }
 
@@ -355,194 +353,223 @@ export const addReaction: RequestHandler = async (req, res) => {
       });
     }
 
-    // Check if user already reacted with this emoji
-    const existingReactionIndex =
-      message.reactions?.findIndex(
-        (r) => r.userId === userId && r.emoji === emoji,
-      ) ?? -1;
+    // Initialize reactions if not exists
+    if (!message.reactions) {
+      message.reactions = new Map();
+    }
 
-    if (existingReactionIndex >= 0) {
-      // Remove existing reaction
-      message.reactions?.splice(existingReactionIndex, 1);
+    // Toggle reaction
+    const currentReaction = message.reactions.get(emoji) || [];
+    const userIndex = currentReaction.indexOf(userId);
+
+    if (userIndex > -1) {
+      // Remove reaction
+      currentReaction.splice(userIndex, 1);
+      if (currentReaction.length === 0) {
+        message.reactions.delete(emoji);
+      } else {
+        message.reactions.set(emoji, currentReaction);
+      }
     } else {
-      // Add new reaction
-      if (!message.reactions) message.reactions = [];
-      message.reactions.push({ emoji, userId });
+      // Add reaction
+      currentReaction.push(userId);
+      message.reactions.set(emoji, currentReaction);
     }
 
     await message.save();
 
     res.json({
       success: true,
-      data: {
-        reactions: message.reactions,
-      },
+      reactions: Object.fromEntries(message.reactions),
     });
-  } catch (error) {
-    console.error("Error adding reaction:", error);
+  } catch (error: any) {
+    console.error("❌ Error adding reaction:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to add reaction",
+      message: "Internal server error",
+      error: error.message,
     });
   }
-};
+}
 
 // POST /api/messages/:chatId/typing - Set typing status
-export const setTyping: RequestHandler = async (req, res) => {
+export async function setTyping(req: Request, res: Response) {
   try {
-    const chatId = req.params.chatId;
-    const { userId, isTyping } = req.body;
+    const { chatId } = req.params;
+    const { isTyping = true } = req.body;
+    const userId = (req as any).user?.userId;
 
     if (!userId) {
-      return res.status(400).json({
+      return res.status(401).json({
         success: false,
-        message: "User ID is required",
+        message: "Authentication required",
       });
     }
 
-    if (!typingUsers[chatId]) {
-      typingUsers[chatId] = {};
+    if (!typingUsers.has(chatId)) {
+      typingUsers.set(chatId, new Set());
     }
 
+    const chatTypingUsers = typingUsers.get(chatId)!;
+
     if (isTyping) {
-      typingUsers[chatId][userId] = new Date();
+      chatTypingUsers.add(userId);
     } else {
-      delete typingUsers[chatId][userId];
+      chatTypingUsers.delete(userId);
     }
 
-    // Auto-remove typing status after 3 seconds
-    if (isTyping) {
-      setTimeout(() => {
-        if (typingUsers[chatId] && typingUsers[chatId][userId]) {
-          delete typingUsers[chatId][userId];
-        }
-      }, 3000);
+    // Clean up empty sets
+    if (chatTypingUsers.size === 0) {
+      typingUsers.delete(chatId);
+    }
+
+    // Send real-time typing notification
+    if (socketManager) {
+      socketManager.sendToRoom(`chat:${chatId}`, "message:typing", {
+        chatId,
+        userId,
+        isTyping,
+        typingUsers: Array.from(chatTypingUsers),
+      });
     }
 
     res.json({
       success: true,
-      message: "Typing status updated",
+      typingUsers: Array.from(chatTypingUsers),
     });
-  } catch (error) {
-    console.error("Error setting typing status:", error);
+  } catch (error: any) {
+    console.error("❌ Error setting typing status:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to set typing status",
+      message: "Internal server error",
+      error: error.message,
     });
   }
-};
+}
 
 // GET /api/messages/:chatId/typing - Get typing users
-export const getTypingUsers: RequestHandler = async (req, res) => {
+export async function getTypingUsers(req: Request, res: Response) {
   try {
-    const chatId = req.params.chatId;
-    const currentTime = new Date();
-
-    // Clean up old typing statuses (older than 5 seconds)
-    if (typingUsers[chatId]) {
-      Object.keys(typingUsers[chatId]).forEach((userId) => {
-        const typingTime = typingUsers[chatId][userId];
-        if (currentTime.getTime() - typingTime.getTime() > 5000) {
-          delete typingUsers[chatId][userId];
-        }
-      });
-    }
-
-    const activeTypingUsers = typingUsers[chatId]
-      ? Object.keys(typingUsers[chatId])
-      : [];
+    const { chatId } = req.params;
+    const typingUsersList = typingUsers.get(chatId) || new Set();
 
     res.json({
       success: true,
-      data: activeTypingUsers,
+      typingUsers: Array.from(typingUsersList),
     });
-  } catch (error) {
-    console.error("Error getting typing users:", error);
+  } catch (error: any) {
+    console.error("❌ Error getting typing users:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to get typing users",
+      message: "Internal server error",
+      error: error.message,
     });
   }
-};
+}
 
-// POST /api/messages/chats - Create a new chat
-export const createChat: RequestHandler = async (req, res) => {
+// POST /api/messages/chats - Create new chat
+export async function createChat(req: Request, res: Response) {
   try {
-    await connectDB();
-
-    const { participants, type = "direct", name, avatar } = req.body;
-
-    if (!participants || participants.length < 2) {
-      return res.status(400).json({
+    const connected = await initConnection();
+    if (!connected) {
+      return res.status(503).json({
         success: false,
-        message: "At least 2 participants are required",
+        message: "Database not available",
       });
     }
 
-    // Check if direct chat already exists between these participants
-    if (type === "direct" && participants.length === 2) {
+    const { participantIds, type = "direct", name } = req.body;
+    const userId = (req as any).user?.userId;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+    }
+
+    if (!participantIds || !Array.isArray(participantIds)) {
+      return res.status(400).json({
+        success: false,
+        message: "Participant IDs are required",
+      });
+    }
+
+    // Add current user to participants
+    const allParticipants = [...new Set([userId, ...participantIds])];
+
+    // For direct chats, check if chat already exists
+    if (type === "direct" && allParticipants.length === 2) {
       const existingChat = await Chat.findOne({
         type: "direct",
-        participants: { $all: participants, $size: 2 },
+        participants: { $all: allParticipants, $size: 2 },
       });
 
       if (existingChat) {
         return res.json({
           success: true,
-          data: {
-            id: existingChat._id.toString(),
-            participants: existingChat.participants,
+          chat: {
+            id: existingChat._id,
             type: existingChat.type,
-            name: existingChat.name,
-            avatar: existingChat.avatar,
-            updatedAt: existingChat.updated_at,
-            isArchived: existingChat.isArchived,
-            isPinned: existingChat.isPinned,
+            participants: existingChat.participants,
+            createdAt: existingChat.createdAt,
+            message: "Chat already exists",
           },
         });
       }
     }
 
-    const newChat = new Chat({
-      participants,
+    const chat = await Chat.create({
+      participants: allParticipants,
       type,
       name,
-      avatar,
-      isArchived: false,
-      isPinned: false,
     });
 
-    await newChat.save();
+    await chat.populate({
+      path: "participants",
+      select: "username display_name profile_image_url",
+    });
 
-    res.json({
+    res.status(201).json({
       success: true,
-      data: {
-        id: newChat._id.toString(),
-        participants: newChat.participants,
-        type: newChat.type,
-        name: newChat.name,
-        avatar: newChat.avatar,
-        updatedAt: newChat.updated_at,
-        isArchived: newChat.isArchived,
-        isPinned: newChat.isPinned,
+      chat: {
+        id: chat._id,
+        type: chat.type,
+        name: chat.name,
+        participants: chat.participants,
+        createdAt: chat.createdAt,
       },
     });
-  } catch (error) {
-    console.error("Error creating chat:", error);
+  } catch (error: any) {
+    console.error("❌ Error creating chat:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to create chat",
+      message: "Internal server error",
+      error: error.message,
     });
   }
-};
+}
 
-// DELETE /api/messages/message/:messageId - Delete a message
-export const deleteMessage: RequestHandler = async (req, res) => {
+// DELETE /api/messages/message/:messageId - Delete message
+export async function deleteMessage(req: Request, res: Response) {
   try {
-    await connectDB();
+    const connected = await initConnection();
+    if (!connected) {
+      return res.status(503).json({
+        success: false,
+        message: "Database not available",
+      });
+    }
 
-    const messageId = req.params.messageId;
-    const { userId } = req.body;
+    const { messageId } = req.params;
+    const userId = (req as any).user?.userId;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+    }
 
     const message = await Message.findById(messageId);
     if (!message) {
@@ -552,55 +579,39 @@ export const deleteMessage: RequestHandler = async (req, res) => {
       });
     }
 
-    // Only allow sender or admin to delete message
-    if (message.senderId !== userId) {
+    // Only sender can delete their message
+    if (message.senderId.toString() !== userId) {
       return res.status(403).json({
         success: false,
-        message: "You can only delete your own messages",
+        message: "Access denied",
       });
     }
 
     await Message.findByIdAndDelete(messageId);
 
-    // Update chat's last message if this was the last message
-    const chat = await Chat.findById(message.chatId);
-    if (chat && chat.lastMessage?.toString() === messageId) {
-      const lastMessage = await Message.findOne({
-        chatId: message.chatId,
-      }).sort({ timestamp: -1 });
-
-      await Chat.findByIdAndUpdate(message.chatId, {
-        lastMessage: lastMessage?._id || null,
-      });
+    // Send real-time notification
+    if (socketManager) {
+      const chat = await Chat.findById(message.chatId);
+      if (chat) {
+        chat.participants.forEach((participantId: string) => {
+          socketManager.sendToUser(participantId, "message:deleted", {
+            messageId,
+            chatId: message.chatId,
+          });
+        });
+      }
     }
 
     res.json({
       success: true,
       message: "Message deleted successfully",
     });
-  } catch (error) {
-    console.error("Error deleting message:", error);
+  } catch (error: any) {
+    console.error("❌ Error deleting message:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to delete message",
+      message: "Internal server error",
+      error: error.message,
     });
   }
-};
-
-// Helper function to generate AI responses
-function generateAIResponse(userMessage: string): string {
-  const responses = [
-    "That's a great question! I'd love to help you with that.",
-    "Interesting! Let me think about that for a moment...",
-    "I totally understand what you mean. Music has that effect on people!",
-    "Have you tried exploring similar artists? I can recommend some!",
-    "That's one of my favorite topics! Music discovery is so exciting.",
-    "I can help you create a playlist for that mood if you'd like!",
-    "That reminds me of a few songs that might interest you.",
-    "Music taste is so personal - I love hearing about what people enjoy!",
-    "That's a really cool perspective on music!",
-    "I'm here whenever you want to chat about music or anything else!",
-  ];
-
-  return responses[Math.floor(Math.random() * responses.length)];
 }
