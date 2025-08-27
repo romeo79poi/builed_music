@@ -1082,6 +1082,18 @@ export default function Profile() {
                         Profile Details
                       </p>
                       <div className="space-y-1">
+                        {(profile as any).email && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] text-muted-foreground">Email:</span>
+                            <span className="text-[10px] text-foreground">{(profile as any).email}</span>
+                          </div>
+                        )}
+                        {(profile as any).provider && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] text-muted-foreground">Sign-in method:</span>
+                            <span className="text-[10px] text-foreground capitalize">{(profile as any).provider}</span>
+                          </div>
+                        )}
                         {profile.email && (
                           <div className="flex items-center justify-between">
                             <span className="text-[10px] text-muted-foreground">Email:</span>
