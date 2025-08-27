@@ -668,8 +668,10 @@ const facebookAuth: RequestHandler = async (req, res) => {
       console.log("✅ Existing Facebook user updated:", user._id);
     }
 
-    // Generate JWT token
+    // Generate JWT + Refresh tokens
     const jwtToken = generateToken(user._id.toString());
+    const refresh = generateRefreshToken(user._id.toString());
+    setAuthCookies(res, jwtToken, refresh);
 
     // Return user data
     const userData = {
