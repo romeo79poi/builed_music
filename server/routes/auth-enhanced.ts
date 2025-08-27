@@ -26,6 +26,20 @@ const generateToken = (userId: string) => {
   );
 };
 
+const signTokenWithClaims = (claims: any) => {
+  const { id, _id, ...rest } = claims || {};
+  const userId = (_id?.toString?.() || _id) || id;
+  return jwt.sign(
+    { userId, ...rest },
+    JWT_SECRET,
+    {
+      expiresIn: "15m",
+      issuer: "music-catch-api",
+      audience: "music-catch-app",
+    }
+  );
+};
+
 const generateRefreshToken = (userId: string) => {
   return jwt.sign(
     { userId, type: "refresh" },
