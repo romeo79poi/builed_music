@@ -111,9 +111,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         url: response.url,
       });
 
-      // Read the response body as text first
-      const responseText = await response.text();
-      console.log(`📄 Response body:`, responseText);
+      // Check if response body is already consumed
+      if (response.bodyUsed) {
+        console.warn(`⚠️ Response body already consumed for ${url}`);
+        throw new Error("Response body already consumed");
+      }
+
+      // Clone response to avoid "body already read" issues
+      const responseClone = response.clone();
+
+      // Read the response body as text from the clone
+      let responseText = "";
+      try {
+        responseText = await responseClone.text();
+        console.log(`📄 Response body:`, responseText);
+      } catch (readError) {
+        console.error(`❌ Failed to read response body for ${url}:`, readError);
+        throw new Error("Failed to read response body");
+      }
 
       if (!response.ok) {
         console.error(
