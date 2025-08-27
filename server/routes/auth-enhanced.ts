@@ -2,6 +2,7 @@ import { RequestHandler } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/User";
+import { sendVerificationEmail } from "../lib/email";
 import { isMongoConnected } from "../lib/mongodb";
 import { rateLimit, validateRegistrationInput, validateLoginInput } from "../middleware/auth";
 
@@ -78,12 +79,15 @@ const generateOTP = (): string => {
 // Send OTP via email (mock implementation)
 const sendOTPEmail = async (email: string, otp: string): Promise<boolean> => {
   try {
-    // TODO: Implement actual email sending with NodeMailer
-    console.log(`📧 Sending OTP ${otp} to ${email}`);
-    
-    // For development, just log the OTP
-    console.log(`🔢 OTP for ${email}: ${otp}`);
-    
+    const result = await sendVerificationEmail(email, otp);
+    if (!result.success) {
+      console.error("❌ Email sending failed:", result.error);
+      return false;
+    }
+    // Log preview URL in non-production for easy testing
+    if (result.previewUrl) {
+      console.log("🔎 Email preview URL:", result.previewUrl);
+    }
     return true;
   } catch (error) {
     console.error("Failed to send OTP email:", error);
