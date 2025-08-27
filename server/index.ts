@@ -306,6 +306,7 @@ export function createServer() {
 
   // Login route
   app.post("/api/auth/login", loginUser);
+  app.post("/api/auth/refresh", require("./routes/auth-enhanced").refreshAccessToken);
 
   // ===============================================
   // MONGODB + JWT AUTHENTICATION ROUTES

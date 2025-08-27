@@ -350,32 +350,6 @@ export default function Home() {
         variants={containerVariants}
         className="relative z-10 flex flex-col min-h-screen"
       >
-        {/* Test Mini Player Button */}
-        <div className="fixed top-4 right-4 z-50">
-          <button
-            onClick={() => {
-              const testSong = {
-                id: "test-1",
-                title: "Test Song - Blinding Lights",
-                artist: "The Weeknd",
-                album: "After Hours",
-                coverImageURL:
-                  "https://images.unsplash.com/photo-1493225457124-a3eb161ffa5f?w=400&h=400&fit=crop",
-                duration: 200,
-                url: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-                genre: "Synthwave",
-                year: 2020,
-                explicit: false,
-                likes: 1200000,
-                plays: 89000000,
-              };
-              enhancedMusic.playSong(testSong);
-            }}
-            className="bg-gradient-to-r from-purple-primary to-purple-secondary text-white px-4 py-2 rounded-full font-medium hover:scale-105 transition-all shadow-lg"
-          >
-            🎵 Test Mini Player
-          </button>
-        </div>
 
         {/* Clean Header - Claude/AI Style */}
         <motion.header

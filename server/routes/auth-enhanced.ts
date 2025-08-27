@@ -678,6 +678,39 @@ export const verifyLoginOTPWithRateLimit = [rateLimit(5, 15 * 60 * 1000), verify
 export const googleAuthWithRateLimit = [rateLimit(10, 15 * 60 * 1000), googleAuth];
 export const facebookAuthWithRateLimit = [rateLimit(10, 15 * 60 * 1000), facebookAuth];
 
+// Refresh access token using refresh_token cookie
+export const refreshAccessToken: RequestHandler = async (req, res) => {
+  try {
+    const cookieHeader = req.headers.cookie || "";
+    const cookies: Record<string, string> = Object.fromEntries(
+      cookieHeader.split(";").map((c) => {
+        const idx = c.indexOf("=");
+        if (idx === -1) return ["", ""];
+        const k = c.slice(0, idx).trim();
+        const v = decodeURIComponent(c.slice(idx + 1));
+        return [k, v];
+      }),
+    );
+    const token = cookies["refresh_token"];
+    if (!token) {
+      return res.status(401).json({ success: false, message: "Refresh token missing" });
+    }
+    const payload = jwt.verify(token, JWT_SECRET, {
+      issuer: "music-catch-api",
+      audience: "music-catch-app",
+    }) as any;
+    if (!payload || !payload.userId) {
+      return res.status(403).json({ success: false, message: "Invalid refresh token" });
+    }
+    const access = generateToken(payload.userId);
+    const refresh = generateRefreshToken(payload.userId);
+    setAuthCookies(res, access, refresh);
+    return res.json({ success: true, message: "Token refreshed" });
+  } catch (error: any) {
+    return res.status(401).json({ success: false, message: "Refresh failed", error: process.env.NODE_ENV === "development" ? error.message : undefined });
+  }
+};
+
 // Also export the base functions
 export {
   requestSignupOTP,
