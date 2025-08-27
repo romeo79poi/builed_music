@@ -132,6 +132,13 @@ export default function Signup() {
   const [tempEmailUser, setTempEmailUser] = useState<any>(null);
   const [emailVerified, setEmailVerified] = useState(true);
 
+  // If email is already verified, never stay on the email-verify step
+  useEffect(() => {
+    if (emailVerified && currentStep === "email-verify") {
+      setCurrentStep("profile");
+    }
+  }, [emailVerified, currentStep]);
+
   // Validation functions
   const validateEmail = (email: string): boolean => {
     if (!email) {
