@@ -1058,15 +1058,28 @@ export default function Signup() {
           });
 
           if (backendSyncResponse.ok) {
-            const backendResult = await backendSyncResponse.json();
-            console.log(
-              "✅ Social signup data synced with backend:",
-              backendResult,
-            );
+            try {
+              const backendResult = await backendSyncResponse.json();
+              console.log(
+                "✅ Social signup data synced with backend:",
+                backendResult,
+              );
+            } catch (parseError) {
+              console.warn("⚠️ Failed to parse backend sync response, but sync appeared successful");
+            }
           } else {
-            console.warn(
-              "⚠️ Backend sync failed for social signup, continuing with Firebase-only data",
-            );
+            // Read the error response safely
+            try {
+              const responseClone = backendSyncResponse.clone();
+              const errorText = await responseClone.text();
+              console.warn(
+                `⚠️ Backend sync failed (${backendSyncResponse.status}): ${errorText}`,
+              );
+            } catch (readError) {
+              console.warn(
+                `⚠️ Backend sync failed (${backendSyncResponse.status}), continuing with Firebase-only data`,
+              );
+            }
           }
         } catch (backendError) {
           console.warn(
