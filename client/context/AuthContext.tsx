@@ -302,16 +302,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     try {
       const token = localStorage.getItem("authToken");
-      if (!token) {
-        return { success: false, message: "No authentication token" };
-      }
+
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
 
       const result = await safeFetch("/api/auth/profile", {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers,
         body: JSON.stringify(updates),
       });
 
@@ -338,14 +335,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     try {
       const token = localStorage.getItem("authToken");
-      if (!token) {
-        return { success: false, message: "No authentication token" };
-      }
+
+      const headers: Record<string, string> = {};
+      if (token) headers["Authorization"] = `Bearer ${token}`;
 
       const result = await safeFetch("/api/auth/settings", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers,
       });
 
       return {
@@ -369,16 +364,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     try {
       const token = localStorage.getItem("authToken");
-      if (!token) {
-        return { success: false, message: "No authentication token" };
-      }
+
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
 
       const result = await safeFetch("/api/auth/settings", {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers,
         body: JSON.stringify(settings),
       });
 
