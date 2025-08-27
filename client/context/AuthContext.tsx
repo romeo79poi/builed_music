@@ -164,7 +164,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (token) {
         await loadUserProfile(token);
       } else {
-        setUser(null);
+        const ok = await loadUserProfile();
+        if (!ok) {
+          try {
+            await safeFetch("/api/auth/refresh", { method: "POST" });
+            await loadUserProfile();
+          } catch {
+            setUser(null);
+          }
+        }
       }
     } catch (error) {
       console.error("Auth initialization error:", error);
@@ -176,25 +184,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loadUserProfile = async (token?: string) => {
     try {
-      const result = await safeFetch("/api/auth/me", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+      const result = await safeFetch("/api/auth/me", { headers });
 
       if (result.success && result.data) {
         setUser(result.data);
         console.log("✅ User profile loaded:", result.data);
+        return true;
       } else {
         console.error("Auth endpoint returned error:", result);
         localStorage.removeItem("authToken");
         setUser(null);
+        return false;
       }
     } catch (error) {
       console.error("Error loading user profile:", error);
       localStorage.removeItem("authToken");
       setUser(null);
+      return false;
     }
   };
 
