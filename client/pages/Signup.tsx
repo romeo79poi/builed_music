@@ -650,44 +650,23 @@ export default function Signup() {
     setIsLoading(true);
 
     try {
-      // Check if email is available
+      // Check if email is available (state is set optimistically to true)
       await checkAvailability("email", formData.email);
 
       if (availability.email !== false) {
-        // Email verification not required with JWT backend
-        console.log("✅ Email verified, proceeding to profile setup...");
-
-        // Skip email verification step and go directly to profile
-        const result = { success: true };
-
-        if (result.success) {
-          // Email verified, continue to profile setup
-
-          if (verificationResult.success) {
-            setEmailVerificationSent(true);
-            setResendTimer(60);
-
-            toast({
-              title: "Verification email sent! 📬",
-              description: `Please check ${formData.email} and click the verification link`,
-            });
-
-            // Go to email verification step
-            setCurrentStep("email-verify");
-          } else {
-            throw new Error(
-              verificationResult.error || "Failed to send verification email",
-            );
-          }
-        } else {
-          throw new Error(result.error || "Failed to create account");
-        }
+        // For JWT signup flow, we don't require email verification
+        setEmailVerified(true);
+        toast({
+          title: "Email accepted",
+          description: `Using ${formData.email} for your account`,
+        });
+        setCurrentStep("profile");
       }
     } catch (error: any) {
       console.error("Email step error:", error);
-      setErrorAlert(error.message || "Failed to send verification email");
+      setErrorAlert(error.message || "Failed to continue with email");
       toast({
-        title: "Verification failed",
+        title: "Email step failed",
         description: error.message || "Please try again",
         variant: "destructive",
       });
@@ -1076,7 +1055,7 @@ export default function Signup() {
               );
             } catch (readError) {
               console.warn(
-                `⚠️ Backend sync failed (${backendSyncResponse.status}), continuing with Firebase-only data`,
+                `⚠��� Backend sync failed (${backendSyncResponse.status}), continuing with Firebase-only data`,
               );
             }
           }
