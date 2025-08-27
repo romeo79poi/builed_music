@@ -99,7 +99,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log(`🌐 Making request to: ${url}`, {
         method: options?.method || "GET",
         headers: options?.headers,
-        body: options?.body,
       });
 
       const response = await fetch(url, options);
@@ -107,53 +106,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.log(`📊 Response received:`, {
         status: response.status,
         statusText: response.statusText,
-        headers: Object.fromEntries(response.headers.entries()),
         url: response.url,
       });
 
-      // Clone response immediately to avoid any "body already read" issues
-      const responseClone = response.clone();
-
-      // Read the response body as text from the clone
-      let responseText = "";
-      try {
-        responseText = await responseClone.text();
-        console.log(`📄 Response body:`, responseText);
-      } catch (readError) {
-        console.error(`❌ Failed to read response body for ${url}:`, readError);
-        // If we can't read the body, proceed with just status info
-        responseText = "";
-      }
-
+      // Handle the response based on status
       if (!response.ok) {
         console.error(
           `❌ HTTP error for url: ${url}: ${response.status} ${response.statusText}`,
         );
 
-        // Try to parse error message from response text
+        // Try to get error message from response
         let errorMessage = `HTTP error! status: ${response.status}`;
-        if (responseText) {
+        try {
+          const errorData = await response.json();
+          errorMessage = errorData.message || errorMessage;
+        } catch (parseError) {
+          // If JSON parsing fails, try to get text
           try {
-            const errorData = JSON.parse(responseText);
-            errorMessage = errorData.message || errorMessage;
-          } catch (parseError) {
-            errorMessage = responseText || errorMessage;
+            const errorText = await response.text();
+            errorMessage = errorText || errorMessage;
+          } catch (textError) {
+            // Use default message if all parsing fails
+            errorMessage = response.statusText || errorMessage;
           }
         }
 
         throw new Error(errorMessage);
       }
 
-      // Parse the successful response text as JSON
+      // Parse successful response as JSON
       let result;
       try {
-        result = responseText ? JSON.parse(responseText) : {};
+        result = await response.json();
+        console.log(`✅ Success response from ${url}:`, result);
       } catch (parseError) {
         console.error(`❌ Failed to parse JSON response:`, parseError);
         throw new Error("Server returned invalid JSON response");
       }
 
-      console.log(`✅ Success response from ${url}:`, result);
       return result;
     } catch (error: any) {
       console.error(`🚨 Fetch error for ${url}:`, error);
