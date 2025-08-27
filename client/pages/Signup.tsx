@@ -917,8 +917,8 @@ export default function Signup() {
   const handleDOBStep = () => {
     if (!validateDateOfBirth()) return;
 
-    // Check email verification for email signups
-    if (signupMethod === "email" && !emailVerified) {
+    // Check email verification for email signups (only if required)
+    if (signupMethod === "email" && requireEmailVerification && !emailVerified) {
       setErrorAlert("Email verification required.");
       setCurrentStep("email-verify");
       return;
@@ -928,8 +928,8 @@ export default function Signup() {
   };
 
   const handleProfileImageStep = async () => {
-    // Check email verification for email signups
-    if (signupMethod === "email" && !emailVerified) {
+    // Check email verification for email signups (only if required)
+    if (signupMethod === "email" && requireEmailVerification && !emailVerified) {
       setErrorAlert("Email verification required.");
       setCurrentStep("email-verify");
       return;
@@ -974,8 +974,8 @@ export default function Signup() {
   const handleGenderStep = () => {
     if (!validateGender()) return;
 
-    // Check email verification for email signups
-    if (signupMethod === "email" && !emailVerified) {
+    // Check email verification for email signups (only if required)
+    if (signupMethod === "email" && requireEmailVerification && !emailVerified) {
       setErrorAlert("Email verification required.");
       setCurrentStep("email-verify");
       return;
