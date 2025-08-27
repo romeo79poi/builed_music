@@ -175,7 +175,7 @@ export const login: RequestHandler = async (req, res) => {
     await user.save();
 
     // Generate tokens and set cookies
-    const token = generateToken(user._id.toString());
+    const token = signTokenWithClaims(user);
     const refresh = generateRefreshToken(user._id.toString());
     setAuthCookies(res, token, refresh);
 
