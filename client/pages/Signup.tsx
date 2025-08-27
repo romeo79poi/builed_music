@@ -874,13 +874,14 @@ export default function Signup() {
               formData.email,
               formData.password,
               formData.name,
-              formData.username
+              formData.username,
             );
 
             if (result.success) {
               toast({
                 title: "Verification Code Sent! 📧",
-                description: "Please check your email and enter the verification code.",
+                description:
+                  "Please check your email and enter the verification code.",
               });
 
               // Move to OTP verification step
@@ -890,14 +891,10 @@ export default function Signup() {
             }
           } else {
             // Use direct JWT signup (no email verification required)
-            const result = await signUp(
-              formData.email,
-              formData.password,
-              {
-                name: formData.name,
-                username: formData.username,
-              }
-            );
+            const result = await signUp(formData.email, formData.password, {
+              name: formData.name,
+              username: formData.username,
+            });
 
             if (result.success) {
               // Account created successfully with JWT
@@ -1058,15 +1055,30 @@ export default function Signup() {
           });
 
           if (backendSyncResponse.ok) {
-            const backendResult = await backendSyncResponse.json();
-            console.log(
-              "✅ Social signup data synced with backend:",
-              backendResult,
-            );
+            try {
+              const backendResult = await backendSyncResponse.json();
+              console.log(
+                "✅ Social signup data synced with backend:",
+                backendResult,
+              );
+            } catch (parseError) {
+              console.warn(
+                "⚠️ Failed to parse backend sync response, but sync appeared successful",
+              );
+            }
           } else {
-            console.warn(
-              "⚠️ Backend sync failed for social signup, continuing with Firebase-only data",
-            );
+            // Read the error response safely
+            try {
+              const responseClone = backendSyncResponse.clone();
+              const errorText = await responseClone.text();
+              console.warn(
+                `⚠️ Backend sync failed (${backendSyncResponse.status}): ${errorText}`,
+              );
+            } catch (readError) {
+              console.warn(
+                `⚠️ Backend sync failed (${backendSyncResponse.status}), continuing with Firebase-only data`,
+              );
+            }
           }
         } catch (backendError) {
           console.warn(
@@ -1177,12 +1189,27 @@ export default function Signup() {
             });
 
             if (backendSyncResponse.ok) {
-              const backendResult = await backendSyncResponse.json();
-              console.log("✅ User data synced with backend:", backendResult);
+              try {
+                const backendResult = await backendSyncResponse.json();
+                console.log("✅ User data synced with backend:", backendResult);
+              } catch (parseError) {
+                console.warn(
+                  "⚠️ Failed to parse backend sync response, but sync appeared successful",
+                );
+              }
             } else {
-              console.warn(
-                "⚠️ Backend sync failed, but continuing with Firebase-only data",
-              );
+              // Read the error response safely
+              try {
+                const responseClone = backendSyncResponse.clone();
+                const errorText = await responseClone.text();
+                console.warn(
+                  `⚠️ Backend sync failed (${backendSyncResponse.status}): ${errorText}`,
+                );
+              } catch (readError) {
+                console.warn(
+                  `⚠️ Backend sync failed (${backendSyncResponse.status}), continuing with Firebase-only data`,
+                );
+              }
             }
           } catch (backendError) {
             console.warn(
