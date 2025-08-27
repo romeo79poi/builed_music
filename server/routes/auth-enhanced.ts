@@ -26,6 +26,36 @@ const generateToken = (userId: string) => {
   );
 };
 
+const generateRefreshToken = (userId: string) => {
+  return jwt.sign(
+    { userId, type: "refresh" },
+    JWT_SECRET,
+    {
+      expiresIn: "30d",
+      issuer: "music-catch-api",
+      audience: "music-catch-app",
+    }
+  );
+};
+
+const setAuthCookies = (res: any, accessToken: string, refreshToken: string) => {
+  const isProd = process.env.NODE_ENV === "production";
+  res.cookie("auth_token", accessToken, {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
+    path: "/",
+    maxAge: 15 * 60 * 1000,
+  });
+  res.cookie("refresh_token", refreshToken, {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax",
+    path: "/",
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+  });
+};
+
 // Generate 6-digit OTP
 const generateOTP = (): string => {
   return Math.floor(100000 + Math.random() * 900000).toString();
