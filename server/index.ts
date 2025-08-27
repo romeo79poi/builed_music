@@ -268,7 +268,12 @@ export function createServer() {
   connectDB().catch(console.error);
 
   // Middleware
-  app.use(cors());
+  app.use(
+    cors({
+      origin: true,
+      credentials: true,
+    }),
+  );
   app.use(express.json({ limit: "10mb" }));
   app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
@@ -591,7 +596,7 @@ export function createServer() {
   app.get("/api/auth/settings", authenticateJWT, getSettings);
   app.put("/api/auth/settings", authenticateJWT, updateSettings);
   app.get("/api/auth/check-availability", jwtCheckAvailability);
-  app.post("/api/auth/refresh", authenticateJWT, jwtRefreshToken);
+  app.post("/api/auth/refresh-token", authenticateJWT, jwtRefreshToken);
   app.post("/api/auth/logout", logout);
 
   // ===============================================
