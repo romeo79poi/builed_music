@@ -461,7 +461,18 @@ const googleAuth: RequestHandler = async (req, res) => {
         created_at: new Date(),
         updated_at: new Date(),
       } as any;
-      const jwtToken = generateToken(userData.id);
+      const jwtToken = signTokenWithClaims({
+        id: userData.id,
+        email: userData.email,
+        username: userData.username,
+        name: userData.name,
+        avatar_url: userData.avatar_url,
+        verified: true,
+        followers_count: 0,
+        following_count: 0,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      });
       const refresh = generateRefreshToken(userData.id);
       setAuthCookies(res, jwtToken, refresh);
       return res.json({ success: true, message: "Google authentication successful (dev)", token: jwtToken, data: userData });
