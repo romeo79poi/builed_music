@@ -115,20 +115,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           `❌ HTTP error for url: ${url}: ${response.status} ${response.statusText}`,
         );
 
-        // Try to get error message from response
+        // Try to get error message from response (read as text first, then try to parse as JSON)
         let errorMessage = `HTTP error! status: ${response.status}`;
         try {
-          const errorData = await response.json();
-          errorMessage = errorData.message || errorMessage;
-        } catch (parseError) {
-          // If JSON parsing fails, try to get text
-          try {
-            const errorText = await response.text();
-            errorMessage = errorText || errorMessage;
-          } catch (textError) {
-            // Use default message if all parsing fails
-            errorMessage = response.statusText || errorMessage;
+          const responseText = await response.text();
+          if (responseText) {
+            try {
+              const errorData = JSON.parse(responseText);
+              errorMessage = errorData.message || errorMessage;
+            } catch (jsonError) {
+              // If JSON parsing fails, use the raw text
+              errorMessage = responseText;
+            }
           }
+        } catch (textError) {
+          // Use default message if reading fails
+          errorMessage = response.statusText || errorMessage;
         }
 
         throw new Error(errorMessage);
