@@ -111,13 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         url: response.url,
       });
 
-      // Check if response body is already consumed
-      if (response.bodyUsed) {
-        console.warn(`⚠️ Response body already consumed for ${url}`);
-        throw new Error("Response body already consumed");
-      }
-
-      // Clone response to avoid "body already read" issues
+      // Clone response immediately to avoid any "body already read" issues
       const responseClone = response.clone();
 
       // Read the response body as text from the clone
@@ -127,7 +121,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.log(`📄 Response body:`, responseText);
       } catch (readError) {
         console.error(`❌ Failed to read response body for ${url}:`, readError);
-        throw new Error("Failed to read response body");
+        // If we can't read the body, proceed with just status info
+        responseText = "";
       }
 
       if (!response.ok) {
@@ -152,7 +147,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Parse the successful response text as JSON
       let result;
       try {
-        result = JSON.parse(responseText);
+        result = responseText ? JSON.parse(responseText) : {};
       } catch (parseError) {
         console.error(`❌ Failed to parse JSON response:`, parseError);
         throw new Error("Server returned invalid JSON response");
