@@ -130,7 +130,7 @@ export default function Signup() {
   const [phoneVerificationSent, setPhoneVerificationSent] = useState(false);
   const [isSocialSignup, setIsSocialSignup] = useState(false);
   const [tempEmailUser, setTempEmailUser] = useState<any>(null);
-  const [emailVerified, setEmailVerified] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(true);
 
   // Validation functions
   const validateEmail = (email: string): boolean => {
@@ -1055,7 +1055,7 @@ export default function Signup() {
               );
             } catch (readError) {
               console.warn(
-                `⚠��� Backend sync failed (${backendSyncResponse.status}), continuing with Firebase-only data`,
+                `⚠️ Backend sync failed (${backendSyncResponse.status}), continuing with Firebase-only data`,
               );
             }
           }
