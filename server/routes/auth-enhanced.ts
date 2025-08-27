@@ -521,8 +521,10 @@ const googleAuth: RequestHandler = async (req, res) => {
       console.log("✅ Existing Google user updated:", user._id);
     }
 
-    // Generate JWT token
+    // Generate JWT + Refresh tokens
     const jwtToken = generateToken(user._id.toString());
+    const refresh = generateRefreshToken(user._id.toString());
+    setAuthCookies(res, jwtToken, refresh);
 
     // Return user data
     const userData = {
@@ -617,7 +619,7 @@ const facebookAuth: RequestHandler = async (req, res) => {
       },
     };
 
-    console.log("📝 Generated Facebook user data:", facebookUser);
+    console.log("�� Generated Facebook user data:", facebookUser);
 
     // Validate required fields
     if (!facebookUser.email || !facebookUser.id || !facebookUser.name) {
