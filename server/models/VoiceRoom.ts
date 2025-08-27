@@ -132,5 +132,5 @@ voiceRoomSchema.virtual("current_participants").get(function () {
   return this.participants.length;
 });
 
-export const VoiceRoom = mongoose.model("VoiceRoom", voiceRoomSchema);
+export const VoiceRoom = mongoose.models.VoiceRoom || mongoose.model("VoiceRoom", voiceRoomSchema);
 export default VoiceRoom;
