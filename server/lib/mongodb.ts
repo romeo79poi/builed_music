@@ -12,7 +12,7 @@ export async function connectDB() {
     );
     console.log("✅ Backend server ready (no database connection)");
     return {
-      success: true,
+      success: false,
       message: "Development mode - no database connection",
     };
   }
