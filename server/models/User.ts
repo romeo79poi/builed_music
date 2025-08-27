@@ -96,8 +96,6 @@ const userSchema = new mongoose.Schema(
 );
 
 // Indexes for better performance
-userSchema.index({ email: 1 });
-userSchema.index({ username: 1 });
 userSchema.index({ google_id: 1 });
 userSchema.index({ facebook_id: 1 });
 userSchema.index({ created_at: -1 });
@@ -117,5 +115,5 @@ userSchema.pre("save", function (next) {
   next();
 });
 
-export const User = mongoose.model("User", userSchema);
+export const User = mongoose.models.User || mongoose.model("User", userSchema);
 export default User;

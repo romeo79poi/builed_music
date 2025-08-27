@@ -20,9 +20,23 @@ declare global {
 export const authenticateJWT: RequestHandler = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
-    const token = authHeader?.startsWith("Bearer ")
+    let token = authHeader?.startsWith("Bearer ")
       ? authHeader.substring(7)
-      : authHeader;
+      : authHeader || undefined;
+
+    if (!token && req.headers.cookie) {
+      const cookieHeader = req.headers.cookie || "";
+      const cookies: Record<string, string> = Object.fromEntries(
+        cookieHeader.split(";").map((c) => {
+          const idx = c.indexOf("=");
+          if (idx === -1) return ["", ""];
+          const k = c.slice(0, idx).trim();
+          const v = decodeURIComponent(c.slice(idx + 1));
+          return [k, v];
+        }),
+      );
+      token = cookies["auth_token"];
+    }
 
     if (!token) {
       return res.status(401).json({
@@ -144,6 +158,53 @@ export const optionalAuth: RequestHandler = async (req, res, next) => {
   } catch (error) {
     // Continue without authentication on error
     next();
+  }
+};
+
+// Token-only authentication (no DB requirement)
+export const authenticateTokenOnly: RequestHandler = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    let token = authHeader?.startsWith("Bearer ")
+      ? authHeader.substring(7)
+      : authHeader || undefined;
+
+    if (!token && req.headers.cookie) {
+      const cookieHeader = req.headers.cookie || "";
+      const cookies: Record<string, string> = Object.fromEntries(
+        cookieHeader.split(";").map((c) => {
+          const idx = c.indexOf("=");
+          if (idx === -1) return ["", ""];
+          const k = c.slice(0, idx).trim();
+          const v = decodeURIComponent(c.slice(idx + 1));
+          return [k, v];
+        }),
+      );
+      token = cookies["auth_token"];
+    }
+
+    if (!token) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Access token required" });
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET, {
+      issuer: "music-catch-api",
+      audience: "music-catch-app",
+    }) as any;
+
+    if (!decoded?.userId) {
+      return res.status(403).json({ success: false, message: "Invalid token" });
+    }
+
+    req.userId = decoded.userId;
+    next();
+  } catch (error: any) {
+    const code = error?.name === "TokenExpiredError" ? 401 : 403;
+    return res
+      .status(code)
+      .json({ success: false, message: "Invalid or expired token" });
   }
 };
 

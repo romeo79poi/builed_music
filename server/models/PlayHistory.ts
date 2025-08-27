@@ -69,5 +69,7 @@ playHistorySchema.index({ play_source: 1 });
 playHistorySchema.index({ completion_percentage: 1 });
 playHistorySchema.index({ played_at: -1 });
 
-export const PlayHistory = mongoose.model("PlayHistory", playHistorySchema);
+export const PlayHistory =
+  mongoose.models.PlayHistory ||
+  mongoose.model("PlayHistory", playHistorySchema);
 export default PlayHistory;

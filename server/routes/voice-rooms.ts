@@ -5,12 +5,14 @@ import User from "../models/User";
 
 // Import socket manager for real-time updates
 let socketManager: any = null;
-try {
-  import("../node-build").then((module) => {
-    socketManager = module.socketManager;
-  });
-} catch (error) {
-  console.log("⚠️ SocketManager not available yet");
+if (process.env.NODE_ENV === "production") {
+  try {
+    import("../node-build").then((module) => {
+      socketManager = module.socketManager;
+    });
+  } catch (error) {
+    console.log("⚠️ SocketManager not available yet");
+  }
 }
 
 // Initialize MongoDB connection

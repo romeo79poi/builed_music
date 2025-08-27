@@ -101,7 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         headers: options?.headers,
       });
 
-      const response = await fetch(url, options);
+      const response = await fetch(url, { credentials: "include", ...options });
 
       console.log(`📊 Response received:`, {
         status: response.status,
@@ -159,42 +159,64 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const initializeAuth = async () => {
     try {
-      // Check for stored token or session
       const token = localStorage.getItem("authToken");
       if (token) {
         await loadUserProfile(token);
-      } else {
-        setUser(null);
+        return;
       }
+
+      // Check cookies to avoid unnecessary 401s before login
+      const cookie = typeof document !== "undefined" ? document.cookie : "";
+      const hasAccess = /(?:^|; )auth_token=/.test(cookie);
+      const hasRefresh = /(?:^|; )refresh_token=/.test(cookie);
+
+      if (hasAccess) {
+        const ok = await loadUserProfile();
+        if (ok) return;
+      }
+
+      if (hasRefresh) {
+        try {
+          await safeFetch("/api/auth/refresh", { method: "POST" });
+          await loadUserProfile();
+          return;
+        } catch {
+          // ignore - user not logged in yet
+        }
+      }
+
+      setUser(null);
     } catch (error) {
-      console.error("Auth initialization error:", error);
+      // swallow init errors to prevent noisy logs pre-login
       setUser(null);
     } finally {
       setLoading(false);
     }
   };
 
-  const loadUserProfile = async (token: string) => {
+  const loadUserProfile = async (token?: string) => {
     try {
-      const result = await safeFetch("/api/auth/me", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
+      const result = await safeFetch("/api/auth/me", { headers });
 
       if (result.success && result.data) {
         setUser(result.data);
         console.log("✅ User profile loaded:", result.data);
+        return true;
       } else {
         console.error("Auth endpoint returned error:", result);
         localStorage.removeItem("authToken");
         setUser(null);
+        return false;
       }
     } catch (error) {
       console.error("Error loading user profile:", error);
       localStorage.removeItem("authToken");
       setUser(null);
+      return false;
     }
   };
 
@@ -294,16 +316,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     try {
       const token = localStorage.getItem("authToken");
-      if (!token) {
-        return { success: false, message: "No authentication token" };
-      }
+
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
 
       const result = await safeFetch("/api/auth/profile", {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers,
         body: JSON.stringify(updates),
       });
 
@@ -330,14 +351,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     try {
       const token = localStorage.getItem("authToken");
-      if (!token) {
-        return { success: false, message: "No authentication token" };
-      }
+
+      const headers: Record<string, string> = {};
+      if (token) headers["Authorization"] = `Bearer ${token}`;
 
       const result = await safeFetch("/api/auth/settings", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers,
       });
 
       return {
@@ -361,16 +380,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     try {
       const token = localStorage.getItem("authToken");
-      if (!token) {
-        return { success: false, message: "No authentication token" };
-      }
+
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
 
       const result = await safeFetch("/api/auth/settings", {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers,
         body: JSON.stringify(settings),
       });
 

@@ -31,5 +31,6 @@ userLikesSchema.index({ user: 1, item_id: 1 }, { unique: true });
 userLikesSchema.index({ item_type: 1, item_id: 1 });
 userLikesSchema.index({ created_at: -1 });
 
-export const UserLikes = mongoose.model("UserLikes", userLikesSchema);
+export const UserLikes =
+  mongoose.models.UserLikes || mongoose.model("UserLikes", userLikesSchema);
 export default UserLikes;

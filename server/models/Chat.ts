@@ -46,5 +46,5 @@ chatSchema.index({ participants: 1 });
 chatSchema.index({ updated_at: -1 });
 chatSchema.index({ type: 1 });
 
-export const Chat = mongoose.model("Chat", chatSchema);
+export const Chat = mongoose.models.Chat || mongoose.model("Chat", chatSchema);
 export default Chat;

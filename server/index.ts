@@ -89,7 +89,11 @@ import {
   toggleFollow as toggleMongoFollow,
 } from "./routes/profile-mongodb";
 
-import { authenticateJWT, optionalAuth } from "./middleware/auth";
+import {
+  authenticateJWT,
+  optionalAuth,
+  authenticateTokenOnly,
+} from "./middleware/auth";
 
 // Complete Auth System
 import authMainRouter from "./routes/auth-main";
@@ -268,7 +272,12 @@ export function createServer() {
   connectDB().catch(console.error);
 
   // Middleware
-  app.use(cors());
+  app.use(
+    cors({
+      origin: true,
+      credentials: true,
+    }),
+  );
   app.use(express.json({ limit: "10mb" }));
   app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
@@ -306,6 +315,10 @@ export function createServer() {
 
   // Login route
   app.post("/api/auth/login", loginUser);
+  app.post(
+    "/api/auth/refresh",
+    require("./routes/auth-enhanced").refreshAccessToken,
+  );
 
   // ===============================================
   // MONGODB + JWT AUTHENTICATION ROUTES
@@ -585,12 +598,12 @@ export function createServer() {
   // JWT Authentication endpoints
   app.post("/api/auth/signup", signupWithRateLimit);
   app.post("/api/auth/login", loginWithRateLimit);
-  app.get("/api/auth/me", authenticateJWT, me);
+  app.get("/api/auth/me", optionalAuth, me);
   app.put("/api/auth/profile", authenticateJWT, updateJWTProfile);
-  app.get("/api/auth/settings", authenticateJWT, getSettings);
-  app.put("/api/auth/settings", authenticateJWT, updateSettings);
+  app.get("/api/auth/settings", authenticateTokenOnly, getSettings);
+  app.put("/api/auth/settings", authenticateTokenOnly, updateSettings);
   app.get("/api/auth/check-availability", jwtCheckAvailability);
-  app.post("/api/auth/refresh", authenticateJWT, jwtRefreshToken);
+  app.post("/api/auth/refresh-token", authenticateJWT, jwtRefreshToken);
   app.post("/api/auth/logout", logout);
 
   // ===============================================

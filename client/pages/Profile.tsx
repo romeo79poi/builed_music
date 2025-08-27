@@ -138,13 +138,14 @@ export default function Profile() {
   const fetchUserTracks = async (userId: string) => {
     try {
       const token = localStorage.getItem("authToken");
-      if (!token) return;
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
 
       const response = await fetch(`/api/v1/users/${userId}/tracks`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+        credentials: "include",
+        headers,
       });
 
       if (response.ok) {
@@ -174,13 +175,14 @@ export default function Profile() {
   const fetchUserPlaylists = async (userId: string) => {
     try {
       const token = localStorage.getItem("authToken");
-      if (!token) return;
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
 
       const response = await fetch(`/api/v1/users/${userId}/playlists`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+        credentials: "include",
+        headers,
       });
 
       if (response.ok) {
@@ -210,13 +212,14 @@ export default function Profile() {
   const fetchRecentlyPlayed = async (userId: string) => {
     try {
       const token = localStorage.getItem("authToken");
-      if (!token) return;
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
 
       const response = await fetch(`/api/profile/${userId}/recently-played`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+        credentials: "include",
+        headers,
       });
 
       if (response.ok) {
@@ -236,14 +239,15 @@ export default function Profile() {
   const followUser = async (userId: string, userProfile: any) => {
     try {
       const token = localStorage.getItem("authToken");
-      if (!token) return false;
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
 
       const response = await fetch(`/api/v1/users/${userId}/follow`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+        credentials: "include",
+        headers,
       });
 
       if (response.ok) {
@@ -260,14 +264,15 @@ export default function Profile() {
   const unfollowUser = async (userId: string) => {
     try {
       const token = localStorage.getItem("authToken");
-      if (!token) return false;
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
 
       const response = await fetch(`/api/v1/users/${userId}/follow`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+        credentials: "include",
+        headers,
       });
 
       if (response.ok) {
@@ -338,8 +343,10 @@ export default function Profile() {
       // Load user data from backend JWT authentication
       console.log("🔄 Loading user profile from backend...");
 
-      // User data is already available from AuthContext
-      const enhancedUserData = authUser;
+      // Decide data source: enhanced (uid present) vs backend JWT
+      const enhancedUserData: any = (authUser as any)?.uid
+        ? (authUser as any)
+        : null;
 
       if (enhancedUserData) {
         // Convert enhanced user data to profile format
@@ -893,11 +900,6 @@ export default function Profile() {
                     target.src = `https://via.placeholder.com/64?text=${profile.displayName.charAt(0)}`;
                   }}
                 />
-                {profile.isVerified && (
-                  <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center border-2 border-background">
-                    <Verified className="w-3 h-3 text-white" />
-                  </div>
-                )}
 
                 <input
                   id="avatar-upload"
@@ -1092,6 +1094,36 @@ export default function Profile() {
                         Profile Details
                       </p>
                       <div className="space-y-1">
+                        {(profile as any).email && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] text-muted-foreground">
+                              Email:
+                            </span>
+                            <span className="text-[10px] text-foreground">
+                              {(profile as any).email}
+                            </span>
+                          </div>
+                        )}
+                        {(profile as any).provider && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] text-muted-foreground">
+                              Sign-in method:
+                            </span>
+                            <span className="text-[10px] text-foreground capitalize">
+                              {(profile as any).provider}
+                            </span>
+                          </div>
+                        )}
+                        {profile.email && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] text-muted-foreground">
+                              Email:
+                            </span>
+                            <span className="text-[10px] text-foreground">
+                              {profile.email}
+                            </span>
+                          </div>
+                        )}
                         {profile.gender && (
                           <div className="flex items-center justify-between">
                             <span className="text-[10px] text-muted-foreground">

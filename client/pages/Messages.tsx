@@ -32,6 +32,7 @@ import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
 import { useAuth } from "../context/AuthContext";
 import { fetchUserData } from "../lib/auth";
+import { useFirebase } from "../context/FirebaseContext";
 
 interface Message {
   id: string;

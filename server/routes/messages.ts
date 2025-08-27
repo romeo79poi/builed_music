@@ -9,13 +9,15 @@ const typingUsers = new Map<string, Set<string>>();
 
 // Import socket manager (will be available after server starts)
 let socketManager: any = null;
-try {
-  // Dynamically import to avoid circular dependency
-  import("../node-build").then((module) => {
-    socketManager = module.socketManager;
-  });
-} catch (error) {
-  console.log("⚠️ SocketManager not available yet");
+if (process.env.NODE_ENV === "production") {
+  try {
+    // Dynamically import to avoid circular dependency
+    import("../node-build").then((module) => {
+      socketManager = module.socketManager;
+    });
+  } catch (error) {
+    console.log("⚠️ SocketManager not available yet");
+  }
 }
 
 // Initialize MongoDB connection

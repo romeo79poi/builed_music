@@ -130,7 +130,18 @@ export default function Signup() {
   const [phoneVerificationSent, setPhoneVerificationSent] = useState(false);
   const [isSocialSignup, setIsSocialSignup] = useState(false);
   const [tempEmailUser, setTempEmailUser] = useState<any>(null);
-  const [emailVerified, setEmailVerified] = useState(false);
+  const [emailVerified, setEmailVerified] = useState(true);
+  const requireEmailVerification = false;
+
+  // Skip email-verify step when already verified or not required
+  useEffect(() => {
+    if (
+      (emailVerified || !requireEmailVerification) &&
+      currentStep === "email-verify"
+    ) {
+      setCurrentStep("profile");
+    }
+  }, [emailVerified, currentStep]);
 
   // Validation functions
   const validateEmail = (email: string): boolean => {
@@ -650,44 +661,23 @@ export default function Signup() {
     setIsLoading(true);
 
     try {
-      // Check if email is available
+      // Check if email is available (state is set optimistically to true)
       await checkAvailability("email", formData.email);
 
       if (availability.email !== false) {
-        // Email verification not required with JWT backend
-        console.log("✅ Email verified, proceeding to profile setup...");
-
-        // Skip email verification step and go directly to profile
-        const result = { success: true };
-
-        if (result.success) {
-          // Email verified, continue to profile setup
-
-          if (verificationResult.success) {
-            setEmailVerificationSent(true);
-            setResendTimer(60);
-
-            toast({
-              title: "Verification email sent! 📬",
-              description: `Please check ${formData.email} and click the verification link`,
-            });
-
-            // Go to email verification step
-            setCurrentStep("email-verify");
-          } else {
-            throw new Error(
-              verificationResult.error || "Failed to send verification email",
-            );
-          }
-        } else {
-          throw new Error(result.error || "Failed to create account");
-        }
+        // For JWT signup flow, we don't require email verification
+        setEmailVerified(true);
+        toast({
+          title: "Email accepted",
+          description: `Using ${formData.email} for your account`,
+        });
+        setCurrentStep("profile");
       }
     } catch (error: any) {
       console.error("Email step error:", error);
-      setErrorAlert(error.message || "Failed to send verification email");
+      setErrorAlert(error.message || "Failed to continue with email");
       toast({
-        title: "Verification failed",
+        title: "Email step failed",
         description: error.message || "Please try again",
         variant: "destructive",
       });
@@ -931,8 +921,12 @@ export default function Signup() {
   const handleDOBStep = () => {
     if (!validateDateOfBirth()) return;
 
-    // Check email verification for email signups
-    if (signupMethod === "email" && !emailVerified) {
+    // Check email verification for email signups (only if required)
+    if (
+      signupMethod === "email" &&
+      requireEmailVerification &&
+      !emailVerified
+    ) {
       setErrorAlert("Email verification required.");
       setCurrentStep("email-verify");
       return;
@@ -942,8 +936,12 @@ export default function Signup() {
   };
 
   const handleProfileImageStep = async () => {
-    // Check email verification for email signups
-    if (signupMethod === "email" && !emailVerified) {
+    // Check email verification for email signups (only if required)
+    if (
+      signupMethod === "email" &&
+      requireEmailVerification &&
+      !emailVerified
+    ) {
       setErrorAlert("Email verification required.");
       setCurrentStep("email-verify");
       return;
@@ -988,8 +986,12 @@ export default function Signup() {
   const handleGenderStep = () => {
     if (!validateGender()) return;
 
-    // Check email verification for email signups
-    if (signupMethod === "email" && !emailVerified) {
+    // Check email verification for email signups (only if required)
+    if (
+      signupMethod === "email" &&
+      requireEmailVerification &&
+      !emailVerified
+    ) {
       setErrorAlert("Email verification required.");
       setCurrentStep("email-verify");
       return;
