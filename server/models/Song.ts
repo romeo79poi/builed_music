@@ -94,5 +94,5 @@ songSchema.index({ created_at: -1 });
 songSchema.index({ uploaded_by: 1 });
 songSchema.index({ status: 1 });
 
-export const Song = mongoose.model("Song", songSchema);
+export const Song = mongoose.models.Song || mongoose.model("Song", songSchema);
 export default Song;
