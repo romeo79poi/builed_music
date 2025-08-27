@@ -138,13 +138,12 @@ export default function Profile() {
   const fetchUserTracks = async (userId: string) => {
     try {
       const token = localStorage.getItem("authToken");
-      if (!token) return;
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
 
       const response = await fetch(`/api/v1/users/${userId}/tracks`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+        credentials: "include",
+        headers,
       });
 
       if (response.ok) {
@@ -174,13 +173,12 @@ export default function Profile() {
   const fetchUserPlaylists = async (userId: string) => {
     try {
       const token = localStorage.getItem("authToken");
-      if (!token) return;
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
 
       const response = await fetch(`/api/v1/users/${userId}/playlists`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+        credentials: "include",
+        headers,
       });
 
       if (response.ok) {
@@ -210,13 +208,12 @@ export default function Profile() {
   const fetchRecentlyPlayed = async (userId: string) => {
     try {
       const token = localStorage.getItem("authToken");
-      if (!token) return;
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
 
       const response = await fetch(`/api/profile/${userId}/recently-played`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+        credentials: "include",
+        headers,
       });
 
       if (response.ok) {
@@ -236,14 +233,13 @@ export default function Profile() {
   const followUser = async (userId: string, userProfile: any) => {
     try {
       const token = localStorage.getItem("authToken");
-      if (!token) return false;
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
 
       const response = await fetch(`/api/v1/users/${userId}/follow`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+        credentials: "include",
+        headers,
       });
 
       if (response.ok) {
@@ -260,14 +256,13 @@ export default function Profile() {
   const unfollowUser = async (userId: string) => {
     try {
       const token = localStorage.getItem("authToken");
-      if (!token) return false;
+      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      if (token) headers["Authorization"] = `Bearer ${token}`;
 
       const response = await fetch(`/api/v1/users/${userId}/follow`, {
         method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+        credentials: "include",
+        headers,
       });
 
       if (response.ok) {
