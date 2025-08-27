@@ -460,6 +460,7 @@ export const updateProfile: RequestHandler = async (req, res) => {
       location: user.location,
       website: user.website,
       verified: user.is_verified,
+      provider: user.provider || "email",
       premium: false,
       followers_count: user.follower_count,
       following_count: user.following_count,
