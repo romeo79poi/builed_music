@@ -92,8 +92,10 @@ export const signup: RequestHandler = async (req, res) => {
 
     await newUser.save();
 
-    // Generate token
+    // Generate tokens and set cookies
     const token = generateToken(newUser._id.toString());
+    const refresh = generateRefreshToken(newUser._id.toString());
+    setAuthCookies(res, token, refresh);
 
     // Return user data without password
     const userData = {
