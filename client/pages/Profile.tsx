@@ -888,11 +888,6 @@ export default function Profile() {
                     target.src = `https://via.placeholder.com/64?text=${profile.displayName.charAt(0)}`;
                   }}
                 />
-                {profile.isVerified && (
-                  <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center border-2 border-background">
-                    <Verified className="w-3 h-3 text-white" />
-                  </div>
-                )}
 
                 <input
                   id="avatar-upload"
@@ -1087,6 +1082,12 @@ export default function Profile() {
                         Profile Details
                       </p>
                       <div className="space-y-1">
+                        {profile.email && (
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] text-muted-foreground">Email:</span>
+                            <span className="text-[10px] text-foreground">{profile.email}</span>
+                          </div>
+                        )}
                         {profile.gender && (
                           <div className="flex items-center justify-between">
                             <span className="text-[10px] text-muted-foreground">
