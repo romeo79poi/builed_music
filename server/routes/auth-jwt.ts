@@ -214,34 +214,106 @@ export const login: RequestHandler = async (req, res) => {
 // Get Current User (requires authentication)
 export const me: RequestHandler = async (req, res) => {
   try {
-    const user = req.user; // Set by authenticateJWT middleware
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
+    // If middleware already populated user from DB, return full profile
+    if (req.user) {
+      const user = req.user;
+      const userData = {
+        id: user._id.toString(),
+        email: user.email,
+        username: user.username,
+        name: user.name,
+        avatar_url: user.profile_image_url,
+        bio: user.bio,
+        verified: user.is_verified,
+        premium: false,
+        followers_count: user.follower_count,
+        following_count: user.following_count,
+        created_at: user.created_at,
+        updated_at: user.updated_at,
+      };
+      return res.json({ success: true, data: userData, source: "database" });
     }
 
+    // Fallback: decode token directly without requiring DB connection
+    const authHeader = req.headers.authorization;
+    let token = authHeader?.startsWith("Bearer ")
+      ? authHeader.substring(7)
+      : authHeader || undefined;
+
+    if (!token && req.headers.cookie) {
+      const cookieHeader = req.headers.cookie || "";
+      const cookies: Record<string, string> = Object.fromEntries(
+        cookieHeader.split(";").map((c) => {
+          const idx = c.indexOf("=");
+          if (idx === -1) return ["", ""];
+          const k = c.slice(0, idx).trim();
+          const v = decodeURIComponent(c.slice(idx + 1));
+          return [k, v];
+        }),
+      );
+      token = cookies["auth_token"];
+    }
+
+    if (!token) {
+      return res.status(401).json({ success: false, message: "Access token required" });
+    }
+
+    let decoded: any;
+    try {
+      decoded = jwt.verify(token, JWT_SECRET, {
+        issuer: "music-catch-api",
+        audience: "music-catch-app",
+      });
+    } catch (err: any) {
+      const code = err?.name === "TokenExpiredError" ? 401 : 403;
+      return res.status(code).json({ success: false, message: "Invalid or expired token" });
+    }
+
+    // If DB is available, try to enrich from database
+    if (isMongoConnected() && decoded?.userId) {
+      try {
+        const user = await User.findById(decoded.userId);
+        if (user) {
+          const userData = {
+            id: user._id.toString(),
+            email: user.email,
+            username: user.username,
+            name: user.name,
+            avatar_url: user.profile_image_url,
+            bio: user.bio,
+            verified: user.is_verified,
+            premium: false,
+            followers_count: user.follower_count,
+            following_count: user.following_count,
+            created_at: user.created_at,
+            updated_at: user.updated_at,
+          };
+          return res.json({ success: true, data: userData, source: "database" });
+        }
+      } catch {}
+    }
+
+    // Minimal profile from token claims
+    const email = decoded.email || "";
+    const username = decoded.username || (email ? email.split("@")[0] : "user");
+    const name = decoded.name || username || "User";
+
     const userData = {
-      id: user._id.toString(),
-      email: user.email,
-      username: user.username,
-      name: user.name,
-      avatar_url: user.profile_image_url,
-      bio: user.bio,
-      verified: user.is_verified,
+      id: decoded.userId,
+      email,
+      username,
+      name,
+      avatar_url: "",
+      bio: "",
+      verified: !!decoded.verified,
       premium: false,
-      followers_count: user.follower_count,
-      following_count: user.following_count,
-      created_at: user.created_at,
-      updated_at: user.updated_at,
+      followers_count: 0,
+      following_count: 0,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
     };
 
-    res.json({
-      success: true,
-      data: userData,
-    });
+    return res.json({ success: true, data: userData, source: "token" });
   } catch (error: any) {
     console.error("Get user error:", error);
     res.status(500).json({
