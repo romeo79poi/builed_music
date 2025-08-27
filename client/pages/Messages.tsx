@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate, useLocation } from "react-router-dom";
 import {
@@ -32,6 +33,7 @@ import { useToast } from "../hooks/use-toast";
 import MobileFooter from "../components/MobileFooter";
 import { useAuth } from "../context/AuthContext";
 import { fetchUserData } from "../lib/auth";
+import { useFirebase } from "../context/FirebaseContext";
 
 interface Message {
   id: string;
