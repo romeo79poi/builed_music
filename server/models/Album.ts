@@ -88,5 +88,5 @@ albumSchema.index({ album_type: 1 });
 albumSchema.index({ status: 1 });
 albumSchema.index({ play_count: -1 });
 
-export const Album = mongoose.model("Album", albumSchema);
+export const Album = mongoose.models.Album || mongoose.model("Album", albumSchema);
 export default Album;
