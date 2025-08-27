@@ -785,9 +785,16 @@ export default function Settings() {
             <ArrowLeft className="w-5 h-5 text-white" />
           </motion.button>
 
-          <h1 className="text-xl font-bold text-white dark:text-white light:text-gray-900">
-            Settings
-          </h1>
+          <div>
+            <h1 className="text-xl font-bold text-white dark:text-white light:text-gray-900">
+              Settings
+            </h1>
+            {authUser && (
+              <p className="text-xs text-white/70 mt-1">
+                {authUser.email} • {(authUser as any).provider ? `Signed in with ${(authUser as any).provider}` : ""}
+              </p>
+            )}
+          </div>
 
           <div className="relative support-dropdown">
             <motion.button
