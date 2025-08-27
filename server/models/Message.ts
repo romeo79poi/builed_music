@@ -60,5 +60,5 @@ const messageSchema = new mongoose.Schema(
 messageSchema.index({ chatId: 1, timestamp: -1 });
 messageSchema.index({ senderId: 1, timestamp: -1 });
 
-export const Message = mongoose.model("Message", messageSchema);
+export const Message = mongoose.models.Message || mongoose.model("Message", messageSchema);
 export default Message;
