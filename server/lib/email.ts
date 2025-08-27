@@ -1,19 +1,30 @@
 import nodemailer from "nodemailer";
 
-// Create email transporter
-const createTransporter = () => {
-  // Use a simple configuration that always works for testing
+// Create email transporter (prefers env SMTP, falls back to Nodemailer test account)
+const createTransporter = async () => {
+  const host = process.env.SMTP_HOST;
+  const port = process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT) : undefined;
+  const user = process.env.SMTP_USER;
+  const pass = process.env.SMTP_PASS;
+
+  if (host && port && user && pass) {
+    return nodemailer.createTransport({
+      host,
+      port,
+      secure: port === 465,
+      auth: { user, pass },
+      tls: { rejectUnauthorized: false },
+    });
+  }
+
+  // Fallback: create an Ethereal test account dynamically
+  const testAccount = await nodemailer.createTestAccount();
   return nodemailer.createTransport({
     host: "smtp.ethereal.email",
     port: 587,
     secure: false,
-    auth: {
-      user: "berta.howe83@ethereal.email",
-      pass: "4tQ9t3MRyXBe3W4zVw",
-    },
-    tls: {
-      rejectUnauthorized: false,
-    },
+    auth: { user: testAccount.user, pass: testAccount.pass },
+    tls: { rejectUnauthorized: false },
   });
 };
 
