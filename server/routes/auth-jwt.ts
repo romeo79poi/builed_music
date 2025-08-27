@@ -209,6 +209,7 @@ export const login: RequestHandler = async (req, res) => {
       avatar_url: user.profile_image_url,
       bio: user.bio,
       verified: user.is_verified,
+      provider: user.provider || "email",
       premium: false,
       followers_count: user.follower_count,
       following_count: user.following_count,
