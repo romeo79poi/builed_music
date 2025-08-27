@@ -406,13 +406,10 @@ export const refreshToken: RequestHandler = async (req, res) => {
 // Update User Profile (requires authentication)
 export const updateProfile: RequestHandler = async (req, res) => {
   try {
-    const user = req.user; // Set by authenticateJWT middleware
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
+    const user = req.user;
+    const isAuthed = !!user || !!req.userId;
+    if (!isAuthed) {
+      return res.status(401).json({ success: false, message: "Authentication required" });
     }
 
     const { name, username, bio, avatar_url, location, website } = req.body;
@@ -464,13 +461,10 @@ export const updateProfile: RequestHandler = async (req, res) => {
 // Get User Settings (requires authentication)
 export const getSettings: RequestHandler = async (req, res) => {
   try {
-    const user = req.user; // Set by authenticateJWT middleware
-
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
+    const user = req.user;
+    const isAuthed = !!user || !!req.userId;
+    if (!isAuthed) {
+      return res.status(401).json({ success: false, message: "Authentication required" });
     }
 
     // Return user settings (you can expand this based on your User model)

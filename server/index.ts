@@ -89,7 +89,7 @@ import {
   toggleFollow as toggleMongoFollow,
 } from "./routes/profile-mongodb";
 
-import { authenticateJWT, optionalAuth } from "./middleware/auth";
+import { authenticateJWT, optionalAuth, authenticateTokenOnly } from "./middleware/auth";
 
 // Complete Auth System
 import authMainRouter from "./routes/auth-main";
@@ -593,8 +593,8 @@ export function createServer() {
   app.post("/api/auth/login", loginWithRateLimit);
   app.get("/api/auth/me", optionalAuth, me);
   app.put("/api/auth/profile", authenticateJWT, updateJWTProfile);
-  app.get("/api/auth/settings", authenticateJWT, getSettings);
-  app.put("/api/auth/settings", authenticateJWT, updateSettings);
+  app.get("/api/auth/settings", authenticateTokenOnly, getSettings);
+  app.put("/api/auth/settings", authenticateTokenOnly, updateSettings);
   app.get("/api/auth/check-availability", jwtCheckAvailability);
   app.post("/api/auth/refresh-token", authenticateJWT, jwtRefreshToken);
   app.post("/api/auth/logout", logout);
