@@ -20,9 +20,23 @@ declare global {
 export const authenticateJWT: RequestHandler = async (req, res, next) => {
   try {
     const authHeader = req.headers.authorization;
-    const token = authHeader?.startsWith("Bearer ")
+    let token = authHeader?.startsWith("Bearer ")
       ? authHeader.substring(7)
-      : authHeader;
+      : authHeader || undefined;
+
+    if (!token && req.headers.cookie) {
+      const cookieHeader = req.headers.cookie || "";
+      const cookies: Record<string, string> = Object.fromEntries(
+        cookieHeader.split(";").map((c) => {
+          const idx = c.indexOf("=");
+          if (idx === -1) return ["", ""];
+          const k = c.slice(0, idx).trim();
+          const v = decodeURIComponent(c.slice(idx + 1));
+          return [k, v];
+        }),
+      );
+      token = cookies["auth_token"];
+    }
 
     if (!token) {
       return res.status(401).json({
