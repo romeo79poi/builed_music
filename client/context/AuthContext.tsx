@@ -101,7 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         headers: options?.headers,
       });
 
-      const response = await fetch(url, options);
+      const response = await fetch(url, { credentials: "include", ...options });
 
       console.log(`📊 Response received:`, {
         status: response.status,
