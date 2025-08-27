@@ -19,7 +19,7 @@ const generateToken = (userId: string) => {
     { userId },
     JWT_SECRET,
     {
-      expiresIn: "7d",
+      expiresIn: "15m",
       issuer: "music-catch-api",
       audience: "music-catch-app",
     }
