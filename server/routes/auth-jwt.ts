@@ -330,6 +330,7 @@ export const me: RequestHandler = async (req, res) => {
       avatar_url: "",
       bio: "",
       verified: !!decoded.verified,
+      provider: decoded.provider || "email",
       premium: false,
       followers_count: 0,
       following_count: 0,
