@@ -417,7 +417,7 @@ const verifyLoginOTP: RequestHandler = async (req, res) => {
 // Google OAuth
 const googleAuth: RequestHandler = async (req, res) => {
   console.log("🔥 Google auth endpoint hit!");
-  console.log("��� Request body:", req.body);
+  console.log("📝 Request body:", req.body);
   console.log("📝 Request headers:", req.headers);
 
   try {
@@ -594,6 +594,8 @@ const facebookAuth: RequestHandler = async (req, res) => {
         updated_at: new Date(),
       } as any;
       const jwtToken = generateToken(userData.id);
+      const refresh = generateRefreshToken(userData.id);
+      setAuthCookies(res, jwtToken, refresh);
       return res.json({ success: true, message: "Facebook authentication successful (dev)", token: jwtToken, data: userData });
     }
 
