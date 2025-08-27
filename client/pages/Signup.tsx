@@ -135,7 +135,10 @@ export default function Signup() {
 
   // Skip email-verify step when already verified or not required
   useEffect(() => {
-    if ((emailVerified || !requireEmailVerification) && currentStep === "email-verify") {
+    if (
+      (emailVerified || !requireEmailVerification) &&
+      currentStep === "email-verify"
+    ) {
       setCurrentStep("profile");
     }
   }, [emailVerified, currentStep]);
@@ -919,7 +922,11 @@ export default function Signup() {
     if (!validateDateOfBirth()) return;
 
     // Check email verification for email signups (only if required)
-    if (signupMethod === "email" && requireEmailVerification && !emailVerified) {
+    if (
+      signupMethod === "email" &&
+      requireEmailVerification &&
+      !emailVerified
+    ) {
       setErrorAlert("Email verification required.");
       setCurrentStep("email-verify");
       return;
@@ -930,7 +937,11 @@ export default function Signup() {
 
   const handleProfileImageStep = async () => {
     // Check email verification for email signups (only if required)
-    if (signupMethod === "email" && requireEmailVerification && !emailVerified) {
+    if (
+      signupMethod === "email" &&
+      requireEmailVerification &&
+      !emailVerified
+    ) {
       setErrorAlert("Email verification required.");
       setCurrentStep("email-verify");
       return;
@@ -976,7 +987,11 @@ export default function Signup() {
     if (!validateGender()) return;
 
     // Check email verification for email signups (only if required)
-    if (signupMethod === "email" && requireEmailVerification && !emailVerified) {
+    if (
+      signupMethod === "email" &&
+      requireEmailVerification &&
+      !emailVerified
+    ) {
       setErrorAlert("Email verification required.");
       setCurrentStep("email-verify");
       return;

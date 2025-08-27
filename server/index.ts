@@ -89,7 +89,11 @@ import {
   toggleFollow as toggleMongoFollow,
 } from "./routes/profile-mongodb";
 
-import { authenticateJWT, optionalAuth, authenticateTokenOnly } from "./middleware/auth";
+import {
+  authenticateJWT,
+  optionalAuth,
+  authenticateTokenOnly,
+} from "./middleware/auth";
 
 // Complete Auth System
 import authMainRouter from "./routes/auth-main";
@@ -311,7 +315,10 @@ export function createServer() {
 
   // Login route
   app.post("/api/auth/login", loginUser);
-  app.post("/api/auth/refresh", require("./routes/auth-enhanced").refreshAccessToken);
+  app.post(
+    "/api/auth/refresh",
+    require("./routes/auth-enhanced").refreshAccessToken,
+  );
 
   // ===============================================
   // MONGODB + JWT AUTHENTICATION ROUTES

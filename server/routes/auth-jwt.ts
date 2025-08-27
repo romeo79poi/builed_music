@@ -3,9 +3,14 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/User";
 import { isMongoConnected } from "../lib/mongodb";
-import { rateLimit, validateRegistrationInput, validateLoginInput } from "../middleware/auth";
+import {
+  rateLimit,
+  validateRegistrationInput,
+  validateLoginInput,
+} from "../middleware/auth";
 
-const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret_key_change_in_production";
+const JWT_SECRET =
+  process.env.JWT_SECRET || "your_jwt_secret_key_change_in_production";
 
 // Sign token with common user claims for better client fallback
 const signTokenWithClaims = (user: any) => {
@@ -24,36 +29,32 @@ const signTokenWithClaims = (user: any) => {
       expiresIn: "7d",
       issuer: "music-catch-api",
       audience: "music-catch-app",
-    }
+    },
   );
 };
 
 // Generate JWT token
 const generateToken = (userId: string) => {
-  return jwt.sign(
-    { userId },
-    JWT_SECRET,
-    {
-      expiresIn: "7d",
-      issuer: "music-catch-api",
-      audience: "music-catch-app",
-    }
-  );
+  return jwt.sign({ userId }, JWT_SECRET, {
+    expiresIn: "7d",
+    issuer: "music-catch-api",
+    audience: "music-catch-app",
+  });
 };
 
 const generateRefreshToken = (userId: string) => {
-  return jwt.sign(
-    { userId, type: "refresh" },
-    JWT_SECRET,
-    {
-      expiresIn: "30d",
-      issuer: "music-catch-api",
-      audience: "music-catch-app",
-    }
-  );
+  return jwt.sign({ userId, type: "refresh" }, JWT_SECRET, {
+    expiresIn: "30d",
+    issuer: "music-catch-api",
+    audience: "music-catch-app",
+  });
 };
 
-const setAuthCookies = (res: any, accessToken: string, refreshToken: string) => {
+const setAuthCookies = (
+  res: any,
+  accessToken: string,
+  refreshToken: string,
+) => {
   const isProd = process.env.NODE_ENV === "production";
   res.cookie("auth_token", accessToken, {
     httpOnly: true,
@@ -91,7 +92,10 @@ export const signup: RequestHandler = async (req, res) => {
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: existingUser.email === email ? "Email already registered" : "Username already taken",
+        message:
+          existingUser.email === email
+            ? "Email already registered"
+            : "Username already taken",
       });
     }
 
@@ -278,7 +282,9 @@ export const me: RequestHandler = async (req, res) => {
     }
 
     if (!token) {
-      return res.status(401).json({ success: false, message: "Access token required" });
+      return res
+        .status(401)
+        .json({ success: false, message: "Access token required" });
     }
 
     let decoded: any;
@@ -289,7 +295,9 @@ export const me: RequestHandler = async (req, res) => {
       });
     } catch (err: any) {
       const code = err?.name === "TokenExpiredError" ? 401 : 403;
-      return res.status(code).json({ success: false, message: "Invalid or expired token" });
+      return res
+        .status(code)
+        .json({ success: false, message: "Invalid or expired token" });
     }
 
     // If DB is available, try to enrich from database
@@ -298,21 +306,25 @@ export const me: RequestHandler = async (req, res) => {
         const user = await User.findById(decoded.userId);
         if (user) {
           const userData = {
-         id: user._id.toString(),
-         email: user.email,
-         username: user.username,
-         name: user.name,
-         avatar_url: user.profile_image_url,
-         bio: user.bio,
-         verified: user.is_verified,
-         provider: user.provider || "email",
-         premium: false,
-         followers_count: user.follower_count,
-         following_count: user.following_count,
-         created_at: user.created_at,
-         updated_at: user.updated_at,
-       };
-          return res.json({ success: true, data: userData, source: "database" });
+            id: user._id.toString(),
+            email: user.email,
+            username: user.username,
+            name: user.name,
+            avatar_url: user.profile_image_url,
+            bio: user.bio,
+            verified: user.is_verified,
+            provider: user.provider || "email",
+            premium: false,
+            followers_count: user.follower_count,
+            following_count: user.following_count,
+            created_at: user.created_at,
+            updated_at: user.updated_at,
+          };
+          return res.json({
+            success: true,
+            data: userData,
+            source: "database",
+          });
         }
       } catch {}
     }
@@ -372,7 +384,7 @@ export const checkAvailability: RequestHandler = async (req, res) => {
     if (username) query.username = username;
 
     const existingUser = await User.findOne({
-      $or: Object.keys(query).map(key => ({ [key]: query[key] })),
+      $or: Object.keys(query).map((key) => ({ [key]: query[key] })),
     });
 
     if (existingUser) {
@@ -434,7 +446,9 @@ export const updateProfile: RequestHandler = async (req, res) => {
     const user = req.user;
     const isAuthed = !!user || !!req.userId;
     if (!isAuthed) {
-      return res.status(401).json({ success: false, message: "Authentication required" });
+      return res
+        .status(401)
+        .json({ success: false, message: "Authentication required" });
     }
 
     const { name, username, bio, avatar_url, location, website } = req.body;
@@ -490,7 +504,9 @@ export const getSettings: RequestHandler = async (req, res) => {
     const user = req.user;
     const isAuthed = !!user || !!req.userId;
     if (!isAuthed) {
-      return res.status(401).json({ success: false, message: "Authentication required" });
+      return res
+        .status(401)
+        .json({ success: false, message: "Authentication required" });
     }
 
     // Return user settings (you can expand this based on your User model)
@@ -542,7 +558,11 @@ export const updateSettings: RequestHandler = async (req, res) => {
 
     // In a real implementation, you would update settings in the database
     // For now, we'll just return success
-    console.log("Settings update requested:", { notifications, privacy, preferences });
+    console.log("Settings update requested:", {
+      notifications,
+      privacy,
+      preferences,
+    });
 
     res.json({
       success: true,
@@ -577,5 +597,13 @@ export const logout: RequestHandler = async (req, res) => {
 };
 
 // Apply rate limiting to auth endpoints
-export const signupWithRateLimit = [rateLimit(3, 15 * 60 * 1000), validateRegistrationInput, signup];
-export const loginWithRateLimit = [rateLimit(5, 15 * 60 * 1000), validateLoginInput, login];
+export const signupWithRateLimit = [
+  rateLimit(3, 15 * 60 * 1000),
+  validateRegistrationInput,
+  signup,
+];
+export const loginWithRateLimit = [
+  rateLimit(5, 15 * 60 * 1000),
+  validateLoginInput,
+  login,
+];

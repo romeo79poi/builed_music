@@ -73,5 +73,6 @@ artistSchema.index({ verified: 1 });
 artistSchema.index({ is_featured: 1 });
 artistSchema.index({ status: 1 });
 
-export const Artist = mongoose.models.Artist || mongoose.model("Artist", artistSchema);
+export const Artist =
+  mongoose.models.Artist || mongoose.model("Artist", artistSchema);
 export default Artist;

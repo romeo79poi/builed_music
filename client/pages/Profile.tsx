@@ -138,7 +138,9 @@ export default function Profile() {
   const fetchUserTracks = async (userId: string) => {
     try {
       const token = localStorage.getItem("authToken");
-      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
       if (token) headers["Authorization"] = `Bearer ${token}`;
 
       const response = await fetch(`/api/v1/users/${userId}/tracks`, {
@@ -173,7 +175,9 @@ export default function Profile() {
   const fetchUserPlaylists = async (userId: string) => {
     try {
       const token = localStorage.getItem("authToken");
-      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
       if (token) headers["Authorization"] = `Bearer ${token}`;
 
       const response = await fetch(`/api/v1/users/${userId}/playlists`, {
@@ -208,7 +212,9 @@ export default function Profile() {
   const fetchRecentlyPlayed = async (userId: string) => {
     try {
       const token = localStorage.getItem("authToken");
-      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
       if (token) headers["Authorization"] = `Bearer ${token}`;
 
       const response = await fetch(`/api/profile/${userId}/recently-played`, {
@@ -233,7 +239,9 @@ export default function Profile() {
   const followUser = async (userId: string, userProfile: any) => {
     try {
       const token = localStorage.getItem("authToken");
-      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
       if (token) headers["Authorization"] = `Bearer ${token}`;
 
       const response = await fetch(`/api/v1/users/${userId}/follow`, {
@@ -256,7 +264,9 @@ export default function Profile() {
   const unfollowUser = async (userId: string) => {
     try {
       const token = localStorage.getItem("authToken");
-      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
       if (token) headers["Authorization"] = `Bearer ${token}`;
 
       const response = await fetch(`/api/v1/users/${userId}/follow`, {
@@ -334,7 +344,9 @@ export default function Profile() {
       console.log("🔄 Loading user profile from backend...");
 
       // Decide data source: enhanced (uid present) vs backend JWT
-      const enhancedUserData: any = (authUser as any)?.uid ? (authUser as any) : null;
+      const enhancedUserData: any = (authUser as any)?.uid
+        ? (authUser as any)
+        : null;
 
       if (enhancedUserData) {
         // Convert enhanced user data to profile format
@@ -1084,20 +1096,32 @@ export default function Profile() {
                       <div className="space-y-1">
                         {(profile as any).email && (
                           <div className="flex items-center justify-between">
-                            <span className="text-[10px] text-muted-foreground">Email:</span>
-                            <span className="text-[10px] text-foreground">{(profile as any).email}</span>
+                            <span className="text-[10px] text-muted-foreground">
+                              Email:
+                            </span>
+                            <span className="text-[10px] text-foreground">
+                              {(profile as any).email}
+                            </span>
                           </div>
                         )}
                         {(profile as any).provider && (
                           <div className="flex items-center justify-between">
-                            <span className="text-[10px] text-muted-foreground">Sign-in method:</span>
-                            <span className="text-[10px] text-foreground capitalize">{(profile as any).provider}</span>
+                            <span className="text-[10px] text-muted-foreground">
+                              Sign-in method:
+                            </span>
+                            <span className="text-[10px] text-foreground capitalize">
+                              {(profile as any).provider}
+                            </span>
                           </div>
                         )}
                         {profile.email && (
                           <div className="flex items-center justify-between">
-                            <span className="text-[10px] text-muted-foreground">Email:</span>
-                            <span className="text-[10px] text-foreground">{profile.email}</span>
+                            <span className="text-[10px] text-muted-foreground">
+                              Email:
+                            </span>
+                            <span className="text-[10px] text-foreground">
+                              {profile.email}
+                            </span>
                           </div>
                         )}
                         {profile.gender && (

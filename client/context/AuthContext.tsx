@@ -196,7 +196,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const loadUserProfile = async (token?: string) => {
     try {
-      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
       if (token) headers["Authorization"] = `Bearer ${token}`;
       const result = await safeFetch("/api/auth/me", { headers });
 
@@ -315,7 +317,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const token = localStorage.getItem("authToken");
 
-      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
       if (token) headers["Authorization"] = `Bearer ${token}`;
 
       const result = await safeFetch("/api/auth/profile", {
@@ -377,7 +381,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const token = localStorage.getItem("authToken");
 
-      const headers: Record<string, string> = { "Content-Type": "application/json" };
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
       if (token) headers["Authorization"] = `Bearer ${token}`;
 
       const result = await safeFetch("/api/auth/settings", {

@@ -350,7 +350,6 @@ export default function Home() {
         variants={containerVariants}
         className="relative z-10 flex flex-col min-h-screen"
       >
-
         {/* Clean Header - Claude/AI Style */}
         <motion.header
           variants={itemVariants}

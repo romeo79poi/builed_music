@@ -4,56 +4,56 @@ import jwt from "jsonwebtoken";
 import User from "../models/User";
 import { sendVerificationEmail } from "../lib/email";
 import { isMongoConnected } from "../lib/mongodb";
-import { rateLimit, validateRegistrationInput, validateLoginInput } from "../middleware/auth";
+import {
+  rateLimit,
+  validateRegistrationInput,
+  validateLoginInput,
+} from "../middleware/auth";
 
-const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret_key_change_in_production";
+const JWT_SECRET =
+  process.env.JWT_SECRET || "your_jwt_secret_key_change_in_production";
 const GOOGLE_CLIENT_ID = process.env.GOOGLE_CLIENT_ID;
 const GOOGLE_CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET;
 const FACEBOOK_APP_ID = process.env.FACEBOOK_APP_ID;
 
 // Store OTP codes temporarily (in production, use Redis)
-const otpStore = new Map<string, { code: string; email: string; expiresAt: Date; userData?: any }>();
+const otpStore = new Map<
+  string,
+  { code: string; email: string; expiresAt: Date; userData?: any }
+>();
 
 // Generate JWT token
 const generateToken = (userId: string) => {
-  return jwt.sign(
-    { userId },
-    JWT_SECRET,
-    {
-      expiresIn: "15m",
-      issuer: "music-catch-api",
-      audience: "music-catch-app",
-    }
-  );
+  return jwt.sign({ userId }, JWT_SECRET, {
+    expiresIn: "15m",
+    issuer: "music-catch-api",
+    audience: "music-catch-app",
+  });
 };
 
 const signTokenWithClaims = (claims: any) => {
   const { id, _id, ...rest } = claims || {};
-  const userId = (_id?.toString?.() || _id) || id;
-  return jwt.sign(
-    { userId, ...rest },
-    JWT_SECRET,
-    {
-      expiresIn: "15m",
-      issuer: "music-catch-api",
-      audience: "music-catch-app",
-    }
-  );
+  const userId = _id?.toString?.() || _id || id;
+  return jwt.sign({ userId, ...rest }, JWT_SECRET, {
+    expiresIn: "15m",
+    issuer: "music-catch-api",
+    audience: "music-catch-app",
+  });
 };
 
 const generateRefreshToken = (userId: string) => {
-  return jwt.sign(
-    { userId, type: "refresh" },
-    JWT_SECRET,
-    {
-      expiresIn: "30d",
-      issuer: "music-catch-api",
-      audience: "music-catch-app",
-    }
-  );
+  return jwt.sign({ userId, type: "refresh" }, JWT_SECRET, {
+    expiresIn: "30d",
+    issuer: "music-catch-api",
+    audience: "music-catch-app",
+  });
 };
 
-const setAuthCookies = (res: any, accessToken: string, refreshToken: string) => {
+const setAuthCookies = (
+  res: any,
+  accessToken: string,
+  refreshToken: string,
+) => {
   const isProd = process.env.NODE_ENV === "production";
   res.cookie("auth_token", accessToken, {
     httpOnly: true,
@@ -123,7 +123,10 @@ const requestSignupOTP: RequestHandler = async (req, res) => {
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: existingUser.email === email ? "Email already registered" : "Username already taken",
+        message:
+          existingUser.email === email
+            ? "Email already registered"
+            : "Username already taken",
       });
     }
 
@@ -137,12 +140,12 @@ const requestSignupOTP: RequestHandler = async (req, res) => {
       code: otp,
       email,
       expiresAt,
-      userData: { email, username, password, name }
+      userData: { email, username, password, name },
     });
 
     // Send OTP email
     const emailSent = await sendOTPEmail(email, otp);
-    
+
     if (!emailSent) {
       return res.status(500).json({
         success: false,
@@ -312,7 +315,7 @@ const requestLoginOTP: RequestHandler = async (req, res) => {
 
     // Send OTP email
     const emailSent = await sendOTPEmail(email, otp);
-    
+
     if (!emailSent) {
       return res.status(500).json({
         success: false,
@@ -443,7 +446,9 @@ const googleAuth: RequestHandler = async (req, res) => {
     const { token } = req.body;
 
     if (!isMongoConnected()) {
-      console.log("⚠️ Database not connected - proceeding with dev fallback user");
+      console.log(
+        "⚠️ Database not connected - proceeding with dev fallback user",
+      );
       const uniqueId = (token || String(Date.now())).slice(-6);
       const devUser = {
         id: `google_user_${uniqueId}`,
@@ -454,7 +459,7 @@ const googleAuth: RequestHandler = async (req, res) => {
       const userData = {
         id: `dev_${uniqueId}`,
         email: devUser.email,
-        username: `google_${devUser.email.split('@')[0]}_${uniqueId}`,
+        username: `google_${devUser.email.split("@")[0]}_${uniqueId}`,
         name: devUser.name,
         avatar_url: devUser.picture,
         bio: "",
@@ -479,7 +484,12 @@ const googleAuth: RequestHandler = async (req, res) => {
       });
       const refresh = generateRefreshToken(userData.id);
       setAuthCookies(res, jwtToken, refresh);
-      return res.json({ success: true, message: "Google authentication successful (dev)", token: jwtToken, data: userData });
+      return res.json({
+        success: true,
+        message: "Google authentication successful (dev)",
+        token: jwtToken,
+        data: userData,
+      });
     }
     console.log("✅ Database is connected");
 
@@ -515,10 +525,7 @@ const googleAuth: RequestHandler = async (req, res) => {
 
     // Check if user exists
     let user = await User.findOne({
-      $or: [
-        { email: googleUser.email },
-        { google_id: googleUser.id }
-      ]
+      $or: [{ email: googleUser.email }, { google_id: googleUser.id }],
     });
 
     console.log("🔍 Existing user found:", user ? "Yes" : "No");
@@ -527,7 +534,7 @@ const googleAuth: RequestHandler = async (req, res) => {
       // Create new user with validation
       const userData = {
         email: googleUser.email,
-        username: `google_${googleUser.email.split('@')[0]}_${uniqueId}`,
+        username: `google_${googleUser.email.split("@")[0]}_${uniqueId}`,
         name: googleUser.name,
         display_name: googleUser.name,
         profile_image_url: googleUser.picture || "",
@@ -588,7 +595,8 @@ const googleAuth: RequestHandler = async (req, res) => {
       res.status(500).json({
         success: false,
         message: "Google authentication failed",
-        error: process.env.NODE_ENV === "development" ? error.message : undefined,
+        error:
+          process.env.NODE_ENV === "development" ? error.message : undefined,
       });
     }
   }
@@ -600,7 +608,9 @@ const facebookAuth: RequestHandler = async (req, res) => {
     const { token } = req.body;
 
     if (!isMongoConnected()) {
-      console.log("⚠️ Database not connected - proceeding with dev fallback user");
+      console.log(
+        "⚠️ Database not connected - proceeding with dev fallback user",
+      );
       const uniqueId = (token || String(Date.now())).slice(-6);
       const fbUser = {
         id: `facebook_user_${uniqueId}`,
@@ -611,7 +621,7 @@ const facebookAuth: RequestHandler = async (req, res) => {
       const userData = {
         id: `dev_${uniqueId}`,
         email: fbUser.email,
-        username: `facebook_${fbUser.email.split('@')[0]}_${uniqueId}`,
+        username: `facebook_${fbUser.email.split("@")[0]}_${uniqueId}`,
         name: fbUser.name,
         avatar_url: fbUser.picture.data.url,
         bio: "",
@@ -625,7 +635,12 @@ const facebookAuth: RequestHandler = async (req, res) => {
       const jwtToken = generateToken(userData.id);
       const refresh = generateRefreshToken(userData.id);
       setAuthCookies(res, jwtToken, refresh);
-      return res.json({ success: true, message: "Facebook authentication successful (dev)", token: jwtToken, data: userData });
+      return res.json({
+        success: true,
+        message: "Facebook authentication successful (dev)",
+        token: jwtToken,
+        data: userData,
+      });
     }
 
     if (!token) {
@@ -647,8 +662,8 @@ const facebookAuth: RequestHandler = async (req, res) => {
       name: `Facebook User ${uniqueId}`,
       picture: {
         data: {
-          url: "https://example.com/fb-avatar.jpg"
-        }
+          url: "https://example.com/fb-avatar.jpg",
+        },
       },
     };
 
@@ -664,10 +679,7 @@ const facebookAuth: RequestHandler = async (req, res) => {
 
     // Check if user exists
     let user = await User.findOne({
-      $or: [
-        { email: facebookUser.email },
-        { facebook_id: facebookUser.id }
-      ]
+      $or: [{ email: facebookUser.email }, { facebook_id: facebookUser.id }],
     });
 
     console.log("🔍 Existing user found:", user ? "Yes" : "No");
@@ -676,7 +688,7 @@ const facebookAuth: RequestHandler = async (req, res) => {
       // Create new user with validation
       const userData = {
         email: facebookUser.email,
-        username: `facebook_${facebookUser.email.split('@')[0]}_${uniqueId}`,
+        username: `facebook_${facebookUser.email.split("@")[0]}_${uniqueId}`,
         name: facebookUser.name,
         display_name: facebookUser.name,
         profile_image_url: facebookUser.picture.data.url || "",
@@ -738,12 +750,30 @@ const facebookAuth: RequestHandler = async (req, res) => {
 };
 
 // Apply rate limiting and export using ES6
-export const requestSignupOTPWithRateLimit = [rateLimit(3, 15 * 60 * 1000), requestSignupOTP];
-export const verifySignupOTPWithRateLimit = [rateLimit(5, 15 * 60 * 1000), verifySignupOTP];
-export const requestLoginOTPWithRateLimit = [rateLimit(3, 15 * 60 * 1000), requestLoginOTP];
-export const verifyLoginOTPWithRateLimit = [rateLimit(5, 15 * 60 * 1000), verifyLoginOTP];
-export const googleAuthWithRateLimit = [rateLimit(10, 15 * 60 * 1000), googleAuth];
-export const facebookAuthWithRateLimit = [rateLimit(10, 15 * 60 * 1000), facebookAuth];
+export const requestSignupOTPWithRateLimit = [
+  rateLimit(3, 15 * 60 * 1000),
+  requestSignupOTP,
+];
+export const verifySignupOTPWithRateLimit = [
+  rateLimit(5, 15 * 60 * 1000),
+  verifySignupOTP,
+];
+export const requestLoginOTPWithRateLimit = [
+  rateLimit(3, 15 * 60 * 1000),
+  requestLoginOTP,
+];
+export const verifyLoginOTPWithRateLimit = [
+  rateLimit(5, 15 * 60 * 1000),
+  verifyLoginOTP,
+];
+export const googleAuthWithRateLimit = [
+  rateLimit(10, 15 * 60 * 1000),
+  googleAuth,
+];
+export const facebookAuthWithRateLimit = [
+  rateLimit(10, 15 * 60 * 1000),
+  facebookAuth,
+];
 
 // Refresh access token using refresh_token cookie
 export const refreshAccessToken: RequestHandler = async (req, res) => {
@@ -760,21 +790,32 @@ export const refreshAccessToken: RequestHandler = async (req, res) => {
     );
     const token = cookies["refresh_token"];
     if (!token) {
-      return res.status(401).json({ success: false, message: "Refresh token missing" });
+      return res
+        .status(401)
+        .json({ success: false, message: "Refresh token missing" });
     }
     const payload = jwt.verify(token, JWT_SECRET, {
       issuer: "music-catch-api",
       audience: "music-catch-app",
     }) as any;
     if (!payload || !payload.userId) {
-      return res.status(403).json({ success: false, message: "Invalid refresh token" });
+      return res
+        .status(403)
+        .json({ success: false, message: "Invalid refresh token" });
     }
     const access = generateToken(payload.userId);
     const refresh = generateRefreshToken(payload.userId);
     setAuthCookies(res, access, refresh);
     return res.json({ success: true, message: "Token refreshed" });
   } catch (error: any) {
-    return res.status(401).json({ success: false, message: "Refresh failed", error: process.env.NODE_ENV === "development" ? error.message : undefined });
+    return res
+      .status(401)
+      .json({
+        success: false,
+        message: "Refresh failed",
+        error:
+          process.env.NODE_ENV === "development" ? error.message : undefined,
+      });
   }
 };
 
@@ -785,5 +826,5 @@ export {
   requestLoginOTP,
   verifyLoginOTP,
   googleAuth,
-  facebookAuth
+  facebookAuth,
 };

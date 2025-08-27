@@ -47,7 +47,13 @@ export default function Settings() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { theme, actualTheme, setTheme } = useTheme();
-  const { user: authUser, signOut, getSettings, updateSettings, loading: authLoading } = useAuth();
+  const {
+    user: authUser,
+    signOut,
+    getSettings,
+    updateSettings,
+    loading: authLoading,
+  } = useAuth();
 
   // User data state - will be loaded from backend
   const [userProfile, setUserProfile] = useState({
@@ -262,7 +268,9 @@ export default function Settings() {
       const backendProfile = {
         name: authUser.name || "User",
         email: authUser.email || "No email",
-        profileImage: authUser.avatar_url || `https://ui-avatars.io/api/?name=${encodeURIComponent(authUser.name || "User")}&background=6366f1&color=fff&size=64`,
+        profileImage:
+          authUser.avatar_url ||
+          `https://ui-avatars.io/api/?name=${encodeURIComponent(authUser.name || "User")}&background=6366f1&color=fff&size=64`,
         joinDate: authUser.created_at
           ? new Date(authUser.created_at).toLocaleDateString("en-US", {
               year: "numeric",
@@ -284,7 +292,10 @@ export default function Settings() {
       };
 
       setUserProfile(backendProfile);
-      console.log("✅ Profile loaded from backend authentication:", backendProfile);
+      console.log(
+        "✅ Profile loaded from backend authentication:",
+        backendProfile,
+      );
       setLoading(false);
       return;
 
@@ -328,12 +339,15 @@ export default function Settings() {
           console.log("✅ User created in backend:", createResult);
 
           // Try to fetch the user data again after creation
-          const retryResponse = await fetch(`/api/v1/users/${firebaseUser.uid}`, {
-            headers: {
-              "user-id": firebaseUser.uid,
-              "Content-Type": "application/json",
+          const retryResponse = await fetch(
+            `/api/v1/users/${firebaseUser.uid}`,
+            {
+              headers: {
+                "user-id": firebaseUser.uid,
+                "Content-Type": "application/json",
+              },
             },
-          });
+          );
 
           if (retryResponse.ok) {
             const retryResult = await retryResponse.json();
@@ -347,7 +361,10 @@ export default function Settings() {
                 gender: backendData.gender || "",
               };
               setUserProfile(enhancedProfile);
-              console.log("✅ Enhanced profile after backend creation:", enhancedProfile);
+              console.log(
+                "✅ Enhanced profile after backend creation:",
+                enhancedProfile,
+              );
               return;
             }
           }
@@ -654,7 +671,7 @@ export default function Settings() {
 
         if (key === "darkTheme") {
           settingsUpdate = {
-            preferences: { theme: newValue ? "dark" : "light" }
+            preferences: { theme: newValue ? "dark" : "light" },
           };
         } else if (
           [
@@ -667,19 +684,19 @@ export default function Settings() {
           ].includes(key)
         ) {
           settingsUpdate = {
-            preferences: { [key]: newValue }
+            preferences: { [key]: newValue },
           };
         } else if (["publicProfile", "showActivity"].includes(key)) {
           settingsUpdate = {
-            privacy: { [key]: newValue }
+            privacy: { [key]: newValue },
           };
         } else if (key === "notifications") {
           settingsUpdate = {
-            notifications: { email: newValue }
+            notifications: { email: newValue },
           };
         } else {
           settingsUpdate = {
-            preferences: { [key]: newValue }
+            preferences: { [key]: newValue },
           };
         }
 
@@ -791,7 +808,10 @@ export default function Settings() {
             </h1>
             {authUser && (
               <p className="text-xs text-white/70 mt-1">
-                {authUser.email} • {(authUser as any).provider ? `Signed in with ${(authUser as any).provider}` : ""}
+                {authUser.email} •{" "}
+                {(authUser as any).provider
+                  ? `Signed in with ${(authUser as any).provider}`
+                  : ""}
               </p>
             )}
           </div>

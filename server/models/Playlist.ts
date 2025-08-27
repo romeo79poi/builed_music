@@ -103,5 +103,6 @@ playlistSchema.virtual("song_count").get(function () {
   return this.songs.length;
 });
 
-export const Playlist = mongoose.models.Playlist || mongoose.model("Playlist", playlistSchema);
+export const Playlist =
+  mongoose.models.Playlist || mongoose.model("Playlist", playlistSchema);
 export default Playlist;

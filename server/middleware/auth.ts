@@ -184,7 +184,9 @@ export const authenticateTokenOnly: RequestHandler = async (req, res, next) => {
     }
 
     if (!token) {
-      return res.status(401).json({ success: false, message: "Access token required" });
+      return res
+        .status(401)
+        .json({ success: false, message: "Access token required" });
     }
 
     const decoded = jwt.verify(token, JWT_SECRET, {
@@ -200,7 +202,9 @@ export const authenticateTokenOnly: RequestHandler = async (req, res, next) => {
     next();
   } catch (error: any) {
     const code = error?.name === "TokenExpiredError" ? 401 : 403;
-    return res.status(code).json({ success: false, message: "Invalid or expired token" });
+    return res
+      .status(code)
+      .json({ success: false, message: "Invalid or expired token" });
   }
 };
 

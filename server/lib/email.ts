@@ -3,7 +3,9 @@ import nodemailer from "nodemailer";
 // Create email transporter (prefers env SMTP, falls back to Nodemailer test account)
 const createTransporter = async () => {
   const host = process.env.SMTP_HOST;
-  const port = process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT) : undefined;
+  const port = process.env.SMTP_PORT
+    ? parseInt(process.env.SMTP_PORT)
+    : undefined;
   const user = process.env.SMTP_USER;
   const pass = process.env.SMTP_PASS;
 

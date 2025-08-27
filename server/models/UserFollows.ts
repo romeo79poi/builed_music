@@ -32,5 +32,7 @@ userFollowsSchema.index({ follower: 1, follow_type: 1 });
 userFollowsSchema.index({ following: 1, follow_type: 1 });
 userFollowsSchema.index({ created_at: -1 });
 
-export const UserFollows = mongoose.models.UserFollows || mongoose.model("UserFollows", userFollowsSchema);
+export const UserFollows =
+  mongoose.models.UserFollows ||
+  mongoose.model("UserFollows", userFollowsSchema);
 export default UserFollows;
