@@ -131,10 +131,11 @@ export default function Signup() {
   const [isSocialSignup, setIsSocialSignup] = useState(false);
   const [tempEmailUser, setTempEmailUser] = useState<any>(null);
   const [emailVerified, setEmailVerified] = useState(true);
+  const requireEmailVerification = false;
 
-  // If email is already verified, never stay on the email-verify step
+  // Skip email-verify step when already verified or not required
   useEffect(() => {
-    if (emailVerified && currentStep === "email-verify") {
+    if ((emailVerified || !requireEmailVerification) && currentStep === "email-verify") {
       setCurrentStep("profile");
     }
   }, [emailVerified, currentStep]);
