@@ -44,13 +44,15 @@ if (process.env.NODE_ENV === "production" && fs.existsSync(distPath)) {
 // Export socket manager for use in other modules
 export { socketManager };
 
-// Start server with Socket.IO support
-server.listen(port, () => {
-  console.log(`🚀 Fusion Starter server running on port ${port}`);
-  console.log(`📱 Frontend: http://localhost:${port}`);
-  console.log(`🔧 API: http://localhost:${port}/api`);
-  console.log(`🔌 WebSocket: Connected and ready for real-time features`);
-});
+// Start server with Socket.IO support (production only)
+if (process.env.NODE_ENV === "production") {
+  server.listen(port, () => {
+    console.log(`🚀 Fusion Starter server running on port ${port}`);
+    console.log(`📱 Frontend: http://localhost:${port}`);
+    console.log(`🔧 API: http://localhost:${port}/api`);
+    console.log(`🔌 WebSocket: Connected and ready for real-time features`);
+  });
+}
 
 // Graceful shutdown
 process.on("SIGTERM", () => {
