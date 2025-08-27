@@ -62,7 +62,10 @@ class OAuthService {
 
     try {
       console.log("🔄 Loading Google Identity Services...");
-      console.log("🔑 Using Google Client ID:", GOOGLE_CLIENT_ID?.substring(0, 20) + "...");
+      console.log(
+        "🔑 Using Google Client ID:",
+        GOOGLE_CLIENT_ID?.substring(0, 20) + "...",
+      );
 
       // Load Google Sign-In script with retry mechanism
       await this.loadScript("https://accounts.google.com/gsi/client");

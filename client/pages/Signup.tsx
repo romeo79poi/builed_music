@@ -874,13 +874,14 @@ export default function Signup() {
               formData.email,
               formData.password,
               formData.name,
-              formData.username
+              formData.username,
             );
 
             if (result.success) {
               toast({
                 title: "Verification Code Sent! 📧",
-                description: "Please check your email and enter the verification code.",
+                description:
+                  "Please check your email and enter the verification code.",
               });
 
               // Move to OTP verification step
@@ -890,14 +891,10 @@ export default function Signup() {
             }
           } else {
             // Use direct JWT signup (no email verification required)
-            const result = await signUp(
-              formData.email,
-              formData.password,
-              {
-                name: formData.name,
-                username: formData.username,
-              }
-            );
+            const result = await signUp(formData.email, formData.password, {
+              name: formData.name,
+              username: formData.username,
+            });
 
             if (result.success) {
               // Account created successfully with JWT
@@ -1065,7 +1062,9 @@ export default function Signup() {
                 backendResult,
               );
             } catch (parseError) {
-              console.warn("⚠️ Failed to parse backend sync response, but sync appeared successful");
+              console.warn(
+                "⚠️ Failed to parse backend sync response, but sync appeared successful",
+              );
             }
           } else {
             // Read the error response safely
@@ -1194,7 +1193,9 @@ export default function Signup() {
                 const backendResult = await backendSyncResponse.json();
                 console.log("✅ User data synced with backend:", backendResult);
               } catch (parseError) {
-                console.warn("⚠️ Failed to parse backend sync response, but sync appeared successful");
+                console.warn(
+                  "⚠️ Failed to parse backend sync response, but sync appeared successful",
+                );
               }
             } else {
               // Read the error response safely
