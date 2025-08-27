@@ -93,7 +93,7 @@ export const signup: RequestHandler = async (req, res) => {
     await newUser.save();
 
     // Generate tokens and set cookies
-    const token = generateToken(newUser._id.toString());
+    const token = signTokenWithClaims(newUser);
     const refresh = generateRefreshToken(newUser._id.toString());
     setAuthCookies(res, token, refresh);
 
