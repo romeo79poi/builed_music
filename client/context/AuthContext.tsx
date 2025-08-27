@@ -174,7 +174,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const loadUserProfile = async (token: string) => {
+  const loadUserProfile = async (token?: string) => {
     try {
       const result = await safeFetch("/api/auth/me", {
         headers: {
