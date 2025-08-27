@@ -159,23 +159,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const initializeAuth = async () => {
     try {
-      // Check for stored token or session
       const token = localStorage.getItem("authToken");
       if (token) {
         await loadUserProfile(token);
-      } else {
+        return;
+      }
+
+      // Check cookies to avoid unnecessary 401s before login
+      const cookie = typeof document !== "undefined" ? document.cookie : "";
+      const hasAccess = /(?:^|; )auth_token=/.test(cookie);
+      const hasRefresh = /(?:^|; )refresh_token=/.test(cookie);
+
+      if (hasAccess) {
         const ok = await loadUserProfile();
-        if (!ok) {
-          try {
-            await safeFetch("/api/auth/refresh", { method: "POST" });
-            await loadUserProfile();
-          } catch {
-            setUser(null);
-          }
+        if (ok) return;
+      }
+
+      if (hasRefresh) {
+        try {
+          await safeFetch("/api/auth/refresh", { method: "POST" });
+          await loadUserProfile();
+          return;
+        } catch {
+          // ignore - user not logged in yet
         }
       }
+
+      setUser(null);
     } catch (error) {
-      console.error("Auth initialization error:", error);
+      // swallow init errors to prevent noisy logs pre-login
       setUser(null);
     } finally {
       setLoading(false);
