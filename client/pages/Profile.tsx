@@ -338,8 +338,8 @@ export default function Profile() {
       // Load user data from backend JWT authentication
       console.log("🔄 Loading user profile from backend...");
 
-      // User data is already available from AuthContext
-      const enhancedUserData = authUser;
+      // Decide data source: enhanced (uid present) vs backend JWT
+      const enhancedUserData: any = (authUser as any)?.uid ? (authUser as any) : null;
 
       if (enhancedUserData) {
         // Convert enhanced user data to profile format
