@@ -7,6 +7,27 @@ import { rateLimit, validateRegistrationInput, validateLoginInput } from "../mid
 
 const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret_key_change_in_production";
 
+// Sign token with common user claims for better client fallback
+const signTokenWithClaims = (user: any) => {
+  const userId = user?._id?.toString?.() || user?._id || user?.id;
+  return jwt.sign(
+    {
+      userId,
+      email: user.email,
+      username: user.username,
+      name: user.name,
+      verified: !!user.is_verified,
+      provider: user.provider || "email",
+    },
+    JWT_SECRET,
+    {
+      expiresIn: "7d",
+      issuer: "music-catch-api",
+      audience: "music-catch-app",
+    }
+  );
+};
+
 // Generate JWT token
 const generateToken = (userId: string) => {
   return jwt.sign(
