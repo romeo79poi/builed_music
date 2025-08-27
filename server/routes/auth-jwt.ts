@@ -297,19 +297,20 @@ export const me: RequestHandler = async (req, res) => {
         const user = await User.findById(decoded.userId);
         if (user) {
           const userData = {
-            id: user._id.toString(),
-            email: user.email,
-            username: user.username,
-            name: user.name,
-            avatar_url: user.profile_image_url,
-            bio: user.bio,
-            verified: user.is_verified,
-            premium: false,
-            followers_count: user.follower_count,
-            following_count: user.following_count,
-            created_at: user.created_at,
-            updated_at: user.updated_at,
-          };
+         id: user._id.toString(),
+         email: user.email,
+         username: user.username,
+         name: user.name,
+         avatar_url: user.profile_image_url,
+         bio: user.bio,
+         verified: user.is_verified,
+         provider: user.provider || "email",
+         premium: false,
+         followers_count: user.follower_count,
+         following_count: user.following_count,
+         created_at: user.created_at,
+         updated_at: user.updated_at,
+       };
           return res.json({ success: true, data: userData, source: "database" });
         }
       } catch {}
