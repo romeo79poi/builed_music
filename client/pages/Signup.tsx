@@ -1007,7 +1007,8 @@ export default function Signup() {
       return;
     }
 
-    setCurrentStep("profileImage");
+    // Skip profile image during signup - we'll ask for it on home page
+    setCurrentStep("gender");
   };
 
   const handleProfileImageStep = async () => {
