@@ -2847,32 +2847,101 @@ export default function Signup() {
               </div>
 
               <div>
-                <label className="block text-white text-sm font-medium mb-2">
-                  Bio (Optional)
-                </label>
-                <textarea
-                  value={formData.bio}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, bio: e.target.value }))
-                  }
-                  placeholder="Tell us about your musical interests, favorite artists, or anything you'd like to share..."
-                  rows={4}
-                  className="w-full bg-purple-dark/30 border border-purple-primary/30 rounded-xl px-3 sm:px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:border-purple-primary focus:ring-2 focus:ring-purple-primary/20 transition-all duration-200 text-sm sm:text-base backdrop-blur-sm resize-none"
-                  disabled={isLoading}
-                  maxLength={500}
-                />
-                <div className="flex justify-between items-center mt-2">
-                  <div>
-                    {errors.bio && (
-                      <p className="text-red-400 text-xs sm:text-sm flex items-center">
-                        <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                        {errors.bio}
-                      </p>
-                    )}
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-white text-sm font-medium">
+                    Bio (Optional) ✨
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setFormData((prev) => ({ ...prev, bio: "" }))}
+                    className="text-xs text-purple-primary hover:text-purple-secondary transition-colors"
+                  >
+                    Clear
+                  </button>
+                </div>
+
+                <div className="relative">
+                  <textarea
+                    value={formData.bio}
+                    onChange={(e) => {
+                      setFormData((prev) => ({ ...prev, bio: e.target.value }));
+                      // Clear errors when user types
+                      if (errors.bio) {
+                        setErrors((prev) => ({ ...prev, bio: undefined }));
+                      }
+                    }}
+                    placeholder="Tell us about your musical interests, favorite artists, or anything you'd like to share... 🎵"
+                    rows={5}
+                    className={`w-full bg-purple-dark/30 border rounded-xl px-3 sm:px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-primary/20 transition-all duration-200 text-sm sm:text-base backdrop-blur-sm resize-none ${
+                      errors.bio
+                        ? 'border-red-500'
+                        : 'border-purple-primary/30 focus:border-purple-primary/50'
+                    }`}
+                    disabled={isLoading}
+                    maxLength={500}
+                  />
+                </div>
+
+                <div className="mt-3 space-y-2">
+                  {/* Character count with visual indicator */}
+                  <div className="flex justify-between items-center">
+                    <div className="flex-1">
+                      {errors.bio && (
+                        <p className="text-red-400 text-xs sm:text-sm flex items-center">
+                          <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                          {errors.bio}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div className={`text-xs font-medium ${
+                        formData.bio.length > 450
+                          ? 'text-orange-400'
+                          : formData.bio.length > 400
+                          ? 'text-yellow-400'
+                          : 'text-slate-400'
+                      }`}>
+                        {formData.bio.length}/500
+                      </div>
+                      <div className="w-16 h-1 bg-slate-600 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full transition-all duration-300 ${
+                            formData.bio.length > 450
+                              ? 'bg-orange-400'
+                              : formData.bio.length > 400
+                              ? 'bg-yellow-400'
+                              : 'bg-purple-primary'
+                          }`}
+                          style={{ width: `${(formData.bio.length / 500) * 100}%` }}
+                        />
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-slate-400 text-xs">
-                    {formData.bio.length}/500
-                  </p>
+
+                  {/* Bio suggestions */}
+                  {formData.bio.length === 0 && (
+                    <div className="bg-purple-primary/10 border border-purple-primary/20 rounded-lg p-3">
+                      <p className="text-purple-primary text-xs font-medium mb-2">💡 Bio ideas:</p>
+                      <div className="grid grid-cols-1 gap-1 text-xs text-purple-primary/80">
+                        <p>• "Music lover, vinyl collector, concert enthusiast"</p>
+                        <p>• "Hip-hop head, bedroom producer, always finding new beats"</p>
+                        <p>• "Classical pianist, jazz appreciator, music theory nerd"</p>
+                        <p>• "Festival goer, playlist curator, discovering indie gems"</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Completion encouragement */}
+                  {formData.bio.length > 0 && formData.bio.length < 50 && (
+                    <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
+                      <p className="text-blue-400 text-xs flex items-center">
+                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        Tell us a bit more! A longer bio helps others connect with you.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 
