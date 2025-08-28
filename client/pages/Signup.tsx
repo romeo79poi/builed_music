@@ -661,17 +661,59 @@ export default function Signup() {
     setIsLoading(true);
 
     try {
-      // Check if email is available (state is set optimistically to true)
-      await checkAvailability("email", formData.email);
+      // Check if email is available first
+      const checkResponse = await fetch(
+        `/api/auth/check-availability?email=${encodeURIComponent(formData.email)}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
 
-      if (availability.email !== false) {
-        // For JWT signup flow, we don't require email verification
-        setEmailVerified(true);
+      const checkData = await checkResponse.json();
+
+      if (!checkData.success) {
+        if (checkData.message?.includes("already registered")) {
+          setErrors(prev => ({
+            ...prev,
+            email: "User already exists with this email. Please log in instead."
+          }));
+          toast({
+            title: "Account exists",
+            description: "Please log in with this email instead",
+            variant: "destructive",
+          });
+          return;
+        } else {
+          throw new Error(checkData.message || "Email not available");
+        }
+      }
+
+      // Send OTP to email using nodemailer
+      const otpResponse = await fetch("/api/auth/signup/request-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email,
+        }),
+      });
+
+      const otpData = await otpResponse.json();
+
+      if (otpData.success) {
         toast({
-          title: "Email accepted",
-          description: `Using ${formData.email} for your account`,
+          title: "Verification code sent! 📧",
+          description: `We sent a 6-digit code to ${formData.email}`,
         });
-        setCurrentStep("profile");
+        setOtpSent(true);
+        setResendTimer(60);
+        setCurrentStep("email-verify");
+      } else {
+        throw new Error(otpData.message || "Failed to send verification code");
       }
     } catch (error: any) {
       console.error("Email step error:", error);
@@ -715,10 +757,39 @@ export default function Signup() {
     }
 
     setIsLoading(true);
-    await checkAvailability("username", formData.username);
-    setIsLoading(false);
 
-    if (availability.username !== false) {
+    try {
+      // Check username availability
+      const usernameResponse = await fetch(
+        `/api/auth/check-availability?username=${encodeURIComponent(formData.username)}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      const usernameData = await usernameResponse.json();
+
+      if (!usernameData.success) {
+        if (usernameData.message?.includes("taken") || usernameData.message?.includes("exists")) {
+          setErrors(prev => ({
+            ...prev,
+            username: "Username is already taken. Please choose another."
+          }));
+          toast({
+            title: "Username taken",
+            description: "Please choose a different username",
+            variant: "destructive",
+          });
+          return;
+        } else {
+          throw new Error(usernameData.message || "Username not available");
+        }
+      }
+
+      // Username is available, proceed to next step
       if (isSocialSignup) {
         // For social signups, proceed to DOB step (skip password)
         setCurrentStep("dob");
@@ -728,6 +799,16 @@ export default function Signup() {
       } else {
         setCurrentStep("password");
       }
+    } catch (error: any) {
+      console.error("Profile step error:", error);
+      setErrorAlert(error.message || "Failed to validate profile");
+      toast({
+        title: "Profile step failed",
+        description: error.message || "Please try again",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -737,56 +818,56 @@ export default function Signup() {
   };
 
   const handleEmailVerifyStep = async () => {
-    if (!tempEmailUser) {
-      setErrorAlert("No user account found. Please start over.");
-      setCurrentStep("email");
-      return;
-    }
+    if (!validateOTP(formData.otp)) return;
 
     setIsLoading(true);
 
     try {
-      // Reload the user to get the latest emailVerified status
-      await tempEmailUser.reload();
+      // Verify OTP using JWT backend
+      const verifyResponse = await fetch("/api/auth/signup/verify-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          otp: formData.otp,
+        }),
+      });
 
-      if (tempEmailUser.emailVerified) {
+      const verifyData = await verifyResponse.json();
+
+      if (verifyData.success) {
         setEmailVerified(true);
-        setVerificationUser(tempEmailUser);
 
         toast({
           title: "Email verified successfully! ✅",
           description: "Now please complete your profile",
         });
 
-        // Store verified email user data
-        setFormData((prev) => ({
-          ...prev,
-          email: tempEmailUser.email || prev.email,
-        }));
-
-        // Proceed to profile step
+        // Proceed to profile step (name and username)
         setCurrentStep("profile");
       } else {
-        // Show verification error
         setErrors((prev) => ({
           ...prev,
-          email:
-            "Email not verified. Please check your email and click the verification link.",
+          otp: verifyData.message || "Invalid verification code",
         }));
 
         toast({
-          title: "Email not verified ❌",
-          description:
-            "Please check your email and click the verification link before continuing",
+          title: "Verification failed ❌",
+          description: verifyData.message || "Invalid verification code",
           variant: "destructive",
         });
       }
     } catch (error: any) {
-      console.error("Email verification check error:", error);
-      setErrorAlert("Failed to check verification status. Please try again.");
+      console.error("Email verification error:", error);
+      setErrors((prev) => ({
+        ...prev,
+        otp: "Verification failed. Please try again.",
+      }));
 
       toast({
-        title: "Verification check failed",
+        title: "Verification failed",
         description: "Please try again or contact support",
         variant: "destructive",
       });
@@ -1026,75 +1107,19 @@ export default function Signup() {
         localStorage.setItem("currentUser", JSON.stringify(completeUserData));
         localStorage.setItem("userAvatar", formData.profileImageURL || "");
 
-        console.log("�� Saved social signup profile data:", completeUserData);
+        console.log("🎯 Saved social signup profile data:", completeUserData);
 
         toast({
-          title: "Profile completed successfully! 🎉",
+          title: "Account created successfully! 🎉",
           description: `Welcome to Music Catch, ${formData.name}!`,
         });
-
-        // Sync with backend API to create user in backend store
-        try {
-          const backendSyncResponse = await fetch("/api/auth/register", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              id: verificationUser.uid,
-              email: formData.email,
-              name: formData.name,
-              username: formData.username,
-              password:
-                "social_signup_temp_password_" + Math.random().toString(36),
-              dateOfBirth: formData.dateOfBirth,
-              gender: formData.gender,
-              bio: formData.bio,
-              profileImageURL: formData.profileImageURL,
-              provider: "social",
-              socialSignup: true,
-            }),
-          });
-
-          if (backendSyncResponse.ok) {
-            try {
-              const backendResult = await backendSyncResponse.json();
-              console.log(
-                "✅ Social signup data synced with backend:",
-                backendResult,
-              );
-            } catch (parseError) {
-              console.warn(
-                "⚠️ Failed to parse backend sync response, but sync appeared successful",
-              );
-            }
-          } else {
-            // Read the error response safely
-            try {
-              const responseClone = backendSyncResponse.clone();
-              const errorText = await responseClone.text();
-              console.warn(
-                `⚠️ Backend sync failed (${backendSyncResponse.status}): ${errorText}`,
-              );
-            } catch (readError) {
-              console.warn(
-                `⚠️ Backend sync failed (${backendSyncResponse.status}), continuing with Firebase-only data`,
-              );
-            }
-          }
-        } catch (backendError) {
-          console.warn(
-            "⚠️ Backend sync error for social signup:",
-            backendError,
-          );
-        }
 
         setTimeout(() => {
           navigate("/home");
         }, 2000);
       } else {
-        // For email signup, use the already verified user
-        if (!tempEmailUser || !emailVerified) {
+        // For email signup, create account with JWT backend
+        if (!emailVerified) {
           setErrorAlert(
             "Email verification required. Please verify your email first.",
           );
@@ -1102,53 +1127,35 @@ export default function Signup() {
           return;
         }
 
-        // Update the verified user with complete profile data
-        const result = { success: true, user: tempEmailUser };
-
-        if (result.success && result.user) {
-          // Update the verified user's display name and profile
-          try {
-            await result.user.updateProfile({
-              displayName: formData.name,
-              photoURL: formData.profileImageURL || null,
-            });
-            console.log("✅ Updated Firebase user profile");
-          } catch (updateError) {
-            console.warn("⚠️ Failed to update Firebase profile:", updateError);
-          }
-
-          // Save complete profile data to Firestore
-          const additionalProfileData = {
-            username: formData.username,
+        // Create complete user account
+        const signupResponse = await fetch("/api/auth/signup", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password,
             name: formData.name,
-            dob: formData.dateOfBirth,
+            username: formData.username,
+            dateOfBirth: formData.dateOfBirth,
             gender: formData.gender,
             bio: formData.bio,
-            profileImage: formData.profileImageURL,
-          };
+            profileImageURL: formData.profileImageURL,
+          }),
+        });
 
-          console.log(
-            "💾 Saving complete profile data:",
-            additionalProfileData,
-          );
+        const signupData = await signupResponse.json();
 
-          const saveResult = await saveUserData(
-            result.user,
-            additionalProfileData,
-          );
+        if (signupData.success) {
+          toast({
+            title: "Account created successfully! 🎉",
+            description: `Welcome to Music Catch, ${formData.name}!`,
+          });
 
-          if (saveResult.success) {
-            console.log("✅ Complete profile data saved to Firestore");
-          } else {
-            console.warn(
-              "⚠️ Failed to save complete profile data:",
-              saveResult.error,
-            );
-          }
-
-          // Save complete user data to localStorage for immediate access
+          // Save user data to localStorage
           const completeUserData = {
-            uid: result.user.uid,
+            id: signupData.user.id,
             email: formData.email,
             name: formData.name,
             username: formData.username,
@@ -1156,94 +1163,33 @@ export default function Signup() {
             dateOfBirth: formData.dateOfBirth,
             gender: formData.gender,
             bio: formData.bio,
-            phone: formData.phone,
-            emailVerified: result.user.emailVerified,
           };
 
           localStorage.setItem("currentUser", JSON.stringify(completeUserData));
           localStorage.setItem("userAvatar", formData.profileImageURL || "");
 
-          console.log(
-            "💾 Saved complete user data to localStorage:",
-            completeUserData,
-          );
-
-          // Try to sync with backend API if available
-          try {
-            const backendSyncResponse = await fetch("/api/auth/register", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                id: result.user.uid,
-                email: formData.email,
-                name: formData.name,
-                username: formData.username,
-                password: formData.password,
-                dateOfBirth: formData.dateOfBirth,
-                gender: formData.gender,
-                bio: formData.bio,
-                profileImageURL: formData.profileImageURL,
-                phone: formData.phone,
-                emailVerified: result.user.emailVerified,
-              }),
-            });
-
-            if (backendSyncResponse.ok) {
-              try {
-                const backendResult = await backendSyncResponse.json();
-                console.log("✅ User data synced with backend:", backendResult);
-              } catch (parseError) {
-                console.warn(
-                  "⚠️ Failed to parse backend sync response, but sync appeared successful",
-                );
-              }
-            } else {
-              // Read the error response safely
-              try {
-                const responseClone = backendSyncResponse.clone();
-                const errorText = await responseClone.text();
-                console.warn(
-                  `⚠️ Backend sync failed (${backendSyncResponse.status}): ${errorText}`,
-                );
-              } catch (readError) {
-                console.warn(
-                  `⚠️ Backend sync failed (${backendSyncResponse.status}), continuing with Firebase-only data`,
-                );
-              }
-            }
-          } catch (backendError) {
-            console.warn(
-              "⚠️ Backend sync error (continuing with Firebase):",
-              backendError,
-            );
-          }
-
-          // Send Firebase email verification notification
-          setEmailVerificationSent(true);
-          setVerificationUser(result.user);
-
-          toast({
-            title: "Account created successfully! 🎉",
-            description: "Please check your email for verification link",
-          });
+          console.log("✅ User account created successfully:", signupData.user);
 
           setTimeout(() => {
             navigate("/home");
           }, 2000);
         } else {
-          setErrorAlert(result.message);
+          setErrorAlert(signupData.message || "Registration failed");
           toast({
             title: "Registration failed",
-            description: result.message,
+            description: signupData.message || "Please try again",
             variant: "destructive",
           });
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Registration error:", error);
       setErrorAlert("Network error. Please try again.");
+      toast({
+        title: "Registration failed",
+        description: "Network error. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsLoading(false);
     }
@@ -1327,7 +1273,7 @@ export default function Signup() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/auth/send-email-verification", {
+      const response = await fetch("/api/auth/signup/request-otp", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -1335,15 +1281,11 @@ export default function Signup() {
         body: JSON.stringify({ email: formData.email }),
       });
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
       const data = await response.json();
 
       if (data.success) {
         toast({
-          title: "Verification code resent!",
+          title: "Verification code resent! 📧",
           description:
             "Please check your email for the new 6-digit verification code.",
         });
