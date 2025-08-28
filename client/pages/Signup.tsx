@@ -539,6 +539,7 @@ export default function Signup() {
     signUp,
     requestSignupOTP,
     verifySignupOTP,
+    createUserAccount,
     checkAvailability: authCheckAvailability,
   } = useAuth();
 
