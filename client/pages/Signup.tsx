@@ -242,19 +242,26 @@ export default function Signup() {
     if (!formData.password) {
       newErrors.password = "Password is required";
       isValid = false;
-    } else if (formData.password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters";
+    } else if (formData.password.length < 12) {
+      newErrors.password = "Password must be at least 12 characters for stronger security";
       isValid = false;
     } else if (!/(?=.*[a-z])/.test(formData.password)) {
-      newErrors.password =
-        "Password must contain at least one lowercase letter";
+      newErrors.password = "Password must contain at least one lowercase letter";
       isValid = false;
     } else if (!/(?=.*[A-Z])/.test(formData.password)) {
-      newErrors.password =
-        "Password must contain at least one uppercase letter";
+      newErrors.password = "Password must contain at least one uppercase letter";
       isValid = false;
     } else if (!/(?=.*\d)/.test(formData.password)) {
       newErrors.password = "Password must contain at least one number";
+      isValid = false;
+    } else if (!/(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/.test(formData.password)) {
+      newErrors.password = "Password must contain at least one special character (!@#$%^&*...)";
+      isValid = false;
+    } else if (/(.)\1{2,}/.test(formData.password)) {
+      newErrors.password = "Password cannot contain three or more consecutive identical characters";
+      isValid = false;
+    } else if (/password|123456|qwerty|admin|user/i.test(formData.password)) {
+      newErrors.password = "Password cannot contain common words like 'password', '123456', etc.";
       isValid = false;
     }
 
@@ -961,7 +968,7 @@ export default function Signup() {
                 description: `Welcome to Catch, ${formData.name}! Your account has been created successfully.`,
               });
 
-              console.log("�� User created with JWT backend");
+              console.log("✅ User created with JWT backend");
 
               // Redirect to home page after successful signup
               setTimeout(() => {
@@ -2564,7 +2571,7 @@ export default function Signup() {
                   onClick={handleProfileImageStep}
                   className="absolute top-4 right-4 text-purple-primary hover:text-purple-secondary transition-colors text-sm font-medium"
                 >
-                  Skip �����
+                  Skip ���
                 </button>
               </div>
 
