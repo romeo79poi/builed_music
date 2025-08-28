@@ -451,7 +451,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Direct signup without OTP (in-memory auth)
+  // Simulate OTP request without actually creating account yet
   const requestSignupOTP = async (
     email: string,
     password: string,
@@ -459,29 +459,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     username: string,
   ) => {
     try {
-      // Debug: Log the data being sent
-      const requestData = { email, password, name, username };
-      console.log("📤 Sending registration request:", requestData);
+      // First check if email is available
+      const availabilityResult = await checkAvailability(email, undefined);
 
-      // Use direct registration instead of OTP for development
-      const result = await safeFetch("/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(requestData),
-      });
+      if (!availabilityResult.available) {
+        return {
+          success: false,
+          message: "Email is already registered. Please try logging in instead.",
+        };
+      }
+
+      // Simulate OTP being sent (but don't create account yet)
+      console.log("📧 Simulating OTP request for:", email);
+
       return {
-        success: result.success,
-        message:
-          result.message ||
-          (result.success ? "Verification code sent" : "Failed to send verification code"),
-        skipOTP: false, // Show verification step but make it easy to pass
+        success: true,
+        message: "Verification code sent",
+        skipOTP: false, // Show verification step
       };
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || "Failed to create account",
+        message: error.message || "Failed to send verification code",
       };
     }
   };
