@@ -451,7 +451,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // OTP Authentication methods
+  // Direct signup without OTP (in-memory auth)
   const requestSignupOTP = async (
     email: string,
     password: string,
@@ -459,7 +459,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     username: string,
   ) => {
     try {
-      const result = await safeFetch("/api/auth/signup/request-otp", {
+      // Use direct registration instead of OTP for development
+      const result = await safeFetch("/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -470,12 +471,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         success: result.success,
         message:
           result.message ||
-          (result.success ? "OTP sent successfully" : "Failed to send OTP"),
+          (result.success ? "Account created successfully" : "Failed to create account"),
+        skipOTP: true, // Flag to skip OTP verification
       };
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || "Failed to send OTP",
+        message: error.message || "Failed to create account",
       };
     }
   };
