@@ -534,6 +534,7 @@ export default function Signup() {
     signUp,
     requestSignupOTP,
     verifySignupOTP,
+    checkAvailability: authCheckAvailability,
   } = useAuth();
 
   // Google signup handler with Firebase
