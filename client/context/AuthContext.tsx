@@ -487,8 +487,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const verifySignupOTP = async (email: string, otp: string) => {
     try {
-      // For development, accept any 6-digit code since account was already created
+      // For development, accept any 6-digit code (account will be created later)
       if (otp.length === 6 && /^\d{6}$/.test(otp)) {
+        console.log("✅ Email verification simulated for:", email);
         return {
           success: true,
           message: "Email verified successfully!",
