@@ -1105,7 +1105,7 @@ export default function Signup() {
 
         toast({
           title: "Profile completed successfully! 🎉",
-          description: `Welcome to Music Catch, ${formData.name}!`,
+          description: `Welcome to Music Catch, ${formData.name}! Let's add your profile picture next.`,
         });
 
         // Sync with backend API to create user in backend store
@@ -1165,7 +1165,7 @@ export default function Signup() {
         }
 
         setTimeout(() => {
-          navigate("/home");
+          navigate("/home?showProfileImagePrompt=true");
         }, 2000);
       } else {
         // For email signup, use the already verified user
@@ -1301,11 +1301,11 @@ export default function Signup() {
 
           toast({
             title: "Account created successfully! 🎉",
-            description: "Please check your email for verification link",
+            description: "Welcome to Music Catch! Let's add your profile picture next.",
           });
 
           setTimeout(() => {
-            navigate("/home");
+            navigate("/home?showProfileImagePrompt=true");
           }, 2000);
         } else {
           setErrorAlert(result.message);
