@@ -2744,23 +2744,46 @@ export default function Signup() {
               </div>
 
               <div className="space-y-3">
-                {["Male", "Female", "Non-binary", "Prefer not to say"].map(
-                  (option) => (
-                    <button
-                      key={option}
-                      onClick={() =>
-                        setFormData((prev) => ({ ...prev, gender: option }))
+                {[
+                  { value: "Male", icon: "👨", description: "He/Him" },
+                  { value: "Female", icon: "👩", description: "She/Her" },
+                  { value: "Non-binary", icon: "🧑", description: "They/Them" },
+                  { value: "Other", icon: "🌟", description: "Other identity" },
+                  { value: "Prefer not to say", icon: "🔒", description: "Keep private" }
+                ].map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => {
+                      setFormData((prev) => ({ ...prev, gender: option.value }));
+                      // Clear errors when user selects
+                      if (errors.gender) {
+                        setErrors((prev) => ({ ...prev, gender: undefined }));
                       }
-                      className={`w-full h-12 sm:h-14 rounded-xl border-2 transition-all duration-200 flex items-center justify-center text-sm sm:text-base font-medium ${
-                        formData.gender === option
-                          ? "bg-purple-primary/20 border-purple-primary text-purple-primary"
-                          : "bg-purple-dark/30 border-purple-primary/30 text-white hover:border-purple-primary/50 hover:bg-purple-primary/10"
-                      }`}
-                    >
-                      {option}
-                    </button>
-                  ),
-                )}
+                    }}
+                    className={`w-full h-14 sm:h-16 rounded-xl border-2 transition-all duration-200 flex items-center justify-start px-4 text-sm sm:text-base font-medium group hover:scale-[1.02] ${
+                      formData.gender === option.value
+                        ? "bg-purple-primary/20 border-purple-primary text-purple-primary shadow-lg shadow-purple-primary/20"
+                        : "bg-purple-dark/30 border-purple-primary/30 text-white hover:border-purple-primary/50 hover:bg-purple-primary/10"
+                    }`}
+                  >
+                    <span className="text-2xl mr-3">{option.icon}</span>
+                    <div className="text-left">
+                      <div className="font-semibold">{option.value}</div>
+                      <div className={`text-xs ${
+                        formData.gender === option.value
+                          ? "text-purple-primary/80"
+                          : "text-slate-400"
+                      }`}>
+                        {option.description}
+                      </div>
+                    </div>
+                    {formData.gender === option.value && (
+                      <div className="ml-auto">
+                        <CheckCircle className="w-5 h-5 text-purple-primary" />
+                      </div>
+                    )}
+                  </button>
+                ))}
                 {errors.gender && (
                   <p className="text-red-400 text-xs sm:text-sm mt-2 flex items-center">
                     <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
