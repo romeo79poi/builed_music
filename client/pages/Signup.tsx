@@ -243,25 +243,33 @@ export default function Signup() {
       newErrors.password = "Password is required";
       isValid = false;
     } else if (formData.password.length < 12) {
-      newErrors.password = "Password must be at least 12 characters for stronger security";
+      newErrors.password =
+        "Password must be at least 12 characters for stronger security";
       isValid = false;
     } else if (!/(?=.*[a-z])/.test(formData.password)) {
-      newErrors.password = "Password must contain at least one lowercase letter";
+      newErrors.password =
+        "Password must contain at least one lowercase letter";
       isValid = false;
     } else if (!/(?=.*[A-Z])/.test(formData.password)) {
-      newErrors.password = "Password must contain at least one uppercase letter";
+      newErrors.password =
+        "Password must contain at least one uppercase letter";
       isValid = false;
     } else if (!/(?=.*\d)/.test(formData.password)) {
       newErrors.password = "Password must contain at least one number";
       isValid = false;
-    } else if (!/(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/.test(formData.password)) {
-      newErrors.password = "Password must contain at least one special character (!@#$%^&*...)";
+    } else if (
+      !/(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/.test(formData.password)
+    ) {
+      newErrors.password =
+        "Password must contain at least one special character (!@#$%^&*...)";
       isValid = false;
     } else if (/(.)\1{2,}/.test(formData.password)) {
-      newErrors.password = "Password cannot contain three or more consecutive identical characters";
+      newErrors.password =
+        "Password cannot contain three or more consecutive identical characters";
       isValid = false;
     } else if (/password|123456|qwerty|admin|user/i.test(formData.password)) {
-      newErrors.password = "Password cannot contain common words like 'password', '123456', etc.";
+      newErrors.password =
+        "Password cannot contain common words like 'password', '123456', etc.";
       isValid = false;
     }
 
@@ -342,10 +350,7 @@ export default function Signup() {
   };
 
   // Check availability using the backend API
-  const checkAvailability = async (
-    email?: string,
-    username?: string,
-  ) => {
+  const checkAvailability = async (email?: string, username?: string) => {
     try {
       const result = await authCheckAvailability(email, username);
 
@@ -676,7 +681,8 @@ export default function Signup() {
         setErrors({ email: "Email is already taken or unavailable" });
         toast({
           title: "Email unavailable",
-          description: "This email is already in use. Please try another or login instead.",
+          description:
+            "This email is already in use. Please try another or login instead.",
           variant: "destructive",
         });
         setIsLoading(false);
@@ -694,7 +700,7 @@ export default function Signup() {
         formData.email,
         "temp_password_123", // Temporary password, user will set real one later
         "User", // Temporary name, user will set real one later
-        "temp_username" // Temporary username, user will set real one later
+        "temp_username", // Temporary username, user will set real one later
       );
 
       if (otpResult.success) {
@@ -758,10 +764,15 @@ export default function Signup() {
 
     try {
       // Final availability check before proceeding
-      const availabilityResult = await checkAvailability(undefined, formData.username);
+      const availabilityResult = await checkAvailability(
+        undefined,
+        formData.username,
+      );
 
       if (!availabilityResult.available) {
-        setErrors({ username: "Username is already taken. Please choose another." });
+        setErrors({
+          username: "Username is already taken. Please choose another.",
+        });
         toast({
           title: "Username unavailable",
           description: "Please choose a different username",
@@ -775,7 +786,9 @@ export default function Signup() {
       if (signupMethod === "email") {
         const emailCheck = await checkAvailability(formData.email, undefined);
         if (!emailCheck.available) {
-          setErrorAlert("An account with this email already exists. Please login instead.");
+          setErrorAlert(
+            "An account with this email already exists. Please login instead.",
+          );
           toast({
             title: "Account already exists",
             description: "Please login with your existing account",
@@ -826,7 +839,10 @@ export default function Signup() {
 
     try {
       // Verify OTP using the enhanced auth context
-      const verificationResult = await verifySignupOTP(formData.email, formData.otp);
+      const verificationResult = await verifySignupOTP(
+        formData.email,
+        formData.otp,
+      );
 
       if (verificationResult.success) {
         setEmailVerified(true);
@@ -845,12 +861,16 @@ export default function Signup() {
       } else {
         setErrors((prev) => ({
           ...prev,
-          otp: verificationResult.message || "Invalid verification code. Please try again.",
+          otp:
+            verificationResult.message ||
+            "Invalid verification code. Please try again.",
         }));
 
         toast({
           title: "Verification failed",
-          description: verificationResult.message || "Invalid verification code. Please try again.",
+          description:
+            verificationResult.message ||
+            "Invalid verification code. Please try again.",
           variant: "destructive",
         });
       }
@@ -1303,7 +1323,8 @@ export default function Signup() {
 
           toast({
             title: "Account created successfully! 🎉",
-            description: "Welcome to Music Catch! Let's add your profile picture next.",
+            description:
+              "Welcome to Music Catch! Let's add your profile picture next.",
           });
 
           setTimeout(() => {
@@ -1373,7 +1394,7 @@ export default function Signup() {
         formData.email,
         "temp_password_123", // Temporary password, user will set real one later
         "User", // Temporary name, user will set real one later
-        "temp_username" // Temporary username, user will set real one later
+        "temp_username", // Temporary username, user will set real one later
       );
 
       if (otpResult.success) {
@@ -1486,7 +1507,8 @@ export default function Signup() {
     "phone-verify": "Enter the 6-digit code we sent to your phone",
     profile: "Help others find you on Music Catch",
     verification: "Check your email and click the verification link",
-    password: "Create a strong password (12+ chars, uppercase, lowercase, number, special char)",
+    password:
+      "Create a strong password (12+ chars, uppercase, lowercase, number, special char)",
     dob: "You must be 18 or older to register",
     profileImage: "Click the circle to upload your profile picture (optional)",
     gender: "Help us personalize your experience",
@@ -1866,7 +1888,9 @@ export default function Signup() {
                   type="text"
                   value={formData.otp}
                   onChange={(e) => {
-                    const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 6);
+                    const value = e.target.value
+                      .replace(/[^0-9]/g, "")
+                      .slice(0, 6);
                     setFormData((prev) => ({ ...prev, otp: value }));
                     // Clear errors when user starts typing
                     if (errors.otp) {
@@ -1929,7 +1953,8 @@ export default function Signup() {
               {/* Tips */}
               <div className="bg-purple-dark/30 border border-purple-primary/20 rounded-lg p-3">
                 <p className="text-xs text-muted-foreground text-center">
-                  💡 The code expires in 10 minutes. Make sure to check your email's spam/junk folder if you don't see it.
+                  💡 The code expires in 10 minutes. Make sure to check your
+                  email's spam/junk folder if you don't see it.
                 </p>
               </div>
 
@@ -2076,8 +2101,8 @@ export default function Signup() {
                   placeholder="Your full name"
                   className={`w-full h-12 sm:h-14 bg-purple-dark/30 border rounded-xl px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-primary/20 transition-all duration-200 text-sm sm:text-base ${
                     errors.name
-                      ? 'border-red-500'
-                      : 'border-purple-primary/30 focus:border-purple-primary/50'
+                      ? "border-red-500"
+                      : "border-purple-primary/30 focus:border-purple-primary/50"
                   }`}
                   disabled={isLoading}
                   maxLength={50}
@@ -2099,7 +2124,9 @@ export default function Signup() {
                     type="text"
                     value={formData.username}
                     onChange={async (e) => {
-                      const value = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '');
+                      const value = e.target.value
+                        .toLowerCase()
+                        .replace(/[^a-z0-9_]/g, "");
                       setFormData((prev) => ({
                         ...prev,
                         username: value,
@@ -2111,29 +2138,37 @@ export default function Signup() {
                       // Check availability in real-time if username is valid length
                       if (value.length >= 3) {
                         try {
-                          const result = await checkAvailability(undefined, value);
+                          const result = await checkAvailability(
+                            undefined,
+                            value,
+                          );
                           if (!result.available) {
                             setErrors((prev) => ({
                               ...prev,
-                              username: result.message === "Email or username already taken"
-                                ? "Username is already taken"
-                                : "Username is not available"
+                              username:
+                                result.message ===
+                                "Email or username already taken"
+                                  ? "Username is already taken"
+                                  : "Username is not available",
                             }));
                           }
                         } catch (error) {
-                          console.error('Username availability check failed:', error);
+                          console.error(
+                            "Username availability check failed:",
+                            error,
+                          );
                         }
                       }
                     }}
                     placeholder="your_username"
                     className={`w-full h-12 sm:h-14 bg-purple-dark/30 border rounded-xl px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-primary/20 transition-all duration-200 text-sm sm:text-base ${
                       errors.username
-                        ? 'border-red-500'
+                        ? "border-red-500"
                         : availability.username === false
-                        ? 'border-red-500'
-                        : availability.username === true
-                        ? 'border-green-500'
-                        : 'border-purple-primary/30 focus:border-purple-primary/50'
+                          ? "border-red-500"
+                          : availability.username === true
+                            ? "border-green-500"
+                            : "border-purple-primary/30 focus:border-purple-primary/50"
                     }`}
                     disabled={isLoading}
                     maxLength={20}
@@ -2163,14 +2198,20 @@ export default function Signup() {
                     </p>
                   )}
                   <p className="text-slate-400 text-xs">
-                    Only lowercase letters, numbers, and underscores allowed. {formData.username.length}/20
+                    Only lowercase letters, numbers, and underscores allowed.{" "}
+                    {formData.username.length}/20
                   </p>
                 </div>
               </div>
 
               <button
                 onClick={handleProfileStep}
-                disabled={isLoading || !formData.name || !formData.username || availability.username === false}
+                disabled={
+                  isLoading ||
+                  !formData.name ||
+                  !formData.username ||
+                  availability.username === false
+                }
                 className="w-full h-12 sm:h-14 bg-gradient-to-r from-purple-primary to-purple-secondary hover:from-purple-secondary hover:to-purple-accent text-white font-bold text-sm sm:text-lg rounded-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none shadow-lg shadow-purple-primary/30 hover:shadow-purple-secondary/40"
               >
                 {isLoading ? (
@@ -2505,21 +2546,38 @@ export default function Signup() {
                       }));
                       // Clear errors when user selects a date
                       if (errors.dateOfBirth) {
-                        setErrors((prev) => ({ ...prev, dateOfBirth: undefined }));
+                        setErrors((prev) => ({
+                          ...prev,
+                          dateOfBirth: undefined,
+                        }));
                       }
                     }}
                     className={`w-full h-12 sm:h-14 bg-purple-dark/30 border rounded-xl px-3 sm:px-4 text-white focus:outline-none focus:ring-2 focus:ring-purple-primary/20 transition-all duration-200 text-sm sm:text-base backdrop-blur-sm ${
                       errors.dateOfBirth
-                        ? 'border-red-500'
-                        : 'border-purple-primary/30 focus:border-purple-primary/50'
+                        ? "border-red-500"
+                        : "border-purple-primary/30 focus:border-purple-primary/50"
                     }`}
                     disabled={isLoading}
                     max={new Date().toISOString().split("T")[0]}
-                    min={new Date(new Date().getFullYear() - 120, 0, 1).toISOString().split("T")[0]}
+                    min={
+                      new Date(new Date().getFullYear() - 120, 0, 1)
+                        .toISOString()
+                        .split("T")[0]
+                    }
                   />
                   <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                    <svg className="w-5 h-5 text-purple-primary/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    <svg
+                      className="w-5 h-5 text-purple-primary/60"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
                     </svg>
                   </div>
                 </div>
@@ -2528,7 +2586,13 @@ export default function Signup() {
                 {formData.dateOfBirth && !errors.dateOfBirth && (
                   <div className="mt-2 p-3 bg-purple-primary/10 border border-purple-primary/20 rounded-lg">
                     <p className="text-purple-primary text-sm">
-                      ✅ You are {Math.floor((new Date().getTime() - new Date(formData.dateOfBirth).getTime()) / (1000 * 60 * 60 * 24 * 365.25))} years old
+                      ✅ You are{" "}
+                      {Math.floor(
+                        (new Date().getTime() -
+                          new Date(formData.dateOfBirth).getTime()) /
+                          (1000 * 60 * 60 * 24 * 365.25),
+                      )}{" "}
+                      years old
                     </p>
                   </div>
                 )}
@@ -2543,10 +2607,21 @@ export default function Signup() {
                 {/* Trending info tip */}
                 <div className="mt-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
                   <p className="text-blue-400 text-xs flex items-center">
-                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    <svg
+                      className="w-4 h-4 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
                     </svg>
-                    We keep your birthday private and only use it to verify you're 18+
+                    We keep your birthday private and only use it to verify
+                    you're 18+
                   </p>
                 </div>
               </div>
@@ -2749,12 +2824,19 @@ export default function Signup() {
                   { value: "Female", icon: "👩", description: "She/Her" },
                   { value: "Non-binary", icon: "🧑", description: "They/Them" },
                   { value: "Other", icon: "🌟", description: "Other identity" },
-                  { value: "Prefer not to say", icon: "🔒", description: "Keep private" }
+                  {
+                    value: "Prefer not to say",
+                    icon: "🔒",
+                    description: "Keep private",
+                  },
                 ].map((option) => (
                   <button
                     key={option.value}
                     onClick={() => {
-                      setFormData((prev) => ({ ...prev, gender: option.value }));
+                      setFormData((prev) => ({
+                        ...prev,
+                        gender: option.value,
+                      }));
                       // Clear errors when user selects
                       if (errors.gender) {
                         setErrors((prev) => ({ ...prev, gender: undefined }));
@@ -2769,11 +2851,13 @@ export default function Signup() {
                     <span className="text-2xl mr-3">{option.icon}</span>
                     <div className="text-left">
                       <div className="font-semibold">{option.value}</div>
-                      <div className={`text-xs ${
-                        formData.gender === option.value
-                          ? "text-purple-primary/80"
-                          : "text-slate-400"
-                      }`}>
+                      <div
+                        className={`text-xs ${
+                          formData.gender === option.value
+                            ? "text-purple-primary/80"
+                            : "text-slate-400"
+                        }`}
+                      >
                         {option.description}
                       </div>
                     </div>
@@ -2853,7 +2937,9 @@ export default function Signup() {
                   </label>
                   <button
                     type="button"
-                    onClick={() => setFormData((prev) => ({ ...prev, bio: "" }))}
+                    onClick={() =>
+                      setFormData((prev) => ({ ...prev, bio: "" }))
+                    }
                     className="text-xs text-purple-primary hover:text-purple-secondary transition-colors"
                   >
                     Clear
@@ -2874,8 +2960,8 @@ export default function Signup() {
                     rows={5}
                     className={`w-full bg-purple-dark/30 border rounded-xl px-3 sm:px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-primary/20 transition-all duration-200 text-sm sm:text-base backdrop-blur-sm resize-none ${
                       errors.bio
-                        ? 'border-red-500'
-                        : 'border-purple-primary/30 focus:border-purple-primary/50'
+                        ? "border-red-500"
+                        : "border-purple-primary/30 focus:border-purple-primary/50"
                     }`}
                     disabled={isLoading}
                     maxLength={500}
@@ -2894,25 +2980,29 @@ export default function Signup() {
                       )}
                     </div>
                     <div className="flex items-center space-x-2">
-                      <div className={`text-xs font-medium ${
-                        formData.bio.length > 450
-                          ? 'text-orange-400'
-                          : formData.bio.length > 400
-                          ? 'text-yellow-400'
-                          : 'text-slate-400'
-                      }`}>
+                      <div
+                        className={`text-xs font-medium ${
+                          formData.bio.length > 450
+                            ? "text-orange-400"
+                            : formData.bio.length > 400
+                              ? "text-yellow-400"
+                              : "text-slate-400"
+                        }`}
+                      >
                         {formData.bio.length}/500
                       </div>
                       <div className="w-16 h-1 bg-slate-600 rounded-full overflow-hidden">
                         <div
                           className={`h-full transition-all duration-300 ${
                             formData.bio.length > 450
-                              ? 'bg-orange-400'
+                              ? "bg-orange-400"
                               : formData.bio.length > 400
-                              ? 'bg-yellow-400'
-                              : 'bg-purple-primary'
+                                ? "bg-yellow-400"
+                                : "bg-purple-primary"
                           }`}
-                          style={{ width: `${(formData.bio.length / 500) * 100}%` }}
+                          style={{
+                            width: `${(formData.bio.length / 500) * 100}%`,
+                          }}
                         />
                       </div>
                     </div>
@@ -2921,12 +3011,25 @@ export default function Signup() {
                   {/* Bio suggestions */}
                   {formData.bio.length === 0 && (
                     <div className="bg-purple-primary/10 border border-purple-primary/20 rounded-lg p-3">
-                      <p className="text-purple-primary text-xs font-medium mb-2">💡 Bio ideas:</p>
+                      <p className="text-purple-primary text-xs font-medium mb-2">
+                        💡 Bio ideas:
+                      </p>
                       <div className="grid grid-cols-1 gap-1 text-xs text-purple-primary/80">
-                        <p>• "Music lover, vinyl collector, concert enthusiast"</p>
-                        <p>• "Hip-hop head, bedroom producer, always finding new beats"</p>
-                        <p>• "Classical pianist, jazz appreciator, music theory nerd"</p>
-                        <p>• "Festival goer, playlist curator, discovering indie gems"</p>
+                        <p>
+                          • "Music lover, vinyl collector, concert enthusiast"
+                        </p>
+                        <p>
+                          • "Hip-hop head, bedroom producer, always finding new
+                          beats"
+                        </p>
+                        <p>
+                          • "Classical pianist, jazz appreciator, music theory
+                          nerd"
+                        </p>
+                        <p>
+                          • "Festival goer, playlist curator, discovering indie
+                          gems"
+                        </p>
                       </div>
                     </div>
                   )}
@@ -2935,10 +3038,21 @@ export default function Signup() {
                   {formData.bio.length > 0 && formData.bio.length < 50 && (
                     <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
                       <p className="text-blue-400 text-xs flex items-center">
-                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        <svg
+                          className="w-4 h-4 mr-2"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
                         </svg>
-                        Tell us a bit more! A longer bio helps others connect with you.
+                        Tell us a bit more! A longer bio helps others connect
+                        with you.
                       </p>
                     </div>
                   )}
