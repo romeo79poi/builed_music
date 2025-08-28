@@ -695,7 +695,7 @@ export default function Signup() {
         description: `Please wait while we send a code to ${formData.email}`,
       });
 
-      // Register user directly (no OTP required in development)
+      // Register user and request verification code
       const otpResult = await requestSignupOTP(
         formData.email,
         "temp_password_123", // Temporary password, user will set real one later
