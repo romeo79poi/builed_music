@@ -1344,10 +1344,8 @@ export default function Signup() {
       setCurrentStep("profile");
     } else if (currentStep === "dob") {
       setCurrentStep("password");
-    } else if (currentStep === "profileImage") {
-      setCurrentStep("dob");
     } else if (currentStep === "gender") {
-      setCurrentStep("profileImage");
+      setCurrentStep("dob"); // Skip profile image step during signup
     } else if (currentStep === "bio") {
       setCurrentStep("gender");
     }
