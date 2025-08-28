@@ -347,7 +347,7 @@ export default function Signup() {
     username?: string,
   ) => {
     try {
-      const result = await (useAuth().checkAvailability(email, username));
+      const result = await authCheckAvailability(email, username);
 
       if (email) {
         setAvailability((prev) => ({
