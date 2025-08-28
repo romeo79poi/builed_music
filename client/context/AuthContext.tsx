@@ -459,13 +459,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     username: string,
   ) => {
     try {
+      // Debug: Log the data being sent
+      const requestData = { email, password, name, username };
+      console.log("📤 Sending registration request:", requestData);
+
       // Use direct registration instead of OTP for development
       const result = await safeFetch("/api/auth/register", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password, name, username }),
+        body: JSON.stringify(requestData),
       });
       return {
         success: result.success,
