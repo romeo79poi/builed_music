@@ -747,10 +747,43 @@ export default function Signup() {
     }
 
     setIsLoading(true);
-    await checkAvailability("username", formData.username);
-    setIsLoading(false);
 
-    if (availability.username !== false) {
+    try {
+      // Final availability check before proceeding
+      const availabilityResult = await checkAvailability(undefined, formData.username);
+
+      if (!availabilityResult.available) {
+        setErrors({ username: "Username is already taken. Please choose another." });
+        toast({
+          title: "Username unavailable",
+          description: "Please choose a different username",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Check if user already exists with this email
+      if (signupMethod === "email") {
+        const emailCheck = await checkAvailability(formData.email, undefined);
+        if (!emailCheck.available) {
+          setErrorAlert("An account with this email already exists. Please login instead.");
+          toast({
+            title: "Account already exists",
+            description: "Please login with your existing account",
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      // Success - proceed to next step
+      toast({
+        title: "Profile validated! ✅",
+        description: "Username is available and profile looks good.",
+      });
+
       if (isSocialSignup) {
         // For social signups, proceed to DOB step (skip password)
         setCurrentStep("dob");
@@ -760,6 +793,16 @@ export default function Signup() {
       } else {
         setCurrentStep("password");
       }
+    } catch (error: any) {
+      console.error("Profile step validation error:", error);
+      setErrorAlert("Failed to validate profile. Please try again.");
+      toast({
+        title: "Validation failed",
+        description: "Please check your information and try again",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -918,7 +961,7 @@ export default function Signup() {
                 description: `Welcome to Catch, ${formData.name}! Your account has been created successfully.`,
               });
 
-              console.log("✅ User created with JWT backend");
+              console.log("�� User created with JWT backend");
 
               // Redirect to home page after successful signup
               setTimeout(() => {
@@ -2016,12 +2059,21 @@ export default function Signup() {
                 <input
                   type="text"
                   value={formData.name}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, name: e.target.value }))
-                  }
+                  onChange={(e) => {
+                    setFormData((prev) => ({ ...prev, name: e.target.value }));
+                    // Clear errors when user starts typing
+                    if (errors.name) {
+                      setErrors((prev) => ({ ...prev, name: undefined }));
+                    }
+                  }}
                   placeholder="Your full name"
-                  className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors text-sm sm:text-base"
+                  className={`w-full h-12 sm:h-14 bg-purple-dark/30 border rounded-xl px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-primary/20 transition-all duration-200 text-sm sm:text-base ${
+                    errors.name
+                      ? 'border-red-500'
+                      : 'border-purple-primary/30 focus:border-purple-primary/50'
+                  }`}
                   disabled={isLoading}
+                  maxLength={50}
                 />
                 {errors.name && (
                   <p className="text-red-400 text-xs sm:text-sm mt-2 flex items-center">
@@ -2035,31 +2087,84 @@ export default function Signup() {
                 <label className="block text-white text-sm font-medium mb-2">
                   Username
                 </label>
-                <input
-                  type="text"
-                  value={formData.username}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      username: e.target.value,
-                    }))
-                  }
-                  placeholder="your_username"
-                  className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors text-sm sm:text-base"
-                  disabled={isLoading}
-                />
-                {errors.username && (
-                  <p className="text-red-400 text-xs sm:text-sm mt-2 flex items-center">
-                    <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                    {errors.username}
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={formData.username}
+                    onChange={async (e) => {
+                      const value = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '');
+                      setFormData((prev) => ({
+                        ...prev,
+                        username: value,
+                      }));
+
+                      // Clear previous errors
+                      setErrors((prev) => ({ ...prev, username: undefined }));
+
+                      // Check availability in real-time if username is valid length
+                      if (value.length >= 3) {
+                        try {
+                          const result = await checkAvailability(undefined, value);
+                          if (!result.available) {
+                            setErrors((prev) => ({
+                              ...prev,
+                              username: result.message === "Email or username already taken"
+                                ? "Username is already taken"
+                                : "Username is not available"
+                            }));
+                          }
+                        } catch (error) {
+                          console.error('Username availability check failed:', error);
+                        }
+                      }
+                    }}
+                    placeholder="your_username"
+                    className={`w-full h-12 sm:h-14 bg-purple-dark/30 border rounded-xl px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-primary/20 transition-all duration-200 text-sm sm:text-base ${
+                      errors.username
+                        ? 'border-red-500'
+                        : availability.username === false
+                        ? 'border-red-500'
+                        : availability.username === true
+                        ? 'border-green-500'
+                        : 'border-purple-primary/30 focus:border-purple-primary/50'
+                    }`}
+                    disabled={isLoading}
+                    maxLength={20}
+                  />
+                  {formData.username.length >= 3 && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      {availability.username === true && (
+                        <CheckCircle className="w-5 h-5 text-green-500" />
+                      )}
+                      {availability.username === false && (
+                        <AlertCircle className="w-5 h-5 text-red-500" />
+                      )}
+                    </div>
+                  )}
+                </div>
+                <div className="mt-2 space-y-1">
+                  {errors.username && (
+                    <p className="text-red-400 text-xs sm:text-sm flex items-center">
+                      <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                      {errors.username}
+                    </p>
+                  )}
+                  {availability.username === true && !errors.username && (
+                    <p className="text-green-400 text-xs sm:text-sm flex items-center">
+                      <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                      Username is available!
+                    </p>
+                  )}
+                  <p className="text-slate-400 text-xs">
+                    Only lowercase letters, numbers, and underscores allowed. {formData.username.length}/20
                   </p>
-                )}
+                </div>
               </div>
 
               <button
                 onClick={handleProfileStep}
-                disabled={isLoading || !formData.name || !formData.username}
-                className="w-full h-12 sm:h-14 bg-gradient-to-r from-neon-green to-neon-blue hover:from-neon-green/80 hover:to-neon-blue/80 text-black font-bold text-sm sm:text-lg rounded-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+                disabled={isLoading || !formData.name || !formData.username || availability.username === false}
+                className="w-full h-12 sm:h-14 bg-gradient-to-r from-purple-primary to-purple-secondary hover:from-purple-secondary hover:to-purple-accent text-white font-bold text-sm sm:text-lg rounded-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none shadow-lg shadow-purple-primary/30 hover:shadow-purple-secondary/40"
               >
                 {isLoading ? (
                   <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mx-auto" />
@@ -2459,7 +2564,7 @@ export default function Signup() {
                   onClick={handleProfileImageStep}
                   className="absolute top-4 right-4 text-purple-primary hover:text-purple-secondary transition-colors text-sm font-medium"
                 >
-                  Skip ���
+                  Skip �����
                 </button>
               </div>
 
