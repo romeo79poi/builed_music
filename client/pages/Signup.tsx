@@ -1887,6 +1887,11 @@ export default function Signup() {
                 <p className="font-medium text-purple-primary break-all text-sm sm:text-base">
                   {formData.email}
                 </p>
+                <div className="mt-3 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                  <p className="text-xs text-yellow-300">
+                    💡 Development Mode: Enter any 6-digit number (e.g., 123456)
+                  </p>
+                </div>
               </div>
 
               {/* OTP Input */}
