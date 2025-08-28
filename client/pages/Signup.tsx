@@ -689,7 +689,7 @@ export default function Signup() {
         return;
       }
 
-      // Store email and proceed to OTP verification
+      // Store email and proceed to verification
       toast({
         title: "Sending verification code...",
         description: `Please wait while we send a code to ${formData.email}`,
