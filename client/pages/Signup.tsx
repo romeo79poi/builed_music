@@ -991,20 +991,28 @@ export default function Signup() {
               setErrorAlert(result.message);
             }
           } else {
-            // Use direct JWT signup (no email verification required)
-            const result = await signUp(formData.email, formData.password, {
-              name: formData.name,
-              username: formData.username,
-            });
+            // Use createUserAccount with real user data
+            const result = await createUserAccount(
+              formData.email,
+              formData.password,
+              formData.name,
+              formData.username,
+              {
+                dateOfBirth: formData.dateOfBirth,
+                gender: formData.gender,
+                bio: formData.bio,
+                profileImageURL: formData.profileImageURL,
+              }
+            );
 
             if (result.success) {
-              // Account created successfully with JWT
+              // Account created successfully
               toast({
                 title: "Account Created! 🎉",
                 description: `Welcome to Catch, ${formData.name}! Your account has been created successfully.`,
               });
 
-              console.log("✅ User created with JWT backend");
+              console.log("✅ User created successfully");
 
               // Redirect to home page after successful signup
               setTimeout(() => {
