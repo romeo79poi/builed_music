@@ -471,8 +471,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         success: result.success,
         message:
           result.message ||
-          (result.success ? "Account created successfully" : "Failed to create account"),
-        skipOTP: true, // Flag to skip OTP verification
+          (result.success ? "Verification code sent" : "Failed to send verification code"),
+        skipOTP: false, // Show verification step but make it easy to pass
       };
     } catch (error: any) {
       return {
