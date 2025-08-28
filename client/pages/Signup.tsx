@@ -2494,25 +2494,61 @@ export default function Signup() {
                 <label className="block text-white text-sm font-medium mb-2">
                   Date of Birth
                 </label>
-                <input
-                  type="date"
-                  value={formData.dateOfBirth}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      dateOfBirth: e.target.value,
-                    }))
-                  }
-                  className="w-full h-12 sm:h-14 bg-purple-dark/30 border border-purple-primary/30 rounded-xl px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:border-purple-primary focus:ring-2 focus:ring-purple-primary/20 transition-all duration-200 text-sm sm:text-base backdrop-blur-sm"
-                  disabled={isLoading}
-                  max={new Date().toISOString().split("T")[0]}
-                />
+                <div className="relative">
+                  <input
+                    type="date"
+                    value={formData.dateOfBirth}
+                    onChange={(e) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        dateOfBirth: e.target.value,
+                      }));
+                      // Clear errors when user selects a date
+                      if (errors.dateOfBirth) {
+                        setErrors((prev) => ({ ...prev, dateOfBirth: undefined }));
+                      }
+                    }}
+                    className={`w-full h-12 sm:h-14 bg-purple-dark/30 border rounded-xl px-3 sm:px-4 text-white focus:outline-none focus:ring-2 focus:ring-purple-primary/20 transition-all duration-200 text-sm sm:text-base backdrop-blur-sm ${
+                      errors.dateOfBirth
+                        ? 'border-red-500'
+                        : 'border-purple-primary/30 focus:border-purple-primary/50'
+                    }`}
+                    disabled={isLoading}
+                    max={new Date().toISOString().split("T")[0]}
+                    min={new Date(new Date().getFullYear() - 120, 0, 1).toISOString().split("T")[0]}
+                  />
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                    <svg className="w-5 h-5 text-purple-primary/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Age display and helpful info */}
+                {formData.dateOfBirth && !errors.dateOfBirth && (
+                  <div className="mt-2 p-3 bg-purple-primary/10 border border-purple-primary/20 rounded-lg">
+                    <p className="text-purple-primary text-sm">
+                      ✅ You are {Math.floor((new Date().getTime() - new Date(formData.dateOfBirth).getTime()) / (1000 * 60 * 60 * 24 * 365.25))} years old
+                    </p>
+                  </div>
+                )}
+
                 {errors.dateOfBirth && (
                   <p className="text-red-400 text-xs sm:text-sm mt-2 flex items-center">
                     <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                     {errors.dateOfBirth}
                   </p>
                 )}
+
+                {/* Trending info tip */}
+                <div className="mt-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                  <p className="text-blue-400 text-xs flex items-center">
+                    <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    We keep your birthday private and only use it to verify you're 18+
+                  </p>
+                </div>
               </div>
 
               <button
