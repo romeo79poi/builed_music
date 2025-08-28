@@ -242,8 +242,9 @@ export default function Signup() {
     if (!formData.password) {
       newErrors.password = "Password is required";
       isValid = false;
-    } else if (formData.password.length < 8) {
-      newErrors.password = "Password must be at least 8 characters";
+    } else if (formData.password.length < 12) {
+      newErrors.password =
+        "Password must be at least 12 characters for stronger security";
       isValid = false;
     } else if (!/(?=.*[a-z])/.test(formData.password)) {
       newErrors.password =
@@ -255,6 +256,20 @@ export default function Signup() {
       isValid = false;
     } else if (!/(?=.*\d)/.test(formData.password)) {
       newErrors.password = "Password must contain at least one number";
+      isValid = false;
+    } else if (
+      !/(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?])/.test(formData.password)
+    ) {
+      newErrors.password =
+        "Password must contain at least one special character (!@#$%^&*...)";
+      isValid = false;
+    } else if (/(.)\1{2,}/.test(formData.password)) {
+      newErrors.password =
+        "Password cannot contain three or more consecutive identical characters";
+      isValid = false;
+    } else if (/password|123456|qwerty|admin|user/i.test(formData.password)) {
+      newErrors.password =
+        "Password cannot contain common words like 'password', '123456', etc.";
       isValid = false;
     }
 
@@ -334,32 +349,29 @@ export default function Signup() {
     return true;
   };
 
-  // Check availability (simplified for Firebase)
-  const checkAvailability = async (
-    field: "email" | "username" | "phone",
-    value: string,
-  ) => {
-    if (!value) return;
-
+  // Check availability using the backend API
+  const checkAvailability = async (email?: string, username?: string) => {
     try {
-      // For now, assume all fields are available
-      // TODO: Implement proper availability checking with Firebase/backend
-      setAvailability((prev) => ({
-        ...prev,
-        [field]: true,
-      }));
+      const result = await authCheckAvailability(email, username);
 
-      // Clear any existing errors
-      setErrors((prev) => ({
-        ...prev,
-        [field]: "",
-      }));
+      if (email) {
+        setAvailability((prev) => ({
+          ...prev,
+          email: result.available,
+        }));
+      }
+
+      if (username) {
+        setAvailability((prev) => ({
+          ...prev,
+          username: result.available,
+        }));
+      }
+
+      return result;
     } catch (error: any) {
       console.error("Availability check failed:", error);
-      setErrors((prev) => ({
-        ...prev,
-        [field]: `Unable to verify ${field}`,
-      }));
+      return { available: false, message: "Unable to check availability" };
     }
   };
 
@@ -527,6 +539,7 @@ export default function Signup() {
     signUp,
     requestSignupOTP,
     verifySignupOTP,
+    checkAvailability: authCheckAvailability,
   } = useAuth();
 
   // Google signup handler with Firebase
@@ -661,17 +674,50 @@ export default function Signup() {
     setIsLoading(true);
 
     try {
-      // Check if email is available (state is set optimistically to true)
-      await checkAvailability("email", formData.email);
+      // Check if email is available first
+      const availabilityResult = await checkAvailability(formData.email);
 
-      if (availability.email !== false) {
-        // For JWT signup flow, we don't require email verification
-        setEmailVerified(true);
+      if (!availabilityResult.available) {
+        setErrors({ email: "Email is already taken or unavailable" });
         toast({
-          title: "Email accepted",
-          description: `Using ${formData.email} for your account`,
+          title: "Email unavailable",
+          description:
+            "This email is already in use. Please try another or login instead.",
+          variant: "destructive",
         });
-        setCurrentStep("profile");
+        setIsLoading(false);
+        return;
+      }
+
+      // Store email and proceed to OTP verification
+      toast({
+        title: "Sending verification code...",
+        description: `Please wait while we send a code to ${formData.email}`,
+      });
+
+      // Send OTP to email (we'll collect profile data after verification)
+      const otpResult = await requestSignupOTP(
+        formData.email,
+        "temp_password_123", // Temporary password, user will set real one later
+        "User", // Temporary name, user will set real one later
+        "temp_username", // Temporary username, user will set real one later
+      );
+
+      if (otpResult.success) {
+        setEmailVerificationSent(true);
+        setResendTimer(60);
+        toast({
+          title: "Verification code sent! 📧",
+          description: `We sent a 6-digit code to ${formData.email}. Please check your email.`,
+        });
+        setCurrentStep("email-verify");
+      } else {
+        setErrorAlert(otpResult.message || "Failed to send verification code");
+        toast({
+          title: "Failed to send code",
+          description: otpResult.message || "Please try again",
+          variant: "destructive",
+        });
       }
     } catch (error: any) {
       console.error("Email step error:", error);
@@ -715,10 +761,50 @@ export default function Signup() {
     }
 
     setIsLoading(true);
-    await checkAvailability("username", formData.username);
-    setIsLoading(false);
 
-    if (availability.username !== false) {
+    try {
+      // Final availability check before proceeding
+      const availabilityResult = await checkAvailability(
+        undefined,
+        formData.username,
+      );
+
+      if (!availabilityResult.available) {
+        setErrors({
+          username: "Username is already taken. Please choose another.",
+        });
+        toast({
+          title: "Username unavailable",
+          description: "Please choose a different username",
+          variant: "destructive",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      // Check if user already exists with this email
+      if (signupMethod === "email") {
+        const emailCheck = await checkAvailability(formData.email, undefined);
+        if (!emailCheck.available) {
+          setErrorAlert(
+            "An account with this email already exists. Please login instead.",
+          );
+          toast({
+            title: "Account already exists",
+            description: "Please login with your existing account",
+            variant: "destructive",
+          });
+          setIsLoading(false);
+          return;
+        }
+      }
+
+      // Success - proceed to next step
+      toast({
+        title: "Profile validated! ✅",
+        description: "Username is available and profile looks good.",
+      });
+
       if (isSocialSignup) {
         // For social signups, proceed to DOB step (skip password)
         setCurrentStep("dob");
@@ -728,6 +814,16 @@ export default function Signup() {
       } else {
         setCurrentStep("password");
       }
+    } catch (error: any) {
+      console.error("Profile step validation error:", error);
+      setErrorAlert("Failed to validate profile. Please try again.");
+      toast({
+        title: "Validation failed",
+        description: "Please check your information and try again",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -737,57 +833,57 @@ export default function Signup() {
   };
 
   const handleEmailVerifyStep = async () => {
-    if (!tempEmailUser) {
-      setErrorAlert("No user account found. Please start over.");
-      setCurrentStep("email");
-      return;
-    }
+    if (!validateOTP(formData.otp)) return;
 
     setIsLoading(true);
 
     try {
-      // Reload the user to get the latest emailVerified status
-      await tempEmailUser.reload();
+      // Verify OTP using the enhanced auth context
+      const verificationResult = await verifySignupOTP(
+        formData.email,
+        formData.otp,
+      );
 
-      if (tempEmailUser.emailVerified) {
+      if (verificationResult.success) {
         setEmailVerified(true);
-        setVerificationUser(tempEmailUser);
+        setEmailVerificationSent(false);
 
         toast({
           title: "Email verified successfully! ✅",
-          description: "Now please complete your profile",
+          description: "Now let's complete your profile",
         });
 
-        // Store verified email user data
-        setFormData((prev) => ({
-          ...prev,
-          email: tempEmailUser.email || prev.email,
-        }));
+        // Clear OTP field
+        setFormData((prev) => ({ ...prev, otp: "" }));
 
-        // Proceed to profile step
+        // Proceed to profile step to collect name and username
         setCurrentStep("profile");
       } else {
-        // Show verification error
         setErrors((prev) => ({
           ...prev,
-          email:
-            "Email not verified. Please check your email and click the verification link.",
+          otp:
+            verificationResult.message ||
+            "Invalid verification code. Please try again.",
         }));
 
         toast({
-          title: "Email not verified ❌",
+          title: "Verification failed",
           description:
-            "Please check your email and click the verification link before continuing",
+            verificationResult.message ||
+            "Invalid verification code. Please try again.",
           variant: "destructive",
         });
       }
     } catch (error: any) {
-      console.error("Email verification check error:", error);
-      setErrorAlert("Failed to check verification status. Please try again.");
+      console.error("Email OTP verification error:", error);
+      setErrors((prev) => ({
+        ...prev,
+        otp: "Verification failed. Please try again.",
+      }));
 
       toast({
-        title: "Verification check failed",
-        description: "Please try again or contact support",
+        title: "Verification failed",
+        description: "Please check your code and try again",
         variant: "destructive",
       });
     } finally {
@@ -932,7 +1028,8 @@ export default function Signup() {
       return;
     }
 
-    setCurrentStep("profileImage");
+    // Skip profile image during signup - we'll ask for it on home page
+    setCurrentStep("gender");
   };
 
   const handleProfileImageStep = async () => {
@@ -1030,7 +1127,7 @@ export default function Signup() {
 
         toast({
           title: "Profile completed successfully! 🎉",
-          description: `Welcome to Music Catch, ${formData.name}!`,
+          description: `Welcome to Music Catch, ${formData.name}! Let's add your profile picture next.`,
         });
 
         // Sync with backend API to create user in backend store
@@ -1090,7 +1187,7 @@ export default function Signup() {
         }
 
         setTimeout(() => {
-          navigate("/home");
+          navigate("/home?showProfileImagePrompt=true");
         }, 2000);
       } else {
         // For email signup, use the already verified user
@@ -1141,7 +1238,7 @@ export default function Signup() {
             console.log("✅ Complete profile data saved to Firestore");
           } else {
             console.warn(
-              "⚠️ Failed to save complete profile data:",
+              "⚠��� Failed to save complete profile data:",
               saveResult.error,
             );
           }
@@ -1226,11 +1323,12 @@ export default function Signup() {
 
           toast({
             title: "Account created successfully! 🎉",
-            description: "Please check your email for verification link",
+            description:
+              "Welcome to Music Catch! Let's add your profile picture next.",
           });
 
           setTimeout(() => {
-            navigate("/home");
+            navigate("/home?showProfileImagePrompt=true");
           }, 2000);
         } else {
           setErrorAlert(result.message);
@@ -1268,23 +1366,21 @@ export default function Signup() {
       setCurrentStep("profile");
     } else if (currentStep === "dob") {
       setCurrentStep("password");
-    } else if (currentStep === "profileImage") {
-      setCurrentStep("dob");
     } else if (currentStep === "gender") {
-      setCurrentStep("profileImage");
+      setCurrentStep("dob"); // Skip profile image step during signup
     } else if (currentStep === "bio") {
       setCurrentStep("gender");
     }
   };
 
-  // Resend email verification using Firebase
+  // Resend email OTP verification
   const handleResendEmailVerification = async () => {
     if (resendTimer > 0) return;
 
-    if (!verificationUser) {
+    if (!formData.email) {
       toast({
         title: "Error",
-        description: "No user account found to send verification to",
+        description: "No email address found to send verification to",
         variant: "destructive",
       });
       return;
@@ -1293,27 +1389,33 @@ export default function Signup() {
     setIsLoading(true);
 
     try {
-      const result = await sendFirebaseEmailVerification(verificationUser);
+      // Resend OTP using the same request as initial send
+      const otpResult = await requestSignupOTP(
+        formData.email,
+        "temp_password_123", // Temporary password, user will set real one later
+        "User", // Temporary name, user will set real one later
+        "temp_username", // Temporary username, user will set real one later
+      );
 
-      if (result.success) {
+      if (otpResult.success) {
         toast({
-          title: "Verification email sent!",
-          description: "Please check your email for the verification link.",
+          title: "Verification code resent! 📧",
+          description: "Please check your email for the new 6-digit code.",
         });
         setResendTimer(60);
         setEmailVerificationSent(true);
       } else {
         toast({
-          title: "Failed to send verification",
-          description: result.error || "Please try again",
+          title: "Failed to resend code",
+          description: otpResult.message || "Please try again",
           variant: "destructive",
         });
       }
-    } catch (error) {
-      console.error("Resend email verification error:", error);
+    } catch (error: any) {
+      console.error("Resend email OTP error:", error);
       toast({
         title: "Error",
-        description: "Failed to send verification email",
+        description: "Failed to resend verification code",
         variant: "destructive",
       });
     } finally {
@@ -1405,7 +1507,8 @@ export default function Signup() {
     "phone-verify": "Enter the 6-digit code we sent to your phone",
     profile: "Help others find you on Music Catch",
     verification: "Check your email and click the verification link",
-    password: "Choose a secure password for your account",
+    password:
+      "Create a strong password (12+ chars, uppercase, lowercase, number, special char)",
     dob: "You must be 18 or older to register",
     profileImage: "Click the circle to upload your profile picture (optional)",
     gender: "Help us personalize your experience",
@@ -1756,107 +1859,83 @@ export default function Signup() {
               className="space-y-4 sm:space-y-6"
             >
               <div className="text-center mb-4 sm:mb-6">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                  <Mail className="w-6 h-6 sm:w-8 sm:h-8 text-blue-500" />
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-purple-primary/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <Mail className="w-6 h-6 sm:w-8 sm:h-8 text-purple-primary" />
                 </div>
                 <h3 className="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">
-                  Verify your email
+                  {stepTitles["email-verify"]}
                 </h3>
                 <p className="text-slate-400 text-xs sm:text-sm px-2">
-                  Check your email and click the verification link to continue
+                  {stepDescriptions["email-verify"]}
                 </p>
               </div>
 
-              <div className="text-center">
-                <p className="text-white mb-2 text-sm sm:text-base">
-                  Verification email sent to:
+              <div className="text-center space-y-2 mb-4">
+                <p className="text-sm text-muted-foreground">
+                  We sent a 6-digit verification code to
                 </p>
-                <p className="text-purple-primary font-medium text-sm sm:text-base mb-4 break-all">
+                <p className="font-medium text-purple-primary break-all text-sm sm:text-base">
                   {formData.email}
                 </p>
+              </div>
 
-                {emailVerified ? (
-                  <div className="flex items-center justify-center space-x-2 text-green-500 text-sm mb-4">
-                    <CheckCircle className="w-4 h-4" />
-                    <span>Email verified successfully!</span>
-                  </div>
-                ) : (
-                  <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 mb-4">
-                    <div className="flex items-center space-x-2">
-                      <AlertCircle className="w-5 h-5 text-yellow-500" />
-                      <div className="text-left">
-                        <p className="text-yellow-500 text-sm font-medium">
-                          📬 Check your email inbox
-                        </p>
-                        <p className="text-yellow-400 text-xs">
-                          1. Open the email from Music Catch
-                          <br />
-                          2. Click the "Verify Email" button
-                          <br />
-                          3. Return here and click "Check Verification Status"
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {errors.email && (
-                  <div className="bg-red-500/10 border border-red-500 rounded-xl p-4 mb-4">
-                    <div className="flex items-center space-x-2">
-                      <AlertCircle className="w-5 h-5 text-red-500" />
-                      <p className="text-red-500 text-sm font-medium">
-                        {errors.email}
-                      </p>
-                    </div>
-                  </div>
+              {/* OTP Input */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-white">
+                  Verification Code
+                </label>
+                <input
+                  type="text"
+                  value={formData.otp}
+                  onChange={(e) => {
+                    const value = e.target.value
+                      .replace(/[^0-9]/g, "")
+                      .slice(0, 6);
+                    setFormData((prev) => ({ ...prev, otp: value }));
+                    // Clear errors when user starts typing
+                    if (errors.otp) {
+                      setErrors((prev) => ({ ...prev, otp: undefined }));
+                    }
+                  }}
+                  placeholder="Enter 6-digit code"
+                  className="w-full h-12 sm:h-14 bg-purple-dark/30 border border-purple-primary/30 rounded-xl px-4 text-white placeholder-gray-400 focus:outline-none focus:border-purple-primary/50 focus:ring-1 focus:ring-purple-primary/50 transition-all duration-200 text-center text-lg font-mono tracking-widest"
+                  maxLength={6}
+                  autoComplete="one-time-code"
+                  disabled={isLoading}
+                />
+                {errors.otp && (
+                  <p className="text-red-400 text-xs sm:text-sm flex items-center">
+                    <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                    {errors.otp}
+                  </p>
                 )}
               </div>
 
+              {/* Verify Button */}
               <button
                 onClick={handleEmailVerifyStep}
-                disabled={isLoading}
+                disabled={isLoading || formData.otp.length !== 6}
                 className="w-full h-12 sm:h-14 bg-gradient-to-r from-purple-primary to-purple-secondary hover:from-purple-secondary hover:to-purple-accent text-white font-bold text-sm sm:text-lg rounded-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none shadow-lg shadow-purple-primary/30 hover:shadow-purple-secondary/40"
               >
                 {isLoading ? (
-                  <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mx-auto" />
+                  <div className="flex items-center justify-center space-x-2">
+                    <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+                    <span>Verifying...</span>
+                  </div>
                 ) : (
-                  "Check Verification Status"
+                  "Verify Code"
                 )}
               </button>
 
-              <div className="text-center">
-                <p className="text-slate-400 text-xs sm:text-sm mb-2">
-                  Didn't receive the email?
+              {/* Resend Section */}
+              <div className="text-center space-y-2">
+                <p className="text-xs text-muted-foreground">
+                  Didn't receive the code? Check your spam folder or
                 </p>
                 <button
-                  onClick={async () => {
-                    if (tempEmailUser && resendTimer === 0) {
-                      setIsLoading(true);
-                      try {
-                        const result =
-                          await sendFirebaseEmailVerification(tempEmailUser);
-                        if (result.success) {
-                          setResendTimer(60);
-                          toast({
-                            title: "Verification email resent! 📬",
-                            description: "Please check your email",
-                          });
-                        } else {
-                          throw new Error(result.error);
-                        }
-                      } catch (error: any) {
-                        toast({
-                          title: "Resend failed",
-                          description: error.message || "Please try again",
-                          variant: "destructive",
-                        });
-                      } finally {
-                        setIsLoading(false);
-                      }
-                    }
-                  }}
+                  onClick={handleResendEmailVerification}
                   disabled={resendTimer > 0 || isLoading}
-                  className="text-purple-primary hover:text-purple-secondary text-xs sm:text-sm disabled:opacity-50 flex items-center space-x-1 mx-auto"
+                  className="text-purple-primary hover:text-purple-secondary text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1 mx-auto"
                 >
                   {isLoading ? (
                     <Loader2 className="w-3 h-3 animate-spin" />
@@ -1866,9 +1945,17 @@ export default function Signup() {
                   <span>
                     {resendTimer > 0
                       ? `Resend in ${resendTimer}s`
-                      : "Resend verification email"}
+                      : "Resend verification code"}
                   </span>
                 </button>
+              </div>
+
+              {/* Tips */}
+              <div className="bg-purple-dark/30 border border-purple-primary/20 rounded-lg p-3">
+                <p className="text-xs text-muted-foreground text-center">
+                  💡 The code expires in 10 minutes. Make sure to check your
+                  email's spam/junk folder if you don't see it.
+                </p>
               </div>
 
               <button
@@ -2004,12 +2091,21 @@ export default function Signup() {
                 <input
                   type="text"
                   value={formData.name}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, name: e.target.value }))
-                  }
+                  onChange={(e) => {
+                    setFormData((prev) => ({ ...prev, name: e.target.value }));
+                    // Clear errors when user starts typing
+                    if (errors.name) {
+                      setErrors((prev) => ({ ...prev, name: undefined }));
+                    }
+                  }}
                   placeholder="Your full name"
-                  className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors text-sm sm:text-base"
+                  className={`w-full h-12 sm:h-14 bg-purple-dark/30 border rounded-xl px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-primary/20 transition-all duration-200 text-sm sm:text-base ${
+                    errors.name
+                      ? "border-red-500"
+                      : "border-purple-primary/30 focus:border-purple-primary/50"
+                  }`}
                   disabled={isLoading}
+                  maxLength={50}
                 />
                 {errors.name && (
                   <p className="text-red-400 text-xs sm:text-sm mt-2 flex items-center">
@@ -2023,31 +2119,100 @@ export default function Signup() {
                 <label className="block text-white text-sm font-medium mb-2">
                   Username
                 </label>
-                <input
-                  type="text"
-                  value={formData.username}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      username: e.target.value,
-                    }))
-                  }
-                  placeholder="your_username"
-                  className="w-full h-12 sm:h-14 bg-slate-800/50 border border-slate-600 rounded-lg px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:border-neon-green transition-colors text-sm sm:text-base"
-                  disabled={isLoading}
-                />
-                {errors.username && (
-                  <p className="text-red-400 text-xs sm:text-sm mt-2 flex items-center">
-                    <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                    {errors.username}
+                <div className="relative">
+                  <input
+                    type="text"
+                    value={formData.username}
+                    onChange={async (e) => {
+                      const value = e.target.value
+                        .toLowerCase()
+                        .replace(/[^a-z0-9_]/g, "");
+                      setFormData((prev) => ({
+                        ...prev,
+                        username: value,
+                      }));
+
+                      // Clear previous errors
+                      setErrors((prev) => ({ ...prev, username: undefined }));
+
+                      // Check availability in real-time if username is valid length
+                      if (value.length >= 3) {
+                        try {
+                          const result = await checkAvailability(
+                            undefined,
+                            value,
+                          );
+                          if (!result.available) {
+                            setErrors((prev) => ({
+                              ...prev,
+                              username:
+                                result.message ===
+                                "Email or username already taken"
+                                  ? "Username is already taken"
+                                  : "Username is not available",
+                            }));
+                          }
+                        } catch (error) {
+                          console.error(
+                            "Username availability check failed:",
+                            error,
+                          );
+                        }
+                      }
+                    }}
+                    placeholder="your_username"
+                    className={`w-full h-12 sm:h-14 bg-purple-dark/30 border rounded-xl px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-primary/20 transition-all duration-200 text-sm sm:text-base ${
+                      errors.username
+                        ? "border-red-500"
+                        : availability.username === false
+                          ? "border-red-500"
+                          : availability.username === true
+                            ? "border-green-500"
+                            : "border-purple-primary/30 focus:border-purple-primary/50"
+                    }`}
+                    disabled={isLoading}
+                    maxLength={20}
+                  />
+                  {formData.username.length >= 3 && (
+                    <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                      {availability.username === true && (
+                        <CheckCircle className="w-5 h-5 text-green-500" />
+                      )}
+                      {availability.username === false && (
+                        <AlertCircle className="w-5 h-5 text-red-500" />
+                      )}
+                    </div>
+                  )}
+                </div>
+                <div className="mt-2 space-y-1">
+                  {errors.username && (
+                    <p className="text-red-400 text-xs sm:text-sm flex items-center">
+                      <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                      {errors.username}
+                    </p>
+                  )}
+                  {availability.username === true && !errors.username && (
+                    <p className="text-green-400 text-xs sm:text-sm flex items-center">
+                      <CheckCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                      Username is available!
+                    </p>
+                  )}
+                  <p className="text-slate-400 text-xs">
+                    Only lowercase letters, numbers, and underscores allowed.{" "}
+                    {formData.username.length}/20
                   </p>
-                )}
+                </div>
               </div>
 
               <button
                 onClick={handleProfileStep}
-                disabled={isLoading || !formData.name || !formData.username}
-                className="w-full h-12 sm:h-14 bg-gradient-to-r from-neon-green to-neon-blue hover:from-neon-green/80 hover:to-neon-blue/80 text-black font-bold text-sm sm:text-lg rounded-lg transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none"
+                disabled={
+                  isLoading ||
+                  !formData.name ||
+                  !formData.username ||
+                  availability.username === false
+                }
+                className="w-full h-12 sm:h-14 bg-gradient-to-r from-purple-primary to-purple-secondary hover:from-purple-secondary hover:to-purple-accent text-white font-bold text-sm sm:text-lg rounded-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none shadow-lg shadow-purple-primary/30 hover:shadow-purple-secondary/40"
               >
                 {isLoading ? (
                   <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mx-auto" />
@@ -2370,25 +2535,95 @@ export default function Signup() {
                 <label className="block text-white text-sm font-medium mb-2">
                   Date of Birth
                 </label>
-                <input
-                  type="date"
-                  value={formData.dateOfBirth}
-                  onChange={(e) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      dateOfBirth: e.target.value,
-                    }))
-                  }
-                  className="w-full h-12 sm:h-14 bg-purple-dark/30 border border-purple-primary/30 rounded-xl px-3 sm:px-4 text-white placeholder-slate-400 focus:outline-none focus:border-purple-primary focus:ring-2 focus:ring-purple-primary/20 transition-all duration-200 text-sm sm:text-base backdrop-blur-sm"
-                  disabled={isLoading}
-                  max={new Date().toISOString().split("T")[0]}
-                />
+                <div className="relative">
+                  <input
+                    type="date"
+                    value={formData.dateOfBirth}
+                    onChange={(e) => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        dateOfBirth: e.target.value,
+                      }));
+                      // Clear errors when user selects a date
+                      if (errors.dateOfBirth) {
+                        setErrors((prev) => ({
+                          ...prev,
+                          dateOfBirth: undefined,
+                        }));
+                      }
+                    }}
+                    className={`w-full h-12 sm:h-14 bg-purple-dark/30 border rounded-xl px-3 sm:px-4 text-white focus:outline-none focus:ring-2 focus:ring-purple-primary/20 transition-all duration-200 text-sm sm:text-base backdrop-blur-sm ${
+                      errors.dateOfBirth
+                        ? "border-red-500"
+                        : "border-purple-primary/30 focus:border-purple-primary/50"
+                    }`}
+                    disabled={isLoading}
+                    max={new Date().toISOString().split("T")[0]}
+                    min={
+                      new Date(new Date().getFullYear() - 120, 0, 1)
+                        .toISOString()
+                        .split("T")[0]
+                    }
+                  />
+                  <div className="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                    <svg
+                      className="w-5 h-5 text-purple-primary/60"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
+                    </svg>
+                  </div>
+                </div>
+
+                {/* Age display and helpful info */}
+                {formData.dateOfBirth && !errors.dateOfBirth && (
+                  <div className="mt-2 p-3 bg-purple-primary/10 border border-purple-primary/20 rounded-lg">
+                    <p className="text-purple-primary text-sm">
+                      ✅ You are{" "}
+                      {Math.floor(
+                        (new Date().getTime() -
+                          new Date(formData.dateOfBirth).getTime()) /
+                          (1000 * 60 * 60 * 24 * 365.25),
+                      )}{" "}
+                      years old
+                    </p>
+                  </div>
+                )}
+
                 {errors.dateOfBirth && (
                   <p className="text-red-400 text-xs sm:text-sm mt-2 flex items-center">
                     <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
                     {errors.dateOfBirth}
                   </p>
                 )}
+
+                {/* Trending info tip */}
+                <div className="mt-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded-lg">
+                  <p className="text-blue-400 text-xs flex items-center">
+                    <svg
+                      className="w-4 h-4 mr-2"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    We keep your birthday private and only use it to verify
+                    you're 18+
+                  </p>
+                </div>
               </div>
 
               <button
@@ -2584,23 +2819,55 @@ export default function Signup() {
               </div>
 
               <div className="space-y-3">
-                {["Male", "Female", "Non-binary", "Prefer not to say"].map(
-                  (option) => (
-                    <button
-                      key={option}
-                      onClick={() =>
-                        setFormData((prev) => ({ ...prev, gender: option }))
+                {[
+                  { value: "Male", icon: "👨", description: "He/Him" },
+                  { value: "Female", icon: "👩", description: "She/Her" },
+                  { value: "Non-binary", icon: "🧑", description: "They/Them" },
+                  { value: "Other", icon: "🌟", description: "Other identity" },
+                  {
+                    value: "Prefer not to say",
+                    icon: "🔒",
+                    description: "Keep private",
+                  },
+                ].map((option) => (
+                  <button
+                    key={option.value}
+                    onClick={() => {
+                      setFormData((prev) => ({
+                        ...prev,
+                        gender: option.value,
+                      }));
+                      // Clear errors when user selects
+                      if (errors.gender) {
+                        setErrors((prev) => ({ ...prev, gender: undefined }));
                       }
-                      className={`w-full h-12 sm:h-14 rounded-xl border-2 transition-all duration-200 flex items-center justify-center text-sm sm:text-base font-medium ${
-                        formData.gender === option
-                          ? "bg-purple-primary/20 border-purple-primary text-purple-primary"
-                          : "bg-purple-dark/30 border-purple-primary/30 text-white hover:border-purple-primary/50 hover:bg-purple-primary/10"
-                      }`}
-                    >
-                      {option}
-                    </button>
-                  ),
-                )}
+                    }}
+                    className={`w-full h-14 sm:h-16 rounded-xl border-2 transition-all duration-200 flex items-center justify-start px-4 text-sm sm:text-base font-medium group hover:scale-[1.02] ${
+                      formData.gender === option.value
+                        ? "bg-purple-primary/20 border-purple-primary text-purple-primary shadow-lg shadow-purple-primary/20"
+                        : "bg-purple-dark/30 border-purple-primary/30 text-white hover:border-purple-primary/50 hover:bg-purple-primary/10"
+                    }`}
+                  >
+                    <span className="text-2xl mr-3">{option.icon}</span>
+                    <div className="text-left">
+                      <div className="font-semibold">{option.value}</div>
+                      <div
+                        className={`text-xs ${
+                          formData.gender === option.value
+                            ? "text-purple-primary/80"
+                            : "text-slate-400"
+                        }`}
+                      >
+                        {option.description}
+                      </div>
+                    </div>
+                    {formData.gender === option.value && (
+                      <div className="ml-auto">
+                        <CheckCircle className="w-5 h-5 text-purple-primary" />
+                      </div>
+                    )}
+                  </button>
+                ))}
                 {errors.gender && (
                   <p className="text-red-400 text-xs sm:text-sm mt-2 flex items-center">
                     <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
@@ -2664,32 +2931,131 @@ export default function Signup() {
               </div>
 
               <div>
-                <label className="block text-white text-sm font-medium mb-2">
-                  Bio (Optional)
-                </label>
-                <textarea
-                  value={formData.bio}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, bio: e.target.value }))
-                  }
-                  placeholder="Tell us about your musical interests, favorite artists, or anything you'd like to share..."
-                  rows={4}
-                  className="w-full bg-purple-dark/30 border border-purple-primary/30 rounded-xl px-3 sm:px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:border-purple-primary focus:ring-2 focus:ring-purple-primary/20 transition-all duration-200 text-sm sm:text-base backdrop-blur-sm resize-none"
-                  disabled={isLoading}
-                  maxLength={500}
-                />
-                <div className="flex justify-between items-center mt-2">
-                  <div>
-                    {errors.bio && (
-                      <p className="text-red-400 text-xs sm:text-sm flex items-center">
-                        <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
-                        {errors.bio}
-                      </p>
-                    )}
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-white text-sm font-medium">
+                    Bio (Optional) ✨
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setFormData((prev) => ({ ...prev, bio: "" }))
+                    }
+                    className="text-xs text-purple-primary hover:text-purple-secondary transition-colors"
+                  >
+                    Clear
+                  </button>
+                </div>
+
+                <div className="relative">
+                  <textarea
+                    value={formData.bio}
+                    onChange={(e) => {
+                      setFormData((prev) => ({ ...prev, bio: e.target.value }));
+                      // Clear errors when user types
+                      if (errors.bio) {
+                        setErrors((prev) => ({ ...prev, bio: undefined }));
+                      }
+                    }}
+                    placeholder="Tell us about your musical interests, favorite artists, or anything you'd like to share... 🎵"
+                    rows={5}
+                    className={`w-full bg-purple-dark/30 border rounded-xl px-3 sm:px-4 py-3 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-purple-primary/20 transition-all duration-200 text-sm sm:text-base backdrop-blur-sm resize-none ${
+                      errors.bio
+                        ? "border-red-500"
+                        : "border-purple-primary/30 focus:border-purple-primary/50"
+                    }`}
+                    disabled={isLoading}
+                    maxLength={500}
+                  />
+                </div>
+
+                <div className="mt-3 space-y-2">
+                  {/* Character count with visual indicator */}
+                  <div className="flex justify-between items-center">
+                    <div className="flex-1">
+                      {errors.bio && (
+                        <p className="text-red-400 text-xs sm:text-sm flex items-center">
+                          <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                          {errors.bio}
+                        </p>
+                      )}
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <div
+                        className={`text-xs font-medium ${
+                          formData.bio.length > 450
+                            ? "text-orange-400"
+                            : formData.bio.length > 400
+                              ? "text-yellow-400"
+                              : "text-slate-400"
+                        }`}
+                      >
+                        {formData.bio.length}/500
+                      </div>
+                      <div className="w-16 h-1 bg-slate-600 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full transition-all duration-300 ${
+                            formData.bio.length > 450
+                              ? "bg-orange-400"
+                              : formData.bio.length > 400
+                                ? "bg-yellow-400"
+                                : "bg-purple-primary"
+                          }`}
+                          style={{
+                            width: `${(formData.bio.length / 500) * 100}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
                   </div>
-                  <p className="text-slate-400 text-xs">
-                    {formData.bio.length}/500
-                  </p>
+
+                  {/* Bio suggestions */}
+                  {formData.bio.length === 0 && (
+                    <div className="bg-purple-primary/10 border border-purple-primary/20 rounded-lg p-3">
+                      <p className="text-purple-primary text-xs font-medium mb-2">
+                        💡 Bio ideas:
+                      </p>
+                      <div className="grid grid-cols-1 gap-1 text-xs text-purple-primary/80">
+                        <p>
+                          • "Music lover, vinyl collector, concert enthusiast"
+                        </p>
+                        <p>
+                          • "Hip-hop head, bedroom producer, always finding new
+                          beats"
+                        </p>
+                        <p>
+                          • "Classical pianist, jazz appreciator, music theory
+                          nerd"
+                        </p>
+                        <p>
+                          • "Festival goer, playlist curator, discovering indie
+                          gems"
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Completion encouragement */}
+                  {formData.bio.length > 0 && formData.bio.length < 50 && (
+                    <div className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
+                      <p className="text-blue-400 text-xs flex items-center">
+                        <svg
+                          className="w-4 h-4 mr-2"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        Tell us a bit more! A longer bio helps others connect
+                        with you.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 

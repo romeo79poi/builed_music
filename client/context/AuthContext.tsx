@@ -428,11 +428,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         `/api/auth/check-availability?${params.toString()}`,
       );
 
+      // Handle different response formats from backend
+      let available = false;
+      if (email && result.emailAvailable !== undefined) {
+        available = result.emailAvailable;
+      } else if (username && result.usernameAvailable !== undefined) {
+        available = result.usernameAvailable;
+      } else if (result.available !== undefined) {
+        available = result.available;
+      }
+
       return {
-        available: result.available || false,
-        message: result.message || "Unknown error",
+        available,
+        message: result.message || (available ? "Available" : "Not available"),
       };
     } catch (error: any) {
+      console.error("Availability check error:", error);
       return {
         available: false,
         message: error.message || "Failed to check availability",
