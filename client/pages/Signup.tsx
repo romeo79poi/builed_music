@@ -334,32 +334,32 @@ export default function Signup() {
     return true;
   };
 
-  // Check availability (simplified for Firebase)
+  // Check availability using the backend API
   const checkAvailability = async (
-    field: "email" | "username" | "phone",
-    value: string,
+    email?: string,
+    username?: string,
   ) => {
-    if (!value) return;
-
     try {
-      // For now, assume all fields are available
-      // TODO: Implement proper availability checking with Firebase/backend
-      setAvailability((prev) => ({
-        ...prev,
-        [field]: true,
-      }));
+      const result = await (useAuth().checkAvailability(email, username));
 
-      // Clear any existing errors
-      setErrors((prev) => ({
-        ...prev,
-        [field]: "",
-      }));
+      if (email) {
+        setAvailability((prev) => ({
+          ...prev,
+          email: result.available,
+        }));
+      }
+
+      if (username) {
+        setAvailability((prev) => ({
+          ...prev,
+          username: result.available,
+        }));
+      }
+
+      return result;
     } catch (error: any) {
       console.error("Availability check failed:", error);
-      setErrors((prev) => ({
-        ...prev,
-        [field]: `Unable to verify ${field}`,
-      }));
+      return { available: false, message: "Unable to check availability" };
     }
   };
 
@@ -661,17 +661,49 @@ export default function Signup() {
     setIsLoading(true);
 
     try {
-      // Check if email is available (state is set optimistically to true)
-      await checkAvailability("email", formData.email);
+      // Check if email is available first
+      const availabilityResult = await checkAvailability(formData.email);
 
-      if (availability.email !== false) {
-        // For JWT signup flow, we don't require email verification
-        setEmailVerified(true);
+      if (!availabilityResult.available) {
+        setErrors({ email: "Email is already taken or unavailable" });
         toast({
-          title: "Email accepted",
-          description: `Using ${formData.email} for your account`,
+          title: "Email unavailable",
+          description: "This email is already in use. Please try another or login instead.",
+          variant: "destructive",
         });
-        setCurrentStep("profile");
+        setIsLoading(false);
+        return;
+      }
+
+      // Store email and proceed to OTP verification
+      toast({
+        title: "Sending verification code...",
+        description: `Please wait while we send a code to ${formData.email}`,
+      });
+
+      // Send OTP to email (we'll collect profile data after verification)
+      const otpResult = await requestSignupOTP(
+        formData.email,
+        "temp_password_123", // Temporary password, user will set real one later
+        "User", // Temporary name, user will set real one later
+        "temp_username" // Temporary username, user will set real one later
+      );
+
+      if (otpResult.success) {
+        setEmailVerificationSent(true);
+        setResendTimer(60);
+        toast({
+          title: "Verification code sent! 📧",
+          description: `We sent a 6-digit code to ${formData.email}. Please check your email.`,
+        });
+        setCurrentStep("email-verify");
+      } else {
+        setErrorAlert(otpResult.message || "Failed to send verification code");
+        toast({
+          title: "Failed to send code",
+          description: otpResult.message || "Please try again",
+          variant: "destructive",
+        });
       }
     } catch (error: any) {
       console.error("Email step error:", error);
@@ -737,57 +769,50 @@ export default function Signup() {
   };
 
   const handleEmailVerifyStep = async () => {
-    if (!tempEmailUser) {
-      setErrorAlert("No user account found. Please start over.");
-      setCurrentStep("email");
-      return;
-    }
+    if (!validateOTP(formData.otp)) return;
 
     setIsLoading(true);
 
     try {
-      // Reload the user to get the latest emailVerified status
-      await tempEmailUser.reload();
+      // Verify OTP using the enhanced auth context
+      const verificationResult = await verifySignupOTP(formData.email, formData.otp);
 
-      if (tempEmailUser.emailVerified) {
+      if (verificationResult.success) {
         setEmailVerified(true);
-        setVerificationUser(tempEmailUser);
+        setEmailVerificationSent(false);
 
         toast({
           title: "Email verified successfully! ✅",
-          description: "Now please complete your profile",
+          description: "Now let's complete your profile",
         });
 
-        // Store verified email user data
-        setFormData((prev) => ({
-          ...prev,
-          email: tempEmailUser.email || prev.email,
-        }));
+        // Clear OTP field
+        setFormData((prev) => ({ ...prev, otp: "" }));
 
-        // Proceed to profile step
+        // Proceed to profile step to collect name and username
         setCurrentStep("profile");
       } else {
-        // Show verification error
         setErrors((prev) => ({
           ...prev,
-          email:
-            "Email not verified. Please check your email and click the verification link.",
+          otp: verificationResult.message || "Invalid verification code. Please try again.",
         }));
 
         toast({
-          title: "Email not verified ❌",
-          description:
-            "Please check your email and click the verification link before continuing",
+          title: "Verification failed",
+          description: verificationResult.message || "Invalid verification code. Please try again.",
           variant: "destructive",
         });
       }
     } catch (error: any) {
-      console.error("Email verification check error:", error);
-      setErrorAlert("Failed to check verification status. Please try again.");
+      console.error("Email OTP verification error:", error);
+      setErrors((prev) => ({
+        ...prev,
+        otp: "Verification failed. Please try again.",
+      }));
 
       toast({
-        title: "Verification check failed",
-        description: "Please try again or contact support",
+        title: "Verification failed",
+        description: "Please check your code and try again",
         variant: "destructive",
       });
     } finally {
@@ -1141,7 +1166,7 @@ export default function Signup() {
             console.log("✅ Complete profile data saved to Firestore");
           } else {
             console.warn(
-              "⚠️ Failed to save complete profile data:",
+              "⚠��� Failed to save complete profile data:",
               saveResult.error,
             );
           }
@@ -1277,14 +1302,14 @@ export default function Signup() {
     }
   };
 
-  // Resend email verification using Firebase
+  // Resend email OTP verification
   const handleResendEmailVerification = async () => {
     if (resendTimer > 0) return;
 
-    if (!verificationUser) {
+    if (!formData.email) {
       toast({
         title: "Error",
-        description: "No user account found to send verification to",
+        description: "No email address found to send verification to",
         variant: "destructive",
       });
       return;
@@ -1293,27 +1318,33 @@ export default function Signup() {
     setIsLoading(true);
 
     try {
-      const result = await sendFirebaseEmailVerification(verificationUser);
+      // Resend OTP using the same request as initial send
+      const otpResult = await requestSignupOTP(
+        formData.email,
+        "temp_password_123", // Temporary password, user will set real one later
+        "User", // Temporary name, user will set real one later
+        "temp_username" // Temporary username, user will set real one later
+      );
 
-      if (result.success) {
+      if (otpResult.success) {
         toast({
-          title: "Verification email sent!",
-          description: "Please check your email for the verification link.",
+          title: "Verification code resent! 📧",
+          description: "Please check your email for the new 6-digit code.",
         });
         setResendTimer(60);
         setEmailVerificationSent(true);
       } else {
         toast({
-          title: "Failed to send verification",
-          description: result.error || "Please try again",
+          title: "Failed to resend code",
+          description: otpResult.message || "Please try again",
           variant: "destructive",
         });
       }
-    } catch (error) {
-      console.error("Resend email verification error:", error);
+    } catch (error: any) {
+      console.error("Resend email OTP error:", error);
       toast({
         title: "Error",
-        description: "Failed to send verification email",
+        description: "Failed to resend verification code",
         variant: "destructive",
       });
     } finally {
