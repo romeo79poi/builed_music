@@ -1486,7 +1486,7 @@ export default function Signup() {
     "phone-verify": "Enter the 6-digit code we sent to your phone",
     profile: "Help others find you on Music Catch",
     verification: "Check your email and click the verification link",
-    password: "Choose a secure password for your account",
+    password: "Create a strong password (12+ chars, uppercase, lowercase, number, special char)",
     dob: "You must be 18 or older to register",
     profileImage: "Click the circle to upload your profile picture (optional)",
     gender: "Help us personalize your experience",
