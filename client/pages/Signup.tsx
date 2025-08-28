@@ -704,13 +704,23 @@ export default function Signup() {
       );
 
       if (otpResult.success) {
-        setEmailVerificationSent(true);
-        setResendTimer(60);
-        toast({
-          title: "Verification code sent! 📧",
-          description: `We sent a 6-digit code to ${formData.email}. Please check your email.`,
-        });
-        setCurrentStep("email-verify");
+        if (otpResult.skipOTP) {
+          // Direct registration completed, skip OTP verification
+          setEmailVerified(true);
+          toast({
+            title: "Account created successfully! ✅",
+            description: "Your account has been created. Let's complete your profile.",
+          });
+          setCurrentStep("profile");
+        } else {
+          setEmailVerificationSent(true);
+          setResendTimer(60);
+          toast({
+            title: "Verification code sent! 📧",
+            description: `We sent a 6-digit code to ${formData.email}. Please check your email.`,
+          });
+          setCurrentStep("email-verify");
+        }
       } else {
         setErrorAlert(otpResult.message || "Failed to send verification code");
         toast({
