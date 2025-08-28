@@ -1787,107 +1787,81 @@ export default function Signup() {
               className="space-y-4 sm:space-y-6"
             >
               <div className="text-center mb-4 sm:mb-6">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-blue-500/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                  <Mail className="w-6 h-6 sm:w-8 sm:h-8 text-blue-500" />
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-purple-primary/20 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4">
+                  <Mail className="w-6 h-6 sm:w-8 sm:h-8 text-purple-primary" />
                 </div>
                 <h3 className="text-lg sm:text-xl font-semibold text-white mb-1 sm:mb-2">
-                  Verify your email
+                  {stepTitles["email-verify"]}
                 </h3>
                 <p className="text-slate-400 text-xs sm:text-sm px-2">
-                  Check your email and click the verification link to continue
+                  {stepDescriptions["email-verify"]}
                 </p>
               </div>
 
-              <div className="text-center">
-                <p className="text-white mb-2 text-sm sm:text-base">
-                  Verification email sent to:
+              <div className="text-center space-y-2 mb-4">
+                <p className="text-sm text-muted-foreground">
+                  We sent a 6-digit verification code to
                 </p>
-                <p className="text-purple-primary font-medium text-sm sm:text-base mb-4 break-all">
+                <p className="font-medium text-purple-primary break-all text-sm sm:text-base">
                   {formData.email}
                 </p>
+              </div>
 
-                {emailVerified ? (
-                  <div className="flex items-center justify-center space-x-2 text-green-500 text-sm mb-4">
-                    <CheckCircle className="w-4 h-4" />
-                    <span>Email verified successfully!</span>
-                  </div>
-                ) : (
-                  <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 mb-4">
-                    <div className="flex items-center space-x-2">
-                      <AlertCircle className="w-5 h-5 text-yellow-500" />
-                      <div className="text-left">
-                        <p className="text-yellow-500 text-sm font-medium">
-                          📬 Check your email inbox
-                        </p>
-                        <p className="text-yellow-400 text-xs">
-                          1. Open the email from Music Catch
-                          <br />
-                          2. Click the "Verify Email" button
-                          <br />
-                          3. Return here and click "Check Verification Status"
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {errors.email && (
-                  <div className="bg-red-500/10 border border-red-500 rounded-xl p-4 mb-4">
-                    <div className="flex items-center space-x-2">
-                      <AlertCircle className="w-5 h-5 text-red-500" />
-                      <p className="text-red-500 text-sm font-medium">
-                        {errors.email}
-                      </p>
-                    </div>
-                  </div>
+              {/* OTP Input */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-white">
+                  Verification Code
+                </label>
+                <input
+                  type="text"
+                  value={formData.otp}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 6);
+                    setFormData((prev) => ({ ...prev, otp: value }));
+                    // Clear errors when user starts typing
+                    if (errors.otp) {
+                      setErrors((prev) => ({ ...prev, otp: undefined }));
+                    }
+                  }}
+                  placeholder="Enter 6-digit code"
+                  className="w-full h-12 sm:h-14 bg-purple-dark/30 border border-purple-primary/30 rounded-xl px-4 text-white placeholder-gray-400 focus:outline-none focus:border-purple-primary/50 focus:ring-1 focus:ring-purple-primary/50 transition-all duration-200 text-center text-lg font-mono tracking-widest"
+                  maxLength={6}
+                  autoComplete="one-time-code"
+                  disabled={isLoading}
+                />
+                {errors.otp && (
+                  <p className="text-red-400 text-xs sm:text-sm flex items-center">
+                    <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4 mr-1" />
+                    {errors.otp}
+                  </p>
                 )}
               </div>
 
+              {/* Verify Button */}
               <button
                 onClick={handleEmailVerifyStep}
-                disabled={isLoading}
+                disabled={isLoading || formData.otp.length !== 6}
                 className="w-full h-12 sm:h-14 bg-gradient-to-r from-purple-primary to-purple-secondary hover:from-purple-secondary hover:to-purple-accent text-white font-bold text-sm sm:text-lg rounded-xl transition-all transform hover:scale-105 disabled:opacity-50 disabled:transform-none shadow-lg shadow-purple-primary/30 hover:shadow-purple-secondary/40"
               >
                 {isLoading ? (
-                  <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin mx-auto" />
+                  <div className="flex items-center justify-center space-x-2">
+                    <Loader2 className="w-4 h-4 sm:w-5 sm:h-5 animate-spin" />
+                    <span>Verifying...</span>
+                  </div>
                 ) : (
-                  "Check Verification Status"
+                  "Verify Code"
                 )}
               </button>
 
-              <div className="text-center">
-                <p className="text-slate-400 text-xs sm:text-sm mb-2">
-                  Didn't receive the email?
+              {/* Resend Section */}
+              <div className="text-center space-y-2">
+                <p className="text-xs text-muted-foreground">
+                  Didn't receive the code? Check your spam folder or
                 </p>
                 <button
-                  onClick={async () => {
-                    if (tempEmailUser && resendTimer === 0) {
-                      setIsLoading(true);
-                      try {
-                        const result =
-                          await sendFirebaseEmailVerification(tempEmailUser);
-                        if (result.success) {
-                          setResendTimer(60);
-                          toast({
-                            title: "Verification email resent! 📬",
-                            description: "Please check your email",
-                          });
-                        } else {
-                          throw new Error(result.error);
-                        }
-                      } catch (error: any) {
-                        toast({
-                          title: "Resend failed",
-                          description: error.message || "Please try again",
-                          variant: "destructive",
-                        });
-                      } finally {
-                        setIsLoading(false);
-                      }
-                    }
-                  }}
+                  onClick={handleResendEmailVerification}
                   disabled={resendTimer > 0 || isLoading}
-                  className="text-purple-primary hover:text-purple-secondary text-xs sm:text-sm disabled:opacity-50 flex items-center space-x-1 mx-auto"
+                  className="text-purple-primary hover:text-purple-secondary text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-1 mx-auto"
                 >
                   {isLoading ? (
                     <Loader2 className="w-3 h-3 animate-spin" />
@@ -1897,9 +1871,16 @@ export default function Signup() {
                   <span>
                     {resendTimer > 0
                       ? `Resend in ${resendTimer}s`
-                      : "Resend verification email"}
+                      : "Resend verification code"}
                   </span>
                 </button>
+              </div>
+
+              {/* Tips */}
+              <div className="bg-purple-dark/30 border border-purple-primary/20 rounded-lg p-3">
+                <p className="text-xs text-muted-foreground text-center">
+                  💡 The code expires in 10 minutes. Make sure to check your email's spam/junk folder if you don't see it.
+                </p>
               </div>
 
               <button
