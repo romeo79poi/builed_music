@@ -1213,7 +1213,11 @@ export default function Signup() {
     } else if (currentStep === "password") {
       setCurrentStep("profile");
     } else if (currentStep === "dob") {
-      setCurrentStep("password");
+      if (isSocialSignup) {
+        setCurrentStep("profile");
+      } else {
+        setCurrentStep("password");
+      }
     } else if (currentStep === "profileImage") {
       setCurrentStep("dob");
     } else if (currentStep === "gender") {
@@ -1341,8 +1345,8 @@ export default function Signup() {
 
   const stepDescriptions = {
     method: "Sign up with email, phone, or social media",
-    email: "We'll send you a verification email immediately",
-    "email-verify": "Click the verification link sent to your email",
+    email: "We'll send you a 6-digit verification code",
+    "email-verify": "Enter the 6-digit code we sent to your email",
     phone: "We'll send you a verification code",
     "phone-verify": "Enter the 6-digit code we sent to your phone",
     profile: "Help others find you on Music Catch",
