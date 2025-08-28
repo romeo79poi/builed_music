@@ -484,12 +484,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const verifySignupOTP = async (email: string, otp: string) => {
     try {
-      // For direct registration, OTP verification may not be needed
-      // Just return success since account was already created
-      return {
-        success: true,
-        message: "Account verified successfully!",
-      };
+      // For development, accept any 6-digit code since account was already created
+      if (otp.length === 6 && /^\d{6}$/.test(otp)) {
+        return {
+          success: true,
+          message: "Email verified successfully!",
+        };
+      } else {
+        return {
+          success: false,
+          message: "Please enter a valid 6-digit verification code",
+        };
+      }
     } catch (error: any) {
       return {
         success: false,
