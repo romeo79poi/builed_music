@@ -17,12 +17,14 @@ const FirebaseContext = createContext<FirebaseContextType>({
 
 export function FirebaseProvider({ children }: { children: ReactNode }) {
   return (
-    <FirebaseContext.Provider value={{
-      user: null,
-      loading: false,
-      signIn: async () => {},
-      signOut: async () => {},
-    }}>
+    <FirebaseContext.Provider
+      value={{
+        user: null,
+        loading: false,
+        signIn: async () => {},
+        signOut: async () => {},
+      }}
+    >
       {children}
     </FirebaseContext.Provider>
   );

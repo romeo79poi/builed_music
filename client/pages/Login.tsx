@@ -16,7 +16,7 @@ export default function Login() {
     signInWithFacebook,
     requestLoginOTP,
     verifyLoginOTP,
-    loading
+    loading,
   } = useAuth();
 
   const [loginMethod, setLoginMethod] = useState<"social" | "email" | "phone">(
@@ -95,7 +95,8 @@ export default function Login() {
   const handleResendVerification = async () => {
     toast({
       title: "Email verification",
-      description: "Email verification is handled automatically with backend authentication",
+      description:
+        "Email verification is handled automatically with backend authentication",
     });
     setShowResendVerification(false);
   };
@@ -204,7 +205,9 @@ export default function Login() {
       console.log("💾 Loading complete user profile for:", user.email);
 
       // User profile loading is now handled by backend JWT authentication in AuthContext
-      console.log("✅ Backend authentication handles user profile loading automatically");
+      console.log(
+        "✅ Backend authentication handles user profile loading automatically",
+      );
       return null;
     } catch (error) {
       console.error("❌ Error loading user profile:", error);
@@ -390,7 +393,9 @@ export default function Login() {
         throw new Error(oauthResult.error || "Facebook sign-in failed");
       }
 
-      console.log("✅ Facebook OAuth successful, authenticating with backend...");
+      console.log(
+        "✅ Facebook OAuth successful, authenticating with backend...",
+      );
 
       // Send access token to backend for verification
       const result = await signInWithFacebook(oauthResult.token);

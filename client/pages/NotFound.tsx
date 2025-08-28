@@ -17,7 +17,10 @@ const NotFound = () => {
       <div className="relative z-10 text-center bg-purple-dark/40 backdrop-blur-xl rounded-3xl p-8 border border-purple-primary/20 shadow-2xl shadow-purple-primary/10">
         <h1 className="text-6xl font-bold mb-4 purple-gradient-text">404</h1>
         <p className="text-xl text-gray-300 mb-6">Oops! Page not found</p>
-        <a href="/" className="inline-block bg-gradient-to-r from-purple-primary to-purple-secondary text-white px-6 py-3 rounded-xl font-semibold hover:from-purple-secondary hover:to-purple-accent transition-all duration-200 shadow-lg shadow-purple-primary/30 hover:scale-105">
+        <a
+          href="/"
+          className="inline-block bg-gradient-to-r from-purple-primary to-purple-secondary text-white px-6 py-3 rounded-xl font-semibold hover:from-purple-secondary hover:to-purple-accent transition-all duration-200 shadow-lg shadow-purple-primary/30 hover:scale-105"
+        >
           Return to Home
         </a>
       </div>

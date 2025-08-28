@@ -669,16 +669,17 @@ export default function Signup() {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       const checkData = await checkResponse.json();
 
       if (!checkData.success) {
         if (checkData.message?.includes("already registered")) {
-          setErrors(prev => ({
+          setErrors((prev) => ({
             ...prev,
-            email: "User already exists with this email. Please log in instead."
+            email:
+              "User already exists with this email. Please log in instead.",
           }));
           toast({
             title: "Account exists",
@@ -767,16 +768,19 @@ export default function Signup() {
           headers: {
             "Content-Type": "application/json",
           },
-        }
+        },
       );
 
       const usernameData = await usernameResponse.json();
 
       if (!usernameData.success) {
-        if (usernameData.message?.includes("taken") || usernameData.message?.includes("exists")) {
-          setErrors(prev => ({
+        if (
+          usernameData.message?.includes("taken") ||
+          usernameData.message?.includes("exists")
+        ) {
+          setErrors((prev) => ({
             ...prev,
-            username: "Username is already taken. Please choose another."
+            username: "Username is already taken. Please choose another.",
           }));
           toast({
             title: "Username taken",

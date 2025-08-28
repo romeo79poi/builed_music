@@ -6,7 +6,12 @@ import Home from "../pages/Home";
 import Signup from "../pages/Signup";
 
 export default function AuthRouter() {
-  const { user, firebaseUser, loading: authLoading, isAuthenticated } = useAuth();
+  const {
+    user,
+    firebaseUser,
+    loading: authLoading,
+    isAuthenticated,
+  } = useAuth();
   const { loading: firebaseLoading, initialized } = useFirebase();
   const [showSplash, setShowSplash] = useState(true);
   const [splashComplete, setSplashComplete] = useState(false);
