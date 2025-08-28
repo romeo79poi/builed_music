@@ -1403,12 +1403,16 @@ export default function Signup() {
     setIsLoading(true);
 
     try {
-      // Resend OTP using the same request as initial send
+      // Generate unique temporary credentials for resend
+      const tempUsername = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
+      const tempPassword = `temp_password_${Date.now()}`;
+
+      // Resend OTP using unique temporary credentials
       const otpResult = await requestSignupOTP(
         formData.email,
-        "temp_password_123", // Temporary password, user will set real one later
-        "User", // Temporary name, user will set real one later
-        "temp_username", // Temporary username, user will set real one later
+        tempPassword, // Unique temporary password
+        formData.name || "User", // Use provided name or default
+        formData.username || tempUsername, // Use provided username or unique temp
       );
 
       if (otpResult.success) {
