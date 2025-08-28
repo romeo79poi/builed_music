@@ -60,6 +60,13 @@ interface AuthContextType {
     email: string,
     otp: string,
   ) => Promise<{ success: boolean; message: string }>;
+  createUserAccount: (
+    email: string,
+    password: string,
+    name: string,
+    username: string,
+    additionalData?: any
+  ) => Promise<{ success: boolean; message: string; user?: any }>;
   requestLoginOTP: (
     email: string,
   ) => Promise<{ success: boolean; message: string }>;
