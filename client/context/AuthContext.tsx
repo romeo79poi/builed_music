@@ -508,6 +508,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
+  // Create account with complete user data (called after profile step)
+  const createUserAccount = async (
+    email: string,
+    password: string,
+    name: string,
+    username: string,
+    additionalData?: any
+  ) => {
+    try {
+      // Debug: Log the data being sent
+      const requestData = {
+        email,
+        password,
+        name,
+        username,
+        ...additionalData
+      };
+      console.log("📤 Creating user account:", { ...requestData, password: "[HIDDEN]" });
+
+      // Create the actual user account
+      const result = await safeFetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestData),
+      });
+
+      if (result.success) {
+        console.log("✅ User account created successfully");
+        return {
+          success: true,
+          message: result.message || "Account created successfully!",
+          user: result.user
+        };
+      } else {
+        return {
+          success: false,
+          message: result.message || "Failed to create account",
+        };
+      }
+    } catch (error: any) {
+      console.error("❌ Account creation error:", error);
+      return {
+        success: false,
+        message: error.message || "Failed to create account",
+      };
+    }
+  };
+
   const requestLoginOTP = async (email: string) => {
     try {
       const result = await safeFetch("/api/auth/login/request-otp", {
