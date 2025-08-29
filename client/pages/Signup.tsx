@@ -1523,12 +1523,12 @@ export default function Signup() {
 
   const stepDescriptions = {
     method: "Sign up with email, phone, or social media",
-    email: "We'll send you a verification email immediately",
-    "email-verify": "Click the verification link sent to your email",
+    email: "We'll send you a 6-digit verification code",
+    "email-verify": "Enter the 6-digit code to verify your email address",
     phone: "We'll send you a verification code",
     "phone-verify": "Enter the 6-digit code we sent to your phone",
     profile: "Help others find you on Music Catch",
-    verification: "Check your email and click the verification link",
+    verification: "Check your email and enter the verification code",
     password:
       "Create a strong password (12+ chars, uppercase, lowercase, number, special char)",
     dob: "You must be 18 or older to register",
