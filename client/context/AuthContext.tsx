@@ -497,20 +497,59 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const verifySignupOTP = async (email: string, otp: string) => {
     try {
-      // For development, accept any 6-digit code (account will be created later)
-      if (otp.length === 6 && /^\d{6}$/.test(otp)) {
-        console.log("✅ Email verification simulated for:", email);
-        return {
-          success: true,
-          message: "Email verified successfully!",
-        };
-      } else {
+      // Validate OTP format
+      if (otp.length !== 6 || !/^\d{6}$/.test(otp)) {
         return {
           success: false,
           message: "Please enter a valid 6-digit verification code",
         };
       }
+
+      // For development, accept any 6-digit code
+      // In production, this would verify against the actual OTP sent via email
+      console.log("✅ Email verification accepted for:", email);
+
+      // Get stored signup data
+      const pendingSignupData = sessionStorage.getItem('pendingSignup');
+      if (!pendingSignupData) {
+        return {
+          success: false,
+          message: "Signup session expired. Please start over.",
+        };
+      }
+
+      const signupData = JSON.parse(pendingSignupData);
+
+      // Create account using secure JWT + bcrypt authentication
+      const result = await createUserAccount(
+        signupData.email,
+        signupData.password,
+        signupData.name,
+        signupData.username
+      );
+
+      if (result.success) {
+        // Clear pending signup data
+        sessionStorage.removeItem('pendingSignup');
+
+        // Set user if token was returned
+        if (result.user) {
+          setUser(result.user);
+        }
+
+        return {
+          success: true,
+          message: "Email verified and account created successfully!",
+          user: result.user
+        };
+      } else {
+        return {
+          success: false,
+          message: result.message || "Failed to create account",
+        };
+      }
     } catch (error: any) {
+      console.error("❌ Email verification error:", error);
       return {
         success: false,
         message: error.message || "Verification failed",
