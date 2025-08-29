@@ -318,7 +318,7 @@ export const sendVerificationEmail = async (
     }
 
     const mailOptions = {
-      from: `"Music Catch" <${process.env.FROM_EMAIL || "noreply@musiccatch.com"}>`,
+      from: `"${process.env.FROM_NAME || "Music Catch"}" <${process.env.FROM_EMAIL || "noreply@musiccatch.com"}>`,
       to: email,
       subject: "🎵 Verify your Music Catch account",
       html: createVerificationEmailHTML(verificationCode, email),
@@ -399,7 +399,7 @@ export const sendWelcomeEmail = async (email: string, name: string) => {
     const transporter = await createTransporter();
 
     const mailOptions = {
-      from: `"Music Catch Team" <${process.env.FROM_EMAIL || "hello@musiccatch.com"}>`,
+      from: `"${process.env.FROM_NAME || "Music Catch Team"}" <${process.env.FROM_EMAIL || "hello@musiccatch.com"}>`,
       to: email,
       subject: "🎉 Welcome to Music Catch!",
       html: `
