@@ -66,8 +66,11 @@ export const requestSignupOTPHybrid: RequestHandler = async (req, res) => {
   try {
     const { email } = req.body;
 
+    // Normalize input
+    const normalizedEmail = String(email || "").trim().toLowerCase();
+
     // Validate input
-    if (!email) {
+    if (!normalizedEmail) {
       return res.status(400).json({
         success: false,
         message: "Email is required",
@@ -75,7 +78,7 @@ export const requestSignupOTPHybrid: RequestHandler = async (req, res) => {
     }
 
     // Check if user already exists in in-memory store
-    const existingUser = getUserByIdentifier(email);
+    const existingUser = getUserByIdentifier(normalizedEmail);
     if (existingUser) {
       return res.status(400).json({
         success: false,
@@ -87,16 +90,16 @@ export const requestSignupOTPHybrid: RequestHandler = async (req, res) => {
     const otp = generateOTP();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-    // Store OTP temporarily (only email for this step)
-    otpStore.set(email, {
+    // Store OTP temporarily (only email for this step) using normalized key
+    otpStore.set(normalizedEmail, {
       code: otp,
-      email,
+      email: normalizedEmail,
       expiresAt,
-      userData: { email },
+      userData: { email: normalizedEmail },
     });
 
     // Send real email with OTP
-    console.log(`📧 Sending OTP email to: ${email}`);
+    console.log(`📧 Sending OTP email to: ${normalizedEmail}`);
 
     let emailResult;
     try {
@@ -137,7 +140,10 @@ export const verifySignupOTPHybrid: RequestHandler = async (req, res) => {
   try {
     const { email, otp } = req.body;
 
-    if (!email || !otp) {
+    const normalizedEmail = String(email || "").trim().toLowerCase();
+    const normalizedOTP = String(otp || "").trim();
+
+    if (!normalizedEmail || !normalizedOTP) {
       return res.status(400).json({
         success: false,
         message: "Email and OTP are required",
@@ -145,25 +151,28 @@ export const verifySignupOTPHybrid: RequestHandler = async (req, res) => {
     }
 
     // Check if OTP exists and is valid
-    const storedOTP = otpStore.get(email);
+    const storedOTP = otpStore.get(normalizedEmail);
     if (!storedOTP) {
+      console.warn(`❌ No OTP found for email: ${normalizedEmail}`);
       return res.status(400).json({
         success: false,
-        message: "No verification code found for this email",
+        message: "No verification code found for this email. Please request a new code.",
       });
     }
 
     // Check if OTP has expired
     if (new Date() > storedOTP.expiresAt) {
-      otpStore.delete(email);
+      otpStore.delete(normalizedEmail);
+      console.warn(`⌛ OTP expired for email: ${normalizedEmail}`);
       return res.status(400).json({
         success: false,
-        message: "Verification code has expired",
+        message: "Verification code has expired. Please request a new code.",
       });
     }
 
     // Verify OTP
-    if (storedOTP.code !== otp) {
+    if (storedOTP.code !== normalizedOTP) {
+      console.warn(`❌ Invalid OTP for email: ${normalizedEmail}`);
       return res.status(400).json({
         success: false,
         message: "Invalid verification code",
@@ -171,9 +180,9 @@ export const verifySignupOTPHybrid: RequestHandler = async (req, res) => {
     }
 
     // Mark as verified and clean up OTP (account will be created later)
-    otpStore.delete(email);
+    otpStore.delete(normalizedEmail);
 
-    console.log(`✅ Email verified successfully: ${email}`);
+    console.log(`✅ Email verified successfully: ${normalizedEmail}`);
 
     res.status(200).json({
       success: true,
