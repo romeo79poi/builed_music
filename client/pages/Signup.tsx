@@ -1526,7 +1526,7 @@ export default function Signup() {
   const stepDescriptions = {
     method: "Sign up with email, phone, or social media",
     email: "We'll send you a 6-digit verification code",
-    "email-verify": "Enter any 6-digit code (development mode - no email sent)",
+    "email-verify": "Enter the 6-digit code sent to your email address",
     phone: "We'll send you a verification code",
     "phone-verify": "Enter the 6-digit code we sent to your phone",
     profile: "Help others find you on Music Catch",
