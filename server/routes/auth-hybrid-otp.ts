@@ -1,6 +1,5 @@
 import { RequestHandler } from "express";
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
 import { sendVerificationEmail } from "../lib/email";
 import { createUser, getUserByIdentifier } from "../lib/userStore";
 
