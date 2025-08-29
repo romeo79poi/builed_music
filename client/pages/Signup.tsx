@@ -961,11 +961,44 @@ export default function Signup() {
         setErrorAlert(null);
 
         try {
-          // Option 1: Direct JWT signup (current default)
-          // Option 2: OTP verification signup (set useOTPVerification = true)
-          const useOTPVerification = false;
+          // For email signups that went through OTP verification, create account now
+          // For other signups, use different flows
+          const isEmailSignupVerified = signupMethod === "email" && emailVerified;
 
-          if (useOTPVerification) {
+          if (isEmailSignupVerified) {
+            // Create account with real user data for verified email signups
+            const result = await createUserAccount(
+              formData.email,
+              formData.password,
+              formData.name,
+              formData.username,
+              {
+                dateOfBirth: formData.dateOfBirth,
+                gender: formData.gender,
+                bio: formData.bio,
+                profileImageURL: formData.profileImageURL,
+              }
+            );
+
+            if (result.success) {
+              // Account created successfully
+              toast({
+                title: "Account Created! 🎉",
+                description: `Welcome to Music Catch, ${formData.name}! Your account has been created successfully.`,
+              });
+
+              console.log("✅ User created with secure JWT + bcrypt authentication");
+
+              // Redirect to home page after successful signup
+              setTimeout(() => {
+                navigate("/home");
+              }, 1500);
+            } else {
+              setErrorAlert(
+                result.message || "Registration failed. Please try again.",
+              );
+            }
+          } else if (false) { // Disabled OTP option
             // Use OTP verification signup
             const result = await requestSignupOTP(
               formData.email,
