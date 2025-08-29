@@ -65,7 +65,7 @@ interface AuthContextType {
     password: string,
     name: string,
     username: string,
-    additionalData?: any
+    additionalData?: any,
   ) => Promise<{ success: boolean; message: string; user?: any }>;
   requestLoginOTP: (
     email: string,
@@ -508,7 +508,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (result.success) {
-        console.log("✅ Email verified and account created with JWT tokens:", email);
+        console.log(
+          "✅ Email verified and account created with JWT tokens:",
+          email,
+        );
 
         // JWT tokens and cookies are automatically set by the server
         // Set user data if provided
@@ -519,7 +522,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return {
           success: true,
           message: "Email verified and account created successfully!",
-          user: result.user
+          user: result.user,
         };
       } else {
         return {
@@ -542,7 +545,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     password: string,
     name: string,
     username: string,
-    additionalData?: any
+    additionalData?: any,
   ) => {
     try {
       // Debug: Log the data being sent
@@ -551,9 +554,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         password,
         name,
         username,
-        ...additionalData
+        ...additionalData,
       };
-      console.log("📤 Creating user account:", { ...requestData, password: "[HIDDEN]" });
+      console.log("📤 Creating user account:", {
+        ...requestData,
+        password: "[HIDDEN]",
+      });
 
       // Create the actual user account
       const result = await safeFetch("/api/auth/register", {
@@ -569,7 +575,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return {
           success: true,
           message: result.message || "Account created successfully!",
-          user: result.user
+          user: result.user,
         };
       } else {
         return {

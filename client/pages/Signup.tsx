@@ -135,10 +135,7 @@ export default function Signup() {
 
   // Only skip email-verify step for social signups or when explicitly verified
   useEffect(() => {
-    if (
-      isSocialSignup && emailVerified &&
-      currentStep === "email-verify"
-    ) {
+    if (isSocialSignup && emailVerified && currentStep === "email-verify") {
       setCurrentStep("profile");
     }
   }, [emailVerified, currentStep, isSocialSignup]);
@@ -710,7 +707,8 @@ export default function Signup() {
           setEmailVerified(true);
           toast({
             title: "Account created successfully! ✅",
-            description: "Your account has been created. Let's complete your profile.",
+            description:
+              "Your account has been created. Let's complete your profile.",
           });
           setCurrentStep("profile");
         } else {
@@ -861,7 +859,8 @@ export default function Signup() {
 
         toast({
           title: "Account created successfully! 🎉",
-          description: "Welcome to Music Catch! Your account has been created with secure JWT authentication.",
+          description:
+            "Welcome to Music Catch! Your account has been created with secure JWT authentication.",
         });
 
         // Clear OTP field
@@ -965,7 +964,8 @@ export default function Signup() {
         try {
           // For email signups that went through OTP verification, create account now
           // For other signups, use different flows
-          const isEmailSignupVerified = signupMethod === "email" && emailVerified;
+          const isEmailSignupVerified =
+            signupMethod === "email" && emailVerified;
 
           if (isEmailSignupVerified) {
             // Create account with real user data for verified email signups
@@ -979,7 +979,7 @@ export default function Signup() {
                 gender: formData.gender,
                 bio: formData.bio,
                 profileImageURL: formData.profileImageURL,
-              }
+              },
             );
 
             if (result.success) {
@@ -989,7 +989,9 @@ export default function Signup() {
                 description: `Welcome to Music Catch, ${formData.name}! Your account has been created successfully.`,
               });
 
-              console.log("✅ User created with secure JWT + bcrypt authentication");
+              console.log(
+                "✅ User created with secure JWT + bcrypt authentication",
+              );
 
               // Redirect to home page after successful signup
               setTimeout(() => {
@@ -1000,7 +1002,8 @@ export default function Signup() {
                 result.message || "Registration failed. Please try again.",
               );
             }
-          } else if (false) { // Disabled OTP option
+          } else if (false) {
+            // Disabled OTP option
             // Use OTP verification signup
             const result = await requestSignupOTP(
               formData.email,
@@ -1906,10 +1909,12 @@ export default function Signup() {
                     📧 Email sent! Check your inbox
                   </p>
                   <p className="text-xs text-green-200 mt-1">
-                    Enter the 6-digit code from your email to verify your account
+                    Enter the 6-digit code from your email to verify your
+                    account
                   </p>
                   <p className="text-xs text-green-200 mt-1">
-                    Your account will be created with secure JWT + bcrypt authentication
+                    Your account will be created with secure JWT + bcrypt
+                    authentication
                   </p>
                 </div>
               </div>

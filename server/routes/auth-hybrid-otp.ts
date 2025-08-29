@@ -3,15 +3,19 @@ import jwt from "jsonwebtoken";
 import { sendVerificationEmail } from "../lib/email";
 import { createUser, getUserByIdentifier } from "../lib/userStore";
 
-const JWT_SECRET = process.env.JWT_SECRET || "your_jwt_secret_key_change_in_production";
+const JWT_SECRET =
+  process.env.JWT_SECRET || "your_jwt_secret_key_change_in_production";
 
 // Store OTP codes temporarily (in production, use Redis)
-const otpStore = new Map<string, { 
-  code: string; 
-  email: string; 
-  expiresAt: Date; 
-  userData: any 
-}>();
+const otpStore = new Map<
+  string,
+  {
+    code: string;
+    email: string;
+    expiresAt: Date;
+    userData: any;
+  }
+>();
 
 // Generate 6-digit OTP
 const generateOTP = (): string => {
@@ -35,7 +39,11 @@ const generateRefreshToken = (userId: string) => {
   });
 };
 
-const setAuthCookies = (res: any, accessToken: string, refreshToken: string) => {
+const setAuthCookies = (
+  res: any,
+  accessToken: string,
+  refreshToken: string,
+) => {
   const isProd = process.env.NODE_ENV === "production";
   res.cookie("auth_token", accessToken, {
     httpOnly: true,
@@ -67,13 +75,15 @@ export const requestSignupOTPHybrid: RequestHandler = async (req, res) => {
     }
 
     // Check if user already exists in in-memory store
-    const existingUser = getUserByIdentifier(email) || getUserByIdentifier(username);
+    const existingUser =
+      getUserByIdentifier(email) || getUserByIdentifier(username);
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message: existingUser.email === email 
-          ? "Email already registered" 
-          : "Username already taken",
+        message:
+          existingUser.email === email
+            ? "Email already registered"
+            : "Username already taken",
       });
     }
 
@@ -86,7 +96,7 @@ export const requestSignupOTPHybrid: RequestHandler = async (req, res) => {
       code: otp,
       email,
       expiresAt,
-      userData: { email, username, password, name }
+      userData: { email, username, password, name },
     });
 
     // Send real email with OTP
@@ -100,14 +110,14 @@ export const requestSignupOTPHybrid: RequestHandler = async (req, res) => {
         console.error("❌ Email sending failed:", emailResult.error);
         return res.status(500).json({
           success: false,
-          message: "Failed to send verification email. Please try again."
+          message: "Failed to send verification email. Please try again.",
         });
       }
     } catch (emailError: any) {
       console.error("❌ Email service error:", emailError);
       return res.status(500).json({
         success: false,
-        message: "Email service temporarily unavailable. Please try again."
+        message: "Email service temporarily unavailable. Please try again.",
       });
     }
 
@@ -121,14 +131,13 @@ export const requestSignupOTPHybrid: RequestHandler = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Verification code sent to your email",
-      previewUrl: emailResult.previewUrl // For development testing
+      previewUrl: emailResult.previewUrl, // For development testing
     });
-
   } catch (error: any) {
     console.error("Request signup OTP error:", error);
     res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
@@ -141,7 +150,7 @@ export const verifySignupOTPHybrid: RequestHandler = async (req, res) => {
     if (!email || !otp) {
       return res.status(400).json({
         success: false,
-        message: "Email and OTP are required"
+        message: "Email and OTP are required",
       });
     }
 
@@ -150,7 +159,7 @@ export const verifySignupOTPHybrid: RequestHandler = async (req, res) => {
     if (!storedOTP) {
       return res.status(400).json({
         success: false,
-        message: "No verification code found for this email"
+        message: "No verification code found for this email",
       });
     }
 
@@ -159,7 +168,7 @@ export const verifySignupOTPHybrid: RequestHandler = async (req, res) => {
       otpStore.delete(email);
       return res.status(400).json({
         success: false,
-        message: "Verification code has expired"
+        message: "Verification code has expired",
       });
     }
 
@@ -167,7 +176,7 @@ export const verifySignupOTPHybrid: RequestHandler = async (req, res) => {
     if (storedOTP.code !== otp) {
       return res.status(400).json({
         success: false,
-        message: "Invalid verification code"
+        message: "Invalid verification code",
       });
     }
 
@@ -179,13 +188,13 @@ export const verifySignupOTPHybrid: RequestHandler = async (req, res) => {
       name,
       password, // Will be hashed by createUser
       email_verified: true,
-      provider: "email"
+      provider: "email",
     });
 
     if (!newUser) {
       return res.status(500).json({
         success: false,
-        message: "Failed to create user account"
+        message: "Failed to create user account",
       });
     }
 
@@ -208,25 +217,27 @@ export const verifySignupOTPHybrid: RequestHandler = async (req, res) => {
       success: true,
       message: "Email verified and account created successfully!",
       user: userResponse,
-      token: accessToken // Also return token for client-side storage if needed
+      token: accessToken, // Also return token for client-side storage if needed
     });
-
   } catch (error: any) {
     console.error("Verify signup OTP error:", error);
     res.status(500).json({
       success: false,
-      message: "Internal server error"
+      message: "Internal server error",
     });
   }
 };
 
 // Clean up expired OTPs periodically
-setInterval(() => {
-  const now = new Date();
-  for (const [email, data] of otpStore.entries()) {
-    if (now > data.expiresAt) {
-      otpStore.delete(email);
-      console.log(`🧹 Cleaned up expired OTP for: ${email}`);
+setInterval(
+  () => {
+    const now = new Date();
+    for (const [email, data] of otpStore.entries()) {
+      if (now > data.expiresAt) {
+        otpStore.delete(email);
+        console.log(`🧹 Cleaned up expired OTP for: ${email}`);
+      }
     }
-  }
-}, 5 * 60 * 1000); // Run every 5 minutes
+  },
+  5 * 60 * 1000,
+); // Run every 5 minutes
