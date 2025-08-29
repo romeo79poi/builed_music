@@ -1083,29 +1083,39 @@ export default function Signup() {
     setIsLoading(true);
 
     try {
-      // If user selected an image, store it for later use (skip upload during signup)
+      // If user selected an image, store it temporarily for preview
       if (formData.profileImage) {
-        // Create a temporary URL for preview
         const imageURL = URL.createObjectURL(formData.profileImage);
-
-        // Update form data with the image URL for preview
-        setFormData((prev) => ({
-          ...prev,
-          profileImageURL: imageURL,
-        }));
-
-        toast({
-          title: "Profile image selected! ✅",
-          description:
-            "Your profile picture will be uploaded after account creation.",
-        });
+        setFormData((prev) => ({ ...prev, profileImageURL: imageURL }));
       }
 
-      // Always proceed to next step (profile image is optional)
-      setCurrentStep("gender");
+      // Create the account now with all collected data
+      const result = await createUserAccount(
+        formData.email,
+        formData.password,
+        formData.name,
+        formData.username,
+        {
+          dateOfBirth: formData.dateOfBirth,
+          gender: formData.gender,
+          bio: formData.bio,
+          profileImageURL: formData.profileImageURL,
+        },
+      );
+
+      if (result.success) {
+        toast({
+          title: "Account Created! 🎉",
+          description: `Welcome to Music Catch, ${formData.name}! Your account has been created successfully.`,
+        });
+        setTimeout(() => {
+          navigate("/home");
+        }, 1200);
+      } else {
+        setErrorAlert(result.message || "Registration failed. Please try again.");
+      }
     } catch (error) {
       console.error("Profile image step error:", error);
-
       toast({
         title: "Error",
         description: "Something went wrong. Please try again.",
