@@ -130,18 +130,18 @@ export default function Signup() {
   const [phoneVerificationSent, setPhoneVerificationSent] = useState(false);
   const [isSocialSignup, setIsSocialSignup] = useState(false);
   const [tempEmailUser, setTempEmailUser] = useState<any>(null);
-  const [emailVerified, setEmailVerified] = useState(true);
-  const requireEmailVerification = false;
+  const [emailVerified, setEmailVerified] = useState(false); // Start as false
+  const requireEmailVerification = true; // Always require verification for email signups
 
-  // Skip email-verify step when already verified or not required
+  // Only skip email-verify step for social signups or when explicitly verified
   useEffect(() => {
     if (
-      (emailVerified || !requireEmailVerification) &&
+      isSocialSignup && emailVerified &&
       currentStep === "email-verify"
     ) {
       setCurrentStep("profile");
     }
-  }, [emailVerified, currentStep]);
+  }, [emailVerified, currentStep, isSocialSignup]);
 
   // Validation functions
   const validateEmail = (email: string): boolean => {
