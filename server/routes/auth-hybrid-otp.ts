@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import jwt from "jsonwebtoken";
 import { sendVerificationEmail } from "../lib/email";
-import { createUser, getUserByIdentifier } from "../lib/userStore";
+import { getUserByIdentifier } from "../lib/userStore";
 
 const JWT_SECRET =
   process.env.JWT_SECRET || "your_jwt_secret_key_change_in_production";
