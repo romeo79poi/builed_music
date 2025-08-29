@@ -1896,20 +1896,20 @@ export default function Signup() {
 
               <div className="text-center space-y-2 mb-4">
                 <p className="text-sm text-muted-foreground">
-                  Please verify your email address:
+                  We sent a 6-digit verification code to
                 </p>
                 <p className="font-medium text-purple-primary break-all text-sm sm:text-base">
                   {formData.email}
                 </p>
-                <div className="mt-3 p-3 bg-blue-500/10 border border-blue-500/30 rounded-lg">
-                  <p className="text-xs text-blue-300 font-medium">
-                    💡 Development Mode: No email sent
+                <div className="mt-3 p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
+                  <p className="text-xs text-green-300 font-medium">
+                    📧 Email sent! Check your inbox
                   </p>
-                  <p className="text-xs text-blue-200 mt-1">
-                    Enter any 6-digit number (e.g., 123456) to continue
+                  <p className="text-xs text-green-200 mt-1">
+                    Enter the 6-digit code from your email to verify your account
                   </p>
-                  <p className="text-xs text-blue-200 mt-1">
-                    Account will be created with secure JWT + bcrypt authentication
+                  <p className="text-xs text-green-200 mt-1">
+                    Your account will be created with secure JWT + bcrypt authentication
                   </p>
                 </div>
               </div>
