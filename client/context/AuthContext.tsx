@@ -498,22 +498,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const verifySignupOTP = async (email: string, otp: string) => {
     try {
-      // Validate OTP format
-      if (otp.length !== 6 || !/^\d{6}$/.test(otp)) {
+      // Use real OTP verification endpoint
+      const result = await safeFetch("/api/auth/signup/verify-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, otp }),
+      });
+
+      if (result.success) {
+        console.log("✅ Email verified and account created with JWT tokens:", email);
+
+        // JWT tokens and cookies are automatically set by the server
+        // Set user data if provided
+        if (result.user) {
+          setUser(result.user);
+        }
+
+        return {
+          success: true,
+          message: "Email verified and account created successfully!",
+          user: result.user
+        };
+      } else {
         return {
           success: false,
-          message: "Please enter a valid 6-digit verification code",
+          message: result.message || "Invalid verification code",
         };
       }
-
-      // For development, accept any 6-digit code
-      // In production, this would verify against the actual OTP sent via email
-      console.log("✅ Email verification accepted for:", email);
-
-      return {
-        success: true,
-        message: "Email verified successfully!",
-      };
     } catch (error: any) {
       console.error("❌ Email verification error:", error);
       return {
