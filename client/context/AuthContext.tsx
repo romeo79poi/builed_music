@@ -55,7 +55,7 @@ interface AuthContextType {
     password: string,
     name: string,
     username: string,
-  ) => Promise<{ success: boolean; message: string; previewUrl?: string; skipOTP?: boolean }>;
+  ) => Promise<{ success: boolean; message: string; previewUrl?: string; devCode?: string; skipOTP?: boolean }>;
   verifySignupOTP: (
     email: string,
     otp: string,
@@ -482,12 +482,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           message: "Verification code sent to your email",
           skipOTP: false,
           previewUrl: result.previewUrl,
+          devCode: result.devCode,
         };
       } else {
         return {
           success: false,
           message: result.message || "Failed to send verification code",
           previewUrl: result.previewUrl,
+          devCode: result.devCode,
         };
       }
     } catch (error: any) {
