@@ -1421,8 +1421,8 @@ export default function Signup() {
 
       if (otpResult.success) {
         toast({
-          title: "Verification code resent! 📧",
-          description: "Please check your email for the new 6-digit code.",
+          title: "Verification Required 🔐",
+          description: "Please enter any 6-digit code to continue.",
         });
         setResendTimer(60);
         setEmailVerificationSent(true);
