@@ -697,10 +697,14 @@ export default function Signup() {
       // Request OTP verification (no account creation yet)
       const otpResult = await requestSignupOTP(
         formData.email,
-        "temp_password_123", // Will be replaced with real password later
-        formData.name || "User", // Will be replaced with real name later
-        formData.username || "temp_username", // Will be replaced with real username later
+        "temp_password_123",
+        formData.name || "User",
+        formData.username || "temp_username",
       );
+
+      if (otpResult && otpResult.previewUrl) {
+        setEmailPreviewUrl(otpResult.previewUrl);
+      }
 
       if (otpResult.success) {
         if (otpResult.skipOTP) {
