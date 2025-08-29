@@ -1423,8 +1423,8 @@ export default function Signup() {
 
       if (otpResult.success) {
         toast({
-          title: "Verification Required 🔐",
-          description: "Please enter any 6-digit code to continue.",
+          title: "Verification code resent! 📧",
+          description: "Please check your email for the new 6-digit code.",
         });
         setResendTimer(60);
         setEmailVerificationSent(true);
