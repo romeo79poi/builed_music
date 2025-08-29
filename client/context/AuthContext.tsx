@@ -480,11 +480,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const signupData = { email, password, name, username };
       sessionStorage.setItem('pendingSignup', JSON.stringify(signupData));
 
-      console.log("📧 OTP verification required for:", email);
+      console.log("🔐 OTP verification required for:", email, "(No actual email sent in development)");
 
       return {
         success: true,
-        message: "Verification code sent to your email",
+        message: "Please verify your email with any 6-digit code",
         skipOTP: false, // Always show verification step
       };
     } catch (error: any) {
