@@ -610,9 +610,17 @@ export function createServer() {
   // ENHANCED JWT AUTHENTICATION (OTP + OAuth)
   // ===============================================
 
-  // OTP Authentication endpoints
-  app.post("/api/auth/signup/request-otp", requestSignupOTPWithRateLimit);
-  app.post("/api/auth/signup/verify-otp", verifySignupOTPWithRateLimit);
+  // Import hybrid OTP endpoints (real email + in-memory storage)
+  const {
+    requestSignupOTPHybrid,
+    verifySignupOTPHybrid,
+  } = require("./routes/auth-hybrid-otp");
+
+  // Hybrid OTP Authentication endpoints (real emails, no MongoDB required)
+  app.post("/api/auth/signup/request-otp", requestSignupOTPHybrid);
+  app.post("/api/auth/signup/verify-otp", verifySignupOTPHybrid);
+
+  // Fallback MongoDB OTP endpoints
   app.post("/api/auth/login/request-otp", requestLoginOTPWithRateLimit);
   app.post("/api/auth/login/verify-otp", verifyLoginOTPWithRateLimit);
 
