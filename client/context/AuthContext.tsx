@@ -458,7 +458,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Request OTP for email signup using secure JWT backend
+  // Request OTP for email signup using real email sending
   const requestSignupOTP = async (
     email: string,
     password: string,
@@ -466,27 +466,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     username: string,
   ) => {
     try {
-      // First check if email is available
-      const availabilityResult = await checkAvailability(email, undefined);
+      // Use real OTP endpoint that sends actual emails
+      const result = await safeFetch("/api/auth/signup/request-otp", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password, name, username }),
+      });
 
-      if (!availabilityResult.available) {
+      if (result.success) {
+        console.log("📧 Real OTP email sent to:", email);
+        return {
+          success: true,
+          message: "Verification code sent to your email",
+          skipOTP: false, // Show verification step
+        };
+      } else {
         return {
           success: false,
-          message: "Email is already registered. Please try logging in instead.",
+          message: result.message || "Failed to send verification code",
         };
       }
-
-      // Store signup data temporarily for after OTP verification
-      const signupData = { email, password, name, username };
-      sessionStorage.setItem('pendingSignup', JSON.stringify(signupData));
-
-      console.log("🔐 OTP verification required for:", email, "(No actual email sent in development)");
-
-      return {
-        success: true,
-        message: "Please verify your email with any 6-digit code",
-        skipOTP: false, // Always show verification step
-      };
     } catch (error: any) {
       return {
         success: false,
