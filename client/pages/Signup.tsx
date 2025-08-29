@@ -1329,7 +1329,7 @@ export default function Signup() {
                 const responseClone = backendSyncResponse.clone();
                 const errorText = await responseClone.text();
                 console.warn(
-                  `⚠️ Backend sync failed (${backendSyncResponse.status}): ${errorText}`,
+                  `⚠�� Backend sync failed (${backendSyncResponse.status}): ${errorText}`,
                 );
               } catch (readError) {
                 console.warn(
@@ -1898,25 +1898,9 @@ export default function Signup() {
               </div>
 
               <div className="text-center space-y-2 mb-4">
-                <p className="text-sm text-muted-foreground">
-                  We sent a 6-digit verification code to
-                </p>
                 <p className="font-medium text-purple-primary break-all text-sm sm:text-base">
                   {formData.email}
                 </p>
-                <div className="mt-3 p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
-                  <p className="text-xs text-green-300 font-medium">
-                    📧 Email sent! Check your inbox
-                  </p>
-                  <p className="text-xs text-green-200 mt-1">
-                    Enter the 6-digit code from your email to verify your
-                    account
-                  </p>
-                  <p className="text-xs text-green-200 mt-1">
-                    Your account will be created with secure JWT + bcrypt
-                    authentication
-                  </p>
-                </div>
               </div>
 
               {/* OTP Input */}
@@ -1969,9 +1953,6 @@ export default function Signup() {
 
               {/* Resend Section */}
               <div className="text-center space-y-2">
-                <p className="text-xs text-muted-foreground">
-                  Didn't receive the code? Check your spam folder or
-                </p>
                 <button
                   onClick={handleResendEmailVerification}
                   disabled={resendTimer > 0 || isLoading}
@@ -1990,6 +1971,13 @@ export default function Signup() {
                 </button>
               </div>
 
+              <button
+                onClick={() => setCurrentStep("email")}
+                className="w-full text-purple-primary hover:text-purple-secondary transition-colors text-sm mt-4"
+              >
+                ← Change email address
+              </button>
+
               {/* Tips */}
               <div className="bg-purple-dark/30 border border-purple-primary/20 rounded-lg p-3">
                 <p className="text-xs text-muted-foreground text-center">
@@ -1997,13 +1985,6 @@ export default function Signup() {
                   email's spam/junk folder if you don't see it.
                 </p>
               </div>
-
-              <button
-                onClick={() => setCurrentStep("email")}
-                className="w-full text-purple-primary hover:text-purple-secondary transition-colors text-sm mt-4"
-              >
-                ← Change email address
-              </button>
             </motion.div>
           )}
 
