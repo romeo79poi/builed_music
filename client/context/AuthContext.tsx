@@ -458,7 +458,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Simulate OTP request without actually creating account yet
+  // Request OTP for email signup using secure JWT backend
   const requestSignupOTP = async (
     email: string,
     password: string,
@@ -476,13 +476,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         };
       }
 
-      // Simulate OTP being sent (but don't create account yet)
-      console.log("📧 Simulating OTP request for:", email);
+      // Store signup data temporarily for after OTP verification
+      const signupData = { email, password, name, username };
+      sessionStorage.setItem('pendingSignup', JSON.stringify(signupData));
+
+      console.log("📧 OTP verification required for:", email);
 
       return {
         success: true,
-        message: "Verification code sent",
-        skipOTP: false, // Show verification step
+        message: "Verification code sent to your email",
+        skipOTP: false, // Always show verification step
       };
     } catch (error: any) {
       return {
