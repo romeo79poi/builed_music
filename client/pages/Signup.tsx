@@ -131,6 +131,7 @@ export default function Signup() {
   const [isSocialSignup, setIsSocialSignup] = useState(false);
   const [tempEmailUser, setTempEmailUser] = useState<any>(null);
   const [emailVerified, setEmailVerified] = useState(false); // Start as false
+  const [emailPreviewUrl, setEmailPreviewUrl] = useState<string | null>(null);
   const requireEmailVerification = true; // Always require verification for email signups
 
   // Only skip email-verify step for social signups or when explicitly verified
@@ -1329,7 +1330,7 @@ export default function Signup() {
                 const responseClone = backendSyncResponse.clone();
                 const errorText = await responseClone.text();
                 console.warn(
-                  `⚠�� Backend sync failed (${backendSyncResponse.status}): ${errorText}`,
+                  `⚠️ Backend sync failed (${backendSyncResponse.status}): ${errorText}`,
                 );
               } catch (readError) {
                 console.warn(
