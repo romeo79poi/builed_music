@@ -717,8 +717,8 @@ export default function Signup() {
           setEmailVerificationSent(true);
           setResendTimer(60);
           toast({
-            title: "Verification code sent! 📧",
-            description: `We sent a 6-digit code to ${formData.email}. Please check your email.`,
+            title: "Verification Required 🔐",
+            description: `Please enter any 6-digit code to verify your email address.`,
           });
           setCurrentStep("email-verify");
         }
