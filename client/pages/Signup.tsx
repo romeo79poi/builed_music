@@ -860,15 +860,17 @@ export default function Signup() {
         setEmailVerificationSent(false);
 
         toast({
-          title: "Email verified successfully! ✅",
-          description: "Now let's complete your profile",
+          title: "Account created successfully! 🎉",
+          description: "Welcome to Music Catch! Your account has been created with secure JWT authentication.",
         });
 
         // Clear OTP field
         setFormData((prev) => ({ ...prev, otp: "" }));
 
-        // Proceed to profile step to collect name and username
-        setCurrentStep("profile");
+        // Account is already created, redirect to home
+        setTimeout(() => {
+          navigate("/home");
+        }, 2000);
       } else {
         setErrors((prev) => ({
           ...prev,
