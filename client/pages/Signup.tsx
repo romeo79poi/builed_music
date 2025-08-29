@@ -131,7 +131,6 @@ export default function Signup() {
   const [isSocialSignup, setIsSocialSignup] = useState(false);
   const [tempEmailUser, setTempEmailUser] = useState<any>(null);
   const [emailVerified, setEmailVerified] = useState(false); // Start as false
-  const [emailPreviewUrl, setEmailPreviewUrl] = useState<string | null>(null);
   const requireEmailVerification = true; // Always require verification for email signups
 
   // Only skip email-verify step for social signups or when explicitly verified
@@ -2001,16 +2000,6 @@ export default function Signup() {
                       : "Resend verification code"}
                   </span>
                 </button>
-                {emailPreviewUrl && (
-                  <a
-                    href={emailPreviewUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="block text-xs text-slate-400 hover:text-purple-primary mt-1 underline"
-                  >
-                    Open email preview (developer mode)
-                  </a>
-                )}
               </div>
 
               <button
