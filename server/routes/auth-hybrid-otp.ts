@@ -91,13 +91,23 @@ export const requestSignupOTPHybrid: RequestHandler = async (req, res) => {
 
     // Send real email with OTP
     console.log(`📧 Sending OTP email to: ${email}`);
-    const emailResult = await sendVerificationEmail(email, otp);
 
-    if (!emailResult.success) {
-      console.error("❌ Email sending failed:", emailResult.error);
+    let emailResult;
+    try {
+      emailResult = await sendVerificationEmail(email, otp);
+
+      if (!emailResult.success) {
+        console.error("❌ Email sending failed:", emailResult.error);
+        return res.status(500).json({
+          success: false,
+          message: "Failed to send verification email. Please try again."
+        });
+      }
+    } catch (emailError: any) {
+      console.error("❌ Email service error:", emailError);
       return res.status(500).json({
         success: false,
-        message: "Failed to send verification email"
+        message: "Email service temporarily unavailable. Please try again."
       });
     }
 
