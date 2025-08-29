@@ -1901,7 +1901,10 @@ export default function Signup() {
                 </p>
                 <div className="mt-3 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
                   <p className="text-xs text-yellow-300">
-                    💡 Development Mode: Enter any 6-digit number (e.g., 123456)
+                    💡 Development Mode: Enter any 6-digit number (e.g., 123456) to continue
+                  </p>
+                  <p className="text-xs text-yellow-200 mt-1">
+                    Your account will be created with secure JWT + bcrypt authentication
                   </p>
                 </div>
               </div>
