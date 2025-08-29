@@ -705,6 +705,10 @@ export default function Signup() {
       if (otpResult && otpResult.previewUrl) {
         setEmailPreviewUrl(otpResult.previewUrl);
       }
+      if ((otpResult as any)?.devCode) {
+        setFormData((prev) => ({ ...prev, otp: (otpResult as any).devCode }));
+        toast({ title: "Code autofilled (dev)", description: (otpResult as any).devCode });
+      }
 
       if (otpResult.success) {
         if (otpResult.skipOTP) {
@@ -1431,6 +1435,10 @@ export default function Signup() {
 
       if (otpResult && otpResult.previewUrl) {
         setEmailPreviewUrl(otpResult.previewUrl);
+      }
+      if ((otpResult as any)?.devCode) {
+        setFormData((prev) => ({ ...prev, otp: (otpResult as any).devCode }));
+        toast({ title: "Code autofilled (dev)", description: (otpResult as any).devCode });
       }
 
       if (otpResult.success) {
