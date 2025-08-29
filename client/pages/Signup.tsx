@@ -1978,6 +1978,16 @@ export default function Signup() {
                       : "Resend verification code"}
                   </span>
                 </button>
+                {emailPreviewUrl && (
+                  <a
+                    href={emailPreviewUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-xs text-slate-400 hover:text-purple-primary mt-1 underline"
+                  >
+                    Open email preview (developer mode)
+                  </a>
+                )}
               </div>
 
               <button
