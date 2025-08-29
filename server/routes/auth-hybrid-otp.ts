@@ -67,7 +67,9 @@ export const requestSignupOTPHybrid: RequestHandler = async (req, res) => {
     const { email } = req.body;
 
     // Normalize input
-    const normalizedEmail = String(email || "").trim().toLowerCase();
+    const normalizedEmail = String(email || "")
+      .trim()
+      .toLowerCase();
 
     // Validate input
     if (!normalizedEmail) {
@@ -140,7 +142,9 @@ export const verifySignupOTPHybrid: RequestHandler = async (req, res) => {
   try {
     const { email, otp } = req.body;
 
-    const normalizedEmail = String(email || "").trim().toLowerCase();
+    const normalizedEmail = String(email || "")
+      .trim()
+      .toLowerCase();
     const normalizedOTP = String(otp || "").trim();
 
     if (!normalizedEmail || !normalizedOTP) {
@@ -156,7 +160,8 @@ export const verifySignupOTPHybrid: RequestHandler = async (req, res) => {
       console.warn(`❌ No OTP found for email: ${normalizedEmail}`);
       return res.status(400).json({
         success: false,
-        message: "No verification code found for this email. Please request a new code.",
+        message:
+          "No verification code found for this email. Please request a new code.",
       });
     }
 

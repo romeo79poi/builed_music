@@ -82,7 +82,16 @@ export const signup: RequestHandler = async (req, res) => {
       });
     }
 
-    const { email, username, password, name, dateOfBirth, gender, bio, profileImageURL } = req.body;
+    const {
+      email,
+      username,
+      password,
+      name,
+      dateOfBirth,
+      gender,
+      bio,
+      profileImageURL,
+    } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({

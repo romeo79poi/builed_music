@@ -701,8 +701,6 @@ export default function Signup() {
         formData.username || "temp_username",
       );
 
-
-
       if (otpResult.success) {
         if (otpResult.skipOTP) {
           // Direct registration completed, skip OTP verification
@@ -1105,7 +1103,9 @@ export default function Signup() {
           navigate("/home");
         }, 1200);
       } else {
-        setErrorAlert(result.message || "Registration failed. Please try again.");
+        setErrorAlert(
+          result.message || "Registration failed. Please try again.",
+        );
       }
     } catch (error) {
       console.error("Profile image step error:", error);
@@ -1440,8 +1440,6 @@ export default function Signup() {
         formData.name || "User",
         formData.username || "temp_username",
       );
-
-
 
       if (otpResult.success) {
         toast({

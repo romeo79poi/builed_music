@@ -10,7 +10,11 @@ const createTransporter = async () => {
   const pass = process.env.SMTP_PASS;
 
   if (host && port && user && pass) {
-    console.log("✉️ Using custom SMTP transport", { host, port, secure: port === 465 });
+    console.log("✉️ Using custom SMTP transport", {
+      host,
+      port,
+      secure: port === 465,
+    });
     return nodemailer.createTransport({
       host,
       port,

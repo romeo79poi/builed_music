@@ -55,7 +55,13 @@ interface AuthContextType {
     password: string,
     name: string,
     username: string,
-  ) => Promise<{ success: boolean; message: string; previewUrl?: string; devCode?: string; skipOTP?: boolean }>;
+  ) => Promise<{
+    success: boolean;
+    message: string;
+    previewUrl?: string;
+    devCode?: string;
+    skipOTP?: boolean;
+  }>;
   verifySignupOTP: (
     email: string,
     otp: string,
@@ -473,7 +479,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email: normalizedEmail, password, name, username }),
+        body: JSON.stringify({
+          email: normalizedEmail,
+          password,
+          name,
+          username,
+        }),
       });
 
       if (result.success) {
