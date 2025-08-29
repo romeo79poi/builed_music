@@ -1136,6 +1136,9 @@ export default function Signup() {
   const handleBioStep = async () => {
     if (!validateBio()) return;
 
+    setCurrentStep("profileImage");
+    return;
+
     setIsLoading(true);
 
     try {
