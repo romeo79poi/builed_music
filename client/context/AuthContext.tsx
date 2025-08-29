@@ -481,15 +481,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           success: true,
           message: "Verification code sent to your email",
           skipOTP: false,
-          previewUrl: result.previewUrl,
-          devCode: result.devCode,
         };
       } else {
         return {
           success: false,
           message: result.message || "Failed to send verification code",
-          previewUrl: result.previewUrl,
-          devCode: result.devCode,
         };
       }
     } catch (error: any) {
