@@ -552,7 +552,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     additionalData?: any,
   ) => {
     try {
-      // Debug: Log the data being sent
       const requestData = {
         email,
         password,
@@ -560,13 +559,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         username,
         ...additionalData,
       };
-      console.log("📤 Creating user account:", {
+      console.log("📤 Creating user account (JWT + cookies):", {
         ...requestData,
         password: "[HIDDEN]",
       });
 
-      // Create the actual user account
-      const result = await safeFetch("/api/auth/register", {
+      // Use MongoDB + JWT signup to set HTTP-only cookies and return token
+      const result = await safeFetch("/api/auth/signup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -575,11 +574,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (result.success) {
-        console.log("✅ User account created successfully");
+        if (result.token) {
+          localStorage.setItem("authToken", result.token);
+        }
+        if (result.data) {
+          setUser(result.data);
+        }
         return {
           success: true,
           message: result.message || "Account created successfully!",
-          user: result.user,
+          user: result.data,
         };
       } else {
         return {
