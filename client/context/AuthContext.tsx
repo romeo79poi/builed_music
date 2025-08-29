@@ -60,6 +60,13 @@ interface AuthContextType {
     email: string,
     otp: string,
   ) => Promise<{ success: boolean; message: string }>;
+  createUserAccount: (
+    email: string,
+    password: string,
+    name: string,
+    username: string,
+    additionalData?: any,
+  ) => Promise<{ success: boolean; message: string; user?: any }>;
   requestLoginOTP: (
     email: string,
   ) => Promise<{ success: boolean; message: string }>;
@@ -451,7 +458,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // OTP Authentication methods
+  // Request OTP for email signup using real email sending
   const requestSignupOTP = async (
     email: string,
     password: string,
@@ -459,6 +466,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     username: string,
   ) => {
     try {
+      // Use real OTP endpoint that sends actual emails
       const result = await safeFetch("/api/auth/signup/request-otp", {
         method: "POST",
         headers: {
@@ -466,22 +474,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         },
         body: JSON.stringify({ email, password, name, username }),
       });
-      return {
-        success: result.success,
-        message:
-          result.message ||
-          (result.success ? "OTP sent successfully" : "Failed to send OTP"),
-      };
+
+      if (result.success) {
+        console.log("📧 Real OTP email sent to:", email);
+        return {
+          success: true,
+          message: "Verification code sent to your email",
+          skipOTP: false, // Show verification step
+        };
+      } else {
+        return {
+          success: false,
+          message: result.message || "Failed to send verification code",
+        };
+      }
     } catch (error: any) {
       return {
         success: false,
-        message: error.message || "Failed to send OTP",
+        message: error.message || "Failed to send verification code",
       };
     }
   };
 
   const verifySignupOTP = async (email: string, otp: string) => {
     try {
+      // Use real OTP verification endpoint
       const result = await safeFetch("/api/auth/signup/verify-otp", {
         method: "POST",
         headers: {
@@ -491,24 +508,86 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (result.success) {
-        if (result.token) {
-          localStorage.setItem("authToken", result.token);
-          setUser(result.data);
+        console.log(
+          "✅ Email verified and account created with JWT tokens:",
+          email,
+        );
+
+        // JWT tokens and cookies are automatically set by the server
+        // Set user data if provided
+        if (result.user) {
+          setUser(result.user);
         }
+
         return {
           success: true,
-          message: result.message || "Account created successfully!",
+          message: "Email verified and account created successfully!",
+          user: result.user,
         };
       } else {
         return {
           success: false,
-          message: result.message || "OTP verification failed",
+          message: result.message || "Invalid verification code",
         };
       }
     } catch (error: any) {
+      console.error("❌ Email verification error:", error);
       return {
         success: false,
-        message: error.message || "OTP verification failed",
+        message: error.message || "Verification failed",
+      };
+    }
+  };
+
+  // Create account with complete user data (called after profile step)
+  const createUserAccount = async (
+    email: string,
+    password: string,
+    name: string,
+    username: string,
+    additionalData?: any,
+  ) => {
+    try {
+      // Debug: Log the data being sent
+      const requestData = {
+        email,
+        password,
+        name,
+        username,
+        ...additionalData,
+      };
+      console.log("📤 Creating user account:", {
+        ...requestData,
+        password: "[HIDDEN]",
+      });
+
+      // Create the actual user account
+      const result = await safeFetch("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(requestData),
+      });
+
+      if (result.success) {
+        console.log("✅ User account created successfully");
+        return {
+          success: true,
+          message: result.message || "Account created successfully!",
+          user: result.user,
+        };
+      } else {
+        return {
+          success: false,
+          message: result.message || "Failed to create account",
+        };
+      }
+    } catch (error: any) {
+      console.error("❌ Account creation error:", error);
+      return {
+        success: false,
+        message: error.message || "Failed to create account",
       };
     }
   };
@@ -654,6 +733,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     checkAvailability,
     requestSignupOTP,
     verifySignupOTP,
+    createUserAccount,
     requestLoginOTP,
     verifyLoginOTP,
     signInWithGoogle,

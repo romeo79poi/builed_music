@@ -130,18 +130,15 @@ export default function Signup() {
   const [phoneVerificationSent, setPhoneVerificationSent] = useState(false);
   const [isSocialSignup, setIsSocialSignup] = useState(false);
   const [tempEmailUser, setTempEmailUser] = useState<any>(null);
-  const [emailVerified, setEmailVerified] = useState(true);
-  const requireEmailVerification = false;
+  const [emailVerified, setEmailVerified] = useState(false); // Start as false
+  const requireEmailVerification = true; // Always require verification for email signups
 
-  // Skip email-verify step when already verified or not required
+  // Only skip email-verify step for social signups or when explicitly verified
   useEffect(() => {
-    if (
-      (emailVerified || !requireEmailVerification) &&
-      currentStep === "email-verify"
-    ) {
+    if (isSocialSignup && emailVerified && currentStep === "email-verify") {
       setCurrentStep("profile");
     }
-  }, [emailVerified, currentStep]);
+  }, [emailVerified, currentStep, isSocialSignup]);
 
   // Validation functions
   const validateEmail = (email: string): boolean => {
@@ -539,6 +536,7 @@ export default function Signup() {
     signUp,
     requestSignupOTP,
     verifySignupOTP,
+    createUserAccount,
     checkAvailability: authCheckAvailability,
   } = useAuth();
 
@@ -689,28 +687,39 @@ export default function Signup() {
         return;
       }
 
-      // Store email and proceed to OTP verification
+      // Store email and proceed to verification
       toast({
         title: "Sending verification code...",
         description: `Please wait while we send a code to ${formData.email}`,
       });
 
-      // Send OTP to email (we'll collect profile data after verification)
+      // Request OTP verification (no account creation yet)
       const otpResult = await requestSignupOTP(
         formData.email,
-        "temp_password_123", // Temporary password, user will set real one later
-        "User", // Temporary name, user will set real one later
-        "temp_username", // Temporary username, user will set real one later
+        "temp_password_123", // Will be replaced with real password later
+        formData.name || "User", // Will be replaced with real name later
+        formData.username || "temp_username", // Will be replaced with real username later
       );
 
       if (otpResult.success) {
-        setEmailVerificationSent(true);
-        setResendTimer(60);
-        toast({
-          title: "Verification code sent! 📧",
-          description: `We sent a 6-digit code to ${formData.email}. Please check your email.`,
-        });
-        setCurrentStep("email-verify");
+        if (otpResult.skipOTP) {
+          // Direct registration completed, skip OTP verification
+          setEmailVerified(true);
+          toast({
+            title: "Account created successfully! ✅",
+            description:
+              "Your account has been created. Let's complete your profile.",
+          });
+          setCurrentStep("profile");
+        } else {
+          setEmailVerificationSent(true);
+          setResendTimer(60);
+          toast({
+            title: "Verification code sent! 📧",
+            description: `We sent a 6-digit code to ${formData.email}. Please check your email.`,
+          });
+          setCurrentStep("email-verify");
+        }
       } else {
         setErrorAlert(otpResult.message || "Failed to send verification code");
         toast({
@@ -849,15 +858,18 @@ export default function Signup() {
         setEmailVerificationSent(false);
 
         toast({
-          title: "Email verified successfully! ✅",
-          description: "Now let's complete your profile",
+          title: "Account created successfully! 🎉",
+          description:
+            "Welcome to Music Catch! Your account has been created with secure JWT authentication.",
         });
 
         // Clear OTP field
         setFormData((prev) => ({ ...prev, otp: "" }));
 
-        // Proceed to profile step to collect name and username
-        setCurrentStep("profile");
+        // Account is already created, redirect to home
+        setTimeout(() => {
+          navigate("/home");
+        }, 2000);
       } else {
         setErrors((prev) => ({
           ...prev,
@@ -950,11 +962,48 @@ export default function Signup() {
         setErrorAlert(null);
 
         try {
-          // Option 1: Direct JWT signup (current default)
-          // Option 2: OTP verification signup (set useOTPVerification = true)
-          const useOTPVerification = false;
+          // For email signups that went through OTP verification, create account now
+          // For other signups, use different flows
+          const isEmailSignupVerified =
+            signupMethod === "email" && emailVerified;
 
-          if (useOTPVerification) {
+          if (isEmailSignupVerified) {
+            // Create account with real user data for verified email signups
+            const result = await createUserAccount(
+              formData.email,
+              formData.password,
+              formData.name,
+              formData.username,
+              {
+                dateOfBirth: formData.dateOfBirth,
+                gender: formData.gender,
+                bio: formData.bio,
+                profileImageURL: formData.profileImageURL,
+              },
+            );
+
+            if (result.success) {
+              // Account created successfully
+              toast({
+                title: "Account Created! 🎉",
+                description: `Welcome to Music Catch, ${formData.name}! Your account has been created successfully.`,
+              });
+
+              console.log(
+                "✅ User created with secure JWT + bcrypt authentication",
+              );
+
+              // Redirect to home page after successful signup
+              setTimeout(() => {
+                navigate("/home");
+              }, 1500);
+            } else {
+              setErrorAlert(
+                result.message || "Registration failed. Please try again.",
+              );
+            }
+          } else if (false) {
+            // Disabled OTP option
             // Use OTP verification signup
             const result = await requestSignupOTP(
               formData.email,
@@ -976,30 +1025,8 @@ export default function Signup() {
               setErrorAlert(result.message);
             }
           } else {
-            // Use direct JWT signup (no email verification required)
-            const result = await signUp(formData.email, formData.password, {
-              name: formData.name,
-              username: formData.username,
-            });
-
-            if (result.success) {
-              // Account created successfully with JWT
-              toast({
-                title: "Account Created! 🎉",
-                description: `Welcome to Catch, ${formData.name}! Your account has been created successfully.`,
-              });
-
-              console.log("✅ User created with JWT backend");
-
-              // Redirect to home page after successful signup
-              setTimeout(() => {
-                navigate("/home");
-              }, 1500);
-            } else {
-              setErrorAlert(
-                result.message || "Registration failed. Please try again.",
-              );
-            }
+            // Fallback for other signup methods (not currently used)
+            setErrorAlert("Please complete email verification first.");
           }
         } catch (error: any) {
           console.error("Registration error:", error);
@@ -1389,12 +1416,12 @@ export default function Signup() {
     setIsLoading(true);
 
     try {
-      // Resend OTP using the same request as initial send
+      // Resend OTP verification (no account creation)
       const otpResult = await requestSignupOTP(
         formData.email,
-        "temp_password_123", // Temporary password, user will set real one later
-        "User", // Temporary name, user will set real one later
-        "temp_username", // Temporary username, user will set real one later
+        "temp_password_123", // Will be replaced with real password later
+        formData.name || "User", // Will be replaced with real name later
+        formData.username || "temp_username", // Will be replaced with real username later
       );
 
       if (otpResult.success) {
@@ -1501,12 +1528,12 @@ export default function Signup() {
 
   const stepDescriptions = {
     method: "Sign up with email, phone, or social media",
-    email: "We'll send you a verification email immediately",
-    "email-verify": "Click the verification link sent to your email",
+    email: "We'll send you a 6-digit verification code",
+    "email-verify": "Enter the 6-digit code sent to your email address",
     phone: "We'll send you a verification code",
     "phone-verify": "Enter the 6-digit code we sent to your phone",
     profile: "Help others find you on Music Catch",
-    verification: "Check your email and click the verification link",
+    verification: "Check your email and enter the verification code",
     password:
       "Create a strong password (12+ chars, uppercase, lowercase, number, special char)",
     dob: "You must be 18 or older to register",
@@ -1877,6 +1904,19 @@ export default function Signup() {
                 <p className="font-medium text-purple-primary break-all text-sm sm:text-base">
                   {formData.email}
                 </p>
+                <div className="mt-3 p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
+                  <p className="text-xs text-green-300 font-medium">
+                    📧 Email sent! Check your inbox
+                  </p>
+                  <p className="text-xs text-green-200 mt-1">
+                    Enter the 6-digit code from your email to verify your
+                    account
+                  </p>
+                  <p className="text-xs text-green-200 mt-1">
+                    Your account will be created with secure JWT + bcrypt
+                    authentication
+                  </p>
+                </div>
               </div>
 
               {/* OTP Input */}
