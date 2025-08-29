@@ -121,9 +121,12 @@ export const requestSignupOTPHybrid: RequestHandler = async (req, res) => {
       });
     }
 
-    // Log preview URL for development
+    // Log preview URL and OTP for development
     if (emailResult.previewUrl) {
       console.log("🔎 Email preview URL:", emailResult.previewUrl);
+    }
+    if (process.env.NODE_ENV !== "production") {
+      console.log("🔐 DEV ONLY - OTP:", otp);
     }
 
     console.log(`✅ OTP sent successfully to ${email}`);
@@ -131,7 +134,8 @@ export const requestSignupOTPHybrid: RequestHandler = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Verification code sent to your email",
-      previewUrl: emailResult.previewUrl, // For development testing
+      previewUrl: emailResult.previewUrl,
+      devCode: process.env.NODE_ENV !== "production" ? otp : undefined,
     });
   } catch (error: any) {
     console.error("Request signup OTP error:", error);
