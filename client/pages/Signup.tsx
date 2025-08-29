@@ -1020,38 +1020,8 @@ export default function Signup() {
               setErrorAlert(result.message);
             }
           } else {
-            // Use createUserAccount with real user data
-            const result = await createUserAccount(
-              formData.email,
-              formData.password,
-              formData.name,
-              formData.username,
-              {
-                dateOfBirth: formData.dateOfBirth,
-                gender: formData.gender,
-                bio: formData.bio,
-                profileImageURL: formData.profileImageURL,
-              }
-            );
-
-            if (result.success) {
-              // Account created successfully
-              toast({
-                title: "Account Created! 🎉",
-                description: `Welcome to Catch, ${formData.name}! Your account has been created successfully.`,
-              });
-
-              console.log("✅ User created successfully");
-
-              // Redirect to home page after successful signup
-              setTimeout(() => {
-                navigate("/home");
-              }, 1500);
-            } else {
-              setErrorAlert(
-                result.message || "Registration failed. Please try again.",
-              );
-            }
+            // Fallback for other signup methods (not currently used)
+            setErrorAlert("Please complete email verification first.");
           }
         } catch (error: any) {
           console.error("Registration error:", error);
