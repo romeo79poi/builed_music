@@ -98,8 +98,8 @@ import {
 // Complete Auth System
 import authMainRouter from "./routes/auth-main";
 
-// Enhanced JWT Email Auth System - Temporarily disabled
-// import authV4Router from "./routes/auth-v4";
+// Enhanced JWT Email Auth System (v4)
+import authV4Router from "./routes/auth-v4";
 
 // Social Authentication
 import {
@@ -362,8 +362,8 @@ export function createServer() {
   // JWT EMAIL VERIFICATION SYSTEM (v4) - NODEMAILER + JWT
   // ===============================================
 
-  // Mount enhanced JWT email auth router - Temporarily disabled
-  // app.use("/api/v4/auth", authV4Router);
+  // Mount enhanced JWT email auth router (v4)
+  app.use("/api/v4/auth", authV4Router);
 
   // Social Authentication routes
   app.post("/api/auth/facebook", facebookAuth);

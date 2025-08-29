@@ -696,9 +696,9 @@ export default function Signup() {
       // Request OTP verification (no account creation yet)
       const otpResult = await requestSignupOTP(
         formData.email,
-        "temp_password_123", // Will be replaced with real password later
-        formData.name || "User", // Will be replaced with real name later
-        formData.username || "temp_username", // Will be replaced with real username later
+        "temp_password_123",
+        formData.name || "User",
+        formData.username || "temp_username",
       );
 
       if (otpResult.success) {
@@ -1074,29 +1074,41 @@ export default function Signup() {
     setIsLoading(true);
 
     try {
-      // If user selected an image, store it for later use (skip upload during signup)
+      // If user selected an image, store it temporarily for preview
       if (formData.profileImage) {
-        // Create a temporary URL for preview
         const imageURL = URL.createObjectURL(formData.profileImage);
-
-        // Update form data with the image URL for preview
-        setFormData((prev) => ({
-          ...prev,
-          profileImageURL: imageURL,
-        }));
-
-        toast({
-          title: "Profile image selected! ✅",
-          description:
-            "Your profile picture will be uploaded after account creation.",
-        });
+        setFormData((prev) => ({ ...prev, profileImageURL: imageURL }));
       }
 
-      // Always proceed to next step (profile image is optional)
-      setCurrentStep("gender");
+      // Create the account now with all collected data
+      const result = await createUserAccount(
+        formData.email,
+        formData.password,
+        formData.name,
+        formData.username,
+        {
+          dateOfBirth: formData.dateOfBirth,
+          gender: formData.gender,
+          bio: formData.bio,
+          profileImageURL: formData.profileImageURL,
+        },
+      );
+
+      if (result.success) {
+        toast({
+          title: "Account Created! 🎉",
+          description: `Welcome to Music Catch, ${formData.name}! Your account has been created successfully.`,
+        });
+        setTimeout(() => {
+          navigate("/home");
+        }, 1200);
+      } else {
+        setErrorAlert(
+          result.message || "Registration failed. Please try again.",
+        );
+      }
     } catch (error) {
       console.error("Profile image step error:", error);
-
       toast({
         title: "Error",
         description: "Something went wrong. Please try again.",
@@ -1126,6 +1138,9 @@ export default function Signup() {
 
   const handleBioStep = async () => {
     if (!validateBio()) return;
+
+    setCurrentStep("profileImage");
+    return;
 
     setIsLoading(true);
 
@@ -1394,9 +1409,11 @@ export default function Signup() {
     } else if (currentStep === "dob") {
       setCurrentStep("password");
     } else if (currentStep === "gender") {
-      setCurrentStep("dob"); // Skip profile image step during signup
+      setCurrentStep("dob");
     } else if (currentStep === "bio") {
       setCurrentStep("gender");
+    } else if (currentStep === "profileImage") {
+      setCurrentStep("bio");
     }
   };
 
@@ -1419,9 +1436,9 @@ export default function Signup() {
       // Resend OTP verification (no account creation)
       const otpResult = await requestSignupOTP(
         formData.email,
-        "temp_password_123", // Will be replaced with real password later
-        formData.name || "User", // Will be replaced with real name later
-        formData.username || "temp_username", // Will be replaced with real username later
+        "temp_password_123",
+        formData.name || "User",
+        formData.username || "temp_username",
       );
 
       if (otpResult.success) {
@@ -1898,25 +1915,9 @@ export default function Signup() {
               </div>
 
               <div className="text-center space-y-2 mb-4">
-                <p className="text-sm text-muted-foreground">
-                  We sent a 6-digit verification code to
-                </p>
                 <p className="font-medium text-purple-primary break-all text-sm sm:text-base">
                   {formData.email}
                 </p>
-                <div className="mt-3 p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
-                  <p className="text-xs text-green-300 font-medium">
-                    📧 Email sent! Check your inbox
-                  </p>
-                  <p className="text-xs text-green-200 mt-1">
-                    Enter the 6-digit code from your email to verify your
-                    account
-                  </p>
-                  <p className="text-xs text-green-200 mt-1">
-                    Your account will be created with secure JWT + bcrypt
-                    authentication
-                  </p>
-                </div>
               </div>
 
               {/* OTP Input */}
@@ -1969,9 +1970,6 @@ export default function Signup() {
 
               {/* Resend Section */}
               <div className="text-center space-y-2">
-                <p className="text-xs text-muted-foreground">
-                  Didn't receive the code? Check your spam folder or
-                </p>
                 <button
                   onClick={handleResendEmailVerification}
                   disabled={resendTimer > 0 || isLoading}
@@ -1990,6 +1988,13 @@ export default function Signup() {
                 </button>
               </div>
 
+              <button
+                onClick={() => setCurrentStep("email")}
+                className="w-full text-purple-primary hover:text-purple-secondary transition-colors text-sm mt-4"
+              >
+                ← Change email address
+              </button>
+
               {/* Tips */}
               <div className="bg-purple-dark/30 border border-purple-primary/20 rounded-lg p-3">
                 <p className="text-xs text-muted-foreground text-center">
@@ -1997,13 +2002,6 @@ export default function Signup() {
                   email's spam/junk folder if you don't see it.
                 </p>
               </div>
-
-              <button
-                onClick={() => setCurrentStep("email")}
-                className="w-full text-purple-primary hover:text-purple-secondary transition-colors text-sm mt-4"
-              >
-                ← Change email address
-              </button>
             </motion.div>
           )}
 

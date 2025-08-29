@@ -55,7 +55,13 @@ interface AuthContextType {
     password: string,
     name: string,
     username: string,
-  ) => Promise<{ success: boolean; message: string }>;
+  ) => Promise<{
+    success: boolean;
+    message: string;
+    previewUrl?: string;
+    devCode?: string;
+    skipOTP?: boolean;
+  }>;
   verifySignupOTP: (
     email: string,
     otp: string,
@@ -467,12 +473,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   ) => {
     try {
       // Use real OTP endpoint that sends actual emails
+      const normalizedEmail = (email || "").trim().toLowerCase();
       const result = await safeFetch("/api/auth/signup/request-otp", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, password, name, username }),
+        body: JSON.stringify({
+          email: normalizedEmail,
+          password,
+          name,
+          username,
+        }),
       });
 
       if (result.success) {
@@ -480,7 +492,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return {
           success: true,
           message: "Verification code sent to your email",
-          skipOTP: false, // Show verification step
+          skipOTP: false,
         };
       } else {
         return {
@@ -499,12 +511,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const verifySignupOTP = async (email: string, otp: string) => {
     try {
       // Use real OTP verification endpoint
+      const normalizedEmail = (email || "").trim().toLowerCase();
+      const normalizedOTP = (otp || "").trim();
       const result = await safeFetch("/api/auth/signup/verify-otp", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, otp }),
+        body: JSON.stringify({ email: normalizedEmail, otp: normalizedOTP }),
       });
 
       if (result.success) {
@@ -548,7 +562,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     additionalData?: any,
   ) => {
     try {
-      // Debug: Log the data being sent
       const requestData = {
         email,
         password,
@@ -556,13 +569,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         username,
         ...additionalData,
       };
-      console.log("📤 Creating user account:", {
+      console.log("📤 Creating user account (JWT + cookies):", {
         ...requestData,
         password: "[HIDDEN]",
       });
 
-      // Create the actual user account
-      const result = await safeFetch("/api/auth/register", {
+      // Use MongoDB + JWT signup to set HTTP-only cookies and return token
+      const result = await safeFetch("/api/auth/signup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -571,11 +584,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (result.success) {
-        console.log("✅ User account created successfully");
+        if (result.token) {
+          localStorage.setItem("authToken", result.token);
+        }
+        if (result.data) {
+          setUser(result.data);
+        }
         return {
           success: true,
           message: result.message || "Account created successfully!",
-          user: result.user,
+          user: result.data,
         };
       } else {
         return {
@@ -594,12 +612,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const requestLoginOTP = async (email: string) => {
     try {
+      const normalizedEmail = (email || "").trim().toLowerCase();
       const result = await safeFetch("/api/auth/login/request-otp", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email }),
+        body: JSON.stringify({ email: normalizedEmail }),
       });
       return {
         success: result.success,
@@ -617,12 +636,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const verifyLoginOTP = async (email: string, otp: string) => {
     try {
+      const normalizedEmail = (email || "").trim().toLowerCase();
+      const normalizedOTP = (otp || "").trim();
       const result = await safeFetch("/api/auth/login/verify-otp", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ email, otp }),
+        body: JSON.stringify({ email: normalizedEmail, otp: normalizedOTP }),
       });
 
       if (result.success) {

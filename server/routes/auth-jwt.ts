@@ -82,7 +82,16 @@ export const signup: RequestHandler = async (req, res) => {
       });
     }
 
-    const { email, username, password, name } = req.body;
+    const {
+      email,
+      username,
+      password,
+      name,
+      dateOfBirth,
+      gender,
+      bio,
+      profileImageURL,
+    } = req.body;
 
     // Check if user already exists
     const existingUser = await User.findOne({
@@ -113,6 +122,10 @@ export const signup: RequestHandler = async (req, res) => {
       provider: "email",
       is_verified: true, // Auto-verify for simplicity
       email_verified: true,
+      bio: bio || "",
+      profile_image_url: profileImageURL || "",
+      dob: dateOfBirth ? new Date(dateOfBirth) : undefined,
+      gender: gender || undefined,
     });
 
     await newUser.save();
@@ -130,6 +143,8 @@ export const signup: RequestHandler = async (req, res) => {
       name: newUser.name,
       avatar_url: newUser.profile_image_url,
       bio: newUser.bio,
+      dob: newUser.dob,
+      gender: (newUser as any).gender,
       verified: newUser.is_verified,
       premium: false,
       followers_count: newUser.follower_count,

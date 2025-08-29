@@ -1,13 +1,13 @@
 import { RequestHandler } from "express";
 import jwt from "jsonwebtoken";
 import { sendVerificationEmail } from "../lib/email";
-import { createUser, getUserByIdentifier } from "../lib/userStore";
+import { getUserByIdentifier } from "../lib/userStore";
 
 const JWT_SECRET =
   process.env.JWT_SECRET || "your_jwt_secret_key_change_in_production";
 
 // Store OTP codes temporarily (in production, use Redis)
-const otpStore = new Map<
+export const otpStore = new Map<
   string,
   {
     code: string;
@@ -64,26 +64,27 @@ const setAuthCookies = (
 // Request OTP for signup (sends real email, uses in-memory storage)
 export const requestSignupOTPHybrid: RequestHandler = async (req, res) => {
   try {
-    const { email, username, password, name } = req.body;
+    const { email } = req.body;
+
+    // Normalize input
+    const normalizedEmail = String(email || "")
+      .trim()
+      .toLowerCase();
 
     // Validate input
-    if (!email || !username || !password || !name) {
+    if (!normalizedEmail) {
       return res.status(400).json({
         success: false,
-        message: "All fields are required",
+        message: "Email is required",
       });
     }
 
     // Check if user already exists in in-memory store
-    const existingUser =
-      getUserByIdentifier(email) || getUserByIdentifier(username);
+    const existingUser = getUserByIdentifier(normalizedEmail);
     if (existingUser) {
       return res.status(400).json({
         success: false,
-        message:
-          existingUser.email === email
-            ? "Email already registered"
-            : "Username already taken",
+        message: "Email already registered",
       });
     }
 
@@ -91,16 +92,16 @@ export const requestSignupOTPHybrid: RequestHandler = async (req, res) => {
     const otp = generateOTP();
     const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes
 
-    // Store OTP and user data temporarily
-    otpStore.set(email, {
+    // Store OTP temporarily (only email for this step) using normalized key
+    otpStore.set(normalizedEmail, {
       code: otp,
-      email,
+      email: normalizedEmail,
       expiresAt,
-      userData: { email, username, password, name },
+      userData: { email: normalizedEmail },
     });
 
     // Send real email with OTP
-    console.log(`📧 Sending OTP email to: ${email}`);
+    console.log(`📧 Sending OTP email to: ${normalizedEmail}`);
 
     let emailResult;
     try {
@@ -121,17 +122,11 @@ export const requestSignupOTPHybrid: RequestHandler = async (req, res) => {
       });
     }
 
-    // Log preview URL for development
-    if (emailResult.previewUrl) {
-      console.log("🔎 Email preview URL:", emailResult.previewUrl);
-    }
-
     console.log(`✅ OTP sent successfully to ${email}`);
 
     res.status(200).json({
       success: true,
       message: "Verification code sent to your email",
-      previewUrl: emailResult.previewUrl, // For development testing
     });
   } catch (error: any) {
     console.error("Request signup OTP error:", error);
@@ -142,12 +137,17 @@ export const requestSignupOTPHybrid: RequestHandler = async (req, res) => {
   }
 };
 
-// Verify OTP and create account (creates JWT tokens and cookies)
+// Verify OTP only (account will be created after collecting profile details)
 export const verifySignupOTPHybrid: RequestHandler = async (req, res) => {
   try {
     const { email, otp } = req.body;
 
-    if (!email || !otp) {
+    const normalizedEmail = String(email || "")
+      .trim()
+      .toLowerCase();
+    const normalizedOTP = String(otp || "").trim();
+
+    if (!normalizedEmail || !normalizedOTP) {
       return res.status(400).json({
         success: false,
         message: "Email and OTP are required",
@@ -155,69 +155,43 @@ export const verifySignupOTPHybrid: RequestHandler = async (req, res) => {
     }
 
     // Check if OTP exists and is valid
-    const storedOTP = otpStore.get(email);
+    const storedOTP = otpStore.get(normalizedEmail);
     if (!storedOTP) {
+      console.warn(`❌ No OTP found for email: ${normalizedEmail}`);
       return res.status(400).json({
         success: false,
-        message: "No verification code found for this email",
+        message:
+          "No verification code found for this email. Please request a new code.",
       });
     }
 
     // Check if OTP has expired
     if (new Date() > storedOTP.expiresAt) {
-      otpStore.delete(email);
+      otpStore.delete(normalizedEmail);
+      console.warn(`⌛ OTP expired for email: ${normalizedEmail}`);
       return res.status(400).json({
         success: false,
-        message: "Verification code has expired",
+        message: "Verification code has expired. Please request a new code.",
       });
     }
 
     // Verify OTP
-    if (storedOTP.code !== otp) {
+    if (storedOTP.code !== normalizedOTP) {
+      console.warn(`❌ Invalid OTP for email: ${normalizedEmail}`);
       return res.status(400).json({
         success: false,
         message: "Invalid verification code",
       });
     }
 
-    // Create user account with in-memory storage
-    const { email: userEmail, username, password, name } = storedOTP.userData;
-    const newUser = await createUser({
-      email: userEmail,
-      username,
-      name,
-      password, // Will be hashed by createUser
-      email_verified: true,
-      provider: "email",
-    });
+    // Mark as verified and clean up OTP (account will be created later)
+    otpStore.delete(normalizedEmail);
 
-    if (!newUser) {
-      return res.status(500).json({
-        success: false,
-        message: "Failed to create user account",
-      });
-    }
-
-    // Clean up OTP
-    otpStore.delete(email);
-
-    // Generate JWT tokens
-    const accessToken = generateToken(newUser.id);
-    const refreshToken = generateRefreshToken(newUser.id);
-
-    // Set HTTP-only cookies
-    setAuthCookies(res, accessToken, refreshToken);
-
-    // Return success with user data (without password)
-    const { password: _, ...userResponse } = newUser;
-
-    console.log(`✅ User account created successfully: ${email}`);
+    console.log(`✅ Email verified successfully: ${normalizedEmail}`);
 
     res.status(200).json({
       success: true,
-      message: "Email verified and account created successfully!",
-      user: userResponse,
-      token: accessToken, // Also return token for client-side storage if needed
+      message: "Email verified successfully",
     });
   } catch (error: any) {
     console.error("Verify signup OTP error:", error);

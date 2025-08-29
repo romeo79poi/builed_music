@@ -10,6 +10,11 @@ const createTransporter = async () => {
   const pass = process.env.SMTP_PASS;
 
   if (host && port && user && pass) {
+    console.log("✉️ Using custom SMTP transport", {
+      host,
+      port,
+      secure: port === 465,
+    });
     return nodemailer.createTransport({
       host,
       port,
@@ -20,6 +25,7 @@ const createTransporter = async () => {
   }
 
   // Fallback: create an Ethereal test account dynamically
+  console.log("✉️ Using Ethereal test SMTP (no SMTP_* env provided)");
   const testAccount = await nodemailer.createTestAccount();
   return nodemailer.createTransport({
     host: "smtp.ethereal.email",
@@ -316,7 +322,7 @@ export const sendVerificationEmail = async (
     }
 
     const mailOptions = {
-      from: '"Music Catch" <noreply@musiccatch.com>',
+      from: `"${process.env.FROM_NAME || "Music Catch"}" <${process.env.FROM_EMAIL || "noreply@musiccatch.com"}>`,
       to: email,
       subject: "🎵 Verify your Music Catch account",
       html: createVerificationEmailHTML(verificationCode, email),
@@ -397,7 +403,7 @@ export const sendWelcomeEmail = async (email: string, name: string) => {
     const transporter = await createTransporter();
 
     const mailOptions = {
-      from: '"Music Catch Team" <hello@musiccatch.com>',
+      from: `"${process.env.FROM_NAME || "Music Catch Team"}" <${process.env.FROM_EMAIL || "hello@musiccatch.com"}>`,
       to: email,
       subject: "🎉 Welcome to Music Catch!",
       html: `
