@@ -696,16 +696,12 @@ export default function Signup() {
         description: `Please wait while we send a code to ${formData.email}`,
       });
 
-      // Generate unique temporary credentials for email step
-      const tempUsername = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`;
-      const tempPassword = `temp_password_${Date.now()}`;
-
-      // Register user and request verification code
+      // Request OTP verification (no account creation yet)
       const otpResult = await requestSignupOTP(
         formData.email,
-        tempPassword, // Unique temporary password
-        formData.name || "User", // Use provided name or default
-        formData.username || tempUsername, // Use provided username or unique temp
+        "temp_password_123", // Will be replaced with real password later
+        formData.name || "User", // Will be replaced with real name later
+        formData.username || "temp_username", // Will be replaced with real username later
       );
 
       if (otpResult.success) {
