@@ -7,7 +7,7 @@ const JWT_SECRET =
   process.env.JWT_SECRET || "your_jwt_secret_key_change_in_production";
 
 // Store OTP codes temporarily (in production, use Redis)
-const otpStore = new Map<
+export const otpStore = new Map<
   string,
   {
     code: string;
